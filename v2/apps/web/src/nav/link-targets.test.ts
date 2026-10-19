@@ -526,18 +526,18 @@ describe('the link-target ledger', () => {
       'CM-03: Publish · Send back',
       'CM-05: Start a correction',
       // Phase 6: one primary per drawn state — CM-05's "Open update" while an update is open,
-      // CM-08's Send, RV-04's and SA-11's decisions, SA-13's release decision (a published record
-      // with an update waiting), SA-14's Add course, SA-16's Register, SA-17's Assign scope and
+      // CM-08's Send, RV-04's and SA-11's decisions, SA-13's override (a stuck record; SA-v1
+      // `V.record`), SA-14's Add course, SA-16's Register, SA-17's Assign scope and
       // SA-21's Resolve. SA-10, SA-12, SA-15, SA-20 and SA-22 draw no primary.
       'CM-05: Open update',
       'CM-08: Send for academic review',
       'RV-04: Approve update · Return to the Content Manager',
-      'SA-11: Release update · Hold',
-      'SA-13: Open the release decision',
+      'SA-11: Release update · Hold update',
+      'SA-13: Move status',
       'SA-14: Add course',
       'SA-16: Register',
       'SA-17: Assign scope',
-      'SA-21: Resolve',
+      'SA-21: Resolve report',
     ]);
   });
 });

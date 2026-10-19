@@ -1,0 +1,607 @@
+{
+  "role": "Super Admin",
+  "foundation": "XR-V3-RB-1.0",
+  "ownedIds": 18,
+  "liveEntry": "project/index.html (published preview link in START-HERE.md)",
+  "statusLegend": {
+    "DESIGN COMPLETE": "designed in Refined B with its states",
+    "CONNECTED PREVIEW COMPLETE": "reachable in the single role preview and exercised in a scripted journey",
+    "ASSEMBLY PENDING XS": "account menu, Help and signed-out are faithful borrowed implementations of the XS contract, not the XS team's delivered components",
+    "OWNER APPROVAL PENDING": "awaiting the owner's visual acceptance"
+  },
+  "excludedNotDesigned": [
+    "SA-04",
+    "SA-05",
+    "SA-08",
+    "SA-09",
+    "SA-23",
+    "SA-24",
+    "SA-25"
+  ],
+  "screens": [
+    {
+      "id": "SA-01",
+      "screen": "Overview",
+      "kind": "page",
+      "v46ProposedRoute": "/admin",
+      "previewRoute": "#/overview",
+      "source": "V3 seed SA01.dc.html (retained)",
+      "files": [
+        "project/sa-views-a.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "busy",
+        "quiet (Nothing is waiting)",
+        "group filter with zero items (quiet group line)",
+        "loading",
+        "failed",
+        "priority band derived from the same records",
+        "counts update after every decision"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-02",
+      "screen": "Requests",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/requests",
+      "previewRoute": "#/requests",
+      "source": "V3 seed SA02.dc.html list view (retained)",
+      "files": [
+        "project/sa-views-a.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "populated",
+        "filters + chips + More filters",
+        "sort newest/oldest",
+        "no match",
+        "loading",
+        "failed",
+        "no requests yet",
+        "nav count = under review"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-03",
+      "screen": "Request decision",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/requests/[requestId]",
+      "previewRoute": "#/requests/hyderabad-renewal",
+      "source": "V3 seed SA02.dc.html decision view (retained)",
+      "files": [
+        "project/sa-views-a.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "undecided new access (8 Oct scenario)",
+        "validation + error summary",
+        "internal / external choice",
+        "classification locked for existing institution",
+        "smaller scope (not for renewal)",
+        "information requested",
+        "confirm dialog external / internal / renewal",
+        "decided read-only (payment required, access active, information requested, payment not confirmed)",
+        "paused institution blocked",
+        "stale decision refusal"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-06",
+      "screen": "Institutions",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/institutions",
+      "previewRoute": "#/institutions",
+      "source": "New (v46 B7-02 behaviour)",
+      "files": [
+        "project/sa-views-b.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "populated",
+        "search",
+        "status filter incl. No Institute Admin",
+        "no match",
+        "loading",
+        "failed",
+        "empty"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-07",
+      "screen": "Institution detail",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/institutions/[institutionId]",
+      "previewRoute": "#/institutions/godavari",
+      "source": "New (v46 B7-03/B7-04 behaviour)",
+      "files": [
+        "project/sa-views-b.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "active",
+        "ending soon (two plans)",
+        "no Institute Admin + assign dialog + validation + identity-collision refusal",
+        "paused + restore",
+        "pause with required reason",
+        "awaiting payment (no plan, no status action)",
+        "ended (read-only)",
+        "student status override with reason",
+        "history"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-10",
+      "screen": "Content updates (awaiting release)",
+      "kind": "tab",
+      "v46ProposedRoute": "/admin/content/updates",
+      "previewRoute": "#/content/updates",
+      "source": "New (v46 B7-05)",
+      "files": [
+        "project/sa-views-c.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "waiting",
+        "on hold",
+        "released",
+        "empty per tab",
+        "loading",
+        "failed"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-11",
+      "screen": "Release or hold an update",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/content/updates/[updateId]",
+      "previewRoute": "#/content/updates/distillation-1-3",
+      "source": "New (v46 B7-05/B7-11)",
+      "files": [
+        "project/sa-views-c.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "waiting: release / hold",
+        "hold reason required",
+        "release confirm",
+        "on hold: release refused, Lift hold",
+        "hold lifted",
+        "released read-only (Live before)",
+        "not yet approved: nothing to decide",
+        "stale refusal"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-12",
+      "screen": "All content & stuck items",
+      "kind": "tab",
+      "v46ProposedRoute": "/admin/content/all",
+      "previewRoute": "#/content/all",
+      "source": "New (v46 B7-06)",
+      "files": [
+        "project/sa-views-c.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "populated",
+        "search",
+        "workflow status filter",
+        "stuck derived from reviewer scope",
+        "correction-waiting notice",
+        "no match",
+        "loading",
+        "failed",
+        "empty"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-13",
+      "screen": "Content record",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/content/records/[recordId]",
+      "previewRoute": "#/content/records/dc-motor",
+      "source": "New (v46 B7-06/B7-10)",
+      "files": [
+        "project/sa-views-c.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "published read-only",
+        "published with correction waiting / on hold",
+        "in the workflow (nothing to do)",
+        "stuck: override back to vendor with reason",
+        "override reason required",
+        "override confirm",
+        "returned (after override)"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-14",
+      "screen": "Academic structure (areas → courses)",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/structure",
+      "previewRoute": "#/structure",
+      "source": "New (v46 B7-07)",
+      "files": [
+        "project/sa-views-c.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "populated",
+        "course without platform code",
+        "add area (validation, unique)",
+        "add course (validation)",
+        "loading",
+        "failed",
+        "empty"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-15",
+      "screen": "Area / course record",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/structure/areas/[areaId] · /courses/[courseId]",
+      "previewRoute": "#/structure/courses/me-zg523",
+      "source": "New (v46 B7-07)",
+      "files": [
+        "project/sa-views-c.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "course record",
+        "area record",
+        "rename (same-name and duplicate refused)",
+        "edit description",
+        "move allowed",
+        "move blocked (people filed)",
+        "platform code read-only"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-16",
+      "screen": "Platform roles (Vendors · Reviewers · Content Managers)",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/roles?tab=…",
+      "previewRoute": "#/roles/reviewers",
+      "source": "New (v46 B7-08)",
+      "files": [
+        "project/sa-views-d.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "three tabs",
+        "holder without scope flagged",
+        "register (validation, identity collision refused, nothing sent)",
+        "loading",
+        "failed",
+        "empty"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-17",
+      "screen": "Role holder (assign / withdraw scope)",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/roles/[holderId]",
+      "previewRoute": "#/roles/holder/k-iyer",
+      "source": "New (v46 B7-08)",
+      "files": [
+        "project/sa-views-d.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "no scope",
+        "assign all / course / one experiment",
+        "missing scope target refused",
+        "duplicate scope refused",
+        "withdraw with required reason (inline)",
+        "restore confirm",
+        "effects on stuck content"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-18",
+      "screen": "Device transfers",
+      "kind": "tab",
+      "v46ProposedRoute": "/admin/operations/device-transfers",
+      "previewRoute": "#/operations/device-transfers",
+      "source": "New (v46 B3-11 behaviour, V3 kit)",
+      "files": [
+        "project/sa-views-d.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "forwarded",
+        "still with an institution",
+        "approved",
+        "empty per tab",
+        "loading",
+        "failed"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-19",
+      "screen": "Device transfer decision",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/operations/device-transfers/[transferId]",
+      "previewRoute": "#/operations/device-transfers/rahul-verma-vr",
+      "source": "New (v46 B3-11)",
+      "files": [
+        "project/sa-views-d.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "forwarded: approve only",
+        "confirm (not shipment)",
+        "approved read-only",
+        "still with institution: nothing to decide",
+        "stale refusal",
+        "no Decline"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-20",
+      "screen": "Support reports",
+      "kind": "tab",
+      "v46ProposedRoute": "/admin/operations/support",
+      "previewRoute": "#/operations/support",
+      "source": "New (v46 B7-09)",
+      "files": [
+        "project/sa-views-d.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "open (open + reopened)",
+        "resolved",
+        "all",
+        "empty per tab",
+        "loading",
+        "failed"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-21",
+      "screen": "Support report",
+      "kind": "page",
+      "v46ProposedRoute": "/admin/operations/support/[reportId]",
+      "previewRoute": "#/operations/support/import-part-way",
+      "source": "New (v46 B7-09)",
+      "files": [
+        "project/sa-views-d.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "open: resolve with required note",
+        "reopened (earlier note shown)",
+        "resolved: reopen confirm",
+        "stale refusal"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    },
+    {
+      "id": "SA-22",
+      "screen": "Access ending & renewals",
+      "kind": "tab",
+      "v46ProposedRoute": "/admin/operations/access-ending",
+      "previewRoute": "#/operations/access-ending",
+      "source": "New (v46 B7-09)",
+      "files": [
+        "project/sa-views-d.js",
+        "project/sa-core.js",
+        "project/sa-data.js"
+      ],
+      "states": [
+        "renewal in progress",
+        "renewal approved (term not changed here)",
+        "reminder due (status only)",
+        "access ended",
+        "paused within window",
+        "none ending",
+        "loading",
+        "failed"
+      ],
+      "evidence": {
+        "rendered": "1440 · 1024 · 768 · 375 (screenshot archive: primary state of every owned ID at all four widths; key states at 1440/768/375)",
+        "logicTested": "see CHECKS.md journey list",
+        "sourceChecked": true
+      },
+      "status": [
+        "DESIGN COMPLETE",
+        "CONNECTED PREVIEW COMPLETE",
+        "OWNER APPROVAL PENDING"
+      ]
+    }
+  ],
+  "shared": {
+    "accountMenu": "ASSEMBLY PENDING XS (borrowed contract: name, Help & support, Sign out)",
+    "help": "ASSEMBLY PENDING XS (borrowed GL-03: Report a problem + My reports)",
+    "signedOut": "ASSEMBLY PENDING XS (borrowed XS-03 page)",
+    "messagePage": "borrowed GL-04 template for unknown records"
+  }
+}

@@ -7,6 +7,7 @@ import {
   expectSameDocument,
   markDocument,
   revealSidebar,
+  sidebarLink,
 } from '../support/workspace';
 import { openInTab, sendRequest, statusHead } from './flow';
 
@@ -70,20 +71,25 @@ test('one tab, the product build: selection → request → status → Super Adm
   // The shell is drawn before its drawer is opened (below 1024 px the sidebar is a drawer).
   await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
   await revealSidebar(page);
-  await reachAndClick(page, page.locator('aside.xr-side nav a[href="/admin/requests"]'));
+  await reachAndClick(page, sidebarLink(page, '/admin/requests'));
   await page.waitForURL('**/admin/requests');
-  await reachAndClick(page, page.getByRole('link', { name: /^Open request REQ-0042,/ }));
+  await reachAndClick(
+    page,
+    page.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the request$/ }),
+  );
   await page.waitForURL('**/admin/requests/REQ-0042');
   const panel = page.getByRole('complementary', { name: 'Your decision' });
   await reachAndClick(page, panel.locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel.locator('label[for="decision-route-external"]'));
   await reachAndClick(page, panel.getByRole('button', { name: 'Approve request' }));
-  const dialog = page.getByRole('dialog', { name: 'Approve REQ-0042?' });
+  const dialog = page.getByRole('dialog', {
+    name: 'Approve the request from Godavari Institute of Technology?',
+  });
   await expect(dialog).toContainText(
     'Institutional access is not activated now. It is activated only after the payment is confirmed.',
   );
   await reachAndClick(page, dialog.getByRole('button', { name: 'Approve request' }));
-  await expect(panel.locator('.xr-status')).toHaveText('Approved — payment required');
+  await expect(panel.locator('.rk-done .xr-st')).toHaveText('Approved — payment required');
 
   // 9. Sign out.
   await page.getByRole('button', { name: ACCOUNT_LINES.super_admin, exact: true }).click();

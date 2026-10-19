@@ -21,6 +21,9 @@ interface Box {
 
 interface HitTest {
   readonly hit: boolean;
+  /** Where the pointer hits the target (the point tried last when nothing hits). */
+  readonly x: number;
+  readonly y: number;
   readonly target: string;
   readonly atPoint: string;
   readonly scroll: string;
@@ -41,8 +44,10 @@ const STILL_STEPS = 3;
  *  1. move the mouse to the centre of the viewport and wheel back to the top;
  *  2. wheel (`page.mouse.wheel`) until the target's box is in the viewport;
  *  3. hit-test the centre of its visible part with `document.elementFromPoint`, which must
- *     be the target or inside it;
- *  4. click there with `page.mouse.click`.
+ *     be the target or inside it — and, for an inline target that wraps onto several lines
+ *     (whose box is the union of its lines, so its centre can fall beside the words), the centre
+ *     of each of its visible line boxes (`getClientRects`) in turn;
+ *  4. click at the first point that hits, with `page.mouse.click`.
  *
  * It never calls `scrollIntoView`, `window.scrollTo` or `locator.click()` (which scrolls by
  * itself), so a control that only programmatic scrolling can reveal fails here. It fails
@@ -89,9 +94,9 @@ export async function reachAndClick(
     if (visible) {
       const x = visible.x + visible.width / 2;
       const y = visible.y + visible.height / 2;
-      last = await target.evaluate(hitTestInPage, { x, y });
+      last = await target.evaluate(hitTestInPage, { x, y, viewport });
       if (last.hit) {
-        await page.mouse.click(x, y);
+        await page.mouse.click(last.x, last.y);
         return;
       }
     }
@@ -175,8 +180,15 @@ function scrollPositions(element: Element): string {
   return positions.join('|');
 }
 
-/** Runs in the page; self-contained because Playwright serialises it. */
-function hitTestInPage(element: Element, point: { x: number; y: number }): HitTest {
+/**
+ * Hit-tests the point, then — when it misses and the target has several line boxes (a wrapped
+ * inline element) — the centre of each line box's visible part. Runs in the page; self-contained
+ * because Playwright serialises it.
+ */
+function hitTestInPage(
+  element: Element,
+  point: { x: number; y: number; viewport: { width: number; height: number } },
+): HitTest {
   const describe = (node: Element | null): string => {
     if (!node) return '(nothing)';
     const tag = node.tagName.toLowerCase();
@@ -190,11 +202,35 @@ function hitTestInPage(element: Element, point: { x: number; y: number }): HitTe
     const name = label ? ` "${label.length > 40 ? `${label.slice(0, 37)}…` : label}"` : '';
     return `<${tag}${id}${classes}>${name}`;
   };
-  const atPoint = document.elementFromPoint(point.x, point.y);
-  return {
-    hit: atPoint !== null && (atPoint === element || element.contains(atPoint)),
-    target: describe(element),
-    atPoint: describe(atPoint),
-    scroll: `${Math.round(scrollX)},${Math.round(scrollY)}`,
-  };
+  const hits = (node: Element | null): boolean =>
+    node !== null && (node === element || element.contains(node));
+  const points = [{ x: point.x, y: point.y }];
+  const lines = [...element.getClientRects()];
+  if (lines.length > 1) {
+    for (const line of lines) {
+      const left = Math.max(line.left, 0);
+      const top = Math.max(line.top, 0);
+      const right = Math.min(line.right, point.viewport.width);
+      const bottom = Math.min(line.bottom, point.viewport.height);
+      if (right - left >= 2 && bottom - top >= 2) {
+        points.push({ x: (left + right) / 2, y: (top + bottom) / 2 });
+      }
+    }
+  }
+  const scroll = `${Math.round(scrollX)},${Math.round(scrollY)}`;
+  let atPoint: Element | null = null;
+  for (const candidate of points) {
+    atPoint = document.elementFromPoint(candidate.x, candidate.y);
+    if (hits(atPoint)) {
+      return {
+        hit: true,
+        ...candidate,
+        target: describe(element),
+        atPoint: describe(atPoint),
+        scroll,
+      };
+    }
+  }
+  const tried = points[points.length - 1]!;
+  return { hit: false, ...tried, target: describe(element), atPoint: describe(atPoint), scroll };
 }

@@ -1,41 +1,46 @@
 'use client';
 
 import type { allContentOutput, Out } from '@xr/contracts/draft';
-import { FORMAT_META, inDisplayOrder, type Technology } from '@xr/domain';
+import { FORMAT_META, inDisplayOrder } from '@xr/domain';
 import {
-  FailedState,
-  FormatBadge,
-  Icon,
-  Link,
-  ListToolbar,
-  NoMatch,
+  Button,
+  ButtonLink,
+  CellLines,
+  CourseCode,
+  FilterToolbar,
+  FormatBadges,
+  ListFoot,
+  ListState,
+  ListSurface,
+  LoadingRows,
   Notice,
-  PageContent,
-  PageHeader,
-  SectionBody,
-  SectionTabs,
-  Skeleton,
+  QuietLine,
+  RecordTable,
   StatusPill,
-  StatusTabs,
-} from '@xr/ui';
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
+  type ToolbarChip,
+} from '@xr/ui/v3';
+import { useEffect, useRef, useState } from 'react';
 
 import {
-  ALL_CONTENT,
-  type AllContentShow,
-  CONTENT_PAGE,
-  openRecordLabel,
-  recordCountWords,
-  stuckBody,
-  stuckTitle,
-  updatesWaitingTitle,
-  updateTag,
-  updateWaitingLine,
-} from '@/copy/content-oversight';
+  ALL_CONTENT_LIST,
+  CONTENT_HEAD,
+  contentCount,
+  contentRowLabel,
+  correctionsWaitingLine,
+  correctionsWaitingTitle,
+  correctionTag,
+  formatsLabel,
+  searchChip,
+  statusChip,
+  statusOption,
+  stuckRecordsLine,
+  stuckRecordsTitle,
+  WORKFLOW_STATUS,
+} from '@/copy/sa-content';
+import { SA_FAILED } from '@/copy/sa-shared';
 import { stateWords } from '@/copy/state-copy';
 import {
   allContentPlacement,
-  CONTENT_TABS,
   CONTENT_UPDATES_ADDRESS,
   contentRecordAddress,
 } from '@/nav/admin-content';
@@ -44,12 +49,14 @@ import { useAllContent } from '@/queries/admin-content';
 import { useUpdatesForRelease } from '@/queries/corrections';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { ContentHead } from '../sa-10-updates/content-head';
 import {
-  ALL_CONTENT_SHOWS,
   allContentAddress,
-  inShow,
+  hasStatus,
   searchOf,
   showOf,
+  STATUS_FILTERS,
+  type StatusFilter,
   workflowWords,
 } from './content-view';
 
@@ -61,46 +68,43 @@ function queryOf(address: string): string {
   return at < 0 ? '' : address.slice(at);
 }
 
-/** The id prefix of the status tabs (`all-content-tab-<view>`; "Show stuck records" focuses one). */
-const TABS_ID = 'all-content';
+/** The "Workflow status" select's id: "Show stuck records" moves focus to it. */
+const STATUS_ID = 'all-content-status';
 
 /**
- * SA-12 Content › All content — board B7-06 f0 (1440, interactive) and f7 (no match), at
- * `/admin/content/all` (`?show=stuck | workflow | published`, `?q=`).
+ * SA-12 All content — the owner-approved Super Admin export's `V.allContent`
+ * (design/v3-refined-b/roles/SA-v1, renders `<width>_content_all.png`), at `/admin/content/all`
+ * (`?show=<status>`, `?q=`).
  *
  * - **Reads**: `ProductionService.listAllContent` — every experiment and submission she may read,
- *   each with its status, whether the service finds it stuck, who can act (its words), its live
- *   version and the state of its open correction where she may see it (PC-71). Read once
- *   unsearched for the four tabs' figures, the total and the stuck notice; a search goes to the
- *   service (name, reference or course code) and the tab groups its answer (state-copy
- *   `SA-12.views`). The corrections waiting for her release decision come from
- *   `CorrectionService.listUpdatesForRelease` (SA-10's read): the notice shows only when one waits.
- * - **As B7-06 draws it**: "Content" and the sub-navigation "Updates · All content"; the stuck
- *   notice ("1 record stuck — nobody can act … Show stuck records", which selects the Stuck tab);
- *   "A correction is waiting for your release decision … Open Updates"; the section "Every
- *   experiment and submission · Read-only · open a record for its history" with the status tabs
- *   All · Stuck · In the workflow · Published and their figures (`role="tablist"`, ← → between
- *   them), the search, "N of M records" (announced) with "Clear filters" while filtered, and the
- *   table Content · Workflow status · Who can act · (Open → SA-13). Below 760 px of content the
- *   rows become labelled blocks. No match (f7): "No content matches" with "Clear filters".
- * - The Super Admin sees a correction only once the Academic Reviewer has approved it (UPD-18):
- *   B7-06 tags Induction Motor Loading "Update UPD-0006 · returned to the Content Manager"; the
- *   service names no such update to her, so no tag shows (state-copy `SA-12.update-tag`).
- * - Undrawn: loading and failed + "Try again" (state-copy `SA-12.loading`, `SA-12.failed`).
- *   Nothing on this page changes a record.
+ *   each with its status, whether the service finds it stuck ("stuck" derives from the reviewers'
+ *   scopes, as the product already does), who can act (its words), its live version and the state
+ *   of its open correction where she may see it (PC-71). Read once unsearched for the filter's
+ *   figures, the total and the stuck notice; a search goes to the service (name, reference or
+ *   course code) and the filter groups its answer (state-copy `SA-12.views`). The corrections
+ *   waiting for her release decision come from `CorrectionService.listUpdatesForRelease` (SA-10's
+ *   read): the notice shows only when one waits.
+ * - **As the export draws it**: "Content" with its line and the page tabs "Updates · All
+ *   content"; "A correction is waiting for your release decision … Open Updates"; one surface with
+ *   the search and the "Workflow status" filter (each status with its figure), the count line
+ *   ("19 records · read-only"), the filter chips and "Clear filters", and the table Experiment ·
+ *   Where it is · Who can act · Formats · Status, each row opening the record (SA-13); the foot
+ *   line. Read-only: nothing on this page changes a record.
+ * - **Kept from the product** (the export does not draw it): the stuck notice with "Show stuck
+ *   records", which sets the filter to the stuck status and moves focus to it.
+ * - **States**: loading, failed + "Try again", no content at all, and no match + "Clear filters".
  */
 export function AllContent() {
   useShellPage(allContentPlacement());
-  const headingId = useId();
   const navigation = useAppNavigation();
 
-  // The view and the search live here while the page is on show; the address mirrors them
+  // The status and the search live here while the page is on show; the address mirrors them
   // (replaced, no history entry; state-copy `SA-12.address`). An address that arrives from
   // elsewhere (a link, Back) is read again; one the page wrote itself is not.
-  const [show, setShow] = useState<AllContentShow>(() => showOf(navigation.search));
+  const [show, setShow] = useState<StatusFilter>(() => showOf(navigation.search));
   const [search, setSearch] = useState(() => searchOf(navigation.search));
   const written = useRef(new Set<string>());
-  const mirror = (nextShow: AllContentShow, nextSearch: string) => {
+  const mirror = (nextShow: StatusFilter, nextSearch: string) => {
     const address = allContentAddress(nextShow, nextSearch);
     const query = queryOf(address);
     if (query === navigation.search && written.current.size === 0) return;
@@ -112,7 +116,7 @@ export function AllContent() {
     const addressed = { show: showOf(navigation.search), search: searchOf(navigation.search) };
     setShow(addressed.show);
     setSearch(addressed.search);
-    // An unknown or default `?show=` is replaced by the address that names the view on show.
+    // An unknown or default `?show=` is replaced by the address that names the filter on show.
     const canonical = allContentAddress(addressed.show, addressed.search);
     if (queryOf(canonical) !== navigation.search) {
       written.current.add(queryOf(canonical));
@@ -121,13 +125,18 @@ export function AllContent() {
     // Only an address change is read again (the navigation object itself is not a change).
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigation.search]);
-  const choose = (next: AllContentShow) => {
+  const choose = (next: StatusFilter) => {
     setShow(next);
     mirror(next, search);
   };
   const type = (value: string) => {
     setSearch(value);
     mirror(show, value);
+  };
+  const clearFilters = () => {
+    setSearch('');
+    setShow('all');
+    mirror('all', '');
   };
 
   const all = useAllContent({ status: null, search: '' });
@@ -139,7 +148,7 @@ export function AllContent() {
 
   const records: readonly ContentRow[] = all.data?.ok ? all.data.value : [];
   const found: readonly ContentRow[] = searched.data?.ok ? searched.data.value : [];
-  const shown = found.filter((row) => inShow(row, show));
+  const shown = found.filter((row) => hasStatus(row, show));
   const stuck = records.filter((row) => row.stuck);
   const updates = waiting.data?.ok ? waiting.data.value : [];
   const filtered = search.trim() !== '' || show !== 'all';
@@ -149,40 +158,22 @@ export function AllContent() {
   const settled =
     loading || failed || searched.isPlaceholderData
       ? null
-      : recordCountWords(shown.length, records.length);
+      : contentCount(shown.length, records.length, filtered);
   const [countWords, setCountWords] = useState('');
   if (settled !== null && settled !== countWords) setCountWords(settled);
 
-  const clearFilters = () => {
-    setSearch('');
-    setShow('all');
-    mirror('all', '');
-  };
-
-  // "Show stuck records" selects the Stuck tab and puts focus on it (B7-06 `showStuck`).
-  const [focusStuck, setFocusStuck] = useState(0);
+  // "Show stuck records" sets the filter to the stuck status and puts focus on it.
+  const [focusStatus, setFocusStatus] = useState(0);
   useEffect(() => {
-    if (focusStuck > 0) document.getElementById(`${TABS_ID}-tab-stuck`)?.focus();
-  }, [focusStuck]);
+    if (focusStatus > 0) document.getElementById(STATUS_ID)?.focus();
+  }, [focusStatus]);
 
-  // "Clear filters" in the no-match state goes with that state: if it had focus, focus moves to
-  // the first row's "Open" once it has gone (SA-06's rule), only if focus was lost with it.
-  const sectionRef = useRef<HTMLElement>(null);
-  const pressed = useRef<HTMLElement | null>(null);
+  // "Clear filters" in the no-match state goes with that state: focus moves to the search field.
+  const searchRef = useRef<HTMLInputElement>(null);
   const clearFromNoMatch = () => {
-    const active = document.activeElement;
-    pressed.current =
-      active instanceof HTMLElement && active.closest('.xr-empty') !== null ? active : null;
     clearFilters();
+    searchRef.current?.focus();
   };
-  useLayoutEffect(() => {
-    const control = pressed.current;
-    if (control === null || control.isConnected) return;
-    pressed.current = null;
-    const active = document.activeElement;
-    if (active && active !== document.body && active.isConnected) return;
-    sectionRef.current?.querySelector<HTMLElement>('tbody a')?.focus();
-  });
 
   const retry = () => {
     for (const read of reads) {
@@ -190,240 +181,160 @@ export function AllContent() {
     }
   };
 
-  return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-4"
-        title={CONTENT_PAGE.title}
-        meta={<span className="xl-meta">{CONTENT_PAGE.meta}</span>}
-      />
-      <SectionTabs
-        className="mb-5"
-        label={CONTENT_PAGE.tabsLabel}
-        surface="white"
-        tabs={CONTENT_TABS.map((tab) => ({
-          href: tab.href,
-          label: tab.label,
-          current: tab.key === 'all',
-        }))}
-      />
-      {stuck.length > 0 ? (
-        <div className="mb-4">
-          <Notice
-            tone="err"
-            role="status"
-            title={stuckTitle(stuck.length)}
-            actions={
-              <button
-                type="button"
-                className="xr-btn xr-btn--secondary xr-btn--sm"
-                onClick={() => {
-                  choose('stuck');
-                  setFocusStuck((n) => n + 1);
-                }}
-              >
-                {ALL_CONTENT.showStuck}
-              </button>
-            }
+  const statusLabel = (filter: StatusFilter) =>
+    filter === 'all' ? ALL_CONTENT_LIST.allStatuses : WORKFLOW_STATUS[filter].words;
+  const options = STATUS_FILTERS.filter(
+    (filter) => filter !== 'resubmitted' || records.some((row) => hasStatus(row, filter)),
+  ).map((filter) => ({
+    value: filter,
+    label: statusOption(
+      statusLabel(filter),
+      records.filter((row) => hasStatus(row, filter)).length,
+    ),
+  }));
+  const chips: ToolbarChip[] = [
+    ...(search.trim() !== ''
+      ? [{ key: 'q', label: searchChip(search.trim()), onRemove: () => type('') }]
+      : []),
+    ...(show !== 'all'
+      ? [{ key: 'show', label: statusChip(statusLabel(show)), onRemove: () => choose('all') }]
+      : []),
+  ];
+
+  let body;
+  if (failed) {
+    body = (
+      <ListState
+        kind="failed"
+        title={stateWords('SA-12.failed')}
+        action={<Button onClick={retry}>{SA_FAILED.retry}</Button>}
+      >
+        {SA_FAILED.line}
+      </ListState>
+    );
+  } else if (loading) {
+    body = <LoadingRows message={stateWords('SA-12.loading')} />;
+  } else if (records.length === 0) {
+    body = (
+      <ListState kind="empty" icon="layers" title={ALL_CONTENT_LIST.emptyTitle}>
+        {ALL_CONTENT_LIST.emptyLine}
+      </ListState>
+    );
+  } else {
+    body = (
+      <>
+        <FilterToolbar
+          label={ALL_CONTENT_LIST.filterLabel}
+          searchRef={searchRef}
+          search={{
+            id: 'all-content-search',
+            label: ALL_CONTENT_LIST.searchLabel,
+            placeholder: ALL_CONTENT_LIST.searchPlaceholder,
+            value: search,
+            onChange: type,
+          }}
+          filters={[
+            {
+              id: STATUS_ID,
+              label: ALL_CONTENT_LIST.statusLabel,
+              size: 'status',
+              value: show,
+              onChange: (value) => choose(value as StatusFilter),
+              options,
+            },
+          ]}
+          count={countWords}
+          chips={chips}
+          onClearFilters={clearFilters}
+        />
+        {shown.length > 0 ? (
+          <ContentTable rows={shown} />
+        ) : (
+          <ListState
+            kind="nomatch"
+            title={ALL_CONTENT_LIST.noMatchTitle}
+            action={<Button onClick={clearFromNoMatch}>{ALL_CONTENT_LIST.clearFilters}</Button>}
           >
-            {stuckBody(
-              stuck.map((row) => ({
-                reference: row.ref.id,
-                name: row.name,
-                course: row.courseCode,
-              })),
-            )}
-          </Notice>
-        </div>
+            {ALL_CONTENT_LIST.noMatchLine}
+          </ListState>
+        )}
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ContentHead current="all" lead={CONTENT_HEAD.allLead} />
+      {stuck.length > 0 ? (
+        <Notice
+          tone="warn"
+          icon="hourglass"
+          role="status"
+          title={stuckRecordsTitle(stuck.length)}
+          actions={
+            <Button
+              onClick={() => {
+                choose('stuck');
+                setFocusStatus((n) => n + 1);
+              }}
+            >
+              {ALL_CONTENT_LIST.showStuck}
+            </Button>
+          }
+        >
+          {stuckRecordsLine(stuck.map((row) => ({ name: row.name, course: row.courseCode })))}
+        </Notice>
       ) : null}
       {updates.length > 0 ? (
-        <div className="mb-4">
-          <Notice
-            tone="info"
-            role="status"
-            title={updatesWaitingTitle(updates.length)}
-            actions={
-              <Link className="xr-btn xr-btn--secondary xr-btn--sm" href={CONTENT_UPDATES_ADDRESS}>
-                {ALL_CONTENT.openUpdates}
-              </Link>
-            }
-          >
-            {updates
-              .map(({ update, experimentName }) =>
-                updateWaitingLine(
-                  update.id,
-                  experimentName,
-                  update.baseVersionLabel,
-                  update.versionLabel,
-                ),
-              )
-              .join(' ')}
-          </Notice>
-        </div>
-      ) : null}
-      <section
-        ref={sectionRef}
-        className="xr-section"
-        aria-labelledby={headingId}
-        aria-busy={loading ? true : undefined}
-      >
-        <div className="xr-section-head">
-          <h2 id={headingId} className="xr-h2">
-            {ALL_CONTENT.sectionTitle}
-          </h2>
-          {loading ? (
-            <span className="xr-meta" role="status">
-              {stateWords('SA-12.loading')}
-            </span>
-          ) : (
-            <span className="xr-meta">{ALL_CONTENT.sectionMeta}</span>
+        <Notice
+          tone="info"
+          icon="edit"
+          role="status"
+          title={correctionsWaitingTitle(updates.length)}
+          actions={
+            <ButtonLink href={CONTENT_UPDATES_ADDRESS}>{ALL_CONTENT_LIST.openUpdates}</ButtonLink>
+          }
+        >
+          {correctionsWaitingLine(
+            updates.map(({ update, experimentName }) => ({
+              name: experimentName,
+              from: update.baseVersionLabel,
+              to: update.versionLabel ?? update.baseVersionLabel,
+            })),
           )}
-        </div>
-        {failed ? (
-          <SectionBody>
-            <FailedState title={stateWords('SA-12.failed')} onRetry={retry}>
-              {stateWords('SA-12.failed.line')}
-            </FailedState>
-          </SectionBody>
-        ) : loading ? (
-          <SkeletonRows />
-        ) : (
-          <StatusTabs
-            label={ALL_CONTENT.tabsLabel}
-            idPrefix={TABS_ID}
-            className="px-4"
-            panelClassName="[&>.xr-toolbar]:px-6 [&>.xr-toolbar]:py-4 [&>.xr-toolbar-status]:px-6 [&>.xr-toolbar-status]:pb-3"
-            tabs={ALL_CONTENT_SHOWS.map((id) => ({
-              id,
-              label: ALL_CONTENT.tabs[id],
-              count: records.filter((row) => inShow(row, id)).length,
-            }))}
-            selected={show}
-            onSelect={(id) => choose(id as AllContentShow)}
-          >
-            <ListToolbar
-              search={{
-                id: 'all-content-search',
-                label: ALL_CONTENT.searchLabel,
-                placeholder: ALL_CONTENT.searchPlaceholder,
-                value: search,
-                onChange: type,
-              }}
-              status={countWords}
-              chips={[]}
-              clearLabel={ALL_CONTENT.clearFilters}
-              onClearFilters={filtered ? clearFilters : undefined}
-            />
-            {shown.length > 0 ? (
-              <ContentTable rows={shown} />
-            ) : (
-              <SectionBody>
-                <NoMatch
-                  title={ALL_CONTENT.noMatchTitle}
-                  headingLevel={3}
-                  onClearFilters={clearFromNoMatch}
-                >
-                  {ALL_CONTENT.noMatchLine}
-                </NoMatch>
-              </SectionBody>
-            )}
-          </StatusTabs>
-        )}
-      </section>
-    </PageContent>
+        </Notice>
+      ) : null}
+      <ListSurface label={ALL_CONTENT_LIST.surfaceLabel} busy={loading}>
+        {body}
+        <ListFoot>{ALL_CONTENT_LIST.foot}</ListFoot>
+      </ListSurface>
+    </>
   );
 }
 
-/** B7-06 f0 table: "Content · Workflow status · Who can act · (Action)". */
+/** The records: the record table, each row opening its record (SA-13). */
 function ContentTable({ rows }: { readonly rows: readonly ContentRow[] }) {
-  const { columns } = ALL_CONTENT;
   return (
-    <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.content}</th>
-            <th scope="col">{columns.status}</th>
-            <th scope="col">{columns.who}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <ContentLine key={`${row.ref.kind}:${row.ref.id}`} row={row} />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function ContentLine({ row }: { readonly row: ContentRow }) {
-  const status = workflowWords(row.status, row.stuck, row.live, null);
-  const reference = row.ref.kind === 'SUB' ? row.ref.id : ALL_CONTENT.publishedExperiment;
-  return (
-    <tr>
-      <td className="is-primary">
-        <strong>{row.name}</strong>
-        <span className="xr-meta block">
-          <span className="xr-id">{reference}</span>
-          {row.courseCode ? ` · ${row.courseCode}` : null}
-        </span>
-        <span className="mt-[6px] block">
-          <FormatChips formats={row.formats} />
-        </span>
-      </td>
-      <td data-label={ALL_CONTENT.cellLabels.status}>
-        <StatusPill tone={status.tone}>{status.words}</StatusPill>
-        <span className="xr-meta mt-1 block">{status.where}</span>
-        {row.openUpdate && row.openUpdateState ? (
-          <span className="xw-tag mt-[6px]">
-            <Icon name="updates" />
-            {updateTag(row.openUpdate, row.openUpdateState)}
-          </span>
-        ) : null}
-      </td>
-      <td data-label={ALL_CONTENT.cellLabels.who}>{row.whoCanAct ?? ALL_CONTENT.nobody}</td>
-      <td>
-        <Link
-          className="xr-btn xr-btn--secondary xr-btn--sm"
-          href={contentRecordAddress(row.ref.id)}
-          aria-label={openRecordLabel(row.name)}
-        >
-          {ALL_CONTENT.open}
-        </Link>
-      </td>
-    </tr>
-  );
-}
-
-/** A row's formats (`span.xv-chips` of compact chips), WEB · AR · VR · MR. */
-export function FormatChips({ formats }: { readonly formats: readonly Technology[] }) {
-  return (
-    <span className="xv-chips">
-      {inDisplayOrder(formats).map((format) => (
-        <FormatBadge key={format} format={FORMAT_META[format].code} compact />
-      ))}
-    </span>
-  );
-}
-
-/** Undrawn: loading — skeleton rows in the table's shape (hidden from screen readers). */
-function SkeletonRows() {
-  return (
-    <div aria-hidden="true">
-      {[0, 1, 2, 3, 4].map((row) => (
-        <div
-          key={row}
-          className="grid grid-cols-[1.4fr_1.4fr_1fr_100px] gap-5 px-4 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-        >
-          {[0, 1, 2, 3].map((cell) => (
-            <Skeleton key={cell} />
-          ))}
-        </div>
-      ))}
-    </div>
+    <RecordTable
+      caption={ALL_CONTENT_LIST.caption}
+      headers={ALL_CONTENT_LIST.headers}
+      rows={rows.map((row) => {
+        const status = workflowWords(row.status, row.stuck, row.live, null);
+        const tag =
+          row.openUpdate && row.openUpdateState ? correctionTag(row.openUpdateState) : null;
+        const formats = inDisplayOrder(row.formats).map((format) => FORMAT_META[format].code);
+        return {
+          key: `${row.ref.kind}:${row.ref.id}`,
+          href: contentRecordAddress(row.ref.id),
+          title: row.name,
+          titleDetail: row.courseCode ? <CourseCode code={row.courseCode} /> : undefined,
+          linkLabel: contentRowLabel(row.name, status.words),
+          what: <CellLines strong={status.where} small={tag ?? undefined} />,
+          kind: <QuietLine flush>{row.whoCanAct ?? ALL_CONTENT_LIST.nobodyNeedsToAct}</QuietLine>,
+          when: <FormatBadges formats={formats} label={formatsLabel(formats)} />,
+          status: <StatusPill tone={status.tone}>{status.words}</StatusPill>,
+        };
+      })}
+    />
   );
 }

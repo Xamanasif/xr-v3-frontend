@@ -9,7 +9,7 @@ import { join, relative } from 'node:path';
 
 import { afterAll, describe, expect, it } from 'vitest';
 
-import { verifyChecksums } from './integrity.js';
+import { verifyChecksumLines, verifyChecksums } from './integrity.js';
 import { repositoryRoot, toWorkspacePath, walk, workspaceRoot } from './workspace.js';
 
 const reference = join(repositoryRoot, 'design', 'v3-refined-b');
@@ -118,38 +118,72 @@ describe('frozen V3 reference design/v3-refined-b (uncached integrity)', () => {
 
 describe('owner-approved role exports design/v3-refined-b/roles (uncached integrity)', () => {
   const roles = join(reference, 'roles');
-  const EXPORTS = { 'XS-v6': 125 } as const;
+  /**
+   * Each export and its file count. An export that ships its own `SHA256SUMS.txt` is checked
+   * against it (XS-v6); one that ships none is checked against the list recorded at intake beside
+   * its folder, `<folder>.SHA256SUMS.txt` (SA-v1), so nothing is added inside the export.
+   */
+  const EXPORTS = {
+    'XS-v6': { files: 125, sums: 'inside' },
+    'SA-v1': { files: 29, sums: 'beside' },
+  } as const;
+  const sumsOf = (folder: keyof typeof EXPORTS) =>
+    EXPORTS[folder].sums === 'inside'
+      ? join(roles, folder, 'SHA256SUMS.txt')
+      : join(roles, `${folder}.SHA256SUMS.txt`);
 
-  it('each export: its own checksums all OK, and the folder holds exactly the listed files', () => {
+  it('each export: its checksums all OK, and the folder holds exactly the listed files', () => {
     const folders = walk(roles)
       .map((file) => relative(roles, file).split('\\').join('/'))
       .filter((file) => file.includes('/'))
       .map((file) => file.split('/')[0]!);
     expect([...new Set(folders)].sort()).toEqual(Object.keys(EXPORTS).sort());
-    for (const [folder, count] of Object.entries(EXPORTS)) {
+    const loose = walk(roles)
+      .map((file) => relative(roles, file).split('\\').join('/'))
+      .filter((file) => !file.includes('/'));
+    expect(loose.sort()).toEqual(
+      [
+        'README.md',
+        ...Object.keys(EXPORTS)
+          .filter((folder) => EXPORTS[folder as keyof typeof EXPORTS].sums === 'beside')
+          .map((folder) => `${folder}.SHA256SUMS.txt`),
+      ].sort(),
+    );
+    for (const folder of Object.keys(EXPORTS) as (keyof typeof EXPORTS)[]) {
       const root = join(roles, folder);
-      const result = verifyChecksums(root);
+      const lines = readFileSync(sumsOf(folder), 'utf8').split('\n').filter(Boolean);
+      const result = verifyChecksumLines(root, lines);
+      const count = EXPORTS[folder].files;
       summary.push(`role export ${folder}: ${result.ok}/${result.checked} OK`);
       expect(result, folder).toEqual({ checked: count, ok: count, failed: [], missing: [] });
-      const listed = readFileSync(join(root, 'SHA256SUMS.txt'), 'utf8')
-        .split('\n')
-        .filter(Boolean)
-        .map((line) => line.replace(/^[0-9a-f]{64} [ *]/, ''));
+      const listed = lines.map((line) => line.replace(/^[0-9a-f]{64} [ *]/, ''));
       const present = walk(root).map((file) => relative(root, file).split('\\').join('/'));
-      expect(present.sort(), folder).toEqual([...listed, 'SHA256SUMS.txt'].sort());
+      expect(present.sort(), folder).toEqual(
+        EXPORTS[folder].sums === 'inside' ? [...listed, 'SHA256SUMS.txt'].sort() : listed.sort(),
+      );
     }
   });
 
   it('each export is built on this foundation, and the roles index names it', () => {
     const index = readFileSync(join(roles, 'README.md'), 'utf8');
     for (const folder of Object.keys(EXPORTS)) {
+      // Two lock layouts: `baseFiles["project/core.css"]` (XS) or
+      // `byteIdenticalCopiesInProject["core.css"]` (SA), each with the sheet's SHA-256.
       const exportLock = readJson(join(roles, folder, 'FOUNDATION-LOCK.json')) as {
         foundationId: string;
-        baseFiles: Record<string, { sha256: string }>;
+        baseFiles?: Record<string, { sha256: string }>;
+        byteIdenticalCopiesInProject?: Record<string, { sha256: string }>;
       };
       expect(exportLock.foundationId, folder).toBe(lock.foundationId);
       for (const sheet of ['core.css', 'rb.css', 'rb-kit.css']) {
-        expect(exportLock.baseFiles[`project/${sheet}`]?.sha256, `${folder} ${sheet}`).toBe(
+        const recorded =
+          exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
+          exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256;
+        expect(recorded, `${folder} ${sheet}`).toBe(
+          lock.baseFiles[`references/v3/project/${sheet}`],
+        );
+        // The copy in the export is that file, byte for byte.
+        expect(sha256(join(roles, folder, 'project', sheet)), `${folder} ${sheet} (file)`).toBe(
           lock.baseFiles[`references/v3/project/${sheet}`],
         );
       }
@@ -282,15 +316,16 @@ describe('scope boundary: only migrated screens load the V3 layer (ADR-0010)', (
       (file) => ![...named].some((source) => file === source || file.startsWith(`${source}/`)),
     );
     expect(unnamed).toEqual([]);
-    // Today: the Entry & shared surfaces (XS), and nothing of the locked landing or a role page.
-    expect(new Set(screens.map((screen) => screen.id.slice(0, 2)))).toEqual(new Set(['XS']));
+    // Today: the Entry & shared surfaces (XS) and the Super Admin role (SA), and nothing of the
+    // locked landing or another role's page.
+    expect(new Set(screens.map((screen) => screen.id.slice(0, 2)))).toEqual(new Set(['XS', 'SA']));
     for (const file of importers) {
       expect(file, file).toMatch(
-        /^apps\/web\/src\/(?:features\/shared\/|app\/\(auth\)\/layout\.tsx$|app\/_workspace\/workspace-route\.tsx$)/,
+        /^apps\/web\/src\/(?:features\/shared\/|features\/admin\/|app\/\(auth\)\/layout\.tsx$|app\/_workspace\/workspace-route\.tsx$)/,
       );
     }
     summary.push(
-      `V3 layer loaded by ${importers.length} web sources (XS), all on the comparison map`,
+      `V3 layer loaded by ${importers.length} web sources (XS, SA), all on the comparison map`,
     );
   });
 

@@ -3,7 +3,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 import { openInTab, sendRequest, statusHead } from '../package-1c/flow';
 import { reachAndClick } from '../support';
 import { checkState } from '../support/screen-checks';
-import { expectSameDocument, markDocument, revealSidebar } from '../support/workspace';
+import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 
 /**
  * The Phase-3 demonstration in ONE browser tab of the PRODUCT build — no test hooks, nothing but
@@ -56,7 +56,7 @@ async function signOut(page: Page, accountLine: string): Promise<void> {
 
 async function sidebar(page: Page, href: string): Promise<void> {
   await revealSidebar(page);
-  await reachAndClick(page, page.locator(`aside.xr-side nav a[href="${href}"]`));
+  await reachAndClick(page, sidebarLink(page, href));
   await page.waitForURL((url) => url.pathname === href);
 }
 
@@ -122,15 +122,19 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await page.waitForURL('**/admin');
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open: REQ-0042 · Godavari Institute of Technology' }),
+    page.getByRole('link', {
+      name: 'Open the new access request from Godavari Institute of Technology',
+    }),
   );
   const panel = page.getByRole('complementary', { name: 'Your decision' });
   await reachAndClick(page, panel.locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel.locator('label[for="decision-route-external"]'));
   await reachAndClick(page, panel.getByRole('button', { name: 'Approve request' }));
-  const approve = page.getByRole('dialog', { name: 'Approve REQ-0042?' });
+  const approve = page.getByRole('dialog', {
+    name: 'Approve the request from Godavari Institute of Technology?',
+  });
   await reachAndClick(page, approve.getByRole('button', { name: 'Approve request' }));
-  await expect(panel.locator('.xr-status')).toHaveText('Approved — payment required');
+  await expect(panel.locator('.rk-done .xr-st')).toHaveText('Approved — payment required');
   await signOut(page, ARJUN);
   await openInTab(page, address);
   await reachAndClick(page, statusHead(page).getByRole('link', { name: 'Continue to payment' }));
@@ -144,12 +148,14 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await sidebar(page, '/admin/institutions');
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open Godavari Institute of Technology' }),
+    page.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the institution$/ }),
   );
   await page.waitForURL('**/admin/institutions/godavari');
   await reachAndClick(
     page,
-    main(page).locator('.xw-actions').getByRole('button', { name: 'Assign Institute Admin' }),
+    page
+      .getByRole('complementary', { name: 'What you can do' })
+      .getByRole('button', { name: 'Assign Institute Admin' }),
   );
   const assign = page.getByRole('dialog', {
     name: 'Assign the Institute Admin for Godavari Institute of Technology',
@@ -157,7 +163,7 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await assign.getByRole('textbox', { name: 'Name' }).fill('Meera Iyer');
   await assign.getByRole('textbox', { name: 'Work e-mail' }).fill('meera.iyer@godavari.edu.in');
   await reachAndClick(page, assign.getByRole('button', { name: 'Assign' }));
-  await expect(main(page).locator('.xr-phead-meta')).toContainText('Institute Admin: Meera Iyer');
+  await expect(main(page).locator('.rk-meta')).toContainText('Institute Admin: Meera Iyer');
   await signOut(page, ARJUN);
 
   // 2. Meera adds Rahul Verma (IA-10) and gives him the experiment (IA-05).
@@ -296,9 +302,15 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
   await sidebar(page, '/admin/requests');
-  await expect(main(page)).toContainText(reference);
+  // SA-02 (V3, SA-v1) names the row by its institution; the reference is only the address.
+  const request = main(page).locator('tbody tr', {
+    has: page.locator(`a[href="/admin/requests/${reference}"]`),
+  });
+  await expect(request).toHaveCount(1);
+  await expect(request).toContainText('Godavari Institute of Technology');
   await sidebar(page, '/admin/operations/device-transfers');
-  await expect(main(page).getByRole('link', { name: /^Review / })).toHaveCount(0);
+  await expect(main(page)).toContainText('Nothing is waiting for your approval');
+  await expect(main(page).locator('tbody a.rk-rowlink')).toHaveCount(0);
   await checkState(page, 'Operations');
   await expectSameDocument(page, mark);
 });

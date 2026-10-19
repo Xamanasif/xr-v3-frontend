@@ -2,7 +2,7 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { reachAndClick } from '../support';
 import { checkState } from '../support/screen-checks';
-import { expectSameDocument, markDocument, revealSidebar } from '../support/workspace';
+import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 import { openInTab, sendRequest, statusHead } from '../package-1c/flow';
 
 /**
@@ -34,7 +34,7 @@ async function signOut(page: Page, accountLine: string): Promise<void> {
 
 async function sidebar(page: Page, href: string): Promise<void> {
   await revealSidebar(page);
-  await reachAndClick(page, page.locator(`aside.xr-side nav a[href="${href}"]`));
+  await reachAndClick(page, sidebarLink(page, href));
   await page.waitForURL(`**${href}`);
 }
 
@@ -52,9 +52,11 @@ async function toSignIn(page: Page): Promise<void> {
 const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
 const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
 const main = (page: Page) => page.locator('main');
-const flash = (page: Page) => page.locator('main p.xa-save[role="status"]');
+// The Super Admin's V3 pages (SA-v1): the flash is the kit's notice; rows never show a reference.
+const flash = (page: Page) => page.locator('main .rk-notice--ok[role="status"]');
 const godavariRow = (page: Page) =>
   main(page).locator('tbody tr', { hasText: 'Godavari Institute of Technology' });
+const actions = (page: Page) => page.getByRole('complementary', { name: 'What you can do' });
 
 test('one tab, the product build: request → approval → payment → Overview → Institutions → Assign, Pause, Restore → the Institute Admin', async ({
   page,
@@ -74,30 +76,34 @@ test('one tab, the product build: request → approval → payment → Overview 
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
   const requests = page.getByRole('region', { name: /^Requests/ });
-  await expect(requests.locator('.xr-row-title').first()).toHaveText(
-    'REQ-0042 · Godavari Institute of Technology',
+  await expect(requests.locator('.rb-row-t').first()).toHaveText(
+    'Godavari Institute of Technology asks for new access',
   );
   await checkState(page, 'Overview');
 
   // 3. Its row opens SA-03: approve, External.
   await reachAndClick(
     page,
-    requests.getByRole('link', { name: 'Open: REQ-0042 · Godavari Institute of Technology' }),
+    requests.getByRole('link', {
+      name: 'Open the new access request from Godavari Institute of Technology',
+    }),
   );
   await page.waitForURL('**/admin/requests/REQ-0042');
   const panel = page.getByRole('complementary', { name: 'Your decision' });
   await reachAndClick(page, panel.locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel.locator('label[for="decision-route-external"]'));
   await reachAndClick(page, panel.getByRole('button', { name: 'Approve request' }));
-  const approve = page.getByRole('dialog', { name: 'Approve REQ-0042?' });
+  const approve = page.getByRole('dialog', {
+    name: 'Approve the request from Godavari Institute of Technology?',
+  });
   await reachAndClick(page, approve.getByRole('button', { name: 'Approve request' }));
-  await expect(panel.locator('.xr-status')).toHaveText('Approved — payment required');
+  await expect(panel.locator('.rk-done .xr-st')).toHaveText('Approved — payment required');
 
   // 4. Before the payment: Godavari exists, approved — payment required; no Institute Admin yet.
   await sidebar(page, '/admin/institutions');
   await expect(godavariRow(page)).toContainText('Approved — payment required');
   await expect(godavariRow(page)).toContainText('No access plan yet · 1 experiment requested');
-  await expect(godavariRow(page).locator('.xw-tag')).toHaveCount(0);
+  await expect(godavariRow(page).locator('.rk-tag-warn')).toHaveCount(0);
   await signOut(page, ARJUN);
 
   // 5. The requester pays (the TE-4 stand-in confirms): access active, ACC-0107.
@@ -113,20 +119,20 @@ test('one tab, the product build: request → approval → payment → Overview 
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
   await expect(requests).toBeVisible();
-  await expect(requests).not.toContainText('REQ-0042');
+  await expect(requests).not.toContainText('Godavari Institute of Technology');
   await sidebar(page, '/admin/institutions');
-  await expect(godavariRow(page)).toContainText('External · ACC-0107 · 1 course · 1 experiment');
+  await expect(godavariRow(page)).toContainText('External');
+  await expect(godavariRow(page)).toContainText('1 course · 1 experiment');
+  await expect(godavariRow(page)).not.toContainText('ACC-0107');
   await expect(godavariRow(page)).toContainText('Access active');
-  await expect(godavariRow(page).locator('.xw-tag--warn')).toHaveText('Needs one');
-  // The tab strip scrolls sideways below 1024 px (B7-02 f6): there, the search finds it.
-  if ((page.viewportSize()?.width ?? 0) >= 1024) {
-    await reachAndClick(page, page.getByRole('tab', { name: /^No Institute Admin/ }));
-  } else {
-    const search = page.getByRole('searchbox', { name: 'Search institutions' });
-    await reachAndClick(page, search);
-    await search.fill('godavari');
-  }
-  await expect(main(page).locator('tbody tr strong')).toContainText([
+  await expect(godavariRow(page).locator('.rk-tag-warn')).toHaveText('Needs one');
+  // The Status filter (SA-v1 draws a select where B7-02 drew tabs) finds the institutions
+  // without an Institute Admin.
+  const status = main(page).getByLabel('Status');
+  await status.selectOption(
+    (await status.locator('option', { hasText: 'No Institute Admin' }).getAttribute('value'))!,
+  );
+  await expect(main(page).locator('tbody a.rk-rowlink')).toContainText([
     'Godavari Institute of Technology',
   ]);
   await checkState(page, 'Institutions');
@@ -134,7 +140,7 @@ test('one tab, the product build: request → approval → payment → Overview 
   // 7. SA-07: Assign the Institute Admin — the drawn checks, then Meera Iyer.
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open Godavari Institute of Technology' }),
+    page.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the institution$/ }),
   );
   await page.waitForURL('**/admin/institutions/godavari');
   await checkState(page, 'Godavari Institute of Technology');
@@ -143,7 +149,9 @@ test('one tab, the product build: request → approval → payment → Overview 
   );
   await reachAndClick(
     page,
-    main(page).locator('.xw-actions').getByRole('button', { name: 'Assign Institute Admin' }),
+    page
+      .getByRole('complementary', { name: 'What you can do' })
+      .getByRole('button', { name: 'Assign Institute Admin' }),
   );
   const assign = page.getByRole('dialog', {
     name: 'Assign the Institute Admin for Godavari Institute of Technology',
@@ -157,7 +165,7 @@ test('one tab, the product build: request → approval → payment → Overview 
   await expect(flash(page)).toContainText(
     'Meera Iyer is now the Institute Admin for Godavari Institute of Technology.',
   );
-  await expect(main(page).locator('.xr-phead-meta')).toContainText('Institute Admin: Meera Iyer');
+  await expect(main(page).locator('.rk-meta')).toContainText('Institute Admin: Meera Iyer');
 
   // 8. Pause, then Restore — a reason each time, kept in the history.
   await reachAndClick(page, page.getByRole('button', { name: 'Pause access' }));
@@ -166,25 +174,23 @@ test('one tab, the product build: request → approval → payment → Overview 
   });
   await pause.getByRole('textbox').fill('Checking the student list.');
   await reachAndClick(page, pause.getByRole('button', { name: 'Pause access' }));
-  await expect(flash(page)).toHaveText(
-    'Access paused. Everyone at Godavari Institute of Technology now sees the paused banner.',
+  await expect(flash(page)).toContainText('Access paused.');
+  await expect(flash(page)).toContainText(
+    'Everyone at Godavari Institute of Technology now sees the paused banner.',
   );
-  await reachAndClick(
-    page,
-    main(page).locator('.xw-actions').getByRole('button', { name: 'Restore access' }),
-  );
+  await reachAndClick(page, actions(page).getByRole('button', { name: 'Restore access' }));
   const restore = page.getByRole('dialog', {
     name: 'Restore access for Godavari Institute of Technology?',
   });
   await restore.getByRole('textbox').fill('The student list is confirmed.');
   await reachAndClick(page, restore.getByRole('button', { name: 'Restore access' }));
   await expect(flash(page)).toHaveText(
-    'Access restored. Godavari Institute of Technology can work again.',
+    'Access restored.Godavari Institute of Technology can work again.',
   );
-  await expect(page.getByRole('region', { name: 'History' }).locator('.xr-tl-what')).toContainText([
+  await expect(page.getByRole('region', { name: 'History' }).locator('.rk-tl-w')).toContainText([
     'Access restored by Arjun Mehta',
     'Access paused by Arjun Mehta',
-    'Institute Admin assigned — Meera Iyer',
+    'Institute Admin assigned: Meera Iyer',
   ]);
   await checkState(page, 'Godavari Institute of Technology');
   await signOut(page, ARJUN);
@@ -211,6 +217,6 @@ test('one tab, the product build: request → approval → payment → Overview 
   await page.waitForURL('**/admin');
   await sidebar(page, '/admin/institutions');
   await expect(godavariRow(page)).toContainText('Meera Iyer');
-  await expect(godavariRow(page).locator('.xw-tag')).toHaveCount(0);
+  await expect(godavariRow(page).locator('.rk-tag-warn')).toHaveCount(0);
   await expectSameDocument(page, mark);
 });

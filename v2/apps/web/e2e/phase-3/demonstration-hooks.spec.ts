@@ -2,7 +2,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { bootWorld, reachAndClick, reportRuntime, TEST_HOOKS_URL } from '../support';
 import { checkState } from '../support/screen-checks';
-import { expectSameDocument, markDocument, revealSidebar } from '../support/workspace';
+import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 
 /**
  * The Phase-3 demonstration that needs the two things a product build never records, in ONE tab
@@ -55,7 +55,7 @@ async function signOut(page: Page, accountLine: string): Promise<void> {
 
 async function sidebar(page: Page, href: string): Promise<void> {
   await revealSidebar(page);
-  await reachAndClick(page, page.locator(`aside.xr-side nav a[href="${href}"]`));
+  await reachAndClick(page, sidebarLink(page, href));
   await page.waitForURL((url) => url.pathname === href);
 }
 
@@ -207,13 +207,21 @@ test('one tab, the test-hook build: access → resources → WEB → runtime pro
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
   await sidebar(page, '/admin/operations/device-transfers');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Review ${reference}` }));
+  // SA-18 / SA-19 in the V3 design (SA-v1): the row and the dialog are named by the transfer's
+  // content, never its reference.
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', { name: 'VR device transfer for Rahul Verma, Forwarded. Open' }),
+  );
   await page.waitForURL(`**/admin/operations/device-transfers/${reference}`);
   await reachAndClick(page, main(page).getByRole('button', { name: 'Approve transfer' }));
-  const approve = page.getByRole('dialog', { name: `Approve ${reference}?` });
+  const approve = page.getByRole('dialog', {
+    name: 'Approve the VR device transfer for Rahul Verma?',
+  });
   await approve.getByRole('button', { name: 'Approve transfer' }).click();
   await expect(approve).toBeHidden();
-  await expect(page.locator('#transfer-status')).toContainText('Approved');
+  await expect(main(page).locator('.rk-head .rk-meta')).toContainText('Approved');
+  await expect(main(page)).not.toContainText(reference);
   await signOut(page, ARJUN_LINE);
 
   // Rahul sees the decision: Approved, the authorised device is GIT-VR-07 now.

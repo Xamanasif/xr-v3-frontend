@@ -1,39 +1,39 @@
 /**
- * SA-11 as a view of the UPD record the Super Admin reads (`getUpdateDecision`) — pure functions,
- * no React. The record carries canonical facts only (its state, proposed fields, review
- * decisions, hold, lifts, release and history); the words are B7-05's (`@/copy/release`) or the
- * state-copy register's. Nothing here decides what the Super Admin may do: the panel offers what
- * B7-05 draws for the state the service answered (Release · Hold while waiting, Lift hold while
- * held, nothing once released), and the service decides each command again.
+ * SA-11 as a view of the correction the Super Admin reads (`getUpdateDecision`) — pure functions,
+ * no React. The record carries canonical facts only (its state, proposed fields, review decisions,
+ * hold, lifts, release and history); the words are the Super Admin export's (`@/copy/sa-content`,
+ * the export's `V.update`), the history's those of B7-05 (`@/copy/release`) or the state-copy
+ * register's. Nothing here decides what the Super Admin may do: the panel offers what the export
+ * draws for the state the service answered (Release · Hold while waiting, Lift hold while held,
+ * nothing once released), and the service decides each command again. A correction is named by
+ * its experiment and versions, never by its reference.
  */
-import type { AccessEndingRow, ActorRef, CorrectionUpdate } from '@xr/domain';
-import { ROLE_LABEL } from '@xr/domain';
-import type { StatusTone, TimelineEvent } from '@xr/ui';
+import type { ActorRef, CorrectionUpdate, InstitutionStatus, Technology } from '@xr/domain';
+import { FORMAT_META, inDisplayOrder, ROLE_LABEL } from '@xr/domain';
 
-import { calendarDay, dateTime, dayMonthYear } from '@/copy/dates';
-import { formatName } from '@/copy/flow-state-words';
-import {
-  accessCell,
-  accessEndsNote,
-  approvedByLine,
-  HISTORY,
-  liveLine,
-  raisedLine,
-  studentsCell,
-  UPDATE_STATUS,
-  updateName,
-} from '@/copy/release';
+import { dateTime, dayMonthYear } from '@/copy/dates';
+import { HISTORY, updateName } from '@/copy/release';
+import { accessPlanCell, CORRECTION_STATUS, type ContentTone } from '@/copy/sa-content';
 import { stateWords } from '@/copy/state-copy';
 import type { UpdateDecisionView } from '@/queries/correction-view';
 
-/** The panel B7-05 draws for the state: open (f1), held (f5), decided (f6); `other` none. */
+import { institutionStatusWords } from '../shared/institution-status';
+
+/** The panel the export draws for the state: waiting, on hold, released; `other` none. */
 export type DecisionKind = 'waiting' | 'held' | 'released' | 'other';
+
+export interface TimelineEntry {
+  readonly id: string;
+  readonly what: string;
+  readonly when: string;
+  readonly note?: string | null;
+}
 
 export interface DecisionFacts {
   readonly kind: DecisionKind;
-  /** “Distillation Column · 1.2 → 1.3” (SA-11.title). */
+  /** “Distillation Column · 1.2 → 1.3” (state-copy `SA-11.title`): the record's full name. */
   readonly title: string;
-  /** The experiment's live name. */
+  /** The experiment's live name: the page's H1. */
   readonly experiment: string;
   /** The version live now (the released one once released). */
   readonly liveVersion: string;
@@ -41,20 +41,21 @@ export interface DecisionFacts {
   readonly proposedVersion: string;
   /** The version it started from: “Live before” once released. */
   readonly baseVersion: string;
-  readonly chip: { readonly words: string; readonly tone: StatusTone } | null;
-  /** “Live now: version 1.2 · since 3 Jul 2026”. */
-  readonly liveLine: string;
-  /** The day of the last lift while the update waits again (f7), else `null`. */
+  /** The versions the head names: the live one (or the one it replaced) → the proposed one. */
+  readonly from: string;
+  readonly to: string;
+  readonly chip: { readonly words: string; readonly tone: ContentTone } | null;
+  /** The day of the last lift while the update waits again, else `null`. */
   readonly liftedOn: string | null;
-  /** “Raised by Kavya Nair, Content Manager · started … · sent for academic review …”. */
-  readonly raised: string;
-  /** “Approved by Prof. A. Menon on 27 Aug 2026”, or `null` before an approval. */
-  readonly approval: string | null;
-  /** The held panel: when, by whom and why (f5). */
+  /** Who raised it and their role (the reason's by-line). */
+  readonly raisedBy: { readonly name: string; readonly role: string };
+  /** The approval that sent it to her: by whom, its day and its moment; `null` before one. */
+  readonly approval: { readonly by: string; readonly day: string; readonly at: string } | null;
+  /** The held panel: when, by whom and why. */
   readonly hold: { readonly on: string; readonly by: string; readonly reason: string } | null;
-  /** The decided panel: when and by whom (f6). */
+  /** The decided panel: when and by whom. */
   readonly release: { readonly on: string; readonly by: string } | null;
-  readonly history: readonly TimelineEvent[];
+  readonly history: readonly TimelineEntry[];
 }
 
 /** A person's name as the record stamped it. */
@@ -81,7 +82,7 @@ function chipOf(update: CorrectionUpdate): DecisionFacts['chip'] {
     case 'awaiting-release-decision':
     case 'on-hold':
     case 'released':
-      return UPDATE_STATUS[update.state];
+      return CORRECTION_STATUS[update.state];
     default:
       return null;
   }
@@ -94,13 +95,13 @@ function reviewerAfter(update: CorrectionUpdate, at: string): string {
 }
 
 /**
- * The record's history, newest first (B7-05 `uh`): started, sent, approved, held, lifted,
- * released — each in the board's words; a return or a withdrawal in the register's
+ * The record's history, newest first (B7-05 `uh`, the export's `hist`): started, sent, approved,
+ * held, lifted, released — each in the board's words; a return or a withdrawal in the register's
  * (`SA-11.history.*`).
  */
-export function historyEvents(update: CorrectionUpdate): readonly TimelineEvent[] {
+export function historyEvents(update: CorrectionUpdate): readonly TimelineEntry[] {
   const base = update.baseVersionLabel;
-  const events = update.history.flatMap((entry): TimelineEvent[] => {
+  const events = update.history.flatMap((entry): TimelineEntry[] => {
     const when = dateTime(entry.at);
     const by = actorName(entry.actor);
     switch (entry.event) {
@@ -120,12 +121,7 @@ export function historyEvents(update: CorrectionUpdate): readonly TimelineEvent[
         ];
       case 'approved-by-reviewer':
         return [
-          {
-            id: entry.id,
-            what: HISTORY.approved(by),
-            when,
-            note: HISTORY.approvedNote(base),
-          },
+          { id: entry.id, what: HISTORY.approved(by), when, note: HISTORY.approvedNote(base) },
         ];
       case 'returned-by-reviewer':
         return [
@@ -188,16 +184,21 @@ export function decisionFacts(view: UpdateDecisionView): DecisionFacts {
     liveVersion,
     proposedVersion,
     baseVersion,
+    from,
+    to: proposedVersion,
     chip: chipOf(update),
-    liveLine: liveLine(liveVersion, dayMonthYear(view.liveLine.since), released),
     liftedOn: kind === 'waiting' && lastLift ? dayMonthYear(lastLift.at) : null,
-    raised: raisedLine(
-      actorName(startedBy),
-      startedBy.kind === 'person' ? ROLE_LABEL[startedBy.role] : '',
-      dayMonthYear(update.startedAt),
-      update.sentForReviewAt ? dayMonthYear(update.sentForReviewAt) : null,
-    ),
-    approval: approval ? approvedByLine(actorName(approval.by), dayMonthYear(approval.at)) : null,
+    raisedBy: {
+      name: actorName(startedBy),
+      role: startedBy.kind === 'person' ? ROLE_LABEL[startedBy.role] : '',
+    },
+    approval: approval
+      ? {
+          by: actorName(approval.by),
+          day: dayMonthYear(approval.at),
+          at: dateTime(approval.at),
+        }
+      : null,
     hold:
       kind === 'held' && update.hold
         ? {
@@ -214,41 +215,37 @@ export function decisionFacts(view: UpdateDecisionView): DecisionFacts {
   };
 }
 
-/** One row of “Institutions using it” (B7-05 f1 `insts`). */
+/** The formats of a list, as the export names them: "WEB, VR". */
+export function formatWords(formats: readonly Technology[]): readonly string[] {
+  return inDisplayOrder(formats).map((format) => FORMAT_META[format].code);
+}
+
+/** One row of “Institutions using it” (the export's `using`). */
 export interface InstitutionUsingRow {
   readonly key: string;
   readonly name: string;
+  /** "In its access plan · WEB, VR". */
   readonly access: string;
-  readonly students: string;
-  readonly note: string;
+  /** The institution's status in words ("Ending soon"). */
+  readonly status: string;
 }
 
 /**
  * The institutions whose current access plan includes the experiment, as the service lists them,
- * named from the institutions read and noted from Access ending (state-copy
- * `SA-11.institution-note`).
+ * named and given their status from the institutions read. The plan is never named by its
+ * reference.
  */
 export function institutionRows(
   view: UpdateDecisionView,
-  names: ReadonlyMap<string, string>,
-  ending: ReadonlyMap<string, AccessEndingRow>,
+  institutions: ReadonlyMap<string, { readonly name: string; readonly status: InstitutionStatus }>,
 ): readonly InstitutionUsingRow[] {
   return view.institutionsUsingIt.map((entry) => {
-    const ends = ending.get(entry.planId);
-    const note =
-      entry.note ??
-      (ends && ends.endedDaysAgo === null
-        ? accessEndsNote(
-            calendarDay(ends.endsOn),
-            ends.standing.kind === 'renewal-in-progress' ? ends.standing.requestId : null,
-          )
-        : stateWords('SA-11.no-note'));
+    const institution = institutions.get(entry.institutionId);
     return {
       key: `${entry.institutionId}:${entry.planId}`,
-      name: names.get(entry.institutionId) ?? entry.institutionId,
-      access: accessCell(entry.planId, entry.formats.map(formatName)),
-      students: studentsCell(entry.studentsWithAccess),
-      note,
+      name: institution?.name ?? entry.institutionId,
+      access: accessPlanCell(formatWords(entry.formats)),
+      status: institution ? institutionStatusWords(institution.status) : '',
     };
   });
 }

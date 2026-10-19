@@ -56,8 +56,11 @@ test.describe('the test-hook build (spine-start world, the Super Admin)', () => 
     await reachAndClick(page, panel(page).locator('label[for="decision-approve"]'));
     const trigger = panel(page).getByRole('button', { name: 'Approve request' });
     await reachAndClick(page, trigger);
-    const dialog = page.getByRole('dialog', { name: 'Approve REQ-0040?' });
-    await expect(dialog.getByRole('button', { name: 'Approve request' })).toBeFocused();
+    const dialog = page.getByRole('dialog', {
+      name: 'Approve the request from Konark Polytechnic?',
+    });
+    // The V3 confirmation opens on its title (SA-v1 `openDlg` → `dlg-t`).
+    await expect(dialog.getByRole('heading', { level: 2 })).toBeFocused();
     await expectNoAxeViolations(page);
     expect(await smallTargets(page)).toEqual([]);
     await expectFocusKeptIn(page, dialog, 'Tab');
@@ -78,7 +81,9 @@ test.describe('the test-hook build (spine-start world, the Super Admin)', () => 
     await expect(panel(page)).toContainText('Different from the request');
     await checkState(page, 'Konark Polytechnic');
     await reachAndClick(page, panel(page).getByRole('button', { name: 'Approve smaller scope' }));
-    const dialog = page.getByRole('dialog', { name: 'Approve a smaller scope for REQ-0040?' });
+    const dialog = page.getByRole('dialog', {
+      name: 'Approve a smaller scope for Konark Polytechnic?',
+    });
     await expect(dialog).toContainText('The requester sees what changed and your reason.');
     await expectNoAxeViolations(page);
     expect(await smallTargets(page)).toEqual([]);
@@ -88,12 +93,12 @@ test.describe('the test-hook build (spine-start world, the Super Admin)', () => 
     await expect(panel(page).getByRole('button', { name: 'Approve smaller scope' })).toBeFocused();
   });
 
-  test('SA-03 unknown reference: the in-shell not-found page, nothing of any request', async ({
+  test('SA-03 unknown reference: the GL-04 “not available” page, nothing of any request', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'spine-start', session: SUPER_ADMIN });
     await page.goto('/admin/requests/REQ-9999');
-    await checkState(page, 'We can’t find that page');
+    await checkState(page, 'This page isn’t available');
     await expect(page.locator('main')).not.toContainText(/REQ-\d{4} ·|Konark|Godavari/);
   });
 
@@ -103,7 +108,7 @@ test.describe('the test-hook build (spine-start world, the Super Admin)', () => 
     await bootWorld(page, { fixture: 'spine-start', session: SUPER_ADMIN });
     await page.goto('/admin/institutions/sahyadri');
     const trigger = page
-      .locator('main .xw-actions')
+      .getByRole('complementary', { name: 'What you can do' })
       .getByRole('button', { name: 'Assign Institute Admin' });
     await expect(trigger).toBeVisible();
     const before = await inspectWorld(page);
@@ -143,7 +148,7 @@ test.describe('the test-hook build (spine-start world, the Super Admin)', () => 
       },
     });
     const trigger = page
-      .locator('main .xw-actions')
+      .getByRole('complementary', { name: 'What you can do' })
       .getByRole('button', { name: 'Restore access' });
     await expect(trigger).toBeVisible();
     await checkState(page, 'Sahyadri Institute of Engineering');
@@ -161,8 +166,8 @@ test.describe('the test-hook build (spine-start world, the Super Admin)', () => 
     await reachAndClick(page, trigger);
     await dialog.getByRole('textbox').fill('The plan is confirmed.');
     await reachAndClick(page, dialog.getByRole('button', { name: 'Restore access' }));
-    await expect(page.locator('main p.xa-save[role="status"]')).toHaveText(
-      'Access restored. Sahyadri Institute of Engineering can work again.',
+    await expect(page.locator('main .rk-notice--ok[role="status"]')).toHaveText(
+      'Access restored.Sahyadri Institute of Engineering can work again.',
     );
     await checkState(page, 'Sahyadri Institute of Engineering');
   });

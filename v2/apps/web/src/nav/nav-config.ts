@@ -328,8 +328,9 @@ export const WORKSPACE_NAV: Readonly<Record<Role, WorkspaceNavConfig>> = {
       boardIcon: 'requests',
       screen: 'SA-02',
       href: '/admin/requests',
-      // The boards draw only the plural ("3 requests under review"); the singular is not drawn.
-      countWords: { other: '{n} requests under review' },
+      // The v46 boards draw only the plural; the Super Admin export (SA-v1) writes the singular too
+      // ("1 request under review").
+      countWords: { other: '{n} requests under review', one: '{n} request under review' },
     },
     {
       key: 'institutions',

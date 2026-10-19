@@ -4,6 +4,7 @@ import { reachAndClick } from '../support';
 import { checkState } from '../support/screen-checks';
 import {
   ACCOUNT,
+  allContent,
   button,
   COMPOSITE,
   decision,
@@ -33,7 +34,9 @@ import {
  * screen that shows them (B7-06 draws no Vendor-side words for E-alt3's override: none asserted)
  * and one failure case. E-alt1 and E-alt2 start from SUB-0077 as the Phase-5 demonstration submits
  * and approves it, E-alt3 from the seeded stuck SUB-0085, and Flow F's from a correction of
- * Shell-and-Tube's summary as the Phase-6 demonstration sends it.
+ * Shell-and-Tube's summary as the Phase-6 demonstration sends it. The Super Admin's screens
+ * (SA-10 … SA-13) are the V3 Refined B ones (SA-v1): they never show a reference, so a record is
+ * the one whose link opens its address, and rows and dialogs are named by their content.
  */
 test.skip(
   ({ viewport }) => viewport?.width !== 1440,
@@ -89,6 +92,24 @@ const chip = (page: Page) => main(page).locator('.xr-phead-meta .xr-status');
 const field = (page: Page, label: string) =>
   main(page).getByRole('textbox', { name: label, exact: true });
 const rows = (page: Page) => main(page).locator('table.xr-table tbody tr');
+
+// The Super Admin's V3 screens (SA-v1): the kit's page head, record table and status chips.
+const saChip = (page: Page) => main(page).locator('.rk-head .rk-meta .xr-st');
+const saRows = (page: Page) => main(page).locator('table.rk-table tbody tr');
+/** The SA-10 / SA-12 row whose link opens `href` (the reference is the address, never shown). */
+const saRow = (page: Page, href: string) =>
+  saRows(page).filter({ has: page.locator(`a.rk-rowlink[href="${href}"]`) });
+const statusFilter = (page: Page) => page.getByRole('combobox', { name: 'Workflow status' });
+
+/** A Super Admin decision's flash (`.rk-notice--ok`, announced): its title, its line; it has focus. */
+async function expectFlash(page: Page, title: string, line: string): Promise<void> {
+  const flash = main(page)
+    .locator('.rk-notice--ok[role="status"]')
+    .filter({ has: page.locator('.rk-notice-t', { hasText: title }) });
+  await expect(flash.locator('.rk-notice-t')).toHaveText(title);
+  await expect(flash.locator('.rk-notice-d')).toHaveText(line);
+  await expect(flash).toBeFocused();
+}
 
 /** Signs in on the card on show as one of the sample people; their Overview opens. */
 async function startAs(page: Page, person: Person): Promise<void> {
@@ -190,17 +211,6 @@ async function vendorRecord(page: Page): Promise<void> {
   await reachAndClick(page, main(page).getByRole('link', { name: COMPOSITE, exact: true }));
   await page.waitForURL(`**/vendor/experiments/${SUB}`);
   await expect(h1(page)).toHaveText(COMPOSITE);
-}
-
-/** SA-10's sub-navigation → SA-12 All content, for the Super Admin (signed in). */
-async function allContent(page: Page): Promise<void> {
-  await sidebar(page, '/admin/content/updates');
-  await reachAndClick(
-    page,
-    page.getByRole('navigation', { name: 'Content' }).getByRole('link', { name: 'All content' }),
-  );
-  await page.waitForURL((url) => url.pathname === '/admin/content/all');
-  await expect(h1(page)).toHaveText('Content');
 }
 
 /**
@@ -362,11 +372,15 @@ test('E-alt2 · the Content Manager returns an approved submission to the Vendor
   );
   await signOut(page, ACCOUNT.anil);
 
-  // SA-12: the Super Admin's All content reads “Returned to vendor”.
+  // SA-12: the Super Admin's All content reads “Returned to the vendor” on SUB-0077's row.
   await startAs(page, 'arjun');
   await allContent(page);
-  const row = rows(page).filter({ hasText: COMPOSITE });
-  await expect(row.locator('.xr-status')).toHaveText('Returned to vendor');
+  await expect(h1(page)).toHaveText('Content');
+  const row = saRow(page, `/admin/content/records/${SUB}`);
+  await expect(
+    row.getByRole('link', { name: `${COMPOSITE}, Returned to the vendor. Open the record` }),
+  ).toBeVisible();
+  await expect(row.locator('.xr-st')).toHaveText('Returned to the vendor');
   await expect(row).toContainText('Returned to the vendor on');
   await checkState(page, 'Content');
   await signOut(page, ACCOUNT.arjun);
@@ -380,48 +394,72 @@ test('E-alt3 · the Super Admin returns a submission stuck with the Academic Rev
   await toSignIn(page);
   await startAs(page, 'arjun');
 
-  // SA-12 → Show stuck records → SA-13: “Stuck — nobody can act”.
+  // SA-12 → Show stuck records (the “Workflow status” filter set to Stuck, focus on it) → SA-13:
+  // “Stuck — nobody can act”.
   await allContent(page);
+  await expect(h1(page)).toHaveText('Content');
   await reachAndClick(page, page.getByRole('button', { name: 'Show stuck records' }));
-  await expect(page.getByRole('tab', { name: /^Stuck\s?\d+$/ })).toHaveAttribute(
-    'aria-selected',
-    'true',
+  await expect(statusFilter(page)).toHaveValue('stuck');
+  await expect(statusFilter(page)).toBeFocused();
+  await page.waitForURL(/\/admin\/content\/all\?show=stuck$/);
+  await expect(saRows(page)).toHaveCount(1);
+  const stuck = saRow(page, `/admin/content/records/${STUCK.id}`);
+  await expect(stuck.locator('.xr-st')).toHaveText('Stuck — nobody can act');
+  await reachAndClick(
+    page,
+    stuck.getByRole('link', { name: `${STUCK.name}, Stuck — nobody can act. Open the record` }),
   );
-  await expect(rows(page)).toHaveCount(1);
-  await expect(rows(page).locator('.xr-status')).toHaveText('Stuck — nobody can act');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Open ${STUCK.name}` }));
   await page.waitForURL(`**/admin/content/records/${STUCK.id}`);
   await expect(h1(page)).toHaveText(STUCK.name);
-  await expect(chip(page)).toHaveText('Stuck — nobody can act');
-  await expect(main(page).locator('.xr-notice--err .xr-notice-title')).toHaveText(
+  await expect(saChip(page)).toHaveText('Stuck — nobody can act');
+  await expect(main(page).locator('.rk-notice--warn .rk-notice-t')).toHaveText(
     'Stuck — nobody can act',
   );
   await checkState(page, STUCK.name);
 
-  // The override (DL-2): an empty reason is refused; nothing moves.
-  await reachAndClick(page, page.getByRole('button', { name: 'Move status (override)' }));
-  const dialog = page.getByRole('dialog', { name: `Move ${STUCK.id} out of review?` });
-  await expect(dialog).toBeVisible();
-  const reason = dialog.getByRole('textbox', { name: 'Reason — kept in the history' });
-  await reachAndClick(page, dialog.getByRole('button', { name: 'Move status' }));
-  await expect(dialog.getByText('Add a reason — it is kept in the history')).toBeVisible();
+  // The override (the “Move status (override)” panel, then its confirmation): an empty reason is
+  // refused under the field before anything opens; nothing moves.
+  const panel = page.getByRole('complementary', { name: 'Move status (override)' });
+  const reason = panel.getByRole('textbox', { name: 'Reason (required)' });
+  const move = panel.getByRole('button', { name: 'Move status' });
+  await reachAndClick(page, move);
+  await expect(panel.locator('.rk-ferr')).toHaveText('Add a reason — it is kept in the history');
   await expect(reason).toHaveAttribute('aria-invalid', 'true');
-  await expect(chip(page)).toHaveText('Stuck — nobody can act');
+  await expect(reason).toBeFocused();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(saChip(page)).toHaveText('Stuck — nobody can act');
   await type(reason, OVERRIDE_REASON);
+  await reachAndClick(page, move);
+  const dialog = page.getByRole('dialog', { name: `Return ${STUCK.name} to the vendor?` });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.locator('blockquote.rk-quote')).toContainText(OVERRIDE_REASON);
+  await expect(dialog).toContainText('Ritu Sharma · Meridian Virtual Labs can work on it again.');
   await reachAndClick(page, dialog.getByRole('button', { name: 'Move status' }));
   await expect(dialog).toBeHidden();
-  await expect(main(page).locator('p.xa-save')).toHaveText(
-    `${STUCK.id} is now with the vendor. Ritu Sharma · Meridian Virtual Labs can act on it.`,
+  await expectFlash(
+    page,
+    'Returned to the vendor.',
+    'The override and your reason are in the governance history.',
   );
-  await expect(chip(page)).toHaveText('Returned to vendor');
-  await expect(page.getByRole('button', { name: 'Move status (override)' })).toHaveCount(0);
+  await expect(saChip(page)).toHaveText('Returned to the vendor');
+  await expect(
+    main(page).locator('.rk-notice').filter({ hasText: 'In the workflow' }).locator('.rk-notice-d'),
+  ).toHaveText('Ritu Sharma · Meridian Virtual Labs can act on it. Nothing is needed from you.');
+  await expect(panel).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Move status' })).toHaveCount(0);
 
-  // SA-12: “Returned to vendor”, and nothing is stuck any more.
-  await reachAndClick(page, main(page).getByRole('link', { name: 'All content' }));
+  // SA-12: “Returned to the vendor”, and nothing is stuck any more.
+  await reachAndClick(
+    page,
+    page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'All content' }),
+  );
   await page.waitForURL((url) => url.pathname === '/admin/content/all');
-  await expect(page.getByRole('tab', { name: /^Stuck\s?\d+$/ })).toHaveText(/^Stuck\s?0$/);
-  const row = rows(page).filter({ hasText: STUCK.name });
-  await expect(row.locator('.xr-status')).toHaveText('Returned to vendor');
+  await expect(statusFilter(page).locator('option[value="stuck"]')).toHaveText(
+    'Stuck — nobody can act (0)',
+  );
+  await expect(page.getByRole('button', { name: 'Show stuck records' })).toHaveCount(0);
+  const row = saRow(page, `/admin/content/records/${STUCK.id}`);
+  await expect(row.locator('.xr-st')).toHaveText('Returned to the vendor');
   await expect(row).toContainText('(Super Admin override)');
   await signOut(page, ACCOUNT.arjun);
 });
@@ -441,27 +479,38 @@ test('Hold and Lift hold · a held correction goes back to waiting for the Super
   await signOut(page, ACCOUNT.menon);
 
   // SA-10 → SA-11: Hold needs a reason; once held, “On hold” and only Lift hold — no Release.
+  // The page is named by the experiment, its versions in the head; Hold asks for its reason in
+  // the decision panel, checked before the confirmation opens.
   await startAs(page, 'arjun');
   await openUpdateDecision(page, /1\.0 → 1\.1/);
-  const title = `${SHELL} · 1.0 → 1.1`;
-  await expect(h1(page)).toHaveText(title);
-  await expect(chip(page)).toHaveText('Waiting for your decision');
+  await expect(page).toHaveURL(new RegExp(`/admin/content/updates/${id}$`));
+  await expect(h1(page)).toHaveText(SHELL);
+  await expect(main(page).locator('.rk-head .rk-meta')).toContainText('Version 1.0 → 1.1');
+  await expect(saChip(page)).toHaveText('Waiting for your decision');
   await reachAndClick(page, decision(page).getByRole('radio', { name: /^Hold/ }));
-  await reachAndClick(page, decision(page).getByRole('button', { name: 'Hold' }));
-  const hold = page.getByRole('dialog', { name: `Hold ${id}?` });
-  const reason = hold.getByRole('textbox', { name: 'Reason the Content Manager will see' });
-  await reachAndClick(page, hold.getByRole('button', { name: 'Hold' }));
-  await expect(hold.locator('.xr-error')).toHaveText('Add a reason — the Content Manager sees it');
+  const reason = decision(page).getByRole('textbox', { name: 'Reason for the hold (required)' });
+  const holdGo = decision(page).getByRole('button', { name: 'Hold update' });
+  await reachAndClick(page, holdGo);
+  await expect(decision(page).locator('.rk-ferr')).toHaveText(
+    'Add a reason — the Content Manager sees it',
+  );
+  await expect(decision(page).locator('.rk-errsum')).toBeFocused();
   await expect(reason).toHaveAttribute('aria-invalid', 'true');
-  await expect(chip(page)).toHaveText('Waiting for your decision');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(saChip(page)).toHaveText('Waiting for your decision');
   await type(reason, HOLD_REASON);
-  await reachAndClick(page, hold.getByRole('button', { name: 'Hold' }));
+  await reachAndClick(page, holdGo);
+  const hold = page.getByRole('dialog', { name: `Hold the ${SHELL} correction?` });
+  await expect(hold.locator('blockquote.rk-quote')).toContainText(HOLD_REASON);
+  await reachAndClick(page, hold.getByRole('button', { name: 'Hold update' }));
   await expect(hold).toBeHidden();
-  await expect(chip(page)).toHaveText('On hold');
-  await expect(page.locator('#update-decided')).toContainText(`“${HOLD_REASON}”`);
+  await expectFlash(page, 'The correction is on hold.', 'Version 1.0 stays live.');
+  await expect(saChip(page)).toHaveText('On hold');
+  await expect(page.locator('#update-decided blockquote.rk-quote')).toHaveText(HOLD_REASON);
   await expect(decision(page).getByRole('button')).toHaveText(['Lift hold']);
   await expect(decision(page).getByRole('button', { name: 'Release update' })).toHaveCount(0);
-  await checkState(page, title);
+  await expect(decision(page).getByRole('radio')).toHaveCount(0);
+  await checkState(page, SHELL);
   await signOut(page, ACCOUNT.arjun);
 
   // While it is held the public page keeps the live version.
@@ -483,22 +532,38 @@ test('Hold and Lift hold · a held correction goes back to waiting for the Super
   // SA-10 On hold → SA-11: Lift hold → waiting for his decision again; Release offered again.
   await startAs(page, 'arjun');
   await sidebar(page, '/admin/content/updates');
-  await reachAndClick(page, page.getByRole('tab', { name: /^On hold/ }));
-  const held = rows(page).filter({ hasText: /1\.0 → 1\.1/ });
-  await expect(held.locator('.xr-status')).toHaveText('On hold');
-  await reachAndClick(page, held.getByRole('link', { name: /^Open/ }));
+  const onHold = page
+    .getByRole('group', { name: 'Show corrections' })
+    .getByRole('button', { name: /^On hold/ });
+  // On a phone the segments scroll sideways (a swipe brings a hidden one into view).
+  await onHold.scrollIntoViewIfNeeded();
+  await reachAndClick(page, onHold);
+  await expect(onHold).toHaveAttribute('aria-pressed', 'true');
+  await page.waitForURL(/\/admin\/content\/updates\?show=on-hold$/);
+  const held = saRow(page, `/admin/content/updates/${id}`);
+  await expect(held).toContainText('Version 1.0 → 1.1');
+  await expect(held.locator('.xr-st')).toHaveText('On hold');
+  await reachAndClick(
+    page,
+    held.getByRole('link', { name: `${SHELL} correction, version 1.0 to 1.1, On hold. Open` }),
+  );
   await page.waitForURL(`**/admin/content/updates/${id}`);
-  await expect(chip(page)).toHaveText('On hold');
+  await expect(saChip(page)).toHaveText('On hold');
   await reachAndClick(page, decision(page).getByRole('button', { name: 'Lift hold' }));
-  const lift = page.getByRole('dialog', { name: `Lift the hold on ${id}?` });
+  const lift = page.getByRole('dialog', { name: `Lift the hold on the ${SHELL} correction?` });
   await expect(lift).toContainText('It goes back to waiting for your decision.');
   await reachAndClick(page, lift.getByRole('button', { name: 'Lift hold' }));
   await expect(lift).toBeHidden();
-  await expect(chip(page)).toHaveText('Waiting for your decision');
-  await expect(main(page).locator('.xr-notice').filter({ hasText: 'Hold lifted' })).toBeVisible();
+  await expect(saChip(page)).toHaveText('Waiting for your decision');
+  await expectFlash(
+    page,
+    'Hold lifted.',
+    'The correction is waiting for your decision again. Nothing went live.',
+  );
+  await expect(decision(page).getByRole('radio', { name: /^Release update/ })).toBeVisible();
   await expect(decision(page).getByRole('button', { name: 'Release update' })).toBeVisible();
   await expect(decision(page).getByRole('button', { name: 'Lift hold' })).toHaveCount(0);
-  await checkState(page, title);
+  await checkState(page, SHELL);
   await signOut(page, ACCOUNT.arjun);
 });
 

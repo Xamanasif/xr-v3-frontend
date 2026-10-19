@@ -1,10 +1,10 @@
 /**
- * SA-21 Support report (B7-09 f8 … f12, f14) as a view of the report the service answers — pure
- * functions, no React. Words come from `copy/operations-6.ts`; dates are the boards' day form
- * ("3 Oct 2026"). The report record is the reporter's own (XS-07 reads the same SUP record).
+ * SA-21 Support report as a view of the report the service answers — pure functions, no React.
+ * Words come from `copy/operations-6.ts` (the Super Admin export, SA-v1 `V.report`); dates are the
+ * day form ("3 Oct 2026"). The report record is the reporter's own (XS-07 reads the same record).
  */
 import type { ActorRef, SupportReport } from '@xr/domain';
-import type { TimelineEvent } from '@xr/ui';
+import type { TimelineEvent } from '@xr/ui/v3';
 
 import { dayMonthYear } from '@/copy/dates';
 import {
@@ -29,15 +29,16 @@ function byReporter(report: SupportReport, actor: ActorRef): boolean {
   return actor.kind === 'person' && actor.personId === report.reporter.personId;
 }
 
-/** "What they reported" (B7-09 `dl.xl-kv.xv-kv`): From, What happened, Where, Screenshot. */
+/** "What they reported": From, What happened, Where, Screenshot. */
 export interface ReportedFact {
   readonly term: string;
   readonly value: string;
 }
 
 /**
- * The facts as B7-09 lists them. "Where" is left out when the reporter cleared it (the reporter's
- * own detail does the same, XS-07); a screenshot is its file name only — nothing is uploaded.
+ * The facts as the export lists them. "Where" is left out when the reporter cleared it (the
+ * reporter's own detail does the same, XS-07); a screenshot is its file name only — nothing is
+ * uploaded.
  */
 export function reportedFacts(report: SupportReport, from: string): readonly ReportedFact[] {
   const { keys } = REPORT_PAGE;
@@ -50,9 +51,8 @@ export function reportedFacts(report: SupportReport, from: string): readonly Rep
 }
 
 /**
- * The history, newest first (B7-09 `hist`; "Newest first"): Sent; Resolved with the note in
- * quotation marks; Reopened "By the reporter." or "By <name>." — each with its day (state-copy
- * `SA-21.history`).
+ * The history, newest first ("Newest first"): Sent; Resolved with the note in quotation marks;
+ * Reopened "By the reporter." or "By <name>." — each with its day (state-copy `SA-21.history`).
  */
 export function historyEvents(report: SupportReport): TimelineEvent[] {
   const events = [...report.history].sort((a, b) =>
@@ -62,17 +62,15 @@ export function historyEvents(report: SupportReport): TimelineEvent[] {
     const when = dayMonthYear(entry.at);
     switch (entry.event) {
       case 'sent':
-        return { id: entry.id, what: REPORT_HISTORY.sent, when };
+        return { what: REPORT_HISTORY.sent, when };
       case 'resolved':
         return {
-          id: entry.id,
           what: REPORT_HISTORY.resolved,
           when,
           ...(entry.note ? { note: quoted(entry.note) } : {}),
         };
       case 'reopened':
         return {
-          id: entry.id,
           what: REPORT_HISTORY.reopened,
           when,
           note: byReporter(report, entry.actor)
@@ -83,24 +81,21 @@ export function historyEvents(report: SupportReport): TimelineEvent[] {
   });
 }
 
-/** The decided panel of a resolved report (B7-09 `rDone`): when, by whom, and the note. */
+/** The decided panel of a resolved report: when, and the note the reporter sees. */
 export function resolutionOf(
   report: SupportReport,
 ): { readonly line: string; readonly note: string } | null {
   if (report.state !== 'resolved') return null;
   const resolution = latest(report.resolutions);
   return resolution
-    ? {
-        line: resolvedOnWords(dayMonthYear(resolution.at), nameOf(resolution.by)),
-        note: quoted(resolution.note),
-      }
+    ? { line: resolvedOnWords(dayMonthYear(resolution.at)), note: resolution.note }
     : null;
 }
 
 /**
- * The notice first on a reopened report (B7-09 f10 `hasPrev`): who reopened it and the earlier
- * note — "Reopened by the reporter" as drawn, or "Reopened by <name>" when the Super Admin did
- * (state-copy `SA-21.reopened-by`). None when the report has no earlier resolution.
+ * The notice in the panel of a reopened report: who reopened it and the earlier note — "Reopened
+ * by the reporter" as drawn, or "Reopened by <name>" when the Super Admin did (state-copy
+ * `SA-21.reopened-by`). None when the report has no earlier resolution.
  */
 export function reopenedNotice(
   report: SupportReport,

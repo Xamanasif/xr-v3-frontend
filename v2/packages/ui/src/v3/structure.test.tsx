@@ -449,6 +449,33 @@ describe('V3 overview patterns', () => {
   });
 });
 
+describe('V3 page head “Go to …” (rk-goto)', () => {
+  it('with focusId: scrolls to the panel and focuses its heading (SA-v1 goInPanel); without: a plain link', () => {
+    const scroll = vi.fn();
+    Element.prototype.scrollIntoView = scroll;
+    render(
+      <>
+        <PageHead
+          title="Godavari Institute of Technology"
+          goTo={{ label: 'Go to actions', targetId: 'in-panel', focusId: 'in-panel-h' }}
+        />
+        <PageHead title="BITS" goTo={{ label: 'Go to decision', targetId: 'dc-panel' }} />
+        <aside id="in-panel">
+          <h2 id="in-panel-h" tabIndex={-1}>
+            What you can do
+          </h2>
+        </aside>
+      </>,
+    );
+    const go = screen.getByRole('link', { name: 'Go to actions' });
+    expect(go).toHaveAttribute('href', '#in-panel');
+    expect(fireEvent.click(go)).toBe(false);
+    expect(scroll).toHaveBeenCalledWith({ block: 'start' });
+    expect(screen.getByRole('heading', { name: 'What you can do' })).toHaveFocus();
+    expect(fireEvent.click(screen.getByRole('link', { name: 'Go to decision' }))).toBe(true);
+  });
+});
+
 describe('V3 plan band, course group and experiment card (IA-02)', () => {
   it('compose as IA-02 draws them', async () => {
     const { container } = render(

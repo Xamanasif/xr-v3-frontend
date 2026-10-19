@@ -1,181 +1,175 @@
 import type { StateCopyEntry } from './state-copy';
 
 /**
- * The state-copy entries of Phase 3's SA-18 Device transfers and SA-19 Device transfer decision (B3-11, B7-09, B7-10), with the SA-07 rows they enable — part of the one register (`state-copy.ts`, VD-12).
+ * The state-copy entries of SA-18 Device transfers and SA-19 Device transfer decision — part of the
+ * one register (`state-copy.ts`, VD-12) — in the owner-approved V3 Refined B design (the Super
+ * Admin export, design/v3-refined-b/roles/SA-v1, `project/sa-views-d.js` `V.transfers`,
+ * `V.transfer`).
  *
- * B3-11 draws the three list views, the decision, its DL-1 confirmation, the approved record and
- * (with B7-10 f14) a transfer that has not reached BITS; it draws no loading, failed or empty list
- * and no refusal of the approval. Those, and the rules the screens apply where the boards differ or
- * stay silent, are here. The SA-07 device-transfer row is `SA-07.attention-later` (state-copy.ts).
+ * The export draws the three list views, their loading, failed and empty states, the decision,
+ * its confirmation, the approved record, a transfer still with its institution and a refusal of the
+ * approval. Its words are here where a screen reads them as a state (`owner-approved`, basis
+ * "SA-v1 …"); the rules the screens apply where the export differs from the product or stays
+ * silent are here too. The refusal's words follow the repo's conflict formula, not the export's
+ * proposal (SA-v1 HANDOFF "Use the existing conflict wording"). The SA-07 device-transfer row is
+ * `SA-07.attention-later` (state-copy.ts).
  */
 export const STATE_COPY_OPERATIONS = {
-  // ---- SA-18 Operations › Device transfers (B3-11 f0, f2, f3; B7-09 f0, f2) ----
+  // ---- SA-18 Operations › Device transfers (SA-v1 `V.transfers`) ----
   'SA-18.tabs': {
     screen: 'SA-18',
-    state: 'The Operations tabs',
+    state: 'The Operations head and tabs',
     words: null,
-    rule: 'Phase 6: the three Operations tab links — Device transfers (current) · Support (SA-20) · Access ending (SA-22) — as B7-09 f0 draws them on the re-used list: `nav.xr-tabs.xr-tabs--on-white` with its 20 px margin and the 20 px gap after it, the same strip on all three lists, so moving between the tabs never shifts it (B3-11’s strip on the page canvas is no longer followed). The meta line under the title is kept as B7-09 f0 draws it (state-copy `SA-20.page-meta`).',
-    basis:
-      'B7-09 f0 (“re-used: only the sidebar and tab links now lead to the Batch-7 destinations”), f4, f7; B3-11 f0; B8-06 phase plan',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    rule: 'The three lists share one head: the date line (phones), “Operations” (the H1, which takes focus with the route), “Device transfers, support reports and access that is ending.”, then the page tabs Device transfers · Support · Access ending — links, the current one `aria-current="page"` (`nav.rk-tabs.sa-tabs`), the same on all three lists.',
+    basis: 'SA-v1 sa-views-d.js `opsHead`; SA-v1 LINK-MAP (SA-18/SA-20/SA-22 tabs)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.show-address': {
     screen: 'SA-18',
-    state: 'The “Show” filter in the address',
+    state: 'The view switch and the address',
     words: null,
-    rule: '“Forwarded to BITS” is the list’s own address; “Still with an institution” and “Approved” add `?show=with-institution` / `?show=approved`. Each is a link (`div.xr-seg.xl-seg` of `a`, the current one `aria-current="true"`), and the view is the service’s answer for that state (`listDeviceTransfers({ state })`). An address whose `show` names no view is replaced by the list’s own address.',
+    rule: 'The views are the export’s segmented switch (`sa-seg` around `rb-switch`: buttons with `aria-pressed`, each with its count): Forwarded to BITS · Still with an institution · Approved. “Forwarded to BITS” is the list’s own address; the others add `?show=with-institution` / `?show=approved`. Choosing a view replaces the address (no history entry); an address from outside is read again, and one whose `show` names no view is replaced by the list’s own address. Each view is the service’s answer for that state (`listDeviceTransfers({ state })`); the counts are its answer for every state (`listDeviceTransfers({})`) and are left out while they are not known.',
     basis:
-      'B3-11 f0, f2, f3 (`xl-seg` links); Appendix A register routes (query filters); as IA-02’s `?tab=`',
-    status: 'provisional',
-    decisions: ['VD-12'],
+      'SA-v1 sa-views-d.js `V.transfers` (`SA.seg`), COMPONENT-EXTENSIONS `sa-seg`; Appendix A register routes (query filters); as SA-20’s `?show=`',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.rows': {
     screen: 'SA-18',
     state: 'The rows of each view',
     words: null,
-    rule: 'Newest first (forwarded: by when it was forwarded; still with an institution: by when it was requested; approved: by when it was approved). The reference opens the decision (SA-19) on forwarded and approved rows; a row still with its institution shows its reference unlinked and no action, as drawn. Only a forwarded row has “Review”. The line under the reference is the requesting Student (the record’s own “requested” entry) and the format; the institution is named from the institutions list.',
-    basis: 'B3-11 f0 (DTR-0018 23 Oct above DTR-0016 21 Oct), f2 (`span.xr-id`, no link), f3',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    rule: 'Newest first (forwarded: by when it was forwarded; still with an institution: by when it was requested; approved: by when it was approved). Every row opens its transfer (SA-19), its link named by content (“VR device transfer for Rahul Verma, Forwarded. Open”) — the DTR reference is never shown. The Student is the record’s own “requested” entry, the institution is named from the institutions list.',
+    basis:
+      'SA-v1 sa-views-d.js `V.transfers` (`rk-rowlink`), LINK-MAP SA-18 → SA-19; SA-v1 HANDOFF (no internal references)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.forwarded-cell': {
     screen: 'SA-18',
-    state: 'The “Forwarded” column',
+    state: 'The “Forwarded by” and “Forwarded” columns',
     words: null,
-    rule: '“<date, time> · <who forwarded it>” as B3-11’s live row writes it (`fwdText`: “23 Oct 2026, 10:00 · Meera Iyer”); “Not yet” before it is forwarded. The board’s fixed rows write the date alone (“21 Oct 2026 · Institute Admin”, “14 Oct 2026 · Meera Iyer”) — board versus board; the live row is followed.',
-    basis: 'B3-11 script `fwdText`; B3-11 f0, f3 fixed rows',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    rule: '“Forwarded by”: who forwarded it, with their role (“Meera Iyer, Institute Admin”), or “Not forwarded yet”. “Forwarded”: the day it was forwarded (“23 Oct 2026”), or “Not yet”.',
+    basis: "SA-v1 sa-views-d.js `V.transfers` (`t.fwdBy || …`, `t.fwd.split(',')[0]`)",
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.loading': {
     screen: 'SA-18',
-    state: 'The device transfers loading (screen readers)',
-    words: 'Loading device transfers',
-    basis:
-      'Board 04 "State grammar" Loading formula (as SA-02 “Loading requests”); B3-11 draws no loading frame',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    state: 'The device transfers loading (over skeleton rows)',
+    words: 'Loading device transfers…',
+    basis: 'SA-v1 sa-views-d.js `V.transfers` (`SA.listState` loading)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.failed': {
     screen: 'SA-18',
     state: 'The device transfers failed to load (service unavailable; a test fault plan only)',
-    words: 'The device transfers didn’t load. Nothing was lost.',
-    basis: 'Board 04 "State grammar" Failed + retry formula (as SA-07.failed)',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'SA-18.failed.line': {
-    screen: 'SA-18',
-    state: 'The failed state’s next step',
-    words: 'Try again. If it keeps happening, report the problem.',
-    basis: 'Board 03 "Notices, empty, error, loading and read-only" (the failed notice’s line)',
-    status: 'drawn',
+    words: 'We couldn’t load the device transfers',
+    rule: 'With the shared line “Nothing has changed. Try again.” and “Try again” (`@/copy/sa-shared` SA_FAILED).',
+    basis: 'SA-v1 sa-views-d.js `V.transfers` (`SA.listState` failed)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.empty.forwarded': {
     screen: 'SA-18',
     state: '“Forwarded to BITS” with nothing forwarded',
-    words: 'No device transfers waiting for BITS',
-    basis:
-      'Board 04 "State grammar" Empty formula (icon, one line, one next step; never “No data”); B3-11 draws no empty view',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'SA-18.empty.forwarded.line': {
-    screen: 'SA-18',
-    state: 'The empty forwarded view’s line',
-    words: 'A transfer appears here when an Institute Admin forwards it.',
-    basis:
-      'Board 04 Empty formula, worded after B3-11 `beforeSA` (“It appears here when the Institute Admin forwards it.”)',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    words: 'Nothing is waiting for your approval',
+    basis: 'SA-v1 sa-views-d.js `V.transfers` (the empty view, `rk-state-t`)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.empty.with-institution': {
     screen: 'SA-18',
     state: '“Still with an institution” with none waiting',
-    words: 'No device transfers are with an institution',
-    basis: 'Board 04 "State grammar" Empty formula; B3-11 draws no empty view',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'SA-18.empty.with-institution.line': {
-    screen: 'SA-18',
-    state: 'The empty “Still with an institution” view’s line',
-    words: 'A Student’s request waits here until their Institute Admin forwards it.',
-    basis: 'Board 04 Empty formula; B3-11 f2 caption (“Not BITS’s to decide yet”)',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    words: 'No transfer is still with an institution',
+    basis: 'SA-v1 sa-views-d.js `V.transfers` (the empty view, `rk-state-t`)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-18.empty.approved': {
     screen: 'SA-18',
     state: '“Approved” with nothing approved',
-    words: 'No device transfers approved yet',
-    basis: 'Board 04 "State grammar" Empty formula; B3-11 draws no empty view',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    words: 'No transfer has been approved yet',
+    basis: 'SA-v1 sa-views-d.js `V.transfers` (the empty view, `rk-state-t`)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
-  'SA-18.empty.approved.line': {
+  'SA-18.empty.line': {
     screen: 'SA-18',
-    state: 'The empty approved view’s line',
-    words: 'Transfers you approve appear here.',
-    basis: 'Board 04 Empty formula',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    state: 'The empty views’ line',
+    words: 'Transfers appear here when an Institute Admin forwards a student’s request.',
+    basis: 'SA-v1 sa-views-d.js `V.transfers` (the empty view, `rk-state-d`)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
-  // ---- SA-19 Device transfer decision (B3-11 f1, f4 … f7; B7-09 f1, f3; B7-10 f14) ----
+  // ---- SA-19 Device transfer decision (SA-v1 `V.transfer`, `SA.DLG.approveDtr`) ----
   'SA-19.facts': {
     screen: 'SA-19',
     state: '“The transfer” facts the record does not carry itself',
     words: null,
-    rule: 'The Student’s name is the record’s own “requested” entry; their institution ID (“GIT-2026-0418”) and the institution’s name come from the institution (`getInstitution`) — the ID is left out when the institution does not list the Student. The experiment is named from the published catalogue; a transfer that names no experiment reads its format alone. “Forwarded by” is who forwarded it, with their role.',
+    rule: 'The Student’s name is the record’s own “requested” entry; their institution number (“GIT-2026-0418”, institution data, kept — open owner decision 7) and the institution’s name come from the institution (`getInstitution`) — the number is left out when the institution does not list the Student. The experiment is named from the published catalogue; a transfer that names no experiment reads its format alone. The Student’s note is quoted and left out when there is none; “Forwarded by” is who forwarded it, with their role, left out before it is forwarded.',
     basis:
-      'B3-11 f1 (`Student`, `Institution`, `Format`, `Forwarded by`); the DTR record (studentId, institutionId, experimentId, forwarded.by)',
-    status: 'provisional',
-    decisions: ['VD-12'],
+      'SA-v1 sa-views-d.js `V.transfer` (`rows`); the DTR record (studentId, institutionId, experimentId, forwarded.by)',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-19.loading': {
     screen: 'SA-19',
-    state: 'The device transfer loading (screen readers)',
-    words: 'Loading the device transfer',
+    state: 'The device transfer loading (over skeleton rows)',
+    words: 'Loading the device transfer…',
     basis:
-      'Board 04 "State grammar" Loading formula (as SA-03.loading); B3-11 draws no loading frame',
+      'Board 04 "State grammar" Loading formula, in the kit’s loading rows (`SaRecordGuard`); the export draws no loading record',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'SA-19.failed': {
     screen: 'SA-19',
     state: 'The device transfer failed to load (service unavailable; a test fault plan only)',
-    words: 'The device transfer didn’t load. Nothing was lost.',
-    basis: 'Board 04 "State grammar" Failed + retry formula (as SA-03.failed)',
+    words: 'We couldn’t load the device transfer',
+    rule: 'With the shared line “Nothing has changed. Try again.” and “Try again” (`SaRecordGuard`).',
+    basis:
+      'SA-v1 `SA.listState` failed formula (as `SA-18.failed`); the export draws no failed record',
     status: 'provisional',
     decisions: ['VD-12'],
-  },
-  'SA-19.failed.line': {
-    screen: 'SA-19',
-    state: 'The failed state’s next step',
-    words: 'Try again. If it keeps happening, report the problem.',
-    basis: 'Board 03 "Notices, empty, error, loading and read-only" (the failed notice’s line)',
-    status: 'drawn',
   },
   'SA-19.unknown': {
     screen: 'SA-19',
     state: 'An address that names no transfer the Super Admin’s list holds',
     words: null,
-    rule: 'The in-shell not-found page (the port has no single-transfer read for the Super Admin: the page reads its transfer from `listDeviceTransfers`).',
-    basis: 'ADR-0005 §5 record guards; OperationsService `listDeviceTransfers`',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    rule: 'The GL-04 message “This page isn’t available” in place (`SaRecordGuard`, `@/copy/sa-shared`), its place named “Not available” — never the address’s reference (the port has no single-transfer read for the Super Admin: the page reads its transfer from `listDeviceTransfers`).',
+    basis: 'SA-v1 sa-core.js `SA.resolve` (`nf`); OperationsService `listDeviceTransfers`',
+    status: 'owner-approved',
+    decisions: ['SA-v1'],
   },
   'SA-19.moved-on': {
     screen: 'SA-19',
     state:
       'Approve refused because the transfer moved on (a stale revision; approved elsewhere; not yet forwarded) — or the panel ended by such a change while in use',
     words: null,
-    rule: 'Nothing is written: the confirmation closes, the transfer is read again and the page shows its current drawn state (approved: read-only with who and when). No notice; focus goes to the decision panel’s heading. The confirmation keeps the transfer’s revision from when it opened, so a change shown meanwhile is refused, never acted on. Approving is the only decision on a transfer (T-32).',
+    rule: 'Nothing is written: the confirmation closes, the transfer is read again and the panel shows its current state (approved: read-only with who and when) under the refusal notice (`SA-19.stale.*`, “Check it again” closes it and moves focus to the page’s heading); focus goes to the decision panel’s heading. The confirmation keeps the transfer’s revision from when it opened, so a change shown meanwhile is refused, never acted on. Approving is the only decision on a transfer (T-32).',
     basis:
-      'Appendix G P1-21 interim (“Refetch and render the current drawn state”); as SA-03.moved-on; B3-11 draws no refusal',
+      'SA-v1 sa-views-d.js `V.transfer` (`SA.refusalHtml`), ROLE-STATUS SA-19 “stale refusal”; Appendix G P1-21 interim (“Refetch and render the current drawn state”)',
     status: 'provisional',
     decisions: ['P1-21', 'T-32'],
+  },
+  'SA-19.stale.title': {
+    screen: 'SA-19',
+    state: 'The refusal notice’s title (Approve refused: the transfer changed since it was opened)',
+    words: 'This device transfer changed since you opened it',
+    basis:
+      'Board 08 “conflict” formula (as SA-21.stale.title, SA-11.stale.title); the export’s proposal (“This record changed after you opened it”) is not used — SA-v1 HANDOFF open decision 8',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'SA-19.stale.line': {
+    screen: 'SA-19',
+    state: 'The refusal notice’s line',
+    words: 'It has been read again. Check it, then decide again.',
+    basis:
+      'Board 08 “conflict” formula (as SA-21.stale.line, CM-03.stale.line); SA-v1 HANDOFF open decision 8',
+    status: 'provisional',
+    decisions: ['VD-12'],
   },
   'SA-19.unavailable': {
     screen: 'SA-19',
@@ -183,7 +177,7 @@ export const STATE_COPY_OPERATIONS = {
     words: null,
     rule: 'Nothing changes: the confirmation stays open and can be confirmed again; no message.',
     basis:
-      'B3-11 draws no failure for its command; Appendix F §6.6 “command unavailable → nothing changes” (as SA-07.unavailable)',
+      'The export draws no failure for its command; Appendix F §6.6 “command unavailable → nothing changes” (as SA-07.unavailable)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

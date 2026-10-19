@@ -1,0 +1,37 @@
+{
+  "about": "Design-preview fixtures for the Super Admin role. Illustrative only: NOT canonical application data, NOT a service contract. The React app keeps its current shared world; reproduce the layout, not these records.",
+  "fixtureFile": "project/sa-data.js",
+  "scenarios": [
+    { "scenarioId": "busy", "asOf": "2026-10-23", "label": "23 Oct 2026 · working day", "default": true,
+      "basis": "V3 SA01.dc.html work groups (15 items, 8 groups) and SA02.dc.html oct23 snapshot; v46 B7-02…B7-09 records.",
+      "derivedNotStored": ["Overview counts and priority band are computed from the same records the destination screens show.", "Institution status is computed: no plan → awaiting payment; all plans ended → ended; pause present → paused; nearest live plan end within 15 days → ending soon; otherwise active. This is a presentation derivation, not a service rule.", "Content is 'stuck' when it is with the Academic Reviewer and no reviewer has its course (or all experiments, or that experiment) in active scope."] },
+    { "scenarioId": "new", "asOf": "2026-10-08", "label": "8 Oct 2026 · new institution asks for access",
+      "basis": "V3 SA02.dc.html oct08 snapshot (Godavari new access under review, decision at 11:20).",
+      "timeFilter": ["Godavari Institute of Technology has no institution record until its request is approved.", "Records dated after 8 Oct are left out: the 21 Oct licence request, Dr K. Iyer (registered 20 Oct), forwarded device transfers (21/23 Oct) and transfers at Godavari, and Deccan's 12 Oct pause.", "Support reports from Godavari people are left out because the institution does not exist yet on this date (v46 dates them earlier; recorded as a conflict below)."] },
+    { "scenarioId": "quiet", "asOf": "2026-10-23", "label": "23 Oct 2026 · nothing waiting",
+      "basis": "Subset of 'busy' for the calm Overview state (v46 B7-01 'Nothing is waiting').",
+      "pruned": ["requests under review", "the correction waiting for release", "forwarded device transfers", "open and reopened support reports", "BITS Pilani — Hyderabad Campus, Konark Polytechnic and Sahyadri Institute of Engineering with their requests (they carry ending access or a missing Institute Admin)", "DC Motor Speed Control (stuck)", "Dr K. Iyer (no scope)"],
+      "note": "No record is invented or edited to make the state calm; records that would need action are left out of this fixture." },
+    { "scenarioId": "konark", "asOf": "2026-10-23", "label": "23 Oct 2026 · Konark paused",
+      "basis": "Reproduces the V3 SA-03 paused board and v46 B1-11, where Konark Polytechnic is paused. Pause date and reason are not given there, so none are shown." }
+  ],
+  "addedOrCombinedFacts": [
+    { "fact": "BITS Pilani — Hyderabad Campus holds two access plans: (1) Composite Wall Conduction, Fin-Tube Bundle, Investment Casting · 860 licences · yearly · ends 31 Oct 2026, start date not given; (2) Distillation Column, Boiler Drum Level · 80 licences · monthly 1–31 Oct 2026.",
+      "source": "Plan 1 from V3 SA02 renewal record and its 'existing access' text; plan 2 from v46 B7-02 (ACC-0098). V3 SA02's REQ-0039 record already says the campus 'also holds' the 860-licence plan, so both are kept instead of choosing one." },
+    { "fact": "Konark Polytechnic plan: Buck Converter Ripple (WEB, AR), 180 licences, quarterly 3 Aug – 2 Nov 2026.", "source": "Licences from V3 SA02 (180); term and dates from v46 B7-02 (which shows 60 licences). Conflict recorded below." },
+    { "fact": "Published formats for the Sahyadri CNC Turning Centre cell strip (WEB, AR, VR, MR).", "source": "v46 B7-06 CNC Turning Centre record." },
+    { "fact": "Overview text lines for each request (ovT/ovD).", "source": "Copied from V3 SA01.dc.html rows; Godavari new-access line written for the 8 Oct scenario from the request's own facts." },
+    { "fact": "Institute Admin e-mail addresses for BITS Hyderabad, Konark, Deccan and Malnad.", "source": "Konark from V3 SA02 (R. Bhatt contact e-mail). Others are illustrative example.* / institution-domain addresses used only for the identity-collision check; marked illustrative." },
+    { "fact": "Clock for new decisions: the scenario date with times from 10:05 in 7-minute steps.", "source": "Preview mechanism only." }
+  ],
+  "openConflictsNotResolved": [
+    "Konark Polytechnic: paused (V3 SA-03 board, v46 B1-11, term to 24 Sep 2027) versus ending 2 Nov 2026 (V3 SA-01, v46 B7-01/B7-02). 'busy' follows SA-01; 'konark' reproduces the paused board.",
+    "Konark licences: 180 (V3 SA02) versus 60 (v46 B7-02).",
+    "BITS Pilani — Hyderabad Campus: V3 renewal plan (3 experiments, 860, yearly) versus v46 ACC-0098 (2 experiments, 80, monthly). Kept as two plans; the owner should confirm.",
+    "Godavari 60-licence request (21 Oct 2026) appears only on V3 SA-01; contact, experiment and formats filled from Godavari's plan (as V3 did).",
+    "Sahyadri: additional-licences request on 18 Sep 2026 predates 'access active since 30 Sep 2026'.",
+    "SUP-0213 names two different reports in v46 (3 Oct 2026 and 20 Sep 2027); the 3 Oct one is used. Godavari support reports dated before Godavari's 8 Oct approval.",
+    "Composite Wall Conduction and Conduction Through a Composite Wall are kept as separate records (duplicate-content decision open).",
+    "Boiler Drum Level hold (20 Aug 2026): v46 gives no reason and no changed fields; the screen says so instead of inventing them."
+  ]
+}

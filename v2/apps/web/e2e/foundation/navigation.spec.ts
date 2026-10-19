@@ -189,14 +189,16 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
     const tab = await page.context().newPage();
     await openAs(tab, entry.person, `${entry.base}/help`);
     await waitForShell(tab);
-    const side = tab.locator('aside.xr-side');
+    // The v46 sidebar, or the Super Admin's V3 rail (SA-v1), whose Help sits in a navigation of
+    // its own in the rail foot.
+    const side = tab.locator('aside.xr-side, aside.rb-rail');
     if (entry.role === 'super_admin') {
       // SA-02 (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3), Content,
-      // Academic structure and Platform roles (Phase 6): all seven, then Help.
+      // Academic structure and Platform roles (Phase 6): all seven, then Help & support.
       await expect(side.locator('a[href]')).toHaveCount(8);
       expect(
         await side
-          .locator('nav a[href]')
+          .locator('nav[aria-label="Super Admin navigation"] a[href]')
           .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
       ).toEqual([
         '/admin',
@@ -207,7 +209,7 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
         '/admin/roles',
         '/admin/operations/device-transfers',
       ]);
-      await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute('href', '/admin/help');
+      await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/admin/help');
     } else {
       // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
       // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the

@@ -1,11 +1,13 @@
 'use client';
 
 import { MessagePage } from '@xr/ui';
+import { V46Island } from '@xr/ui/v3';
 
 import { stateWords } from '@/copy/state-copy';
 
 import { DocumentTitle } from '../document-title';
 import { useShellPage, useWorkspaceIdentity } from '../workspace-frame/shell-page';
+import { V3_SHELL_ROLES } from '../workspace-shell/v3-role-shell';
 
 /** Board 08 "The family": the not-found title and sentence, the same in both variants. */
 const NOT_FOUND_TITLE = 'We can’t find that page';
@@ -23,9 +25,9 @@ const NOT_FOUND_SENTENCE = 'The address may be wrong, or the page may have moved
  * line has gone; recorded as a sample-mode limitation (Appendix F §3.3).
  */
 export function WorkspaceNotFound() {
-  const { home, help } = useWorkspaceIdentity();
+  const { role, home, help } = useWorkspaceIdentity();
   useShellPage({ screen: 'PU-15', title: stateWords('PU-15.top-title') });
-  return (
+  const message = (
     <MessagePage
       icon="search"
       placement="shell"
@@ -36,6 +38,8 @@ export function WorkspaceNotFound() {
       {NOT_FOUND_SENTENCE}
     </MessagePage>
   );
+  // PU-15 keeps its v46 design (board 08); in a migrated role's V3 shell it is a v46 island.
+  return V3_SHELL_ROLES.has(role) ? <V46Island>{message}</V46Island> : message;
 }
 
 /**

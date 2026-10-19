@@ -2,36 +2,42 @@ import type { LedgerEntry } from '../link-targets';
 import { pageRows } from '../link-targets-p3/rows';
 
 const STRUCTURE = '/admin/structure';
-/** SA-15, by course id: Thermodynamics & Heat Transfer stands for any course (B7-07 f3, f6). */
+/** SA-15, by course id: Thermodynamics & Heat Transfer stands for any course. */
 const COURSE = '/admin/structure/courses/thermodynamics-heat-transfer';
-/** SA-15, by area id: Chemical & Process stands for any area (B7-07 f5). */
+/** SA-15, by area id: Chemical & Process stands for any area. */
 const AREA = '/admin/structure/areas/chemical-process';
+/** SA-07 and SA-17 from “What uses this course”: an institution, a Vendor holder. */
+const INSTITUTION = '/admin/institutions/{institutionId}';
+const VENDOR = '/admin/roles/role-anil-shetty';
 
 /**
- * Phase 6 link targets: SA-14 Academic structure and SA-15 Area / course record (B7-07, B7-10,
- * B7-12). SA-14’s one primary is “Add course” (a DL-3 dialog, a command); its rows open SA-15.
- * SA-15 draws no primary on the page: Rename and Edit description open DL-3 dialogs, “Move to
- * another area” the inline move panel, whose buttons are commands; the back link and the crumb
- * return to Academic structure. No Retire, no artwork, no Module level (D3, BC2).
+ * SA-14 Academic structure and SA-15 Area / course record in the owner-approved V3 design (SA-v1
+ * LINK-MAP; `sa-views-c.js` `V.structure`, `V.area`, `V.course`). SA-14's head holds Add area and
+ * Add course (navy; each opens its dialog, whose confirm is a command); every area's “Open area”
+ * opens its record, every course row (named by its content) the course's. SA-15's crumbs return
+ * to Academic structure and the area; the course page's panel “Change this course” holds Rename,
+ * Edit description and Move to another area (dialogs, commands); “What uses this course” links
+ * each institution (SA-07) and Vendor holder (SA-17). No Retire, no artwork, no Module level, no
+ * platform code edit (D3, BC2, M-2).
  */
 export const P6_STRUCTURE_LINK_TARGETS: readonly LedgerEntry[] = [
-  // SA-14 Academic structure (B7-07 f0, f7; B7-12 f12 … f15).
+  // SA-14 Academic structure (`V.structure`).
   ...pageRows('SA-14', STRUCTURE, [
     [
-      'Page actions',
+      'Page head',
       'Add area',
       'secondary',
       null,
       'in-page',
-      'B7-07 f0 `div.xr-phead-actions > button.xr-btn--secondary` → DL-3 “Add an engineering area”',
+      'SA-v1 `V.structure` `div.rk-head-act > button.rb-btn` → `SA.DLG.area` “Add an engineering area”',
     ],
     [
-      'Page actions',
+      'Page head',
       'Add course',
       'primary',
       null,
       'in-page',
-      'B7-07 f0, f7 `div.xr-phead-actions > button.xr-btn--primary` → DL-3 “Add a course”',
+      'SA-v1 `V.structure` `div.rk-head-act > button.rb-btn--navy` → `SA.DLG.course` “Add a course”',
     ],
     [
       'Each engineering area',
@@ -39,83 +45,99 @@ export const P6_STRUCTURE_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       AREA,
       'built',
-      'B7-07 f0 `div.xr-section-head a.xr-btn--text.xr-btn--sm` (SA-15 area record)',
+      'SA-v1 LINK-MAP SA-14 → SA-15 “Open the area …” (`div.rk-course-h > a.rb-link`; named “Open area <area>”, state-copy `SA-14.open-area-name`)',
     ],
     [
       'Each course row',
-      'Open',
+      '<course name, platform code, published experiments>',
       'secondary',
       COURSE,
       'built',
-      'B7-07 f0 `li.xr-row a.xr-btn--secondary.xr-btn--sm` (SA-15 course record)',
+      'SA-v1 LINK-MAP SA-14 → SA-15 “Thermodynamics & Heat TransferME ZG5234 published experiments” (`ul.sa-list > a.sa-list-row`)',
     ],
     [
       'Dialogs (Add area, Add course)',
-      'Add area · Add course · Cancel · Close',
+      'Add area · Add course · Cancel',
       'secondary',
       null,
       'in-page',
-      'B7-07 f7 `div.xr-dialog-foot`, `div.xr-dialog-head` (commands; Cancel and Close write nothing)',
+      'SA-v1 `sa-core.js` `dialogHtml` `div.rk-dlg-foot` (commands; Cancel and Esc write nothing)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `SA-14.failed`'],
   ]),
-  // SA-15 Course record (B7-07 f1 … f4, f6, f8; B7-10 f9).
+  // SA-15 Course record (`V.course`).
   ...pageRows('SA-15', COURSE, [
     [
-      'Course record — back link',
+      'Course record — breadcrumb',
       'Academic structure',
       'secondary',
       STRUCTURE,
       'built',
-      'B7-07 f1 … f4, f6, f8 `a.xr-back`',
+      'SA-v1 LINK-MAP SA-15 → SA-14 (`nav.rk-crumbs`)',
     ],
     [
-      'Course record — top-bar crumb (from 1024 px)',
-      'Academic structure',
+      'Course record — breadcrumb',
+      '<area name>',
       'secondary',
-      STRUCTURE,
+      '/admin/structure/areas/{areaId}',
       'built',
-      'B7-07 f1, f3, f4, f6, f8 `ol.xr-crumbs`',
+      'SA-v1 LINK-MAP SA-15 course → SA-15 area “Mechanical & Manufacturing” (`nav.rk-crumbs`)',
     ],
     [
-      'Course record — actions',
+      'Course record — Course › Engineering area',
+      '<area name>',
+      'secondary',
+      '/admin/structure/areas/{areaId}',
+      'built',
+      'SA-v1 `V.course` `dl.rk-dl` “Engineering area” (`dd > a`)',
+    ],
+    [
+      'Course record — What uses this course › Institutions',
+      '<institution name>',
+      'secondary',
+      INSTITUTION,
+      'built',
+      'SA-v1 LINK-MAP SA-15 → SA-07 “Godavari Institute of Technology” (`dd > a`; state-copy `SA-15.uses.institutions`)',
+    ],
+    [
+      'Course record — What uses this course › Vendors in scope',
+      '<holder name>',
+      'secondary',
+      VENDOR,
+      'built',
+      'SA-v1 LINK-MAP SA-15 → SA-17 “Anil Shetty” (`dd > a`; state-copy `SA-15.uses.vendors`)',
+    ],
+    [
+      'Course record — head (under 860 px)',
+      'Go to changes',
+      'secondary',
+      '#structure-course-panel',
+      'in-page',
+      'SA-v1 LINK-MAP SA-15 “Go to changes” → #co-panel (`a.rb-btn.rk-goto`)',
+    ],
+    [
+      'Course record — Change this course',
       'Rename · Edit description',
       'secondary',
       null,
       'in-page',
-      'B7-07 f1 `div.xw-actions > button.xr-btn--secondary` → DL-3 “Rename course” (f6), “Edit the description of …”',
+      'SA-v1 `V.course` `div.sa-act > button.rb-btn` → `SA.DLG.course` rename, desc',
     ],
     [
-      'Course record — actions',
+      'Course record — Change this course › Move to another area (nobody filed)',
       'Move to another area',
       'secondary',
       null,
       'in-page',
-      'B7-07 f1 `div.xw-actions > button.xr-btn--secondary` → the inline move panel (f3, f4)',
+      'SA-v1 `V.course` `div.sa-act > button.rb-btn` → `SA.DLG.course` move; blocked while people are filed (`rk-notice--off`, no button; state-copy `SA-15.move-rule`)',
     ],
     [
-      'Move panel — allowed',
-      'Move course · Cancel',
+      'Course record — dialogs (Rename, Edit description, Move)',
+      'Save name · Save description · Move course · Cancel',
       'secondary',
       null,
       'in-page',
-      'B7-07 f4 `div.xw-inline-panel div.xw-actions` (a command; Cancel writes nothing)',
-    ],
-    [
-      'Move panel — blocked',
-      'Close',
-      'secondary',
-      null,
-      'in-page',
-      'B7-07 f3; B7-10 f9 `div.xw-inline-panel div.xw-actions` (nothing to decide)',
-    ],
-    [
-      'Course record — dialogs (Rename, Edit description)',
-      'Save name · Save description · Cancel · Close',
-      'secondary',
-      null,
-      'in-page',
-      'B7-07 f6 `div.xr-dialog-foot`, `div.xr-dialog-head` (commands; Cancel and Close write nothing)',
+      'SA-v1 `sa-core.js` `dialogHtml` `div.rk-dlg-foot` (commands; Cancel and Esc write nothing)',
     ],
     [
       'Course record — failed state',
@@ -126,39 +148,47 @@ export const P6_STRUCTURE_LINK_TARGETS: readonly LedgerEntry[] = [
       'state-copy `SA-15.failed`',
     ],
   ]),
-  // SA-15 Area record (B7-07 f5).
+  // SA-15 Area record (`V.area`).
   ...pageRows('SA-15', AREA, [
     [
-      'Area record — back link',
+      'Area record — breadcrumb',
       'Academic structure',
       'secondary',
       STRUCTURE,
       'built',
-      'B7-07 f5 `a.xr-back`',
+      'SA-v1 LINK-MAP SA-15 → SA-14 (`nav.rk-crumbs`)',
     ],
     [
-      'Area record — top-bar crumb (from 1024 px)',
-      'Academic structure',
-      'secondary',
-      STRUCTURE,
-      'built',
-      'B7-07 f5 `ol.xr-crumbs`',
-    ],
-    [
-      'Area record — actions',
+      'Area record — head',
       'Rename · Edit description',
       'secondary',
       null,
       'in-page',
-      'B7-07 f5 `div.xw-actions > button.xr-btn--secondary` → DL-3 “Rename area”, “Edit the description of …” (no artwork, no Retire)',
+      'SA-v1 `V.area` `div.rk-head-act > button.rb-btn` → `SA.DLG.area` rename, desc (no artwork, no Retire)',
     ],
     [
-      'Area record — dialogs (Rename, Edit description)',
-      'Save name · Save description · Cancel · Close',
+      'Area record — Courses',
+      'Add course',
       'secondary',
       null,
       'in-page',
-      'B7-07 script `doRename`, `doDesc` `div.xr-dialog-foot` (commands; Cancel and Close write nothing)',
+      'SA-v1 `V.area` `div.rk-sec-h > button.rb-btn--ghost` → `SA.DLG.course` add, this area chosen',
+    ],
+    [
+      'Area record — each course row',
+      '<course name, platform code>',
+      'secondary',
+      COURSE,
+      'built',
+      'SA-v1 LINK-MAP SA-15 area → SA-15 course “Thermodynamics & Heat TransferME ZG523” (`ul.sa-list > a.sa-list-row`)',
+    ],
+    [
+      'Area record — dialogs (Rename, Edit description, Add course)',
+      'Save name · Save description · Add course · Cancel',
+      'secondary',
+      null,
+      'in-page',
+      'SA-v1 `sa-core.js` `dialogHtml` `div.rk-dlg-foot` (commands; Cancel and Esc write nothing)',
     ],
     [
       'Area record — failed state',

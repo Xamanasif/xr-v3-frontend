@@ -20,6 +20,7 @@ import {
   WORKSPACE_NAV,
   type BoardIconKey,
 } from './nav-config';
+import { saExport } from '../test-support/boards';
 import { WORKSPACE_SCREEN_IDS } from './screens';
 
 const REPO = join(import.meta.dirname, '..', '..', '..', '..', '..');
@@ -137,7 +138,11 @@ describe('the seven workspaces: board 06 raw[] (labels, order, icon keys and pat
     expect(singulars).toEqual({
       'faculty:marking': '1 written answer to mark',
       'tenant_admin:requests': '1 device request to forward',
+      'super_admin:requests': '1 request under review',
     });
+    // Requests (Super Admin): the owner-approved Super Admin export writes the singular
+    // (design/v3-refined-b/roles/SA-v1/project/sa-core.js: `plural(n, 'request') + ' under review'`).
+    expect(saExport('sa-core.js')).toContain("plural(n, 'request') + ' under review");
     // Marking: the B4 boards draw the sidebar count at 1 in these words.
     expect(board('B4-01-Faculty-Overview.dc.html')).toContain(
       '<span class="xr-nav-text">Marking</span><span class="xr-count"><span aria-hidden="true">1</span><span class="xr-sr">, 1 written answer to mark</span></span>',

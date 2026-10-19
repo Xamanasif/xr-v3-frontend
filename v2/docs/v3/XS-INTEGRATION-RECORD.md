@@ -97,7 +97,8 @@ permission or workflow changed; no backend, SSO or business rule was added.
    page's own at every width; the v46 top bar no longer repeats a Help trail there.
 8. **Super Admin and references.** A Super Admin sees no report reference on the XS screens (owner
    decision 6). The Super Admin's own operations screens still show SUP references in place words
-   and return labels; they change with the Super Admin migration.
+   and return labels; they change with the Super Admin migration (done since: no Super Admin
+   screen shows a reference — `SA-INTEGRATION-RECORD.md`).
 9. **Prototype line.** The export's line under the sign-in card ("Prototype sign-in. … Sample
    accounts open with any password.") is shown; it names no account. Recorded as the scan
    exception `sample-accounts` (static and DOM), until real sign-in exists or the owner rewords it.
@@ -157,4 +158,5 @@ differently from run to run on the same build, inside tolerance; XS does not tou
 - The SES-09 inactive refusal on sign-in is a kept product answer the export does not draw — the
   owner may want it designed.
 - The Super Admin's own screens still show SUP references; they change with the Super Admin
-  migration, which can resume from the intake record now that XS is committed.
+  migration, which can resume from the intake record now that XS is committed. (Since done:
+  `SA-INTEGRATION-RECORD.md`.)

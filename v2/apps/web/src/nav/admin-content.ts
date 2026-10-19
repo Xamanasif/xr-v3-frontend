@@ -6,10 +6,11 @@ import { WORKSPACE_NAV } from './nav-config';
  * The Super Admin's Content (Phase 6; boards B7-05, B7-06, B7-10, B7-11): Updates (SA-10) and its
  * Release or hold decision (SA-11), All content (SA-12) and a Content record (SA-13) — their
  * addresses (Appendix A register routes; `/admin/content` redirects to Updates, §3.7 row 15) and
- * their place in the shell: "Content" current in the sidebar on all four (Appendix A §3.6). Top
- * bars: "Content / Updates" (B7-05 f0), "Content / Updates / UPD-0005" (f1), "Content / All
- * content" (B7-06 f0), "Content / All content / DC Motor Speed Control" (f1); the mobile top bar
- * names the destination, "Content".
+ * their place in the shell: "Content" current in the rail on all four (Appendix A §3.6). The
+ * placement names the browser tab and Help's "Where did it happen?": "Content / Updates",
+ * "Content / Updates / Distillation Column correction" (never the correction's reference; the
+ * Super Admin export's `title`), "Content / All content", "Content / All content / DC Motor Speed
+ * Control".
  */
 const destination = WORKSPACE_NAV.super_admin.destinations.find(
   (candidate) => candidate.screen === 'SA-10',
@@ -26,7 +27,7 @@ export const CONTENT_TABS = [
   { key: 'all', label: 'All content', href: ALL_CONTENT_ADDRESS },
 ] as const;
 
-/** SA-10's three tabs (B7-05 f0, f2, f3: Waiting for you · On hold · Released), `?show=`. */
+/** SA-10's three segments (Waiting for your decision · On hold · Released), `?show=`. */
 export const UPDATE_SHOWS = ['waiting', 'on-hold', 'released'] as const;
 export type UpdateShow = (typeof UPDATE_SHOWS)[number];
 
@@ -81,15 +82,18 @@ export function contentUpdatesPlacement(): ContentPlacement {
   return { screen: 'SA-10', title: CONTENT_TITLE, trail: [CONTENT_CRUMB], currentCrumb: 'Updates' };
 }
 
-/** B7-05 f1 "Content / Updates / UPD-0005"; while it loads, "Content / Updates". */
-export function updateDecisionPlacement(updateId: string | null): ContentPlacement {
-  return updateId === null
+/**
+ * "Content / Updates / Distillation Column correction" — the correction named by its experiment
+ * (`place`), never by its reference; while it loads, "Content / Updates".
+ */
+export function updateDecisionPlacement(place: string | null): ContentPlacement {
+  return place === null
     ? { screen: 'SA-11', title: CONTENT_TITLE, trail: [CONTENT_CRUMB], currentCrumb: 'Updates' }
     : {
         screen: 'SA-11',
         title: CONTENT_TITLE,
         trail: [CONTENT_CRUMB, UPDATES_CRUMB],
-        currentCrumb: updateId,
+        currentCrumb: place,
       };
 }
 

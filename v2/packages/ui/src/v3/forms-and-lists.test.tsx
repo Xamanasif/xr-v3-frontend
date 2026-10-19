@@ -286,6 +286,18 @@ describe('V3 record table (rk-table)', () => {
     expect(follow).toHaveBeenCalledTimes(2);
   });
 
+  it('a row inside the V3 shell’s main (`tabIndex=-1`) still opens on a press anywhere', () => {
+    const follow = vi.fn((event: Event) => event.preventDefault());
+    render(
+      <main className="rb-page" id="main" tabIndex={-1}>
+        <RecordTable caption="Requests" headers={HEADERS} rows={ROWS} />
+      </main>,
+    );
+    screen.getByRole('link', { name: /Open the request/ }).addEventListener('click', follow);
+    fireEvent.click(screen.getByText('Shell-and-Tube Heat Exchanger'));
+    expect(follow).toHaveBeenCalledTimes(1);
+  });
+
   it('the sort bar shows only while a table lists rows (nothing to sort otherwise)', () => {
     render(
       <ListSurface label="Requests">

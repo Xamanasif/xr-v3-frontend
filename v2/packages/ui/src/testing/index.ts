@@ -23,5 +23,7 @@ export {
   v3BoardText,
   xsExportText,
   XS_EXPORT_DIRECTORY,
+  saExportText,
+  SA_EXPORT_DIRECTORY,
   v3Canonical,
 } from './v3.js';

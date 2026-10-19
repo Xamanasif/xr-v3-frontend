@@ -5,17 +5,13 @@
  * `AccessRequestService` command's, and its refusals are shown as they come — and it reads only
  * facts the ports answered (`DecisionPage`, the published catalogue).
  */
-import type { DecisionPage, FieldError, ProductPorts } from '@xr/contracts/draft';
-import type {
-  AccessPlan,
-  InstitutionKind,
-  RequestedItem,
-  RequestStatus,
-  Technology,
-} from '@xr/domain';
+import type { DecisionPage, FieldError, PlanEffect, ProductPorts } from '@xr/contracts/draft';
+import type { AccessPlan, InstitutionKind, RequestedItem, Technology } from '@xr/domain';
 import { inDisplayOrder } from '@xr/domain';
 
 import {
+  CONFIRM_LINES,
+  confirmCreatesRecord,
   createdActive,
   createdWaitingPayment,
   DECISION_ERRORS,
@@ -25,10 +21,13 @@ import {
   formatList,
   historyLine,
   type HistoryLine,
+  licencesRequestedWords,
   NEXT_LINES,
   noInstitutionYet,
   PAUSED_SUFFIX,
   PENDING_HINTS,
+  planUnchangedLine,
+  renewalApprovedLine,
   STAND,
   termWords,
 } from '@/copy/requests';
@@ -97,7 +96,14 @@ export function termValue(page: DecisionPage, draft: DecisionDraft): ApprovedTer
     : 'monthly';
 }
 
-/** "Different from the request" (B1-11 `diffs`): what the smaller scope changes. */
+/** The licences kept, as the request words them ("40 more" for a more-licences request). */
+function keptLicencesWords(page: DecisionPage, licences: string): string {
+  return page.request.type === 'additional-licences' && licences !== ''
+    ? `${licences} more`
+    : licences;
+}
+
+/** "Different from the request": what the smaller scope changes. */
 export function differencesOf(page: DecisionPage, draft: DecisionDraft): readonly string[] {
   const requested = requestedFormatsOf(page);
   const kept = keptFormats(page, draft);
@@ -112,7 +118,10 @@ export function differencesOf(page: DecisionPage, draft: DecisionDraft): readonl
         : null,
     licences:
       licences !== String(page.request.licencesRequested)
-        ? { asked: String(page.request.licencesRequested), kept: licences }
+        ? {
+            asked: licencesRequestedWords(page.request.type, page.request.licencesRequested),
+            kept: keptLicencesWords(page, licences),
+          }
         : null,
     term: keptTerm !== askedTerm ? { asked: askedTerm, kept: keptTerm } : null,
   });
@@ -283,12 +292,53 @@ export function decisionCommand(
   }
 }
 
-// ---- after a decision (B1-11 f9 … f12) ----
+// ---- the confirmation (`SA.DLG.approveReq`) ----
 
 /**
- * The institution record was created by this request's own approval (B1-11 `isNew`): the request
- * asked for new access, it has been approved, and every plan the institution holds came from it.
- * Display only — the words "Created · …" and "Institution record created by this approval".
+ * Whether an approval would create the access plan: only the first approval of a new institution's
+ * request for new access does (`approve` in @xr/domain); any other approval reaches the open policy
+ * OD-B3-09 (`planEffect` policy-open) and its words never claim a plan (state-copy
+ * `SA-03.internal-confirm-plan`).
+ */
+export function approvalCreatesPlan(page: DecisionPage): boolean {
+  return (
+    page.whereItStands.institutionRecord === 'not-created' && page.request.type === 'new-access'
+  );
+}
+
+/** The confirmation's two groups: what approving does now, and what only follows later events. */
+export function confirmLines(
+  page: DecisionPage,
+  draft: DecisionDraft,
+  route: InstitutionKind | null,
+): { readonly now: readonly string[]; readonly later: readonly string[] } {
+  const now: string[] = [];
+  const later: string[] = [];
+  const renewal = page.request.type === 'renewal';
+  const createsPlan = approvalCreatesPlan(page);
+  if (page.whereItStands.institutionRecord === 'not-created') {
+    now.push(confirmCreatesRecord(page.request.institutionName, route));
+  }
+  if (route === 'external') {
+    now.push(CONFIRM_LINES.externalApproves);
+    later.push(createsPlan ? CONFIRM_LINES.externalNotActive : CONFIRM_LINES.externalExisting);
+  } else if (createsPlan) {
+    now.push(CONFIRM_LINES.internalApproves, CONFIRM_LINES.internalActive);
+  } else {
+    now.push(renewal ? CONFIRM_LINES.renewalApproves : CONFIRM_LINES.internalApproves);
+    later.push(planUnchangedLine(planOf(page)?.endsOn ?? null));
+  }
+  if (draft.choice === 'smaller') now.push(CONFIRM_LINES.smaller);
+  later.push(CONFIRM_LINES.students);
+  return { now, later };
+}
+
+// ---- after a decision (`doneHtml`) ----
+
+/**
+ * The institution record was created by this request's own approval (the export's `isNew`): the
+ * request asked for new access, it has been approved, and every plan the institution holds came
+ * from it. Display only — "Created …" and "Institution record created by this approval".
  */
 export function createdByThisApproval(page: DecisionPage): boolean {
   const { request, existingAccess } = page;
@@ -314,24 +364,19 @@ function eventAt(page: DecisionPage, event: string): string | null {
   return [...page.request.history].reverse().find((entry) => entry.event === event)?.at ?? null;
 }
 
-/** B1-11 "Existing access" (`existing`), before and after the decision. */
+/** "Existing access", before and after the decision. */
 export function existingAccessWords(
   page: DecisionPage,
   experimentName: (experimentId: string) => string,
 ): string {
   const { request, existingAccess } = page;
   if (!existingAccess || page.whereItStands.institutionRecord === 'not-created') {
-    return noInstitutionYet(request.institutionName);
+    return noInstitutionYet(request.institutionName, request.status === 'under-review');
   }
   if (createdByThisApproval(page) && request.decision) {
     if (request.status === 'access-active') {
       const activatedAt = eventAt(page, 'access-active') ?? request.decision.at;
-      return createdActive(
-        request.decision.at,
-        request.decision.route,
-        activatedAt,
-        request.activatedPlanId,
-      );
+      return createdActive(request.decision.at, request.decision.route, activatedAt);
     }
     return createdWaitingPayment(request.decision.at);
   }
@@ -346,9 +391,16 @@ export interface StandRow {
   readonly value: string;
 }
 
-/** B1-11 "Where this request stands" (`stand`), for a decided request. */
+/** "Where this request stands" (`dl.rk-stand`), for a decided request. */
 export function standRows(page: DecisionPage): readonly StandRow[] {
   const { request, whereItStands } = page;
+  const created = createdByThisApproval(page);
+  const access =
+    whereItStands.institutionalAccess !== 'active'
+      ? STAND.accessNotActive
+      : created
+        ? STAND.accessActiveSince(eventAt(page, 'access-active'))
+        : STAND.accessUnchanged;
   if (request.status === 'information-requested') {
     return [
       {
@@ -356,8 +408,8 @@ export function standRows(page: DecisionPage): readonly StandRow[] {
         value: whereItStands.institutionRecord === 'created' ? STAND.exists : STAND.notCreated,
       },
       { key: STAND.request, value: STAND.informationRequested },
-      { key: STAND.payment, value: STAND.paymentNone },
-      { key: STAND.access, value: STAND.accessNotActive },
+      { key: STAND.payment, value: STAND.paymentNotStarted },
+      { key: STAND.access, value: access },
     ];
   }
   const decision = request.decision;
@@ -369,31 +421,54 @@ export function standRows(page: DecisionPage): readonly StandRow[] {
         ? STAND.paymentConfirmed(eventAt(page, 'payment-confirmed'))
         : whereItStands.payment === 'failed'
           ? STAND.paymentFailed
-          : STAND.paymentWaiting;
-  return [
+          : request.status === 'payment-not-confirmed'
+            ? STAND.paymentNotConfirmed
+            : STAND.paymentWaiting;
+  const rows: StandRow[] = [
     {
       key: STAND.institutionRecord,
-      value: createdByThisApproval(page) && decision ? STAND.created(decision.at) : STAND.exists,
+      value: created && decision ? STAND.created(decision.at) : STAND.exists,
     },
     { key: STAND.request, value: STAND.approved(route) },
     { key: STAND.payment, value: payment },
-    {
-      key: STAND.access,
-      value:
-        whereItStands.institutionalAccess === 'active'
-          ? STAND.accessActive(request.activatedPlanId)
-          : STAND.accessNotActive,
-    },
   ];
+  // A payment started but not confirmed: the export draws no access line (`pend`).
+  return request.status === 'payment-not-confirmed'
+    ? rows
+    : [...rows, { key: STAND.access, value: access }];
 }
 
-/** The decided panel's next line (B1-11 `next`); none where B1-11 draws none (PROVISIONAL). */
-export function nextLine(status: RequestStatus): string | null {
-  switch (status) {
+/**
+ * What an approval did to the plans: the command's own answer when it was decided here
+ * (`planEffect`), else read from the page as the domain decides it — a plan only for a new
+ * institution's request for new access (OD-B3-09).
+ */
+export function planEffectOf(page: DecisionPage, answered: PlanEffect | null): PlanEffect['kind'] {
+  if (answered) return answered.kind;
+  if (page.request.status !== 'access-active') return 'none';
+  return page.request.activatedPlanId !== null || createdByThisApproval(page)
+    ? 'plan-created'
+    : 'policy-open';
+}
+
+/**
+ * The decided panel's next line; none where the export draws none (PROVISIONAL, state-copy
+ * `SA-03.next-undrawn`). When the approval's plan effect is open the words never claim the plan
+ * changed — the copy already used for a renewal and more licences (`planEffect` policy-open).
+ */
+export function nextLine(page: DecisionPage, answered: PlanEffect | null = null): string | null {
+  const { request } = page;
+  switch (request.status) {
     case 'approved-payment-required':
-      return NEXT_LINES.payment;
-    case 'access-active':
-      return NEXT_LINES.active;
+      return createdByThisApproval(page) ? NEXT_LINES.paymentNew : NEXT_LINES.paymentExisting;
+    case 'access-active': {
+      if (planEffectOf(page, answered) !== 'policy-open') {
+        return createdByThisApproval(page) ? NEXT_LINES.activeNew : NEXT_LINES.active;
+      }
+      return request.type === 'renewal'
+        ? renewalApprovedLine(planOf(page)?.endsOn ?? null)
+        : NEXT_LINES.activePlanUnchanged;
+    }
     case 'information-requested':
       return NEXT_LINES.information;
     default:
@@ -401,7 +476,7 @@ export function nextLine(status: RequestStatus): string | null {
   }
 }
 
-/** The request's history for the Super Admin, newest first (B1-11 `hist`). */
+/** The request's history for the Super Admin, newest first. */
 export function historyLines(page: DecisionPage): readonly HistoryLine[] {
   const createdInstitution = createdByThisApproval(page);
   return page.request.history

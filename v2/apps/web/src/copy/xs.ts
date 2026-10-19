@@ -5,6 +5,12 @@
  * `./help`. Nothing names an account, a role to switch to or a workspace to choose.
  */
 
+/**
+ * The rail foot's link to Help in a V3 role shell (the XS export's shell, LINK-MAP "Help & support
+ * (rail foot and drawer foot)"). The v46 shells keep their own "Help".
+ */
+export const SHELL_HELP = 'Help & support';
+
 /** XS-05: the account menu's items (links, then Sign out in the panel's foot). */
 export const ACCOUNT_MENU = {
   help: 'Help & support',

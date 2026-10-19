@@ -57,6 +57,13 @@ async function sentRequest(page: Page): Promise<string> {
   return address;
 }
 
+/**
+ * The links that open a request on the Super Admin's pages: his V3 screens (SA-v1) never show the
+ * request's reference, so the record is found by the address its links open.
+ */
+const requestLinks = (page: Page, reference: string) =>
+  page.locator(`main a[href="/admin/requests/${reference}"]`);
+
 async function keptValue(page: Page): Promise<string | null> {
   return page.evaluate((key) => window.localStorage.getItem(key), SNAPSHOT_KEY);
 }
@@ -79,7 +86,7 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     // The world is the same: the Super Admin finds REQ-0042 waiting.
     await page.goto('/sign-in');
     await as(page, EMAIL.arjun, '/admin');
-    await expect(main(page)).toContainText('REQ-0042');
+    await expect(requestLinks(page, 'REQ-0042')).toHaveCount(1);
     await page.reload();
     await page.waitForURL('**/sign-in?**');
     await expect(page.getByRole('button', { name: ACCOUNT.arjun })).toHaveCount(0);
@@ -96,7 +103,7 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     // Nobody is signed in in a new tab: the session never travels between tabs.
     await other.waitForURL('**/sign-in?**');
     await as(other, EMAIL.arjun, '/admin');
-    await expect(main(other)).toContainText('REQ-0042');
+    await expect(requestLinks(other, 'REQ-0042')).toHaveCount(1);
     // A third tab: the Content Manager, while the second tab stays the Super Admin's.
     const third = await context.newPage();
     await third.goto('/sign-in');
@@ -119,8 +126,10 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     await page.goto('/sign-in');
     await as(page, EMAIL.arjun, '/admin');
     await sidebar(page, '/admin/requests');
-    await expect(main(page)).not.toContainText('REQ-0042');
-    await expect(main(page)).not.toContainText('REQ-0043');
+    await expect(main(page).locator('table.rk-table tbody a.rk-rowlink').first()).toBeVisible();
+    await expect(requestLinks(page, 'REQ-0042')).toHaveCount(0);
+    await expect(requestLinks(page, 'REQ-0043')).toHaveCount(0);
+    await expect(main(page)).not.toContainText('Godavari Institute of Technology');
     // The clean world was saved in its place.
     const kept = await keptValue(page);
     expect(kept).toMatch(/^xr-sample-world\|1\|/);
@@ -135,7 +144,7 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     const other = await context.newPage();
     await other.goto('/sign-in');
     await as(other, EMAIL.arjun, '/admin');
-    await expect(main(other)).toContainText('REQ-0042');
+    await expect(requestLinks(other, 'REQ-0042')).toHaveCount(1);
 
     const head = (value: string | null) => value?.split('|').slice(3, 5) ?? [];
     const [lineageBefore, versionBefore] = head(await keptValue(other));
@@ -167,7 +176,9 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     await other.waitForURL('**/sign-in?**');
     await as(other, EMAIL.arjun, '/admin');
     await sidebar(other, '/admin/requests');
-    await expect(main(other)).not.toContainText('REQ-0042');
+    await expect(main(other).locator('table.rk-table tbody a.rk-rowlink').first()).toBeVisible();
+    await expect(requestLinks(other, 'REQ-0042')).toHaveCount(0);
+    await expect(main(other)).not.toContainText('Godavari Institute of Technology');
     await page.bringToFront();
     await page.waitForLoadState();
     await toSignIn(page);

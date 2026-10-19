@@ -1,0 +1,1688 @@
+{
+ "generated": "by checks/linkmap.js, every in-role href opened in a fresh page and its heading checked",
+ "links": [
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Overview",
+   "location": "rail",
+   "destination": "SA-01",
+   "destinationRoute": "#/overview",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Overview)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Requests3, 3 requests under review",
+   "location": "rail",
+   "destination": "SA-02",
+   "destinationRoute": "#/requests",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Requests)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Institutions",
+   "location": "rail",
+   "destination": "SA-06",
+   "destinationRoute": "#/institutions",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Institutions)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Content",
+   "location": "rail",
+   "destination": "SA-10",
+   "destinationRoute": "#/content/updates",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Academic structure",
+   "location": "rail",
+   "destination": "SA-14",
+   "destinationRoute": "#/structure",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Academic structure)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Platform roles",
+   "location": "rail",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/vendors",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Operations",
+   "location": "rail",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Help & support",
+   "location": "rail",
+   "destination": "XS Help & support (borrowed)",
+   "destinationRoute": "#/help",
+   "class": "shared (XS, borrowed)",
+   "tested": "RESOLVED (rendered h1: Help & support)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open the renewal request from BITS Pilani — Hyderabad Campus",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/hyderabad-renewal",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "View access ending for Konark Polytechnic",
+   "location": "page",
+   "destination": "SA-22",
+   "destinationRoute": "#/operations/access-ending",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Review the Distillation Column correction",
+   "location": "page",
+   "destination": "SA-11",
+   "destinationRoute": "#/content/updates/distillation-1-3",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Distillation Column)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open Requests",
+   "location": "page",
+   "destination": "SA-02",
+   "destinationRoute": "#/requests",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Requests)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open the additional licences request from Konark Polytechnic",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/konark-licences",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Konark Polytechnic)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open the additional licences request from Godavari Institute of Technology",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/godavari-licences",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open Device transfers",
+   "location": "page",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Review the VR device transfer for Neha Kulkarni",
+   "location": "page",
+   "destination": "SA-19",
+   "destinationRoute": "#/operations/device-transfers/neha-kulkarni-vr",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR device transfer for Neha Kulkarni)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Review the VR device transfer for Rahul Verma",
+   "location": "page",
+   "destination": "SA-19",
+   "destinationRoute": "#/operations/device-transfers/rahul-verma-vr",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR device transfer for Rahul Verma)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open Support",
+   "location": "page",
+   "destination": "SA-20",
+   "destinationRoute": "#/operations/support",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open the report: Usage page took a long time to load",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/usage-slow",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Usage page took a long time to load)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open the report: VR simulation stopped loading at step 2",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/vr-step-2",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR simulation stopped loading at step 2)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open the report: Delivery link preview showed an empty frame",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/preview-empty-frame",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Delivery link preview showed an empty frame)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open the report: Student import stopped part-way",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/import-part-way",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Student import stopped part-way)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open Institutions",
+   "location": "page",
+   "destination": "SA-06",
+   "destinationRoute": "#/institutions",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Institutions)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Assign an Institute Admin to Sahyadri Institute of Engineering",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/sahyadri/assign",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Sahyadri Institute of Engineering)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open All content",
+   "location": "page",
+   "destination": "SA-12",
+   "destinationRoute": "#/content/all",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open DC Motor Speed Control in All content",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/dc-motor",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: DC Motor Speed Control)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Open Platform roles",
+   "location": "page",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/reviewers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-01",
+   "sourceRoute": "#/overview",
+   "control": "Assign scope to Dr K. Iyer",
+   "location": "page",
+   "destination": "SA-17",
+   "destinationRoute": "#/roles/holder/k-iyer",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Dr K. Iyer)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "Godavari Institute of Technology, additional licences, received 21 Oct 2026, Under review.",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/godavari-licences",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "Godavari Institute of Technology, new access, received 2 Oct 2026, Access active. Open the",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/godavari-new-access",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "Krishna College of Engineering, new access, received 30 Sep 2026, Information requested. O",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/krishna-new-access",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Krishna College of Engineering)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "Konark Polytechnic, additional licences, received 29 Sep 2026, Under review. Open the requ",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/konark-licences",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Konark Polytechnic)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "BITS Pilani — Hyderabad Campus, new access, received 26 Sep 2026, Access active. Open the ",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/hyderabad-new-access",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "BITS Pilani — Hyderabad Campus, renewal, received 24 Sep 2026, Under review. Open the requ",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/hyderabad-renewal",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "Vizag Polytechnic, new access, received 22 Sep 2026, Approved — payment required. Open the",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/vizag-new-access",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Vizag Polytechnic)"
+  },
+  {
+   "source": "SA-02",
+   "sourceRoute": "#/requests",
+   "control": "Sahyadri Institute of Engineering, additional licences, received 18 Sep 2026, Payment not ",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/sahyadri-licences",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Sahyadri Institute of Engineering)"
+  },
+  {
+   "source": "SA-03",
+   "sourceRoute": "#/requests/hyderabad-renewal",
+   "control": "Requests",
+   "location": "breadcrumb",
+   "destination": "SA-02",
+   "destinationRoute": "#/requests",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Requests)"
+  },
+  {
+   "source": "SA-03",
+   "sourceRoute": "#/requests/hyderabad-renewal",
+   "control": "Go to decision",
+   "location": "page",
+   "destination": "#dc-panel",
+   "destinationRoute": "#dc-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-03",
+   "sourceRoute": "#/requests/hyderabad-renewal",
+   "control": "BITS Pilani — Hyderabad Campus",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/bitshyd",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-03",
+   "sourceRoute": "#/requests/konark-licences",
+   "control": "Konark Polytechnic",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/konark",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Konark Polytechnic)"
+  },
+  {
+   "source": "SA-03",
+   "sourceRoute": "#/requests/godavari-new-access",
+   "control": "Godavari Institute of Technology",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/godavari",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-03",
+   "sourceRoute": "#/requests/godavari-new-access",
+   "control": "Back to requests",
+   "location": "page",
+   "destination": "SA-02",
+   "destinationRoute": "#/requests",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Requests)"
+  },
+  {
+   "source": "SA-03",
+   "sourceRoute": "#/requests/godavari-new-access",
+   "control": "Open institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/godavari",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-06",
+   "sourceRoute": "#/institutions",
+   "control": "BITS Pilani — Hyderabad Campus, Ending soon. Open the institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/bitshyd",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-06",
+   "sourceRoute": "#/institutions",
+   "control": "Deccan Institute of Technology, Access paused. Open the institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/deccan",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Deccan Institute of Technology)"
+  },
+  {
+   "source": "SA-06",
+   "sourceRoute": "#/institutions",
+   "control": "Godavari Institute of Technology, Access active. Open the institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/godavari",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-06",
+   "sourceRoute": "#/institutions",
+   "control": "Konark Polytechnic, Ending soon. Open the institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/konark",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Konark Polytechnic)"
+  },
+  {
+   "source": "SA-06",
+   "sourceRoute": "#/institutions",
+   "control": "Malnad College of Engineering, Access ended. Open the institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/malnad",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Malnad College of Engineering)"
+  },
+  {
+   "source": "SA-06",
+   "sourceRoute": "#/institutions",
+   "control": "Sahyadri Institute of Engineering, Access active, no Institute Admin. Open the institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/sahyadri",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Sahyadri Institute of Engineering)"
+  },
+  {
+   "source": "SA-06",
+   "sourceRoute": "#/institutions",
+   "control": "Vizag Polytechnic, Approved — payment required. Open the institution",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/vizag",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Vizag Polytechnic)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/godavari",
+   "control": "Institutions",
+   "location": "breadcrumb",
+   "destination": "SA-06",
+   "destinationRoute": "#/institutions",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Institutions)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/godavari",
+   "control": "Go to actions",
+   "location": "page",
+   "destination": "#in-panel",
+   "destinationRoute": "#in-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/godavari",
+   "control": "Open request",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/godavari-licences",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/godavari",
+   "control": "Review transfer",
+   "location": "page",
+   "destination": "SA-19",
+   "destinationRoute": "#/operations/device-transfers/rahul-verma-vr",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR device transfer for Rahul Verma)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/bitshyd",
+   "control": "Open renewal request",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/hyderabad-renewal",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/bitshyd",
+   "control": "View access ending",
+   "location": "page",
+   "destination": "SA-22",
+   "destinationRoute": "#/operations/access-ending",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/bitshyd",
+   "control": "Open request",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/hyderabad-renewal",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/bitshyd",
+   "control": "Review transfer",
+   "location": "page",
+   "destination": "SA-19",
+   "destinationRoute": "#/operations/device-transfers/neha-kulkarni-vr",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR device transfer for Neha Kulkarni)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/vizag",
+   "control": "Open the approved request",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/vizag-new-access",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Vizag Polytechnic)"
+  },
+  {
+   "source": "SA-07",
+   "sourceRoute": "#/institutions/vizag",
+   "control": "Open request",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/vizag-new-access",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Vizag Polytechnic)"
+  },
+  {
+   "source": "SA-10",
+   "sourceRoute": "#/content/updates",
+   "control": "Updates",
+   "location": "tab",
+   "destination": "SA-10",
+   "destinationRoute": "#/content/updates",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-10",
+   "sourceRoute": "#/content/updates",
+   "control": "All content",
+   "location": "tab",
+   "destination": "SA-12",
+   "destinationRoute": "#/content/all",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-10",
+   "sourceRoute": "#/content/updates",
+   "control": "Distillation Column correction, version 1.2 to 1.3, Waiting for your decision. Open",
+   "location": "page",
+   "destination": "SA-11",
+   "destinationRoute": "#/content/updates/distillation-1-3",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Distillation Column)"
+  },
+  {
+   "source": "SA-11",
+   "sourceRoute": "#/content/updates/distillation-1-3",
+   "control": "Content",
+   "location": "breadcrumb",
+   "destination": "SA-10",
+   "destinationRoute": "#/content/updates",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-11",
+   "sourceRoute": "#/content/updates/distillation-1-3",
+   "control": "Updates",
+   "location": "breadcrumb",
+   "destination": "SA-10",
+   "destinationRoute": "#/content/updates",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-11",
+   "sourceRoute": "#/content/updates/distillation-1-3",
+   "control": "Go to decision",
+   "location": "page",
+   "destination": "#up-panel",
+   "destinationRoute": "#up-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Updates",
+   "location": "tab",
+   "destination": "SA-10",
+   "destinationRoute": "#/content/updates",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "All content",
+   "location": "tab",
+   "destination": "SA-12",
+   "destinationRoute": "#/content/all",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Open Updates",
+   "location": "page",
+   "destination": "SA-10",
+   "destinationRoute": "#/content/updates",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Shell-and-Tube Heat Exchanger, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/shell-and-tube",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Shell-and-Tube Heat Exchanger)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Fin-Tube Bundle, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/fin-tube",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Fin-Tube Bundle)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Composite Wall Conduction, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/composite-wall",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Composite Wall Conduction)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "CNC Turning Centre, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/cnc-turning",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: CNC Turning Centre)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Investment Casting, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/investment-casting",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Investment Casting)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Induction Motor Loading, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/induction-motor",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Induction Motor Loading)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Synchronous Generator, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/synchronous-generator",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Synchronous Generator)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Transformer Tests, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/transformer-tests",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Transformer Tests)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Buck Converter Ripple, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/buck-converter",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Buck Converter Ripple)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Distillation Column, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/distillation-column",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Distillation Column)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Boiler Drum Level, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/boiler-drum",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Boiler Drum Level)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Orifice Plate Metering, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/orifice-plate",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Orifice Plate Metering)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Conduction Through a Composite Wall, Published. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/conduction-composite",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Conduction Through a Composite Wall)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "DC Motor Speed Control, Stuck — nobody can act. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/dc-motor",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: DC Motor Speed Control)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Flash Distillation, With the Academic Reviewer. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/flash-distillation",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Flash Distillation)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Venturi Meter Calibration, With the Academic Reviewer. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/venturi-meter",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Venturi Meter Calibration)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Transient Cooling, With the Content Manager. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/transient-cooling",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Transient Cooling)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Packed Bed Pressure Drop, With the Content Manager. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/packed-bed",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Packed Bed Pressure Drop)"
+  },
+  {
+   "source": "SA-12",
+   "sourceRoute": "#/content/all",
+   "control": "Forced Convection, Returned to the vendor. Open the record",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/forced-convection",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Forced Convection)"
+  },
+  {
+   "source": "SA-13",
+   "sourceRoute": "#/content/records/dc-motor",
+   "control": "Content",
+   "location": "breadcrumb",
+   "destination": "SA-10",
+   "destinationRoute": "#/content/updates",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-13",
+   "sourceRoute": "#/content/records/dc-motor",
+   "control": "All content",
+   "location": "breadcrumb",
+   "destination": "SA-12",
+   "destinationRoute": "#/content/all",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Content)"
+  },
+  {
+   "source": "SA-13",
+   "sourceRoute": "#/content/records/dc-motor",
+   "control": "Go to override",
+   "location": "page",
+   "destination": "#rc-panel",
+   "destinationRoute": "#rc-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-13",
+   "sourceRoute": "#/content/records/dc-motor",
+   "control": "Open Platform roles",
+   "location": "page",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/reviewers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-13",
+   "sourceRoute": "#/content/records/distillation-column",
+   "control": "Open the release decision",
+   "location": "page",
+   "destination": "SA-11",
+   "destinationRoute": "#/content/updates/distillation-1-3",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Distillation Column)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Open the area Mechanical & Manufacturing",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/areas/mechanical",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Mechanical & Manufacturing)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Thermodynamics & Heat TransferME ZG5234 published experiments",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/me-zg523",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Thermodynamics & Heat Transfer)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Manufacturing ProcessesMEL ZG5122 published experiments",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/mel-zg512",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Manufacturing Processes)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Fluid MechanicsNo platform code yet0 published experiments",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/fluid-mechanics",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Fluid Mechanics)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Open the area Electrical & Electronics",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/areas/electrical",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Electrical & Electronics)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Electrical MachinesEEE ZC3413 published experiments",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/eee-zc341",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Electrical Machines)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Power ElectronicsEEE ZG5121 published experiment",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/eee-zg512",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Power Electronics)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Open the area Chemical & Process",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/areas/chemical",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Chemical & Process)"
+  },
+  {
+   "source": "SA-14",
+   "sourceRoute": "#/structure",
+   "control": "Process Instrumentation & ControlCHE ZG5133 published experiments",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/che-zg513",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Process Instrumentation & Control)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/areas/mechanical",
+   "control": "Academic structure",
+   "location": "breadcrumb",
+   "destination": "SA-14",
+   "destinationRoute": "#/structure",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Academic structure)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/areas/mechanical",
+   "control": "Thermodynamics & Heat TransferME ZG523",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/me-zg523",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Thermodynamics & Heat Transfer)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/areas/mechanical",
+   "control": "Manufacturing ProcessesMEL ZG512",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/mel-zg512",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Manufacturing Processes)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/areas/mechanical",
+   "control": "Fluid MechanicsNo platform code yet",
+   "location": "page",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/courses/fluid-mechanics",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Fluid Mechanics)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Mechanical & Manufacturing",
+   "location": "breadcrumb",
+   "destination": "SA-15",
+   "destinationRoute": "#/structure/areas/mechanical",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Mechanical & Manufacturing)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Go to changes",
+   "location": "page",
+   "destination": "#co-panel",
+   "destinationRoute": "#co-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Shell-and-Tube Heat Exchanger",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/shell-and-tube",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Shell-and-Tube Heat Exchanger)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Fin-Tube Bundle",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/fin-tube",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Fin-Tube Bundle)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Composite Wall Conduction",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/composite-wall",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Composite Wall Conduction)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Conduction Through a Composite Wall",
+   "location": "page",
+   "destination": "SA-13",
+   "destinationRoute": "#/content/records/conduction-composite",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Conduction Through a Composite Wall)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Godavari Institute of Technology",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/godavari",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Godavari Institute of Technology)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "BITS Pilani — Hyderabad Campus",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/bitshyd",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-15",
+   "sourceRoute": "#/structure/courses/me-zg523",
+   "control": "Anil Shetty",
+   "location": "page",
+   "destination": "SA-17",
+   "destinationRoute": "#/roles/holder/anil-shetty",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Anil Shetty)"
+  },
+  {
+   "source": "SA-16",
+   "sourceRoute": "#/roles/vendors",
+   "control": "Vendors 2",
+   "location": "tab",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/vendors",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-16",
+   "sourceRoute": "#/roles/vendors",
+   "control": "Reviewers 2",
+   "location": "tab",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/reviewers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-16",
+   "sourceRoute": "#/roles/vendors",
+   "control": "Content Managers 1",
+   "location": "tab",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/content-managers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-16",
+   "sourceRoute": "#/roles/vendors",
+   "control": "Anil Shetty, Vendor. Open",
+   "location": "page",
+   "destination": "SA-17",
+   "destinationRoute": "#/roles/holder/anil-shetty",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Anil Shetty)"
+  },
+  {
+   "source": "SA-16",
+   "sourceRoute": "#/roles/vendors",
+   "control": "Ritu Sharma, Vendor. Open",
+   "location": "page",
+   "destination": "SA-17",
+   "destinationRoute": "#/roles/holder/ritu-sharma",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Ritu Sharma)"
+  },
+  {
+   "source": "SA-17",
+   "sourceRoute": "#/roles/holder/k-iyer",
+   "control": "Platform roles",
+   "location": "breadcrumb",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/reviewers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-17",
+   "sourceRoute": "#/roles/holder/k-iyer",
+   "control": "Reviewers",
+   "location": "breadcrumb",
+   "destination": "SA-16",
+   "destinationRoute": "#/roles/reviewers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Platform roles)"
+  },
+  {
+   "source": "SA-17",
+   "sourceRoute": "#/roles/holder/k-iyer",
+   "control": "Go to assign scope",
+   "location": "page",
+   "destination": "#ho-panel",
+   "destinationRoute": "#ho-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-18",
+   "sourceRoute": "#/operations/device-transfers",
+   "control": "Device transfers",
+   "location": "tab",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-18",
+   "sourceRoute": "#/operations/device-transfers",
+   "control": "Support",
+   "location": "tab",
+   "destination": "SA-20",
+   "destinationRoute": "#/operations/support",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-18",
+   "sourceRoute": "#/operations/device-transfers",
+   "control": "Access ending",
+   "location": "tab",
+   "destination": "SA-22",
+   "destinationRoute": "#/operations/access-ending",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-18",
+   "sourceRoute": "#/operations/device-transfers",
+   "control": "VR device transfer for Neha Kulkarni, Forwarded. Open",
+   "location": "page",
+   "destination": "SA-19",
+   "destinationRoute": "#/operations/device-transfers/neha-kulkarni-vr",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR device transfer for Neha Kulkarni)"
+  },
+  {
+   "source": "SA-18",
+   "sourceRoute": "#/operations/device-transfers",
+   "control": "VR device transfer for Rahul Verma, Forwarded. Open",
+   "location": "page",
+   "destination": "SA-19",
+   "destinationRoute": "#/operations/device-transfers/rahul-verma-vr",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR device transfer for Rahul Verma)"
+  },
+  {
+   "source": "SA-19",
+   "sourceRoute": "#/operations/device-transfers/rahul-verma-vr",
+   "control": "Operations",
+   "location": "breadcrumb",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-19",
+   "sourceRoute": "#/operations/device-transfers/rahul-verma-vr",
+   "control": "Device transfers",
+   "location": "breadcrumb",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-19",
+   "sourceRoute": "#/operations/device-transfers/rahul-verma-vr",
+   "control": "Go to decision",
+   "location": "page",
+   "destination": "#tr-panel",
+   "destinationRoute": "#tr-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-20",
+   "sourceRoute": "#/operations/support",
+   "control": "Device transfers",
+   "location": "tab",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-20",
+   "sourceRoute": "#/operations/support",
+   "control": "Support",
+   "location": "tab",
+   "destination": "SA-20",
+   "destinationRoute": "#/operations/support",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-20",
+   "sourceRoute": "#/operations/support",
+   "control": "Access ending",
+   "location": "tab",
+   "destination": "SA-22",
+   "destinationRoute": "#/operations/access-ending",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-20",
+   "sourceRoute": "#/operations/support",
+   "control": "Usage page took a long time to load, Open. Open the report",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/usage-slow",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Usage page took a long time to load)"
+  },
+  {
+   "source": "SA-20",
+   "sourceRoute": "#/operations/support",
+   "control": "VR simulation stopped loading at step 2, Open. Open the report",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/vr-step-2",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: VR simulation stopped loading at step 2)"
+  },
+  {
+   "source": "SA-20",
+   "sourceRoute": "#/operations/support",
+   "control": "Student import stopped part-way, Reopened. Open the report",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/import-part-way",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Student import stopped part-way)"
+  },
+  {
+   "source": "SA-20",
+   "sourceRoute": "#/operations/support",
+   "control": "Delivery link preview showed an empty frame, Reopened. Open the report",
+   "location": "page",
+   "destination": "SA-21",
+   "destinationRoute": "#/operations/support/preview-empty-frame",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Delivery link preview showed an empty frame)"
+  },
+  {
+   "source": "SA-21",
+   "sourceRoute": "#/operations/support/import-part-way",
+   "control": "Operations",
+   "location": "breadcrumb",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-21",
+   "sourceRoute": "#/operations/support/import-part-way",
+   "control": "Support",
+   "location": "breadcrumb",
+   "destination": "SA-20",
+   "destinationRoute": "#/operations/support",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-21",
+   "sourceRoute": "#/operations/support/import-part-way",
+   "control": "Go to decision",
+   "location": "page",
+   "destination": "#sp-panel",
+   "destinationRoute": "#sp-panel",
+   "class": "in-page",
+   "tested": "IN-PAGE ANCHOR"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Device transfers",
+   "location": "tab",
+   "destination": "SA-18",
+   "destinationRoute": "#/operations/device-transfers",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Support",
+   "location": "tab",
+   "destination": "SA-20",
+   "destinationRoute": "#/operations/support",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Access ending",
+   "location": "tab",
+   "destination": "SA-22",
+   "destinationRoute": "#/operations/access-ending",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Operations)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Malnad College of Engineering",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/malnad",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Malnad College of Engineering)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Open Malnad College of Engineering",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/malnad",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Malnad College of Engineering)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "BITS Pilani — Hyderabad Campus",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/bitshyd",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Open the renewal request from BITS Pilani — Hyderabad Campus",
+   "location": "page",
+   "destination": "SA-03",
+   "destinationRoute": "#/requests/hyderabad-renewal",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Open BITS Pilani — Hyderabad Campus",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/bitshyd",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: BITS Pilani — Hyderabad Campus)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Konark Polytechnic",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/konark",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Konark Polytechnic)"
+  },
+  {
+   "source": "SA-22",
+   "sourceRoute": "#/operations/access-ending",
+   "control": "Open Konark Polytechnic",
+   "location": "page",
+   "destination": "SA-07",
+   "destinationRoute": "#/institutions/konark",
+   "class": "in-role",
+   "tested": "RESOLVED (rendered h1: Konark Polytechnic)"
+  }
+ ],
+ "actions": [
+  {
+   "screen": "SA-01",
+   "control": "Category switch (All · Requests · Corrections · Device transfers · Support · Access ending · Set-up gaps)",
+   "effect": "filters in place",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J5, J6, J14)"
+  },
+  {
+   "screen": "SA-02",
+   "control": "Search / Status / Type / More filters / chips / Clear filters / Received sort",
+   "effect": "filters in place",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J15)"
+  },
+  {
+   "screen": "SA-03",
+   "control": "Approve request → confirm dialog → Approve request",
+   "effect": "records decision; list, nav count, institution record, Overview update",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J1, J2, extra)"
+  },
+  {
+   "screen": "SA-03",
+   "control": "Approve a smaller scope → confirm",
+   "effect": "records decision with change summary and reason",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (extra)"
+  },
+  {
+   "screen": "SA-03",
+   "control": "Request more information → Send",
+   "effect": "records decision without dialog",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (extra)"
+  },
+  {
+   "screen": "SA-07",
+   "control": "Assign Institute Admin → dialog",
+   "effect": "assigns, history, Overview set-up gap clears",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J3)"
+  },
+  {
+   "screen": "SA-07",
+   "control": "Pause access / Restore access → dialog with reason",
+   "effect": "status change; requests from paused institution blocked",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J4)"
+  },
+  {
+   "screen": "SA-07",
+   "control": "Change status (student) → inline reason",
+   "effect": "override recorded in history",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (extra2)"
+  },
+  {
+   "screen": "SA-11",
+   "control": "Release update / Hold / Lift hold → dialogs",
+   "effect": "live version, history, Overview counts",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J5)"
+  },
+  {
+   "screen": "SA-13",
+   "control": "Move status (override) → dialog",
+   "effect": "stuck record returned to vendor",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J6)"
+  },
+  {
+   "screen": "SA-14",
+   "control": "Add area / Add course → dialogs",
+   "effect": "new area / course record",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J17, extra2)"
+  },
+  {
+   "screen": "SA-15",
+   "control": "Rename / Edit description / Move to another area → dialogs",
+   "effect": "record update, history",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J17, extra2); Edit description SOURCE CHECKED"
+  },
+  {
+   "screen": "SA-16",
+   "control": "Register a Vendor / Reviewer / Content Manager → dialog",
+   "effect": "new holder without scope, nothing sent",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (extra2)"
+  },
+  {
+   "screen": "SA-17",
+   "control": "Assign scope / Withdraw (inline reason) / Restore → dialog",
+   "effect": "scope list, history, stuck content",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J7)"
+  },
+  {
+   "screen": "SA-19",
+   "control": "Approve transfer → dialog",
+   "effect": "authorisation moves; not shipment",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J9, J10)"
+  },
+  {
+   "screen": "SA-21",
+   "control": "Resolve report (note) / Reopen → dialog",
+   "effect": "status + reporter-visible note",
+   "class": "in-role",
+   "tested": "LOGIC TESTED (J8)"
+  },
+  {
+   "screen": "Shell",
+   "control": "Menu drawer (below 1024)",
+   "effect": "navigation",
+   "class": "shared shell",
+   "tested": "LOGIC TESTED (J11)"
+  },
+  {
+   "screen": "Shell",
+   "control": "Account menu → Help & support / Sign out",
+   "effect": "XS borrowed",
+   "class": "shared (XS, borrowed)",
+   "tested": "LOGIC TESTED (J13)"
+  },
+  {
+   "screen": "Help",
+   "control": "Send report",
+   "effect": "appears in My reports and Operations › Support",
+   "class": "shared (XS, borrowed)",
+   "tested": "LOGIC TESTED (J16)"
+  }
+ ],
+ "outOfRoleEffects": [
+  {
+   "trigger": "SA-03 approval (external)",
+   "effect elsewhere": "Requester sees Continue to payment on their request status (PU-10/PU-12)",
+   "treatment": "handoff scenario only; not propagated to another canvas"
+  },
+  {
+   "trigger": "SA-07 pause",
+   "effect elsewhere": "Institute Admin, Faculty and Students see the paused banner (B7-04)",
+   "treatment": "handoff scenario only"
+  },
+  {
+   "trigger": "SA-11 release / hold",
+   "effect elsewhere": "Content Manager sees the hold reason; Student/IA see the released version",
+   "treatment": "handoff scenario only"
+  },
+  {
+   "trigger": "SA-13 override",
+   "effect elsewhere": "Vendor sees the returned submission with the reason",
+   "treatment": "handoff scenario only"
+  },
+  {
+   "trigger": "SA-17 scope",
+   "effect elsewhere": "Reviewer queue / vendor course list / CM library change with scope",
+   "treatment": "handoff scenario only"
+  },
+  {
+   "trigger": "SA-19 approve",
+   "effect elsewhere": "Rahul Verma (Student) and Meera Iyer (IA) see Approved (B3-07/B3-09)",
+   "treatment": "handoff scenario only"
+  },
+  {
+   "trigger": "SA-21 resolve / reopen",
+   "effect elsewhere": "Reporter sees note / reopened status in Help & support",
+   "treatment": "handoff scenario only"
+  }
+ ],
+ "noPlaceholderLinks": "0 href=\"#\" or empty hrefs across 40 routes × 4 widths"
+}

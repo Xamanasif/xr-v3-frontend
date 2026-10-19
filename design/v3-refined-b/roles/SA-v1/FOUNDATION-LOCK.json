@@ -1,0 +1,46 @@
+{
+  "foundationId": "XR-V3-RB-1.0",
+  "roleDelivery": "Super Admin complete role \u00b7 Design V3 Refined B",
+  "date": "2026-10-18",
+  "baseFilesFromPack": {
+    "references/v3/HANDOFF-original.md": "3598572e00da8148a47f5abda743eb868c3020d8405ac8f4530581f8e49cae67",
+    "references/v3/design-tokens.json": "98b94673f7363b4bf64f7e9dde24fd29ecde9eb0cc3889e230caf4c497b1d5a3",
+    "references/v3/project/IA01.dc.html": "f06c6e3e2fd8900a2a9f34360e11363f6ab506fb1d5676e4d4e0b0265a524b92",
+    "references/v3/project/IA02.dc.html": "71280219faa1f3910cff66ed65b9b2a7ee3664afc97398dc630bb5614c98a54f",
+    "references/v3/project/SA01.dc.html": "3cdd6a194b3441d628b335d254782009bc8cecea92dda48667474ccf258e91fc",
+    "references/v3/project/SA02.dc.html": "4d88600e819c3b89b14efdfaf37914e23c57414e23fb947f1386ff5cda1d0496",
+    "references/v3/project/canvas.json": "2131cfa9fcd0fb2a1889ed30ec943ada2c31638cca9f13cb17a91447233ff030",
+    "references/v3/project/core.css": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+    "references/v3/project/rb-kit.css": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+    "references/v3/project/rb.css": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2"
+  },
+  "byteIdenticalCopiesInProject": {
+    "core.css": {
+      "sha256": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+      "matchesLock": true
+    },
+    "rb.css": {
+      "sha256": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+      "matchesLock": true
+    },
+    "rb-kit.css": {
+      "sha256": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+      "matchesLock": true
+    }
+  },
+  "notIncluded": "SA01.dc.html, SA02.dc.html, IA01/IA02, canvas.json, design-tokens.json and HANDOFF-original.md are read-only references in the pack and are not copied; their selected layouts are reproduced in the new role files.",
+  "localAdditions": {
+    "boards.html": "6a012115a27986c0713f6d38ca447770807950a8a245c3310422e086117adcc2",
+    "canvas.json": "7ea7912e77ec504b61ae8feaaee95fa33be68f6ffafdd21e69cb653c07c4fdb0",
+    "index.html": "3f0ca7953e47ef2b1cbd47c179bcf3741abb230c868d2d0a7faf1f72212e7c61",
+    "sa-core.js": "1e6ace87e706c35971f56035acde6f76794ae1d9aa0255b608067a6745b1c650",
+    "sa-data.js": "3df014e640b8cb9699192051409ba542d619f3e54b57db9e14c3bf9498dc8099",
+    "sa-role.css": "4a5ccdbc396c06964f2c40a61b4a60c434de710223575097dfe94f81e74f9c8c",
+    "sa-views-a.js": "94856c6fdccbbc7d0dcf1b1c925379f1c8b38e1882b0322e454e096c1f98792a",
+    "sa-views-b.js": "1bb9d367b1c942fe0c6e4e529a2c3fc58016ab63e37bfdd3a1d54da6ffdb7e20",
+    "sa-views-c.js": "ae390fca1ba2986bc47b207e5382413ab8552b5e29d69c0473254ee262f5d943",
+    "sa-views-d.js": "4d07b38c8571e5dc656f039e57ef61606f84d9374a8b376b0ff2d58283280370"
+  },
+  "globalTokenChanges": "none",
+  "baseClassOverrides": "none (sa- prefix only; see COMPONENT-EXTENSIONS.md)"
+}

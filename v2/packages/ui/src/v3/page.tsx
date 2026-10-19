@@ -1,6 +1,6 @@
 'use client';
 
-import { Fragment, type ReactNode, type Ref } from 'react';
+import { Fragment, type MouseEvent, type ReactNode, type Ref } from 'react';
 
 import { joinClasses } from '../internal/classes.js';
 import { useLinkComponent } from '../link.js';
@@ -28,8 +28,9 @@ export function Breadcrumbs({ levels, current, tight = false }: BreadcrumbsProps
   const Link = useLinkComponent();
   return (
     <nav className={joinClasses('rk-crumbs', tight && 'rk-x-crumbs-tight')} aria-label="Breadcrumb">
-      {levels.map((level) => (
-        <Fragment key={level.href}>
+      {levels.map((level, index) => (
+        // Two levels may share an address (SA-11: "Content" and "Updates" both open Updates).
+        <Fragment key={`${index} ${level.href}`}>
           <Link href={level.href}>{level.label}</Link>
           <Glyph name="chevronRight" />
         </Fragment>
@@ -73,14 +74,32 @@ export interface PageHeadProps {
   readonly breadcrumbs?: ReactNode;
   /**
    * "Go to decision" (`a.rb-btn.rk-goto`): shown under 860 px of page width, where the decision
-   * panel moves below the details. Its target is the panel's id.
+   * panel moves below the details. Its target is the panel's id. With `focusId` (the panel
+   * heading's id) it scrolls to the panel and moves focus to that heading, as every jump link of
+   * the Super Admin export does (`goPanel`, `goInPanel`, …); without it, a plain in-page link.
    */
-  readonly goTo?: { readonly label: string; readonly targetId: string };
+  readonly goTo?: { readonly label: string; readonly targetId: string; readonly focusId?: string };
 }
 
 /** The thin rule between meta groups (`span.rk-meta-sep`, decorative). */
 export function MetaSeparator() {
   return <span className="rk-meta-sep" aria-hidden="true" />;
+}
+
+/** "Go to …" with a heading to focus: scroll the panel into view, then focus its heading. */
+function goInPanel(
+  event: MouseEvent<HTMLAnchorElement>,
+  goTo: { readonly targetId: string; readonly focusId?: string },
+) {
+  const document = event.currentTarget.ownerDocument;
+  const panel = document.getElementById(goTo.targetId);
+  const heading = goTo.focusId ? document.getElementById(goTo.focusId) : null;
+  if (!panel || !heading) return;
+  event.preventDefault();
+  panel.scrollIntoView({ block: 'start' });
+  // A panel heading the boards draw without `tabindex` becomes a focus target, out of the Tab order.
+  if (!heading.hasAttribute('tabindex')) heading.tabIndex = -1;
+  heading.focus({ preventScroll: true });
 }
 
 /** The page head (`div.rk-head`; rb-kit.css PageHead): eyebrow, title, line, meta and actions. */
@@ -122,7 +141,11 @@ export function PageHead({
         </div>
         {actions ? <div className="rk-head-act">{actions}</div> : null}
         {goTo ? (
-          <a className="rb-btn rk-goto" href={`#${goTo.targetId}`}>
+          <a
+            className="rb-btn rk-goto"
+            href={`#${goTo.targetId}`}
+            onClick={goTo.focusId ? (event) => goInPanel(event, goTo) : undefined}
+          >
             {goTo.label}
           </a>
         ) : null}
@@ -138,12 +161,18 @@ export interface SectionHeadProps {
   readonly note?: ReactNode;
   /** A link at the end of the head (e.g. "View plan ACC-0107"). */
   readonly link?: ReactNode;
+  /**
+   * 12 px closer to what follows instead of the page gap (`rk-x-sec-head-tight`, V3P-12): the
+   * Super Admin export's "Also waiting on you" over the queue (SA-01), drawn with an inline
+   * negative margin.
+   */
+  readonly tight?: boolean;
 }
 
 /** A section head on the page canvas (`div.rb-sec-head` > `h2.rb-h2` + `p.rb-note`). */
-export function SectionHead({ title, titleId, note, link }: SectionHeadProps) {
+export function SectionHead({ title, titleId, note, link, tight = false }: SectionHeadProps) {
   return (
-    <div className="rb-sec-head">
+    <div className={joinClasses('rb-sec-head', tight && 'rk-x-sec-head-tight')}>
       <h2 className="rb-h2" id={titleId}>
         {title}
       </h2>

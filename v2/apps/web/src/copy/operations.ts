@@ -1,34 +1,31 @@
 /**
- * The words of the Super Admin's Operations › Device transfers (SA-18) and Device transfer
- * decision (SA-19) — boards B3-11 (f0 … f7) and B7-09 (f0 … f3, the same design re-used), B7-10
- * f14 (a transfer that has not reached BITS) — and of the device-transfer row of SA-07's "Needs
- * attention" (B7-03 `att`). Every phrase is the frozen boards' own, found verbatim in their markup
- * or script (`operations.test.ts`); the composed ones follow B3-11's script (`dcView`). The state
- * words ("Forwarded", "Still with the institution", "Approved") and "Approve transfer" are the
- * shared flow words (`flow-state-words.ts`). The boards' sample transfers, people, devices and
- * dates are never copied: they come from the DTR record. What the boards do not word is a
- * provisional entry of the state-copy register (`state-copy-operations.ts`, VD-12).
+ * The words of the Super Admin's Operations page (its head and tabs, shared by SA-18, SA-20 and
+ * SA-22), of Operations › Device transfers (SA-18) and of the Device transfer decision (SA-19) in
+ * the owner-approved V3 Refined B design — the Super Admin export
+ * (design/v3-refined-b/roles/SA-v1, `project/sa-views-d.js` `opsHead`, `V.transfers`,
+ * `V.transfer`, `SA.DLG.approveDtr`) — and of the device-transfer row of SA-07's "Needs
+ * attention" (B7-03 `att`). Every fixed phrase is the export's own, found verbatim in its views
+ * (`operations.test.ts`); the composed ones follow the views' expressions with the DTR record's
+ * values. The state words ("Forwarded", "Still with the institution", "Approved") and "Approve
+ * transfer" are the shared flow words (`flow-state-words.ts`). The export's sample transfers,
+ * people, devices and dates are never copied. Internal references (DTR-…) never appear in the
+ * Super Admin's words (the export's HANDOFF). What the export does not word is an entry of the
+ * state-copy register (`state-copy-operations.ts`, VD-12).
  */
 import type { Technology } from '@xr/domain';
 
 import { formatName } from './flow-state-words';
 
-// ---- SA-18 Operations › Device transfers (B3-11 f0, f2, f3) ----
+// ---- The Operations page: head and tabs (SA-18, SA-20, SA-22; `opsHead`) ----
 
 export const OPERATIONS_PAGE = {
-  /** `h1.xr-h1` (the destination). */
+  /** `h1.rb-h1` (the destination). */
   title: 'Operations',
-  /**
-   * `div.xr-phead-meta` under the title on Device transfers (B3-11 f0; B7-09 f0). Support and
-   * Access ending draw "… and access that is ending" (`copy/operations-6.ts` OPERATIONS_6_META).
-   */
-  meta: 'Device transfers, support reports and access ending',
-  /** `nav.xr-tabs[aria-label]`. */
+  /** `p.rk-sub` under the title on the three lists. */
+  lead: 'Device transfers, support reports and access that is ending.',
+  /** `nav.rk-tabs.sa-tabs[aria-label]`. */
   tabsLabel: 'Operations',
-  /**
-   * The three tabs, in board order (rule T1 links; B3-11 f0, B7-09 f0 … f7; Phase 6 builds Support
-   * and Access ending). `nav/operations.ts` OPERATIONS_TABS gives each its address.
-   */
+  /** The three tabs, in the export's order (links; `nav/operations.ts` OPERATIONS_TABS). */
   tabs: {
     'device-transfers': 'Device transfers',
     support: 'Support',
@@ -36,55 +33,70 @@ export const OPERATIONS_PAGE = {
   },
 } as const;
 
+// ---- SA-18 Operations › Device transfers (`V.transfers`) ----
+
 export const TRANSFERS_LIST = {
-  /** `div.xr-seg.xl-seg[role=group][aria-label]`. */
-  showLabel: 'Show',
+  /** `section.rk-surface[aria-label]`, and the start of the table's caption. */
+  label: 'Device transfers',
+  /** `div.rb-switch[role=group][aria-label]` (the `sa-seg` view switch). */
+  switchLabel: 'Show device transfers',
   show: {
     forwarded: 'Forwarded to BITS',
     'with-institution': 'Still with an institution',
     approved: 'Approved',
   },
-  /** `caption.xr-sr`. */
-  caption: 'Device transfers',
   columns: {
-    request: 'Request',
+    student: 'Student and format',
     institution: 'Institution',
+    forwardedBy: 'Forwarded by',
     forwarded: 'Forwarded',
     status: 'Status',
-    /** The action column's header is visually hidden (`span.xr-sr`). */
-    action: 'Action',
   },
-  /** B3-11 `fwdText` before the Institute Admin forwards it (f2). */
+  /** "Forwarded by" before the Institute Admin forwards it. */
+  notForwardedYet: 'Not forwarded yet',
+  /** "Forwarded" before the Institute Admin forwards it. */
   notYet: 'Not yet',
-  /** `a.xr-btn--secondary.xr-btn--sm` on a forwarded row (f0). */
-  review: 'Review',
+  /** `p.rk-ca-foot` under the list. */
+  foot: 'Approving moves a student’s authorisation to a new device. It doesn’t send, collect or register a device. A transfer BITS doesn’t approve stays Forwarded.',
 } as const;
 
-/** B3-11 f0: the Review link's name, "Review DTR-0018". */
-export function reviewLabel(reference: string): string {
-  return `Review ${reference}`;
+/** The table's caption: "Device transfers, Forwarded to BITS". */
+export function transfersCaption(view: string): string {
+  return `${TRANSFERS_LIST.label}, ${view}`;
 }
 
-/** B3-11 f0 `span.xr-sub` under the reference: "Rahul Verma · VR". */
-export function transferSubLine(student: string, format: Technology): string {
-  return `${student} · ${formatName(format)}`;
+/** The line under the Student's name: "VR device transfer". */
+export function transferKindWords(format: Technology): string {
+  return `${formatName(format)} device transfer`;
 }
 
-/** B3-11 `fwdText`: "23 Oct 2026, 10:00 · Meera Iyer" (`D.t.fwd + ' · ' + D.ia`). */
-export function forwardedCell(when: string, by: string): string {
-  return `${when} · ${by}`;
+/** The record's name (SA-19's H1, the row link's words): "VR device transfer for Rahul Verma". */
+export function decisionTitle(format: Technology, student: string): string {
+  return `${formatName(format)} device transfer for ${student}`;
 }
 
-// ---- SA-19 Device transfer decision (B3-11 f1, f4, f5; B7-10 f14) ----
+/** The row link's name: "VR device transfer for Rahul Verma, Forwarded. Open". */
+export function transferRowLabel(format: Technology, student: string, status: string): string {
+  return `${decisionTitle(format, student)}, ${status}. Open`;
+}
+
+/** "Forwarded by": "Meera Iyer, Institute Admin". */
+export function forwardedByWords(name: string, role: string): string {
+  return `${name}, ${role}`;
+}
+
+// ---- SA-19 Device transfer decision (`V.transfer`, `SA.DLG.approveDtr`) ----
 
 export const DECISION_PAGE = {
-  /** `a.xr-back` to the list. */
-  back: 'Device transfers',
-  /** "Device transfer · DTR-0018" (the reference in `span.xr-id`, composed by the screen). */
-  overline: 'Device transfer',
+  /** `p.rk-eyebrow` above the title. */
+  eyebrow: 'Device transfer',
+  /** `a.rb-btn.rk-goto` (under 860 px, to the decision panel). */
+  goTo: 'Go to decision',
   transfer: 'The transfer',
   history: 'History',
-  /** `h2.xr-dpanel-title`. */
+  /** Beside the History heading. */
+  historyNote: 'Newest first',
+  /** `h2` of the navy panel head. */
   panelTitle: 'Your decision',
   keys: {
     student: 'Student',
@@ -95,82 +107,99 @@ export const DECISION_PAGE = {
     note: 'Student’s note',
     forwardedBy: 'Forwarded by',
   },
-  /** B3-11 `note: s.note.trim() || 'No note'`. */
-  noNote: 'No note',
-  /** The DL-1 confirm while busy (B3-11 `approving`). */
+  /** `p.rk-hint` under the panel's line while the transfer is forwarded. */
+  noDecline:
+    'Nothing is sent, collected or registered from here. A transfer BITS doesn’t approve stays Forwarded.',
+  /** The confirmation's line under its title. */
+  confirmLine: 'Approving is not a refusal, so no reason is asked.',
+  confirmNow: 'What happens now',
+  confirmLater: 'Only after later events, or not from here',
+  /** The confirmation's "Only after later events" item. */
+  notShipped: 'Nothing is sent, collected or registered from here.',
+  /** The confirm button while busy. */
   approving: 'Approving…',
   cancel: 'Cancel',
+  /** The flash's title once the approval is recorded. */
+  approvedFlash: 'Approved.',
+  /** The decided panel's way back (`a.rb-btn`). */
+  back: 'Back to device transfers',
+  /** The refusal notice's action: closes it and moves focus to the page's heading. */
+  checkAgain: 'Check it again',
+  /** The panel's notice while the transfer is still with its institution. */
+  notYet: {
+    title: 'Not BITS’s to decide yet',
+    line: 'It is still with the institution. It appears in Forwarded when the Institute Admin forwards it.',
+  },
 } as const;
 
-/** B3-11 f1 `h1`: "VR device transfer for Rahul Verma". */
-export function decisionTitle(format: Technology, student: string): string {
-  return `${formatName(format)} device transfer for ${student}`;
+/** "Student": "Rahul Verma · GIT-2026-0418" (the institution's own student number). */
+export function studentWords(student: string, studentNumber: string | null): string {
+  return studentNumber ? `${student} · ${studentNumber}` : student;
 }
 
-/** B3-11 f1 "Format": the chip, then " for Shell-and-Tube Heat Exchanger". */
-export function formatForWords(experiment: string): string {
-  return ` for ${experiment}`;
+/** "Format": "VR for Shell-and-Tube Heat Exchanger", or the format alone. */
+export function formatValue(format: Technology, experiment: string | null): string {
+  return experiment ? `${formatName(format)} for ${experiment}` : formatName(format);
 }
 
-/** B3-11 f1 "Forwarded by": "Meera Iyer, Institute Admin". */
-export function forwardedByWords(name: string, role: string): string {
-  return `${name}, ${role}`;
+/** A note in someone's words, as the export quotes it: “…”. */
+export function quotedNote(note: string): string {
+  return `“${note}”`;
 }
 
-/** B3-11 f1 decision panel: "Approving moves Rahul Verma’s VR authorisation to the new device." */
+/** The panel's line: "Approving moves Rahul Verma’s VR authorisation to the new device." */
 export function approvingMovesWords(student: string, format: Technology): string {
   return `Approving moves ${student}’s ${formatName(format)} authorisation to the new device.`;
 }
 
-/** B3-11 f5 decision panel: "Approved on 24 Oct 2026, 12:30 by Arjun Mehta." */
-export function approvedOnWords(when: string, by: string): string {
-  return `Approved on ${when} by ${by}.`;
-}
-
-/** B3-11 f4 DL-1 title: "Approve DTR-0018?". */
-export function confirmTitle(reference: string): string {
-  return `Approve ${reference}?`;
+/** The confirmation's title: "Approve the VR device transfer for Rahul Verma?". */
+export function confirmTitle(format: Technology, student: string): string {
+  return `Approve the ${decisionTitle(format, student)}?`;
 }
 
 /**
- * B3-11 f4 DL-1 body, around the new device in `strong`: "Rahul Verma’s authorised device for VR
- * becomes <strong>…</strong>. The student and Meera Iyer see “Approved”." — what changes; nothing
- * is shipped.
+ * The confirmation's "What happens now": "Rahul Verma’s VR authorisation moves from <device> to
+ * <device>.", then "Rahul Verma and the Institute Admin see “Approved”."
  */
-export function confirmEffectParts(
+export function confirmNowItems(
   student: string,
   format: Technology,
-  instituteAdmin: string,
-): { readonly before: string; readonly after: string } {
-  return {
-    before: `${student}’s authorised device for ${formatName(format)} becomes `,
-    after: `. The student and ${instituteAdmin} see “Approved”.`,
-  };
+  from: string,
+  to: string,
+): readonly string[] {
+  return [
+    `${student}’s ${formatName(format)} authorisation moves from ${from} to ${to}.`,
+    `${student} and the Institute Admin see “Approved”.`,
+  ];
 }
 
-/** B3-11 `flashAppr`: "Approved. Rahul Verma and Meera Iyer now see “Approved”." */
-export function approvedFlash(student: string, instituteAdmin: string): string {
-  return `Approved. ${student} and ${instituteAdmin} now see “Approved”.`;
+/** The flash's line: "Rahul Verma and the Institute Admin now see “Approved”." */
+export function approvedFlashLine(student: string): string {
+  return `${student} and the Institute Admin now see “Approved”.`;
 }
 
-/** B3-11 `hist` (newest first): the transfer record's own three events. */
+/** The decided panel: "Approved on 24 Oct 2026, 12:30 by Arjun Mehta". */
+export function approvedOnWords(when: string, by: string): string {
+  return `Approved on ${when} by ${by}`;
+}
+
+/** The decided panel's line: "Rahul Verma and the Institute Admin see “Approved”. This …". */
+export function approvedNextWords(student: string): string {
+  return `${student} and the Institute Admin see “Approved”. This decision is read-only.`;
+}
+
+/** The record's history, newest first: what happened and who did it. */
 export const HISTORY_WORDS = {
-  approved: 'Approved by BITS',
-  approvedNote: (device: string) => `The authorised device is now: ${device}`,
-  forwarded: (instituteAdmin: string) => `Forwarded to BITS by ${instituteAdmin}`,
-  requested: (student: string) => `Requested by ${student}`,
-  requestedNote: (from: string, to: string) => `From ${from} to ${to}`,
+  approved: (by: string) => `Approved by ${by}`,
+  approvedNote: (format: Technology) =>
+    `The ${formatName(format)} authorisation moved to the new device.`,
+  forwarded: 'Forwarded to BITS',
+  requested: 'Transfer requested',
+  /** "By Meera Iyer, Institute Admin." — or the name alone when the record names no role. */
+  by: (name: string, role: string | null) => (role ? `By ${name}, ${role}.` : `By ${name}.`),
 } as const;
 
-/** B3-11 `beforeSA` and B7-10 f14: a transfer still with its institution — nothing to approve. */
-export const NOT_YET_WITH_BITS = {
-  back: 'Operations',
-  title: 'Device transfers',
-  heading: (reference: string) => `${reference} hasn’t reached BITS yet`,
-  line: 'It is still with the institution. It appears here when the Institute Admin forwards it.',
-} as const;
-
-// ---- SA-07 "Needs attention" (B7-03 `att`, godavari) ----
+// ---- SA-07 "Needs attention" (B7-03 `att`, godavari) — SA-07's words, unchanged ----
 
 /** "DTR-0018 — device transfer forwarded on 23 Oct 2026". */
 export function attentionTransfer(reference: string, forwardedOn: string): string {

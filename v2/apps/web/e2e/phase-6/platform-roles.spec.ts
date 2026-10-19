@@ -8,10 +8,12 @@ import { checkState } from '../support/screen-checks';
 import { currentSidebarItem, expectSameDocument, markDocument } from '../support/workspace';
 
 /**
- * SA-16 Platform roles (board B7-08 f0, f3, f6) and SA-17 Role holder (B7-08 f1, f2, f4, f5, f7,
- * f8; B7-10 f10, f11; B7-12 “Role holder” at four widths) on the test-hook build at 1440, 1024, 768
- * and 375, as Arjun Mehta on after-flow-e (23 Oct 2026: Dr K. Iyer registered with no scope,
- * SUB-0085 stuck — no Academic Reviewer has EEE ZC341). Each drawn state passes `checkState` (axe
+ * SA-16 Platform roles and SA-17 Role holder in the owner-approved V3 design
+ * (design/v3-refined-b/roles/SA-v1, `sa-views-d.js` `V.roles`, `V.holder`; renders
+ * `<width>_roles_reviewers`, `<width>_roles_holder_k-iyer`, `state_<width>_sa17-withdraw-inline`) on
+ * the test-hook build at 1440, 1024, 768 and 375, as Arjun Mehta on after-flow-e (23 Oct 2026: Dr K.
+ * Iyer registered with no scope, SUB-0085 stuck — no Academic Reviewer has EEE ZC341). Each drawn
+ * state passes `checkState` (axe
  * WCAG A/AA, one h1, visible focus targets, 24 × 24 targets, no developer surface, no sideways
  * scroll). The CI seam only SETS UP the world (Anil Shetty submits an ME ZG523 experiment so that
  * Prof. A. Menon's queue holds one) and switches who is signed in to this tab; everything the
@@ -32,7 +34,7 @@ const FIXTURE = 'after-flow-e';
 /** Where the product screenshots for the visual comparison go (the session scratchpad). */
 const SHOTS =
   process.env['XR_PRODUCT_SHOTS'] ??
-  '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/fca2accf-8a10-47fc-bc4c-75960334d92a/scratchpad/shots-product/platform-roles';
+  '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/a566da95-3982-4d42-9ae6-383145b4d848/scratchpad/sa-roles/spec-shots';
 
 /** A new ME ZG523 experiment from Anil Shetty (set-up only: Prof. A. Menon's queue holds it). */
 const PIN_FINS = {
@@ -94,13 +96,16 @@ async function submitPinFins(page: Page): Promise<string> {
 const main = (page: Page) => page.locator('main');
 const heading = (page: Page, name: string) => page.getByRole('heading', { level: 1, name });
 const width = (page: Page) => page.viewportSize()?.width ?? 1440;
-const tableRows = (page: Page) => main(page).locator('table.xr-table tbody tr');
-const flash = (page: Page) => main(page).locator('p.xa-save');
-const scopeList = (page: Page, name: 'Scope' | 'Withdrawn scope') =>
-  main(page).getByRole('list', { name, exact: true }).locator(':scope > li .xg-lo-main');
-const historyWhat = (page: Page) => main(page).locator('ol.xr-timeline .xr-tl-what');
+const tableRows = (page: Page) => main(page).locator('table.rk-table tbody tr');
+const flash = (page: Page) => main(page).locator('#role-holder-flash');
+const pageTabs = (page: Page) => page.getByRole('navigation', { name: 'Platform roles' });
+const panel = (page: Page) => page.getByRole('complementary', { name: 'Assign scope' });
+const scopeList = (page: Page, section: 'Can act on' | 'Withdrawn') =>
+  page.getByRole('region', { name: section }).locator('ul.sa-scopes > li > .sa-scope-row > div');
+const historyWhat = (page: Page) => main(page).locator('ol.rk-tl > li .rk-tl-w');
 const effect = (page: Page) =>
-  page.getByRole('region', { name: 'Can act on' }).locator('p.xr-body').first();
+  page.getByRole('region', { name: 'Can act on' }).locator('p.rk-next');
+const inline = (page: Page) => main(page).locator('.sa-inline');
 
 async function shot(page: Page, name: string): Promise<void> {
   mkdirSync(SHOTS, { recursive: true });
@@ -122,82 +127,98 @@ async function press(page: Page, control: Locator): Promise<void> {
 }
 
 test.describe('SA-16 Platform roles', () => {
-  test('Vendors (f3), Reviewers (f0) and Content Managers by real clicks; Open a holder', async ({
+  test('Vendors, Reviewers and Content Managers by real clicks on the page tabs; open a holder', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: FIXTURE, session: SA });
     await page.goto('/admin/roles');
     await expect(heading(page, 'Platform roles')).toBeVisible({ timeout: 90_000 });
-    await expect(main(page).locator('.xr-phead-meta')).toHaveText(
-      'Who can produce, review and publish content — and for what',
+    await expect(main(page).locator('.rk-head .rk-sub')).toHaveText(
+      'Who can produce, review and publish content, and for what.',
     );
-    const tabs = page.getByRole('tablist', { name: 'Role' });
-    await expect(tabs.getByRole('tab')).toHaveText([
+    const tabs = pageTabs(page);
+    await expect(tabs.getByRole('link')).toHaveText([
       'Vendors 2',
       'Reviewers 2',
       'Content Managers 1',
     ]);
-    await expect(tabs.getByRole('tab', { name: /^Vendors/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
+    await expect(tabs.getByRole('link', { name: /^Vendors/ })).toHaveAttribute(
+      'aria-current',
+      'page',
     );
-    await expect(page.getByRole('heading', { level: 2, name: 'Vendors' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Vendors' })).toBeVisible();
     await expect(tableRows(page)).toHaveCount(2);
-    await expect(tableRows(page).nth(0).locator('td').nth(0)).toHaveText(
-      'Anil ShettyNorthline Simulation Studio · Registered 4 Jul 2026',
+    await expect(tableRows(page).nth(0).locator('td.rk-c-inst')).toHaveText(
+      'Anil ShettyNorthline Simulation Studio',
     );
-    await expect(tableRows(page).nth(0).locator('td').nth(1)).toHaveText(
+    await expect(tableRows(page).nth(0).locator('td.rk-c-exp')).toHaveText(
       'ME ZG5231 scope withdrawn',
     );
-    await expect(tableRows(page).nth(1).locator('td').nth(1)).toHaveText('CHE ZG513, EEE ZC341');
-    await expect(main(page).locator('.xr-notice--warn')).toHaveCount(0);
-    await expect(main(page).locator('p.xl-open')).toHaveText(
+    await expect(tableRows(page).nth(1).locator('td.rk-c-exp .rk-code')).toHaveText([
+      'CHE ZG513',
+      'EEE ZC341',
+    ]);
+    await expect(tableRows(page).nth(0).locator('td.rk-c-st')).toHaveText('Has scope');
+    await expect(main(page).locator('.rk-notice--warn')).toHaveCount(0);
+    await expect(main(page).locator('p.rk-ca-foot')).toHaveText(
       'Registering doesn’t send an invitation. How a registered person first signs in is still open.',
     );
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/admin/roles');
     await checkState(page, 'Platform roles');
     await shot(page, 'sa-16-vendors');
 
-    // Reviewers (f0): the address follows; the no-scope notice and the tag.
-    await press(page, tabs.getByRole('tab', { name: /^Reviewers/ }));
+    // Reviewers: the address follows; the no-scope notice names Dr K. Iyer; his row says No scope.
+    await press(page, tabs.getByRole('link', { name: /^Reviewers/ }));
     await expect(page).toHaveURL(/\/admin\/roles\?tab=reviewers$/);
-    await expect(page.getByRole('heading', { level: 2, name: 'Reviewers' })).toBeVisible();
-    await expect(main(page).locator('.xr-notice--warn')).toHaveText(
-      '1 holder with no scope — they can’t act on anything yetOpen the holder and assign a scope.',
+    await expect(heading(page, 'Platform roles')).toBeFocused();
+    await expect(page.getByRole('region', { name: 'Reviewers' })).toBeVisible();
+    const notice = main(page).locator('.rk-notice--warn');
+    await expect(notice.locator('.rk-notice-t')).toHaveText('Dr K. Iyer has no scope yet');
+    await expect(notice.locator('.rk-notice-d')).toHaveText(
+      'Their review queue is empty. Nothing is in scope, and submissions for courses nobody reviews get stuck.',
     );
-    await expect(tableRows(page).locator('td.is-primary strong')).toHaveText([
+    await expect(tableRows(page).locator('a.rk-rowlink')).toHaveText([
       'Prof. A. Menon',
       'Dr K. Iyer',
     ]);
-    await expect(tableRows(page).nth(0).locator('td').nth(1)).toHaveText(
-      'ME ZG523, MEL ZG512, CHE ZG5131 scope withdrawn',
-    );
-    await expect(tableRows(page).nth(1).locator('.xw-tag.xw-tag--warn')).toHaveText(
-      'Nothing — no scope yet',
-    );
+    await expect(tableRows(page).nth(0).locator('td.rk-c-exp .rk-code')).toHaveText([
+      'ME ZG523',
+      'MEL ZG512',
+      'CHE ZG513',
+    ]);
+    await expect(tableRows(page).nth(1).locator('td.rk-c-exp')).toHaveText('Nothing yet');
+    await expect(tableRows(page).nth(1).locator('.xr-st--warn')).toHaveText('No scope');
     await expect(page.getByRole('button', { name: 'Register a Reviewer' })).toBeVisible();
     await checkState(page, 'Platform roles');
     await shot(page, 'sa-16-reviewers');
 
-    // Content Managers (the engine state of f0).
-    await press(page, tabs.getByRole('tab', { name: /^Content Managers/ }));
+    // Content Managers.
+    await press(page, tabs.getByRole('link', { name: /^Content Managers/ }));
     await expect(page).toHaveURL(/\/admin\/roles\?tab=content-managers$/);
     await expect(tableRows(page)).toHaveCount(1);
-    await expect(tableRows(page).nth(0).locator('td').nth(1)).toHaveText('All experiments');
+    await expect(tableRows(page).nth(0).locator('td.rk-c-exp')).toHaveText('All experiments');
     await checkState(page, 'Platform roles');
     await shot(page, 'sa-16-content-managers');
 
-    // Back to Reviewers; Open Dr K. Iyer, in the same tab.
-    await press(page, tabs.getByRole('tab', { name: /^Reviewers/ }));
+    // Back to Reviewers; the notice's Assign scope opens Dr K. Iyer, in the same tab; Back returns.
+    await press(page, tabs.getByRole('link', { name: /^Reviewers/ }));
+    await expect(page).toHaveURL(/\/admin\/roles\?tab=reviewers$/);
     const mark = await markDocument(page);
-    await press(page, page.getByRole('link', { name: 'Open Dr K. Iyer' }));
+    await press(page, notice.getByRole('link', { name: 'Assign scope' }));
     await expect(page).toHaveURL(/\/admin\/roles\/role-0001$/, { timeout: 60_000 });
     await expect(heading(page, 'Dr K. Iyer')).toBeVisible({ timeout: 60_000 });
     await expectSameDocument(page, mark);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/admin/roles');
     await page.goBack();
     await expect(page).toHaveURL(/\/admin\/roles\?tab=reviewers$/);
-    await expect(page.getByRole('heading', { level: 2, name: 'Reviewers' })).toBeVisible();
+    // The row's link, named by its content, opens the holder. (A press elsewhere on the row is the
+    // kit's `RecordTable` behaviour; inside the V3 shell it is ignored today — reported to the lead.)
+    await press(
+      page,
+      page.getByRole('link', { name: 'Dr K. Iyer, Academic Reviewer, no scope. Open' }),
+    );
+    await expect(page).toHaveURL(/\/admin\/roles\/role-0001$/, { timeout: 60_000 });
+    await expectSameDocument(page, mark);
   });
 
   test('`?tab=vendors` and a tab that does not exist are the bare address (D-11)', async ({
@@ -210,10 +231,10 @@ test.describe('SA-16 Platform roles', () => {
     await page.goto('/admin/roles?tab=institute-admins');
     await expect(heading(page, 'Platform roles')).toBeVisible({ timeout: 90_000 });
     await expect(page).toHaveURL(/\/admin\/roles$/);
-    await expect(page.getByRole('heading', { level: 2, name: 'Vendors' })).toBeVisible();
+    await expect(page.getByRole('region', { name: 'Vendors' })).toBeVisible();
   });
 
-  test('Register a Vendor (f6): all three required; a used e-mail refused; registered → SA-17 with the flash', async ({
+  test('Register a Vendor: all three required; a used e-mail refused; registered → SA-17 with the flash', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: FIXTURE, session: SA });
@@ -223,29 +244,29 @@ test.describe('SA-16 Platform roles', () => {
     await press(page, page.getByRole('button', { name: 'Register a Vendor' }));
     const dialog = page.getByRole('dialog', { name: 'Register a Vendor' });
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator('.xr-dialog-body > p')).toHaveText(
-      'Role: Vendor. They start with no scope — you assign it next. Nothing is sent from here.',
+    await expect(dialog.locator('.rk-dlg-head p')).toHaveText(
+      'Registering doesn’t send an invitation. You assign what they can act on next.',
     );
     const name = dialog.getByRole('textbox', { name: 'Name' });
     const email = dialog.getByRole('textbox', { name: 'Work e-mail' });
     const organisation = dialog.getByRole('textbox', { name: 'Organisation' });
     await expect(name).toBeFocused();
     await press(page, dialog.getByRole('button', { name: 'Register' }));
-    await expect(dialog.locator('.xr-error')).toHaveText([
+    await expect(dialog.locator('.rk-ferr')).toHaveText([
       'Enter the person’s name',
       'Enter a work e-mail address',
       'Enter the organisation',
     ]);
     await expect(name).toBeFocused();
     await checkState(page, 'Platform roles');
-    await shot(page, 'b7-08-f6-register-validation');
+    await shot(page, 'sa-16-register-validation');
 
     // An e-mail someone already signs in with (PC-49): SA-16's words, nothing registered.
     await name.pressSequentially('Kavya Nair');
     await email.pressSequentially('kavya.nair@wilp.example');
     await organisation.pressSequentially('BITS Pilani · WILP');
     await press(page, dialog.getByRole('button', { name: 'Register' }));
-    await expect(dialog.locator('.xr-error')).toHaveText(
+    await expect(dialog.locator('.rk-ferr')).toHaveText(
       'Someone is already registered with this e-mail address',
     );
     await expect(email).toBeFocused();
@@ -266,34 +287,41 @@ test.describe('SA-16 Platform roles', () => {
     await expect(title).toBeVisible({ timeout: 60_000 });
     await expectSameDocument(page, mark);
     await expect(title).toBeFocused();
-    await expect(flash(page)).toHaveText(
-      'Neha Kapoor is registered as Vendor. They have no scope yet — assign one so they can act. Nothing is sent from here.',
+    await expect(flash(page).locator('.rk-notice-t')).toHaveText(
+      'Neha Kapoor is registered as Vendor.',
     );
-    await expect(main(page).locator('.xr-overline')).toHaveText('Vendor · Vertex Simulations');
+    await expect(flash(page).locator('.rk-notice-d')).toHaveText(
+      'Assign what they can act on. Nothing was sent to them.',
+    );
+    await expect(main(page).locator('.rk-head .rk-eyebrow')).toHaveText('Vendor');
+    await expect(main(page).locator('.rk-head .rk-meta')).toContainText('Vertex Simulations');
     await expect(effect(page)).toHaveText(
-      'Can’t create or submit experiments yet — nothing is in scope.',
+      'Can’t create or submit experiments yet. Nothing is in scope.',
     );
     await expect(historyWhat(page)).toHaveText(['Registered as Vendor']);
-    await expect(main(page).locator('ol.xr-timeline .xr-tl-note')).toHaveText([
+    await expect(main(page).locator('ol.rk-tl > li .rk-tl-n')).toHaveText([
       'Arjun Mehta · no scope yet',
     ]);
     await checkState(page, 'Neha Kapoor');
     await shot(page, 'sa-17-registered');
 
-    // Back to the list: three Vendors, one without scope.
-    await press(page, main(page).locator('a.xr-back'));
-    await expect(page).toHaveURL(/\/admin\/roles$/);
-    await expect(page.getByRole('tablist', { name: 'Role' }).getByRole('tab').first()).toHaveText(
-      'Vendors 3',
+    // Back to the list by the crumb: three Vendors, one without scope.
+    await press(
+      page,
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', {
+        name: 'Platform roles',
+      }),
     );
-    await expect(main(page).locator('.xr-notice--warn')).toHaveText(
-      '1 holder with no scope — they can’t act on anything yetOpen the holder and assign a scope.',
+    await expect(page).toHaveURL(/\/admin\/roles$/);
+    await expect(pageTabs(page).getByRole('link').first()).toHaveText('Vendors 3');
+    await expect(main(page).locator('.rk-notice--warn .rk-notice-t')).toHaveText(
+      'Neha Kapoor has no scope yet',
     );
   });
 });
 
 test.describe('SA-17 Role holder', () => {
-  test('Dr K. Iyer (f1, f2; B7-10 f10): Assign validation (f5); EEE ZC341 assigned → SUB-0085 is no longer stuck and is in his queue', async ({
+  test('Dr K. Iyer: Assign scope validation; EEE ZC341 assigned → SUB-0085 is no longer stuck and is in his queue', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: FIXTURE, session: SA });
@@ -306,55 +334,79 @@ test.describe('SA-17 Role holder', () => {
 
     await push(page, '/admin/roles/role-0001');
     await expect(heading(page, 'Dr K. Iyer')).toBeVisible({ timeout: 90_000 });
-    await expect(main(page).locator('.xr-overline')).toHaveText(
-      'Academic Reviewer · BITS Pilani · WILP',
+    const crumbs = page.getByRole('navigation', { name: 'Breadcrumb' });
+    await expect(crumbs.getByRole('link')).toHaveText(['Platform roles', 'Reviewers']);
+    await expect(crumbs.getByRole('link', { name: 'Reviewers' })).toHaveAttribute(
+      'href',
+      '/admin/roles?tab=reviewers',
     );
-    await expect(main(page).locator('.xr-notice--warn')).toHaveText(
+    await expect(main(page).locator('.rk-head .rk-eyebrow')).toHaveText('Academic Reviewer');
+    await expect(main(page).locator('.rk-head .rk-meta')).toHaveText(
+      'No scopeBITS Pilani · WILPRegistered 20 Oct 2026',
+    );
+    await expect(main(page).locator('.rk-notice--warn')).toHaveText(
       'No scope — can’t act on anything yetAssign a scope so they can act: all experiments, a course, or one experiment.',
     );
     await expect(effect(page)).toHaveText(
-      'Their review queue is empty — nothing is in scope. Submissions for courses nobody reviews get stuck.',
+      'Their review queue is empty. Nothing is in scope, and submissions for courses nobody reviews get stuck.',
     );
-    await expect(main(page).locator('dl.xl-kv')).toContainText('k.iyer@wilp.example');
-    await expect(main(page).locator('dl.xl-kv')).toContainText('20 Oct 2026 · by Arjun Mehta');
+    await expect(main(page).locator('dl.rk-dl')).toContainText('k.iyer@wilp.example');
+    await expect(main(page).locator('dl.rk-dl')).toContainText('20 Oct 2026');
     await expect(
-      main(page).getByText('How they first sign in is still open — nothing is sent from here.'),
+      main(page).getByText('How they first sign in is still open. Nothing is sent from here.'),
     ).toBeVisible();
     await expect(historyWhat(page)).toHaveText(['Registered as Academic Reviewer']);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/admin/roles');
+    // Where the panel follows the record (under 860 px of page), “Go to assign scope” leads to it.
+    const goTo = main(page).getByRole('link', { name: 'Go to assign scope' });
+    if (width(page) >= 1440) await expect(goTo).toBeHidden();
+    else {
+      await expect(goTo).toBeVisible();
+      // As the export's `goInPanel`: the panel scrolls into view and its heading takes focus; the
+      // address does not change.
+      const before = page.url();
+      await press(page, goTo);
+      await expect(page.locator('#assign-scope-h')).toBeFocused();
+      await expect(panel(page)).toBeInViewport();
+      expect(page.url()).toBe(before);
+    }
     await checkState(page, 'Dr K. Iyer');
     await shot(page, 'sa-17-no-scope');
 
-    // f5: “A course” chosen, no course picked.
-    const assign = main(page).getByRole('button', { name: 'Assign scope' });
+    // Nothing chosen, then “A course” chosen with no course picked: the summary and the fields.
+    const assign = panel(page).getByRole('button', { name: 'Assign scope' });
     await press(page, assign);
-    const dialog = page.getByRole('dialog', { name: 'Assign scope to Dr K. Iyer' });
-    await expect(dialog).toBeVisible();
-    await expect(dialog.getByRole('radio', { name: /All experiments/ })).toBeFocused();
-    await press(page, dialog.getByRole('button', { name: 'Assign scope' }));
-    await expect(dialog.locator('.xr-error')).toHaveText('Choose what they can act on');
-    await press(page, dialog.getByRole('radio', { name: /A course/ }));
-    await press(page, dialog.getByRole('button', { name: 'Assign scope' }));
-    const course = dialog.getByRole('combobox', { name: 'Course' });
-    await expect(dialog.locator('.xr-error')).toHaveText('Choose a course');
-    await expect(course).toBeFocused();
+    const summary = panel(page).locator('.rk-errsum');
+    await expect(summary).toHaveText('Check the scopeChoose what they can act on');
+    await expect(summary).toBeFocused();
+    await press(page, panel(page).getByRole('radio', { name: 'A course' }));
+    await expect(summary).toHaveCount(0);
+    await press(page, assign);
+    const course = panel(page).getByRole('combobox', { name: 'Course' });
+    await expect(summary).toHaveText('Check the scopeChoose a course');
+    await expect(summary).toBeFocused();
+    await expect(course).toHaveAttribute('aria-invalid', 'true');
+    await expect(panel(page).locator('.rk-field .rk-ferr')).toHaveText('Choose a course');
     await checkState(page, 'Dr K. Iyer');
-    await shot(page, 'b7-08-f5-assign-validation');
+    await shot(page, 'sa-17-assign-validation');
+    await press(page, summary.getByRole('link', { name: 'Choose a course' }));
+    await expect(course).toBeFocused();
 
     await course.selectOption({ label: 'EEE ZC341 · Electrical Machines' });
-    await press(page, dialog.getByRole('button', { name: 'Assign scope' }));
-    await expect(dialog).toBeHidden();
-    await expect(flash(page)).toHaveText('Dr K. Iyer can now act on EEE ZC341.');
+    await press(page, assign);
+    await expect(flash(page)).toHaveText(
+      'Scope assigned: EEE ZC341.It now appears in their workspace.',
+    );
     await expect(flash(page)).toBeFocused();
-    await expect(main(page).locator('.xr-notice--warn')).toHaveCount(0);
-    await expect(scopeList(page, 'Scope')).toHaveText([
-      /^EEE ZC341 · Electrical Machines\s*Since \d+ Oct 2026$/,
+    await expect(main(page).locator('.rk-notice--warn')).toHaveCount(0);
+    await expect(scopeList(page, 'Can act on')).toHaveText([
+      /^EEE ZC341\s*Electrical Machines\s*Assigned \d+ Oct 2026$/,
     ]);
     await expect(effect(page)).toHaveText(
       'Sees submissions and updates for these in the review queue: EEE ZC341.',
     );
     await expect(historyWhat(page)).toHaveText([
-      'Scope assigned — EEE ZC341',
+      'Scope assigned: EEE ZC341',
       'Registered as Academic Reviewer',
     ]);
     await checkState(page, 'Dr K. Iyer');
@@ -363,7 +415,7 @@ test.describe('SA-17 Role holder', () => {
     // SA-12 after: nothing is stuck any more.
     await push(page, '/admin/content/all');
     await expect(heading(page, 'Content')).toBeVisible({ timeout: 60_000 });
-    await expect(main(page).locator('table.xr-table')).toBeVisible({ timeout: 60_000 });
+    await expect(main(page).getByRole('table')).toBeVisible({ timeout: 60_000 });
     await expect(main(page).getByText(/record stuck — nobody can act/)).toHaveCount(0);
 
     // Dr K. Iyer's own Review queue (RV-02), in this tab and world: SUB-0085 is there.
@@ -382,7 +434,7 @@ test.describe('SA-17 Role holder', () => {
     ]);
   });
 
-  test('Prof. A. Menon: ME ZG523 withdrawn with a reason — his queue drops it at once; restored (f8) — it is back', async ({
+  test('Prof. A. Menon: ME ZG523 withdrawn with a reason (inline) — his queue drops it at once; restored (confirmation) — it is back', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: FIXTURE, session: SA });
@@ -390,51 +442,52 @@ test.describe('SA-17 Role holder', () => {
     await expect(heading(page, 'Prof. A. Menon')).toBeVisible({ timeout: 90_000 });
     const submission = await submitPinFins(page);
 
-    // f8: Restore EEE ZC341 asks no reason — the inline confirmation; Cancel returns focus.
+    // Restore EEE ZC341 asks no reason — a confirmation; Cancel returns focus.
     const restoreEee = main(page).getByRole('button', {
-      name: 'Restore EEE ZC341 · Electrical Machines',
+      name: 'Restore scope EEE ZC341 · Electrical Machines',
     });
     await press(page, restoreEee);
-    const confirm = main(page).getByRole('button', { name: 'Restore scope' });
-    await expect(confirm).toBeFocused();
-    await expect(main(page).locator('.xw-inline-panel p')).toHaveText(
-      'Restore EEE ZC341 · Electrical Machines? They can act on it again straight away.',
+    const confirmation = page.getByRole('dialog', {
+      name: 'Restore EEE ZC341 for Prof. A. Menon?',
+    });
+    await expect(confirmation).toBeVisible();
+    await expect(confirmation.getByRole('button', { name: 'Restore scope' })).toBeFocused();
+    await expect(confirmation.locator('.rk-dlg-head p')).toHaveText(
+      'The same scope comes back. No reason is asked; the earlier withdrawal stays in the history.',
     );
-    await expect(main(page).locator('.xw-inline-panel textarea')).toHaveCount(0);
+    await expect(confirmation.locator('textarea')).toHaveCount(0);
     await checkState(page, 'Prof. A. Menon');
-    await shot(page, 'b7-08-f8-restore');
-    await press(
-      page,
-      main(page).locator('.xw-inline-panel').getByRole('button', { name: 'Cancel' }),
-    );
+    await shot(page, 'sa-17-restore');
+    await press(page, confirmation.getByRole('button', { name: 'Cancel' }));
+    await expect(confirmation).toBeHidden();
     await expect(restoreEee).toBeFocused();
 
-    // Withdraw ME ZG523: a reason is required (DL-2), inline beside the scope.
+    // Withdraw ME ZG523: a reason is required, inline below the scope.
     await press(
       page,
       main(page).getByRole('button', {
-        name: 'Withdraw ME ZG523 · Thermodynamics & Heat Transfer',
+        name: 'Withdraw scope ME ZG523 · Thermodynamics & Heat Transfer',
       }),
     );
-    const reason = main(page).getByRole('textbox', {
-      name: 'Reason for withdrawing ME ZG523 · Thermodynamics & Heat Transfer',
-    });
+    const reason = main(page).getByRole('textbox', { name: 'Reason for withdrawing ME ZG523' });
     await expect(reason).toBeFocused();
-    await press(page, main(page).getByRole('button', { name: 'Withdraw scope' }));
-    await expect(main(page).locator('.xw-inline-panel .xr-error')).toHaveText(
+    await press(page, inline(page).getByRole('button', { name: 'Withdraw scope' }));
+    await expect(inline(page).locator('.rk-ferr')).toHaveText(
       'Add a reason — it is kept in the history',
     );
     await expect(reason).toBeFocused();
+    await checkState(page, 'Prof. A. Menon');
+    await shot(page, 'sa-17-withdraw-inline');
     await reason.pressSequentially('Thermodynamics reviews move to the mechanical faculty.');
-    await press(page, main(page).getByRole('button', { name: 'Withdraw scope' }));
+    await press(page, inline(page).getByRole('button', { name: 'Withdraw scope' }));
     await expect(flash(page)).toHaveText(
-      'ME ZG523 withdrawn. Prof. A. Menon can no longer act on it.',
+      'Scope withdrawn: ME ZG523.The reason is kept with the scope.',
     );
     await expect(flash(page)).toBeFocused();
-    await expect(scopeList(page, 'Withdrawn scope').first()).toContainText(
+    await expect(scopeList(page, 'Withdrawn').first()).toContainText(
       '“Thermodynamics reviews move to the mechanical faculty.”',
     );
-    await expect(historyWhat(page).first()).toHaveText('Scope withdrawn — ME ZG523');
+    await expect(historyWhat(page).first()).toHaveText('Scope withdrawn: ME ZG523');
     await checkState(page, 'Prof. A. Menon');
 
     // As Prof. A. Menon, in this tab: the ME ZG523 submission has left his queue straight away.
@@ -451,11 +504,18 @@ test.describe('SA-17 Role holder', () => {
     await expect(heading(page, 'Prof. A. Menon')).toBeVisible({ timeout: 90_000 });
     await press(
       page,
-      main(page).getByRole('button', { name: 'Restore ME ZG523 · Thermodynamics & Heat Transfer' }),
+      main(page).getByRole('button', {
+        name: 'Restore scope ME ZG523 · Thermodynamics & Heat Transfer',
+      }),
     );
-    await press(page, main(page).getByRole('button', { name: 'Restore scope' }));
-    await expect(flash(page)).toHaveText('ME ZG523 restored. Prof. A. Menon can act on it again.');
-    await expect(historyWhat(page).first()).toHaveText('Scope restored — ME ZG523');
+    await press(
+      page,
+      page
+        .getByRole('dialog', { name: 'Restore ME ZG523 for Prof. A. Menon?' })
+        .getByRole('button', { name: 'Restore scope' }),
+    );
+    await expect(flash(page)).toHaveText('Scope restored: ME ZG523.');
+    await expect(historyWhat(page).first()).toHaveText('Scope restored: ME ZG523');
 
     // He sees it again at once.
     await switchIdentity(page, MENON);
@@ -468,82 +528,93 @@ test.describe('SA-17 Role holder', () => {
     ]);
   });
 
-  test('Anil Shetty (B7-12; f4 Withdraw · reason required), Ritu Sharma (B7-10 f11), Kavya Nair (f7)', async ({
+  test('Anil Shetty (withdraw · reason required), Ritu Sharma, Kavya Nair (All experiments)', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: FIXTURE, session: SA });
     await page.goto('/admin/roles/role-anil-shetty');
     await expect(heading(page, 'Anil Shetty')).toBeVisible({ timeout: 90_000 });
-    await expect(main(page).locator('.xr-overline')).toHaveText(
-      'Vendor · Northline Simulation Studio',
-    );
+    await expect(main(page).locator('.rk-head .rk-eyebrow')).toHaveText('Vendor');
+    await expect(
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Vendors' }),
+    ).toHaveAttribute('href', '/admin/roles?tab=vendors');
     await expect(effect(page)).toHaveText('Can create experiments and submit them for: ME ZG523.');
-    await expect(scopeList(page, 'Scope')).toHaveText([
-      /^ME ZG523 · Thermodynamics & Heat Transfer\s*Since 4 Jul 2026$/,
+    await expect(scopeList(page, 'Can act on')).toHaveText([
+      /^ME ZG523\s*Thermodynamics & Heat Transfer\s*Assigned 4 Jul 2026$/,
     ]);
-    await expect(scopeList(page, 'Withdrawn scope')).toHaveText([
-      /^MEL ZG512 · Manufacturing Processes\s*Withdrawn 15 Aug 2026 · “Manufacturing Processes content is being produced in-house this term\.”$/,
+    await expect(scopeList(page, 'Withdrawn')).toHaveText([
+      /^MEL ZG512\s*Manufacturing Processes\s*Withdrawn 15 Aug 2026 · “Manufacturing Processes content is being produced in-house this term\.”$/,
     ]);
     await expect(historyWhat(page)).toHaveText([
-      'Scope withdrawn — MEL ZG512',
+      'Scope withdrawn: MEL ZG512',
       'Registered as Vendor',
     ]);
     await checkState(page, 'Anil Shetty');
-    await shot(page, 'b7-12-role-holder');
+    await shot(page, 'sa-17-role-holder');
 
-    // f4: Withdraw, no reason given.
+    // Withdraw, no reason given; Cancel returns focus to Withdraw.
     const withdraw = main(page).getByRole('button', {
-      name: 'Withdraw ME ZG523 · Thermodynamics & Heat Transfer',
+      name: 'Withdraw scope ME ZG523 · Thermodynamics & Heat Transfer',
     });
     await press(page, withdraw);
-    await press(page, main(page).getByRole('button', { name: 'Withdraw scope' }));
-    await expect(main(page).locator('.xw-inline-panel .xr-error')).toHaveText(
+    await press(page, inline(page).getByRole('button', { name: 'Withdraw scope' }));
+    await expect(inline(page).locator('.rk-ferr')).toHaveText(
       'Add a reason — it is kept in the history',
     );
     await checkState(page, 'Anil Shetty');
-    await shot(page, 'b7-08-f4-withdraw-validation');
-    await press(
-      page,
-      main(page).locator('.xw-inline-panel').getByRole('button', { name: 'Cancel' }),
-    );
+    await press(page, inline(page).getByRole('button', { name: 'Cancel' }));
     await expect(withdraw).toBeFocused();
-    await expect(main(page).locator('.xw-inline-panel')).toHaveCount(0);
+    await expect(inline(page)).toHaveCount(0);
 
-    // B7-10 f11: Ritu Sharma's EEE ZC341.
+    // Ritu Sharma's EEE ZC341.
     await push(page, '/admin/roles/role-ritu-sharma');
     await expect(heading(page, 'Ritu Sharma')).toBeVisible({ timeout: 60_000 });
     await expect(effect(page)).toHaveText(
       'Can create experiments and submit them for: CHE ZG513, EEE ZC341.',
     );
     await expect(historyWhat(page)).toHaveText([
-      'Scope assigned — EEE ZC341',
+      'Scope assigned: EEE ZC341',
       'Registered as Vendor',
     ]);
     await press(
       page,
-      main(page).getByRole('button', { name: 'Withdraw EEE ZC341 · Electrical Machines' }),
+      main(page).getByRole('button', { name: 'Withdraw scope EEE ZC341 · Electrical Machines' }),
     );
-    await press(page, main(page).getByRole('button', { name: 'Withdraw scope' }));
-    await expect(main(page).locator('.xw-inline-panel .xr-error')).toHaveText(
+    await press(page, inline(page).getByRole('button', { name: 'Withdraw scope' }));
+    await expect(inline(page).locator('.rk-ferr')).toHaveText(
       'Add a reason — it is kept in the history',
     );
     await checkState(page, 'Ritu Sharma');
-    await shot(page, 'b7-10-f11-withdraw');
+    await shot(page, 'sa-17-withdraw-ritu');
 
-    // f7: the Content Manager with All experiments.
+    // The Content Manager with All experiments.
     await push(page, '/admin/roles/role-kavya-nair');
     await expect(heading(page, 'Kavya Nair')).toBeVisible({ timeout: 60_000 });
-    await expect(main(page).locator('.xr-overline')).toHaveText(
-      'Content Manager · BITS Pilani · WILP',
-    );
+    await expect(main(page).locator('.rk-head .rk-eyebrow')).toHaveText('Content Manager');
     await expect(effect(page)).toHaveText(
       'Decides publication and raises corrections for: All experiments.',
     );
-    await expect(scopeList(page, 'Scope')).toHaveText([/^All experiments\s*Since 2 Jun 2026$/]);
-    await expect(main(page).locator('ol.xr-timeline .xr-tl-note')).toHaveText([
+    await expect(scopeList(page, 'Can act on')).toHaveText([
+      /^All experiments\s*Assigned 2 Jun 2026$/,
+    ]);
+    await expect(main(page).locator('ol.rk-tl > li .rk-tl-n')).toHaveText([
       'Arjun Mehta · scope All experiments',
     ]);
     await checkState(page, 'Kavya Nair');
-    await shot(page, 'b7-08-f7-content-manager');
+    await shot(page, 'sa-17-content-manager');
+  });
+
+  test('an address that names no holder is the “not available” message in place', async ({
+    page,
+  }) => {
+    await bootWorld(page, { fixture: FIXTURE, session: SA });
+    await page.goto('/admin/roles/role-nobody');
+    await expect(heading(page, 'This page isn’t available')).toBeVisible({ timeout: 90_000 });
+    await expect(main(page).getByRole('link', { name: 'Back to Overview' })).toHaveAttribute(
+      'href',
+      '/admin',
+    );
+    await expect(main(page)).not.toContainText('role-nobody');
+    await checkState(page, 'This page isn’t available');
   });
 });

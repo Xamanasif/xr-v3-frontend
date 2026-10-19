@@ -80,7 +80,8 @@ export function placeWordsOf(returnTo: string | null): string | null {
     case 'screen': {
       if (outcome.view === 'reports') return HELP_TITLE;
       if (outcome.view === 'report') return `${HELP_TITLE} › Report a problem`;
-      const reference = referenceIn(pathname);
+      // A Super Admin sees no report reference anywhere (owner decision 6; SA-v1).
+      const reference = pathname.startsWith('/admin/') ? null : referenceIn(pathname);
       return reference ? `${HELP_TITLE} › ${reference}` : HELP_TITLE;
     }
     case 'record-screen': {
@@ -205,13 +206,14 @@ export function placeWordsOf(returnTo: string | null): string | null {
           ? `${INSTITUTE_REQUESTS_TITLE} › ${DEVICE_REQUESTS_TITLE} › ${reference}`
           : INSTITUTE_REQUESTS_TITLE;
       }
-      if (outcome.screen === 'SA-18' || outcome.screen === 'SA-19') {
-        return reference ? `${OPERATIONS_TITLE} › ${reference}` : OPERATIONS_TITLE;
-      }
-      // Phase 6: an update names its drawn reference ("Updates › UPD-0005", "Review queue ›
-      // UPD-0005", "Content › UPD-0005"), a submission its own ("Content › SUB-0085"), a support
-      // report its own ("Operations › SUP-0213"); areas, courses, holders and published
-      // experiments are addressed by ids, so they name the destination alone.
+      // The Super Admin's own records never show a reference (the owner-approved Super Admin
+      // export, SA-v1 HANDOFF: "Internal references … never appear in visible text"): their
+      // addresses name the destination alone.
+      if (outcome.screen === 'SA-18' || outcome.screen === 'SA-19') return OPERATIONS_TITLE;
+      // Phase 6: an update names its drawn reference in the Content Manager's and the Academic
+      // Reviewer's workspaces ("Updates › UPD-0005", "Review queue › UPD-0005"); the Super
+      // Admin's Content and Operations name the destination alone (SA-v1); areas, courses,
+      // holders and published experiments are addressed by ids, so they do too.
       if (outcome.screen === 'CM-08') {
         return reference ? `${UPDATES_TITLE} › ${reference}` : UPDATES_TITLE;
       }
@@ -224,15 +226,15 @@ export function placeWordsOf(returnTo: string | null): string | null {
         outcome.screen === 'SA-12' ||
         outcome.screen === 'SA-13'
       ) {
-        return reference ? `${CONTENT_TITLE} › ${reference}` : CONTENT_TITLE;
+        return CONTENT_TITLE;
       }
       if (outcome.screen === 'SA-14' || outcome.screen === 'SA-15') return STRUCTURE_TITLE;
       if (outcome.screen === 'SA-16' || outcome.screen === 'SA-17') return ROLES_TITLE;
       if (outcome.screen === 'SA-20' || outcome.screen === 'SA-21' || outcome.screen === 'SA-22') {
-        return reference ? `${OPERATIONS_TITLE} › ${reference}` : OPERATIONS_TITLE;
+        return OPERATIONS_TITLE;
       }
       // SA-03, the Super Admin's request decision.
-      return reference ? `${REQUESTS_TITLE} › ${reference}` : REQUESTS_TITLE;
+      return REQUESTS_TITLE;
     }
     default:
       return null;

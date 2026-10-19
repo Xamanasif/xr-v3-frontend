@@ -10,7 +10,8 @@
 //
 // The product's data is the sample world of a fresh tab (a document load starts it anew,
 // ADR-0004); a capture that needs a state the walk does not hold creates it through the UI first
-// (the Super Admin pauses an institution) and says so in its notes.
+// (the Super Admin pauses an institution) and says so in its notes. `--only` takes case names,
+// or a prefix ending in `*` (`--only 'sa*'`).
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
@@ -51,11 +52,182 @@ async function go(page, path) {
   await page.waitForURL((url) => url.pathname === path.split('?')[0]);
 }
 
+/** The account button: the v46 shells' `.xr-acct-btn`, the V3 role shell's `.rb-acct`. */
+const ACCOUNT = '.xr-acct-btn, .rb-acct';
+
 async function signOut(page) {
-  await page.locator('.xr-acct-btn').click();
+  await page.locator(ACCOUNT).click();
   await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
+
+/** A Super Admin page once its read has settled: its H1, no loading line or skeleton rows. */
+async function settledPage(page) {
+  await page.locator('main#main h1').first().waitFor();
+  await page.waitForFunction(
+    () =>
+      !document.querySelector('main [aria-busy="true"], main .rk-skel-row, main .rk-loading-msg'),
+  );
+}
+
+/** Arjun Mehta (Super Admin) at a page of his workspace, reached client-side after sign-in. */
+async function admin(page, path) {
+  await signIn(page, ARJUN);
+  if (path !== '/admin') await go(page, path);
+  await settledPage(page);
+}
+
+/** One Super Admin page in its first state (the fresh sample world). */
+const saPage = (name, id, state, path) => ({
+  name,
+  id,
+  state,
+  reach: async (page) => admin(page, path),
+});
+
+/** The Super Admin cases (SA-v1): every screen, its no-match / unknown / dialog states. */
+const SA_CASES = [
+  saPage('sa01-overview', 'SA-01', 'Overview, All', '/admin'),
+  {
+    name: 'sa01-category',
+    id: 'SA-01',
+    state: 'Overview, the Corrections category',
+    reach: async (page) => {
+      await admin(page, '/admin');
+      await page.locator('main [role=group] button', { hasText: 'Corrections' }).first().click();
+    },
+  },
+  saPage('sa02-requests', 'SA-02', 'Requests, default filters', '/admin/requests'),
+  {
+    name: 'sa02-no-match',
+    id: 'SA-02',
+    state: 'Requests, a search with no match',
+    reach: async (page) => {
+      await admin(page, '/admin/requests');
+      await page.locator('main').getByRole('searchbox').first().fill('zzqx');
+      await page.locator('main .rk-state').first().waitFor();
+    },
+  },
+  saPage(
+    'sa03-new-access',
+    'SA-03',
+    'Request decision, a new access request (information requested)',
+    '/admin/requests/REQ-0041',
+  ),
+  saPage('sa03-renewal', 'SA-03', 'Request decision, another request', '/admin/requests/REQ-0038'),
+  saPage(
+    'sa03-unknown',
+    'SA-03',
+    'An unknown request: the GL-04 message',
+    '/admin/requests/REQ-9999',
+  ),
+  saPage('sa06-institutions', 'SA-06', 'Institutions', '/admin/institutions'),
+  {
+    name: 'sa06-no-match',
+    id: 'SA-06',
+    state: 'Institutions, a search with no match',
+    reach: async (page) => {
+      await admin(page, '/admin/institutions');
+      await page.locator('main').getByRole('searchbox').first().fill('zzqx');
+      await page.locator('main .rk-state').first().waitFor();
+    },
+  },
+  saPage(
+    'sa07-malnad',
+    'SA-07',
+    'Institution detail, Malnad (ending soon)',
+    '/admin/institutions/malnad',
+  ),
+  saPage(
+    'sa07-vizag',
+    'SA-07',
+    'Institution detail, Vizag (awaiting payment)',
+    '/admin/institutions/vizag',
+  ),
+  saPage('sa07-deccan', 'SA-07', 'Institution detail, Deccan', '/admin/institutions/deccan'),
+  saPage('sa07-konark', 'SA-07', 'Institution detail, Konark', '/admin/institutions/konark'),
+  saPage('sa07-sahyadri', 'SA-07', 'Institution detail, Sahyadri', '/admin/institutions/sahyadri'),
+  {
+    name: 'sa07-pause-dialog',
+    id: 'SA-07',
+    state: 'Pause access confirmation (Deccan)',
+    reach: async (page) => {
+      await admin(page, '/admin/institutions/deccan');
+      await page.locator('main').getByRole('button', { name: 'Pause access' }).first().click();
+      await page.getByRole('dialog').waitFor();
+    },
+  },
+  saPage(
+    'sa10-updates',
+    'SA-10',
+    'Content updates, waiting for a decision',
+    '/admin/content/updates',
+  ),
+  saPage(
+    'sa11-update-0005',
+    'SA-11',
+    'An update waiting for release',
+    '/admin/content/updates/UPD-0005',
+  ),
+  saPage('sa11-update-0004', 'SA-11', 'Another update', '/admin/content/updates/UPD-0004'),
+  saPage('sa12-all-content', 'SA-12', 'All content', '/admin/content/all'),
+  saPage('sa13-stuck', 'SA-13', 'Content record (SUB-0085)', '/admin/content/records/SUB-0085'),
+  saPage(
+    'sa13-published',
+    'SA-13',
+    'Content record, published',
+    '/admin/content/records/distillation-column',
+  ),
+  saPage('sa14-structure', 'SA-14', 'Academic structure', '/admin/structure'),
+  {
+    name: 'sa14-add-area',
+    id: 'SA-14',
+    state: 'Add area dialog',
+    reach: async (page) => {
+      await admin(page, '/admin/structure');
+      await page.locator('main').getByRole('button', { name: 'Add area' }).first().click();
+      await page.getByRole('dialog').waitFor();
+    },
+  },
+  saPage('sa15-area', 'SA-15', 'Area record', '/admin/structure/areas/chemical-process'),
+  saPage('sa15-course', 'SA-15', 'Course record', '/admin/structure/courses/fluid-mechanics'),
+  saPage('sa16-roles', 'SA-16', 'Platform roles, Vendors', '/admin/roles'),
+  saPage('sa16-reviewers', 'SA-16', 'Platform roles, Reviewers', '/admin/roles?tab=reviewers'),
+  saPage('sa17-holder', 'SA-17', 'Role holder (Prof. A. Menon)', '/admin/roles/role-a-menon'),
+  saPage('sa18-transfers', 'SA-18', 'Device transfers', '/admin/operations/device-transfers'),
+  saPage(
+    'sa19-transfer',
+    'SA-19',
+    'Device transfer decision',
+    '/admin/operations/device-transfers/DTR-0018',
+  ),
+  saPage('sa20-support', 'SA-20', 'Support reports', '/admin/operations/support'),
+  saPage('sa21-report', 'SA-21', 'Support report', '/admin/operations/support/SUP-0213'),
+  saPage('sa22-access-ending', 'SA-22', 'Access ending', '/admin/operations/access-ending'),
+  {
+    name: 'sa-shell-drawer',
+    id: 'SA-shell',
+    state: 'the Menu drawer open (below 1024 px; the rail above)',
+    reach: async (page) => {
+      await admin(page, '/admin');
+      const menu = page.getByRole('button', { name: /^(Open menu|Menu)$/ });
+      if (await menu.isVisible()) {
+        await menu.click();
+        await page.locator('.rb-drawer').waitFor();
+      }
+    },
+  },
+  {
+    name: 'sa-shell-not-found',
+    id: 'SA-shell',
+    state: 'an unknown /admin address: PU-15 in the V3 shell',
+    reach: async (page) => {
+      await signIn(page, ARJUN);
+      await go(page, '/admin/nothing-here');
+      await page.locator('main#main h1').first().waitFor();
+    },
+  },
+];
 
 /** The cases: a name, the XS id and state, and how to reach it from a fresh tab. */
 const CASES = [
@@ -120,7 +292,7 @@ const CASES = [
     state: 'open, Super Admin (no organisation line)',
     reach: async (page) => {
       await signIn(page, ARJUN);
-      await page.locator('.xr-acct-btn').click();
+      await page.locator(ACCOUNT).click();
       await page.locator('.xs-menu').waitFor();
     },
   },
@@ -130,7 +302,7 @@ const CASES = [
     state: 'open, Institute Admin (institution line)',
     reach: async (page) => {
       await signIn(page, KULKARNI);
-      await page.locator('.xr-acct-btn').click();
+      await page.locator(ACCOUNT).click();
       await page.locator('.xs-menu').waitFor();
     },
   },
@@ -207,7 +379,7 @@ const CASES = [
       await page.getByRole('button', { name: 'Pause access' }).first().click();
       const dialog = page.getByRole('dialog', { name: /^Pause access for / });
       await dialog
-        .getByRole('textbox', { name: 'Reason — kept in the history' })
+        .getByRole('textbox', { name: 'Reason, kept in the history' })
         .fill('Licence review.');
       await dialog.getByRole('button', { name: 'Pause access' }).click();
       await page.getByText('Access paused').first().waitFor();
@@ -220,6 +392,15 @@ const CASES = [
 
 async function measure(page) {
   return page.evaluate(async () => {
+    // No internal reference in the words or the accessible names (SA-v1 rule).
+    const internal = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+    const named = [...document.querySelectorAll('[aria-label], [title], img[alt]')].map(
+      (element) =>
+        `${element.getAttribute('aria-label') ?? ''} ${element.getAttribute('title') ?? ''} ${element.getAttribute('alt') ?? ''}`,
+    );
+    const references = [document.body.innerText, ...named].filter((text) =>
+      internal.test(text),
+    ).length;
     await document.fonts.ready;
     const doc = document.documentElement;
     // Text cut off by its box; visually hidden words (`.xr-sr`, 1 px by design) are not.
@@ -231,6 +412,7 @@ async function measure(page) {
       return element.scrollWidth > element.clientWidth + 1;
     }).length;
     return {
+      references,
       pageSize: [doc.scrollWidth, doc.scrollHeight],
       horizontalOverflow: doc.scrollWidth > window.innerWidth,
       clippedText: clipped,
@@ -243,8 +425,14 @@ async function measure(page) {
 
 const browser = await chromium.launch();
 const results = [];
-for (const testCase of CASES.filter(
-  (c) => !values.only || values.only.split(',').includes(c.name),
+for (const testCase of [...CASES, ...SA_CASES].filter(
+  (c) =>
+    !values.only ||
+    values.only
+      .split(',')
+      .some((only) =>
+        only.endsWith('*') ? c.name.startsWith(only.slice(0, -1)) : c.name === only,
+      ),
 )) {
   for (const width of WIDTHS) {
     const context = await browser.newContext({
@@ -263,6 +451,8 @@ for (const testCase of CASES.filter(
     const shots = [];
     const capture = async (suffix) => {
       const file = `${testCase.name}${suffix ? `-${suffix}` : ''}-${width}.png`;
+      // The pointer rests where the last click was (a row's hover tint); move it off the page.
+      await page.mouse.move(0, 899);
       await page.waitForTimeout(150);
       await page.screenshot({ path: join(out, file), fullPage: true });
       shots.push({ file, ...(await measure(page)) });
@@ -285,7 +475,7 @@ for (const testCase of CASES.filter(
       .map((shot) =>
         shot.error
           ? `ERROR ${shot.error}`
-          : `${shot.file} ${shot.pageSize.join('×')} overflow:${shot.horizontalOverflow} clipped:${shot.clippedText} weights:${shot.weights.map(Number).join('')}`,
+          : `${shot.file} ${shot.pageSize.join('×')} overflow:${shot.horizontalOverflow} clipped:${shot.clippedText} refs:${shot.references} weights:${shot.weights.map(Number).join('')}`,
       )
       .join(' | ');
     process.stdout.write(

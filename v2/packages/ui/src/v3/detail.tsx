@@ -1,8 +1,17 @@
 import { Fragment, type ReactNode, type Ref } from 'react';
 
-export interface DetailLayoutProps {
-  /** The record's sheet (`div.rk-surface.rk-mainsheet`): facts and sections. */
+import { joinClasses } from '../internal/classes.js';
+
+interface DetailMain {
+  /**
+   * The record's sheet (`div.rk-surface.rk-mainsheet`): facts and sections. With `stacked`, the
+   * record column (`div.sa-stack`): separate surfaces the caller draws, 20 px apart (SA-07).
+   */
   readonly main: ReactNode;
+  readonly stacked?: boolean;
+}
+
+interface DetailAside {
   /** The decision column (`aside.rk-aside`): sticky and bounded on wide screens. */
   readonly aside: ReactNode;
   /** The aside's id — the target of "Go to decision" under 860 px. */
@@ -11,20 +20,49 @@ export interface DetailLayoutProps {
   readonly asideLabelledBy: string;
 }
 
+interface NoAside {
+  readonly aside?: undefined;
+  readonly asideId?: undefined;
+  readonly asideLabelledBy?: undefined;
+}
+
+/**
+ * With a decision column, or without one: then the record's sheet is the page's width
+ * (`div.sa-single`; the Super Admin export's SA-13 when nothing is the Super Admin's to do).
+ */
+export type DetailLayoutProps = DetailMain & (DetailAside | NoAside);
+
 /**
  * The detail page (`div.rk-detailwrap` > `div.rk-detail`; rb-kit.css DetailLayout): the record on
  * the left, the decision panel on the right, sticky and bounded to the viewport on wide screens;
- * one column under 860 px of page width, the panel after the details.
+ * one column under 860 px of page width, the panel after the details. The Super Admin export adds
+ * two arrangements of the same frame: the record column as a stack of surfaces (`stacked`, SA-07
+ * `V.institution`) and the record alone, without a panel (`div.sa-single`, SA-13 `V.record`).
  */
-export function DetailLayout({ main, aside, asideId, asideLabelledBy }: DetailLayoutProps) {
+export function DetailLayout({
+  main,
+  stacked = false,
+  aside,
+  asideId,
+  asideLabelledBy,
+}: DetailLayoutProps) {
+  const record = stacked ? (
+    <div className="sa-stack">{main}</div>
+  ) : (
+    <div className="rk-surface rk-mainsheet">{main}</div>
+  );
   return (
     <div className="rk-detailwrap">
-      <div className="rk-detail">
-        <div className="rk-surface rk-mainsheet">{main}</div>
-        <aside className="rk-aside" id={asideId} aria-labelledby={asideLabelledBy}>
-          {aside}
-        </aside>
-      </div>
+      {aside === undefined ? (
+        <div className="sa-single">{record}</div>
+      ) : (
+        <div className="rk-detail">
+          {record}
+          <aside className="rk-aside" id={asideId} aria-labelledby={asideLabelledBy}>
+            {aside}
+          </aside>
+        </div>
+      )}
     </div>
   );
 }
@@ -94,16 +132,30 @@ export function AskRow({ title, course, formats }: AskRowProps) {
 }
 
 /** The experiments of a request (`div.rk-ask`). */
-export function AskList({ children }: { readonly children: ReactNode }) {
-  return <div className="rk-ask">{children}</div>;
+export function AskList({
+  space,
+  children,
+}: {
+  /**
+   * 14 px above, under a line of record prose (`rk-x-ask-above`, V3P-12: the Super Admin export's
+   * SA-07 approved experiments while the payment is awaited).
+   */
+  readonly space?: 'above';
+  readonly children: ReactNode;
+}) {
+  return <div className={joinClasses('rk-ask', space && 'rk-x-ask-above')}>{children}</div>;
 }
 
-/** A message in someone's words (`blockquote.rk-quote` + `p.rk-quote-by`). */
-export function Quote({ children, by }: { readonly children: ReactNode; readonly by: ReactNode }) {
+/**
+ * A message in someone's words (`blockquote.rk-quote`), with whose words they are
+ * (`p.rk-quote-by`) where the design names them — a hold reason in its own panel stands alone
+ * (SA-11).
+ */
+export function Quote({ children, by }: { readonly children: ReactNode; readonly by?: ReactNode }) {
   return (
     <blockquote className="rk-quote">
       <p>{children}</p>
-      <p className="rk-quote-by">{by}</p>
+      {by ? <p className="rk-quote-by">{by}</p> : null}
     </blockquote>
   );
 }
@@ -189,17 +241,47 @@ export function DecisionPanel({ title, titleId, titleRef, children }: DecisionPa
   );
 }
 
+export interface StandItem {
+  readonly term: ReactNode;
+  readonly value: ReactNode;
+}
+
+/**
+ * Where a record stands, term by term (`dl.rk-stand`): SA-03's separate records after a decision,
+ * SA-13's "From · To" of the override.
+ */
+export function StandList({ items }: { readonly items: readonly StandItem[] }) {
+  return (
+    <dl className="rk-stand">
+      {items.map((item, index) => (
+        <div key={index}>
+          <dt>{item.term}</dt>
+          <dd>{item.value}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
 export interface DecisionOutcomeProps {
   /** The record's status after the decision: a large StatusPill. */
   readonly status: ReactNode;
   /** Who decided, when and how ("Decided by you on 8 Oct 2026, 11:20, external"). */
   readonly meta?: ReactNode;
-  /** Where each of the separate records stands now (`dl.rk-stand`). */
-  readonly stand: readonly { readonly term: ReactNode; readonly value: ReactNode }[];
+  /**
+   * Where each of the separate records stands now (`dl.rk-stand`); none where the record has no
+   * such list (SA-11 on hold, SA-19 approved, SA-21 resolved).
+   */
+  readonly stand?: readonly StandItem[];
   /** What happens next (`p.rk-next`). */
   readonly next?: ReactNode;
   /** "Back to requests". */
   readonly action?: ReactNode;
+  /**
+   * What follows, in the caller's order: a reason, a notice, the one action and its hint (SA-11
+   * "Lift hold", SA-21 "Reopen" and its confirmation).
+   */
+  readonly children?: ReactNode;
   /** The outcome takes focus after the decision is recorded (`tabIndex={-1}`). */
   readonly outcomeRef?: Ref<HTMLDivElement>;
   readonly id?: string;
@@ -212,6 +294,7 @@ export function DecisionOutcome({
   stand,
   next,
   action,
+  children,
   outcomeRef,
   id,
 }: DecisionOutcomeProps) {
@@ -219,21 +302,27 @@ export function DecisionOutcome({
     <div className="rk-done" ref={outcomeRef} id={id} tabIndex={-1}>
       <p>{status}</p>
       {meta ? <p className="rk-done-meta">{meta}</p> : null}
-      <dl className="rk-stand">
-        {stand.map((row, index) => (
-          <div key={index}>
-            <dt>{row.term}</dt>
-            <dd>{row.value}</dd>
-          </div>
-        ))}
-      </dl>
+      {stand ? <StandList items={stand} /> : null}
       {next ? <p className="rk-next">{next}</p> : null}
       {action}
+      {children}
     </div>
   );
 }
 
+const RECORD_LINE_SPACE = { above: 'rk-x-next-above', below: 'rk-x-next-below' } as const;
+
 /** A plain line of record prose (`p.rk-next`), e.g. "3 experiments are listed on the request." */
-export function RecordLine({ children }: { readonly children: ReactNode }) {
-  return <p className="rk-next">{children}</p>;
+export function RecordLine({
+  space,
+  children,
+}: {
+  /**
+   * 12 px above, under a quote or a list (`above`, `rk-x-next-above`), or 12 px below, over a list
+   * (`below`, `rk-x-next-below`) — the Super Admin export's inline spacings on SA-07 (V3P-12).
+   */
+  readonly space?: 'above' | 'below';
+  readonly children: ReactNode;
+}) {
+  return <p className={joinClasses('rk-next', space && RECORD_LINE_SPACE[space])}>{children}</p>;
 }

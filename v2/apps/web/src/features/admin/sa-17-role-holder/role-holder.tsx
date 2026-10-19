@@ -1,51 +1,64 @@
 'use client';
 
 import type { Result, ServiceError } from '@xr/contracts/draft';
+import type { PlatformRole } from '@xr/domain';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
-  ChoiceCard,
-  ChoiceList,
-  EditDialog,
+  ButtonRow,
+  ChoiceGroup,
+  ConfirmDialog,
+  DecisionPanel,
+  DefinitionList,
+  DetailLayout,
+  ErrorSummary,
+  type ErrorSummaryItem,
   Field,
-  Icon,
+  GoButton,
+  Hint,
+  InlineForm,
+  MetaSeparator,
   Notice,
-  PageContent,
-  PageHeader,
-  RadioGroup,
-  Section,
-  SectionBody,
+  PageHead,
+  RecordLine,
+  ScopeItem,
+  ScopeList,
+  SectionNote,
   Select,
   type SelectOption,
+  StatusPill,
+  SurfaceSection,
   Textarea,
   Timeline,
-} from '@xr/ui';
-import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+} from '@xr/ui/v3';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { dayMonthYear } from '@/copy/dates';
+import { dayMonthYear, weekdayDate } from '@/copy/dates';
 import {
   ALL_EXPERIMENTS,
-  ASSIGN_DIALOG,
+  ASSIGN_PANEL,
   assignedFlash,
-  assignHelp,
-  assignTitle,
+  assignedWords,
   courseScopeWords,
   experimentOption,
+  type FlashWords,
   HOLDER_PAGE,
-  holderOverline,
   reasonLabel,
-  registeredByWords,
+  registeredOn,
+  RESTORE_DIALOG,
   restoredFlash,
   restoreLabel,
   restoreQuestion,
+  ROLE_TAB_WORDS,
   ROLE_WORDS,
-  sinceWords,
+  ROLES_PAGE,
   withdrawLabel,
   withdrawnFlash,
   withdrawnWords,
 } from '@/copy/platform-roles';
+import { SA_UNAVAILABLE } from '@/copy/sa-shared';
 import { stateWords } from '@/copy/state-copy';
-import { holderPlacement, ROLES_ADDRESS } from '@/nav/platform-roles';
+import { holderPlacement, ROLE_TABS, type RoleTab, ROLES_ADDRESS } from '@/nav/platform-roles';
 import { usePublishedCatalogue } from '@/queries/catalogue';
 import { useRoleHolder } from '@/queries/platform-roles';
 import {
@@ -60,15 +73,15 @@ import {
   type ScopeView,
   withdrawErrorOf,
 } from '@/queries/platform-roles-forms';
+import { useSession } from '@/queries/session';
 import { useAcademicStructure } from '@/queries/structure';
 import { useCommand } from '@/queries/use-command';
 
-import { RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { SaRecordGuard } from '../shared/sa-record-guard';
 import { arrivalFor, forgetArrival, HOLDER_TITLE_ID } from './arrival';
 import {
   activeScopes,
-  actorName,
   effectWords,
   historyLines,
   type ScopeNaming,
@@ -84,29 +97,35 @@ interface Choices {
   readonly experiments: readonly SelectOption[];
 }
 
+/** The SA-16 tab a role is listed on. */
+function tabOf(role: PlatformRole): RoleTab {
+  return ROLE_TABS.find((tab) => ROLE_TAB_WORDS[tab].role === role) ?? 'vendors';
+}
+
 /**
- * SA-17 Role holder — boards B7-08 f1 (no scope), f2 (375), f4 (Withdraw · reason required), f5
- * (Assign scope · validation), f7 (Content Manager · all experiments), f8 (Restore); B7-10 f10,
- * f11; B7-12 “Role holder” at four widths — at `/admin/roles/[holderId]`.
+ * SA-17 Role holder — the owner-approved V3 design (design/v3-refined-b/roles/SA-v1,
+ * `sa-views-d.js` `V.holder`, `SA.DLG.restoreScope`) at `/admin/roles/[holderId]`.
  *
  * - **Read**: `PlatformRoleService.getHolder` (`useRoleHolder`) — the record and its current
  *   scopes with their status, course code and name (PC-70) — with the Academic structure's courses
  *   and the published catalogue's experiments for Assign scope (`useAcademicStructure`,
- *   `usePublishedCatalogue`). An address that names no holder is the in-shell not-found page.
- * - **As B7-08 draws it**: back to Platform roles, “<Role> · <organisation>” and the name, Assign
- *   scope (the one primary), the flash, the “No scope — can’t act on anything yet” notice, “Can act
- *   on” — the role's line (B7-08 `eff`), each active scope with “Since …” and Withdraw, then the
- *   withdrawn scopes with “Withdrawn … · “reason”” and Restore — the holder's facts with the
- *   sign-in note (without “(T-11)”, P1-14) and the history, newest first.
- * - **Act**: Assign scope (DL-3: all experiments, a course or one experiment, then the course or
- *   experiment), Withdraw (inline beside the scope, a reason required — DL-2's rule, kept in the
- *   history) and Restore (inline, no reason asked — OD-B7-10) send `assignScope`, `withdrawScope`
- *   and `restoreScope` with the holder's revision from when the dialog or panel opened
- *   (`expectedRev`). Errors show on their fields, checked first with the contract's rules; the
- *   service's “<X> is already in scope” the same way. Each result is said in the flash, which
- *   takes focus; the holder's queue, library or course list follows at once (the `ROLE` receipt).
- *   A change refused because the holder moved on writes nothing: the dialog or panel closes, the
- *   holder is read again and the stale notice takes focus (state-copy `SA-17.stale.*`).
+ *   `usePublishedCatalogue`). An address that names no holder is the GL-04 “This page isn’t
+ *   available” message in place (`SaRecordGuard`).
+ * - **As the export draws it**: the crumbs Platform roles › <tab> › <name>, the head (the role, the
+ *   name, Has scope / No scope, the organisation and the registration date; “Go to assign scope”
+ *   under 860 px), the flash, the “No scope — can’t act on anything yet” notice; the record sheet —
+ *   “Can act on” (the role's line, each active scope with “Assigned …” and Withdraw), “Withdrawn”
+ *   (“Withdrawn … · “reason”” and Restore), the holder's facts with the sign-in note, the history
+ *   newest first — and the “Assign scope” panel beside it (below it under 860 px).
+ * - **Act**: Assign scope (the panel: all experiments, a course or one experiment, then the course
+ *   or experiment; its errors in the panel's summary and on their fields), Withdraw (inline below
+ *   the scope, a reason required, kept in the history) and Restore (a confirmation, no reason
+ *   asked) send `assignScope`, `withdrawScope` and `restoreScope` with the holder's revision
+ *   (state-copy `SA-17.expected-rev`). The service's “<X> is already in scope” shows the same way
+ *   as the panel's own checks. Each result is said in the flash, which takes focus; the holder's
+ *   queue, library or course list follows at once (the `ROLE` receipt). A change refused because
+ *   the holder moved on writes nothing: the form or dialog closes, the holder is read again and
+ *   the refusal notice at the top of the panel takes focus (state-copy `SA-17.stale.*`).
  * - Opened straight after Register (SA-16): the registration flash, focus on the name.
  * - Nothing is sent from here; how a holder first signs in is open (T-11). What a non-course
  *   scope means for a Vendor is open (ROLE-11): the scope is shown as held, never as a right.
@@ -115,8 +134,14 @@ export function RoleHolder({ holderId }: { readonly holderId: string }) {
   const read = useRoleHolder(holderId);
   const structure = useAcademicStructure();
   const catalogue = usePublishedCatalogue();
-  // The address is untrusted text: the crumbs name the holder only once it is read.
-  useShellPage(holderPlacement(read.data?.ok ? read.data.value.holder.name : null));
+  // The address is untrusted text: the placement names the holder only once it is read; a holder
+  // the service will not show is “Not available”.
+  const refused = read.data !== undefined && !read.data.ok;
+  useShellPage(
+    refused
+      ? { screen: 'SA-17', title: SA_UNAVAILABLE.documentTitle, trail: [] }
+      : holderPlacement(read.data?.ok ? read.data.value.holder.name : null),
+  );
   const [arrival] = useState(() => ({ holderId, words: arrivalFor(holderId) }));
   useEffect(() => forgetArrival(holderId), [holderId]);
 
@@ -154,71 +179,78 @@ export function RoleHolder({ holderId }: { readonly holderId: string }) {
 
   const waiting = structure.isPending || catalogue.isPending;
   return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={{
-          data: waiting ? undefined : read.data,
-          isPending: read.isPending || waiting,
-          isError: read.isError || structure.isError || catalogue.isError,
-          refetch: () => {
-            void read.refetch();
-            void structure.refetch();
-            void catalogue.refetch();
-          },
-        }}
-        loadingLabel={stateWords('SA-17.loading')}
-        failed={{ title: stateWords('SA-17.failed'), line: stateWords('SA-17.failed.line') }}
-      >
-        {(view) => (
-          <HolderContent
-            view={view}
-            choices={choices}
-            arrival={arrival.holderId === view.holder.id ? arrival.words : null}
-            refetch={() => void read.refetch()}
-          />
-        )}
-      </RecordGuard>
-    </PageContent>
+    <SaRecordGuard
+      read={{
+        data: waiting ? undefined : read.data,
+        isPending: read.isPending || waiting,
+        isError: read.isError || structure.isError || catalogue.isError,
+        refetch: () => {
+          void read.refetch();
+          void structure.refetch();
+          void catalogue.refetch();
+        },
+      }}
+      loadingLabel={stateWords('SA-17.loading')}
+      failedTitle={stateWords('SA-17.failed')}
+    >
+      {(view) => (
+        <HolderContent
+          view={view}
+          choices={choices}
+          arrival={arrival.holderId === view.holder.id ? arrival.words : null}
+          refetch={() => void read.refetch()}
+        />
+      )}
+    </SaRecordGuard>
   );
 }
 
-/** An open inline panel, with the holder's revision as the page showed it when it opened. */
-type Panel =
-  | {
-      readonly kind: 'withdraw';
-      readonly scopeId: string;
-      readonly reason: string;
-      readonly error: string | null;
-      readonly expectedRev: number;
-      readonly unavailable: boolean;
-    }
-  | {
-      readonly kind: 'restore';
-      readonly scopeId: string;
-      readonly expectedRev: number;
-      readonly unavailable: boolean;
-    };
-
-/** The open Assign scope dialog. */
-interface Dialog extends AssignDraft {
-  readonly errors: AssignErrors;
+/** The open inline Withdraw form, with the holder's revision as the page showed it when it opened. */
+interface WithdrawForm {
+  readonly scopeId: string;
+  readonly reason: string;
+  readonly error: string | null;
   readonly expectedRev: number;
   readonly unavailable: boolean;
 }
 
-/** What the flash line says: a result (B7-08's flash) or that the holder moved on. */
-type Flash = { readonly kind: 'done'; readonly words: string } | { readonly kind: 'stale' };
+/** The open Restore confirmation, with the holder's revision when it opened. */
+interface RestoreForm {
+  readonly scopeId: string;
+  readonly expectedRev: number;
+  readonly unavailable: boolean;
+}
+
+/** What the Assign scope panel has chosen, and its errors. */
+interface AssignForm extends AssignDraft {
+  readonly errors: AssignErrors;
+  readonly unavailable: boolean;
+}
+
+const EMPTY_ASSIGN: AssignForm = {
+  kind: null,
+  courseId: '',
+  experimentId: '',
+  errors: {},
+  unavailable: false,
+};
 
 const IDS = {
   flash: 'role-holder-flash',
-  assign: 'role-holder-assign',
-  kindAll: 'assign-kind-all',
+  refusal: 'role-holder-refusal',
+  panel: 'assign-scope',
+  panelTitle: 'assign-scope-h',
+  errors: 'assign-scope-errors',
+  kind: 'assign-kind',
   course: 'assign-course',
   experiment: 'assign-experiment',
+  canActOn: 'holder-can-act-on',
+  withdrawn: 'holder-withdrawn',
+  facts: 'holder-facts',
+  history: 'holder-history',
   withdraw: (scopeId: string) => `withdraw-${scopeId}`,
   reason: (scopeId: string) => `withdraw-reason-${scopeId}`,
   restore: (scopeId: string) => `restore-${scopeId}`,
-  restoreGo: (scopeId: string) => `restore-go-${scopeId}`,
 } as const;
 
 function HolderContent({
@@ -229,67 +261,70 @@ function HolderContent({
 }: {
   readonly view: HolderView;
   readonly choices: Choices;
-  readonly arrival: string | null;
+  readonly arrival: FlashWords | null;
   readonly refetch: () => void;
 }) {
   const { holder } = view;
+  const session = useSession();
   const named = scopeNamings(view, choices.lookup);
   const naming = (scope: ScopeView): ScopeNaming =>
-    named.get(scope.scope.id) ?? { short: scope.scope.id, full: scope.scope.id };
+    named.get(scope.scope.id) ?? {
+      short: scope.scope.id,
+      full: scope.scope.id,
+      code: null,
+      title: scope.scope.id,
+    };
   const active = activeScopes(view);
   const withdrawn = withdrawnScopes(view);
+  const tab = tabOf(holder.role);
 
-  const [panel, setPanel] = useState<Panel | null>(null);
-  const [dialog, setDialog] = useState<Dialog | null>(null);
-  const [flash, setFlash] = useState<Flash | null>(
-    arrival ? { kind: 'done', words: arrival } : null,
-  );
+  const [withdrawForm, setWithdrawForm] = useState<WithdrawForm | null>(null);
+  const [restoreForm, setRestoreForm] = useState<RestoreForm | null>(null);
+  const [assignForm, setAssignForm] = useState<AssignForm>(EMPTY_ASSIGN);
+  const [flash, setFlash] = useState<FlashWords | null>(arrival);
+  const [stale, setStale] = useState(false);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const flashRef = useRef<HTMLParagraphElement>(null);
-  const staleRef = useRef<HTMLDivElement>(null);
   const assign = useCommand((ports) => ports.platformRoles.assignScope);
   const withdraw = useCommand((ports) => ports.platformRoles.withdrawScope);
   const restore = useCommand((ports) => ports.platformRoles.restoreScope);
 
-  // Focus moves after the commit that shows its target (B7-08 `focus(id)`): the flash after a
-  // result, a field after an error, the button that opened a panel after Cancel, the stale notice
-  // after a refusal. A dialog gives focus back to its trigger in the same commit (a child's effect
-  // runs first), so this request wins; a target that is gone falls back to the name.
+  // Focus moves after the commit that shows its target (the export's `SA.focus(id)`): the flash
+  // after a result, the panel's error summary or the reason after an error, the Withdraw button
+  // after Cancel, the refusal notice after a refusal. A dialog gives focus back to its trigger in
+  // the same commit (a child's effect runs first), so this request wins; a target that is gone
+  // falls back to the name.
   const [focusRequest, setFocusRequest] = useState<{ readonly id: string; readonly n: number }>({
     id: arrival ? HOLDER_TITLE_ID : '',
     n: arrival ? 1 : 0,
   });
   useEffect(() => {
     if (focusRequest.n === 0) return;
-    const target =
-      focusRequest.id === IDS.flash
-        ? (staleRef.current ?? flashRef.current)
-        : (document.getElementById(focusRequest.id) ?? titleRef.current);
-    target?.focus();
+    (document.getElementById(focusRequest.id) ?? titleRef.current)?.focus();
   }, [focusRequest]);
   const focus = (id: string) => setFocusRequest((current) => ({ id, n: current.n + 1 }));
 
-  const done = (words: string) => {
-    setPanel(null);
-    setDialog(null);
-    setFlash({ kind: 'done', words });
+  const done = (words: FlashWords) => {
+    setWithdrawForm(null);
+    setRestoreForm(null);
+    setStale(false);
+    setFlash(words);
     focus(IDS.flash);
   };
 
   /** Refused because the holder moved on (stale, the scope no longer as shown): read it again. */
   const movedOn = () => {
-    setPanel(null);
-    setDialog(null);
-    setFlash({ kind: 'stale' });
+    setWithdrawForm(null);
+    setRestoreForm(null);
+    setFlash(null);
+    setStale(true);
     refetch();
-    focus(IDS.flash);
+    focus(IDS.refusal);
   };
 
-  // ---- Withdraw (f4; B7-10 f11) and Restore (f8) ----
+  // ---- Withdraw (inline, a reason required) and Restore (a confirmation) ----
 
   const startWithdraw = (scope: ScopeView) => {
-    setPanel({
-      kind: 'withdraw',
+    setWithdrawForm({
       scopeId: scope.scope.id,
       reason: '',
       error: null,
@@ -297,32 +332,27 @@ function HolderContent({
       unavailable: false,
     });
     setFlash(null);
+    setStale(false);
     focus(IDS.reason(scope.scope.id));
   };
-  const startRestore = (scope: ScopeView) => {
-    setPanel({
-      kind: 'restore',
-      scopeId: scope.scope.id,
-      expectedRev: holder.rev,
-      unavailable: false,
-    });
-    setFlash(null);
-    focus(IDS.restoreGo(scope.scope.id));
+  const cancelWithdraw = () => {
+    if (!withdrawForm) return;
+    setWithdrawForm(null);
+    focus(IDS.withdraw(withdrawForm.scopeId));
   };
-  const cancelPanel = () => {
-    if (!panel) return;
-    setPanel(null);
-    focus(panel.kind === 'withdraw' ? IDS.withdraw(panel.scopeId) : IDS.restore(panel.scopeId));
+  const startRestore = (scope: ScopeView) => {
+    setWithdrawForm(null);
+    setRestoreForm({ scopeId: scope.scope.id, expectedRev: holder.rev, unavailable: false });
+    setFlash(null);
+    setStale(false);
   };
 
-  const refusedPanel = (answer: Result<unknown, ServiceError>, scopeId: string) => {
+  const refusedWithdraw = (answer: Result<unknown, ServiceError>, scopeId: string) => {
     if (answer.ok) return;
     const error = answer.error.kind === 'validation-failed' ? withdrawErrorOf(answer.error) : null;
     if (error) {
-      setPanel((current) =>
-        current?.kind === 'withdraw' && current.scopeId === scopeId
-          ? { ...current, error }
-          : current,
+      setWithdrawForm((current) =>
+        current?.scopeId === scopeId ? { ...current, error } : current,
       );
       focus(IDS.reason(scopeId));
       return;
@@ -331,71 +361,50 @@ function HolderContent({
   };
 
   const saveWithdraw = (scope: ScopeView) => {
-    if (panel?.kind !== 'withdraw' || panel.scopeId !== scope.scope.id || withdraw.busy) return;
-    const { reason, expectedRev } = panel;
+    if (withdrawForm?.scopeId !== scope.scope.id || withdraw.busy) return;
+    const { reason, expectedRev } = withdrawForm;
     const error = checkWithdrawReason(holder.id, scope.scope.id, reason, expectedRev);
     if (error) {
-      setPanel({ ...panel, error, unavailable: false });
+      setWithdrawForm({ ...withdrawForm, error, unavailable: false });
       focus(IDS.reason(scope.scope.id));
       return;
     }
-    withdraw
+    withdraw.run({ holderId: holder.id, scopeId: scope.scope.id, reason, expectedRev }).then(
+      (answer) => {
+        if (answer.ok) done(withdrawnFlash(naming(scope).short));
+        else refusedWithdraw(answer, scope.scope.id);
+      },
+      () =>
+        setWithdrawForm((current) =>
+          current?.scopeId === scope.scope.id ? { ...current, unavailable: true } : current,
+        ),
+    );
+  };
+
+  const restoring = restoreForm
+    ? view.scopes.find((s) => s.scope.id === restoreForm.scopeId)
+    : null;
+  const saveRestore = () => {
+    if (!restoreForm || !restoring || restore.busy) return;
+    restore
       .run({
         holderId: holder.id,
-        scopeId: scope.scope.id,
-        reason,
-        expectedRev,
+        scopeId: restoring.scope.id,
+        expectedRev: restoreForm.expectedRev,
       })
       .then(
         (answer) => {
-          if (answer.ok) done(withdrawnFlash(naming(scope).short, holder.name));
-          else refusedPanel(answer, scope.scope.id);
+          if (answer.ok) done(restoredFlash(naming(restoring).short));
+          else movedOn();
         },
-        () =>
-          setPanel((current) =>
-            current?.scopeId === scope.scope.id ? { ...current, unavailable: true } : current,
-          ),
+        () => setRestoreForm((current) => (current ? { ...current, unavailable: true } : current)),
       );
   };
 
-  const saveRestore = (scope: ScopeView) => {
-    if (panel?.kind !== 'restore' || panel.scopeId !== scope.scope.id || restore.busy) return;
-    restore
-      .run({ holderId: holder.id, scopeId: scope.scope.id, expectedRev: panel.expectedRev })
-      .then(
-        (answer) => {
-          if (answer.ok) done(restoredFlash(naming(scope).short, holder.name));
-          else refusedPanel(answer, scope.scope.id);
-        },
-        () =>
-          setPanel((current) =>
-            current?.scopeId === scope.scope.id ? { ...current, unavailable: true } : current,
-          ),
-      );
-  };
+  // ---- Assign scope (the panel) ----
 
-  // ---- Assign scope (f5) ----
-
-  const openAssign = () => {
-    setPanel(null);
-    setFlash(null);
-    setDialog({
-      kind: null,
-      courseId: '',
-      experimentId: '',
-      errors: {},
-      expectedRev: holder.rev,
-      unavailable: false,
-    });
-  };
-
-  const focusAssignError = (draft: AssignDraft, errors: AssignErrors) => {
-    if (errors.kind || (errors.target && draft.kind === 'all')) focus(IDS.kindAll);
-    else if (errors.target) focus(draft.kind === 'course' ? IDS.course : IDS.experiment);
-  };
-
-  /** “EEE ZC341”, “All experiments”, “Distillation Column” (B7-08 `item.v`). */
-  const assignedWords = (draft: AssignDraft): string => {
+  /** “EEE ZC341”, “All experiments”, “Synchronous Generator” (the export's `v`). */
+  const assignedName = (draft: AssignDraft): string => {
     if (draft.kind === 'course') {
       const course = choices.lookup.courses.get(draft.courseId);
       return course?.code ?? course?.name ?? draft.courseId;
@@ -407,366 +416,336 @@ function HolderContent({
   };
 
   const confirmAssign = () => {
-    if (!dialog || assign.busy) return;
-    const errors = checkAssign(holder.id, dialog, dialog.expectedRev);
+    if (assign.busy) return;
+    const draft = assignForm;
+    // The panel is always open: the change carries the revision the page shows when it is sent.
+    const expectedRev = holder.rev;
+    const errors = checkAssign(holder.id, draft, expectedRev);
     if (errors) {
-      setDialog({ ...dialog, errors, unavailable: false });
-      focusAssignError(dialog, errors);
+      setAssignForm({ ...draft, errors, unavailable: false });
+      focus(IDS.errors);
       return;
     }
-    const draft = dialog;
-    assign.run(assignInput(holder.id, draft, draft.expectedRev)).then(
+    assign.run(assignInput(holder.id, draft, expectedRev)).then(
       (answer) => {
         if (answer.ok) {
-          done(assignedFlash(holder.name, assignedWords(draft)));
+          setAssignForm(EMPTY_ASSIGN);
+          done(assignedFlash(assignedName(draft)));
           return;
         }
         if (answer.error.kind === 'validation-failed') {
           const refused = assignErrorsOf(answer.error);
-          setDialog((current) => (current ? { ...current, errors: refused } : current));
-          focusAssignError(draft, refused);
+          setAssignForm((current) => ({ ...current, errors: refused }));
+          focus(IDS.errors);
           return;
         }
+        setAssignForm((current) => ({ ...current, errors: {} }));
         movedOn();
       },
-      () => setDialog((current) => (current ? { ...current, unavailable: true } : current)),
+      () => setAssignForm((current) => ({ ...current, unavailable: true })),
     );
   };
 
-  const choose = (kind: ScopeKind) =>
-    setDialog((current) =>
-      current ? { ...current, kind, errors: {}, unavailable: false } : current,
-    );
+  const choose = (kind: ScopeKind) => setAssignForm({ ...EMPTY_ASSIGN, kind });
+
+  // The kind's error, or — for All experiments — the service's “… is already in scope”, under
+  // the choices; the course's or experiment's under its select.
+  const kindError =
+    assignForm.errors.kind ?? (assignForm.kind === 'all' ? assignForm.errors.target : undefined);
+  const targetError = assignForm.kind !== 'all' ? assignForm.errors.target : undefined;
+  const targetId = assignForm.kind === 'experiment' ? IDS.experiment : IDS.course;
+  const summary: ErrorSummaryItem[] = [
+    ...(kindError ? [{ fieldId: IDS.kind, summaryText: kindError }] : []),
+    ...(targetError ? [{ fieldId: targetId, summaryText: targetError }] : []),
+  ];
 
   const history = historyLines(holder, named);
-  const panelBusy = withdraw.busy || restore.busy;
+  const hasScope = active.length > 0;
+
+  const scopeLine = (scope: ScopeView, detail: string) => {
+    const words = naming(scope);
+    return { code: words.code, title: words.title, detail };
+  };
 
   return (
     <>
-      <PageHeader
-        className="mt-2 mb-3"
-        back={<BackLink href={ROLES_ADDRESS}>{HOLDER_PAGE.back}</BackLink>}
-        overline={holderOverline(holder.role, holder.organisation)}
+      <PageHead
+        variant="record"
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[
+              { label: ROLES_PAGE.title, href: ROLES_ADDRESS },
+              // Explicit even for Vendors (normalised on arrival): two crumbs, two addresses.
+              { label: ROLE_TAB_WORDS[tab].label, href: `${ROLES_ADDRESS}?tab=${tab}` },
+            ]}
+            current={holder.name}
+          />
+        }
+        date={session.status === 'signed-in' ? weekdayDate(session.signedInAt) : undefined}
+        eyebrow={ROLE_WORDS[holder.role]}
         title={holder.name}
         titleId={HOLDER_TITLE_ID}
         titleFocusTarget
         titleRef={titleRef}
-      />
-      <div className="xw-actions mb-4">
-        <Button variant="primary" id={IDS.assign} onClick={openAssign}>
-          {HOLDER_PAGE.assign}
-        </Button>
-      </div>
-      <p ref={flashRef} id={IDS.flash} className="xa-save is-ok mb-3" role="status" tabIndex={-1}>
-        {flash?.kind === 'done' ? (
+        meta={
           <>
-            <Icon name="done" />
-            <span>{flash.words}</span>
+            <StatusPill tone={hasScope ? 'ok' : 'warn'} size="lg">
+              {hasScope ? ROLES_PAGE.hasScope : ROLES_PAGE.noScope}
+            </StatusPill>
+            <span>{holder.organisation}</span>
+            <MetaSeparator />
+            <span>{registeredOn(dayMonthYear(holder.registeredAt))}</span>
           </>
-        ) : null}
-      </p>
-      {flash?.kind === 'stale' ? (
-        <Notice
-          ref={staleRef}
-          tone="warn"
-          role="alert"
-          tabIndex={-1}
-          className="mb-4"
-          title={stateWords('SA-17.stale.title')}
-        >
-          {stateWords('SA-17.stale.line')}
+        }
+        goTo={{ label: HOLDER_PAGE.goTo, targetId: IDS.panel, focusId: IDS.panelTitle }}
+      />
+      {flash ? (
+        <Notice tone="ok" icon="okDisc" role="status" id={IDS.flash} title={flash.title}>
+          {flash.line}
         </Notice>
       ) : null}
-      {active.length === 0 ? (
-        <div className="mb-4">
-          <Notice tone="warn" title={HOLDER_PAGE.noScopeTitle}>
-            {HOLDER_PAGE.noScopeLine}
-          </Notice>
-        </div>
-      ) : null}
-      <div className="flex flex-col gap-5">
-        <Section title={HOLDER_PAGE.canActOn}>
-          <SectionBody>
-            <p className="xr-body mt-0 mb-3 text-ink">{effectWords(view)}</p>
-            {active.length > 0 ? (
-              <ul className="xg-los" aria-label={HOLDER_PAGE.scopeListLabel}>
-                {active.map((scope) => {
-                  const words = naming(scope).full;
-                  const open = panel?.kind === 'withdraw' && panel.scopeId === scope.scope.id;
-                  return (
-                    <ScopeRow
-                      key={scope.scope.id}
-                      title={words}
-                      meta={sinceWords(dayMonthYear(scope.scope.assignedAt))}
-                      action={
-                        open ? null : (
-                          <Button
-                            variant="text"
-                            className="xg-del"
-                            id={IDS.withdraw(scope.scope.id)}
-                            aria-label={withdrawLabel(words)}
-                            onClick={() => startWithdraw(scope)}
-                          >
-                            {HOLDER_PAGE.withdraw}
-                          </Button>
-                        )
-                      }
-                    >
-                      {open ? (
-                        <div className="xw-inline-panel flex-[1_1_100%]">
-                          <Field
-                            id={IDS.reason(scope.scope.id)}
-                            label={reasonLabel(words)}
-                            hint={HOLDER_PAGE.reasonHint}
-                            error={panel.error ?? undefined}
-                          >
-                            <Textarea
-                              className="min-h-[80px]"
-                              value={panel.reason}
-                              onChange={(event) => {
-                                const reason = event.target.value;
-                                setPanel((current) =>
-                                  current?.kind === 'withdraw'
-                                    ? { ...current, reason, error: null, unavailable: false }
-                                    : current,
-                                );
-                              }}
-                            />
-                          </Field>
-                          <div className="xw-actions mt-3">
-                            <Button
-                              variant="danger"
-                              size="sm"
-                              busy={panelBusy}
-                              busyLabel={HOLDER_PAGE.withdrawConfirm}
-                              onClick={() => saveWithdraw(scope)}
-                            >
-                              {HOLDER_PAGE.withdrawConfirm}
-                            </Button>
-                            <Button variant="text" onClick={cancelPanel}>
-                              {HOLDER_PAGE.cancel}
-                            </Button>
-                          </div>
-                          {panel.unavailable ? (
-                            <Notice tone="err" className="mt-3">
-                              {stateWords('SA-17.unavailable')}
-                            </Notice>
-                          ) : null}
-                        </div>
-                      ) : null}
-                    </ScopeRow>
-                  );
-                })}
-              </ul>
-            ) : null}
-            {withdrawn.length > 0 ? (
-              <>
-                <h3 className="xr-h3 mt-5 mb-2">{HOLDER_PAGE.withdrawnHeading}</h3>
-                <ul className="xg-los" aria-label={HOLDER_PAGE.withdrawnListLabel}>
-                  {withdrawn.map((scope) => {
-                    const words = naming(scope).full;
-                    const open = panel?.kind === 'restore' && panel.scopeId === scope.scope.id;
-                    const withdrawal = scope.scope.withdrawal!;
+      {hasScope ? null : (
+        <Notice tone="warn" icon="userQuestion" title={HOLDER_PAGE.noScopeTitle}>
+          {HOLDER_PAGE.noScopeLine}
+        </Notice>
+      )}
+      <DetailLayout
+        asideId={IDS.panel}
+        asideLabelledBy={IDS.panelTitle}
+        main={
+          <>
+            <SurfaceSection title={HOLDER_PAGE.canActOn} titleId={IDS.canActOn}>
+              <RecordLine>{effectWords(view)}</RecordLine>
+              {hasScope ? (
+                <ScopeList>
+                  {active.map((scope) => {
+                    const words = naming(scope);
+                    const open = withdrawForm?.scopeId === scope.scope.id ? withdrawForm : null;
                     return (
-                      <ScopeRow
+                      <ScopeItem
                         key={scope.scope.id}
-                        title={words}
-                        meta={withdrawnWords(dayMonthYear(withdrawal.at), withdrawal.reason)}
+                        {...scopeLine(scope, assignedWords(dayMonthYear(scope.scope.assignedAt)))}
                         action={
                           open ? null : (
                             <Button
-                              variant="text"
-                              id={IDS.restore(scope.scope.id)}
-                              aria-label={restoreLabel(words)}
-                              onClick={() => startRestore(scope)}
+                              variant="ghost"
+                              id={IDS.withdraw(scope.scope.id)}
+                              aria-label={withdrawLabel(words.full)}
+                              onClick={() => startWithdraw(scope)}
                             >
-                              {HOLDER_PAGE.restore}
+                              {HOLDER_PAGE.withdraw}
                             </Button>
                           )
                         }
                       >
                         {open ? (
-                          <div className="xw-inline-panel flex-[1_1_100%]">
-                            <p className="xr-body mt-0 mb-3">{restoreQuestion(words)}</p>
-                            <div className="xw-actions">
+                          <InlineForm>
+                            <Field
+                              id={IDS.reason(scope.scope.id)}
+                              label={reasonLabel(words.short)}
+                              hint={HOLDER_PAGE.reasonHint}
+                              error={open.error ?? undefined}
+                            >
+                              <Textarea
+                                value={open.reason}
+                                onChange={(event) => {
+                                  const reason = event.target.value;
+                                  setWithdrawForm((current) =>
+                                    current
+                                      ? { ...current, reason, error: null, unavailable: false }
+                                      : current,
+                                  );
+                                }}
+                              />
+                            </Field>
+                            <ButtonRow>
                               <Button
-                                variant="primary"
-                                size="sm"
-                                id={IDS.restoreGo(scope.scope.id)}
-                                busy={panelBusy}
-                                busyLabel={HOLDER_PAGE.restoreConfirm}
-                                onClick={() => saveRestore(scope)}
+                                variant="navy"
+                                busy={withdraw.busy}
+                                busyLabel={HOLDER_PAGE.withdrawConfirm}
+                                onClick={() => saveWithdraw(scope)}
                               >
-                                {HOLDER_PAGE.restoreConfirm}
+                                {HOLDER_PAGE.withdrawConfirm}
                               </Button>
-                              <Button variant="text" onClick={cancelPanel}>
-                                {HOLDER_PAGE.cancel}
-                              </Button>
-                            </div>
-                            {panel.unavailable ? (
-                              <Notice tone="err" className="mt-3">
-                                {stateWords('SA-17.unavailable')}
-                              </Notice>
+                              <Button onClick={cancelWithdraw}>{HOLDER_PAGE.cancel}</Button>
+                            </ButtonRow>
+                            {open.unavailable ? (
+                              <Notice
+                                tone="warn"
+                                icon="alertCircle"
+                                role="status"
+                                title={stateWords('SA-17.unavailable')}
+                              />
                             ) : null}
-                          </div>
+                          </InlineForm>
                         ) : null}
-                      </ScopeRow>
+                      </ScopeItem>
                     );
                   })}
-                </ul>
-              </>
+                </ScopeList>
+              ) : null}
+            </SurfaceSection>
+            {withdrawn.length > 0 ? (
+              <SurfaceSection title={HOLDER_PAGE.withdrawnHeading} titleId={IDS.withdrawn}>
+                <ScopeList>
+                  {withdrawn.map((scope) => {
+                    const withdrawal = scope.scope.withdrawal!;
+                    return (
+                      <ScopeItem
+                        key={scope.scope.id}
+                        {...scopeLine(
+                          scope,
+                          withdrawnWords(dayMonthYear(withdrawal.at), withdrawal.reason),
+                        )}
+                        action={
+                          <Button
+                            id={IDS.restore(scope.scope.id)}
+                            aria-label={restoreLabel(naming(scope).full)}
+                            onClick={() => startRestore(scope)}
+                          >
+                            {HOLDER_PAGE.restore}
+                          </Button>
+                        }
+                      />
+                    );
+                  })}
+                </ScopeList>
+              </SurfaceSection>
             ) : null}
-          </SectionBody>
-        </Section>
-        <Section title={HOLDER_PAGE.holder}>
-          <SectionBody>
-            <dl className="xl-kv xv-kv">
-              <dt>{HOLDER_PAGE.keys.role}</dt>
-              <dd>{ROLE_WORDS[holder.role]}</dd>
-              <dt>{HOLDER_PAGE.keys.organisation}</dt>
-              <dd>{holder.organisation}</dd>
-              <dt>{HOLDER_PAGE.keys.workEmail}</dt>
-              <dd>{holder.workEmail}</dd>
-              <dt>{HOLDER_PAGE.keys.registered}</dt>
-              <dd>
-                {registeredByWords(
-                  dayMonthYear(holder.registeredAt),
-                  actorName(holder.registeredBy),
-                )}
-              </dd>
-            </dl>
-            <p className="xl-meta mt-3 mb-0">{HOLDER_PAGE.signInNote}</p>
-          </SectionBody>
-        </Section>
-        <Section title={HOLDER_PAGE.history} meta={HOLDER_PAGE.historyMeta}>
-          <SectionBody>
-            <Timeline
-              markLatest={false}
-              events={history.map((line) => ({
-                id: line.id,
-                what: line.what,
-                when: line.when,
-                ...(line.note ? { note: line.note } : {}),
+            <SurfaceSection title={HOLDER_PAGE.holder} titleId={IDS.facts}>
+              <DefinitionList
+                items={[
+                  { term: HOLDER_PAGE.keys.role, value: ROLE_WORDS[holder.role] },
+                  { term: HOLDER_PAGE.keys.organisation, value: holder.organisation },
+                  { term: HOLDER_PAGE.keys.workEmail, value: holder.workEmail },
+                  { term: HOLDER_PAGE.keys.registered, value: dayMonthYear(holder.registeredAt) },
+                ]}
+              />
+              <Hint under="list">{HOLDER_PAGE.signInNote}</Hint>
+            </SurfaceSection>
+            <SurfaceSection
+              title={HOLDER_PAGE.history}
+              titleId={IDS.history}
+              aside={<SectionNote>{HOLDER_PAGE.historyMeta}</SectionNote>}
+            >
+              <Timeline
+                events={history.map((line) => ({
+                  what: line.what,
+                  when: line.when,
+                  ...(line.note ? { note: line.note } : {}),
+                }))}
+              />
+            </SurfaceSection>
+          </>
+        }
+        aside={
+          <DecisionPanel title={ASSIGN_PANEL.title} titleId={IDS.panelTitle}>
+            {stale ? (
+              <Notice
+                tone="warn"
+                icon="alertCircle"
+                role="alert"
+                id={IDS.refusal}
+                title={stateWords('SA-17.stale.title')}
+              >
+                {stateWords('SA-17.stale.line')}
+              </Notice>
+            ) : null}
+            <ErrorSummary
+              id={IDS.errors}
+              title={ASSIGN_PANEL.errorsTitle}
+              items={summary}
+              autoFocus={false}
+            />
+            <ChoiceGroup<ScopeKind>
+              id={IDS.kind}
+              name={IDS.kind}
+              legend={ASSIGN_PANEL.legend}
+              error={kindError}
+              value={assignForm.kind}
+              onChange={choose}
+              options={(['all', 'course', 'experiment'] as const).map((kind) => ({
+                value: kind,
+                title: ASSIGN_PANEL.choices[kind].title,
+                description: ASSIGN_PANEL.choices[kind].sub,
               }))}
             />
-          </SectionBody>
-        </Section>
-      </div>
-      <EditDialog
-        open={dialog !== null}
-        align="start"
-        idPrefix="assign-scope"
+            {assignForm.kind === 'course' ? (
+              <Field id={IDS.course} label={ASSIGN_PANEL.course} error={targetError}>
+                <Select
+                  value={assignForm.courseId}
+                  onChange={(event) => {
+                    const courseId = event.target.value;
+                    setAssignForm((current) => ({
+                      ...current,
+                      courseId,
+                      errors: {},
+                      unavailable: false,
+                    }));
+                  }}
+                  options={[{ value: '', label: ASSIGN_PANEL.chooseCourse }, ...choices.courses]}
+                />
+              </Field>
+            ) : null}
+            {assignForm.kind === 'experiment' ? (
+              <Field id={IDS.experiment} label={ASSIGN_PANEL.experiment} error={targetError}>
+                <Select
+                  value={assignForm.experimentId}
+                  onChange={(event) => {
+                    const experimentId = event.target.value;
+                    setAssignForm((current) => ({
+                      ...current,
+                      experimentId,
+                      errors: {},
+                      unavailable: false,
+                    }));
+                  }}
+                  options={[
+                    { value: '', label: ASSIGN_PANEL.chooseExperiment },
+                    ...choices.experiments,
+                  ]}
+                />
+              </Field>
+            ) : null}
+            {assignForm.unavailable ? (
+              <Notice
+                tone="warn"
+                icon="alertCircle"
+                role="status"
+                title={stateWords('SA-17.unavailable')}
+              />
+            ) : null}
+            <GoButton busy={assign.busy} busyLabel={ASSIGN_PANEL.busy} onClick={confirmAssign}>
+              {ASSIGN_PANEL.confirm}
+            </GoButton>
+            <Hint>{ASSIGN_PANEL.hint}</Hint>
+          </DecisionPanel>
+        }
+      />
+      <ConfirmDialog
+        open={restoreForm !== null}
+        initialFocus="confirm"
+        submitOnEnter
+        idPrefix="restore-scope"
         returnFocusFallback={titleRef}
-        title={assignTitle(holder.name)}
-        effect={assignHelp(holder.name, holder.role)}
-        confirmLabel={ASSIGN_DIALOG.confirm}
-        cancelLabel={ASSIGN_DIALOG.cancel}
-        busy={assign.busy}
-        busyLabel={ASSIGN_DIALOG.busy}
-        onConfirm={confirmAssign}
-        onCancel={() => setDialog(null)}
+        title={restoring ? restoreQuestion(naming(restoring).short, holder.name) : ''}
+        description={RESTORE_DIALOG.description}
+        confirmLabel={RESTORE_DIALOG.confirm}
+        cancelLabel={RESTORE_DIALOG.cancel}
+        busy={restore.busy}
+        busyLabel={RESTORE_DIALOG.busy}
+        onConfirm={saveRestore}
+        onCancel={() => setRestoreForm(null)}
       >
-        <RadioGroup
-          id="assign-kind"
-          className="mt-[14px]"
-          legend={ASSIGN_DIALOG.legend}
-          legendClass="xr-label"
-          value={dialog?.kind ?? null}
-          onValueChange={(value) => choose(value as ScopeKind)}
-          error={dialog?.errors.kind ?? (dialog?.kind === 'all' ? dialog.errors.target : undefined)}
-        >
-          <ChoiceList>
-            <ChoiceCard
-              value="all"
-              id={IDS.kindAll}
-              title={ASSIGN_DIALOG.choices.all.title}
-              sub={ASSIGN_DIALOG.choices.all.sub}
-            />
-            <ChoiceCard
-              value="course"
-              id="assign-kind-course"
-              title={ASSIGN_DIALOG.choices.course.title}
-              sub={ASSIGN_DIALOG.choices.course.sub}
-            />
-            <ChoiceCard
-              value="experiment"
-              id="assign-kind-experiment"
-              title={ASSIGN_DIALOG.choices.experiment.title}
-              sub={ASSIGN_DIALOG.choices.experiment.sub}
-            />
-          </ChoiceList>
-        </RadioGroup>
-        {dialog?.kind === 'course' ? (
-          <Field
-            id={IDS.course}
-            className="mt-[14px]"
-            label={ASSIGN_DIALOG.course}
-            error={dialog.errors.target}
-          >
-            <Select
-              value={dialog.courseId}
-              onChange={(event) => {
-                const courseId = event.target.value;
-                setDialog((current) =>
-                  current ? { ...current, courseId, errors: {}, unavailable: false } : current,
-                );
-              }}
-              options={[{ value: '', label: ASSIGN_DIALOG.chooseCourse }, ...choices.courses]}
-            />
-          </Field>
+        {restoreForm?.unavailable ? (
+          <Notice
+            tone="warn"
+            icon="alertCircle"
+            role="status"
+            title={stateWords('SA-17.unavailable')}
+          />
         ) : null}
-        {dialog?.kind === 'experiment' ? (
-          <Field
-            id={IDS.experiment}
-            className="mt-[14px]"
-            label={ASSIGN_DIALOG.experiment}
-            error={dialog.errors.target}
-          >
-            <Select
-              value={dialog.experimentId}
-              onChange={(event) => {
-                const experimentId = event.target.value;
-                setDialog((current) =>
-                  current ? { ...current, experimentId, errors: {}, unavailable: false } : current,
-                );
-              }}
-              options={[
-                { value: '', label: ASSIGN_DIALOG.chooseExperiment },
-                ...choices.experiments,
-              ]}
-            />
-          </Field>
-        ) : null}
-        {dialog?.unavailable ? (
-          <Notice tone="err" className="mt-3">
-            {stateWords('SA-17.unavailable')}
-          </Notice>
-        ) : null}
-      </EditDialog>
+      </ConfirmDialog>
     </>
-  );
-}
-
-/** One scope (`li.xg-lo`): what it names and since when, its action, and its inline panel. */
-function ScopeRow({
-  title,
-  meta,
-  action,
-  children,
-}: {
-  readonly title: string;
-  readonly meta: string;
-  readonly action: ReactNode;
-  readonly children?: ReactNode;
-}) {
-  return (
-    <li className="xg-lo items-start">
-      <div className="xg-lo-main flex-col gap-[2px]">
-        <span className="font-[700] text-ink">{title}</span>
-        <span className="xr-meta">{meta}</span>
-      </div>
-      <div className="xg-lo-acts">{action}</div>
-      {children}
-    </li>
   );
 }

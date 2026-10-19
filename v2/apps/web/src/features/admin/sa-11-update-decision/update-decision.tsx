@@ -1,204 +1,260 @@
 'use client';
 
-import type { AccessEndingRow } from '@xr/domain';
+import type { InstitutionStatus } from '@xr/domain';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
-  ChoiceCard,
-  ChoiceList,
+  ButtonLink,
+  ChoiceGroup,
   ConfirmDialog,
-  DecisionLayout,
-  EmptyState,
+  DecisionOutcome,
+  DecisionPanel,
+  DetailLayout,
+  ErrorSummary,
+  FactStrip,
   Field,
-  Icon,
-  JumpLink,
-  Link,
+  GoButton,
+  Hint,
+  MetaSeparator,
   Notice,
-  PageContent,
-  PageHeader,
-  RadioGroup,
-  ReasonDialog,
-  Section,
-  SectionBody,
+  PageHead,
+  PendingHint,
+  Quote,
+  ReadOnlyTable,
+  RecordLine,
+  SaMessage,
+  SectionNote,
   StatusPill,
+  SurfaceSection,
   Textarea,
   Timeline,
-} from '@xr/ui';
-import { type RefObject, useEffect, useMemo, useRef, useState } from 'react';
+} from '@xr/ui/v3';
+import { Fragment, type RefObject, useEffect, useMemo, useRef, useState } from 'react';
 
-import { COMPARISON } from '@/copy/corrections';
+import { COMPARISON, comparisonFieldLabel } from '@/copy/corrections';
+import { liftedLine } from '@/copy/release';
 import {
-  DECISION_PAGE,
-  decisionOverline,
-  HOLD_DIALOG,
-  HOLD_OPEN,
-  holdEffect,
-  holdLine,
-  holdTitle,
-  LIFT_DIALOG,
-  liftedLine,
-  liftTitle,
-  quoted,
-  RELEASE_DIALOG,
-  releasedLine,
-  releasedNext,
-  releaseEffect,
-  releaseTitle,
-} from '@/copy/release';
+  approvedMeta,
+  CONTENT_HEAD,
+  correctionPlace,
+  DIALOG_GROUPS,
+  heldFlash,
+  heldMeta,
+  HOLD_CONFIRM,
+  holdChoiceLine,
+  holdConfirmDescription,
+  holdConfirmTitle,
+  LIFT_CONFIRM,
+  LIFTED_FLASH,
+  liftConfirmTitle,
+  liveNowColumn,
+  proposedColumn,
+  RELEASE_CONFIRM,
+  releaseChoiceLine,
+  releaseConfirmNow,
+  releaseConfirmTitle,
+  releasedColumn,
+  releasedFlash,
+  releasedMeta,
+  reviewLine,
+  UPDATE_DECISION,
+  versionsLine,
+  versionWords,
+  whyBy,
+} from '@/copy/sa-content';
 import { stateWords } from '@/copy/state-copy';
-import { CorrectionComparison } from '@/features/shared/correction-comparison/correction-comparison';
-import { CONTENT_UPDATES_ADDRESS, updateDecisionPlacement } from '@/nav/admin-content';
+import {
+  CONTENT_TITLE,
+  CONTENT_UPDATES_ADDRESS,
+  updateDecisionPlacement,
+} from '@/nav/admin-content';
+import { useContentRecord } from '@/queries/admin-content';
 import type { UpdateDecisionView } from '@/queries/correction-view';
 import { useUpdateDecision } from '@/queries/corrections';
 import { useInstitutionTab } from '@/queries/institutions';
-import { useAccessEnding } from '@/queries/operations-admin';
 import { checkHoldReason, holdReasonErrorOf } from '@/queries/release-forms';
 import { useCommand } from '@/queries/use-command';
 
-import { RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { SaRecordGuard } from '../shared/sa-record-guard';
+import { useHeadingFocusOnArrival, useTodayLine } from '../sa-10-updates/content-head';
 import {
   type DecisionFacts,
   decisionFacts,
+  formatWords,
   type InstitutionUsingRow,
   institutionRows,
 } from './decision-view';
 
-/** The board's ids, with the product prefix (`Wm-decision`, `Wm-sdec`, `Wm-sgo`; B7-05). */
+/** The decision column's id (the export's `up-panel`): "Go to decision" leads to it. */
 const PANEL_ID = 'update-decision';
+const PANEL_TITLE_ID = 'update-decision-h';
+/** The decided part of the panel (the export's `up-done`). */
 const DECIDED_ID = 'update-decided';
+/** The flash after a decision (the export's `sa-flash`), which takes focus. */
+const FLASH_ID = 'update-flash';
+/** The refusal in the panel (the export's `sa-refusal`), which takes focus. */
+const REFUSAL_ID = 'update-refusal';
+const CHOICE_ID = 'update-choice';
+const REASON_ID = 'update-hold-reason';
 
 /**
- * SA-11 Release or hold an update — boards B7-05 f1 (waiting), f5 (on hold), f6 (released), f7
- * (hold lifted), f8 (Release · DL-1), f9 (Hold · reason required), f10 (nothing to decide yet),
- * f11 (375); B7-10 f0 … f4; B7-11 f1; B7-12 f0 … f3 — at `/admin/content/updates/[updateId]`.
+ * SA-11 Release or hold an update — the owner-approved Super Admin export's `V.update`
+ * (design/v3-refined-b/roles/SA-v1, renders `<width>_content_updates_distillation-1-3.png` and the
+ * states `sa11-on-hold`, `sa11-released`, `sa11-not-approved`), at
+ * `/admin/content/updates/[updateId]`.
  *
- * - **Read**: `CorrectionService.getUpdateDecision` — the update, its changed fields beside the
- *   live ones, the live version (“Live now: version 1.2 · since …”) and the institutions whose
- *   current access plan includes the experiment, named from `listInstitutions` and noted from
- *   Access ending (state-copy `SA-11.institution-note`). An update the Super Admin may not see yet
- *   (the service answers `invalid-state`: still with the Content Manager or the Academic Reviewer)
- *   is the calm “Nothing to decide” page (f10), never not found (state-copy `SA-11.not-yet`).
- * - **As B7-05 draws it** (AR-4, ~74 / 26 from 860 px of content, the static panel under the
- *   content below it with “Go to decision” first): the back link, “UPD-0005 · Correction to
- *   published content”, “Distillation Column · 1.2 → 1.3”, the status chip and the live line;
- *   “Hold lifted” after a lift (f7); What changes (the shared comparison, CM-08 and RV-04's;
- *   “Live before · Released” once released), Why — from the Content Manager, Academic review,
- *   Institutions using it (“Nothing here changes any institution's access”) and the history.
- * - **Decide** (the service decides who may and when): waiting — Release update (DL-1, which says
- *   exactly what goes live and for whom; never “Publish”) or Hold (DL-2, a reason the Content
- *   Manager sees; “Version 1.2 stays live”); on hold — Lift hold only (DL-1, no reason; it never
- *   releases), Release is not offered (B7-10 f2); released — read-only. Each command carries the
- *   revision from when its confirmation opened (`SA-11.decision-rev`); a stale or moved-on
- *   decision is refused by the service, said calmly and the update read again (`SA-11.stale.*`,
- *   `SA-11.moved-on`). Focus moves to the result (`SA-11.focus`). Nothing changes any
- *   institution's or Student's access (BC9).
+ * - **Read**: `CorrectionService.getUpdateDecision` — the correction, its changed fields beside
+ *   the live ones, the live version and the institutions whose current access plan includes the
+ *   experiment, named and given their status from `listInstitutions`; the experiment's course
+ *   code and formats from `ProductionService.getContentRecord` (SA-13's read). A correction the
+ *   Super Admin may not see yet (the service answers `invalid-state`: still with the Content
+ *   Manager or the Academic Reviewer) is the calm "Nothing to decide" message, never "not
+ *   available" (state-copy `SA-11.not-yet`).
+ * - **As the export draws it**: the crumbs Content › Updates › the experiment; "Correction to a
+ *   published experiment", the experiment's name, the status, the versions and who approved it;
+ *   the facts (Live now · Proposed or Released · Course · Formats), What changes (the live and
+ *   proposed fields, "Live before · Released" once released), Why, from the Content Manager,
+ *   Academic review, Institutions using it ("Nothing here changes any institution's access") and
+ *   the history; the decision panel beside it, under it below 860 px with "Go to decision".
+ * - **Decide** (the service decides who may and when): waiting — choose Release update or Hold
+ *   (a reason the Content Manager sees, required), then confirm (never "Publish"); on hold —
+ *   Release isn't available, Lift hold only (confirmed, no reason; it never releases); released —
+ *   read-only. Each command carries the revision from when its confirmation opened
+ *   (`SA-11.decision-rev`); a stale or moved-on decision is refused by the service, said in the
+ *   panel in the repo's words and the correction read again (`SA-11.stale.*`, `SA-11.moved-on`).
+ *   The result is said in a flash that takes focus (`SA-11.focus`). Nothing changes any
+ *   institution's or Student's access (BC9). What a hold blocks is open (T-28): said so.
  */
 export function UpdateDecision({ updateId }: { readonly updateId: string }) {
   const read = useUpdateDecision(updateId);
   const institutions = useInstitutionTab('all');
-  const ending = useAccessEnding();
   const answer = read.data;
   const view = answer?.ok ? answer.value : null;
+  const record = useContentRecord(view ? { kind: 'EXP', id: view.update.experimentId } : null);
   const notYet = answer !== undefined && !answer.ok && answer.error.kind === 'invalid-state';
-  // The crumbs name the update once the service has answered for it (f1, f10); while it loads,
-  // “Content / Updates”.
-  useShellPage(updateDecisionPlacement(view ? view.update.id : notYet ? updateId : null));
+  const experiment = view ? decisionFacts(view).experiment : null;
+  useShellPage(
+    updateDecisionPlacement(
+      experiment !== null
+        ? correctionPlace(experiment)
+        : notYet
+          ? UPDATE_DECISION.nothingTitle
+          : null,
+    ),
+  );
 
-  const names = useMemo(() => {
-    const map = new Map<string, string>();
-    if (institutions.data?.ok) for (const row of institutions.data.value) map.set(row.id, row.name);
+  const named = useMemo(() => {
+    const map = new Map<string, { readonly name: string; readonly status: InstitutionStatus }>();
+    if (institutions.data?.ok) {
+      for (const row of institutions.data.value) map.set(row.id, row);
+    }
     return map;
   }, [institutions.data]);
-  const endings = useMemo(() => {
-    const map = new Map<string, AccessEndingRow>();
-    if (ending.data?.ok)
-      for (const entry of ending.data.value) map.set(entry.row.planId, entry.row);
-    return map;
-  }, [ending.data]);
 
-  // The institutions are named and noted beside the record: the page waits for both reads.
-  const waiting = view !== null && (institutions.data === undefined || ending.data === undefined);
-  const besideFailed = view !== null && (institutions.isError || ending.isError);
+  // The institutions and the experiment's course are read beside the record: the page waits for
+  // both reads.
+  const waiting = view !== null && (institutions.data === undefined || record.data === undefined);
+  const besideFailed = view !== null && (institutions.isError || record.isError);
+  const course = record.data?.ok ? record.data.value : null;
 
   return (
-    <PageContent wrap="wide">
-      <RecordGuard
-        read={{
-          data: waiting ? undefined : answer,
-          isPending: read.isPending || waiting,
-          isError: read.isError || besideFailed,
-          refetch: () => {
-            void read.refetch();
-            if (institutions.isError) void institutions.refetch();
-            if (ending.isError) void ending.refetch();
-          },
-        }}
-        loadingLabel={stateWords('SA-11.loading')}
-        failed={{ title: stateWords('SA-11.failed'), line: stateWords('SA-11.failed.line') }}
-        refusals={{ 'invalid-state': <NothingToDecide /> }}
-      >
-        {(page) => (
-          <Decision
-            key={page.update.id}
-            view={page}
-            institutions={institutionRows(page, names, endings)}
-            onReread={() => read.refetch()}
-          />
-        )}
-      </RecordGuard>
-    </PageContent>
+    <SaRecordGuard
+      read={{
+        data: waiting ? undefined : answer,
+        isPending: read.isPending || waiting,
+        isError: read.isError || besideFailed,
+        refetch: () => {
+          void read.refetch();
+          if (institutions.isError) void institutions.refetch();
+          if (record.isError) void record.refetch();
+        },
+      }}
+      loadingLabel={stateWords('SA-11.loading')}
+      failedTitle={stateWords('SA-11.failed')}
+      refusals={{ 'invalid-state': <NothingToDecide /> }}
+    >
+      {(page) => (
+        <Decision
+          key={page.update.id}
+          view={page}
+          courseCode={course?.courseCode ?? null}
+          formats={
+            course?.experiment
+              ? formatWords(course.experiment.live.formats.map((entry) => entry.format))
+              : []
+          }
+          institutions={institutionRows(page, named)}
+          onReread={() => read.refetch()}
+        />
+      )}
+    </SaRecordGuard>
   );
 }
 
-/** f10 / B7-10 f4: the update is still with the Content Manager or the Academic Reviewer. */
+/** The crumbs above the page: Content › Updates › this correction. */
+function Crumbs({ current }: { readonly current: string }) {
+  return (
+    <Breadcrumbs
+      levels={[
+        { label: CONTENT_TITLE, href: CONTENT_UPDATES_ADDRESS },
+        { label: CONTENT_HEAD.tabs.updates, href: CONTENT_UPDATES_ADDRESS },
+      ]}
+      current={current}
+    />
+  );
+}
+
+/** Not approved yet: the correction is still with the Content Manager or the Academic Reviewer. */
 function NothingToDecide() {
   return (
     <>
-      <BackLink href={CONTENT_UPDATES_ADDRESS}>{DECISION_PAGE.back}</BackLink>
-      <h1 className="xr-h1 [margin:8px_0_16px]">{DECISION_PAGE.nothingTitle}</h1>
-      <div className="xr-section">
-        <EmptyState
-          icon="done"
-          title={DECISION_PAGE.nothingHeading}
-          className="[&_.xr-empty-icon]:bg-ok-bg [&_.xr-empty-icon]:text-ok [&_p]:text-ink-2"
-          actions={
-            <div className="flex flex-wrap gap-3">
-              <Link className="xr-btn xr-btn--secondary" href={CONTENT_UPDATES_ADDRESS}>
-                {DECISION_PAGE.backToUpdates}
-              </Link>
-            </div>
-          }
-        >
-          {DECISION_PAGE.nothingLine}
-        </EmptyState>
-      </div>
+      <Crumbs current={UPDATE_DECISION.nothingTitle} />
+      <SaMessage
+        title={UPDATE_DECISION.nothingTitle}
+        actions={
+          <ButtonLink variant="primary" href={CONTENT_UPDATES_ADDRESS}>
+            {UPDATE_DECISION.backToUpdates}
+          </ButtonLink>
+        }
+      >
+        {UPDATE_DECISION.nothingLine}
+      </SaMessage>
     </>
   );
 }
 
 /** A refused decision, as the panel says it (state-copy `SA-11.stale.*`, `SA-11.moved-on`). */
-type PanelNotice = 'stale' | 'moved-on';
-type FocusTarget = 'decided' | 'title' | 'panel';
+type PanelRefusal = 'stale' | 'moved-on';
+type Decided = 'release' | 'hold' | 'lift';
+interface Flash {
+  readonly title: string;
+  readonly line: string;
+}
+type FocusTarget = 'flash' | 'refusal' | 'title';
 
 function Decision({
   view,
+  courseCode,
+  formats,
   institutions,
   onReread,
 }: {
   readonly view: UpdateDecisionView;
+  readonly courseCode: string | null;
+  readonly formats: readonly string[];
   readonly institutions: readonly InstitutionUsingRow[];
   readonly onReread: () => Promise<unknown>;
 }) {
   const facts = decisionFacts(view);
-  const { update } = view;
-  const [notice, setNotice] = useState<PanelNotice | null>(null);
+  const today = useTodayLine();
+  const [refusal, setRefusal] = useState<PanelRefusal | null>(null);
+  const [flash, setFlash] = useState<Flash | null>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const panelTitleRef = useRef<HTMLHeadingElement>(null);
-  const decidedRef = useRef<HTMLDivElement>(null);
-  // Focus moves once the decision is read back (B7-05 `focus(pid + '-sdec')` after Release and
-  // Hold, `focus(pid + '-h')` after Lift hold), or to the panel's heading after a refusal. In an
-  // effect: in the same commit the confirmation's own close has given focus back.
+  useHeadingFocusOnArrival(titleRef, true);
+  // Focus moves once the result is drawn: the flash after a decision, the refusal after a refused
+  // one, the title after "Check it again" (the export's `SA.focus('sa-flash')`, `sa-refusal`,
+  // `page-h1`). In an effect: in the same commit the confirmation's own close gives focus back.
   const [focusTo, setFocusTo] = useState<{ readonly target: FocusTarget; readonly n: number }>({
     target: 'title',
     n: 0,
@@ -206,33 +262,40 @@ function Decision({
   useEffect(() => {
     if (focusTo.n === 0) return;
     const target =
-      focusTo.target === 'decided'
-        ? decidedRef.current
-        : focusTo.target === 'title'
-          ? titleRef.current
-          : panelTitleRef.current;
+      focusTo.target === 'title'
+        ? titleRef.current
+        : document.getElementById(focusTo.target === 'flash' ? FLASH_ID : REFUSAL_ID);
     target?.focus();
   }, [focusTo, facts.kind]);
   const focus = (target: FocusTarget) => setFocusTo((current) => ({ target, n: current.n + 1 }));
 
-  const decided = (target: FocusTarget) => {
-    setNotice(null);
-    focus(target);
+  const decided = (what: Decided) => {
+    setRefusal(null);
+    setFlash(
+      what === 'release'
+        ? releasedFlash(facts.proposedVersion)
+        : what === 'hold'
+          ? heldFlash(facts.liveVersion)
+          : LIFTED_FLASH,
+    );
+    focus('flash');
   };
-  const refused = (kind: PanelNotice) => {
-    setNotice(kind);
+  const refused = (kind: PanelRefusal) => {
+    setFlash(null);
+    setRefusal(kind);
     void onReread();
-    focus('panel');
+    focus('refusal');
   };
 
+  const released = facts.kind === 'released';
   let panel;
   if (facts.kind === 'waiting') {
     panel = (
       <OpenPanel
         view={view}
         facts={facts}
-        decidedRef={decidedRef}
-        onDecided={() => decided('decided')}
+        fallback={titleRef}
+        onDecided={decided}
         onRefused={refused}
       />
     );
@@ -240,131 +303,203 @@ function Decision({
     panel = (
       <HeldPanel
         view={view}
+        facts={facts}
         hold={facts.hold}
-        decidedRef={decidedRef}
-        onLifted={() => decided('title')}
+        fallback={titleRef}
+        onLifted={() => decided('lift')}
         onRefused={refused}
       />
     );
-  } else if (facts.kind === 'released' && facts.release) {
+  } else if (released && facts.release) {
     panel = (
-      <div id={DECIDED_ID} ref={decidedRef} tabIndex={-1} className="flex flex-col gap-3">
-        <StatusPill tone="ok">{DECISION_PAGE.released}</StatusPill>
-        <p className="xr-small m-0 text-ink-2">
-          {releasedLine(facts.release.on, facts.release.by)}
-        </p>
-        <p className="xr-body m-0 text-ink">{releasedNext(facts.liveVersion)}</p>
-      </div>
+      <DecisionOutcome
+        id={DECIDED_ID}
+        status={
+          <StatusPill tone="ok" size="lg">
+            {UPDATE_DECISION.released}
+          </StatusPill>
+        }
+        meta={releasedMeta(facts.release.on, facts.release.by)}
+        stand={[
+          { term: UPDATE_DECISION.stand.liveNow, value: versionWords(facts.liveVersion) },
+          { term: UPDATE_DECISION.stand.liveBefore, value: versionWords(facts.baseVersion) },
+          { term: UPDATE_DECISION.stand.access, value: UPDATE_DECISION.unchanged },
+        ]}
+        next={UPDATE_DECISION.recorded}
+        action={
+          <ButtonLink href={CONTENT_UPDATES_ADDRESS}>{UPDATE_DECISION.backToUpdates}</ButtonLink>
+        }
+      />
     );
   } else {
-    panel = (
-      <div id={DECIDED_ID} ref={decidedRef} tabIndex={-1}>
-        <p className="xr-body m-0 text-ink-2">{DECISION_PAGE.nothingLine}</p>
-      </div>
-    );
+    panel = <RecordLine>{UPDATE_DECISION.nothingLine}</RecordLine>;
   }
 
   return (
     <>
-      <PageHeader
-        className="[margin:8px_0_16px]"
-        back={<BackLink href={CONTENT_UPDATES_ADDRESS}>{DECISION_PAGE.back}</BackLink>}
-        overline={decisionOverline(update.id)}
-        title={facts.title}
-        titleFocusTarget
+      <PageHead
+        variant="record"
+        title={facts.experiment}
         titleRef={titleRef}
+        titleFocusTarget
+        date={today}
+        eyebrow={UPDATE_DECISION.eyebrow}
+        breadcrumbs={<Crumbs current={facts.experiment} />}
         meta={
           <>
-            {facts.chip ? <StatusPill tone={facts.chip.tone}>{facts.chip.words}</StatusPill> : null}
-            <span>{facts.liveLine}</span>
+            {facts.chip ? (
+              <StatusPill tone={facts.chip.tone} size="lg">
+                {facts.chip.words}
+              </StatusPill>
+            ) : null}
+            <span>{versionsLine(facts.from, facts.to)}</span>
+            {facts.approval ? (
+              <>
+                <MetaSeparator />
+                <span>{approvedMeta(facts.approval.by, facts.approval.day)}</span>
+              </>
+            ) : null}
           </>
         }
+        goTo={{ label: UPDATE_DECISION.goTo, targetId: PANEL_ID, focusId: PANEL_TITLE_ID }}
       />
-      {/* B7-05 draws the jump before the “Hold lifted” notice (f7, f11). */}
-      <JumpLink targetId={PANEL_ID} className="mb-4" />
-      {facts.liftedOn ? (
-        <div className="mb-4">
-          <Notice tone="info" role="status" title={DECISION_PAGE.liftedTitle}>
-            {liftedLine(facts.liftedOn)}
-          </Notice>
-        </div>
+      {flash ? (
+        <Notice tone="ok" role="status" id={FLASH_ID} title={flash.title}>
+          {flash.line}
+        </Notice>
+      ) : facts.liftedOn ? (
+        <Notice tone="info" role="status" title={UPDATE_DECISION.liftedTitle}>
+          {liftedLine(facts.liftedOn)}
+        </Notice>
       ) : null}
-      <DecisionLayout
-        jump={false}
-        panel={{
-          id: PANEL_ID,
-          title: DECISION_PAGE.panelTitle,
-          titleFocusTarget: true,
-          titleRef: panelTitleRef,
-          position: 'static',
-          children: (
-            <>
-              {notice ? <RefusedNotice notice={notice} /> : null}
-              {panel}
-            </>
-          ),
-        }}
-      >
-        <WhatChanges view={view} facts={facts} />
-        <Section title={DECISION_PAGE.whyTitle}>
-          <SectionBody>
-            {update.whatChangesAndWhy ? (
-              <blockquote className="xv-quote bg-surface-2">{update.whatChangesAndWhy}</blockquote>
+      <DetailLayout
+        asideId={PANEL_ID}
+        asideLabelledBy={PANEL_TITLE_ID}
+        main={
+          <RecordSheet
+            view={view}
+            facts={facts}
+            courseCode={courseCode}
+            formats={formats}
+            institutions={institutions}
+          />
+        }
+        aside={
+          <DecisionPanel title={UPDATE_DECISION.panelTitle} titleId={PANEL_TITLE_ID}>
+            {refusal ? (
+              <Notice
+                tone="warn"
+                role="alert"
+                id={REFUSAL_ID}
+                title={
+                  refusal === 'stale'
+                    ? stateWords('SA-11.stale.title')
+                    : stateWords('SA-11.moved-on')
+                }
+                actions={
+                  <Button
+                    onClick={() => {
+                      setRefusal(null);
+                      focus('title');
+                    }}
+                  >
+                    {UPDATE_DECISION.checkAgain}
+                  </Button>
+                }
+              >
+                {refusal === 'stale' ? stateWords('SA-11.stale.line') : undefined}
+              </Notice>
             ) : null}
-            <p className="xl-meta [margin:10px_0_0]">{facts.raised}</p>
-          </SectionBody>
-        </Section>
-        {facts.approval ? (
-          <Section title={DECISION_PAGE.reviewTitle}>
-            <SectionBody>
-              <p className="xr-body m-0">
-                <StatusPill tone="ok">{DECISION_PAGE.approved}</StatusPill>{' '}
-                <span className="ml-2">{facts.approval}</span>
-              </p>
-              <p className="xl-meta [margin:10px_0_0]">{DECISION_PAGE.reviewHistoryBelow}</p>
-            </SectionBody>
-          </Section>
-        ) : null}
-        <Section title={DECISION_PAGE.institutionsTitle}>
-          <SectionBody>
-            {institutions.length > 0 ? (
-              <InstitutionsTable rows={institutions} />
-            ) : (
-              <p className="xr-body m-0 text-ink-2">{stateWords('SA-11.no-institutions')}</p>
-            )}
-            <p className="xl-meta [margin:12px_0_0]">{DECISION_PAGE.institutionsNote}</p>
-          </SectionBody>
-        </Section>
-        <Section title={DECISION_PAGE.historyTitle} meta={DECISION_PAGE.historyMeta}>
-          <SectionBody>
-            <Timeline events={facts.history} markLatest={false} />
-          </SectionBody>
-        </Section>
-      </DecisionLayout>
+            {panel}
+          </DecisionPanel>
+        }
+      />
     </>
   );
 }
 
-function RefusedNotice({ notice }: { readonly notice: PanelNotice }) {
-  if (notice === 'stale') {
-    return (
-      <Notice tone="warn" role="alert" title={stateWords('SA-11.stale.title')}>
-        {stateWords('SA-11.stale.line')}
-      </Notice>
-    );
-  }
+// ---- the record sheet ----
+
+function RecordSheet({
+  view,
+  facts,
+  courseCode,
+  formats,
+  institutions,
+}: {
+  readonly view: UpdateDecisionView;
+  readonly facts: DecisionFacts;
+  readonly courseCode: string | null;
+  readonly formats: readonly string[];
+  readonly institutions: readonly InstitutionUsingRow[];
+}) {
+  const { update } = view;
+  const released = facts.kind === 'released';
   return (
-    <Notice tone="warn" role="alert">
-      {stateWords('SA-11.moved-on')}
-    </Notice>
+    <>
+      <FactStrip
+        facts={[
+          { term: UPDATE_DECISION.facts.liveNow, value: versionWords(facts.liveVersion) },
+          {
+            term: released ? UPDATE_DECISION.facts.released : UPDATE_DECISION.facts.proposed,
+            value: versionWords(facts.proposedVersion),
+          },
+          ...(courseCode ? [{ term: UPDATE_DECISION.facts.course, value: courseCode }] : []),
+          ...(formats.length > 0
+            ? [{ term: UPDATE_DECISION.facts.formats, value: formats.join(', ') }]
+            : []),
+        ]}
+      />
+      <WhatChanges view={view} facts={facts} />
+      {update.whatChangesAndWhy ? (
+        <SurfaceSection title={UPDATE_DECISION.whyTitle} titleId="update-why">
+          <Quote by={whyBy(facts.raisedBy.name, facts.raisedBy.role)}>
+            {update.whatChangesAndWhy}
+          </Quote>
+        </SurfaceSection>
+      ) : null}
+      {facts.approval ? (
+        <SurfaceSection title={UPDATE_DECISION.reviewTitle} titleId="update-review">
+          <RecordLine>{reviewLine(facts.approval.by, facts.approval.at)}</RecordLine>
+        </SurfaceSection>
+      ) : null}
+      <SurfaceSection title={UPDATE_DECISION.institutionsTitle} titleId="update-institutions">
+        {institutions.length > 0 ? (
+          <ReadOnlyTable
+            caption={UPDATE_DECISION.institutionsCaption}
+            columns={[
+              UPDATE_DECISION.columns.institution,
+              UPDATE_DECISION.columns.access,
+              UPDATE_DECISION.columns.status,
+            ]}
+            rows={institutions.map((row) => ({
+              key: row.key,
+              head: row.name,
+              cells: [
+                { label: UPDATE_DECISION.columns.access, content: row.access },
+                { label: UPDATE_DECISION.columns.status, content: row.status },
+              ],
+            }))}
+          />
+        ) : (
+          <RecordLine>{UPDATE_DECISION.noInstitutions}</RecordLine>
+        )}
+        <Hint under="table">{UPDATE_DECISION.institutionsNote}</Hint>
+      </SurfaceSection>
+      <SurfaceSection
+        title={UPDATE_DECISION.historyTitle}
+        titleId="update-history"
+        aside={<SectionNote>{UPDATE_DECISION.historyNote}</SectionNote>}
+      >
+        <Timeline events={facts.history} />
+      </SurfaceSection>
+    </>
   );
 }
 
-// ---- the main column (B7-05 AR-4, ~74 %) ----
-
 /**
- * “What changes · Changed fields only” (f1): the shared comparison; once released, “Live before ·
- * Released” with its note (f6), or the register's line while the service gives no rows
+ * "What changes · Changed fields only": the changed fields, live and proposed; once released,
+ * "Live before · Released" with its note, or the register's line while the service gives no rows
  * (`SA-11.released.no-comparison`).
  */
 function WhatChanges({
@@ -375,279 +510,293 @@ function WhatChanges({
   readonly facts: DecisionFacts;
 }) {
   const rows = view.comparison;
-  let body;
-  if (facts.kind === 'released') {
-    body =
-      rows.length > 0 ? (
+  const released = facts.kind === 'released';
+  const before = released ? UPDATE_DECISION.liveBefore : liveNowColumn(facts.liveVersion);
+  const after = released
+    ? releasedColumn(facts.proposedVersion)
+    : proposedColumn(facts.proposedVersion);
+  return (
+    <SurfaceSection
+      title={UPDATE_DECISION.whatChanges}
+      titleId="update-changes"
+      aside={rows.length > 0 ? <SectionNote>{UPDATE_DECISION.changedOnly}</SectionNote> : undefined}
+    >
+      {rows.length > 0 ? (
         <>
-          <CorrectionComparison
-            rows={rows}
-            columns={{ before: DECISION_PAGE.liveBefore, after: DECISION_PAGE.released }}
+          <ReadOnlyTable
+            compare
+            caption={UPDATE_DECISION.compareCaption}
+            columns={[COMPARISON.field, before, after]}
+            rows={rows.map((row) => ({
+              key: `${row.field}-${row.format ?? ''}`,
+              head: comparisonFieldLabel(row),
+              cells: [
+                { label: before, content: <Breakable text={row.liveNow ?? ''} /> },
+                { label: after, content: <Breakable text={row.proposed ?? ''} />, proposed: true },
+              ],
+            }))}
           />
-          <p className="xl-meta [margin:12px_0_0]">{DECISION_PAGE.liveBeforeNote}</p>
+          {released ? <Hint under="table">{UPDATE_DECISION.liveBeforeNote}</Hint> : null}
         </>
-      ) : (
-        <p className="xr-body m-0 text-ink-2">
+      ) : released ? (
+        <RecordLine>
           {stateWords('SA-11.released.no-comparison').replace('{version}', facts.baseVersion)}
-        </p>
-      );
-  } else {
-    body =
-      rows.length > 0 ? (
-        <CorrectionComparison rows={rows} />
+        </RecordLine>
       ) : (
-        <p className="xr-body m-0 text-ink-2">{COMPARISON.nothingChanged}</p>
-      );
-  }
-  return (
-    <Section title={COMPARISON.whatChanges} meta={COMPARISON.changedOnly}>
-      <SectionBody>{body}</SectionBody>
-    </Section>
+        <RecordLine>{COMPARISON.nothingChanged}</RecordLine>
+      )}
+    </SurfaceSection>
   );
 }
 
-/** “Institution · Access · Students · Note” (f1); labelled blocks below 760 px of content. */
-function InstitutionsTable({ rows }: { readonly rows: readonly InstitutionUsingRow[] }) {
-  const { columns } = DECISION_PAGE;
+/**
+ * A field's value with a line-break opportunity after each `/`, `.`, `-`, `_`, `?`, `&` and `=`: a
+ * web link or a package reference is one long word that would otherwise push the comparison wider
+ * than the sheet (the table would scroll sideways inside it).
+ */
+function Breakable({ text }: { readonly text: string }) {
+  const parts = text.split(/(?<=[/.\-_?&=])/);
   return (
-    <div className="xr-table-wrap">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.institution}</th>
-            <th scope="col">{columns.access}</th>
-            <th scope="col">{columns.students}</th>
-            <th scope="col">{columns.note}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.key}>
-              <td className="is-primary">
-                <strong>{row.name}</strong>
-              </td>
-              <td data-label={columns.access}>{row.access}</td>
-              <td data-label={columns.students}>{row.students}</td>
-              <td data-label={columns.note}>{row.note}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <>
+      {parts.map((part, index) => (
+        <Fragment key={index}>
+          {index > 0 ? <wbr /> : null}
+          {part}
+        </Fragment>
+      ))}
+    </>
   );
 }
 
-// ---- the decision panel (B7-05 AR-4, ~26 %) ----
+// ---- the decision panel ----
 
 type Choice = 'release' | 'hold';
 
 /**
- * Waiting for your decision (f1, f7): Release update or Hold, then its confirmation — Release
- * (DL-1, f8) or Hold with the reason the Content Manager sees (DL-2, f9).
+ * Waiting for your decision: Release update or Hold (with the reason the Content Manager sees),
+ * checked before anything opens, then its confirmation.
  */
 function OpenPanel({
   view,
   facts,
-  decidedRef,
+  fallback,
   onDecided,
   onRefused,
 }: {
   readonly view: UpdateDecisionView;
   readonly facts: DecisionFacts;
-  readonly decidedRef: RefObject<HTMLDivElement | null>;
-  readonly onDecided: () => void;
-  readonly onRefused: (notice: PanelNotice) => void;
+  readonly fallback: RefObject<HTMLElement | null>;
+  readonly onDecided: (what: Decided) => void;
+  readonly onRefused: (refusal: PanelRefusal) => void;
 }) {
   const { update } = view;
   const releaseCmd = useCommand((ports) => ports.corrections.releaseUpdate);
   const holdCmd = useCommand((ports) => ports.corrections.holdUpdate);
-  const [choice, setChoice] = useState<Choice>('release');
+  const [choice, setChoice] = useState<Choice | null>(null);
+  const [reason, setReason] = useState('');
+  const [errors, setErrors] = useState<{ readonly choice?: string; readonly reason?: string }>({});
   const [dialog, setDialog] = useState<Choice | null>(null);
   /** The update's revision when the confirmation opened (state-copy `SA-11.decision-rev`). */
   const [decisionRev, setDecisionRev] = useState(update.rev);
-  const [reason, setReason] = useState('');
-  const [reasonError, setReasonError] = useState<string | null>(null);
-  const [dialogNotice, setDialogNotice] = useState<'stale' | 'unavailable' | null>(null);
+  /** The newest revision a stale refusal named, until the read catches up with it. */
+  const knownRev = useRef(update.rev);
+  const [unavailable, setUnavailable] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const [checked, setChecked] = useState(0);
+  useEffect(() => {
+    if (checked > 0) summaryRef.current?.focus();
+  }, [checked]);
 
-  const open = () => {
-    setDecisionRev(update.rev);
-    setDialogNotice(null);
+  const press = () => {
+    const found: { choice?: string; reason?: string } = {};
+    if (choice === null) found.choice = UPDATE_DECISION.chooseDecision;
     if (choice === 'hold') {
-      setReason('');
-      setReasonError(null);
+      const invalid = checkHoldReason(reason);
+      if (invalid) found.reason = invalid;
     }
+    setErrors(found);
+    if (found.choice || found.reason) {
+      setChecked((n) => n + 1);
+      return;
+    }
+    setDecisionRev(Math.max(update.rev, knownRev.current));
+    setUnavailable(false);
     setDialog(choice);
   };
 
   const close = () => {
     setDialog(null);
-    setDialogNotice(null);
+    setUnavailable(false);
   };
 
   const doRelease = () => {
     if (releaseCmd.busy) return;
-    setDialogNotice(null);
+    setUnavailable(false);
     releaseCmd.run({ id: update.id, expectedRev: decisionRev }).then(
       (answer) => {
         setDialog(null);
         if (answer.ok) {
-          onDecided();
+          onDecided('release');
           return;
         }
         // Stale, decided elsewhere, held meanwhile (`hold-must-be-lifted`): nothing was written.
+        if (answer.error.kind === 'stale-version') knownRev.current = answer.error.currentRev;
         onRefused(answer.error.kind === 'stale-version' ? 'stale' : 'moved-on');
       },
-      () => setDialogNotice('unavailable'),
+      () => setUnavailable(true),
     );
   };
 
   const doHold = () => {
     if (holdCmd.busy) return;
-    const invalid = checkHoldReason(reason);
-    if (invalid) {
-      setReasonError(invalid);
-      return;
-    }
-    setReasonError(null);
-    setDialogNotice(null);
+    setUnavailable(false);
     holdCmd.run({ id: update.id, reason, expectedRev: decisionRev }).then(
       (answer) => {
+        setDialog(null);
         if (answer.ok) {
-          setDialog(null);
           setReason('');
-          onDecided();
+          setChoice(null);
+          onDecided('hold');
           return;
         }
         const error = answer.error;
         if (error.kind === 'validation-failed') {
-          setReasonError(holdReasonErrorOf(error));
+          setErrors({ reason: holdReasonErrorOf(error) ?? stateWords('SA-11.unavailable.hold') });
+          setChecked((n) => n + 1);
           return;
         }
-        if (error.kind === 'stale-version') {
-          // The typed reason stays; the update is read again and the next press sends its
-          // current revision (state-copy `SA-11.stale.line`).
-          setDecisionRev(error.currentRev);
-          setDialogNotice('stale');
-          onRefused('stale');
-          return;
-        }
-        setDialog(null);
-        onRefused('moved-on');
+        // The typed reason stays; the update is read again and the next confirmation sends its
+        // current revision (state-copy `SA-11.stale.line`).
+        if (error.kind === 'stale-version') knownRev.current = error.currentRev;
+        onRefused(error.kind === 'stale-version' ? 'stale' : 'moved-on');
       },
-      () => setDialogNotice('unavailable'),
+      () => setUnavailable(true),
     );
   };
 
+  const failure = (key: 'SA-11.unavailable.release' | 'SA-11.unavailable.hold') =>
+    unavailable ? <Notice tone="warn" role="alert" title={stateWords(key)} /> : null;
+
   return (
     <>
-      <RadioGroup
-        legend={DECISION_PAGE.legend}
-        legendClass="xr-sr"
-        value={choice}
-        onValueChange={(value) => setChoice(value as Choice)}
-      >
-        <ChoiceList>
-          <ChoiceCard
-            id="update-choice-release"
-            value="release"
-            title={DECISION_PAGE.release}
-            sub={DECISION_PAGE.releaseSub}
-          />
-          <ChoiceCard
-            id="update-choice-hold"
-            value="hold"
-            title={DECISION_PAGE.hold}
-            sub={DECISION_PAGE.holdSub}
-          />
-        </ChoiceList>
-      </RadioGroup>
-      <Button id="update-decide" variant="primary" block onClick={open}>
-        {choice === 'hold' ? DECISION_PAGE.hold : DECISION_PAGE.release}
-      </Button>
-      <ConfirmDialog
-        open={dialog === 'release'}
-        idPrefix="update-release"
-        align="decision"
-        title={releaseTitle(update.id)}
-        effect={
-          <strong>
-            {releaseEffect(facts.proposedVersion, facts.experiment, facts.liveVersion)}
-          </strong>
-        }
-        notice={
-          dialogNotice === 'unavailable' ? (
-            <Notice tone="err" role="alert" className="mt-[14px]">
-              {stateWords('SA-11.unavailable.release')}
-            </Notice>
-          ) : undefined
-        }
-        cancelLabel={RELEASE_DIALOG.cancel}
-        confirmLabel={RELEASE_DIALOG.confirm}
-        busy={releaseCmd.busy}
-        busyLabel={RELEASE_DIALOG.busy}
-        onConfirm={doRelease}
-        onCancel={close}
-        returnFocusFallback={decidedRef}
+      <ErrorSummary
+        ref={summaryRef}
+        autoFocus={false}
+        title={UPDATE_DECISION.errorsTitle}
+        items={[
+          ...(errors.choice ? [{ fieldId: CHOICE_ID, summaryText: errors.choice }] : []),
+          ...(errors.reason ? [{ fieldId: REASON_ID, summaryText: errors.reason }] : []),
+        ]}
       />
-      <ReasonDialog
-        open={dialog === 'hold'}
-        idPrefix="update-hold"
-        align="decision"
-        title={holdTitle(update.id)}
-        effect={<strong>{holdEffect(facts.liveVersion)}</strong>}
-        cancelLabel={HOLD_DIALOG.cancel}
-        confirmLabel={HOLD_DIALOG.confirm}
-        busy={holdCmd.busy}
-        busyLabel={HOLD_DIALOG.busy}
-        onConfirm={doHold}
-        onCancel={close}
-        returnFocusFallback={decidedRef}
-      >
-        {dialogNotice === 'stale' ? (
-          <Notice
-            tone="warn"
-            role="alert"
-            title={stateWords('SA-11.stale.title')}
-            className="mb-[14px]"
-          >
-            {stateWords('SA-11.stale.line')}
-          </Notice>
-        ) : dialogNotice === 'unavailable' ? (
-          <Notice tone="err" role="alert" className="mb-[14px]">
-            {stateWords('SA-11.unavailable.hold')}
-          </Notice>
-        ) : null}
-        <Field id="update-hold-reason" label={HOLD_DIALOG.reasonLabel} error={reasonError}>
+      <ChoiceGroup
+        legend={UPDATE_DECISION.legend}
+        id={CHOICE_ID}
+        name={CHOICE_ID}
+        value={choice}
+        error={errors.choice}
+        onChange={(value) => {
+          setChoice(value);
+          setErrors((current) => ({ ...current, choice: undefined }));
+        }}
+        options={[
+          {
+            value: 'release',
+            title: UPDATE_DECISION.release,
+            description: releaseChoiceLine(facts.proposedVersion),
+          },
+          {
+            value: 'hold',
+            title: UPDATE_DECISION.hold,
+            description: holdChoiceLine(facts.liveVersion),
+          },
+        ]}
+      />
+      {choice === 'hold' ? (
+        <Field
+          id={REASON_ID}
+          label={UPDATE_DECISION.reasonLabel}
+          hint={UPDATE_DECISION.reasonHint}
+          error={errors.reason}
+        >
           <Textarea
-            className="min-h-[96px]"
             value={reason}
             onChange={(event) => {
               setReason(event.target.value);
-              setReasonError(null);
+              setErrors((current) => ({ ...current, reason: undefined }));
             }}
           />
         </Field>
-      </ReasonDialog>
+      ) : null}
+      {choice === 'hold' && reason.trim() === '' ? (
+        <PendingHint>{UPDATE_DECISION.reasonPending}</PendingHint>
+      ) : null}
+      <GoButton id="update-decide" onClick={press}>
+        {choice === 'hold' ? UPDATE_DECISION.holdGo : UPDATE_DECISION.releaseGo}
+      </GoButton>
+      <Hint>{UPDATE_DECISION.accessHint}</Hint>
+      <ConfirmDialog
+        initialFocus="confirm"
+        open={dialog === 'release'}
+        idPrefix="update-release"
+        title={releaseConfirmTitle(facts.proposedVersion, facts.experiment)}
+        description={RELEASE_CONFIRM.description}
+        groups={[
+          {
+            kind: 'now',
+            title: DIALOG_GROUPS.now,
+            items: releaseConfirmNow(facts.proposedVersion, facts.liveVersion),
+          },
+          { kind: 'later', title: DIALOG_GROUPS.later, items: RELEASE_CONFIRM.later },
+        ]}
+        cancelLabel={DIALOG_GROUPS.cancel}
+        confirmLabel={RELEASE_CONFIRM.confirm}
+        busy={releaseCmd.busy}
+        busyLabel={RELEASE_CONFIRM.busy}
+        onConfirm={doRelease}
+        onCancel={close}
+        returnFocusFallback={fallback}
+      >
+        {failure('SA-11.unavailable.release')}
+      </ConfirmDialog>
+      <ConfirmDialog
+        initialFocus="confirm"
+        open={dialog === 'hold'}
+        idPrefix="update-hold"
+        title={holdConfirmTitle(facts.experiment)}
+        description={holdConfirmDescription(facts.liveVersion)}
+        cancelLabel={DIALOG_GROUPS.cancel}
+        confirmLabel={HOLD_CONFIRM.confirm}
+        busy={holdCmd.busy}
+        busyLabel={HOLD_CONFIRM.busy}
+        onConfirm={doHold}
+        onCancel={close}
+        returnFocusFallback={fallback}
+      >
+        <Quote by={DIALOG_GROUPS.yourReason}>{reason.trim()}</Quote>
+        {failure('SA-11.unavailable.hold')}
+      </ConfirmDialog>
     </>
   );
 }
 
 /**
- * On hold (f5; B7-10 f2): when, by whom and why; the live version stays; Lift hold is the only
- * action (DL-1, no reason) — Release is not offered while held. What else a hold affects is open.
+ * On hold: when and by whom, the reason; Release isn't available while held; Lift hold is the only
+ * action (confirmed, no reason). What else a hold affects is open (T-28).
  */
 function HeldPanel({
   view,
+  facts,
   hold,
-  decidedRef,
+  fallback,
   onLifted,
   onRefused,
 }: {
   readonly view: UpdateDecisionView;
+  readonly facts: DecisionFacts;
   readonly hold: NonNullable<DecisionFacts['hold']>;
-  readonly decidedRef: RefObject<HTMLDivElement | null>;
+  readonly fallback: RefObject<HTMLElement | null>;
   readonly onLifted: () => void;
-  readonly onRefused: (notice: PanelNotice) => void;
+  readonly onRefused: (refusal: PanelRefusal) => void;
 }) {
   const { update } = view;
   const liftCmd = useCommand((ports) => ports.corrections.liftHold);
@@ -677,40 +826,42 @@ function HeldPanel({
 
   return (
     <>
-      <div id={DECIDED_ID} ref={decidedRef} tabIndex={-1} className="flex flex-col gap-3">
-        <StatusPill tone="paused">{DECISION_PAGE.onHold}</StatusPill>
-        <p className="xr-small m-0 text-ink-2">{holdLine(hold.on, hold.by)}</p>
-        <p className="xr-body m-0">{quoted(hold.reason)}</p>
-        <p className="xr-body m-0 text-ink">{DECISION_PAGE.liveStays}</p>
-        <Button id="update-lift" variant="secondary" block onClick={open}>
-          {DECISION_PAGE.liftHold}
-        </Button>
-        <p className="xl-open m-0">
-          <Icon name="info" size={16} />
-          <span>{HOLD_OPEN.words}</span>
-        </p>
-      </div>
+      <DecisionOutcome
+        id={DECIDED_ID}
+        status={
+          <StatusPill tone="paused" size="lg">
+            {UPDATE_DECISION.onHold}
+          </StatusPill>
+        }
+        meta={heldMeta(hold.on, hold.by)}
+      >
+        {hold.reason ? <Quote>{hold.reason}</Quote> : null}
+        <Notice tone="paused" icon="lock" role="status" title={UPDATE_DECISION.heldTitle}>
+          {UPDATE_DECISION.heldLine}
+        </Notice>
+        <GoButton id="update-lift" onClick={open}>
+          {UPDATE_DECISION.liftHold}
+        </GoButton>
+        <Hint>{UPDATE_DECISION.holdOpen}</Hint>
+      </DecisionOutcome>
       <ConfirmDialog
+        initialFocus="confirm"
         open={confirming}
         idPrefix="update-lift"
-        align="decision"
-        title={liftTitle(update.id)}
-        effect={<strong>{LIFT_DIALOG.effect}</strong>}
-        notice={
-          unavailable ? (
-            <Notice tone="err" role="alert" className="mt-[14px]">
-              {stateWords('SA-11.unavailable.lift')}
-            </Notice>
-          ) : undefined
-        }
-        cancelLabel={LIFT_DIALOG.cancel}
-        confirmLabel={LIFT_DIALOG.confirm}
+        title={liftConfirmTitle(facts.experiment)}
+        description={LIFT_CONFIRM.description}
+        cancelLabel={DIALOG_GROUPS.cancel}
+        confirmLabel={LIFT_CONFIRM.confirm}
         busy={liftCmd.busy}
-        busyLabel={LIFT_DIALOG.busy}
+        busyLabel={LIFT_CONFIRM.busy}
         onConfirm={doLift}
         onCancel={() => setConfirming(false)}
-        returnFocusFallback={decidedRef}
-      />
+        returnFocusFallback={fallback}
+      >
+        {unavailable ? (
+          <Notice tone="warn" role="alert" title={stateWords('SA-11.unavailable.lift')} />
+        ) : null}
+      </ConfirmDialog>
     </>
   );
 }

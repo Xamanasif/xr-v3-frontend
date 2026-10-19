@@ -60,15 +60,46 @@ function focusArrival(pathname: string): boolean {
 export const MAIN_ID = 'main';
 
 /**
- * Focus into the new page: `main`, or — for an Entry & shared page drawn in V3 inside the v46
- * shell (a V3 region: Help, "Not your workspace") — that page's own H1, as the XS export's shell
- * patch XS-P2 asks ("the destination moves focus to its H1"). v46 pages keep `main` (VD-16).
+ * Focus into the new page: `main`, or the page's own H1 where the page is drawn in V3 — an Entry &
+ * shared page inside the v46 shell (a V3 region: Help, "Not your workspace"), as the XS export's
+ * shell patch XS-P2 asks ("the destination moves focus to its H1"), and every page of a migrated
+ * role's V3 shell (`main.rb-page`), as its export does ("route change → page heading"). v46 pages,
+ * and a v46 island inside a V3 shell, keep `main` (VD-16).
  */
 export function focusMain(): void {
   const main = document.getElementById(MAIN_ID);
-  const heading = main?.querySelector<HTMLElement>('.rk-x-region h1[tabindex="-1"]');
+  const v3Shell = main?.classList.contains('rb-page') ?? false;
+  const selector = v3Shell
+    ? 'h1[tabindex="-1"]:not([data-xr-v46] h1)'
+    : '.rk-x-region h1[tabindex="-1"]';
+  const heading = main?.querySelector<HTMLElement>(selector);
   const target = heading ?? main;
   if (target && target !== document.activeElement) target.focus({ preventScroll: true });
+  // A V3 record page often draws its H1 only once the record has loaded: focus waits on `main`
+  // and follows the H1 when it appears — unless the person has moved focus meanwhile.
+  if (main && v3Shell && !heading) followHeading(main, selector);
+}
+
+/** How long a V3 page's H1 is awaited after a move (a record read in the sample adapter). */
+const HEADING_WAIT_MS = 3000;
+let stopFollowing: (() => void) | null = null;
+
+function followHeading(main: HTMLElement, selector: string): void {
+  stopFollowing?.();
+  const observer = new MutationObserver(() => {
+    const heading = main.querySelector<HTMLElement>(selector);
+    if (!heading) return;
+    stop();
+    if (document.activeElement === main) heading.focus({ preventScroll: true });
+  });
+  const timer = window.setTimeout(() => stop(), HEADING_WAIT_MS);
+  const stop = () => {
+    observer.disconnect();
+    window.clearTimeout(timer);
+    if (stopFollowing === stop) stopFollowing = null;
+  };
+  stopFollowing = stop;
+  observer.observe(main, { childList: true, subtree: true });
 }
 
 /**
@@ -106,8 +137,9 @@ export function useRouteFocus(pathname: string): void {
       if (event.defaultPrevented || event.button !== 0) return;
       if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
       const link = event.target instanceof Element ? event.target.closest('a[href]') : null;
-      // The workspace shell, and the public shell (Package 1B: `div.xp`).
-      if (!(link instanceof HTMLAnchorElement) || !link.closest('.xr-app, .xp')) return;
+      // The workspace shells (v46 `div.xr-app`, V3 `div.rb`), and the public shell (Package 1B:
+      // `div.xp`).
+      if (!(link instanceof HTMLAnchorElement) || !link.closest('.xr-app, .rb, .xp')) return;
       const url = new URL(link.href, window.location.href);
       if (url.origin !== window.location.origin) return;
       if (url.pathname !== window.location.pathname) return;
@@ -132,6 +164,7 @@ export function useRouteFocus(pathname: string): void {
 
 /** Tests only: a new tab. */
 export function forgetLastAddress(): void {
+  stopFollowing?.();
   lastAddress = null;
   landingTarget = null;
   arrival = null;

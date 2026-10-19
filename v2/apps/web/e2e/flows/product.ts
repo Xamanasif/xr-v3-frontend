@@ -2,7 +2,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 import { addShellAndTube, fillDetails, headerLink, panelOf, shown, wide } from '../package-1c/flow';
 import { reachAndClick } from '../support';
-import { revealSidebar } from '../support/workspace';
+import { revealSidebar, sidebarLink } from '../support/workspace';
 
 /**
  * Phase 7 — the product-build helpers of the flow walk-throughs (`walkthrough.spec.ts`,
@@ -68,7 +68,7 @@ export async function toSignIn(page: Page): Promise<void> {
 
 export async function sidebar(page: Page, href: string): Promise<void> {
   await revealSidebar(page);
-  await reachAndClick(page, page.locator(`aside.xr-side nav a[href="${href}"]`));
+  await reachAndClick(page, sidebarLink(page, href));
   await page.waitForURL((url) => url.pathname === href);
 }
 
@@ -151,29 +151,37 @@ export async function requestShellAndTube(page: Page): Promise<string> {
 export async function approveRequestExternal(page: Page): Promise<void> {
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open: REQ-0042 · Godavari Institute of Technology' }),
+    page.getByRole('link', {
+      name: 'Open the new access request from Godavari Institute of Technology',
+    }),
   );
   await page.waitForURL('**/admin/requests/REQ-0042');
   const panel = decision(page);
   await reachAndClick(page, panel.locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel.locator('label[for="decision-route-external"]'));
   await reachAndClick(page, panel.getByRole('button', { name: 'Approve request' }));
-  const confirm = page.getByRole('dialog', { name: 'Approve REQ-0042?' });
+  const confirm = page.getByRole('dialog', {
+    name: 'Approve the request from Godavari Institute of Technology?',
+  });
   await reachAndClick(page, confirm.getByRole('button', { name: 'Approve request' }));
-  await expect(panel.locator('.xr-status')).toHaveText('Approved — payment required');
+  await expect(panel.locator('.rk-done .xr-st')).toHaveText('Approved — payment required');
 }
 
 /** B1: the Super Admin (signed in) assigns Meera Iyer from Institutions › Godavari (SA-06 → SA-07). */
 export async function assignMeera(page: Page): Promise<void> {
   await sidebar(page, '/admin/institutions');
+  // SA-06 (V3, SA-v1): the row's link is named by the institution and its status.
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open Godavari Institute of Technology' }),
+    page.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the institution$/ }),
   );
   await page.waitForURL('**/admin/institutions/godavari');
+  // SA-07: Assign is the first action of the "What you can do" panel.
   await reachAndClick(
     page,
-    main(page).locator('.xw-actions').getByRole('button', { name: 'Assign Institute Admin' }),
+    page
+      .getByRole('complementary', { name: 'What you can do' })
+      .getByRole('button', { name: 'Assign Institute Admin' }),
   );
   const assign = page.getByRole('dialog', {
     name: 'Assign the Institute Admin for Godavari Institute of Technology',
@@ -181,7 +189,7 @@ export async function assignMeera(page: Page): Promise<void> {
   await assign.getByRole('textbox', { name: 'Name' }).fill('Meera Iyer');
   await assign.getByRole('textbox', { name: 'Work e-mail' }).fill(EMAIL.meera);
   await reachAndClick(page, assign.getByRole('button', { name: 'Assign' }));
-  await expect(main(page).locator('.xr-phead-meta')).toContainText('Institute Admin: Meera Iyer');
+  await expect(main(page).locator('.rk-meta')).toContainText('Institute Admin: Meera Iyer');
 }
 
 /** B3: Meera (signed in) adds Rahul Verma (IA-10) and gives him Shell-and-Tube (IA-05). */
@@ -240,9 +248,10 @@ export async function sendForReview(page: Page): Promise<void> {
 /** SA-10 → SA-11 for the update whose row matches `title`, for the Super Admin (signed in). */
 export async function openUpdateDecision(page: Page, title: RegExp): Promise<void> {
   await sidebar(page, '/admin/content/updates');
-  const row = main(page).locator('table.xr-table tbody tr').filter({ hasText: title });
+  // SA-10 (V3, SA-v1): the row's link is named by the correction's content, never its reference.
+  const row = main(page).locator('table.rk-table tbody tr').filter({ hasText: title });
   await expect(row).toHaveCount(1);
-  await reachAndClick(page, row.getByRole('link', { name: /^Review/ }));
+  await reachAndClick(page, row.locator('a.rk-rowlink'));
   await page.waitForURL(/\/admin\/content\/updates\/UPD-\d{4}$/);
 }
 

@@ -1,39 +1,27 @@
 /**
- * SA-12 / SA-13's pure view rules (B7-06): a record's workflow status as the board words it (the
- * chip, its tone and the "where" line), the four views of All content and their address
- * (`?show=` and `?q=`, routes.json "SA-12 (+ ?show=&q=)"; the default view and an empty search
- * carry none, rule T3). Every status, "stuck" verdict and search match is the service's answer;
- * the views only group what it answered (state-copy `SA-12.views`).
+ * SA-12 / SA-13's pure view rules: a record's workflow status as the Super Admin export words it
+ * (the pill, its tone and the "where it is" line; the export's `CONT_LBL`, `CONT_KIND`), the
+ * "Workflow status" filter of All content and its address (`?show=` and `?q=`, routes.json "SA-12
+ * (+ ?show=&q=)"; all statuses and an empty search carry none, rule T3). Every status, "stuck"
+ * verdict and search match is the service's answer; the filter only groups what it answered
+ * (state-copy `SA-12.views`).
  */
 import type { SubmissionStatus } from '@xr/domain';
-import type { StatusTone } from '@xr/ui';
 
 import {
-  type AllContentShow,
   overriddenWhere,
   publishedWhere,
   recheckWhere,
   resubmittedWhere,
   returnedWhere,
-  STATUS_WORDS,
   withContentManagerWhere,
   withReviewerWhere,
-  type WorkflowKind,
 } from '@/copy/content-oversight';
+import { type ContentTone, WORKFLOW_STATUS, type WorkflowStatusKey } from '@/copy/sa-content';
 import { ALL_CONTENT_ADDRESS } from '@/nav/admin-content';
 
-/** B7-06 `stk`: the chip's tone per status (`xr-status--ok | err | wait | info`). */
-const TONE: Readonly<Record<WorkflowKind, StatusTone>> = {
-  published: 'ok',
-  stuck: 'err',
-  review: 'wait',
-  cm: 'wait',
-  vendor: 'info',
-  resubmitted: 'wait',
-};
-
-/** A record's status as the chip draws it (B7-06 `stw`, `stk`). */
-export function workflowKind(status: SubmissionStatus, stuck: boolean): WorkflowKind {
+/** A record's status as the pill draws it (the export's `contentStatus`: stuck before all else). */
+export function workflowKind(status: SubmissionStatus, stuck: boolean): WorkflowStatusKey {
   if (stuck) return 'stuck';
   switch (status.state) {
     case 'published':
@@ -51,15 +39,15 @@ export function workflowKind(status: SubmissionStatus, stuck: boolean): Workflow
 }
 
 export interface WorkflowWords {
-  readonly kind: WorkflowKind;
-  readonly tone: StatusTone;
+  readonly kind: WorkflowStatusKey;
+  readonly tone: ContentTone;
   readonly words: string;
-  /** The line under the chip (B7-06 `where`). */
+  /** The "where it is" line (the export's `where`). */
   readonly where: string;
 }
 
 /**
- * The chip and its line for a record: its status, whether the service finds it stuck, its live
+ * The pill and its line for a record: its status, whether the service finds it stuck, its live
  * version where it is published, and its revision (a resubmission's line).
  */
 export function workflowWords(
@@ -71,8 +59,8 @@ export function workflowWords(
   const kind = workflowKind(status, stuck);
   return {
     kind,
-    tone: TONE[kind],
-    words: STATUS_WORDS[kind],
+    tone: WORKFLOW_STATUS[kind].tone,
+    words: WORKFLOW_STATUS[kind].words,
     where: whereOf(status, live, revision),
   };
 }
@@ -103,36 +91,36 @@ function whereOf(
   }
 }
 
-/** The four views of B7-06's tablist, in its order. */
-export const ALL_CONTENT_SHOWS: readonly AllContentShow[] = [
+/** The "Workflow status" filter: every status, or one (the export's `CF`, in its order). */
+export type StatusFilter = 'all' | WorkflowStatusKey;
+
+/**
+ * The filter's options in the export's order. "Resubmitted" (undrawn; state-copy
+ * `SA-12.resubmitted`) is offered only while a record has it.
+ */
+export const STATUS_FILTERS: readonly StatusFilter[] = [
   'all',
-  'stuck',
-  'workflow',
   'published',
+  'review',
+  'cm',
+  'vendor',
+  'stuck',
+  'resubmitted',
 ];
 
-/** Whether a row belongs to a view (B7-06 `match`): stuck, anything not yet published, published. */
-export function inShow(
+/** Whether a row has the filter's status (all statuses: every row). */
+export function hasStatus(
   row: { readonly stuck: boolean; readonly status: SubmissionStatus },
-  show: AllContentShow,
+  filter: StatusFilter,
 ): boolean {
-  switch (show) {
-    case 'all':
-      return true;
-    case 'stuck':
-      return row.stuck;
-    case 'workflow':
-      return row.status.state !== 'published';
-    case 'published':
-      return row.status.state === 'published';
-  }
+  return filter === 'all' || workflowKind(row.status, row.stuck) === filter;
 }
 
-/** The view an address names (`?show=`); an unknown value names the default view. */
-export function showOf(search: string): AllContentShow {
+/** The status an address names (`?show=`); an unknown value names every status. */
+export function showOf(search: string): StatusFilter {
   const value = new URLSearchParams(search).get('show');
-  return (ALL_CONTENT_SHOWS as readonly string[]).includes(value ?? '') && value !== 'all'
-    ? (value as AllContentShow)
+  return (STATUS_FILTERS as readonly string[]).includes(value ?? '') && value !== 'all'
+    ? (value as StatusFilter)
     : 'all';
 }
 
@@ -141,8 +129,8 @@ export function searchOf(search: string): string {
   return new URLSearchParams(search).get('q') ?? '';
 }
 
-/** SA-12 on a view and a search (the default view and an empty search carry no parameter). */
-export function allContentAddress(show: AllContentShow, q: string): string {
+/** SA-12 on a status and a search (every status and an empty search carry no parameter). */
+export function allContentAddress(show: StatusFilter, q: string): string {
   const params = new URLSearchParams();
   if (show !== 'all') params.set('show', show);
   if (q.trim() !== '') params.set('q', q);

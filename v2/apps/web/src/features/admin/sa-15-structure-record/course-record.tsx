@@ -2,30 +2,43 @@
 
 import type { AreaId, CourseId } from '@xr/domain';
 import {
+  ActionGroup,
+  Breadcrumbs,
   Button,
-  ChoiceCard,
-  ChoiceList,
-  Icon,
+  ConfirmDialog,
+  CourseCode,
+  DecisionPanel,
+  DefinitionList,
+  DetailLayout,
+  Field,
+  Hint,
+  MissingTag,
   Notice,
-  PageContent,
-  RadioGroup,
-  Section,
-  SectionBody,
-} from '@xr/ui';
+  PageHead,
+  Select,
+  StructureLinks,
+  StructureReadOnlyCode,
+  SurfaceSection,
+} from '@xr/ui/v3';
 import { useRef, useState } from 'react';
 
+import { SA_UNAVAILABLE } from '@/copy/sa-shared';
 import { stateWords } from '@/copy/state-copy';
 import {
   blockedWords,
-  courseOverline,
-  MOVE_PANEL,
+  COURSE_PAGE,
+  courseEyebrow,
+  MOVE_DIALOG,
   movedWords,
   moveTitle,
-  movesWithItWords,
-  RECORD_PAGE,
-  STRUCTURE_PAGE,
+  STRUCTURE_SHARED,
 } from '@/copy/structure';
-import { structureRecordPlacement } from '@/nav/structure';
+import {
+  STRUCTURE_ADDRESS,
+  STRUCTURE_TITLE,
+  structureAreaAddress,
+  structureRecordPlacement,
+} from '@/nav/structure';
 import { useAcademicStructure, useStructureCourse } from '@/queries/structure';
 import {
   checkMove,
@@ -36,18 +49,24 @@ import {
 } from '@/queries/structure-forms';
 import { useCommand } from '@/queries/use-command';
 
-import { RecordGuard } from '../../shared/record-guard/record-guard';
+import { SaRecordGuard } from '../shared/sa-record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import {
-  EditButtons,
-  Flash,
-  RecordHeader,
-  RecordHistory,
-  type RecordFocus,
-  useRecordEdits,
-  useRecordFocus,
-} from './record-parts';
-import { type CourseView, facultyWords, historyLines, usesRows } from './structure-view';
+  type FlashWords,
+  StructureFlash,
+  type StructureFocus,
+  useStructureFocus,
+  useTodayWords,
+} from '../sa-14-structure/structure-parts';
+import { EditButtons, RecordHistory, useRecordEdits } from './record-parts';
+import {
+  blockedWho,
+  type CourseView,
+  historyLines,
+  institutionLinks,
+  peopleWords,
+  vendorLinks,
+} from './structure-view';
 
 /** An area a course can move to (every area but its own, in the structure’s order). */
 interface AreaChoice {
@@ -56,28 +75,35 @@ interface AreaChoice {
 }
 
 /**
- * SA-15 Course record — boards B7-07 f1 (1440), f2 (375), f3 (move blocked), f4 (move allowed),
- * f6 (rename validation), f8 (no platform code) and B7-10 f9, at
- * `/admin/structure/courses/[courseId]`.
+ * SA-15 Course record, at `/admin/structure/courses/[courseId]` — the owner-approved Super Admin
+ * export (V3 Refined B, SA-v1 `sa-views-c.js` `V.course`, `SA.DLG.course`).
  *
  * - **Read**: `AcademicStructureService.getCourse` — the course, its area’s name and what uses it
  *   (counts and named facts, PC-69) — with the structure’s areas (the move’s choices) and the
  *   service’s move check (`previewMoveCourse`, which writes nothing): whether people are filed
- *   against the course and what moves with it. An address that names no course shows the in-shell
- *   not-found page.
- * - **Act**: Rename and Edit description (DL-3 small edits, `record-parts.tsx`) and Move to
- *   another area — the inline panel: blocked, it says who is filed and offers Close only;
- *   otherwise it lists every other area and what moves with it, and `moveCourse` moves it with the
- *   revision the page showed when the panel opened. The rule is the service’s (OD-B7-12): the
- *   screen shows its answer and never decides it.
- * - **Read-only**: the platform course code, “maintained by the Content Manager” (M-2). No Module
- *   level, no Retire, no artwork (D3). The canvas “Sample” label is not shown (T-36).
+ *   against the course. An address that names no course shows the GL-04 “This page isn’t
+ *   available” in place (`SaRecordGuard`).
+ * - **As the export draws it**: crumbs (Academic structure › the area › the course), the head
+ *   (date on phones, “Course · <area>”, the name, the platform code read-only — or “No platform
+ *   code yet” — and “Go to changes” under 860 px); the record (Course, What uses this course,
+ *   History) beside the panel “Change this course” (`DecisionPanel` with `ActionGroup`s).
+ * - **Act**: Rename and Edit description (`record-parts.tsx`) and Move to another area — the move
+ *   dialog lists every other area and `moveCourse` moves it with the revision the page showed
+ *   when the dialog opened. Blocked while people are filed against it: the panel says so and
+ *   offers no move. The rule is the service’s (OD-B7-12): the screen shows its answer.
+ * - **Read-only**: the platform course code, the Content Manager’s (M-2). No Module level, no
+ *   Retire, no artwork (D3).
  */
 export function CourseRecord({ courseId }: { readonly courseId: string }) {
   const read = useStructureCourse(courseId);
   const structure = useAcademicStructure();
   const view = read.data?.ok ? read.data.value : null;
-  useShellPage(structureRecordPlacement(view ? view.course.name : null));
+  const refused = read.data !== undefined && !read.data.ok;
+  useShellPage(
+    refused
+      ? { ...structureRecordPlacement(null), title: SA_UNAVAILABLE.documentTitle }
+      : structureRecordPlacement(view ? view.course.name : null),
+  );
 
   // The move’s choices: every area but the course’s own, in the structure’s order.
   const others: readonly AreaChoice[] =
@@ -86,7 +112,7 @@ export function CourseRecord({ courseId }: { readonly courseId: string }) {
           .filter((group) => group.area.id !== view.course.areaId)
           .map((group) => ({ id: group.area.id, name: group.area.name }))
       : [];
-  // The area the Super Admin chose in the move panel (kept here so the check follows it).
+  // The area chosen in the move dialog (kept here so the check follows it).
   const [chosen, setChosen] = useState<AreaId | null>(null);
   const toward = chosen && others.some((area) => area.id === chosen) ? chosen : others[0]?.id;
   const check = useCourseMoveCheck(courseId, view ? (toward ?? null) : null);
@@ -94,47 +120,47 @@ export function CourseRecord({ courseId }: { readonly courseId: string }) {
     structure.isPending || (view !== null && toward !== undefined && check.data === undefined);
 
   return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={{
-          data: waiting ? undefined : read.data,
-          isPending: read.isPending || waiting,
-          isError: read.isError || structure.isError || check.isError,
-          refetch: () => {
+    <SaRecordGuard
+      read={{
+        data: waiting ? undefined : read.data,
+        isPending: read.isPending || waiting,
+        isError: read.isError || structure.isError || check.isError,
+        refetch: () => {
+          void read.refetch();
+          void structure.refetch();
+          void check.refetch();
+        },
+      }}
+      loadingLabel={stateWords('SA-15.loading')}
+      failedTitle={stateWords('SA-15.failed')}
+    >
+      {(course) => (
+        <CourseContent
+          view={course}
+          others={others}
+          chosen={chosen}
+          onChoose={setChosen}
+          check={check.data?.ok ? check.data.value : null}
+          refetch={() => {
             void read.refetch();
-            void structure.refetch();
             void check.refetch();
-          },
-        }}
-        loadingLabel={stateWords('SA-15.loading')}
-        failed={{ title: stateWords('SA-15.failed'), line: stateWords('SA-15.failed.line') }}
-      >
-        {(course) => (
-          <CourseContent
-            view={course}
-            others={others}
-            chosen={chosen}
-            onChoose={setChosen}
-            check={check.data?.ok ? check.data.value : null}
-            refetch={() => {
-              void read.refetch();
-              void check.refetch();
-            }}
-          />
-        )}
-      </RecordGuard>
-    </PageContent>
+          }}
+        />
+      )}
+    </SaRecordGuard>
   );
 }
 
-/** The open move panel: the course’s revision when it opened, and its errors and notice. */
+/** The open move dialog: the course’s revision when it opened, and its error and notice. */
 interface MoveState {
   readonly expectedRev: number;
   readonly error: string | null;
   readonly notice: 'stale' | 'unavailable' | null;
 }
 
-const MOVE_BUTTON = 'structure-move';
+const PANEL = 'structure-course-panel';
+const PANEL_TITLE = 'structure-course-panel-h';
+const MOVE_FIELD = 'structure-move-to';
 
 function CourseContent({
   view,
@@ -152,12 +178,15 @@ function CourseContent({
   readonly refetch: () => void;
 }) {
   const { course, areaName } = view;
-  const focus = useRecordFocus();
-  const [flash, setFlash] = useState<string | null>(null);
+  const today = useTodayWords();
+  const focus = useStructureFocus();
+  const [flash, setFlash] = useState<FlashWords | null>(null);
   const [move, setMove] = useState<MoveState | null>(null);
-  const done = (words: string, then: 'title' | 'flash') => {
+  // The panel's heading takes focus after a refused move (`tabIndex={-1}`, the export's `co-panel-h`).
+  const panelTitleRef = useRef<HTMLHeadingElement>(null);
+  const done = (words: FlashWords) => {
     setFlash(words);
-    focus.focus(then);
+    focus.focus('flash');
   };
   const edits = useRecordEdits({
     target: {
@@ -166,7 +195,6 @@ function CourseContent({
       name: course.name,
       description: course.description,
       rev: course.rev,
-      platformCode: course.platformCode,
     },
     focus,
     refetch,
@@ -177,120 +205,206 @@ function CourseContent({
     onDone: done,
   });
   const blocked = check?.blocked === true;
+  const institutions = institutionLinks(view);
+  const vendors = vendorLinks(view);
+  const people = peopleWords(view);
 
   return (
     <>
-      <RecordHeader
-        overline={courseOverline(areaName)}
-        name={course.name}
+      <PageHead
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[
+              { label: STRUCTURE_TITLE, href: STRUCTURE_ADDRESS },
+              { label: areaName, href: structureAreaAddress(course.areaId) },
+            ]}
+            current={course.name}
+          />
+        }
+        variant="record"
+        title={course.name}
+        titleId="page-h1"
+        titleFocusTarget
         titleRef={focus.titleRef}
-      >
-        <EditButtons edits={edits} />
-        <Button
-          variant="secondary"
-          id={MOVE_BUTTON}
-          onClick={() => {
-            setFlash(null);
-            onChoose(null);
-            setMove({ expectedRev: course.rev, error: null, notice: null });
-            focus.focus('structure-move-title');
-          }}
-        >
-          {RECORD_PAGE.move}
-        </Button>
-      </RecordHeader>
-      <Flash words={flash} flashRef={focus.flashRef} />
-      {move ? (
-        <MovePanel
-          view={view}
-          others={others}
-          chosen={chosen}
-          onChoose={onChoose}
-          check={check}
-          state={move}
-          setState={setMove}
-          focus={focus}
-          refetch={refetch}
-          onMoved={(words) => {
-            setMove(null);
-            onChoose(null);
-            done(words, 'flash');
-          }}
-          onClose={() => {
-            setMove(null);
-            onChoose(null);
-            focus.focus(MOVE_BUTTON);
-          }}
-        />
-      ) : null}
-      <div className="flex flex-col gap-5">
-        <Section title={RECORD_PAGE.courseSection}>
-          <SectionBody>
-            <dl className="xl-kv xv-kv">
-              <dt>{RECORD_PAGE.areaKey}</dt>
-              <dd>{areaName}</dd>
-              <dt>{RECORD_PAGE.descriptionKey}</dt>
-              <dd>{course.description ?? STRUCTURE_PAGE.noDescription}</dd>
-              <dt>{RECORD_PAGE.codeKey}</dt>
-              <dd>
-                {course.platformCode ? (
-                  <span className="xr-id">{course.platformCode}</span>
-                ) : (
-                  STRUCTURE_PAGE.noCode
-                )}{' '}
-                <span className="xr-meta block">
-                  <Icon name="readOnly" size={16} /> {RECORD_PAGE.codeReadOnly}
-                </span>
-              </dd>
-            </dl>
-          </SectionBody>
-        </Section>
-        <Section title={RECORD_PAGE.usesSection}>
-          <SectionBody>
-            <dl className="xl-kv xv-kv">
-              {usesRows(view).map((row) => (
-                <UseRow key={row.key} name={row.key} value={row.value} />
-              ))}
-            </dl>
-            {blocked ? <p className="xl-meta mt-3 mb-0">{RECORD_PAGE.cantMove}</p> : null}
-          </SectionBody>
-        </Section>
-        <RecordHistory
-          lines={historyLines(
-            course.history,
-            areaName,
-            new Map([
-              ...others.map((area) => [area.id as string, area.name] as const),
-              [course.areaId as string, areaName] as const,
-            ]),
-          )}
-        />
-      </div>
+        date={today}
+        eyebrow={courseEyebrow(areaName)}
+        meta={
+          course.platformCode ? (
+            <>
+              <CourseCode code={course.platformCode} />
+              <span>{COURSE_PAGE.codeMeta}</span>
+            </>
+          ) : (
+            <>
+              <MissingTag icon={null}>{STRUCTURE_SHARED.noCode}</MissingTag>
+              <span>{COURSE_PAGE.noCodeMeta}</span>
+            </>
+          )
+        }
+        goTo={{ label: COURSE_PAGE.goTo, targetId: PANEL, focusId: PANEL_TITLE }}
+      />
+      <StructureFlash words={flash} flashRef={focus.flashRef} />
+      <DetailLayout
+        asideId={PANEL}
+        asideLabelledBy={PANEL_TITLE}
+        main={
+          <>
+            <SurfaceSection title={COURSE_PAGE.courseSection} titleId="structure-course-facts">
+              <DefinitionList
+                items={[
+                  { term: COURSE_PAGE.courseKey, value: course.name },
+                  {
+                    term: COURSE_PAGE.areaKey,
+                    value: (
+                      <StructureLinks
+                        separator={STRUCTURE_SHARED.separator}
+                        links={[
+                          {
+                            key: course.areaId,
+                            href: structureAreaAddress(course.areaId),
+                            label: areaName,
+                          },
+                        ]}
+                      />
+                    ),
+                  },
+                  {
+                    term: COURSE_PAGE.descriptionKey,
+                    value: course.description ?? STRUCTURE_SHARED.noDescription,
+                  },
+                  {
+                    term: COURSE_PAGE.codeKey,
+                    value: course.platformCode ? (
+                      <StructureReadOnlyCode
+                        code={course.platformCode}
+                        note={COURSE_PAGE.readOnly}
+                      />
+                    ) : (
+                      STRUCTURE_SHARED.noCode
+                    ),
+                  },
+                ]}
+              />
+            </SurfaceSection>
+            <SurfaceSection title={COURSE_PAGE.usesSection} titleId="structure-course-uses">
+              <DefinitionList
+                items={[
+                  {
+                    term: COURSE_PAGE.experimentsKey,
+                    value:
+                      view.usage.publishedExperiments > 0
+                        ? String(view.usage.publishedExperiments)
+                        : COURSE_PAGE.noExperiments,
+                  },
+                  {
+                    term: COURSE_PAGE.institutionsKey,
+                    value:
+                      institutions.length > 0 ? (
+                        <StructureLinks
+                          links={institutions}
+                          separator={STRUCTURE_SHARED.separator}
+                        />
+                      ) : (
+                        COURSE_PAGE.none
+                      ),
+                  },
+                  {
+                    term: COURSE_PAGE.vendorsKey,
+                    value:
+                      vendors.length > 0 ? (
+                        <StructureLinks links={vendors} separator={STRUCTURE_SHARED.separator} />
+                      ) : (
+                        COURSE_PAGE.none
+                      ),
+                  },
+                  { term: COURSE_PAGE.peopleKey, value: people || COURSE_PAGE.nobody },
+                ]}
+              />
+            </SurfaceSection>
+            <RecordHistory
+              titleId="structure-course-history"
+              lines={historyLines(
+                course.history,
+                areaName,
+                new Map([
+                  ...others.map((area) => [area.id as string, area.name] as const),
+                  [course.areaId as string, areaName] as const,
+                ]),
+              )}
+            />
+          </>
+        }
+        aside={
+          <DecisionPanel title={COURSE_PAGE.panel} titleId={PANEL_TITLE} titleRef={panelTitleRef}>
+            <ActionGroup>
+              <EditButtons
+                edits={edits}
+                rename={COURSE_PAGE.rename}
+                editDescription={COURSE_PAGE.editDescription}
+              />
+            </ActionGroup>
+            <ActionGroup label={COURSE_PAGE.moveGroup}>
+              {blocked && check ? (
+                <Notice tone="off" icon="lock" role="status" title={COURSE_PAGE.blockedTitle}>
+                  {blockedWords(blockedWho(view, check))}
+                </Notice>
+              ) : others.length === 0 ? (
+                <Hint>{stateWords('SA-15.no-other-area')}</Hint>
+              ) : (
+                <>
+                  <Hint>{COURSE_PAGE.movable}</Hint>
+                  <Button
+                    id="structure-move"
+                    onClick={() => {
+                      setFlash(null);
+                      onChoose(null);
+                      setMove({ expectedRev: course.rev, error: null, notice: null });
+                    }}
+                  >
+                    {COURSE_PAGE.move}
+                  </Button>
+                </>
+              )}
+            </ActionGroup>
+            <Hint>{COURSE_PAGE.panelFoot}</Hint>
+          </DecisionPanel>
+        }
+      />
       {edits.dialogs}
-    </>
-  );
-}
-
-function UseRow({ name, value }: { readonly name: string; readonly value: string }) {
-  return (
-    <>
-      <dt>{name}</dt>
-      <dd>{value}</dd>
+      <MoveDialog
+        view={view}
+        others={others}
+        chosen={chosen}
+        onChoose={onChoose}
+        state={move}
+        setState={setMove}
+        focus={focus}
+        refetch={refetch}
+        onMoved={(areaName) => {
+          setMove(null);
+          onChoose(null);
+          done({ title: movedWords(areaName) });
+        }}
+        onClose={() => {
+          setMove(null);
+          onChoose(null);
+        }}
+      />
     </>
   );
 }
 
 /**
- * The inline move panel (B7-07 f3, f4; B7-10 f9; script `openMove`, `doMove`): the service’s move
- * check decides what it shows. Focus goes to its title when it opens and back to “Move to another
- * area” on Close or Cancel.
+ * The move dialog (the export’s `SA.DLG.course` move; B7-07 `doMove`): every other area to choose
+ * from; “Choose the area to move it to” before anything is sent; a record changed meanwhile keeps
+ * the dialog and the choice (state-copy `SA-15.stale.*`); a move refused because someone was filed
+ * meanwhile closes it, reads the record again and the panel shows the blocked notice.
  */
-function MovePanel({
+function MoveDialog({
   view,
   others,
   chosen,
   onChoose,
-  check,
   state,
   setState,
   focus,
@@ -302,26 +416,23 @@ function MovePanel({
   readonly others: readonly AreaChoice[];
   readonly chosen: AreaId | null;
   readonly onChoose: (areaId: AreaId | null) => void;
-  readonly check: MoveCheck | null;
-  readonly state: MoveState;
+  readonly state: MoveState | null;
   readonly setState: (update: (current: MoveState | null) => MoveState | null) => void;
-  readonly focus: RecordFocus;
+  readonly focus: StructureFocus;
   readonly refetch: () => void;
-  readonly onMoved: (words: string) => void;
+  readonly onMoved: (areaName: string) => void;
   readonly onClose: () => void;
 }) {
-  const { course, areaName } = view;
+  const { course } = view;
   const moveCmd = useCommand((ports) => ports.academicStructure.moveCourse);
-  const firstChoice = useRef<HTMLInputElement>(null);
-  const blocked = check?.blocked === true;
 
   const failed = (fields: StructureFieldErrors) => {
     setState((current) => (current ? { ...current, error: fields['toAreaId'] ?? null } : current));
-    firstChoice.current?.focus();
+    focus.focus(MOVE_FIELD);
   };
 
   const doMove = () => {
-    if (moveCmd.busy) return;
+    if (!state || moveCmd.busy) return;
     const input = {
       courseId: course.id as CourseId,
       toAreaId: chosen,
@@ -337,7 +448,7 @@ function MovePanel({
     moveCmd.run({ ...input, toAreaId }).then(
       (answer) => {
         if (answer.ok) {
-          onMoved(movedWords(course.name, others.find((area) => area.id === toAreaId)?.name ?? ''));
+          onMoved(others.find((area) => area.id === toAreaId)?.name ?? '');
           return;
         }
         const error = answer.error;
@@ -354,101 +465,66 @@ function MovePanel({
           refetch();
           return;
         }
-        // Someone was filed meanwhile (or the record moved on): read again; the check says why.
+        // Someone was filed meanwhile (or the record moved on): read again; the panel says why.
+        onClose();
         refetch();
-        focus.focus('structure-move-title');
+        focus.focus(PANEL_TITLE);
       },
       () => setState((current) => (current ? { ...current, notice: 'unavailable' } : current)),
     );
   };
 
   return (
-    <div className="xw-inline-panel mb-4">
-      <h2 className="xr-h3 [margin:0_0_12px]" id="structure-move-title" tabIndex={-1}>
-        {moveTitle(course.name)}
-      </h2>
-      {state.notice === 'stale' ? (
-        <Notice tone="warn" role="alert" title={stateWords('SA-15.stale.course')}>
-          {stateWords('SA-15.stale.line')}
-        </Notice>
-      ) : state.notice === 'unavailable' ? (
-        <Notice tone="err" role="alert">
-          {stateWords('SA-15.move-unavailable')}
-        </Notice>
-      ) : null}
-      {blocked && check ? (
+    <ConfirmDialog
+      initialFocus="field"
+      submitOnEnter
+      open={state !== null}
+      idPrefix="structure-move"
+      title={moveTitle(course.name)}
+      description={MOVE_DIALOG.description}
+      confirmLabel={MOVE_DIALOG.confirm}
+      cancelLabel={STRUCTURE_SHARED.cancel}
+      busy={moveCmd.busy}
+      busyLabel={MOVE_DIALOG.busy}
+      returnFocusFallback={focus.titleRef}
+      onConfirm={doMove}
+      onCancel={onClose}
+    >
+      {state !== null ? (
         <>
-          <Notice tone="err" role="status" title={MOVE_PANEL.blockedTitle}>
-            {blockedWords(
-              check.blockers.students,
-              facultyWords(view, check.blockers.faculty),
-              areaName,
-            )}
-          </Notice>
-          <div className="xw-actions mt-3">
-            <Button variant="secondary" onClick={onClose}>
-              {MOVE_PANEL.close}
-            </Button>
-          </div>
-        </>
-      ) : others.length === 0 ? (
-        <>
-          <p className="xr-body m-0">{stateWords('SA-15.no-other-area')}</p>
-          <div className="xw-actions mt-3">
-            <Button variant="secondary" onClick={onClose}>
-              {MOVE_PANEL.cancel}
-            </Button>
-          </div>
-        </>
-      ) : (
-        <>
-          <RadioGroup
-            id="structure-move-to"
-            legend={MOVE_PANEL.legend}
-            legendClass="xr-label"
-            value={chosen}
-            onValueChange={(value) => {
-              onChoose(value as AreaId);
-              setState((current) => (current ? { ...current, error: null } : current));
-            }}
-            error={state.error ?? undefined}
-          >
-            <ChoiceList>
-              {others.map((area, index) => (
-                <ChoiceCard
-                  key={area.id}
-                  ref={index === 0 ? firstChoice : undefined}
-                  id={`structure-move-${area.id}`}
-                  value={area.id}
-                  title={area.name}
-                />
-              ))}
-            </ChoiceList>
-          </RadioGroup>
-          {check ? (
-            <p className="xl-meta [margin:12px_0_0]">
-              {movesWithItWords(
-                check.movesWithIt.publishedExperiments,
-                check.movesWithIt.institutionsWithAccess.length,
-                check.movesWithIt.vendorsInScope,
-              )}
-            </p>
-          ) : null}
-          <div className="xw-actions mt-3">
-            <Button variant="secondary" onClick={onClose}>
-              {MOVE_PANEL.cancel}
-            </Button>
-            <Button
-              variant="primary"
-              busy={moveCmd.busy}
-              busyLabel={MOVE_PANEL.busy}
-              onClick={doMove}
+          {state?.notice === 'stale' ? (
+            <Notice
+              tone="warn"
+              icon="alertCircle"
+              role="alert"
+              title={stateWords('SA-15.stale.course')}
             >
-              {MOVE_PANEL.confirm}
-            </Button>
-          </div>
+              {stateWords('SA-15.stale.line')}
+            </Notice>
+          ) : state?.notice === 'unavailable' ? (
+            <Notice
+              tone="warn"
+              icon="alertCircle"
+              role="alert"
+              title={stateWords('SA-15.move-unavailable')}
+            />
+          ) : null}
+          <Field id={MOVE_FIELD} label={MOVE_DIALOG.label} error={state?.error ?? undefined}>
+            <Select
+              value={chosen ?? ''}
+              options={[
+                { value: '', label: MOVE_DIALOG.chooseArea },
+                ...others.map((area) => ({ value: area.id, label: area.name })),
+              ]}
+              onChange={(event) => {
+                const value = event.target.value;
+                onChoose(value === '' ? null : (value as AreaId));
+                setState((current) => (current ? { ...current, error: null } : current));
+              }}
+            />
+          </Field>
         </>
-      )}
-    </div>
+      ) : null}
+    </ConfirmDialog>
   );
 }

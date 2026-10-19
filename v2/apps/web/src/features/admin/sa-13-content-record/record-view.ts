@@ -1,12 +1,14 @@
 /**
- * SA-13's pure view rules (B7-06 f1 … f6, f8; B7-10 f5, f6): the record the service answers
- * (`getContentRecord`, PC-71) as the page draws it — its name and overline, its status chip and
- * line, the catalogue details, which notice it carries (stuck · published · its open correction ·
- * in the workflow), who the override would move it to, and the governance history, newest first:
+ * SA-13's pure view rules (the Super Admin export's `V.record`; B7-06 f1 … f6, f8; B7-10 f5, f6):
+ * the record the service answers (`getContentRecord`, PC-71) as the page draws it — its name, its
+ * kind (Submission or Experiment), its course, its status pill and line, the catalogue details,
+ * which notice it carries (stuck · published · its open correction · in the workflow), who the
+ * override would move it to, and the governance history, newest first:
  * the record's history entries the Super Admin may read (`visibleTo`), the released versions, the
  * open correction's entries she may read and — for a stuck record — why nobody can act (the
  * withdrawn reviewer scopes over its course). Nothing is decided here: "stuck", who can act and
- * which correction she may see are the service's answers.
+ * which correction she may see are the service's answers. No reference (SUB-, UPD-) is ever part
+ * of the words: the record is named by its name, a correction as "Correction".
  */
 import type { contentRecordOutput, Out } from '@xr/contracts/draft';
 import type { ActorRef, SubmissionStatus, Technology } from '@xr/domain';
@@ -22,27 +24,28 @@ import {
   historyDay,
   historyMoment,
   holdLiftedNote,
-  holdLiftedWhat,
   noReviewerWhat,
-  overrideNote,
-  overrideWhat,
   publishedVersionWhat,
-  recordOverline,
-  releasedCorrectionNote,
   resubmittedWhat,
   returnedByWhat,
   revisionNote,
   scopeWithdrawnNote,
   sentBackToVendorWhat,
   staysLive,
-  STATUS_WORDS,
   submittedNote,
   updateApprovedNote,
-  updateApprovedWhat,
-  updateHeldWhat,
   vendorWho,
   versionReleasedWhat,
 } from '@/copy/content-oversight';
+import {
+  correctionApprovedWhat,
+  correctionHeldWhat,
+  correctionLiftedWhat,
+  statusMovedNote,
+  statusMovedWhat,
+  RELEASED_BY_SUPER_ADMIN,
+  WORKFLOW_STATUS,
+} from '@/copy/sa-content';
 
 import { workflowWords, type WorkflowWords } from '../sa-12-all-content/content-view';
 
@@ -56,10 +59,14 @@ export type RecordNotice =
   | { readonly kind: 'in-workflow' };
 
 export interface RecordFacts {
-  /** The submission reference ("SUB-0085"); `null` for an experiment published without one. */
+  /** The submission reference ("SUB-0085"), for the override command only — never shown. */
   readonly reference: string | null;
   readonly name: string;
-  readonly overline: string;
+  /** What the record is (the export's eyebrow): a submission not yet published, or an experiment. */
+  readonly kind: 'submission' | 'experiment';
+  /** The course's platform code and name, as the head's meta draws them. */
+  readonly courseCode: string | null;
+  readonly courseName: string | null;
   readonly status: WorkflowWords;
   readonly notice: RecordNotice;
   /** The course as the stuck notice names it: its platform code, else its name. */
@@ -110,7 +117,9 @@ export function recordFacts(view: ContentRecordView): RecordFacts {
   return {
     reference,
     name,
-    overline: recordOverline(reference, view.courseCode, view.courseName),
+    kind: submission && !published ? 'submission' : 'experiment',
+    courseCode: view.courseCode,
+    courseName: view.courseName,
     status: workflowWords(
       status,
       view.stuck,
@@ -194,7 +203,7 @@ export function historyOf(view: ContentRecordView, course: string): TimelineEven
           const label = first?.label ?? submission.content.version;
           push({
             ...base,
-            what: label ? publishedVersionWhat(label) : STATUS_WORDS.published,
+            what: label ? publishedVersionWhat(label) : WORKFLOW_STATUS.published.words,
             note: byContentManagerNote(who),
           });
           break;
@@ -203,8 +212,8 @@ export function historyOf(view: ContentRecordView, course: string): TimelineEven
           push({
             ...base,
             when: historyMoment(entry.at),
-            what: overrideWhat(who ?? ''),
-            note: overrideNote(entry.note ?? ''),
+            what: statusMovedWhat(who ?? ''),
+            note: statusMovedNote(entry.note ?? ''),
           });
           break;
         default:
@@ -222,7 +231,7 @@ export function historyOf(view: ContentRecordView, course: string): TimelineEven
           ...base,
           id: `version-${version.label}`,
           what: versionReleasedWhat(version.label),
-          note: releasedCorrectionNote(version.source.updateId),
+          note: RELEASED_BY_SUPER_ADMIN,
         });
       } else if (!submission) {
         // An experiment published before the sample period: its first version stands for it.
@@ -276,17 +285,16 @@ function updateEvents(update: OpenUpdate, liveLabel: string, offset: number): Da
         return [
           {
             ...base,
-            what: updateApprovedWhat(
-              update.id,
+            what: correctionApprovedWhat(
               update.state === 'awaiting-release-decision' && entry === lastApproval,
             ),
             note: updateApprovedNote(update.baseVersionLabel, update.versionLabel),
           },
         ];
       case 'put-on-hold':
-        return [{ ...base, what: updateHeldWhat(update.id, who), note: staysLive(liveLabel) }];
+        return [{ ...base, what: correctionHeldWhat(who), note: staysLive(liveLabel) }];
       case 'hold-lifted':
-        return [{ ...base, what: holdLiftedWhat(update.id, who), note: holdLiftedNote(liveLabel) }];
+        return [{ ...base, what: correctionLiftedWhat(who), note: holdLiftedNote(liveLabel) }];
       default:
         return [];
     }

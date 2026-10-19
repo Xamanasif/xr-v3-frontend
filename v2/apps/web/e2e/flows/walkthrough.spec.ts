@@ -124,6 +124,14 @@ async function adminAt(admin: Page, href: string): Promise<void> {
 /** A row of a table or list in `main` holding `text`. */
 const rowWith = (page: Page, text: string | RegExp): Locator =>
   main(page).locator('tbody tr, li.xr-row').filter({ hasText: text });
+// The Super Admin's V3 lists (SA-v1) never show a record's reference: a device transfer's row is
+// the one whose link opens its address, and a content record's link is named by its title.
+const transferRow = (page: Page, reference: string): Locator =>
+  main(page).locator('tbody tr', {
+    has: page.locator(`a[href="/admin/operations/device-transfers/${reference}"]`),
+  });
+const recordLink = (page: Page, title: string): Locator =>
+  main(page).getByRole('link', { name: new RegExp(`^${title}, .*Open the record$`) });
 
 test('Flows A–F and the device chain on one shared sample world, through the product build’s screens', async ({
   context,
@@ -168,7 +176,9 @@ test('Flows A–F and the device chain on one shared sample world, through the p
   await test.step(stepTitle('A3'), async () => {
     await admin.goto('/sign-in');
     await as(admin, EMAIL.arjun, '/admin');
-    await expect(main(admin)).toContainText('REQ-0042');
+    // SA-01 (V3, SA-v1) names the request by its institution; the reference is only its address.
+    await expect(main(admin).locator('a[href="/admin/requests/REQ-0042"]')).toHaveCount(1);
+    await expect(main(admin)).toContainText('Godavari Institute of Technology asks for new access');
     await approveRequestExternal(admin);
     await checkState(admin, 'Godavari Institute of Technology');
     // The requester's open status page follows the decision made in the other tab.
@@ -194,7 +204,9 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await adminAt(admin, '/admin/institutions');
     await reachAndClick(
       admin,
-      admin.getByRole('link', { name: 'Open Godavari Institute of Technology' }),
+      admin.getByRole('link', {
+        name: /^Godavari Institute of Technology, .*Open the institution$/,
+      }),
     );
     await admin.waitForURL('**/admin/institutions/godavari');
     await expect(main(admin)).toContainText('Access active');
@@ -353,10 +365,10 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await reachAndClick(
       admin,
       admin
-        .getByRole('group', { name: 'Show' })
-        .getByRole('link', { name: 'Still with an institution' }),
+        .getByRole('group', { name: 'Show device transfers' })
+        .getByRole('button', { name: /^Still with an institution/ }),
     );
-    await expect(rowWith(admin, transfer)).toContainText('Still with the institution');
+    await expect(transferRow(admin, transfer)).toContainText('Still with the institution');
     await desk.bringToFront();
     await as(desk, EMAIL.meera, '/institute');
     await reachAndClick(desk, main(desk).getByRole('link', { name: /Open requests/ }));
@@ -379,18 +391,25 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await expect(main(desk)).toContainText('Forwarded to BITS');
     await signOut(desk, ACCOUNT.rahul);
     await adminAt(admin, '/admin/operations/device-transfers');
-    await expect(rowWith(admin, transfer)).toContainText('Forwarded');
-    await reachAndClick(admin, main(admin).getByRole('link', { name: `Review ${transfer}` }));
+    await expect(transferRow(admin, transfer)).toContainText('Forwarded');
+    await reachAndClick(
+      admin,
+      transferRow(admin, transfer).getByRole('link', {
+        name: 'VR device transfer for Rahul Verma, Forwarded. Open',
+      }),
+    );
     await admin.waitForURL(`**/admin/operations/device-transfers/${transfer}`);
     await expect(main(admin).getByRole('button', { name: 'Approve transfer' })).toBeVisible();
   });
 
   await test.step(stepTitle('Device 3'), async () => {
     await reachAndClick(admin, main(admin).getByRole('button', { name: 'Approve transfer' }));
-    const approve = admin.getByRole('dialog', { name: `Approve ${transfer}?` });
+    const approve = admin.getByRole('dialog', {
+      name: 'Approve the VR device transfer for Rahul Verma?',
+    });
     await reachAndClick(admin, approve.getByRole('button', { name: 'Approve transfer' }));
     await expect(approve).toBeHidden();
-    await expect(admin.locator('#transfer-status')).toContainText('Approved');
+    await expect(main(admin).locator('.rk-head .rk-meta')).toContainText('Approved');
     await desk.bringToFront();
     await as(desk, EMAIL.rahul, '/student');
     await myDevice(desk);
@@ -647,9 +666,9 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await signOut(desk, ACCOUNT.anil);
     await admin.bringToFront();
     await allContent(admin);
-    await reachAndClick(admin, main(admin).getByRole('link', { name: `Open ${COMPOSITE}` }));
+    await reachAndClick(admin, recordLink(admin, COMPOSITE));
     await admin.waitForURL('**/admin/content/records/SUB-0077');
-    await expect(main(admin)).toContainText('With Academic Reviewer');
+    await expect(main(admin)).toContainText('With the Academic Reviewer');
     await desk.bringToFront();
     await as(desk, EMAIL.menon, '/reviewer');
     await sidebar(desk, '/reviewer/queue');
@@ -793,12 +812,7 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await signOut(desk, ACCOUNT.menon);
     await admin.bringToFront();
     await allContent(admin);
-    await reachAndClick(
-      admin,
-      main(admin)
-        .getByRole('link', { name: `Open ${COMPOSITE}` })
-        .first(),
-    );
+    await reachAndClick(admin, recordLink(admin, COMPOSITE).first());
     await admin.waitForURL('**/admin/content/records/**');
     await expect(main(admin)).toContainText('Published');
   });
@@ -866,11 +880,13 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await admin.bringToFront();
     await openUpdateDecision(admin, /1\.0 → 1\.1/);
     await expect(main(admin)).toContainText('Nothing here changes any institution’s access');
+    // SA-11 (V3, SA-v1): choose the decision, then confirm it.
+    await reachAndClick(admin, decision(admin).getByRole('radio', { name: 'Release update' }));
     await reachAndClick(admin, decision(admin).getByRole('button', { name: 'Release update' }));
-    const release = admin.getByRole('dialog', { name: /^Release UPD-\d{4}\?$/ });
+    const release = admin.getByRole('dialog', { name: `Release version 1.1 of ${SHELL}?` });
     await reachAndClick(admin, release.getByRole('button', { name: 'Release update' }));
     await expect(release).toBeHidden();
-    await expect(admin.locator('#update-decided .xr-status--ok')).toHaveText('Released');
+    await expect(admin.locator('#update-decided .xr-st--ok')).toHaveText('Released');
     await desk.bringToFront();
     await sidebar(desk, '/content-manager/updates');
     await expect(rowWith(desk, SHELL)).toContainText('Released');

@@ -1,5 +1,5 @@
 /**
- * The words of SA-01 Overview (B7-01), SA-12 All content and SA-13 Content record (B7-06) are the
+ * The words of SA-12 All content and SA-13 Content record (B7-06) are the
  * frozen boards': each drawn string is on its board, and each composed line takes the board's form
  * for the board's own sample. Words the boards do not draw are state-copy entries.
  */
@@ -46,24 +46,6 @@ import {
   withContentManagerWhere,
   withReviewerWhere,
 } from './content-oversight';
-import {
-  activeInstitutionsLine,
-  endingRowLine,
-  endingRowTitle,
-  holderRowLine,
-  noInstituteAdminLine,
-  OVERVIEW_GROUPS,
-  OVERVIEW_PAGE,
-  overviewSummary,
-  requestRowLine,
-  rowActionLabel,
-  stuckRowLine,
-  stuckRowTitle,
-  transferRowLine,
-  transferRowTitle,
-  updateRowLine,
-  updateRowTitle,
-} from './overview';
 
 /** A board's text with tags removed, then its raw markup (attributes and script strings). */
 function words(file: string): string {
@@ -71,7 +53,6 @@ function words(file: string): string {
   return `${raw.replace(/<[^>]+>/g, ' ')}\n${raw}`;
 }
 
-const B7_01 = words('B7-01-SA-Overview.dc.html');
 const B7_06 = words('B7-06-All-Content.dc.html');
 
 function strings(value: unknown): string[] {
@@ -79,43 +60,6 @@ function strings(value: unknown): string[] {
   if (value && typeof value === 'object') return Object.values(value).flatMap(strings);
   return [];
 }
-
-describe('SA-01 words are on B7-01', () => {
-  it.each([...strings(OVERVIEW_PAGE), ...strings(OVERVIEW_GROUPS)])('%s', (text) => {
-    expect(B7_01).toContain(text);
-  });
-
-  it('the header, the figures and the rows take B7-01’s forms', () => {
-    // 23 Oct 2026, 10:05 IST.
-    const today = '2026-10-23T04:35:00.000Z';
-    expect(overviewSummary(15, 8, today)).toBe('15 items waiting across 8 groups · 23 Oct 2026');
-    expect(overviewSummary(1, 1, today)).toBe('1 item waiting across 1 group · 23 Oct 2026');
-    expect(overviewSummary(0, 0, today)).toBe('23 Oct 2026');
-    expect(activeInstitutionsLine(1, 1)).toBe(
-      'Access active or ending soon · 1 paused · 1 awaiting payment',
-    );
-    const drawn = [
-      overviewSummary(15, 8, today),
-      activeInstitutionsLine(1, 1),
-      requestRowLine('additional-licences', '2026-09-29T07:07:00.000Z'),
-      requestRowLine('renewal', '2026-09-24T07:07:00.000Z', '2026-10-31'),
-      updateRowTitle('UPD-0005', 'Distillation Column', '1.2', '1.3'),
-      updateRowLine('2026-08-27T05:50:00.000Z', '1.2'),
-      transferRowTitle('DTR-0018', 'Rahul Verma', 'vr'),
-      transferRowLine('Godavari Institute of Technology', '2026-10-23T04:30:00.000Z'),
-      endingRowTitle('Konark Polytechnic', '2026-11-02'),
-      endingRowLine({ kind: 'renewal-in-progress', requestId: 'REQ-0038' }),
-      endingRowLine({ kind: 'reminder-due' }),
-      noInstituteAdminLine(false, '2026-09-30T04:30:00.000Z'),
-      stuckRowTitle('SUB-0085', 'DC Motor Speed Control', 'EEE ZC341'),
-      stuckRowLine('2026-10-02T04:00:00.000Z', 'EEE ZC341'),
-      holderRowLine('2026-10-20T04:30:00.000Z'),
-      rowActionLabel('Assign scope', 'Dr K. Iyer · Academic Reviewer'),
-      rowActionLabel('Review', 'UPD-0005 · Distillation Column 1.2 → 1.3'),
-    ];
-    for (const line of drawn) expect(B7_01).toContain(line);
-  });
-});
 
 describe('SA-12 / SA-13 words are on B7-06', () => {
   it.each([

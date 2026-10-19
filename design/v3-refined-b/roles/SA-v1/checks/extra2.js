@@ -1,0 +1,14 @@
+const { open, chromium } = require('./lib'); let pass=0,fail=0; const ok=(c,m)=>{c?pass++:fail++;console.log((c?'PASS ':'FAIL ')+m)}; const W=ms=>new Promise(r=>setTimeout(r,ms));
+(async()=>{ const b=await chromium.launch(); const s=await open(1440,'?clean=1','#/structure',{browser:b}); const p=s.page; const T=()=>p.evaluate(()=>document.getElementById('app').innerText);
+ await p.click('#st-add-course'); await W(80); await p.fill('#dlg-c-n','Fluid Machinery Lab'); await p.selectOption('#dlg-c-a','mechanical'); await W(50); await p.click('#dlg-ok'); await W(900);
+ let t=await T(); ok(t.includes('Fluid Machinery Lab was added')&&t.includes('No platform code yet'),'SA-14→SA-15 add course opens new record');
+ await p.click('#co-move'); await W(80); await p.selectOption('#dlg-c-a','chemical'); await W(50); await p.click('#dlg-ok'); await W(900); ok((await T()).includes('The course moved to Chemical & Process'),'SA-15 move allowed when nobody filed');
+ await p.click('#co-rename'); await W(80); await p.fill('#dlg-c-n','Electrical Machines'); await p.click('#dlg-ok'); await W(100); ok((await T()).includes('Another course already has this name'),'SA-15 duplicate name refused');
+ await p.keyboard.press('Escape'); await W(60);
+ await p.evaluate(()=>{location.hash='#/structure'}); await W(120); await p.click('#st-add-area'); await W(80); await p.fill('#dlg-a-n','Civil & Environmental'); await p.click('#dlg-ok'); await W(900); ok((await T()).includes('Civil & Environmental was added'),'SA-14 add area');
+ await p.evaluate(()=>{location.hash='#/roles/vendors'}); await W(120); await p.click('#ro-reg'); await W(80); await p.fill('#dlg-r-n','A. Rao'); await p.fill('#dlg-r-e','kavya.nair@wilp.example'); await p.fill('#dlg-r-o','Lab Studio'); await p.click('#dlg-ok'); await W(100);
+ ok((await T()).includes('Registering it again would take over that sign-in'),'SA-16 register identity collision refused');
+ await p.fill('#dlg-r-e','a.rao@labstudio.example'); await p.click('#dlg-ok'); await W(1000); t=await T(); ok(t.includes('A. Rao is registered as Vendor')&&t.includes('No scope — can’t act on anything yet'),'SA-16→SA-17 registered, no scope, nothing sent');
+ await p.evaluate(()=>{location.hash='#/institutions/godavari'}); await W(120); await p.click('#stu-btn-3'); await W(80); await p.click('[data-act="stuSave"]'); await W(80); ok((await T()).includes('Add a reason'),'SA-07 student override needs reason');
+ await p.fill('#stu-r-3','Rejoined the course.'); await p.click('[data-act="stuSave"]'); await W(100); ok((await T()).includes('Sneha Reddy is now active.'),'SA-07 student status override recorded');
+ console.log('TOTAL pass='+pass+' fail='+fail, s.errors); await b.close(); })();

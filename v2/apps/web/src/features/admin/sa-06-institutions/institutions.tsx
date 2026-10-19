@@ -2,58 +2,75 @@
 
 import type { InstitutionRow } from '@xr/contracts/draft';
 import {
-  FailedState,
-  Link,
-  ListToolbar,
-  NoMatch,
-  PageContent,
-  PageHeader,
-  SectionBody,
-  Skeleton,
-  StatusTabs,
-} from '@xr/ui';
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+  Button,
+  CellLines,
+  FilterToolbar,
+  InstitutionInlineLabel,
+  ListFoot,
+  ListState,
+  ListSurface,
+  LoadingRows,
+  MissingTag,
+  PageHead,
+  QuietLine,
+  RecordTable,
+  type RecordTableRow,
+  type ToolbarChip,
+} from '@xr/ui/v3';
+import { useRef, useState } from 'react';
 
+import { calendarDay, weekdayDate } from '@/copy/dates';
 import {
-  accessEndsWords,
-  INSTITUTION_TAB_WORDS,
-  institutionCountWords,
-  INSTITUTIONS_PAGE,
+  endedOnWords,
+  filterOptionWords,
+  institutionRowLabel,
   type InstitutionTabId,
   kindWords,
-  openInstitutionLabel,
-  planSummaryWords,
+  SA_INSTITUTION_FILTERS,
+  SA_INSTITUTIONS,
+  saInstitutionCountWords,
+  saPlanSummaryWords,
+  searchChipWords,
+  statusChipWords,
 } from '@/copy/institutions';
+import { SA_FAILED } from '@/copy/sa-shared';
 import { stateWords } from '@/copy/state-copy';
 import { institutionAddress, institutionsPlacement } from '@/nav/institutions';
 import { useInstitutionRows, useInstitutionTab } from '@/queries/institutions';
+import { useSession } from '@/queries/session';
 
-import { InstitutionStatusPill } from '../shared/institution-status';
+import { InstitutionStatusPill, institutionStatusWords } from '../shared/institution-status';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 
+const FILTER_LABEL: Readonly<Record<InstitutionTabId, string>> = Object.fromEntries(
+  SA_INSTITUTION_FILTERS,
+) as Record<InstitutionTabId, string>;
+
 /**
- * SA-06 Institutions — board B7-02 ("Which institutions exist, are any at risk, and what is the
- * full picture for one?"), at `/admin/institutions`.
+ * SA-06 Institutions — the owner-approved V3 Refined B design (SA-v1 `V.institutions`), at
+ * `/admin/institutions`.
  *
- * - **The list is the port's answer.** The status tab and the search go to
- *   `InstitutionService.listInstitutions`; the service decides which institutions are in a tab
- *   ("Access active" holds those ending soon too), which match the search ("Institution, access
- *   plan or Institute Admin") and which need an Institute Admin ("Needs one"). Each tab's figure
- *   is the service's answer for that tab without the search, as B7-02 counts them. The rows on
- *   show stay while a new tab's or search's rows load.
- * - **As B7-02 draws it**: status tabs (`role="tablist"`, ← → between them), the search, the
- *   count "7 of 7 institutions" (announced) with "Clear filters" while a tab or search is applied,
- *   and the table — institution with its route and access plan, status in words, Institute Admin
- *   or "Not assigned" flagged "Needs one", access end — with one "Open" per row (SA-07). Below
- *   760 px of content the rows become labelled blocks and the tabs scroll sideways (B7-02 f6).
- * - No "Create institution" (institutions come only from approved requests, T-09) and no plan
- *   amendment (T-08): nothing on this page changes a record.
+ * - **The list is the port's answer.** The status filter and the search go to
+ *   `InstitutionService.listInstitutions`; the service decides which institutions are in a status
+ *   ("Access active" holds those ending soon too), which match the search and which need an
+ *   Institute Admin ("Needs one"). Each option's figure is the service's answer for that status
+ *   without the search. The rows on show stay while a new status's or search's rows load.
+ * - **As SA-v1 draws it**: the page head, then one surface — the filter toolbar (Search, Status
+ *   with its figures; the count, a chip per applied filter and Clear filters), the institutions
+ *   by name in the shared record table (its three width layouts; the whole row opens SA-07), and
+ *   the foot line. Loading, failed with Try again, no institutions yet and no match are the kit's
+ *   list states.
+ * - No "Create institution" (institutions come only from approved requests) and no plan
+ *   amendment: nothing on this page changes a record.
  */
 export function Institutions() {
   useShellPage(institutionsPlacement());
-  const headingId = useId();
+  const session = useSession();
+  // Today on the sample clock: the session's sign-in instant (state-copy `SA-01.today`).
+  const today = session.status === 'signed-in' ? session.signedInAt : null;
   const [tab, setTab] = useState<InstitutionTabId>('all');
   const [search, setSearch] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const tabs = {
     all: useInstitutionTab('all'),
@@ -61,6 +78,7 @@ export function Institutions() {
     'ending-soon': useInstitutionTab('ending-soon'),
     'access-paused': useInstitutionTab('access-paused'),
     'approved-payment-required': useInstitutionTab('approved-payment-required'),
+    'access-ended': useInstitutionTab('access-ended'),
     'no-institute-admin': useInstitutionTab('no-institute-admin'),
   } satisfies Readonly<Record<InstitutionTabId, ReturnType<typeof useInstitutionTab>>>;
   const rows = useInstitutionRows(tab, search);
@@ -68,20 +86,22 @@ export function Institutions() {
   const reads = [...Object.values(tabs), rows];
   const failed = reads.some((read) => read.isError);
   const loading = !failed && reads.some((read) => read.isPending && !read.data);
-  const countOf = (id: InstitutionTabId) => {
+  const countOf = (id: InstitutionTabId): number | null => {
     const answer = tabs[id].data;
-    return answer?.ok ? answer.value.length : 0;
+    return answer?.ok ? answer.value.length : null;
   };
   const listed: readonly InstitutionRow[] = rows.data?.ok ? rows.data.value : [];
-  const total = countOf('all');
-  const filtered = search.trim() !== '' || tab !== 'all';
+  const total = countOf('all') ?? 0;
+  const searching = search.trim() !== '';
+  const filtered = searching || tab !== 'all';
+  const empty = !loading && !failed && total === 0;
 
-  // The count is announced (`role="status"`): while the next tab's or search's rows load, the rows
-  // on show are the previous answer's, so the count keeps its last settled words.
+  // The count is announced (`role="status"`): while the next status's or search's rows load, the
+  // rows on show are the previous answer's, so the count keeps its last settled words.
   const settled =
     loading || failed || rows.isPlaceholderData
       ? null
-      : institutionCountWords(listed.length, total);
+      : saInstitutionCountWords(listed.length, total, filtered);
   const [countWords, setCountWords] = useState('');
   if (settled !== null && settled !== countWords) setCountWords(settled);
 
@@ -89,182 +109,143 @@ export function Institutions() {
     setSearch('');
     setTab('all');
   };
-
-  // "Clear filters" in the no-match state goes with that state. If it had focus, focus moves to
-  // the first row's "Open" once the button has gone — the rule DataTable applies on SA-02 (its
-  // first row's link) — and only if focus was lost with it. Before paint, after every commit: the
-  // rows may arrive in a later commit than the press.
-  const sectionRef = useRef<HTMLElement>(null);
-  const pressed = useRef<HTMLElement | null>(null);
+  // "Clear filters" in the no-match state, as the toolbar's: back to every institution, focus in
+  // Search (the export's `inClear`).
   const clearFromNoMatch = () => {
-    const active = document.activeElement;
-    pressed.current =
-      active instanceof HTMLElement && active.closest('.xr-empty') !== null ? active : null;
     clearFilters();
+    searchRef.current?.focus();
   };
-  useLayoutEffect(() => {
-    const control = pressed.current;
-    if (control === null || control.isConnected) return;
-    pressed.current = null;
-    const active = document.activeElement;
-    if (active && active !== document.body && active.isConnected) return;
-    sectionRef.current?.querySelector<HTMLElement>('tbody a')?.focus();
-  });
   const retry = () => {
     for (const read of reads) if (read.isError) void read.refetch();
   };
 
+  const chips: ToolbarChip[] = [
+    ...(searching
+      ? [{ key: 'q', label: searchChipWords(search.trim()), onRemove: () => setSearch('') }]
+      : []),
+    ...(tab !== 'all'
+      ? [{ key: 'f', label: statusChipWords(FILTER_LABEL[tab]), onRemove: () => setTab('all') }]
+      : []),
+  ];
+  // The institutions by name (the export's table caption "Institutions, by name").
+  const byName = [...listed].sort((a, b) => a.name.localeCompare(b.name));
+
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-6"
-        title={INSTITUTIONS_PAGE.title}
-        meta={<span className="xl-meta">{INSTITUTIONS_PAGE.meta}</span>}
+    <>
+      <PageHead
+        title={SA_INSTITUTIONS.title}
+        titleFocusTarget
+        date={today ? weekdayDate(today) : undefined}
+        lead={SA_INSTITUTIONS.lead}
       />
-      <section
-        ref={sectionRef}
-        className="xr-section"
-        aria-labelledby={headingId}
-        aria-busy={loading ? true : undefined}
-      >
-        <div className="xr-section-head">
-          <h2 id={headingId} className="xr-h2">
-            {INSTITUTIONS_PAGE.sectionTitle}
-          </h2>
-          {loading ? (
-            <span className="xr-meta" role="status">
-              {INSTITUTIONS_PAGE.loading}
-            </span>
-          ) : (
-            <span className="xr-meta">{INSTITUTIONS_PAGE.sectionMeta}</span>
-          )}
-        </div>
-        {failed ? (
-          <SectionBody>
-            <FailedState title={stateWords('SA-06.failed')} onRetry={retry}>
-              {stateWords('SA-06.failed.line')}
-            </FailedState>
-          </SectionBody>
-        ) : loading ? (
-          <SkeletonRows />
-        ) : (
-          <StatusTabs
-            label={INSTITUTIONS_PAGE.tabsLabel}
-            idPrefix="institutions"
-            className="px-4"
-            panelClassName="[&>.xr-toolbar]:px-6 [&>.xr-toolbar]:py-4 [&>.xr-toolbar-status]:px-6 [&>.xr-toolbar-status]:pb-3"
-            tabs={INSTITUTION_TAB_WORDS.map(([id, label]) => ({ id, label, count: countOf(id) }))}
-            selected={tab}
-            onSelect={(id) => setTab(id as InstitutionTabId)}
-          >
-            <ListToolbar
-              search={{
-                id: 'institutions-search',
-                label: INSTITUTIONS_PAGE.searchLabel,
-                placeholder: INSTITUTIONS_PAGE.searchPlaceholder,
-                value: search,
-                onChange: setSearch,
-              }}
-              status={countWords}
-              chips={[]}
-              clearLabel={INSTITUTIONS_PAGE.clearFilters}
-              onClearFilters={filtered ? clearFilters : undefined}
-            />
-            {listed.length > 0 ? (
-              <InstitutionTable rows={listed} />
-            ) : total > 0 ? (
-              <SectionBody>
-                <NoMatch
-                  title={INSTITUTIONS_PAGE.noMatchTitle}
-                  headingLevel={3}
-                  onClearFilters={clearFromNoMatch}
-                >
-                  {INSTITUTIONS_PAGE.noMatchLine}
-                </NoMatch>
-              </SectionBody>
-            ) : null}
-          </StatusTabs>
+      <ListSurface label={SA_INSTITUTIONS.surface} busy={loading}>
+        {empty ? null : (
+          <FilterToolbar
+            label={SA_INSTITUTIONS.toolbar}
+            searchRef={searchRef}
+            search={{
+              id: 'in-q',
+              label: SA_INSTITUTIONS.searchLabel,
+              placeholder: SA_INSTITUTIONS.searchPlaceholder,
+              value: search,
+              onChange: setSearch,
+            }}
+            filters={[
+              {
+                id: 'in-st',
+                label: SA_INSTITUTIONS.statusLabel,
+                size: 'status',
+                value: tab,
+                options: SA_INSTITUTION_FILTERS.map(([id, label]) => ({
+                  value: id,
+                  label: filterOptionWords(label, countOf(id)),
+                })),
+                onChange: (value) => setTab(value as InstitutionTabId),
+              },
+            ]}
+            {...(!loading && !failed && countWords ? { count: countWords } : {})}
+            chips={chips}
+            onClearFilters={clearFilters}
+          />
         )}
-      </section>
-    </PageContent>
+        {failed ? (
+          <ListState
+            kind="failed"
+            title={stateWords('SA-06.failed')}
+            action={<Button onClick={retry}>{SA_FAILED.retry}</Button>}
+          >
+            {SA_FAILED.line}
+          </ListState>
+        ) : loading ? (
+          <LoadingRows message={stateWords('SA-06.loading')} />
+        ) : empty ? (
+          <ListState kind="empty" title={stateWords('SA-06.none')}>
+            {SA_INSTITUTIONS.emptyLine}
+          </ListState>
+        ) : byName.length > 0 ? (
+          <RecordTable
+            caption={SA_INSTITUTIONS.caption}
+            headers={{
+              who: SA_INSTITUTIONS.columns.institution,
+              what: SA_INSTITUTIONS.columns.plan,
+              kind: SA_INSTITUTIONS.columns.instituteAdmin,
+              when: SA_INSTITUTIONS.columns.accessEnds,
+              status: SA_INSTITUTIONS.columns.status,
+            }}
+            rows={byName.map(tableRow)}
+          />
+        ) : (
+          <ListState
+            kind="nomatch"
+            title={SA_INSTITUTIONS.noMatchTitle}
+            action={<Button onClick={clearFromNoMatch}>{SA_INSTITUTIONS.clearFilters}</Button>}
+          >
+            {SA_INSTITUTIONS.noMatchLine}
+          </ListState>
+        )}
+        <ListFoot>{SA_INSTITUTIONS.foot}</ListFoot>
+      </ListSurface>
+    </>
   );
 }
 
-/** B7-02 table: "Institution · Status · Institute Admin · Access ends · (Action)". */
-function InstitutionTable({ rows }: { readonly rows: readonly InstitutionRow[] }) {
-  const { columns } = INSTITUTIONS_PAGE;
-  return (
-    <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.institution}</th>
-            <th scope="col">{columns.status}</th>
-            <th scope="col">{columns.instituteAdmin}</th>
-            <th scope="col">{columns.accessEnds}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td className="is-primary">
-                <strong>{row.name}</strong>
-                <span className="xr-meta block">
-                  {kindWords(row.kind)} ·{' '}
-                  {planSummaryWords(row.plans, row.requestedExperimentCount)}
-                </span>
-              </td>
-              <td data-label={columns.status}>
-                <InstitutionStatusPill status={row.status} />
-              </td>
-              <td data-label={columns.instituteAdmin}>
-                {row.instituteAdminName ?? INSTITUTIONS_PAGE.notAssigned}
-                {row.needsInstituteAdmin ? (
-                  <>
-                    {' '}
-                    <span className="xw-tag xw-tag--warn">{INSTITUTIONS_PAGE.needsOne}</span>
-                  </>
-                ) : null}
-              </td>
-              <td data-label={columns.accessEnds}>
-                <span className="xw-nowrap">
-                  {accessEndsWords(row.accessEndsOn, row.status === 'access-ended')}
-                </span>
-              </td>
-              <td>
-                <Link
-                  className="xr-btn xr-btn--secondary xr-btn--sm"
-                  href={institutionAddress(row.id)}
-                  aria-label={openInstitutionLabel(row.name)}
-                >
-                  {INSTITUTIONS_PAGE.open}
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** B7-02 f5 "Loading": skeleton rows in the table's shape (hidden from screen readers). */
-function SkeletonRows() {
-  return (
-    <div aria-hidden="true">
-      {[0, 1, 2, 3, 4].map((row) => (
-        <div
-          key={row}
-          className="grid grid-cols-[1.6fr_1fr_1fr_.8fr_100px] gap-5 px-4 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-        >
-          {[0, 1, 2, 3, 4].map((cell) => (
-            <Skeleton key={cell} />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
+/** One institution as the export's row draws it. */
+function tableRow(row: InstitutionRow): RecordTableRow {
+  const ended = row.status === 'access-ended';
+  return {
+    key: row.id,
+    href: institutionAddress(row.id),
+    title: row.name,
+    titleDetail: kindWords(row.kind),
+    linkLabel: institutionRowLabel(
+      row.name,
+      institutionStatusWords(row.status),
+      row.needsInstituteAdmin,
+    ),
+    what: <CellLines strong={saPlanSummaryWords(row.plans, row.requestedExperimentCount)} />,
+    kind: row.instituteAdminName ? (
+      <CellLines strong={row.instituteAdminName} />
+    ) : row.needsInstituteAdmin ? (
+      <MissingTag icon="userMinus">{SA_INSTITUTIONS.needsOne}</MissingTag>
+    ) : (
+      <QuietLine>
+        {row.status === 'approved-payment-required'
+          ? SA_INSTITUTIONS.adminLater
+          : SA_INSTITUTIONS.notAssigned}
+      </QuietLine>
+    ),
+    when:
+      row.accessEndsOn === null ? (
+        <InstitutionInlineLabel label={SA_INSTITUTIONS.notSetLabel}>
+          {SA_INSTITUTIONS.notSetYet}
+        </InstitutionInlineLabel>
+      ) : ended ? (
+        endedOnWords(row.accessEndsOn)
+      ) : (
+        <InstitutionInlineLabel label={SA_INSTITUTIONS.endsLabel}>
+          {calendarDay(row.accessEndsOn)}
+        </InstitutionInlineLabel>
+      ),
+    status: <InstitutionStatusPill status={row.status} />,
+  };
 }

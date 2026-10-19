@@ -1,7 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { reachAndClick } from '../support';
-import { ACCOUNT_LINES, expectSameDocument, markDocument } from '../support/workspace';
+import { ACCOUNT_LINES, expectSameDocument, markDocument, sidebarLink } from '../support/workspace';
 
 /**
  * The Package-1A demonstration, in ONE browser tab of the PRODUCT build (no test hooks, no boot
@@ -16,7 +16,17 @@ import { ACCOUNT_LINES, expectSameDocument, markDocument } from '../support/work
  */
 test.skip(({ viewport }) => viewport?.width !== 1440, 'One journey, at the board width.');
 
-const rows = (page: Page) => page.locator('table.xr-table tbody td.is-primary a');
+// The Super Admin's V3 requests table (SA-v1) names each row by its institution and never shows
+// the request's reference: rows are told apart by the address each opens.
+const rows = (page: Page) => page.locator('main table.rk-table tbody a.rk-rowlink');
+const rowIds = (page: Page) =>
+  rows(page).evaluateAll((links) =>
+    links.map((link) => link.getAttribute('href')!.split('/').pop()!),
+  );
+const requestRow = (page: Page, id: string) =>
+  page.locator('main table.rk-table tbody tr', {
+    has: page.locator(`a[href="/admin/requests/${id}"]`),
+  });
 const card = (page: Page) => page.locator('.xs-card');
 
 async function signIn(page: Page, email: string): Promise<void> {
@@ -73,29 +83,45 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
   // 7. Search, filter and sort.
   const search = page.getByRole('searchbox', { name: 'Search' });
   await search.fill('konark');
-  await expect(rows(page)).toHaveText(['REQ-0040', 'REQ-0031']);
+  await expect.poll(() => rowIds(page)).toEqual(['REQ-0040', 'REQ-0031']);
   await search.fill('');
   await page.getByLabel('Status').selectOption({ label: 'Under review' });
-  await expect(rows(page)).toHaveText(['REQ-0040', 'REQ-0038']);
+  await expect.poll(() => rowIds(page)).toEqual(['REQ-0040', 'REQ-0038']);
   await reachAndClick(
     page,
     page.getByRole('button', { name: 'Received, newest first. Change order' }),
   );
-  await expect(rows(page)).toHaveText(['REQ-0038', 'REQ-0040']);
-  await reachAndClick(page, page.getByRole('button', { name: 'Remove Status: Under review' }));
+  await expect.poll(() => rowIds(page)).toEqual(['REQ-0038', 'REQ-0040']);
+  await reachAndClick(
+    page,
+    page.getByRole('button', { name: 'Remove filter Status: Under review' }),
+  );
   await expect(rows(page)).toHaveCount(10);
 
   // 8. REQ-0038 (renewal): approve and request information are offered, a smaller scope is not.
-  await reachAndClick(page, page.getByRole('link', { name: /^Open request REQ-0038,/ }));
+  await reachAndClick(
+    page,
+    page.getByRole('link', {
+      name: /^BITS Pilani — Hyderabad Campus, renewal, .*Open the request$/,
+    }),
+  );
   await page.waitForURL('**/admin/requests/REQ-0038');
   const panel = page.getByRole('complementary', { name: 'Your decision' });
   await expect(panel.getByRole('radio', { name: /Approve request/ })).toBeEnabled();
   await expect(panel.getByRole('radio', { name: /Request more information/ })).toBeEnabled();
   await expect(panel.getByRole('radio', { name: /Approve a smaller scope/ })).toBeDisabled();
-  await reachAndClick(page, page.locator('main a.xr-back'));
+  await reachAndClick(
+    page,
+    page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Requests' }),
+  );
   await page.waitForURL('**/admin/requests');
   //    REQ-0040 (more licences): every decision is offered; its route is already External.
-  await reachAndClick(page, page.getByRole('link', { name: /^Open request REQ-0040,/ }));
+  await reachAndClick(
+    page,
+    page.getByRole('link', {
+      name: /^Konark Polytechnic, additional licences, .*Open the request$/,
+    }),
+  );
   await page.waitForURL('**/admin/requests/REQ-0040');
   for (const decision of [
     /Approve request/,
@@ -111,14 +137,14 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
     .getByLabel('What do you need from the requester? (required)')
     .fill('Please confirm the size of the second section.');
   await reachAndClick(page, panel.getByRole('button', { name: 'Send request for information' }));
-  await expect(panel.locator('.xr-status')).toHaveText('Information requested');
+  await expect(panel.locator('.rk-done .xr-st')).toHaveText('Information requested');
   await reachAndClick(page, panel.getByRole('link', { name: 'Back to requests' }));
   await page.waitForURL('**/admin/requests');
-  const row40 = page.locator('table.xr-table tbody tr', { hasText: 'REQ-0040' });
-  await expect(row40.locator('.xr-status')).toHaveText('Information requested');
+  await expect(requestRow(page, 'REQ-0040').locator('.xr-st')).toHaveText('Information requested');
+  // The Super Admin's V3 rail (SA-v1) counts in the singular too.
   await expect(
-    page.locator('aside.xr-side nav a[href="/admin/requests"] .xr-count .xr-sr'),
-  ).toHaveText(', 1 requests under review');
+    page.locator('aside.rb-rail .rb-nav a[href="/admin/requests"] .rb-count .xr-sr'),
+  ).toHaveText(', 1 request under review');
   await expectSameDocument(page, mark);
 
   // 10. Another workspace's address: "Not your workspace", in Arjun's own shell.
@@ -131,7 +157,7 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
   await expect(
     page.getByRole('heading', { level: 1, name: 'This page isn’t part of your workspace' }),
   ).toBeVisible();
-  await expect(page.locator('aside.xr-side .xr-ws-label')).toHaveText('Super Admin');
+  await expect(page.locator('aside.rb-rail .rb-ws-role')).toHaveText('Super Admin');
   await expectSameDocument(page, mark);
 
   // 11. Sign out: the signed-out card.
@@ -174,10 +200,8 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
   // His base is SA-01 Overview since Package 1D.
   await page.waitForURL('**/admin');
   await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
-  await reachAndClick(page, page.locator('aside.xr-side nav a[href="/admin/requests"]'));
+  await reachAndClick(page, sidebarLink(page, '/admin/requests'));
   await page.waitForURL('**/admin/requests');
-  await expect(
-    page.locator('table.xr-table tbody tr', { hasText: 'REQ-0040' }).locator('.xr-status'),
-  ).toHaveText('Information requested');
+  await expect(requestRow(page, 'REQ-0040').locator('.xr-st')).toHaveText('Information requested');
   await expectSameDocument(page, mark);
 });

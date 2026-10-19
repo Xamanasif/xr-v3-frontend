@@ -10,11 +10,13 @@ describe('placeWordsOf', () => {
   it.each([
     ['/admin/requests', 'Requests'],
     ['/admin/requests?status=under-review', 'Requests'],
-    ['/admin/requests/REQ-0038', 'Requests › REQ-0038'],
-    ['/admin/requests/REQ-0038#decision', 'Requests › REQ-0038'],
+    ['/admin/requests/REQ-0038', 'Requests'],
+    ['/admin/requests/REQ-0038#decision', 'Requests'],
     ['/student/help', 'Help & support'],
     ['/faculty/help/report', 'Help & support › Report a problem'],
     ['/vendor/help/reports/SUP-0213', 'Help & support › SUP-0213'],
+    // A Super Admin sees no report reference (owner decision 6; SA-v1).
+    ['/admin/help/reports/SUP-0213', 'Help & support'],
     // Package 1D: the Super Admin's Overview and Institutions.
     ['/admin', 'Overview'],
     ['/admin/institutions', 'Institutions'],
@@ -52,12 +54,12 @@ describe('placeWordsOf', () => {
     ['/content-manager/updates/UPD-0005?focus=summary', 'Updates › UPD-0005'],
     ['/reviewer/updates/UPD-0005', 'Review queue › UPD-0005'],
     ['/admin/content/updates?show=on-hold', 'Content'],
-    ['/admin/content/updates/UPD-0005', 'Content › UPD-0005'],
-    ['/admin/content/records/SUB-0085', 'Content › SUB-0085'],
+    ['/admin/content/updates/UPD-0005', 'Content'],
+    ['/admin/content/records/SUB-0085', 'Content'],
     ['/admin/content/records/distillation-column', 'Content'],
     ['/admin/structure/courses/fluid-mechanics', 'Academic structure'],
     ['/admin/roles/role-a-menon', 'Platform roles'],
-    ['/admin/operations/support/SUP-0213', 'Operations › SUP-0213'],
+    ['/admin/operations/support/SUP-0213', 'Operations'],
     ['/admin/operations/access-ending', 'Operations'],
   ])('%s → %s', (path, place) => {
     expect(placeWordsOf(path)).toBe(place);
@@ -111,7 +113,7 @@ describe('placeWordsOf', () => {
     ['/institute/requests/devices/DTR-0018', 'Requests › Device requests › DTR-0018'],
     ['/institute/usage', 'Usage'],
     ['/admin/operations/device-transfers', 'Operations'],
-    ['/admin/operations/device-transfers/DTR-0018', 'Operations › DTR-0018'],
+    ['/admin/operations/device-transfers/DTR-0018', 'Operations'],
   ])('Phase 3: %s is “%s”', (path, words) => {
     expect(placeWordsOf(path)).toBe(words);
   });

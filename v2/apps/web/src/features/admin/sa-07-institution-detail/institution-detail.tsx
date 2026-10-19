@@ -1,178 +1,258 @@
 'use client';
 
 import type {
+  DecisionPage,
   InstitutionDetail as Detail,
   RequestRow,
   Result,
   ServiceError,
 } from '@xr/contracts/draft';
 import type { AccessEndingRow, AccountStatus, DeviceTransfer, Technology } from '@xr/domain';
+import type { FormatCode } from '@xr/ui';
 import {
-  BackLink,
+  ActionGroup,
+  ActionValue,
+  AskList,
+  AskRow,
+  Banner,
+  Breadcrumbs,
   Button,
-  EditDialog,
+  ButtonLink,
+  ButtonRow,
+  ConfirmDialog,
+  CourseCode,
+  DecisionPanel,
+  DetailLayout,
+  FactStrip,
   Field,
-  FormatBadge,
-  type FormatCode,
-  Icon,
-  Link,
+  Footnote,
+  FORMAT_ORDER,
+  FormatBadges,
+  FormatCells,
+  GoButton,
+  Hint,
+  InlineForm,
+  InstitutionFormatActivity,
+  InstitutionPeople,
+  InstitutionPerson,
+  InstitutionPlanExperiments,
   Notice,
-  PageContent,
-  PageHeader,
-  ReasonDialog,
-  Section,
-  SectionBody,
+  PageHead,
+  PlanBand,
+  PlanNote,
+  Quote,
+  ReadOnlyTable,
+  RecordLine,
+  SectionNote,
   StatusPill,
+  Surface,
+  SurfaceSection,
+  TermTrack,
   Textarea,
   TextInput,
+  TextLink,
   Timeline,
-} from '@xr/ui';
+  WaitingList,
+} from '@xr/ui/v3';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
-import { dayMonthYear } from '@/copy/dates';
+import { calendarDay, dateTime, dayMonthYear, weekdayDate } from '@/copy/dates';
+import { fieldWords } from '@/copy/field-words';
 import {
   accountWords,
-  assignedFlash,
+  approvedFormatsLabel,
+  assignedTitle,
   assignTitle,
   changeStatusLabel,
-  detailOverline,
   DETAIL_PAGE,
+  endsOnWords,
   formatCode,
-  instituteAdminLine,
-  INSTITUTIONS_PAGE,
+  institutionEyebrow,
   kindWords,
-  noPlanLine,
-  openRequestWords,
-  overriddenFlash,
+  overriddenTitle,
   overrideConfirm,
   overrideReasonLabel,
-  pausedFlash,
-  pausedLine,
+  pausedBannerWords,
+  pausedByWords,
+  pausedFlashLine,
   pauseTitle,
+  peopleCountsLine,
   peopleWords,
-  planDates,
-  planExperimentWords,
-  planLine,
-  planTermWords,
+  planEndedWords,
+  planFormatsLabel,
+  planKickerWords,
+  planLicenceLine,
+  planNameWords,
   restoreBody,
-  restoredFlash,
+  restoredFlashLine,
   restoreTitle,
+  SA_INSTITUTION,
+  saInstituteAdminLine,
   startedCompletedWords,
+  termDescription,
+  termLabelWords,
+  termLeftWords,
 } from '@/copy/institutions';
-import { fieldWords } from '@/copy/field-words';
+import { SA_UNAVAILABLE } from '@/copy/sa-shared';
 import { stateWords } from '@/copy/state-copy';
-import { INSTITUTIONS_ADDRESS, institutionPlacement } from '@/nav/institutions';
+import { INSTITUTIONS_ADDRESS, INSTITUTIONS_TITLE, institutionPlacement } from '@/nav/institutions';
+import { ACCESS_ENDING_ADDRESS } from '@/nav/operations';
 import { requestAddress } from '@/nav/requests';
-import { useAllRequests } from '@/queries/access-requests';
+import { requestForDecision, useAllRequests } from '@/queries/access-requests';
 import { usePublishedCatalogue } from '@/queries/catalogue';
 import { useDeviceTransfers } from '@/queries/devices';
 import { useInstitutionDetail } from '@/queries/institutions';
 import { useAccessEnding } from '@/queries/operations-admin';
+import { useSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
+import { useXrQuery } from '@/queries/use-xr-query';
 
-import { RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { InstitutionStatusPill, institutionStatusWords } from '../shared/institution-status';
 import {
-  type AttentionView,
-  attentionRows,
+  InstitutionStatusPill,
+  institutionStatusWords,
+  PlanStatusPill,
+} from '../shared/institution-status';
+import { SaRecordGuard } from '../shared/sa-record-guard';
+import {
+  dayOf,
   drawnControls,
+  hasRequestUnderReview,
   historyLines,
-  newestPlan,
+  type PlanView,
+  planViews,
+  waitingItems,
 } from './institution-view';
 
-/** An experiment as the published catalogue names it ("Shell-and-Tube Heat Exchanger", "ME ZG523"). */
+/** An experiment as the published catalogue names it (name, course, published formats). */
 interface ExperimentName {
   readonly name: string;
   readonly platformCode: string | null;
+  readonly courseName: string | null;
+  readonly published: readonly Technology[] | null;
 }
 
+/** The panel's id ("Go to actions" under 860 px) and its heading's. */
+const PANEL_ID = 'in-panel';
+const PANEL_HEADING_ID = 'in-panel-h';
+
 /**
- * SA-07 Institution detail — boards B7-03 (states, validation, 375) and B7-04 (the Super Admin's
- * pause), at `/admin/institutions/[institutionId]`.
+ * SA-07 Institution detail — the owner-approved V3 Refined B design (SA-v1 `V.institution`, its
+ * dialogs `assignIA`, `pause`, `restore`), at `/admin/institutions/[institutionId]`.
  *
  * - **Read**: `InstitutionService.getInstitution` — the institution, its status, plans, people
  *   (each student with its record's revision) and the per-format report — with the experiments
- *   named from the published catalogue and the requests its record names read through
- *   `AccessRequestService.listRequests`, (Phase 3) its device transfers forwarded to BITS
- *   through `OperationsService.listDeviceTransfers` and (Phase 6) its access ending with a
- *   reminder due through `OperationsService.listAccessEnding`, for "Needs attention". An address that names
- *   no institution shows the in-shell not-found page.
+ *   named from the published catalogue, the requests its record names (`listRequests`), its
+ *   device transfers forwarded to BITS (`listDeviceTransfers`), its plans ending or ended
+ *   (`listAccessEnding`) and, awaiting payment, the approved request (`getRequestForDecision`).
+ *   An address that names no institution shows the GL-04 "This page isn’t available".
+ * - **As SA-v1 draws it**: breadcrumbs and the record head (status, Institute Admin, "Go to
+ *   actions" under 860 px); the flash, the paused banner and the "No Institute Admin" notice; the
+ *   facts (and why access is paused, or the plan awaiting payment); one plan band per plan with
+ *   its term track and format cells; activity by format, people with the status override inline,
+ *   history; and the "What you can do" panel — Institute Admin, Access, Also waiting.
  * - **Act**: Assign Institute Admin (name + work e-mail; nothing is sent), Pause access and
  *   Restore access (a reason, kept in the history), and a student's status override inline (a
- *   reason) — each the port's command with the revision the page showed when its dialog or panel
- *   opened (`expectedRev`; a student's is the `rev` listed with it, and the change the panel names
- *   is fixed when it opens). The controls are B7-03's per state (`drawnControls`); the service
- *   decides each command again. Field errors show on the fields (both of Assign's at once); a
- *   command refused because the record moved on writes nothing, closes the dialog or panel, reads
- *   the page again (P1-21 interim) and puts focus on the page title (a status change: on its
- *   student's "Change status"). Each result is said in the flash, which takes focus.
- * - **Sections** as drawn: summary, access plans (read-only; licences as provided), needs
- *   attention, institution report (per format, never added up), people, history. The decision ids
- *   B7-03 writes into its copy are not shown (P1-14); its sample labels do not ship.
+ *   reason) — each the port's command with the revision the page showed when its dialog or form
+ *   opened (`expectedRev`; a student's is the `rev` listed with it, and the change the form names
+ *   is fixed when it opens). The service decides each command again. Field errors show on the
+ *   fields (both of Assign's at once; the identity safeguard on Work e-mail); a command refused
+ *   because the record moved on writes nothing, closes the dialog or form, reads the page again
+ *   (P1-21 interim, state-copy SA-07.moved-on) and puts focus on the page title (a status change:
+ *   on its student's "Change status"). Each result is said in the flash, which takes focus.
+ * - No plan amendment, licence arithmetic, payment activation or invitation: the plans are
+ *   read-only and licences are shown as approved. No internal reference is shown.
  */
 export function InstitutionDetail({ institutionId }: { readonly institutionId: string }) {
   const read = useInstitutionDetail(institutionId);
   const catalogue = usePublishedCatalogue();
   const requests = useAllRequests();
-  // Phase 3: the device transfers forwarded to BITS, for the institution's "Needs attention".
   const transfers = useDeviceTransfers('forwarded');
-  // Phase 6: the access plans ending or ended (SA-22), for its access-ending row.
   const ending = useAccessEnding();
-  useShellPage(institutionPlacement(read.data?.ok ? read.data.value.institution.name : null));
+  const session = useSession();
+  // Today on the sample clock: the session's sign-in instant (state-copy SA-07.term-clock).
+  const today = session.status === 'signed-in' ? session.signedInAt : null;
+  const detail = read.data?.ok ? read.data.value : null;
+  // Awaiting payment there is no plan yet: the approved request names what was approved.
+  const awaitingPayment = detail !== null && detail.plans.length === 0;
+  const origin = useXrQuery(requestForDecision, detail?.institution.createdFromRequestId ?? '', {
+    enabled: awaitingPayment,
+  });
+  useShellPage(
+    read.data && !read.data.ok
+      ? { screen: 'SA-07', title: SA_UNAVAILABLE.documentTitle, trail: [] }
+      : institutionPlacement(detail?.institution.name ?? null),
+  );
 
   const names = useMemo(() => {
     const map = new Map<string, ExperimentName>();
     if (catalogue.data?.ok) {
       for (const entry of catalogue.data.value.entries) {
-        map.set(entry.experimentId, { name: entry.name, platformCode: entry.platformCode });
+        map.set(entry.experimentId, {
+          name: entry.name,
+          platformCode: entry.platformCode,
+          courseName: entry.courseName,
+          published: entry.availableIn,
+        });
       }
     }
     return map;
   }, [catalogue.data]);
   const nameOf = (experimentId: string): ExperimentName =>
-    names.get(experimentId) ?? { name: experimentId, platformCode: null };
+    names.get(experimentId) ?? {
+      name: experimentId,
+      platformCode: null,
+      courseName: null,
+      published: null,
+    };
   const waiting =
-    catalogue.isPending || requests.isPending || transfers.isPending || ending.isPending;
+    catalogue.isPending ||
+    requests.isPending ||
+    transfers.isPending ||
+    ending.isPending ||
+    today === null ||
+    (awaitingPayment && origin.isPending);
 
   return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={{
-          data: waiting ? undefined : read.data,
-          isPending: read.isPending || waiting,
-          isError:
-            read.isError ||
-            catalogue.isError ||
-            requests.isError ||
-            transfers.isError ||
-            ending.isError,
-          refetch: () => {
+    <SaRecordGuard
+      read={{
+        data: waiting ? undefined : read.data,
+        isPending: read.isPending || waiting,
+        isError:
+          read.isError ||
+          catalogue.isError ||
+          requests.isError ||
+          transfers.isError ||
+          ending.isError ||
+          (awaitingPayment && origin.isError),
+        refetch: () => {
+          void read.refetch();
+          void catalogue.refetch();
+          void requests.refetch();
+          void transfers.refetch();
+          void ending.refetch();
+          if (awaitingPayment) void origin.refetch();
+        },
+      }}
+      loadingLabel={stateWords('SA-07.loading')}
+      failedTitle={stateWords('SA-07.failed')}
+    >
+      {(record) => (
+        <DetailContent
+          detail={record}
+          requests={requests.data?.ok ? requests.data.value : []}
+          transfers={transfers.data?.ok ? transfers.data.value : []}
+          ending={ending.data?.ok ? ending.data.value.map((view) => view.row) : []}
+          origin={awaitingPayment && origin.data?.ok ? origin.data.value : null}
+          today={today ?? ''}
+          nameOf={nameOf}
+          refetch={() => {
             void read.refetch();
-            void catalogue.refetch();
             void requests.refetch();
-            void transfers.refetch();
-            void ending.refetch();
-          },
-        }}
-        loadingLabel={stateWords('SA-07.loading')}
-        failed={{ title: stateWords('SA-07.failed'), line: stateWords('SA-07.failed.line') }}
-      >
-        {(detail) => (
-          <DetailContent
-            detail={detail}
-            requests={requests.data?.ok ? requests.data.value : []}
-            transfers={transfers.data?.ok ? transfers.data.value : []}
-            ending={ending.data?.ok ? ending.data.value.map((view) => view.row) : []}
-            nameOf={nameOf}
-            refetch={() => {
-              void read.refetch();
-              void requests.refetch();
-            }}
-          />
-        )}
-      </RecordGuard>
-    </PageContent>
+          }}
+        />
+      )}
+    </SaRecordGuard>
   );
 }
 
@@ -188,7 +268,7 @@ type Dialog =
 
 /**
  * An open status change: the change it names and the student's revision as listed when it opened
- * (B7-03 f8; PC-37) — a record changed meanwhile is refused as stale, never changed the other way.
+ * (PC-37) — a record changed meanwhile is refused as stale, never changed the other way.
  */
 interface Override {
   readonly studentId: string;
@@ -198,7 +278,13 @@ interface Override {
   readonly error: string | null;
 }
 
-/** The field errors without one field's (editing a field clears its error, B7-03 `onIaN`). */
+/** The flash after a result (the export's `setFlash`): its title and line. */
+interface Flash {
+  readonly title: string;
+  readonly line: string;
+}
+
+/** The field errors without one field's (editing a field clears its error). */
 function without(
   errors: Readonly<Record<string, string>>,
   field: string,
@@ -207,8 +293,8 @@ function without(
 }
 
 /**
- * The drawn words of a refusal's field errors, by field (`name`, `workEmail`, `reason`); Package
- * 2B's identity safeguard (PC-49) shows the register's provisional words (`SA-07.identity-taken`).
+ * The words of a refusal's field errors, by field (`name`, `workEmail`, `reason`); Package 2B's
+ * identity safeguard (PC-49) shows the register's provisional words (`SA-07.identity-taken`).
  */
 function fieldMessages(error: ServiceError): Readonly<Record<string, string>> | null {
   if (error.kind !== 'validation-failed') return null;
@@ -221,11 +307,23 @@ function fieldMessages(error: ServiceError): Readonly<Record<string, string>> | 
   return messages;
 }
 
+/** Formats as drawn ("WEB"), in WEB/AR/VR/MR order. */
+function codesOf(formats: readonly Technology[]): FormatCode[] {
+  const codes = formats.map((format) => formatCode(format) as FormatCode);
+  return FORMAT_ORDER.filter((code) => codes.includes(code));
+}
+
+function personName(actor: { readonly kind: string; readonly displayName?: string }): string {
+  return actor.kind === 'person' ? (actor.displayName ?? '') : '';
+}
+
 function DetailContent({
   detail,
   requests,
   transfers,
   ending,
+  origin,
+  today,
   nameOf,
   refetch,
 }: {
@@ -233,31 +331,34 @@ function DetailContent({
   readonly requests: readonly RequestRow[];
   readonly transfers: readonly DeviceTransfer[];
   readonly ending: readonly AccessEndingRow[];
+  readonly origin: DecisionPage | null;
+  readonly today: string;
   readonly nameOf: (experimentId: string) => ExperimentName;
   readonly refetch: () => void;
 }) {
   const { institution, status } = detail;
   const controls = drawnControls(detail);
-  const plan = newestPlan(detail);
+  const admin = institution.instituteAdmin;
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [errors, setErrors] = useState<Readonly<Record<string, string>>>({});
   const [override, setOverride] = useState<Override | null>(null);
-  const [flash, setFlash] = useState<string | null>(null);
+  const [flash, setFlash] = useState<Flash | null>(null);
   const [focusRequest, setFocusRequest] = useState<{ readonly id: string; readonly n: number }>({
     id: '',
     n: 0,
   });
-  const flashRef = useRef<HTMLParagraphElement>(null);
+  const flashRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
+  const panelRef = useRef<HTMLHeadingElement>(null);
   const assign = useCommand((ports) => ports.institutions.assignInstituteAdmin);
   const pause = useCommand((ports) => ports.institutions.pauseInstitution);
   const restore = useCommand((ports) => ports.institutions.restoreInstitution);
   const change = useCommand((ports) => ports.institutions.overrideStudentStatus);
 
-  // Focus moves after the commit that shows its target (B7-03 `focus(id)`): the flash after a
-  // result, a field after an error, "Change status" after Cancel, the page title after a refusal
-  // that re-reads the page (and wherever a target is gone). The dialog has given focus back to its
-  // trigger in the same commit (a child's effect runs first), so this request wins.
+  // Focus moves after the commit that shows its target (the export's `SA.focus(id)`): the flash
+  // after a result, a field after an error, "Change status" after Cancel, the page title after a
+  // refusal that re-reads the page (and wherever a target is gone). The dialog has given focus
+  // back to its trigger in the same commit (a child's effect runs first), so this request wins.
   useEffect(() => {
     if (focusRequest.n === 0) return;
     const target =
@@ -270,7 +371,7 @@ function DetailContent({
   }, [focusRequest]);
   const focus = (id: string) => setFocusRequest((current) => ({ id, n: current.n + 1 }));
 
-  const done = (words: string) => {
+  const done = (words: Flash) => {
     setDialog(null);
     setErrors({});
     setOverride(null);
@@ -280,7 +381,7 @@ function DetailContent({
 
   /**
    * A refusal: field errors stay on the fields; anything else (the record moved on, or no longer
-   * allows it) closes the dialog or panel, re-reads the page (P1-21) and moves focus to `then`.
+   * allows it) closes the dialog or form, re-reads the page (P1-21) and moves focus to `then`.
    */
   const refused = (
     answer: Result<unknown, ServiceError>,
@@ -319,18 +420,18 @@ function DetailContent({
         .then(
           (answer) => {
             if (answer.ok)
-              done(
-                assignedFlash(
+              done({
+                title: assignedTitle(
                   answer.value.instituteAdmin?.name ?? dialog.name.trim(),
                   institution.name,
                 ),
-              );
+                line: SA_INSTITUTION.assignedLine,
+              });
             else
               refused(
                 answer,
                 (fields) => {
-                  // The service's drawn checks (B7-03 `doAssign`): both errors at once, and focus
-                  // on the first invalid field (board 10).
+                  // The service's checks: both errors at once, focus on the first invalid field.
                   setErrors(fields);
                   focus(fields['name'] ? 'institution-admin-name' : 'institution-admin-email');
                 },
@@ -353,8 +454,11 @@ function DetailContent({
           if (answer.ok) {
             done(
               dialog.kind === 'pause'
-                ? pausedFlash(institution.name)
-                : restoredFlash(institution.name),
+                ? { title: SA_INSTITUTION.pausedTitle, line: pausedFlashLine(institution.name) }
+                : {
+                    title: SA_INSTITUTION.restoredTitle,
+                    line: restoredFlashLine(institution.name),
+                  },
             );
           } else
             refused(
@@ -390,7 +494,8 @@ function DetailContent({
     const { to, expectedRev } = override;
     change.run({ studentId: student.id, to, reason: override.reason, expectedRev }).then(
       (answer) => {
-        if (answer.ok) done(overriddenFlash(student.name, to));
+        if (answer.ok)
+          done({ title: overriddenTitle(student.name, to), line: SA_INSTITUTION.overriddenLine });
         else
           refused(
             answer,
@@ -407,143 +512,212 @@ function DetailContent({
     );
   };
 
-  const attention = attentionRows(detail, requests, transfers, ending);
-  const history = historyLines(detail);
   const busy = assign.busy || pause.busy || restore.busy;
+  const plans = planViews(detail, ending, requests, dayOf(today));
+  const history = historyLines(detail);
+  const waiting = waitingItems(detail, requests, transfers);
+  const pausedNow = controls.restore ? institution.pause : null;
+
+  const openAssign = () =>
+    open({ kind: 'assign', name: '', workEmail: '', expectedRev: institution.rev });
+  const openPause = () => open({ kind: 'pause', reason: '', expectedRev: institution.rev });
+  const openRestore = () => open({ kind: 'restore', reason: '', expectedRev: institution.rev });
 
   return (
     <>
-      <PageHeader
-        className="mt-2 mb-3"
-        back={<BackLink href={INSTITUTIONS_ADDRESS}>{DETAIL_PAGE.back}</BackLink>}
-        overline={detailOverline(institution.kind, plan?.id ?? null)}
+      <PageHead
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: INSTITUTIONS_TITLE, href: INSTITUTIONS_ADDRESS }]}
+            current={institution.name}
+          />
+        }
+        variant="record"
         title={institution.name}
         titleFocusTarget
         titleRef={titleRef}
+        date={weekdayDate(today)}
+        eyebrow={institutionEyebrow(institution.kind)}
         meta={
           <>
-            <InstitutionStatusPill status={status} />
-            <span>{instituteAdminLine(institution.instituteAdmin?.name ?? null)}</span>
+            <InstitutionStatusPill status={status} large />
+            <span>{saInstituteAdminLine(admin?.name ?? null, controls.adminLater)}</span>
           </>
         }
+        goTo={{ label: SA_INSTITUTION.goTo, targetId: PANEL_ID, focusId: PANEL_HEADING_ID }}
       />
-      <div className="xw-actions mb-4">
-        {controls.assign ? (
-          <Button
-            variant="primary"
-            onClick={() =>
-              open({ kind: 'assign', name: '', workEmail: '', expectedRev: institution.rev })
-            }
-          >
-            {DETAIL_PAGE.assign}
-          </Button>
-        ) : null}
-        {controls.pause ? (
-          <Button
-            variant="secondary"
-            icon="paused"
-            onClick={() => open({ kind: 'pause', reason: '', expectedRev: institution.rev })}
-          >
-            {DETAIL_PAGE.pause}
-          </Button>
-        ) : null}
-        {controls.restore ? (
-          <Button
-            variant="primary"
-            onClick={() => open({ kind: 'restore', reason: '', expectedRev: institution.rev })}
-          >
-            {DETAIL_PAGE.restore}
-          </Button>
-        ) : null}
-        <Link
-          className="xr-btn xr-btn--text"
-          href={requestAddress(institution.createdFromRequestId)}
-        >
-          {openRequestWords(institution.createdFromRequestId)}
-        </Link>
-      </div>
-      <p ref={flashRef} className="xa-save is-ok mb-3" role="status" tabIndex={-1}>
-        {flash ? (
-          <>
-            <Icon name="done" />
-            <span>{flash}</span>
-          </>
-        ) : null}
-      </p>
-      {controls.restore && institution.pause ? (
-        <div className="mb-4">
-          <Notice tone="warn" icon="paused" title={DETAIL_PAGE.pausedTitle}>
-            {pausedLine(dayMonthYear(institution.pause.since), institution.pause.reason)}
-          </Notice>
-        </div>
+      {flash ? (
+        <Notice ref={flashRef} tone="ok" icon="okDisc" role="status" title={flash.title}>
+          {flash.line}
+        </Notice>
       ) : null}
+      {pausedNow ? <Banner>{pausedBannerWords(dayMonthYear(pausedNow.since))}</Banner> : null}
       {controls.assign ? (
-        <div className="mb-4">
-          <Notice tone="warn" icon="warning" title={DETAIL_PAGE.noAdminTitle}>
-            {DETAIL_PAGE.noAdminLine}
-          </Notice>
-        </div>
+        <Notice tone="warn" icon="userMinus" role="status" title={SA_INSTITUTION.noAdminTitle}>
+          {SA_INSTITUTION.noAdminLine}
+        </Notice>
       ) : null}
-      <div className="flex flex-col gap-5">
-        <Summary detail={detail} adminLater={controls.adminLater} />
-        <Plans detail={detail} nameOf={nameOf} />
-        <Attention
-          rows={attention}
-          onAssign={() =>
-            open({ kind: 'assign', name: '', workEmail: '', expectedRev: institution.rev })
-          }
-          onRestore={() => open({ kind: 'restore', reason: '', expectedRev: institution.rev })}
-        />
-        <Report detail={detail} nameOf={nameOf} />
-        <People
-          detail={detail}
-          override={override}
-          busy={change.busy}
-          onStart={startOverride}
-          onCancel={cancelOverride}
-          onReason={(reason) =>
-            setOverride((current) => (current ? { ...current, reason, error: null } : current))
-          }
-          onSave={saveOverride}
-        />
-        <Section title={DETAIL_PAGE.history} meta={DETAIL_PAGE.historyMeta}>
-          <SectionBody>
-            <Timeline
-              markLatest={false}
-              events={history.map((line) => ({
-                id: line.id,
-                what: line.what,
-                when: line.when,
-                ...(line.note ? { note: line.note } : {}),
-              }))}
-            />
-          </SectionBody>
-        </Section>
-      </div>
-      <EditDialog
+      <DetailLayout
+        stacked
+        asideId={PANEL_ID}
+        asideLabelledBy={PANEL_HEADING_ID}
+        main={
+          <>
+            <Surface className="rk-mainsheet">
+              <FactStrip
+                facts={[
+                  { term: SA_INSTITUTION.facts.status, value: institutionStatusWords(status) },
+                  { term: SA_INSTITUTION.facts.kind, value: kindWords(institution.kind) },
+                  {
+                    term: SA_INSTITUTION.facts.instituteAdmin,
+                    value: admin?.name ?? SA_INSTITUTION.notAssigned,
+                    quiet: admin === null,
+                  },
+                  {
+                    term: SA_INSTITUTION.facts.people,
+                    value: peopleWords(detail.people.students, detail.people.faculty),
+                  },
+                ]}
+              />
+              {pausedNow ? (
+                <SurfaceSection title={SA_INSTITUTION.whyPaused} titleId="in-pr">
+                  <Quote by={pausedByWords(personName(pausedNow.by), dateTime(pausedNow.since))}>
+                    {pausedNow.reason}
+                  </Quote>
+                  <RecordLine space="above">{SA_INSTITUTION.pausedSeen}</RecordLine>
+                </SurfaceSection>
+              ) : null}
+              {detail.plans.length === 0 ? (
+                <AwaitingPlan detail={detail} origin={origin} nameOf={nameOf} />
+              ) : null}
+            </Surface>
+            {plans.map((view, index) => (
+              <PlanBandView
+                key={view.plan.id}
+                view={view}
+                index={index}
+                count={plans.length}
+                nameOf={nameOf}
+              />
+            ))}
+            {plans.length > 0 ? <Footnote>{SA_INSTITUTION.planFootnote}</Footnote> : null}
+            <Surface>
+              {detail.report.length > 0 ? <Activity detail={detail} nameOf={nameOf} /> : null}
+              <People
+                detail={detail}
+                override={override}
+                busy={change.busy}
+                onStart={startOverride}
+                onCancel={cancelOverride}
+                onReason={(reason) =>
+                  setOverride((current) =>
+                    current ? { ...current, reason, error: null } : current,
+                  )
+                }
+                onSave={saveOverride}
+              />
+              <SurfaceSection
+                title={SA_INSTITUTION.history}
+                titleId="in-hist"
+                aside={<SectionNote>{SA_INSTITUTION.newestFirst}</SectionNote>}
+              >
+                <Timeline
+                  events={history.map((line) => ({
+                    what: line.what,
+                    when: line.when,
+                    ...(line.note ? { note: line.note } : {}),
+                  }))}
+                />
+              </SurfaceSection>
+            </Surface>
+          </>
+        }
+        aside={
+          <DecisionPanel
+            title={SA_INSTITUTION.panel}
+            titleId={PANEL_HEADING_ID}
+            titleRef={panelRef}
+          >
+            <ActionGroup label={SA_INSTITUTION.groupAdmin}>
+              {admin ? (
+                <ActionValue detail={admin.workEmail}>{admin.name}</ActionValue>
+              ) : controls.adminLater ? (
+                <Hint>{SA_INSTITUTION.adminLater}</Hint>
+              ) : (
+                <>
+                  <Hint>{SA_INSTITUTION.adminNone}</Hint>
+                  {controls.assign ? (
+                    <GoButton id="in-assign" onClick={openAssign}>
+                      {SA_INSTITUTION.assign}
+                    </GoButton>
+                  ) : null}
+                </>
+              )}
+            </ActionGroup>
+            <ActionGroup label={SA_INSTITUTION.groupAccess}>
+              {controls.pause ? (
+                <>
+                  <Hint>{SA_INSTITUTION.pauseHint}</Hint>
+                  <Button id="in-pause" onClick={openPause}>
+                    {SA_INSTITUTION.pause}
+                  </Button>
+                </>
+              ) : controls.restore ? (
+                <>
+                  <Hint>{SA_INSTITUTION.restoreHint}</Hint>
+                  <Button
+                    variant={admin ? 'primary' : 'default'}
+                    id="in-restore"
+                    onClick={openRestore}
+                  >
+                    {SA_INSTITUTION.restore}
+                  </Button>
+                </>
+              ) : status === 'approved-payment-required' ? (
+                <>
+                  <Hint>{SA_INSTITUTION.paymentHint}</Hint>
+                  <ButtonLink href={requestAddress(institution.createdFromRequestId)}>
+                    {SA_INSTITUTION.openRequest}
+                  </ButtonLink>
+                </>
+              ) : (
+                <Hint>{SA_INSTITUTION.endedHint}</Hint>
+              )}
+            </ActionGroup>
+            <ActionGroup label={SA_INSTITUTION.groupWaiting}>
+              {waiting.length > 0 ? (
+                <WaitingList items={waiting} />
+              ) : (
+                <Hint>{SA_INSTITUTION.nothingWaiting}</Hint>
+              )}
+            </ActionGroup>
+          </DecisionPanel>
+        }
+      />
+      <ConfirmDialog
         open={dialog?.kind === 'assign'}
-        align="start"
-        returnFocusFallback={titleRef}
         idPrefix="institution-assign"
+        returnFocusFallback={titleRef}
         title={assignTitle(institution.name)}
-        effect={DETAIL_PAGE.assignBody}
-        confirmLabel={DETAIL_PAGE.assignConfirm}
+        description={SA_INSTITUTION.assignDescription}
+        confirmLabel={SA_INSTITUTION.assignConfirm}
         busy={busy}
-        busyLabel={DETAIL_PAGE.assignBusy}
+        busyLabel={SA_INSTITUTION.assignBusy}
+        initialFocus="field"
+        submitOnEnter
         onConfirm={confirm}
         onCancel={() => {
           setDialog(null);
           setErrors({});
         }}
       >
-        {/* B7-03 draws the sentence above as `p style="margin:0 0 14px"`: the same 14 px here. */}
         <Field
           id="institution-admin-name"
-          className="mt-[14px]"
-          label={DETAIL_PAGE.assignFields.name}
+          label={SA_INSTITUTION.assignFields.name}
           error={errors['name']}
         >
           <TextInput
+            autoComplete="off"
             value={dialog?.kind === 'assign' ? dialog.name : ''}
             onChange={(event) => {
               const name = event.target.value;
@@ -552,14 +726,14 @@ function DetailContent({
             }}
           />
         </Field>
-        <div className="h-3" />
         <Field
           id="institution-admin-email"
-          label={DETAIL_PAGE.assignFields.workEmail}
+          label={SA_INSTITUTION.assignFields.workEmail}
           error={errors['workEmail']}
         >
           <TextInput
             type="email"
+            autoComplete="off"
             value={dialog?.kind === 'assign' ? dialog.workEmail : ''}
             onChange={(event) => {
               const workEmail = event.target.value;
@@ -570,41 +744,31 @@ function DetailContent({
             }}
           />
         </Field>
-      </EditDialog>
-      <ReasonDialog
+      </ConfirmDialog>
+      <ConfirmDialog
         open={dialog?.kind === 'pause' || dialog?.kind === 'restore'}
-        align="start"
-        returnFocusFallback={titleRef}
         idPrefix="institution-status"
-        destructive={dialog?.kind === 'pause'}
+        returnFocusFallback={titleRef}
         title={
           dialog?.kind === 'restore' ? restoreTitle(institution.name) : pauseTitle(institution.name)
         }
-        effect={
-          dialog?.kind === 'restore' ? (
-            restoreBody(institution.name)
-          ) : (
-            <strong>{DETAIL_PAGE.pauseBody}</strong>
-          )
+        description={
+          dialog?.kind === 'restore' ? restoreBody(institution.name) : DETAIL_PAGE.pauseBody
         }
-        confirmLabel={dialog?.kind === 'restore' ? DETAIL_PAGE.restore : DETAIL_PAGE.pause}
+        confirmLabel={dialog?.kind === 'restore' ? SA_INSTITUTION.restore : SA_INSTITUTION.pause}
         busy={busy}
-        busyLabel={dialog?.kind === 'restore' ? DETAIL_PAGE.restoreBusy : DETAIL_PAGE.pauseBusy}
+        busyLabel={
+          dialog?.kind === 'restore' ? SA_INSTITUTION.restoreBusy : SA_INSTITUTION.pauseBusy
+        }
+        initialFocus="field"
         onConfirm={confirm}
         onCancel={() => {
           setDialog(null);
           setErrors({});
         }}
       >
-        {/* B7-03 draws the sentence above as `p style="margin:0 0 14px"`: the same 14 px here. */}
-        <Field
-          id="institution-reason"
-          className="mt-[14px]"
-          label={DETAIL_PAGE.reasonLabel}
-          error={errors['reason']}
-        >
+        <Field id="institution-reason" label={SA_INSTITUTION.reasonLabel} error={errors['reason']}>
           <Textarea
-            className="min-h-[96px]"
             value={dialog?.kind === 'pause' || dialog?.kind === 'restore' ? dialog.reason : ''}
             onChange={(event) => {
               const reason = event.target.value;
@@ -615,245 +779,254 @@ function DetailContent({
             }}
           />
         </Field>
-      </ReasonDialog>
+        {dialog?.kind === 'pause' && hasRequestUnderReview(detail, requests) ? (
+          <Hint>{SA_INSTITUTION.pauseBlocksRequest}</Hint>
+        ) : null}
+      </ConfirmDialog>
     </>
   );
 }
 
-/** B7-03 "Institution summary" (`dl.xl-kv.xv-kv`). */
-function Summary({
+/** "Access plan" while the approved request waits for its payment: what was approved. */
+function AwaitingPlan({
   detail,
-  adminLater,
+  origin,
+  nameOf,
 }: {
   readonly detail: Detail;
-  readonly adminLater: boolean;
+  readonly origin: DecisionPage | null;
+  readonly nameOf: (experimentId: string) => ExperimentName;
 }) {
-  const { institution } = detail;
-  const plan = newestPlan(detail);
-  const keys = DETAIL_PAGE.summaryKeys;
-  const rows: readonly (readonly [string, ReactNode])[] = [
-    [keys.status, institutionStatusWords(detail.status)],
-    [keys.kind, kindWords(institution.kind)],
-    [keys.instituteAdmin, institution.instituteAdmin?.name ?? INSTITUTIONS_PAGE.notAssigned],
-    [keys.plan, plan ? planLine(plan) : noPlanLine(institution.createdFromRequestId)],
-    [keys.people, peopleWords(detail.people.students, detail.people.faculty)],
-  ];
+  const decision = origin?.request.decision ?? null;
+  const items = origin
+    ? decision?.kind === 'approved-smaller-scope'
+      ? decision.approvedItems
+      : origin.request.items
+    : [];
   return (
-    <Section title={DETAIL_PAGE.summary}>
-      <SectionBody>
-        <dl className="xl-kv xv-kv">
-          {rows.map(([key, value]) => (
-            <KeyValue key={key} name={key}>
-              {value}
-            </KeyValue>
-          ))}
-        </dl>
-        {adminLater ? <p className="xl-meta mt-3 mb-0">{DETAIL_PAGE.adminLater}</p> : null}
-      </SectionBody>
-    </Section>
+    <SurfaceSection title={SA_INSTITUTION.noPlanTitle} titleId="in-np">
+      <RecordLine>{SA_INSTITUTION.noPlanLine}</RecordLine>
+      {items.length > 0 ? (
+        <AskList space="above">
+          {items.map((item) => {
+            const experiment = nameOf(item.experimentId);
+            const codes = codesOf(item.formats);
+            return (
+              <AskRow
+                key={item.experimentId}
+                title={experiment.name}
+                course={<CourseLine experiment={experiment} />}
+                formats={<FormatBadges formats={codes} label={approvedFormatsLabel(codes)} />}
+              />
+            );
+          })}
+        </AskList>
+      ) : null}
+      <RecordLine space="above">
+        <TextLink href={requestAddress(detail.institution.createdFromRequestId)}>
+          {SA_INSTITUTION.openApproved}
+        </TextLink>
+      </RecordLine>
+    </SurfaceSection>
   );
 }
 
-function KeyValue({ name, children }: { readonly name: string; readonly children: ReactNode }) {
+/** The course line of an experiment: its course code chip and the course's name. */
+function CourseLine({ experiment }: { readonly experiment: ExperimentName }) {
   return (
     <>
-      <dt>{name}</dt>
-      <dd>{children}</dd>
+      {experiment.platformCode ? <CourseCode code={experiment.platformCode} /> : null}
+      {experiment.courseName ? <span>{experiment.courseName}</span> : null}
     </>
   );
 }
 
-/** Format chips as B7-03 draws them inside a row (`span.xr-fmt.xr-fmt--compact`). */
-function Chips({ formats }: { readonly formats: readonly Technology[] }) {
+/** One plan as its band draws it: identity, term track, experiments, its note. */
+function PlanBandView({
+  view,
+  index,
+  count,
+  nameOf,
+}: {
+  readonly view: PlanView;
+  readonly index: number;
+  readonly count: number;
+  readonly nameOf: (experimentId: string) => ExperimentName;
+}) {
+  const { plan } = view;
+  const label = termLabelWords(plan.term);
+  const start = calendarDay(plan.startsOn);
+  const end = calendarDay(plan.endsOn);
+  const left = termLeftWords(view.state, view.days);
   return (
-    <>
-      {formats.map((format) => (
-        <FormatBadge key={format} format={formatCode(format) as FormatCode} compact />
-      ))}
-    </>
+    <PlanBand
+      kicker={planKickerWords(index, count)}
+      name={planNameWords(plan.items.length, plan.licences)}
+      nameId={`pl-${index}`}
+      status={<PlanStatusPill status={view.status} />}
+      line={planLicenceLine(plan.licences)}
+      term={
+        <TermTrack
+          inPlanBand
+          label={label}
+          remaining={left}
+          remainingTone={
+            view.state === 'paused' ? 'paused' : view.status === 'ending-soon' ? 'due' : 'calm'
+          }
+          start={start}
+          end={end}
+          elapsed={view.elapsed}
+          showRest={view.status === 'ending-soon'}
+          showToday={view.state !== 'ended'}
+          paused={view.state === 'paused'}
+          full={view.state === 'ended'}
+          description={termDescription(label, start, end, left)}
+        />
+      }
+      note={
+        <>
+          <InstitutionPlanExperiments
+            experiments={plan.items.map((item) => {
+              const experiment = nameOf(item.experimentId);
+              const inPlan = codesOf(item.formats);
+              const published = experiment.published ? codesOf(experiment.published) : inPlan;
+              return {
+                key: item.experimentId,
+                title: experiment.name,
+                course: <CourseLine experiment={experiment} />,
+                formats: (
+                  <FormatCells
+                    variant="strip"
+                    label={planFormatsLabel(inPlan, published)}
+                    cells={FORMAT_ORDER.map((code) => {
+                      const state = inPlan.includes(code)
+                        ? 'on'
+                        : published.includes(code)
+                          ? 'pub'
+                          : 'none';
+                      return {
+                        format: code,
+                        state,
+                        words:
+                          state === 'on'
+                            ? SA_INSTITUTION.inPlan
+                            : state === 'pub'
+                              ? SA_INSTITUTION.notInPlan
+                              : SA_INSTITUTION.notPublished,
+                      };
+                    })}
+                  />
+                ),
+              };
+            })}
+          />
+          <PlanNoteView view={view} />
+        </>
+      }
+    />
   );
 }
 
-/** B7-03 "Access plans · Read-only": no amend control (T-08); licences as provided (T-06). */
-function Plans({
+/** The note strip at the foot of a plan band, when the plan needs attention. */
+function PlanNoteView({ view }: { readonly view: PlanView }) {
+  const { note, plan } = view;
+  if (!note) return null;
+  const end = calendarDay(plan.endsOn);
+  switch (note.kind) {
+    case 'renewal':
+      return (
+        <PlanNote
+          tone="warn"
+          icon="calendarPlain"
+          title={endsOnWords(end)}
+          action={
+            <ButtonLink variant="navy" href={requestAddress(note.requestId)}>
+              {note.underReview ? SA_INSTITUTION.openRenewal : SA_INSTITUTION.viewRenewal}
+            </ButtonLink>
+          }
+        >
+          {note.underReview ? SA_INSTITUTION.renewalUnderReview : SA_INSTITUTION.renewalApproved}
+        </PlanNote>
+      );
+    case 'reminder':
+      return (
+        <PlanNote
+          tone="warn"
+          icon="calendarPlain"
+          title={endsOnWords(end)}
+          action={
+            <ButtonLink href={ACCESS_ENDING_ADDRESS}>{SA_INSTITUTION.viewAccessEnding}</ButtonLink>
+          }
+        >
+          {note.notCovered
+            ? `${SA_INSTITUTION.notCovered} ${SA_INSTITUTION.reminderDue}`
+            : SA_INSTITUTION.reminderDue}
+        </PlanNote>
+      );
+    case 'paused':
+      return (
+        <PlanNote tone="paused" title={SA_INSTITUTION.pausedNoteTitle}>
+          {SA_INSTITUTION.pausedNoteLine}
+        </PlanNote>
+      );
+    case 'ended':
+      return (
+        <PlanNote tone="off" title={planEndedWords(end)}>
+          {SA_INSTITUTION.endedNoteLine}
+        </PlanNote>
+      );
+  }
+}
+
+/** "Activity by format": per experiment, students with access, per format — never added up. */
+function Activity({
   detail,
   nameOf,
 }: {
   readonly detail: Detail;
   readonly nameOf: (experimentId: string) => ExperimentName;
 }) {
-  const columns = DETAIL_PAGE.planColumns;
+  const columns = SA_INSTITUTION.activityColumns;
   return (
-    <Section title={DETAIL_PAGE.plans} meta={DETAIL_PAGE.plansMeta}>
-      <SectionBody>
-        {detail.plans.length > 0 ? (
-          <>
-            <div className="xr-table-wrap">
-              <table className="xr-table">
-                <thead>
-                  <tr>
-                    <th scope="col">{columns.plan}</th>
-                    <th scope="col">{columns.experiments}</th>
-                    <th scope="col">{columns.licences}</th>
-                    <th scope="col">{columns.term}</th>
-                    <th scope="col">{columns.status}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detail.plans.map((plan) => (
-                    <tr key={plan.id}>
-                      <td className="is-primary">
-                        <strong>{plan.id}</strong>
-                      </td>
-                      <td data-label={columns.experimentsLabel}>
-                        {plan.items.map((item) => {
-                          const experiment = nameOf(item.experimentId);
-                          return (
-                            <span
-                              key={item.experimentId}
-                              className="my-[2px] flex flex-wrap items-center gap-[6px]"
-                            >
-                              {planExperimentWords(experiment.name, experiment.platformCode)}
-                              <span className="xv-chips">
-                                <Chips formats={item.formats} />
-                              </span>
-                            </span>
-                          );
-                        })}
-                      </td>
-                      <td data-label={columns.licences}>{plan.licences}</td>
-                      <td data-label={columns.term}>
-                        {planTermWords(plan.term)}
-                        <span className="xr-meta block">
-                          {planDates(plan.startsOn, plan.endsOn)}
-                        </span>
-                      </td>
-                      <td data-label={columns.status}>
-                        <InstitutionStatusPill status={detail.status} />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="xl-meta mt-3 mb-0">{DETAIL_PAGE.licenceNote}</p>
-          </>
-        ) : (
-          <p className="xr-body m-0 text-ink-2">
-            {noPlanLine(detail.institution.createdFromRequestId)}.
-          </p>
-        )}
-      </SectionBody>
-    </Section>
+    <SurfaceSection title={SA_INSTITUTION.activity} titleId="in-rep">
+      <ReadOnlyTable
+        caption={SA_INSTITUTION.activityCaption}
+        columns={[columns.experiment, columns.studentsWithAccess, columns.byFormat]}
+        rows={detail.report.map((row) => ({
+          key: row.experimentId,
+          head: nameOf(row.experimentId).name,
+          cells: [
+            {
+              label: columns.studentsWithAccess,
+              content: row.studentsWithAccess,
+              numeric: true,
+            },
+            {
+              label: columns.byFormat,
+              content: (
+                <InstitutionFormatActivity
+                  items={[...row.perFormat]
+                    .sort(
+                      (a, b) =>
+                        FORMAT_ORDER.indexOf(formatCode(a.format) as FormatCode) -
+                        FORMAT_ORDER.indexOf(formatCode(b.format) as FormatCode),
+                    )
+                    .map((format) => ({
+                      format: formatCode(format.format),
+                      words: startedCompletedWords(format.started, format.completed),
+                    }))}
+                />
+              ),
+            },
+          ],
+        }))}
+      />
+      <Hint under="table">{SA_INSTITUTION.activityNote}</Hint>
+    </SurfaceSection>
   );
 }
 
-/** B7-03 "Needs attention": one action per row. */
-function Attention({
-  rows,
-  onAssign,
-  onRestore,
-}: {
-  readonly rows: readonly AttentionView[];
-  readonly onAssign: () => void;
-  readonly onRestore: () => void;
-}) {
-  return (
-    <Section title={DETAIL_PAGE.attention}>
-      {rows.length > 0 ? (
-        <ul className="xr-rows">
-          {rows.map((row) => (
-            <li key={row.key} className="xr-row">
-              <div className="xr-row-main">
-                <span className="xr-row-icon xr-row-icon--wait">
-                  <Icon name="clock" />
-                </span>
-                <div className="xr-row-text">
-                  <span className="xr-row-title">{row.text}</span>
-                </div>
-              </div>
-              {row.action.kind === 'link' ? (
-                <Link className="xr-btn xr-btn--secondary xr-btn--sm" href={row.action.href}>
-                  {row.action.label}
-                </Link>
-              ) : (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={row.action.kind === 'assign' ? onAssign : onRestore}
-                >
-                  {row.action.kind === 'assign' ? DETAIL_PAGE.assign : DETAIL_PAGE.restore}
-                </Button>
-              )}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <SectionBody>
-          <p className="xr-body m-0 text-ink-2">{DETAIL_PAGE.nothingNeedsAttention}</p>
-        </SectionBody>
-      )}
-    </Section>
-  );
-}
-
-/** B7-03 "Institution report": per experiment, students with access, per format — never added up. */
-function Report({
-  detail,
-  nameOf,
-}: {
-  readonly detail: Detail;
-  readonly nameOf: (experimentId: string) => ExperimentName;
-}) {
-  const columns = DETAIL_PAGE.reportColumns;
-  return (
-    <Section title={DETAIL_PAGE.report}>
-      <SectionBody>
-        {detail.report.length > 0 ? (
-          <>
-            <div className="xr-table-wrap">
-              <table className="xr-table">
-                <thead>
-                  <tr>
-                    <th scope="col">{columns.experiment}</th>
-                    <th scope="col">{columns.studentsWithAccess}</th>
-                    <th scope="col">{columns.byFormat}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {detail.report.map((row) => (
-                    <tr key={row.experimentId}>
-                      <td className="is-primary">
-                        <strong>{nameOf(row.experimentId).name}</strong>
-                      </td>
-                      <td data-label={columns.studentsWithAccess}>{row.studentsWithAccess}</td>
-                      <td data-label={columns.byFormat}>
-                        {row.perFormat.map((format) => (
-                          <span
-                            key={format.format}
-                            className="my-[2px] flex flex-wrap items-center gap-2"
-                          >
-                            <FormatBadge format={formatCode(format.format) as FormatCode} compact />
-                            <span>{startedCompletedWords(format.started, format.completed)}</span>
-                          </span>
-                        ))}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-            <p className="xl-meta mt-3 mb-0">{DETAIL_PAGE.reportNote}</p>
-          </>
-        ) : (
-          <p className="xr-body m-0 text-ink-2">{DETAIL_PAGE.noActivity}</p>
-        )}
-      </SectionBody>
-    </Section>
-  );
-}
-
-/** B7-03 "People": the counts, and each student with "Change status" — an override, inline. */
+/** "People": the counts, and each student with "Change status" — an override, inline. */
 function People({
   detail,
   override,
@@ -872,76 +1045,87 @@ function People({
   readonly onSave: (student: Detail['people']['studentList'][number]) => void;
 }) {
   const students = detail.people.studentList;
-  return (
-    <Section title={DETAIL_PAGE.people}>
-      <SectionBody>
-        <p className={`xr-body text-ink-2 ${students.length > 0 ? 'mt-0 mb-3' : 'm-0'}`}>
-          {peopleWords(detail.people.students, detail.people.faculty)}. {DETAIL_PAGE.peopleTail}
-        </p>
-        {students.length > 0 ? (
-          <ul className="xg-los" aria-label={DETAIL_PAGE.studentsLabel}>
-            {students.map((student) => {
-              // The change the panel names was fixed when it opened (`Override.to`).
-              const open = override?.studentId === student.id;
-              return (
-                <li key={student.id} className="xg-lo items-start">
-                  <div className="xg-lo-main flex-col gap-[2px]">
-                    <span className="font-[700] text-ink">{student.name}</span>
-                    <span className="xr-meta">
-                      <span className="xr-id">{student.institutionStudentId}</span>
-                    </span>
-                  </div>
-                  <div className="xg-lo-acts gap-3">
-                    <StatusPill tone={student.status === 'active' ? 'ok' : 'off'}>
-                      {accountWords(student.status)}
-                    </StatusPill>
-                    {open ? null : (
+  const counts = peopleWords(detail.people.students, detail.people.faculty);
+  let body: ReactNode;
+  if (students.length > 0) {
+    body = (
+      <>
+        <RecordLine space="below">{SA_INSTITUTION.peopleLine}</RecordLine>
+        <InstitutionPeople>
+          {students.map((student) => {
+            // The change the form names was fixed when it opened (`Override.to`).
+            const open = override?.studentId === student.id ? override : null;
+            return (
+              <InstitutionPerson
+                key={student.id}
+                name={student.name}
+                detail={student.institutionStudentId}
+                status={
+                  <StatusPill tone={student.status === 'active' ? 'ok' : 'ended'}>
+                    {accountWords(student.status)}
+                  </StatusPill>
+                }
+                action={
+                  open ? undefined : (
+                    <Button
+                      variant="ghost"
+                      id={`override-${student.id}`}
+                      aria-label={changeStatusLabel(student.name)}
+                      onClick={() => onStart(student)}
+                    >
+                      {SA_INSTITUTION.changeStatus}
+                    </Button>
+                  )
+                }
+              >
+                {open ? (
+                  <InlineForm>
+                    <Field
+                      id={`override-reason-${student.id}`}
+                      label={overrideReasonLabel(open.to)}
+                      hint={SA_INSTITUTION.overrideHint}
+                      error={open.error ?? undefined}
+                    >
+                      <Textarea
+                        value={open.reason}
+                        onChange={(event) => onReason(event.target.value)}
+                      />
+                    </Field>
+                    <ButtonRow>
                       <Button
-                        variant="text"
-                        id={`override-${student.id}`}
-                        aria-label={changeStatusLabel(student.name)}
-                        onClick={() => onStart(student)}
+                        variant="navy"
+                        busy={busy}
+                        busyLabel={overrideConfirm(open.to)}
+                        onClick={() => onSave(student)}
                       >
-                        {DETAIL_PAGE.changeStatus}
+                        {overrideConfirm(open.to)}
                       </Button>
-                    )}
-                  </div>
-                  {open ? (
-                    <div className="xw-inline-panel flex-[1_1_100%]">
-                      <Field
-                        id={`override-reason-${student.id}`}
-                        label={overrideReasonLabel(override.to)}
-                        hint={DETAIL_PAGE.overrideHint}
-                        error={override.error ?? undefined}
-                      >
-                        <Textarea
-                          className="min-h-[80px]"
-                          value={override.reason}
-                          onChange={(event) => onReason(event.target.value)}
-                        />
-                      </Field>
-                      <div className="xw-actions mt-3">
-                        <Button
-                          variant="primary"
-                          size="sm"
-                          busy={busy}
-                          busyLabel={overrideConfirm(override.to)}
-                          onClick={() => onSave(student)}
-                        >
-                          {overrideConfirm(override.to)}
-                        </Button>
-                        <Button variant="text" onClick={() => onCancel(student.id)}>
-                          {DETAIL_PAGE.cancel}
-                        </Button>
-                      </div>
-                    </div>
-                  ) : null}
-                </li>
-              );
-            })}
-          </ul>
-        ) : null}
-      </SectionBody>
-    </Section>
+                      <Button onClick={() => onCancel(student.id)}>{SA_INSTITUTION.cancel}</Button>
+                    </ButtonRow>
+                  </InlineForm>
+                ) : null}
+              </InstitutionPerson>
+            );
+          })}
+        </InstitutionPeople>
+      </>
+    );
+  } else {
+    body = (
+      <RecordLine>
+        {detail.people.students > 0 || detail.people.faculty > 0
+          ? peopleCountsLine(detail.people.students, detail.people.faculty)
+          : SA_INSTITUTION.nobody}
+      </RecordLine>
+    );
+  }
+  return (
+    <SurfaceSection
+      title={SA_INSTITUTION.people}
+      titleId="in-ppl"
+      aside={students.length > 0 ? <SectionNote>{counts}</SectionNote> : undefined}
+    >
+      {body}
+    </SurfaceSection>
   );
 }

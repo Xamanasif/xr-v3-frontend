@@ -11,6 +11,7 @@ import {
   assertNoAxeViolations,
   expectRenderedAsV3Drawn,
   expectV3ClassesOnly,
+  saExportText,
   v3BoardText,
   xsExportText,
 } from '../testing/index.js';
@@ -33,12 +34,14 @@ const XS_FILES = [
 ];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board or the XS export draws (inline or as a symbol)', () => {
+  it('every icon is a path a V3 board, the XS export or the SA export draws', () => {
     const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
       '\n',
     );
+    // The Super Admin export (SA-v1) keeps its glyphs in a sprite table: `['rki-ok', '<path>']`.
+    const saSprite = saExportText('sa-core.js');
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
-      expect(drawn.includes(`d="${path}"`), name).toBe(true);
+      expect(drawn.includes(`d="${path}"`) || saSprite.includes(`', '${path}']`), name).toBe(true);
     }
   });
 

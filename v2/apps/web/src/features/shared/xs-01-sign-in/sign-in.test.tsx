@@ -284,16 +284,23 @@ describe('XS-03 — the notices on the same card (XS `signedout`, `expired`)', (
   });
 
   it('?reason=expired: the return address in the page’s words, never the address', async () => {
-    await openSignIn('?reason=expired&returnTo=%2Fadmin%2Frequests%2FREQ-0038');
+    await openSignIn('?reason=expired&returnTo=%2Fcontent-manager%2Fupdates%2FUPD-0005');
     const notice = screen.getByText('Your session ended').closest('.rk-notice')!;
     expect(notice).toHaveClass('rk-notice--info');
     expect(notice).toHaveTextContent(
-      'Sign in again to go back to where you were: Requests › REQ-0038.',
+      'Sign in again to go back to where you were: Updates › UPD-0005.',
     );
-    expect(notice.querySelector('b')).toHaveTextContent('Requests › REQ-0038');
-    expect(notice).not.toHaveTextContent('/admin');
+    expect(notice.querySelector('b')).toHaveTextContent('Updates › UPD-0005');
+    expect(notice).not.toHaveTextContent('/content-manager');
     await waitFor(() => expect(notice).toHaveFocus());
     expect(XS_SIGN_IN).toContain('Sign in again to go back to where you were: <b>');
+  });
+
+  it('?reason=expired to a Super Admin record: the destination alone, never its reference (SA-v1)', async () => {
+    await openSignIn('?reason=expired&returnTo=%2Fadmin%2Frequests%2FREQ-0038');
+    const notice = screen.getByText('Your session ended').closest('.rk-notice')!;
+    expect(notice.querySelector('b')).toHaveTextContent(/^Requests$/);
+    expect(notice).not.toHaveTextContent('REQ-0038');
   });
 
   it('?reason=expired with text that is not a page: no place, no injected words', async () => {

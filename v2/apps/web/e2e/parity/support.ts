@@ -1,6 +1,10 @@
-import { expect, test as base, type Locator, type Page } from '@playwright/test';
+import { expect, test as base, type Locator, type Page, type TestInfo } from '@playwright/test';
 
-import { captureFixtures } from '../../../../tools/board-capture/src/parity.mjs';
+import {
+  captureFixtures,
+  compareAll,
+  retiredComparisons,
+} from '../../../../tools/board-capture/src/parity.mjs';
 
 /** What the board-capture harness records about a board it opened (`openBoard`). */
 export interface BoardFacts {
@@ -88,3 +92,24 @@ export const test = base.extend<CaptureFixtures>(
   captureFixtures as unknown as Parameters<typeof base.extend<CaptureFixtures>>[0],
 );
 export { expect };
+
+/**
+ * Records, as `retired-by-v3`, every v46 comparison of one board that an owner-approved V3 screen
+ * supersedes (`docs/v3/V3-COMPARISON-MAP.json` `productScreens[].supersedes`, by name prefix such
+ * as `b1-10-`): for a board whose product screens are all migrated, so nothing of it is captured.
+ * Each name must be on the map (the map is the only way to retire one); the run's report counts
+ * them as retired — never as passed.
+ */
+export async function recordSuperseded(testInfo: TestInfo, prefix: string): Promise<void> {
+  const retired = retiredComparisons() as ReadonlyMap<string, string>;
+  const names = [...retired.keys()].filter((name) => name.startsWith(prefix)).sort();
+  expect(names.length, `superseded comparisons named ${prefix}*`).toBeGreaterThan(0);
+  // Retired names are recorded before any capture: their locators are never read.
+  const unread = undefined as unknown as Locator;
+  await compareAll({
+    expect,
+    testInfo,
+    kind: 'specimen',
+    items: names.map((name) => ({ name, reference: unread, product: unread })),
+  });
+}

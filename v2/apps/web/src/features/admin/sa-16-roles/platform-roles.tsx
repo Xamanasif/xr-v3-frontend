@@ -3,37 +3,39 @@
 import type { PlatformRole } from '@xr/domain';
 import {
   Button,
-  EditDialog,
-  EmptyState,
-  FailedState,
+  ButtonLink,
+  CellLines,
+  ConfirmDialog,
+  CourseCode,
   Field,
-  Icon,
-  Link,
-  LoadingState,
+  LinkTabs,
+  ListFoot,
+  ListState,
+  LoadingRows,
   Notice,
-  PageContent,
-  PageHeader,
-  Section,
-  SectionBody,
-  Skeleton,
-  StatusTabs,
+  PageHead,
+  QuietLine,
+  RecordTable,
+  type RecordTableRow,
+  StatusPill,
+  Surface,
   TextInput,
-  VisuallyHidden,
-} from '@xr/ui';
-import { useEffect, useState } from 'react';
+} from '@xr/ui/v3';
+import { Fragment, useEffect, useState } from 'react';
 
-import { dayMonthYear } from '@/copy/dates';
+import { dayMonthYear, weekdayDate } from '@/copy/dates';
 import {
+  holderRowLabel,
+  holdersCaption,
+  noScopeLine,
   noScopeTitle,
-  openHolderLabel,
   REGISTER_DIALOG,
   registeredFlash,
-  registeredLine,
   ROLE_TAB_WORDS,
-  ROLE_WORDS,
   ROLES_PAGE,
   withdrawnCountWords,
 } from '@/copy/platform-roles';
+import { SA_FAILED } from '@/copy/sa-shared';
 import { stateWords } from '@/copy/state-copy';
 import { useAppNavigation } from '@/nav/navigation';
 import {
@@ -52,15 +54,13 @@ import {
   type RegisterErrors,
   registerErrorsOf,
 } from '@/queries/platform-roles-forms';
+import { useSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
 
 import { noteRouteFocus } from '../../shared/workspace-frame/route-focus';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { HOLDER_TITLE_ID, noteArrival } from '../sa-17-role-holder/arrival';
 import { rowFacts } from '../sa-17-role-holder/holder-view';
-
-/** The board's three columns (B7-08 f0: Role holder · Can act on · Action). */
-const COLUMN_COUNT = 3;
 
 /** The open Register dialog: the role it registers (the tab's when it opened) and what is typed. */
 interface RegisterForm {
@@ -80,34 +80,33 @@ const FIELD_IDS = {
 } as const;
 
 /**
- * SA-16 Platform roles — board B7-08 f0 (Reviewers), f3 (Vendors), f6 (Register a Vendor ·
- * validation) and the Content Managers tab (an engine state of f0), at `/admin/roles`
- * (`?tab=reviewers | content-managers`; Vendors is the bare address): “Who can produce, review and
- * publish content — and for what”.
+ * SA-16 Platform roles — the owner-approved V3 design (design/v3-refined-b/roles/SA-v1,
+ * `sa-views-d.js` `V.roles`, `SA.DLG.register`) at `/admin/roles` (`?tab=reviewers |
+ * content-managers`; Vendors is the bare address): “Who can produce, review and publish content,
+ * and for what.”
  *
  * - **Read**: `PlatformRoleService.listHolders({ tab })` for each tab — the shown tab's rows and
  *   every tab's count (`useRoleHolders`), first registered first. The holders' scopes are facts
  *   (PC-70); the row writes them (state-copy `SA-16.can-act-on`).
- * - **As B7-08 draws it**: the section titled by the tab, “Register a <role>” in its head, status
- *   tabs Vendors · Reviewers · Content Managers with their counts (`role="tablist"` buttons, rule
- *   T3; ← → between them), the warn notice “N holder(s) with no scope — they can’t act on anything
- *   yet”, the table (Role holder: name, organisation and registration date · Can act on: the
- *   scopes, “Nothing — no scope yet” as a warn tag, “N scope(s) withdrawn” · “Open” to SA-17) and
- *   the foot note, without “(T-11)” (P1-14). Below 760 px of content the rows become labelled
- *   blocks (the v46 table sheet).
- * - **Address**: the tab lives here while the page is on show and the address mirrors it
- *   (replaced, no history entry); `?tab=vendors` and an unknown tab are replaced by the bare
- *   address (state-copy `SA-16.tab-address`).
- * - **Register a <role>** (f6, DL-3): name, work e-mail and organisation, all required and checked
- *   at once with the contract's rules; nothing is sent (T-11). The service refuses an e-mail
- *   already registered or used by another sample identity with SA-16's words (PC-49). Registered:
- *   the new holder opens on SA-17 with B7-08's flash, focus on their name (state-copy
+ * - **As the export draws it**: the page head with “Register a <role>” (navy), the page tabs
+ *   Vendors · Reviewers · Content Managers with their counts (links: each tab is an address), the
+ *   warn notice for the tab's holders with no scope (“Assign scope” opens the first of them), the
+ *   holders' table (Role holder and organisation · Can act on: the course code chips, “All
+ *   experiments” or the experiment, “N scope(s) withdrawn” · Work e-mail · Registered · Scope:
+ *   Has scope / No scope; the whole row opens SA-17) and the foot note in the surface.
+ * - **Address**: the tab is the address; `?tab=vendors` and an unknown tab are replaced by the
+ *   bare address (state-copy `SA-16.tab-address`).
+ * - **Register a <role>** (`SA.DLG.register`): name, work e-mail and organisation, all required and
+ *   checked at once with the contract's rules; nothing is sent (T-11). The service refuses an
+ *   e-mail already registered or used by another sample identity with SA-16's words (PC-49).
+ *   Registered: the new holder opens on SA-17 with the flash, focus on their name (state-copy
  *   `SA-16.register-result`). Failed for now: the dialog stays open with what was typed.
- * - Undrawn: loading, failed + Try again and a tab with nobody in it (state-copy `SA-16.*`).
+ * - Loading, failed + Try again, and a tab with nobody in it, as the export's list states.
  */
 export function PlatformRoles() {
   useShellPage(rolesPlacement());
   const navigation = useAppNavigation();
+  const session = useSession();
   const asked = roleTabOf(navigation.search);
   // `?tab=vendors` and a tab that does not exist are the bare address (D-11).
   const normalise =
@@ -115,13 +114,7 @@ export function PlatformRoles() {
   useEffect(() => {
     if (normalise) navigation.replace(ROLES_ADDRESS);
   }, [normalise, navigation]);
-  const addressed: RoleTab = asked ?? 'vendors';
-  const [tab, setTab] = useState<RoleTab>(addressed);
-  const [seenSearch, setSeenSearch] = useState(navigation.search);
-  if (navigation.search !== seenSearch) {
-    setSeenSearch(navigation.search);
-    setTab(addressed);
-  }
+  const tab: RoleTab = asked ?? 'vendors';
 
   const reads = {
     vendors: useRoleHolders('vendors'),
@@ -136,15 +129,10 @@ export function PlatformRoles() {
     return answer?.ok ? answer.value.length : undefined;
   };
 
-  const choose = (next: RoleTab) => {
-    setTab(next);
-    navigation.replace(rolesAddress(next));
-  };
-
   const words = ROLE_TAB_WORDS[tab];
   const [form, setForm] = useState<RegisterForm | null>(null);
   const register = useCommand((ports) => ports.platformRoles.registerHolder);
-  // Focus after a refusal the service answered: its first field in error (board 10).
+  // Focus after a refusal the service answered: its first field in error.
   const [focusRequest, setFocusRequest] = useState<{ readonly id: string; readonly n: number }>({
     id: '',
     n: 0,
@@ -174,7 +162,7 @@ export function PlatformRoles() {
         ? {
             ...current,
             [field]: value,
-            // Editing a field clears its error (B7-08 `onN`, `onE`, `onO`).
+            // Editing a field clears its error.
             errors: Object.fromEntries(
               Object.entries(current.errors).filter(([key]) => key !== field),
             ),
@@ -193,7 +181,7 @@ export function PlatformRoles() {
     };
     const errors = checkRegister(draft);
     if (errors) {
-      // The dialog moves focus to the first invalid field itself (board 10).
+      // The dialog moves focus to the first invalid field itself.
       setForm({ ...form, errors, unavailable: false });
       return;
     }
@@ -221,64 +209,94 @@ export function PlatformRoles() {
     );
   };
 
-  return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-4"
-        title={ROLES_PAGE.title}
-        meta={<span className="xl-meta">{ROLES_PAGE.meta}</span>}
+  const withoutScope = rows
+    ? rows.filter((row) => rowFacts(row).inScope.length === 0).map((row) => row.holder)
+    : [];
+  const first = withoutScope[0];
+
+  let body;
+  if (failed) {
+    body = (
+      <ListState
+        kind="failed"
+        title={stateWords('SA-16.failed')}
+        action={<Button onClick={() => void shown.refetch()}>{SA_FAILED.retry}</Button>}
+      >
+        {SA_FAILED.line}
+      </ListState>
+    );
+  } else if (rows === null) {
+    body = <LoadingRows message={stateWords('SA-16.loading')} />;
+  } else if (rows.length === 0) {
+    body = (
+      <ListState kind="empty" icon="person" title={stateWords('SA-16.empty')}>
+        {stateWords('SA-16.empty.line')}
+      </ListState>
+    );
+  } else {
+    body = (
+      <RecordTable
+        caption={holdersCaption(words.label)}
+        headers={{
+          who: ROLES_PAGE.columns.holder,
+          what: ROLES_PAGE.columns.canActOn,
+          kind: ROLES_PAGE.columns.workEmail,
+          when: ROLES_PAGE.columns.registered,
+          status: ROLES_PAGE.columns.scope,
+        }}
+        whenLabel={ROLES_PAGE.columns.registered}
+        rows={rows.map(holderRow)}
       />
-      <Section
-        title={words.label}
-        headingId="roles-list"
-        headEnd={
-          <Button variant="secondary" size="sm" icon="add" onClick={openRegister}>
+    );
+  }
+
+  return (
+    <>
+      <PageHead
+        title={ROLES_PAGE.title}
+        titleFocusTarget
+        date={session.status === 'signed-in' ? weekdayDate(session.signedInAt) : undefined}
+        lead={ROLES_PAGE.lead}
+        actions={
+          <Button variant="navy" icon="add" onClick={openRegister}>
             {words.register}
           </Button>
         }
-      >
-        <StatusTabs
-          label={ROLES_PAGE.tabsLabel}
-          idPrefix="roles"
-          className="px-4"
-          tabs={ROLE_TABS.map((id) => {
-            const count = countOf(id);
-            return {
-              id,
-              label: ROLE_TAB_WORDS[id].label,
-              ...(count !== undefined ? { count } : {}),
-            };
-          })}
-          selected={tab}
-          onSelect={(id) => choose(id as RoleTab)}
+      />
+      <LinkTabs
+        pageTabs
+        label={ROLES_PAGE.tabsLabel}
+        tabs={ROLE_TABS.map((id) => {
+          const count = countOf(id);
+          return {
+            label: ROLE_TAB_WORDS[id].label,
+            href: rolesAddress(id),
+            current: id === tab,
+            ...(count !== undefined ? { count } : {}),
+          };
+        })}
+      />
+      {first ? (
+        <Notice
+          tone="warn"
+          icon="userQuestion"
+          title={noScopeTitle(withoutScope.map((holder) => holder.name))}
+          actions={<ButtonLink href={holderAddress(first.id)}>{ROLES_PAGE.assignScope}</ButtonLink>}
         >
-          {failed ? (
-            <SectionBody className="pt-4">
-              <FailedState title={stateWords('SA-16.failed')} onRetry={() => void shown.refetch()}>
-                {stateWords('SA-16.failed.line')}
-              </FailedState>
-            </SectionBody>
-          ) : (
-            <HolderTable rows={rows} tabLabel={words.label} />
-          )}
-        </StatusTabs>
-      </Section>
-      <p className="xl-open mt-4 mb-0">
-        <Icon name="info" size={16} />
-        <span>{ROLES_PAGE.footNote}</span>
-      </p>
-      <EditDialog
+          {noScopeLine(words.role)}
+        </Notice>
+      ) : null}
+      <Surface label={words.label} busy={rows === null && !failed}>
+        {body}
+        <ListFoot>{ROLES_PAGE.footNote}</ListFoot>
+      </Surface>
+      <ConfirmDialog
+        initialFocus="field"
+        submitOnEnter
         open={form !== null}
-        align="start"
         idPrefix="roles-register"
         title={form?.title ?? words.register}
-        effect={
-          <>
-            {REGISTER_DIALOG.rolePrefix}
-            <strong>{ROLE_WORDS[form?.role ?? words.role]}</strong>
-            {REGISTER_DIALOG.roleTail}
-          </>
-        }
+        description={REGISTER_DIALOG.description}
         confirmLabel={REGISTER_DIALOG.confirm}
         cancelLabel={REGISTER_DIALOG.cancel}
         busy={register.busy}
@@ -286,19 +304,13 @@ export function PlatformRoles() {
         onConfirm={confirm}
         onCancel={() => setForm(null)}
       >
-        {/* B7-08 draws the sentence as `p style="margin:0 0 14px"` and 12 px between the fields. */}
-        <Field
-          id={FIELD_IDS.name}
-          className="mt-[14px]"
-          label={REGISTER_DIALOG.name}
-          error={form?.errors.name}
-        >
+        <Field id={FIELD_IDS.name} label={REGISTER_DIALOG.name} error={form?.errors.name}>
           <TextInput
+            autoComplete="off"
             value={form?.name ?? ''}
             onChange={(event) => edit('name', event.target.value)}
           />
         </Field>
-        <div className="h-3" />
         <Field
           id={FIELD_IDS.workEmail}
           label={REGISTER_DIALOG.workEmail}
@@ -306,141 +318,67 @@ export function PlatformRoles() {
         >
           <TextInput
             type="email"
+            autoComplete="off"
             value={form?.workEmail ?? ''}
             onChange={(event) => edit('workEmail', event.target.value)}
           />
         </Field>
-        <div className="h-3" />
         <Field
           id={FIELD_IDS.organisation}
           label={REGISTER_DIALOG.organisation}
           error={form?.errors.organisation}
         >
           <TextInput
+            autoComplete="off"
             value={form?.organisation ?? ''}
             onChange={(event) => edit('organisation', event.target.value)}
           />
         </Field>
-        <div className="h-3" />
         {form?.unavailable ? (
-          <Notice tone="err">{stateWords('SA-16.register.unavailable')}</Notice>
+          <Notice
+            tone="warn"
+            icon="alertCircle"
+            role="status"
+            title={stateWords('SA-16.register.unavailable')}
+          />
         ) : null}
-      </EditDialog>
-    </PageContent>
-  );
-}
-
-/**
- * The tab's panel (f0, f3): the no-scope notice and the table, or the loading rows, or nobody
- * registered yet. The table wrap stays mounted while a tab loads, so its status is announced.
- */
-function HolderTable({
-  rows,
-  tabLabel,
-}: {
-  readonly rows: readonly HolderView[] | null;
-  readonly tabLabel: string;
-}) {
-  const withoutScope = rows ? rows.filter((row) => rowFacts(row).inScope.length === 0).length : 0;
-  if (rows !== null && rows.length === 0) {
-    return (
-      <SectionBody className="pt-3">
-        <EmptyState
-          icon="platformRoles"
-          headingLevel={3}
-          title={stateWords('SA-16.empty').replace('{roles}', tabLabel)}
-        >
-          {stateWords('SA-16.empty.line')}
-        </EmptyState>
-      </SectionBody>
-    );
-  }
-  return (
-    <>
-      {withoutScope > 0 ? (
-        <div className="px-6 pt-3">
-          <Notice tone="warn" title={noScopeTitle(withoutScope)}>
-            {ROLES_PAGE.noScopeLine}
-          </Notice>
-        </div>
-      ) : null}
-      <LoadingState
-        label={stateWords('SA-16.loading')}
-        loading={rows === null}
-        skeleton={<SkeletonRows />}
-        className="mt-3 rounded-none border-x-0 border-b-0"
-      >
-        <table className="xr-table">
-          <thead>
-            <tr>
-              <th scope="col">{ROLES_PAGE.columns.holder}</th>
-              <th scope="col">{ROLES_PAGE.columns.canActOn}</th>
-              <th scope="col">
-                <VisuallyHidden>{ROLES_PAGE.columns.action}</VisuallyHidden>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {(rows ?? []).map((row) => (
-              <HolderRow key={row.holder.id} row={row} />
-            ))}
-          </tbody>
-        </table>
-      </LoadingState>
+      </ConfirmDialog>
     </>
   );
 }
 
-/** One row as B7-08 draws it (f0, f3). */
-function HolderRow({ row }: { readonly row: HolderView }) {
+/** One row of the holders' table (the export's `V.roles` row). */
+function holderRow(row: HolderView): RecordTableRow {
   const { holder } = row;
   const { inScope, withdrawn } = rowFacts(row);
-  return (
-    <tr>
-      <td className="is-primary">
-        <strong>{holder.name}</strong>
-        <span className="xr-meta block">
-          {registeredLine(holder.organisation, dayMonthYear(holder.registeredAt))}
-        </span>
-      </td>
-      <td data-label={ROLES_PAGE.columns.canActOn}>
-        {inScope.length > 0 ? (
-          inScope.join(', ')
-        ) : (
-          <span className="xw-tag xw-tag--warn">{ROLES_PAGE.nothing}</span>
-        )}
-        {withdrawn > 0 ? (
-          <span className="xr-meta mt-1 block">{withdrawnCountWords(withdrawn)}</span>
-        ) : null}
-      </td>
-      <td>
-        <Link
-          className="xr-btn xr-btn--secondary xr-btn--sm"
-          href={holderAddress(holder.id)}
-          aria-label={openHolderLabel(holder.name)}
-        >
-          {ROLES_PAGE.open}
-        </Link>
-      </td>
-    </tr>
-  );
-}
-
-/** Skeleton rows in the table's shape (board 04 "Skeleton in the shape of the content"). */
-function SkeletonRows() {
-  return (
-    <table className="xr-table" aria-hidden="true">
-      <tbody>
-        {Array.from({ length: 2 }, (_, row) => (
-          <tr key={row}>
-            {Array.from({ length: COLUMN_COUNT }, (_, column) => (
-              <td key={column}>
-                <Skeleton />
-              </td>
-            ))}
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
+  const hasScope = inScope.length > 0;
+  return {
+    key: holder.id,
+    href: holderAddress(holder.id),
+    title: holder.name,
+    linkLabel: holderRowLabel(holder.name, holder.role, hasScope),
+    titleDetail: holder.organisation,
+    what: (
+      <CellLines
+        strong={
+          hasScope
+            ? inScope.map((scope, index) => (
+                <Fragment key={index}>
+                  {index > 0 ? ' ' : null}
+                  {scope.code ? <CourseCode code={scope.code} /> : scope.short}
+                </Fragment>
+              ))
+            : ROLES_PAGE.nothing
+        }
+        small={withdrawn > 0 ? withdrawnCountWords(withdrawn) : undefined}
+      />
+    ),
+    kind: <QuietLine flush>{holder.workEmail}</QuietLine>,
+    when: dayMonthYear(holder.registeredAt),
+    status: (
+      <StatusPill tone={hasScope ? 'ok' : 'warn'}>
+        {hasScope ? ROLES_PAGE.hasScope : ROLES_PAGE.noScope}
+      </StatusPill>
+    ),
+  };
 }

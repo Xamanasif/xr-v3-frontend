@@ -1,0 +1,17 @@
+const { open, chromium, B } = require('./lib'); const fs = require('fs');
+const SCREEN = h => { const p = h.replace(/^#\//, '').split('/');
+  if (p[0]==='overview') return 'SA-01'; if (p[0]==='requests') return p[1]?'SA-03':'SA-02'; if (p[0]==='institutions') return p[1]?'SA-07':'SA-06';
+  if (p[0]==='content') return p[1]==='updates'?(p[2]?'SA-11':'SA-10'):p[1]==='all'?'SA-12':p[1]==='records'?'SA-13':'SA-10';
+  if (p[0]==='structure') return p[1]?'SA-15':'SA-14'; if (p[0]==='roles') return p[1]==='holder'?'SA-17':'SA-16';
+  if (p[0]==='operations') return p[1]==='support'?(p[2]?'SA-21':'SA-20'):p[1]==='access-ending'?'SA-22':(p[2]?'SA-19':'SA-18');
+  if (p[0]==='help') return 'XS Help & support (borrowed)'; if (p[0]==='signed-out') return 'XS signed-out (borrowed)'; return 'unknown'; };
+const ROUTES = ['#/overview','#/requests','#/requests/hyderabad-renewal','#/requests/konark-licences','#/requests/godavari-new-access','#/institutions','#/institutions/godavari','#/institutions/bitshyd','#/institutions/sahyadri','#/institutions/vizag','#/content/updates','#/content/updates/distillation-1-3','#/content/all','#/content/records/dc-motor','#/content/records/distillation-column','#/structure','#/structure/areas/mechanical','#/structure/courses/me-zg523','#/roles/vendors','#/roles/holder/k-iyer','#/operations/device-transfers','#/operations/device-transfers/rahul-verma-vr','#/operations/support','#/operations/support/import-part-way','#/operations/access-ending','#/help'];
+(async () => { const browser = await chromium.launch(); const s = await open(1440, '?clean=1', '#/overview', { browser }); const p = s.page; const out = []; const seen = new Set();
+  for (const r of ROUTES) { await p.evaluate(h => { location.hash = h; }, r); await p.waitForTimeout(100);
+    const links = await p.evaluate(() => Array.from(document.querySelectorAll('#app a[href]')).map(a => ({ text: (a.getAttribute('aria-label') || a.textContent).trim().replace(/\s+/g, ' ').slice(0, 90), href: a.getAttribute('href'), where: a.closest('.rb-rail') ? 'rail' : a.closest('.rk-crumbs') ? 'breadcrumb' : a.closest('.rk-tabs') ? 'tab' : a.closest('.sa-acctmenu') ? 'account menu' : 'page' })));
+    for (const l of links) { const key = SCREEN(r) + '|' + l.text + '|' + l.href; if (seen.has(key) || l.where === 'rail' && r !== '#/overview') continue; seen.add(key);
+      let status = 'n/a';
+      if (l.href.startsWith('#/')) { const p2 = await browser.newPage(); await p2.route('https://fonts.**/**', x => x.abort()); await p2.goto(require('./lib').INDEX + '?clean=1' + l.href); await p2.waitForTimeout(60); const h1 = await p2.evaluate(() => (document.getElementById('page-h1') || {}).textContent || ''); status = /isn’t available/.test(h1) || !h1 ? 'BROKEN' : 'RESOLVED (rendered h1: ' + h1.slice(0, 50) + ')'; await p2.close(); }
+      else if (l.href.startsWith('#')) status = 'IN-PAGE ANCHOR';
+      out.push({ source: SCREEN(r), sourceRoute: r, control: l.text, location: l.where, destination: l.href.startsWith('#/') ? SCREEN(l.href) : l.href, destinationRoute: l.href, class: l.href.startsWith('#/help') || l.href.startsWith('#/signed-out') ? 'shared (XS, borrowed)' : l.href.startsWith('#/') ? 'in-role' : 'in-page', tested: status }); } }
+  fs.writeFileSync(B + '/linkmap.json', JSON.stringify(out, null, 1)); console.log(out.length, 'links;', out.filter(x => x.tested === 'BROKEN').length, 'broken'); await browser.close(); })();

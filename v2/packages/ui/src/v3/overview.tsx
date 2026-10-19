@@ -208,11 +208,18 @@ export interface QueueGroup {
   /** The group's destination ("Open Requests"). */
   readonly link?: { readonly href: string; readonly label: ReactNode };
   readonly rows: readonly QueueRow[];
+  /**
+   * The quiet line of a group with no rows (`p.sa-quietrow`; the Super Admin export's
+   * `groupHtml`): "No request is waiting for your decision." A group with no rows and no quiet
+   * line shows its head alone.
+   */
+  readonly quiet?: ReactNode;
 }
 
 /**
  * The rest of the queue (`div.rb-queue`): one surface, groups divided by rules, never cards. Each
- * group is a section named by its heading.
+ * group is a section named by its heading; a group with nothing in it says so in its quiet line
+ * (SA-01 under a category).
  */
 export function QueueGroups({
   groups,
@@ -241,29 +248,36 @@ export function QueueGroups({
                 </Link>
               ) : null}
             </div>
-            <ul className="rb-rows">
-              {group.rows.map((row) => (
-                <li key={row.key} className="rb-row">
-                  <div className="rb-row-main">
-                    <p className="rb-row-t">{row.title}</p>
-                    {row.description ? <p className="rb-row-d">{row.description}</p> : null}
-                  </div>
-                  <p className={joinClasses('rb-row-when', row.when.due && 'rb-row-when--due')}>
-                    <b>{row.when.big}</b>
-                    {row.when.small ? <span>{row.when.small}</span> : null}
-                  </p>
-                  <div className="rb-row-act">
-                    <ButtonLink
-                      href={row.action.href}
-                      variant="ghost"
-                      aria-label={row.action.accessibleName}
-                    >
-                      {row.action.label}
-                    </ButtonLink>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {group.rows.length > 0 ? (
+              <ul className="rb-rows">
+                {group.rows.map((row) => (
+                  <li key={row.key} className="rb-row">
+                    <div className="rb-row-main">
+                      <p className="rb-row-t">{row.title}</p>
+                      {row.description ? <p className="rb-row-d">{row.description}</p> : null}
+                    </div>
+                    <p className={joinClasses('rb-row-when', row.when.due && 'rb-row-when--due')}>
+                      <b>{row.when.big}</b>
+                      {row.when.small ? <span>{row.when.small}</span> : null}
+                    </p>
+                    <div className="rb-row-act">
+                      <ButtonLink
+                        href={row.action.href}
+                        variant="ghost"
+                        aria-label={row.action.accessibleName}
+                      >
+                        {row.action.label}
+                      </ButtonLink>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : group.quiet ? (
+              <p className="sa-quietrow">
+                <Glyph name="check" />
+                <span>{group.quiet}</span>
+              </p>
+            ) : null}
           </section>
         );
       })}
@@ -428,9 +442,12 @@ export function AttentionPanel({ title, titleId, note, lead, items, calm }: Atte
  */
 export function CalmState({
   title,
+  titleId,
   children,
 }: {
   readonly title: ReactNode;
+  /** The title's id, for a region it names (SA-01's queue section). */
+  readonly titleId?: string;
   readonly children?: ReactNode;
 }) {
   return (
@@ -438,7 +455,9 @@ export function CalmState({
       <span className="rb-calm-ico" aria-hidden="true">
         <Glyph name="check" />
       </span>
-      <p className="rb-calm-t">{title}</p>
+      <p className="rb-calm-t" id={titleId}>
+        {title}
+      </p>
       {children ? <p className="rb-calm-d">{children}</p> : null}
     </div>
   );

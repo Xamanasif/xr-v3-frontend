@@ -1,0 +1,27 @@
+{
+  "title": "XR Learning Platform — Design V3 · Super Admin complete role · Refined B",
+  "foundation": "XR-V3-RB-1.0",
+  "runtime": "plain HTML + vanilla JS (the V3 .dc.html runtime support.js was not supplied); no backend",
+  "roots": {
+    "index.html": {
+      "role": "live role preview root (connected journeys, shared in-tab state)",
+      "w": 1440,
+      "query": "?clean=1 hides preview controls; ?scenario=busy|new|quiet|konark; ?list=loading|failed|empty; ?stale=1"
+    },
+    "boards.html": {
+      "role": "inspection boards: the same preview framed at 1440/1024/768/375 (new derivative, independent frames)"
+    }
+  },
+  "sources": [
+    "core.css",
+    "rb.css",
+    "rb-kit.css",
+    "sa-role.css",
+    "sa-data.js",
+    "sa-core.js",
+    "sa-views-a.js",
+    "sa-views-b.js",
+    "sa-views-c.js",
+    "sa-views-d.js"
+  ]
+}

@@ -1,8 +1,10 @@
 /**
- * SA-03 Request decision (board B1-11) on the real composition root and the spine-start sample
- * world. The page reads `getRequestForDecision` (opening it writes nothing: AD-14 / P1-04), the
- * panel's decisions are the port's commands with the request's revision, refusals are shown as
- * they come, and every change is the shared world's — read back through the ports.
+ * SA-03 Request decision in the V3 design (the Super Admin export `sa-views-a.js` `V.decision`) on
+ * the real composition root and the spine-start sample world. The page reads
+ * `getRequestForDecision` (opening it writes nothing: AD-14 / P1-04), the panel's decisions are the
+ * port's commands with the request's revision, refusals are shown as they come, and every change is
+ * the shared world's — read back through the ports. Requests are named by their institution, never
+ * by their reference.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -12,7 +14,7 @@ import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import type { PlatformRuntime } from '@/platform/runtime';
-import { board } from '@/test-support/boards';
+import { saExport } from '@/test-support/boards';
 import {
   renderInTab,
   SUPER_ADMIN,
@@ -30,7 +32,20 @@ afterEach(() => {
   forgetLastAddress();
 });
 
-const B1_11 = board('B1-11-SA-Decision.dc.html');
+const VIEWS = saExport('sa-views-a.js');
+/** The export's sample records: their sentences show the forms the views fill in. */
+const SAMPLES = saExport('sa-data.js');
+
+const KONARK = 'Konark Polytechnic';
+const HYDERABAD = 'BITS Pilani — Hyderabad Campus';
+
+/** The dialog's lines, "What happens now" first. */
+const dialogLines = (dialog: HTMLElement) =>
+  [...dialog.querySelectorAll('li')].map((li) => li.textContent);
+
+/** "Where this request stands". */
+const standValues = (decision: HTMLElement) =>
+  [...decision.querySelectorAll('dl.rk-stand dd')].map((dd) => dd.textContent);
 
 function openDecision(runtime: PlatformRuntime, requestId: string, page?: ReactNode) {
   const navigation = testNavigation(`/admin/requests/${requestId}`);
@@ -56,57 +71,84 @@ async function panel(): Promise<HTMLElement> {
 }
 
 describe('SA-03 — REQ-0038, a renewal (B1-11 f13, f16)', () => {
-  it('the details as B1-11 draws them, from the world’s answer; opening the page writes nothing', async () => {
+  it('the details as the export draws them, from the world’s answer; opening the page writes nothing', async () => {
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     const before = sample.worldVersion();
     const reviewStarted = (await decisionOf(runtime, 'REQ-0038')).request.reviewStartedAt;
     openDecision(runtime, 'REQ-0038');
-    await screen.findByRole('heading', { level: 1, name: 'BITS Pilani — Hyderabad Campus' });
-    const header = document.querySelector('.xr-phead')!;
-    expect(header.querySelector('.xr-overline')).toHaveTextContent(
-      'Institutional access request · REQ-0038',
+    const title = await screen.findByRole('heading', { level: 1, name: HYDERABAD });
+    expect(title).toHaveClass('rk-title');
+    expect(title).toHaveAttribute('tabindex', '-1');
+    const head = title.closest('.rk-head')!;
+    expect(head.querySelector('.rk-eyebrow')).toHaveTextContent('Institutional access request');
+    expect(head.querySelector('.rk-meta')).toHaveTextContent(
+      'Under reviewRenewalReceived 26 Sep 2026, 16:02',
     );
-    expect(header.querySelector('.xr-phead-meta')).toHaveTextContent(
-      'Under reviewReceived 26 Sep 2026, 16:02Renewal',
+    expect(head.querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--info', 'rk-st-lg');
+    // The breadcrumb goes to Requests; this page is named by its institution.
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(crumbs).getByRole('link', { name: 'Requests' })).toHaveAttribute(
+      'href',
+      '/admin/requests',
     );
-    // The back link, the sidebar destination and (from 1024 px) the crumb all go to Requests.
-    expect(document.querySelector('main a.xr-back')).toHaveAttribute('href', '/admin/requests');
-    expect(document.querySelector('main a.xr-back')).toHaveTextContent('Requests');
-    // Summary facts.
-    const summary = screen.getByRole('region', { name: 'Summary' });
-    expect([...summary.querySelectorAll('dt')].map((dt) => dt.textContent)).toEqual([
+    expect(crumbs.querySelector('[aria-current="page"]')).toHaveTextContent(HYDERABAD);
+    expect(screen.getByRole('link', { name: 'Go to decision' })).toHaveAttribute(
+      'href',
+      '#dc-panel',
+    );
+    // The facts.
+    const facts = document.querySelector('main dl.rk-factstrip')!;
+    expect([...facts.querySelectorAll('dt')].map((dt) => dt.textContent)).toEqual([
       'Experiments',
       'Licences requested',
       'Access term',
       'Internal or external',
     ]);
-    expect([...summary.querySelectorAll('dd')].map((dd) => dd.textContent)).toEqual([
+    expect([...facts.querySelectorAll('dd')].map((dd) => dd.textContent)).toEqual([
       '2',
       '80',
       'Monthly',
       'Internal',
     ]);
-    // What they're asking for: requested against published formats.
-    const asking = screen.getByRole('region', { name: 'What they’re asking for' });
-    const rows = [...asking.querySelectorAll('tbody tr')].map((row) =>
-      [...row.querySelectorAll('td')].map((cell) => cell.textContent),
+    // The organisation, its institution linked to its record.
+    const organisation = screen.getByRole('region', { name: 'Organisation and contact person' });
+    expect(within(organisation).getByRole('link', { name: HYDERABAD })).toHaveAttribute(
+      'href',
+      '/admin/institutions/bitshyd',
     );
+    expect(organisation).toHaveTextContent('Contact personA. Menon');
+    // What they're asking for: requested against published formats, as cells.
+    const asking = screen.getByRole('region', { name: 'What they’re asking for' });
+    const rows = asking.querySelectorAll('.rk-askrow');
     expect(rows).toHaveLength(2);
-    expect(rows[0]![1]).toBe('WEB, VR');
+    const cells = rows[0]!.querySelector('ul.rk-fstrip')!;
+    expect(cells.getAttribute('aria-label')).toMatch(/^Formats requested: WEB, VR\. Published: /);
+    expect([...cells.querySelectorAll('li')].map((cell) => cell.className)).toEqual([
+      'rk-fcell rk-fcell--on',
+      expect.stringMatching(/^rk-fcell rk-fcell--(pub|none)$/),
+      'rk-fcell rk-fcell--on',
+      expect.stringMatching(/^rk-fcell rk-fcell--(pub|none)$/),
+    ]);
+    expect(rows[0]!.querySelector('.rk-askrow-c .rk-code')).not.toBeNull();
     expect(
       screen.getByRole('region', { name: 'Existing access' }).querySelector('p'),
     ).toHaveTextContent(
-      'Access plan ACC-0098 · these 2 experiments · 80 licences · current term ends 31 Oct 2026.',
+      'The current access plan holds these 2 experiments and 80 licences. Its current term ends on 31 Oct 2026.',
     );
-    expect(screen.getByRole('region', { name: 'Message from the requester' })).toHaveTextContent(
-      '“Renewal for the next academic year, same experiments.”',
+    const message = screen.getByRole('region', { name: 'Message from the requester' });
+    expect(message.querySelector('blockquote.rk-quote')).toHaveTextContent(
+      'Renewal for the next academic year, same experiments.A. Menon, contact person',
     );
     const history = screen.getByRole('region', { name: 'History' });
-    expect(history.querySelector('.xr-tl-what')).toHaveTextContent('Request submitted');
-    expect(history.querySelector('.xr-tl-when')).toHaveTextContent(
-      '26 Sep 2026, 16:02 · A. Menon, contact person',
+    expect(history.querySelector('.rk-tl-w')).toHaveTextContent('Request submitted');
+    expect(history.querySelector('.rk-tl-t')).toHaveTextContent(
+      '26 Sep 2026, 16:02 by A. Menon, contact person',
     );
-    expect(screen.getByText('What happens after you decide — four separate events')).toBeVisible();
+    const events = screen.getByRole('region', { name: 'What happens after you decide' });
+    expect(events.querySelectorAll('li.rk-event')).toHaveLength(4);
+    expect(events).toHaveTextContent('Four separate events');
+    // No internal reference anywhere on the page.
+    expect(screen.getByRole('main').textContent).not.toMatch(/(?:REQ|ACC)-\d/);
     // Opening SA-03 changes nothing: no review start, no new world version (AD-14 / P1-04).
     expect(sample.worldVersion()).toBe(before);
     expect((await decisionOf(runtime, 'REQ-0038')).request.reviewStartedAt).toBe(reviewStarted);
@@ -115,11 +157,13 @@ describe('SA-03 — REQ-0038, a renewal (B1-11 f13, f16)', () => {
       'What they’re asking for',
       'Existing access',
       'Message from the requester',
-      'What happens after you decide — four separate events',
+      'What happens after you decide',
+      'Four separate events',
       'Request more information keeps the request open; none of the four events happen until it is approved.',
     ]) {
-      expect(B1_11).toContain(words);
+      expect(VIEWS).toContain(words);
     }
+    expect(SAMPLES).toContain('The current access plan holds these ');
   });
 
   it('a renewal’s smaller scope is unavailable, saying why; the route is shown read-only', async () => {
@@ -129,28 +173,38 @@ describe('SA-03 — REQ-0038, a renewal (B1-11 f13, f16)', () => {
     const smaller = within(decision).getByRole('radio', { name: /Approve a smaller scope/ });
     expect(smaller).toBeDisabled();
     expect(smaller.closest('label')).toHaveClass('is-off');
-    expect(decision).toHaveTextContent(
-      'Not available for a renewal — the term continues the current plan.',
+    expect(smaller).toHaveAccessibleDescription(
+      'Not available for a renewal. The term continues the current plan.',
     );
     const user = userEvent.setup();
     await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
-    expect(decision).toHaveTextContent(
-      'Internal or external: Internal — set when this institution was first approved.',
+    expect(decision.querySelector('.rk-locked')).toHaveTextContent(
+      'Internal or external: Internal. Set when this institution was first approved.',
     );
     expect(within(decision).queryByRole('group', { name: /Internal or external/ })).toBeNull();
   });
 
-  it('Approve request: the internal confirmation, then the world’s change in the decided panel', async () => {
+  it('Approve request: the renewal’s confirmation never claims a plan, then the world’s change in the decided panel', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     openDecision(runtime, 'REQ-0038');
     const decision = await panel();
     const user = userEvent.setup();
     await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
     await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Approve REQ-0038?' });
-    expect([...dialog.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
-      'Approves the request. There is no payment step.',
-      'Institutional access is activated now and the access plan is created.',
+    const dialog = await screen.findByRole('dialog', {
+      name: `Approve the renewal from ${HYDERABAD}?`,
+    });
+    expect(dialog).toHaveAccessibleDescription(
+      'Check what approving does now, and what happens only after later events.',
+    );
+    expect([...dialog.querySelectorAll('h3')].map((h3) => h3.textContent)).toEqual([
+      'What happens now',
+      'Only after later events, or not from here',
+    ]);
+    // The plan effect of a renewal is open (planEffect policy-open): the plan is not claimed.
+    expect(dialogLines(dialog)).toEqual([
+      'Approves the renewal. There is no payment step.',
+      'This page does not change the current plan. Its term still shows as ending on 31 Oct 2026.',
       'Students get access only when the institution’s administrator gives it.',
     ]);
     await user.click(within(dialog).getByRole('button', { name: 'Approve request' }));
@@ -159,35 +213,39 @@ describe('SA-03 — REQ-0038, a renewal (B1-11 f13, f16)', () => {
       expect((await decisionOf(runtime, 'REQ-0038')).request.status).toBe('access-active'),
     );
     await waitFor(() => expect(decision).toHaveTextContent('Access active'));
-    expect(decision).toHaveTextContent(/Decided by you · .* · Internal/);
-    const stand = decision.querySelector('dl.xp-stand')!;
-    expect(stand).toHaveAttribute('aria-label', 'Where this request stands');
+    expect(decision.querySelector('.rk-done-meta')).toHaveTextContent(
+      /^Decided by you on .*, internal$/,
+    );
+    const stand = decision.querySelector('dl.rk-stand')!;
     expect([...stand.querySelectorAll('dt')].map((dt) => dt.textContent)).toEqual([
       'Institution record',
       'Request',
       'Payment',
       'Institutional access',
     ]);
-    expect([...stand.querySelectorAll('dd')].map((dd) => dd.textContent)).toEqual([
+    expect(standValues(decision)).toEqual([
       'Exists',
-      'Approved · Internal',
+      'Approved (internal)',
       'Not needed (internal)',
-      'Active',
+      'Active, unchanged',
     ]);
-    expect(decision).toHaveTextContent(
-      'Institutional access is active. The institution administrator can now give students access.',
+    expect(decision.querySelector('.rk-next')).toHaveTextContent(
+      'The renewal is approved. The current plan isn’t changed from this page; its term still shows as ending on 31 Oct 2026.',
     );
     expect(within(decision).getByRole('link', { name: 'Back to requests' })).toHaveAttribute(
       'href',
       '/admin/requests',
     );
+    expect(within(decision).queryByRole('link', { name: 'Open institution' })).toBeNull();
     await waitFor(() =>
       expect(within(decision).getByRole('heading', { name: 'Your decision' })).toHaveFocus(),
     );
     // The history shows the approval (P1-11 interim: no plan was written, OD-B3-09).
     const history = screen.getByRole('region', { name: 'History' });
-    expect(history).toHaveTextContent('Request approved · Internal');
+    expect(history).toHaveTextContent('Request approved (internal)');
     expect(history).toHaveTextContent('No payment step (internal).');
+    // Decided, the four events are no longer shown.
+    expect(screen.queryByRole('region', { name: 'What happens after you decide' })).toBeNull();
   });
 });
 
@@ -222,15 +280,15 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
       expect((await decisionOf(runtime, 'REQ-0040')).request.status).toBe('information-requested'),
     );
     await waitFor(() => expect(decision).toHaveTextContent('Information requested'));
-    expect(decision).toHaveTextContent(/Sent by you · /);
+    expect(decision.querySelector('.rk-done-meta')).toHaveTextContent(/^Sent by you on /);
     expect(decision).toHaveTextContent(
       'The request stays open. Your question is on the requester’s request status.',
     );
-    expect([...decision.querySelectorAll('dl.xp-stand dd')].map((dd) => dd.textContent)).toEqual([
+    expect(standValues(decision)).toEqual([
       'Exists',
       'Information requested',
-      '—',
-      'Not active',
+      'Not started',
+      'Active, unchanged',
     ]);
     expect(screen.getByRole('region', { name: 'History' })).toHaveTextContent(
       '“Please confirm the size of the second section.”',
@@ -246,7 +304,7 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
     // REQ-0040 asks for the "Current term", which the select does not offer: it shows Monthly and
     // the difference says so (state-copy SA-03.term-not-offered).
     expect(
-      within(decision).getByText('Different from the request').closest('.xr-notice'),
+      within(decision).getByText('Different from the request').closest('.rk-diff'),
     ).toHaveTextContent('Term: Current term → Monthly');
     expect(decision).toHaveTextContent(
       'Change at least one thing and give a reason before approving.',
@@ -257,21 +315,22 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
     expect([...errors.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
       messageFor('SA-03.reason.required'),
     ]);
-    await user.click(within(decision).getByRole('checkbox', { name: 'AR' }));
+    await user.click(within(decision).getByRole('checkbox', { name: /^AR/ }));
     const different = within(decision).getByText('Different from the request');
-    expect(different.closest('.xr-notice')).toHaveTextContent('Formats: WEB, AR → WEB');
+    expect(different.closest('.rk-diff')).toHaveTextContent('Formats: WEB, AR → WEB');
     await user.type(
       within(decision).getByLabelText('Reason for the change (required)'),
       'AR is not part of the second section.',
     );
     await user.click(within(decision).getByRole('button', { name: 'Approve smaller scope' }));
     const dialog = await screen.findByRole('dialog', {
-      name: 'Approve a smaller scope for REQ-0040?',
+      name: `Approve a smaller scope for ${KONARK}?`,
     });
-    expect([...dialog.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
+    // An existing institution: its plan effect is open — the plan is not claimed.
+    expect(dialogLines(dialog)).toEqual([
       'Approves the request. Its status becomes Approved — payment required.',
-      'Institutional access is not activated now. It is activated only after the payment is confirmed.',
       'The requester sees what changed and your reason.',
+      'Payment is confirmed outside this page. Current access continues unchanged, and the plan isn’t changed from here.',
       'Students get access only when the institution’s administrator gives it.',
     ]);
     await user.click(within(dialog).getByRole('button', { name: 'Approve smaller scope' }));
@@ -285,8 +344,8 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
       });
     });
     await waitFor(() => expect(decision).toHaveTextContent('Approved — payment required'));
-    expect(decision).toHaveTextContent(
-      'The requester now sees Continue to payment on their request status.',
+    expect(decision.querySelector('.rk-next')).toHaveTextContent(
+      'The requester now sees Continue to payment on their request status. Current access continues unchanged; the plan isn’t changed from this page.',
     );
   });
 
@@ -297,7 +356,7 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
     const user = userEvent.setup();
     const before = sample.worldVersion();
     await user.click(within(decision).getByRole('radio', { name: /Approve a smaller scope/ }));
-    const licences = within(decision).getByLabelText('Licences to approve');
+    const licences = within(decision).getByLabelText('Additional licences to approve');
     await user.clear(licences);
     await user.type(licences, '80');
     await user.type(
@@ -306,7 +365,7 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
     );
     await user.click(within(decision).getByRole('button', { name: 'Approve smaller scope' }));
     const dialog = await screen.findByRole('dialog', {
-      name: 'Approve a smaller scope for REQ-0040?',
+      name: `Approve a smaller scope for ${KONARK}?`,
     });
     await user.click(within(dialog).getByRole('button', { name: 'Approve smaller scope' }));
     // The domain refuses (PC-06 not-smaller, no drawn words): "Check your decision" shows and
@@ -332,7 +391,9 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
     const before = sample.worldVersion();
     await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
     await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    const dialog = await screen.findByRole('dialog', {
+      name: `Approve the request from ${KONARK}?`,
+    });
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(sample.worldVersion()).toBe(before);
@@ -446,7 +507,9 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     const user = userEvent.setup();
     await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
     await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    const dialog = await screen.findByRole('dialog', {
+      name: `Approve the request from ${KONARK}?`,
+    });
     const lines = [...dialog.querySelectorAll('li')].map((li) => li.textContent);
     await reviewStartedElsewhere(runtime, sample, 'REQ-0040');
     // Still open, naming the same decision.
@@ -463,7 +526,9 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     // A new confirmation begins from the request as now shown, and is accepted.
     expect(within(decision).getByRole('radio', { name: /Approve request/ })).toBeChecked();
     await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
-    const again = await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    const again = await screen.findByRole('dialog', {
+      name: `Approve the request from ${KONARK}?`,
+    });
     await user.click(within(again).getByRole('button', { name: 'Approve request' }));
     await waitFor(async () =>
       expect((await decisionOf(runtime, 'REQ-0040')).request.status).toBe(
@@ -479,13 +544,13 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     const decision = await panel();
     const user = userEvent.setup();
     await user.click(within(decision).getByRole('radio', { name: /Approve a smaller scope/ }));
-    await user.click(within(decision).getByRole('checkbox', { name: 'AR' }));
+    await user.click(within(decision).getByRole('checkbox', { name: /^AR/ }));
     const reason = within(decision).getByLabelText('Reason for the change (required)');
     await user.type(reason, 'AR is not part of the second section.');
     await reviewStartedElsewhere(runtime, sample, 'REQ-0040');
     await user.click(within(decision).getByRole('button', { name: 'Approve smaller scope' }));
     const dialog = await screen.findByRole('dialog', {
-      name: 'Approve a smaller scope for REQ-0040?',
+      name: `Approve a smaller scope for ${KONARK}?`,
     });
     const version = sample.worldVersion();
     await user.click(within(dialog).getByRole('button', { name: 'Approve smaller scope' }));
@@ -493,7 +558,7 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     await waitFor(() => expect(heading(decision)).toHaveFocus());
     expect(sample.worldVersion()).toBe(version);
     expect((await decisionOf(runtime, 'REQ-0040')).request.decision).toBeNull();
-    expect(within(decision).getByRole('checkbox', { name: 'AR' })).not.toBeChecked();
+    expect(within(decision).getByRole('checkbox', { name: /^AR/ })).not.toBeChecked();
     expect(reason).toHaveValue('AR is not part of the second section.');
   });
 
@@ -504,7 +569,7 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     const user = userEvent.setup();
     await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
     await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
-    await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    await screen.findByRole('dialog', { name: `Approve the request from ${KONARK}?` });
     const opened = await decisionOf(runtime, 'REQ-0040');
     const elsewhere = await asPersonId(sample, SUPER_ADMIN).accessRequests.requestMoreInformation({
       id: opened.request.id,
@@ -553,9 +618,16 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
     await user.click(document.querySelector('label[for="decision-route-internal"]')!);
     await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
-    const dialog = await screen.findByRole('dialog', { name: `Approve ${reference}?` });
-    const lines = [...dialog.querySelectorAll('li')].map((li) => li.textContent);
-    expect(lines.join(' ')).toContain('Internal');
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Approve the request from Godavari Institute of Technology?',
+    });
+    const lines = dialogLines(dialog);
+    expect(lines).toEqual([
+      'Creates the institution record for Godavari Institute of Technology, classified internal.',
+      'Approves the request. There is no payment step.',
+      'Institutional access is activated now and the access plan is created.',
+      'Students get access only when the institution’s administrator gives it.',
+    ]);
     // A newer read of the page that says other things — its route already External, its record
     // created — written into the cache (no Phase-1 command can change a request's own route while
     // it is open; this stands for any read that answers differently).
@@ -579,10 +651,10 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
       );
     });
     await waitFor(() =>
-      expect(screen.getByRole('region', { name: 'Summary' })).toHaveTextContent('External'),
+      expect(document.querySelector('main dl.rk-factstrip')).toHaveTextContent('External'),
     );
     // The page shows the newer read; the confirmation names what it opened with, and sends it.
-    expect([...dialog.querySelectorAll('li')].map((li) => li.textContent)).toEqual(lines);
+    expect(dialogLines(dialog)).toEqual(lines);
     await user.click(within(dialog).getByRole('button', { name: 'Approve request' }));
     await waitFor(async () =>
       expect((await decisionOf(runtime, reference)).request.status).toBe('access-active'),
@@ -604,14 +676,14 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     await user.click(within(decision).getByRole('radio', { name: /Approve a smaller scope/ }));
     await user.click(document.querySelector('label[for="decision-route-external"]')!);
     // The first experiment narrowed to WEB: a request of two experiments (REQ-19 is OPEN).
-    const vr = within(decision).getByRole('checkbox', { name: 'VR' });
+    const vr = within(decision).getByRole('checkbox', { name: /^VR/ });
     await user.click(vr);
     const reason = within(decision).getByLabelText('Reason for the change (required)');
     await user.type(reason, 'One section for now.');
     const trigger = within(decision).getByRole('button', { name: 'Approve smaller scope' });
     await user.click(trigger);
     const dialog = await screen.findByRole('dialog', {
-      name: `Approve a smaller scope for ${reference}?`,
+      name: 'Approve a smaller scope for Godavari Institute of Technology?',
     });
     const version = sample.worldVersion();
     await user.click(within(dialog).getByRole('button', { name: 'Approve smaller scope' }));
@@ -631,7 +703,7 @@ describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 
     const user = userEvent.setup();
     await user.click(within(decision).getByRole('radio', { name: /Approve request/ }));
     await user.click(within(decision).getByRole('button', { name: 'Approve request' }));
-    await screen.findByRole('dialog', { name: 'Approve REQ-0040?' });
+    await screen.findByRole('dialog', { name: `Approve the request from ${KONARK}?` });
     const detail = await runtime.ports.institutions.getInstitution('konark' as never);
     if (!detail.ok) throw new Error(detail.error.kind);
     const paused = await asPersonId(sample, SUPER_ADMIN).institutions.pauseInstitution({
@@ -682,29 +754,56 @@ describe('SA-03 — decided and unknown requests', () => {
     await waitFor(() => expect(decision).toHaveTextContent('Information requested'));
     expect(within(decision).queryAllByRole('radio')).toHaveLength(0);
     expect(screen.getByRole('region', { name: 'Existing access' })).toHaveTextContent(
-      'None. There is no institution record for Krishna College of Engineering yet. Approving this request creates the record — it does not activate access.',
+      'None. There is no institution record for Krishna College of Engineering yet.',
     );
+    expect(standValues(decision)).toEqual([
+      'Not created',
+      'Information requested',
+      'Not started',
+      'Not active',
+    ]);
+    // The institution has no record yet: its name is not a link.
+    expect(
+      within(screen.getByRole('region', { name: 'Organisation and contact person' })).queryByRole(
+        'link',
+      ),
+    ).toBeNull();
   });
 
-  it('REQ-0037 (approved, payment required): the record this approval created', async () => {
+  it('REQ-0037 (approved, payment required): the record this approval created, and the way to it', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     openDecision(runtime, 'REQ-0037');
     const decision = await panel();
     await waitFor(() => expect(decision).toHaveTextContent('Approved — payment required'));
-    expect([...decision.querySelectorAll('dl.xp-stand dd')].map((dd) => dd.textContent)).toEqual([
-      'Created · 22 Sep 2026, 15:00',
-      'Approved · External',
-      'Waiting — not confirmed',
+    expect(standValues(decision)).toEqual([
+      'Created 22 Sep 2026, 15:00',
+      'Approved (external)',
+      'Waiting, not confirmed',
       'Not active',
     ]);
-    expect(screen.getByRole('region', { name: 'Existing access' })).toHaveTextContent(
-      'Institution record created by this approval · 22 Sep 2026, 15:00. No institutional access yet — it is activated only after the payment is confirmed.',
+    expect(decision.querySelector('.rk-next')).toHaveTextContent(
+      'The requester now sees Continue to payment on their request status. Institutional access is not active until the payment is confirmed.',
     );
+    const open = within(decision).getByRole('link', { name: 'Open institution' });
+    expect(open).toHaveClass('rb-btn', 'rb-btn--ghost');
+    expect(open.getAttribute('href')).toMatch(/^\/admin\/institutions\//);
+    expect(screen.getByRole('region', { name: 'Existing access' })).toHaveTextContent(
+      'Institution record created by this approval on 22 Sep 2026, 15:00. No institutional access yet; it is activated only after the payment is confirmed.',
+    );
+    const history = screen.getByRole('region', { name: 'History' });
+    expect([...history.querySelectorAll('.rk-tl-w')].map((what) => what.textContent)).toEqual([
+      'Request approved (external)',
+      'Request submitted',
+    ]);
   });
 
-  it('an unknown reference is the in-shell not-found (existence is not revealed)', async () => {
+  it('an unknown reference is the GL-04 message in place (existence is not revealed)', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     openDecision(runtime, 'REQ-9999');
-    await screen.findByRole('heading', { name: 'We can’t find that page' });
+    await screen.findByRole('heading', { level: 1, name: 'This page isn’t available' });
+    expect(screen.getByRole('link', { name: 'Back to Overview' })).toHaveAttribute(
+      'href',
+      '/admin',
+    );
   });
 });

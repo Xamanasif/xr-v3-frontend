@@ -1,7 +1,7 @@
 'use client';
 
 import { ROLE_LABEL, type Role } from '@xr/domain';
-import { AccountMenuInV46Shell, type AccountMenuLink } from '@xr/ui/v3';
+import { AccountMenu, AccountMenuInV46Shell, type AccountMenuLink } from '@xr/ui/v3';
 
 import { ACCOUNT_MENU } from '@/copy/xs';
 import { BUILT_SCREENS } from '@/nav/built-screens';
@@ -71,6 +71,11 @@ export function accountMenuLinks(role: Role, options: AccountMenuOptions): Accou
 export interface WorkspaceAccountMenuProps extends AccountMenuOptions {
   readonly role: Role;
   readonly person: ShellPerson;
+  /**
+   * The shell the menu sits in: a v46 role shell keeps its own top-bar button and opens the XS
+   * panel under it (default); a V3 role shell (a migrated role) draws the XS button itself.
+   */
+  readonly shell?: 'v46' | 'v3';
 }
 
 /**
@@ -80,9 +85,15 @@ export interface WorkspaceAccountMenuProps extends AccountMenuOptions {
  * the links and Sign out. The role's own shell keeps its v46 account button until the role moves
  * to the V3 shell; the panel is the XS one in every workspace.
  */
-export function WorkspaceAccountMenu({ role, person, ...options }: WorkspaceAccountMenuProps) {
+export function WorkspaceAccountMenu({
+  role,
+  person,
+  shell = 'v46',
+  ...options
+}: WorkspaceAccountMenuProps) {
+  const Menu = shell === 'v3' ? AccountMenu : AccountMenuInV46Shell;
   return (
-    <AccountMenuInV46Shell
+    <Menu
       name={person.name}
       role={ROLE_LABEL[role]}
       organisation={organisationLine(role, person)}

@@ -14,9 +14,12 @@ Test foundations of the workspace (`docs/v46/audit/Appendix-F-Phase0-Plan.md` §
 - `expectNoInvisibleFocusTargets(page)` — Tabs through the page from the start and fails on any
   focused element that is not visibly on screen (hidden, under 2×2, off-viewport or clipped by an
   ancestor). The B1-10 defect class (BC13).
-- `reachAndClick(page, locator)` — the real-pointer reach test: mouse wheel only, hit-test, then a
-  pointer click. Never `scrollIntoView`, `scrollTo` or `locator.click()`.
-- `expectNoAxeViolations(page, options)` — axe-core via `@axe-core/playwright` at WCAG 2.2 AA; a
+- `reachAndClick(page, locator)` — the real-pointer reach test: mouse wheel only, hit-test (the
+  centre of the target's visible box, then — for an inline target wrapped onto several lines — the
+  centre of each visible line), then a pointer click there. Never `scrollIntoView`, `scrollTo` or
+  `locator.click()`.
+- `expectNoAxeViolations(page, options)` — axe-core via `@axe-core/playwright` at WCAG 2.2 AA,
+  once the page's finite animations have finished (a dialog's fade-in is not measured mid-way); a
   rule is switched off only with a written reason.
 - `expectNoDeveloperSurfaces(page)` — no DEMO banner, "Viewing as", account or role selector,
   workspace chooser, board control or canvas class in the rendered page (the term list is shared

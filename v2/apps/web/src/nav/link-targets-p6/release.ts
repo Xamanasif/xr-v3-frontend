@@ -9,67 +9,90 @@ const DECISION = '/admin/content/updates/UPD-0005';
 const HELD = '/admin/content/updates/UPD-0004';
 
 /**
- * Phase 6 link targets: SA-10 Content › Updates and SA-11 Release or hold an update (B7-05,
- * B7-10 f0 … f4, B7-11). SA-10 draws no primary action: its rows open the decision (“Review” on a
- * waiting row, “Open” otherwise). SA-11's one primary is the panel's “Release update” / “Hold” (a
- * command, through DL-1 or DL-2); on hold the only action is “Lift hold” (DL-1), and once
- * released the panel is read-only. Nothing on either page says “Publish”.
+ * SA-10 Content updates and SA-11 Release or hold an update in the owner-approved Super Admin
+ * export (design/v3-refined-b/roles/SA-v1, `sa-views-c.js` `V.updates`, `V.update`; LINK-MAP
+ * SA-10, SA-11). SA-10 draws no primary action: each row opens the decision. SA-11's one primary
+ * is the panel's “Release update” / “Hold update” (a command, through its confirmation); on hold
+ * the panel's one action is “Lift hold” (confirmed), and once released the panel is read-only.
+ * Nothing on either page says “Publish”; no row or link is named by a reference.
  */
 export const P6_RELEASE_LINK_TARGETS: readonly LedgerEntry[] = [
-  // SA-10 Content › Updates (B7-05 f0, f2, f3, f4; B7-11 f0).
+  // SA-10 Content updates (SA-v1 `V.updates`).
   ...pageRows('SA-10', UPDATES, [
     [
-      'Sub-navigation',
+      'Page tabs',
       'Updates',
       'secondary',
       UPDATES,
       'built',
-      'B7-05 f0 … f4 `nav.xr-tabs > a.xr-tab[aria-current="page"]`',
+      'SA-v1 LINK-MAP SA-10 “Updates” tab (`nav.rk-tabs.sa-tabs > a.rk-tab[aria-current="page"]`)',
     ],
     [
-      'Sub-navigation',
+      'Page tabs',
       'All content',
       'secondary',
       ALL_CONTENT,
       'built',
-      'B7-05 f0 … f4 `nav.xr-tabs > a.xr-tab` (SA-12)',
+      'SA-v1 LINK-MAP SA-10 “All content” tab → SA-12',
     ],
     [
-      'Status tabs',
-      'Waiting for you · On hold · Released',
+      'Segmented control',
+      'Waiting for your decision · On hold · Released',
       'secondary',
       null,
       'in-page',
-      'B7-05 f0, f2, f3 `div.xr-tabs[role="tablist"] > button.xr-tab` (mirrored in `?show=`; state-copy `SA-10.show-address`)',
+      'SA-v1 `V.updates` `seg` (`div.rb-switch[role=group] > button[aria-pressed]`; mirrored in `?show=`; state-copy `SA-10.show-address`)',
     ],
     [
-      'Waiting row',
-      'Review',
+      'Each row (waiting)',
+      'Distillation Column correction, version 1.2 to 1.3, Waiting for your decision. Open',
       'secondary',
       DECISION,
       'built',
-      'B7-05 f0; B7-11 f0 `a.xr-btn--secondary.xr-btn--sm` (SA-11)',
+      'SA-v1 LINK-MAP SA-10 row link (`a.rk-rowlink`, the whole row) → SA-11',
     ],
     [
-      'On hold · Released row',
-      'Open',
+      'Each row (on hold, released)',
+      'Boiler Drum Level correction, version 2.0 to 2.1, On hold. Open',
       'secondary',
       HELD,
       'built',
-      'B7-05 f2, f3 `a.xr-btn--secondary.xr-btn--sm` (SA-11)',
+      'SA-v1 `V.updates` row link (`a.rk-rowlink`, the whole row) → SA-11',
     ],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `SA-10.failed`'],
+    [
+      'Failed state',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'SA-v1 `SA.listState` failed (`retryList`)',
+    ],
   ]),
-  // SA-11 Release or hold an update (B7-05 f1, f5 … f11; B7-10 f0 … f4; B7-11 f1; B7-12 f0 … f3).
+  // SA-11 Release or hold an update (SA-v1 `V.update`, `SA.DLG.releaseUpd`, `holdUpd`, `liftUpd`).
   ...pageRows('SA-11', DECISION, [
-    ['Back link', 'Updates', 'secondary', UPDATES, 'built', 'B7-05 f1, f5 … f11 `a.xr-back`'],
+    [
+      'Breadcrumb',
+      'Content',
+      'secondary',
+      UPDATES,
+      'built',
+      'SA-v1 LINK-MAP SA-11 breadcrumb → SA-10',
+    ],
+    [
+      'Breadcrumb',
+      'Updates',
+      'secondary',
+      UPDATES,
+      'built',
+      'SA-v1 LINK-MAP SA-11 breadcrumb → SA-10',
+    ],
     [
       'Go to decision',
       'Go to decision',
       'secondary',
-      null,
+      '#update-decision',
       'in-page',
-      'B7-05 f11; B7-12 f2, f3 `a.xr-jump` (below 860 px of content; focus to the panel)',
+      'SA-v1 LINK-MAP SA-11 “Go to decision” → `#up-panel` (below 860 px of page width)',
     ],
     [
       'Your decision panel (choice)',
@@ -77,31 +100,31 @@ export const P6_RELEASE_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B7-05 f1, f7 `label.xr-choice`',
+      'SA-v1 `V.update` `label.rk-choice` (no choice is made for her: “Choose a decision”)',
     ],
     [
       'Your decision panel',
-      'Release update · Hold',
+      'Release update · Hold update',
       'primary',
       null,
       'in-page',
-      'B7-05 f1, f7 `button.xr-btn--primary.xr-btn--block` (`Wm-sgo`) → DL-1 “Release update” (f8; B7-10 f0) or DL-2 “Hold” with a reason (f9; B7-10 f1) → the decided panel (f6, f5)',
+      'SA-v1 `V.update` `button.rk-go` (`up-go`) → `SA.DLG.releaseUpd` “Release update” or `SA.DLG.holdUpd` “Hold update” with the reason → the flash and the decided panel',
     ],
     [
-      'DL-1 Release',
+      'Release confirmation',
       'Cancel',
       'secondary',
       null,
       'in-page',
-      'B7-05 f8; B7-10 f0 `div.xr-dialog-foot` (nothing is released)',
+      'SA-v1 `dialogHtml` `dlg-cancel` (nothing is released)',
     ],
     [
-      'DL-2 Hold',
+      'Hold confirmation',
       'Cancel',
       'secondary',
       null,
       'in-page',
-      'B7-05 f9; B7-10 f1 `div.xr-dialog-foot` (nothing is held)',
+      'SA-v1 `dialogHtml` `dlg-cancel` (nothing is held)',
     ],
     [
       'On hold panel',
@@ -109,15 +132,31 @@ export const P6_RELEASE_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B7-05 f5; B7-10 f2 `button.xr-btn--secondary.xr-btn--block` → DL-1 “Lift hold” → waiting again (f7); no Release while held',
+      'SA-v1 `V.update` `button.rk-go` (`up-lift`) → `SA.DLG.liftUpd` → waiting again; no Release while held',
     ],
     [
-      'DL-1 Lift hold',
+      'Lift hold confirmation',
       'Cancel',
       'secondary',
       null,
       'in-page',
-      'B7-05 script `dLift` `div.xr-dialog-foot` (the hold stays)',
+      'SA-v1 `dialogHtml` `dlg-cancel` (the hold stays)',
+    ],
+    [
+      'A refused decision',
+      'Check it again',
+      'secondary',
+      null,
+      'in-page',
+      'SA-v1 `SA.refusalHtml` (`clearRefusal`: focus to the title; the words are state-copy `SA-11.stale.*`)',
+    ],
+    [
+      'Released panel',
+      'Back to Updates',
+      'secondary',
+      UPDATES,
+      'built',
+      'SA-v1 `V.update` released `rk-done` `a.rb-btn`',
     ],
     [
       'Nothing to decide (not approved yet)',
@@ -125,7 +164,7 @@ export const P6_RELEASE_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       UPDATES,
       'built',
-      'B7-05 f10; B7-10 f4 `a.xr-btn--secondary`',
+      'SA-v1 `V.update` `notForSA` (`V.message`, `a.rb-btn--primary`)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `SA-11.failed`'],
   ]),

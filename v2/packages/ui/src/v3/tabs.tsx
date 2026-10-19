@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, type KeyboardEvent, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, type KeyboardEvent, type ReactNode } from 'react';
 
 import { useLinkComponent } from '../link.js';
 
@@ -8,25 +8,51 @@ export interface LinkTab {
   readonly label: ReactNode;
   readonly href: string;
   readonly current?: boolean;
+  /** A count after the label (`span.sa-tabn`; the Super Admin's Platform roles tabs). */
+  readonly count?: number;
 }
 
 export interface LinkTabsProps {
   /** The navigation's name: "Content access". */
   readonly label: string;
   readonly tabs: readonly LinkTab[];
+  /**
+   * The Super Admin's page tabs between the page head and the surface (`nav.rk-tabs.sa-tabs`;
+   * Content, Platform roles, Operations).
+   */
+  readonly pageTabs?: boolean;
+}
+
+/**
+ * Scrolls a row that is wider than its place (`rk-tabs`, a Super Admin `rb-switch`) so that its
+ * current item (`selector`) shows, 16 px from the row's start — the Super Admin export's runtime
+ * after each render (`sa-core.js`: `box.scrollLeft = max(0, el.offsetLeft - box.offsetLeft - 16)`).
+ * A row that fits is left alone.
+ */
+export function scrollCurrentIntoView(row: HTMLElement | null, selector: string): void {
+  const current = row?.querySelector<HTMLElement>(selector);
+  if (!row || !current || row.scrollWidth <= row.clientWidth) return;
+  row.scrollLeft = Math.max(0, current.offsetLeft - row.offsetLeft - 16);
 }
 
 /**
  * Tabs that are navigation links (`nav.rk-tabs` > `a.rk-tab[aria-current=page]`; IA-02
  * "Experiments · Course codes"): each tab is an address, so they are links, not ARIA tabs.
  */
-export function LinkTabs({ label, tabs }: LinkTabsProps) {
+export function LinkTabs({ label, tabs, pageTabs }: LinkTabsProps) {
   const Link = useLinkComponent();
+  const navRef = useRef<HTMLElement>(null);
   if (tabs.filter((tab) => tab.current).length > 1) {
     throw new Error('LinkTabs: at most one tab is current.');
   }
+  const currentHref = tabs.find((tab) => tab.current)?.href;
+  // A row of tabs wider than its place scrolls sideways (rk-tabs); the current tab is scrolled
+  // into view, 16 px from the row's start, as the Super Admin export does after each render.
+  useLayoutEffect(() => {
+    scrollCurrentIntoView(navRef.current, '[aria-current="page"]');
+  }, [currentHref]);
   return (
-    <nav className="rk-tabs" aria-label={label}>
+    <nav ref={navRef} className={pageTabs ? 'rk-tabs sa-tabs' : 'rk-tabs'} aria-label={label}>
       {tabs.map((tab) => (
         <Link
           key={tab.href}
@@ -35,6 +61,12 @@ export function LinkTabs({ label, tabs }: LinkTabsProps) {
           aria-current={tab.current ? 'page' : undefined}
         >
           {tab.label}
+          {tab.count === undefined ? null : (
+            <>
+              {' '}
+              <span className="sa-tabn">{tab.count}</span>
+            </>
+          )}
         </Link>
       ))}
     </nav>

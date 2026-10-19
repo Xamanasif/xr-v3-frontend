@@ -1,29 +1,28 @@
 'use client';
 
 import {
-  EmptyState,
-  FailedState,
-  Link,
-  PageContent,
-  PageHeader,
-  SectionBody,
-  SectionTabs,
-  Skeleton,
+  Button,
+  CellLines,
+  CourseCode,
+  ListFoot,
+  ListState,
+  ListSurface,
+  LoadingRows,
+  RecordTable,
   StatusPill,
-  StatusTabs,
-} from '@xr/ui';
-import { useEffect, useId, useState } from 'react';
+  SwitchToolbar,
+} from '@xr/ui/v3';
+import { useEffect, useState } from 'react';
 
-import { rowActionLabel, type ReleaseShowKey, UPDATES_PAGE } from '@/copy/release';
+import { SA_FAILED } from '@/copy/sa-shared';
 import { stateWords } from '@/copy/state-copy';
+import { CONTENT_HEAD, UPDATES_LIST, updatesCaption, type UpdateShowKey } from '@/copy/sa-content';
 import {
-  CONTENT_TABS,
   CONTENT_UPDATES_ADDRESS,
   contentUpdatesAddress,
   contentUpdatesPlacement,
   UPDATE_SHOWS,
   type UpdateShow,
-  updateDecisionAddress,
   updateShowOf,
 } from '@/nav/admin-content';
 import { useAppNavigation } from '@/nav/navigation';
@@ -31,31 +30,31 @@ import type { ReleaseRow } from '@/queries/correction-view';
 import { useUpdatesForRelease } from '@/queries/corrections';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { RELEASE_TAB, type ReleaseRowFacts, releaseRowFacts } from './updates-view';
+import { ContentHead } from './content-head';
+import { RELEASE_TAB, type UpdateRowFacts, updateRowFacts } from './updates-view';
 
 /**
- * SA-10 Content › Updates — boards B7-05 f0 (Waiting for you), f2 (On hold), f3 (Released), f4
- * (nothing waiting) and B7-11 f0, at `/admin/content/updates` (`/admin/content` redirects here).
+ * SA-10 Content updates — the owner-approved Super Admin export's `V.updates`
+ * (design/v3-refined-b/roles/SA-v1, renders `<width>_content_updates.png`), at
+ * `/admin/content/updates` (the rail's "Content" opens it; `/admin/content` redirects here).
  *
- * - **Reads**: `CorrectionService.listUpdatesForRelease({ tab })` once per tab — each tab's figure
- *   is its own read's length, the rows on show the selected tab's — in the service's order. The
- *   Super Admin sees a correction only once the Academic Reviewer has approved it (UPD-18): the
- *   service decides which updates each tab holds.
- * - **As B7-05 draws it**: “Content” with its one line, the sub-navigation “Updates · All content”
- *   (SA-12, another group's page), the section “Corrections to published content · Approved by the
- *   Academic Reviewer”, the status tabs “Waiting for you · On hold · Released” (`role="tablist"`,
- *   ← → between them) and the table Update (“Distillation Column · 1.2 → 1.3”, “UPD-0005 · CHE
- *   ZG513”) · Status (the chip and its day) · Review / Open, which opens the decision (SA-11).
- *   Below 760 px of content each row is a labelled block (the v46 sheet; f2, f3).
- * - **Address**: the tab is mirrored in `?show=` (state-copy `SA-10.show-address`); an unknown
- *   value is replaced by the list's own address.
- * - **States**: loading (skeleton rows, announced), failed with “Try again”, and each tab's calm
- *   empty state (f4: “Nothing is waiting for a release decision”). Nothing on this page changes a
- *   record: there is no “Publish” anywhere on this path.
+ * - **Reads**: `CorrectionService.listUpdatesForRelease({ tab })` once per segment — each
+ *   segment's figure is its own read's length, the rows on show the selected segment's — in the
+ *   service's order. The Super Admin sees a correction only once the Academic Reviewer has
+ *   approved it (UPD-18): the service decides which corrections each segment holds.
+ * - **As the export draws it**: "Content" with its line and the page tabs "Updates · All content"
+ *   (SA-12); one surface with the segmented control "Waiting for your decision · On hold ·
+ *   Released" and the table Experiment (and its course code) · What changes · Approved by ·
+ *   Approved · Status, each row opening the decision (SA-11); the foot line. The table has its
+ *   three width layouts. No reference is shown: a correction is its experiment and versions.
+ * - **Address**: the segment is mirrored in `?show=` (state-copy `SA-10.show-address`); an
+ *   unknown value is replaced by the list's own address.
+ * - **States**: loading (the kit's announced skeleton rows), failed with "Try again", no
+ *   correction at all, and each segment's calm empty state. Nothing on this page changes a record:
+ *   there is no "Publish" anywhere on this path.
  */
 export function ContentUpdates() {
   useShellPage(contentUpdatesPlacement());
-  const headingId = useId();
   const navigation = useAppNavigation();
   const asked = updateShowOf(navigation.search);
   useEffect(() => {
@@ -73,11 +72,11 @@ export function ContentUpdates() {
     waiting: useUpdatesForRelease(RELEASE_TAB.waiting),
     'on-hold': useUpdatesForRelease(RELEASE_TAB['on-hold']),
     released: useUpdatesForRelease(RELEASE_TAB.released),
-  } satisfies Readonly<Record<ReleaseShowKey, ReturnType<typeof useUpdatesForRelease>>>;
+  } satisfies Readonly<Record<UpdateShowKey, ReturnType<typeof useUpdatesForRelease>>>;
   const all = Object.values(reads);
   const failed = all.some((read) => read.isError || (read.data !== undefined && !read.data.ok));
   const loading = !failed && all.some((read) => read.data === undefined);
-  const rowsOf = (key: ReleaseShowKey): readonly ReleaseRow[] => {
+  const rowsOf = (key: UpdateShowKey): readonly ReleaseRow[] => {
     const answer = reads[key].data;
     return answer?.ok ? answer.value : [];
   };
@@ -93,144 +92,85 @@ export function ContentUpdates() {
     }
   };
 
-  const rows = rowsOf(show).map((row) => releaseRowFacts(row, show));
+  const rows = rowsOf(show).map((row) => updateRowFacts(row, show));
+  const total = UPDATE_SHOWS.reduce((sum, key) => sum + rowsOf(key).length, 0);
 
-  return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-4"
-        title={UPDATES_PAGE.title}
-        meta={<span className="xl-meta">{UPDATES_PAGE.meta}</span>}
-      />
-      <SectionTabs
-        className="mb-5"
-        label={UPDATES_PAGE.tabsLabel}
-        surface="white"
-        tabs={CONTENT_TABS.map((tab) => ({
-          href: tab.href,
-          label: tab.label,
-          current: tab.key === 'updates',
-        }))}
-      />
-      <section
-        className="xr-section"
-        aria-labelledby={headingId}
-        aria-busy={loading ? true : undefined}
+  let body;
+  if (failed) {
+    body = (
+      <ListState
+        kind="failed"
+        title={stateWords('SA-10.failed')}
+        action={<Button onClick={retry}>{SA_FAILED.retry}</Button>}
       >
-        <div className="xr-section-head">
-          <h2 id={headingId} className="xr-h2">
-            {UPDATES_PAGE.sectionTitle}
-          </h2>
-          {loading ? (
-            <span className="xr-meta" role="status">
-              {stateWords('SA-10.loading')}
-            </span>
-          ) : (
-            <span className="xr-meta">{UPDATES_PAGE.sectionMeta}</span>
-          )}
-        </div>
-        {failed ? (
-          <SectionBody>
-            <FailedState title={stateWords('SA-10.failed')} onRetry={retry}>
-              {stateWords('SA-10.failed.line')}
-            </FailedState>
-          </SectionBody>
-        ) : loading ? (
-          <SkeletonRows />
+        {SA_FAILED.line}
+      </ListState>
+    );
+  } else if (loading) {
+    body = <LoadingRows message={stateWords('SA-10.loading')} />;
+  } else {
+    body = (
+      <>
+        <SwitchToolbar
+          label={UPDATES_LIST.showLabel}
+          value={show}
+          onChange={select}
+          options={UPDATE_SHOWS.map((key) => ({
+            key,
+            label: UPDATES_LIST.shows[key],
+            count: rowsOf(key).length,
+          }))}
+        />
+        {rows.length > 0 ? (
+          <UpdatesTable show={show} rows={rows} />
         ) : (
-          <StatusTabs
-            label={UPDATES_PAGE.showLabel}
-            idPrefix="updates"
-            className="px-4"
-            tabs={UPDATE_SHOWS.map((key) => ({
-              id: key,
-              label: UPDATES_PAGE.shows[key],
-              count: rowsOf(key).length,
-            }))}
-            selected={show}
-            onSelect={(id) => select(id as UpdateShow)}
+          <ListState
+            kind="empty"
+            icon="edit"
+            title={total === 0 ? UPDATES_LIST.emptyTitle : UPDATES_LIST.none[show]}
           >
-            {rows.length > 0 ? (
-              <UpdatesTable rows={rows} />
-            ) : (
-              <SectionBody>
-                <EmptyState
-                  icon="done"
-                  headingLevel={3}
-                  title={UPDATES_PAGE.empty[show]}
-                  className="[&_.xr-empty-icon]:bg-ok-bg [&_.xr-empty-icon]:text-ok [&_p]:text-ink-2"
-                >
-                  {UPDATES_PAGE.emptyLine}
-                </EmptyState>
-              </SectionBody>
-            )}
-          </StatusTabs>
+            {UPDATES_LIST.emptyLine}
+          </ListState>
         )}
-      </section>
-    </PageContent>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <ContentHead current="updates" lead={CONTENT_HEAD.updatesLead} />
+      <ListSurface label={UPDATES_LIST.surfaceLabel} busy={loading}>
+        {body}
+        <ListFoot>{UPDATES_LIST.foot}</ListFoot>
+      </ListSurface>
+    </>
   );
 }
 
-/** B7-05 f0, f2, f3: “Update · Status · (Action)”; labelled blocks below 760 px of content. */
-function UpdatesTable({ rows }: { readonly rows: readonly ReleaseRowFacts[] }) {
-  const { columns } = UPDATES_PAGE;
+/** The corrections of one segment: the record table, each row opening its decision (SA-11). */
+function UpdatesTable({
+  show,
+  rows,
+}: {
+  readonly show: UpdateShowKey;
+  readonly rows: readonly UpdateRowFacts[];
+}) {
   return (
-    <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.update}</th>
-            <th scope="col">{columns.status}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.id}>
-              <td className="is-primary">
-                <strong>{row.name}</strong>
-                <span className="xr-meta block">
-                  <span className="xr-id">{row.id}</span>
-                  {row.courseCode ? ` · ${row.courseCode}` : null}
-                </span>
-              </td>
-              <td data-label={columns.status}>
-                <StatusPill tone={row.status.tone}>{row.status.words}</StatusPill>
-                <span className="xr-meta mt-[2px] block">{row.when}</span>
-              </td>
-              <td>
-                <Link
-                  className="xr-btn xr-btn--secondary xr-btn--sm"
-                  href={updateDecisionAddress(row.id)}
-                  aria-label={rowActionLabel(row.action, row.id, row.name)}
-                >
-                  {row.action}
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** Skeleton rows in the table's shape (board 04 “Skeleton in the shape of the content”). */
-function SkeletonRows() {
-  return (
-    <div aria-hidden="true">
-      {[0, 1, 2].map((row) => (
-        <div
-          key={row}
-          className="grid grid-cols-[1.4fr_1fr_100px] gap-5 px-4 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-        >
-          {[0, 1, 2].map((cell) => (
-            <Skeleton key={cell} />
-          ))}
-        </div>
-      ))}
-    </div>
+    <RecordTable
+      caption={updatesCaption(show)}
+      headers={UPDATES_LIST.headers}
+      whenLabel={UPDATES_LIST.whenLabel}
+      rows={rows.map((row) => ({
+        key: row.id,
+        href: row.href,
+        title: row.name,
+        titleDetail: row.courseCode ? <CourseCode code={row.courseCode} /> : undefined,
+        linkLabel: row.linkLabel,
+        what: <CellLines strong={row.versions} small={row.versionsNote} />,
+        kind: <CellLines strong={UPDATES_LIST.reviewerRole} small={row.reviewer ?? undefined} />,
+        when: row.approvedOn,
+        status: <StatusPill tone={row.status.tone}>{row.status.words}</StatusPill>,
+      }))}
+    />
   );
 }

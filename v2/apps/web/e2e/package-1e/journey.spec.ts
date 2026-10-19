@@ -13,7 +13,7 @@ import {
 } from '../package-1c/flow';
 import { reachAndClick } from '../support';
 import { checkState } from '../support/screen-checks';
-import { expectSameDocument, markDocument, revealSidebar } from '../support/workspace';
+import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 
 /**
  * Package 1E — the connected Phase-1 proof (Flow A steps 1–4 and the A-info alternate, Flow B step
@@ -42,6 +42,12 @@ const card = (page: Page) => page.locator('.xs-card');
 const decisionPanel = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
 const godavariRow = (page: Page) =>
   main(page).locator('tbody tr', { hasText: 'Godavari Institute of Technology' });
+// The Super Admin's V3 pages (SA-v1) never show a request's reference: REQ-0042 is found by the
+// address its links open, its decision by the panel's status.
+const request42 = (page: Page) => page.locator('main a[href="/admin/requests/REQ-0042"]');
+const request42Row = (page: Page) =>
+  main(page).locator('tbody tr', { has: page.locator('a[href="/admin/requests/REQ-0042"]') });
+const decided = (page: Page) => decisionPanel(page).locator('.rk-done .xr-st');
 
 async function signIn(page: Page, email: string): Promise<void> {
   await card(page).getByLabel('E-mail', { exact: true }).fill(email);
@@ -64,7 +70,7 @@ async function toSignIn(page: Page): Promise<void> {
 
 async function sidebar(page: Page, href: string): Promise<void> {
   await revealSidebar(page);
-  await reachAndClick(page, page.locator(`aside.xr-side nav a[href="${href}"]`));
+  await reachAndClick(page, sidebarLink(page, href));
   await page.waitForURL(`**${href}`);
 }
 
@@ -112,23 +118,28 @@ async function requestFromSelection(page: Page): Promise<string> {
 async function decide(page: Page, route: 'internal' | 'external'): Promise<void> {
   await sidebar(page, '/admin/requests');
   await checkState(page, 'Requests');
-  const row = main(page).locator('tbody tr', { hasText: 'REQ-0042' });
+  const row = request42Row(page);
   await expect(row).toContainText('Godavari Institute of Technology');
-  await reachAndClick(page, row.getByRole('link', { name: 'REQ-0042' }));
+  await reachAndClick(
+    page,
+    row.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the request$/ }),
+  );
   await page.waitForURL('**/admin/requests/REQ-0042');
   await checkState(page, 'Godavari Institute of Technology');
   const panel = decisionPanel(page);
   await reachAndClick(page, panel.locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel.locator(`label[for="decision-route-${route}"]`));
   await reachAndClick(page, panel.getByRole('button', { name: 'Approve request' }));
-  const confirm = page.getByRole('dialog', { name: 'Approve REQ-0042?' });
+  const confirm = page.getByRole('dialog', {
+    name: 'Approve the request from Godavari Institute of Technology?',
+  });
   await expect(confirm).toContainText(
     route === 'external'
       ? 'Institutional access is not activated now.'
       : 'Institutional access is activated now and the access plan is created.',
   );
   await reachAndClick(page, confirm.getByRole('button', { name: 'Approve request' }));
-  await expect(panel.locator('.xr-status')).toHaveText(
+  await expect(decided(page)).toHaveText(
     route === 'external' ? 'Approved — payment required' : 'Access active',
   );
   await expect(panel.getByRole('heading', { name: 'Your decision' })).toBeFocused();
@@ -183,7 +194,9 @@ test('Flow A and B1 in one tab of the product build: browse → select → reque
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
   await checkState(page, 'Overview');
-  await expect(page.getByRole('region', { name: /^Requests/ })).toContainText('REQ-0042');
+  await expect(
+    page.getByRole('region', { name: /^Requests/ }).locator('a[href="/admin/requests/REQ-0042"]'),
+  ).toHaveCount(1);
 
   // 9. SA-02 → SA-03: approve, External (A3).
   await decide(page, 'external');
@@ -211,38 +224,45 @@ test('Flow A and B1 in one tab of the product build: browse → select → reque
   await toSignIn(page);
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
-  await expect(page.getByRole('region', { name: /^Requests/ })).not.toContainText('REQ-0042');
+  await checkState(page, 'Overview');
+  await expect(request42(page)).toHaveCount(0);
   await sidebar(page, '/admin/institutions');
   await checkState(page, 'Institutions');
-  await expect(godavariRow(page)).toContainText('External · ACC-0107 · 1 course · 1 experiment');
+  await expect(godavariRow(page)).toContainText('External');
+  await expect(godavariRow(page)).toContainText('1 course · 1 experiment');
   await expect(godavariRow(page)).toContainText('Access active');
-  await expect(godavariRow(page).locator('.xw-tag--warn')).toHaveText('Needs one');
-  const search = page.getByRole('searchbox', { name: 'Search institutions' });
+  await expect(godavariRow(page).locator('.rk-tag-warn')).toHaveText('Needs one');
+  const search = page.getByRole('searchbox', { name: 'Search' });
   await reachAndClick(page, search);
   await search.fill('godavari');
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open Godavari Institute of Technology' }),
+    page.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the institution$/ }),
   );
   await page.waitForURL('**/admin/institutions/godavari');
   await checkState(page, 'Godavari Institute of Technology');
   // The records the activation made: one plan, as approved; institutional access only — no
   // Student has access and none was given automatically (published ≠ institution ≠ Student).
-  const plans = page.getByRole('region', { name: 'Access plans' });
-  await expect(plans.locator('tbody tr')).toHaveCount(1);
-  await expect(plans.locator('tbody tr')).toContainText('ACC-0107');
-  await expect(plans.locator('tbody tr')).toContainText('Shell-and-Tube Heat Exchanger');
-  await expect(plans.locator('tbody tr')).toContainText(RECORD.licences);
-  await expect(plans.locator('tbody tr')).toContainText('Yearly');
+  // SA-v1 draws the one plan as the plan band, named by what it holds, without its reference.
+  const plan = page.getByRole('region', { name: /^1 experiment · \d+ licences$/ });
+  await expect(plan).toHaveCount(1);
+  await expect(plan).toContainText('Access plan');
+  await expect(plan).toContainText('Shell-and-Tube Heat Exchanger');
+  await expect(plan).toContainText(`${RECORD.licences} licences, as approved.`);
+  await expect(plan.getByRole('img', { name: /^Yearly term / })).toBeVisible();
+  await expect(main(page)).not.toContainText('ACC-0107');
+  await expect(main(page)).toContainText('0 students · 0 Faculty');
   const people = page.getByRole('region', { name: 'People' });
-  await expect(people).toContainText('0 students · 0 Faculty');
+  await expect(people).toContainText('Nobody has been added yet.');
   await expect(people.getByRole('list')).toHaveCount(0);
 
   // 14. Assign the Institute Admin (B1): the drawn checks, then Meera Iyer. Her work e-mail is
   // held by nobody else in this world (T-11 / P1-01: a colliding e-mail is not handled).
   await reachAndClick(
     page,
-    main(page).locator('.xw-actions').getByRole('button', { name: 'Assign Institute Admin' }),
+    page
+      .getByRole('complementary', { name: 'What you can do' })
+      .getByRole('button', { name: 'Assign Institute Admin' }),
   );
   const assign = page.getByRole('dialog', {
     name: 'Assign the Institute Admin for Godavari Institute of Technology',
@@ -252,7 +272,7 @@ test('Flow A and B1 in one tab of the product build: browse → select → reque
   await assign.getByRole('textbox', { name: 'Name' }).fill(RECORD.contact);
   await assign.getByRole('textbox', { name: 'Work e-mail' }).fill(RECORD.email);
   await reachAndClick(page, assign.getByRole('button', { name: 'Assign' }));
-  await expect(main(page).locator('p.xa-save[role="status"]')).toContainText(
+  await expect(main(page).locator('.rk-notice--ok[role="status"]')).toContainText(
     'Meera Iyer is now the Institute Admin for Godavari Institute of Technology.',
   );
   await checkState(page, 'Godavari Institute of Technology');
@@ -316,7 +336,8 @@ test('an internal approval: access active at once, no payment step (A3 internal)
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
   await sidebar(page, '/admin/institutions');
-  await expect(godavariRow(page)).toContainText('Internal · ACC-0107 · 1 course · 1 experiment');
+  await expect(godavariRow(page)).toContainText('Internal');
+  await expect(godavariRow(page)).toContainText('1 course · 1 experiment');
   await expect(godavariRow(page)).toContainText('Access active');
   await expectSameDocument(page, mark);
 });
@@ -341,7 +362,9 @@ test('the A-info alternate: information requested, shown to the requester, no re
   await sidebar(page, '/admin/requests');
   await reachAndClick(
     page,
-    main(page).locator('tbody tr', { hasText: 'REQ-0042' }).getByRole('link', { name: 'REQ-0042' }),
+    request42Row(page).getByRole('link', {
+      name: /^Godavari Institute of Technology, .*Open the request$/,
+    }),
   );
   await page.waitForURL('**/admin/requests/REQ-0042');
   const panel = decisionPanel(page);
@@ -350,7 +373,7 @@ test('the A-info alternate: information requested, shown to the requester, no re
     .getByLabel('What do you need from the requester? (required)')
     .fill('Please confirm the cohort size for this term.');
   await reachAndClick(page, panel.getByRole('button', { name: 'Send request for information' }));
-  await expect(panel.locator('.xr-status')).toHaveText('Information requested');
+  await expect(decided(page)).toHaveText('Information requested');
   await signOut(page, ARJUN);
   // TEST NAVIGATION: the requester sees the question; there is no reply field (T-03 open).
   await openInTab(page, address);

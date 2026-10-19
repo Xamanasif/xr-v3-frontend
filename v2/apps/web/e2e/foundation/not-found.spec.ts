@@ -96,7 +96,9 @@ test.describe('workspace variant (test-hook build)', () => {
           'href',
           `${entry.base}/help`,
         );
-        await expect(page.locator('aside.xr-side [aria-current]')).toHaveCount(0);
+        await expect(
+          page.locator('aside.xr-side [aria-current], aside.rb-rail [aria-current]'),
+        ).toHaveCount(0);
         await expect(page).toHaveURL(`${TEST_HOOKS_URL}${path}`);
         await expect(page).toHaveTitle('Not found · XR Learning Platform');
       });
@@ -138,7 +140,9 @@ test.describe('workspace variant (test-hook build)', () => {
       page.getByRole('heading', { level: 1, name: 'We can’t find that page' }),
     ).toBeVisible();
     await expect(page.locator('body')).not.toContainText('VR simulation');
-    await expect(page.locator('aside.xr-side [aria-current]')).toHaveCount(0);
+    await expect(
+      page.locator('aside.xr-side [aria-current], aside.rb-rail [aria-current]'),
+    ).toHaveCount(0);
   });
 
   for (const reportId of ['constructor', '__proto__', 'toString']) {

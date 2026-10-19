@@ -164,3 +164,65 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 :where(.xr) .rk-crumbs.rk-x-crumbs-tight:not(:where([data-xr-v46], [data-xr-v46] *)) {
   margin-bottom: -12px;
 }
+
+/*
+ * V3P-12 · The Super Admin export's inline spacings (design/v3-refined-b/roles/SA-v1,
+ * `project/sa-views-*.js`). The export sets these with `style=`; product code takes no inline
+ * style, so each is a product class on the element the export styles, set by its component through
+ * a prop. Values exactly as the export writes them:
+ * - `.rk-small.rk-x-small-flush` `margin: 0` — a quiet line alone in a list-table cell: SA-12 "Who
+ *   can act" (sa-views-c.js `V.allContent`), SA-16 the work e-mail (sa-views-d.js `V.roles`), SA-18
+ *   "Forwarded by" (`V.transfers`), SA-20 "Where" (`V.support`). `QuietLine` `flush`.
+ * - `.rk-hint.rk-x-hint-table` `margin-top: 10px` — the note closing a section under its table:
+ *   SA-07 "Activity by format" (sa-views-b.js `V.institution`), SA-11 "What changes" once released
+ *   and "Institutions using it" (sa-views-c.js `V.update`). `Hint` `under="table"`.
+ * - `.rk-hint.rk-x-hint-list` `margin-top: 12px` — the note under a definition list: SA-17 "Role
+ *   holder" (sa-views-d.js `V.holder`). `Hint` `under="list"`.
+ * - `.rk-next.rk-x-next-above` `margin-top: 12px` — a line under a quote or a list: SA-07 "Why
+ *   access is paused", "Open the approved request" (`V.institution`). `RecordLine` `space="above"`.
+ * - `.rk-next.rk-x-next-below` `margin-bottom: 12px` — the line over SA-07's people list
+ *   (`V.institution` "People"). `RecordLine` `space="below"`.
+ * - `.rk-ask.rk-x-ask-above` `margin-top: 14px` — the approved experiments under the line while the
+ *   payment is awaited (`V.institution` "Access plan"). `AskList` `space="above"`.
+ * - `.rb-sec-head.rk-x-sec-head-tight` `margin-bottom: -12px` — "Also waiting on you" 12 px closer
+ *   to the queue under the priority band (sa-views-a.js `V.overview`). `SectionHead` `tight`.
+ * - `.rk-loading-msg.rk-x-queue-flush` `padding-left: 0` and `.rk-skel-row.rk-x-queue-flush`
+ *   `padding-left: 0; padding-right: 0` — the loading state inside the overview's queue surface,
+ *   which has its own padding (`V.overview` loading). `QueueLoading`.
+ */
+:where(.xr) .rk-small.rk-x-small-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin: 0;
+}
+
+:where(.xr) .rk-hint.rk-x-hint-table:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 10px;
+}
+
+:where(.xr) .rk-hint.rk-x-hint-list:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 12px;
+}
+
+:where(.xr) .rk-next.rk-x-next-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 12px;
+}
+
+:where(.xr) .rk-next.rk-x-next-below:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 12px;
+}
+
+:where(.xr) .rk-ask.rk-x-ask-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 14px;
+}
+
+:where(.xr) .rb-sec-head.rk-x-sec-head-tight:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: -12px;
+}
+
+:where(.xr) .rk-loading-msg.rk-x-queue-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  padding-left: 0;
+}
+
+:where(.xr) .rk-skel-row.rk-x-queue-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  padding-left: 0;
+  padding-right: 0;
+}

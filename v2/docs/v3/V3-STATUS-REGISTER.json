@@ -17,7 +17,7 @@
     "v3SeedSource": 5,
     "lockedLanding": 2,
     "pendingDesign": 116,
-    "migrated": 7
+    "migrated": 25
   },
   "designedByType": {
     "action": 1,
@@ -2283,14 +2283,14 @@
       "v46ProposedRoute": "/admin",
       "specimens": ["v3-sa-01"],
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1 + P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-01-overview"]
       },
-      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
-      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
-      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
-      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
-      "openIssue": "Bind getSuperAdminOverview (figures, groups, counts) — never the board values. \"Soonest deadline first, then the longest wait\" is a design proposal (O-4): keep an approved deterministic order and say which. The product shows internal references today; owner decision 6 removes them from SA UI at the SA migration."
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export); also a V3 seed source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Overview (figures, category switch, priority band, queue groups, quiet and loading states) bound to getSuperAdminOverview; every item counted once",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The priority band’s order is the service’s (access ending soonest first, then the oldest approved correction), not the export’s proposal (open decision 6). The figures wait for the same read while loading."
     },
     {
       "id": "SA-02",
@@ -2308,14 +2308,14 @@
         "v3-sa-02-empty"
       ],
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-02-requests"]
       },
-      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
-      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
-      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
-      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
-      "openIssue": "Bind listRequests (server-side filters, received order). The product list shows REQ- references today (owner decision 6 applies at the SA migration). Status words follow the current disclosure rules (staff \"Under review\")."
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export); also a V3 seed source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Requests list (search, filters, sort, the three table layouts, no match, failed); rows named by institution, no reference",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": ""
     },
     {
       "id": "SA-03",
@@ -2327,14 +2327,14 @@
       "v46ProposedRoute": "/admin/requests/[requestId]",
       "specimens": ["v3-sa-03", "v3-sa-03-renewal", "v3-sa-03-paused", "v3-sa-03-decided"],
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-03-request-decision"]
       },
-      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
-      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
-      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
-      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
-      "openIssue": "Bind the existing decision view and commands (revision basis, planEffect policy-open, refusals, moved-on). Never the board's local transitions; \"approve smaller\" validation stays the product's. The product shows REQ- in its title and dialog today (owner decision 6). Konark / Godavari / renewal-copy open records (HANDOFF \"Open records\") stay unresolved."
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export); also a V3 seed source (XR-V3-RB-1.0 board)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 decision page (approve, a smaller scope, request information; classification for a new institution; confirmation; decided; paused-blocked; validation; renewal) bound to the decision command and planEffect",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "A changed-elsewhere decision keeps the existing handling (no notice; focus on the panel heading), not the export’s proposed copy. A more-licences smaller scope keeps the term select the command needs."
     },
     {
       "id": "SA-04",
@@ -2379,14 +2379,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/institutions",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-06-institutions"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Institutions list (search, status filter incl. “Access ended”, empty, no match), ordered by name as the export’s caption says",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "“Access active” keeps the service’s tab (it includes ending soon)."
     },
     {
       "id": "SA-07",
@@ -2397,14 +2397,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/institutions/[institutionId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-07-institution-detail"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 institution page (plan bands with the term timeline and format cells, “What you can do”: assign, pause / restore, student override; activity; history; no admin, awaiting payment, paused, ended, validation)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The export’s assign deep link is not built; the identity safeguard keeps the repo’s words; sample labels stay off (owner decision SA-07.sample-labels)."
     },
     {
       "id": "SA-08",
@@ -2449,13 +2449,13 @@
       "designed": true,
       "v46ProposedRoute": "/admin/content/updates",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-10-updates"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Updates list with the Content tabs and the view switch (Waiting for your decision · On hold · Released)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -2467,14 +2467,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/content/updates/[updateId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-11-update-decision"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 release decision (comparison, institutions using it, release / hold with a reason / lift hold, each confirmed; not approved, on hold, released)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No decision is preselected. Stale and moved-on refusals keep the repo’s words. What a hold blocks stays open (T-28)."
     },
     {
       "id": "SA-12",
@@ -2485,14 +2485,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/content/all",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-12-all-content"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 All content list with the “Workflow status” select and the stuck notice",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The stuck notice and its “Show stuck records” action are product actions the export does not draw."
     },
     {
       "id": "SA-13",
@@ -2503,13 +2503,13 @@
       "designed": true,
       "v46ProposedRoute": "/admin/content/records/[recordId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-13-content-record"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 content record with the stuck override in the panel (reason, then a confirmation); published read-only",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -2521,14 +2521,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/structure",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-14-structure"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Academic structure (areas and their courses, add area, add course)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "After Add course the page stays and shows the flash (the export opens the new course)."
     },
     {
       "id": "SA-15",
@@ -2539,14 +2539,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/structure/areas/[areaId] · /courses/[courseId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-15-structure-record"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 area and course records (rename, edit description, move — blocked while people are filed)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Published experiments show as a count, not links (the course read has no experiment list)."
     },
     {
       "id": "SA-16",
@@ -2557,13 +2557,13 @@
       "designed": true,
       "v46ProposedRoute": "/admin/roles?tab=vendors|reviewers|content-managers",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-16-roles"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Platform roles (Vendors · Reviewers · Content Managers page tabs with counts, register a holder; nothing is sent)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -2575,14 +2575,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/roles/[holderId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-17-role-holder"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 role holder (assign scope: all, a course, one experiment; withdraw with a reason inline; restore confirmed)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The e-mail collision and format words stay the contract’s."
     },
     {
       "id": "SA-18",
@@ -2593,13 +2593,13 @@
       "designed": true,
       "v46ProposedRoute": "/admin/operations/device-transfers",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-18-device-transfers"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Device transfers list with the Operations tabs and the view switch",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -2611,14 +2611,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/operations/device-transfers/[transferId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-19-device-transfer"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 transfer decision (approve a forwarded transfer, confirmed; still with the institution; stale refusal in the repo’s words)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No Decline; a not-approved transfer stays Forwarded."
     },
     {
       "id": "SA-20",
@@ -2629,13 +2629,13 @@
       "designed": true,
       "v46ProposedRoute": "/admin/operations/support",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-20-support"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Support reports list (views Open · Resolved), oldest sent first (the service’s order)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -2647,14 +2647,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/operations/support/[reportId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-21-support-report"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 support report (resolve with a reporter-visible note, reopen confirmed; resolved, reopened)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No response-time targets."
     },
     {
       "id": "SA-22",
@@ -2665,14 +2665,14 @@
       "designed": true,
       "v46ProposedRoute": "/admin/operations/access-ending",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
+        "status": "V3 presentation (Super Admin export SA-v1), implemented",
         "paths": ["apps/web/src/features/admin/sa-22-access-ending"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export SA-v1 (design/v3-refined-b/roles/SA-v1; archive SHA-256 aee94cd5…6adc, package date 18 Oct 2026; no revision number in the export)",
+      "ownerApproved": "approved by the owner (prompt 11 with the export and the go-ahead after XS, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the V3 Access ending table (soonest first, then ended; open the renewal request or the institution; “Reminder due” is a status, nothing is sent)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "“Renewal approved — the term isn’t changed here” and “· access paused” are not drawn: the service’s rows hold no such facts."
     },
     {
       "id": "SA-23",

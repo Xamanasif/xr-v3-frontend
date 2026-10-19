@@ -1,11 +1,12 @@
 /**
- * Phase 6 content oversight on the real composition root and the sample world, as Arjun Mehta:
- * SA-01 Overview in full (B7-01 f0 … f3; B7-10 f15), SA-12 Content › All content (B7-06 f0, f7)
- * and SA-13 Content record (B7-06 f1 … f6, f8; B7-10 f5, f6). Every figure, group, row, status and
- * refusal is the ports' answer: the Overview's groups agree with the lists they open, All content
- * counts what `listAllContent` answers, and the override moves a stuck record back to the vendor
- * only through `overrideStatus` (a reason required, the revision the page showed, the service
- * deciding). The fixture `after-flow-e` is the B7 boards' day (23 Oct 2026).
+ * The Super Admin's content oversight in the V3 Refined B design (the owner-approved Super Admin
+ * export, design/v3-refined-b/roles/SA-v1 `V.allContent`, `V.record`), on the real composition
+ * root and the sample world, as Arjun Mehta (SA-01 Overview is tested in
+ * sa-01-overview/overview.test.tsx): SA-12 All content and SA-13 Content record. Every figure,
+ * row, status and refusal is the ports' answer: All content counts what `listAllContent` answers,
+ * and the override moves a stuck record back to the vendor only through `overrideStatus` (a reason
+ * required, the revision the page showed, the service deciding). No reference is shown. The
+ * fixture `after-flow-e` is the B7 boards' day (23 Oct 2026).
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -15,7 +16,6 @@ import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { PlatformRuntime } from '@/platform/runtime';
-import { board } from '@/test-support/boards';
 import {
   renderInTab,
   SUPER_ADMIN,
@@ -27,8 +27,6 @@ import {
 import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
-import { Overview } from './sa-01-overview/overview';
-import { overviewGroups } from './sa-01-overview/overview-view';
 import { AllContent } from './sa-12-all-content/all-content';
 import { ContentRecord } from './sa-13-content-record/content-record';
 
@@ -37,9 +35,8 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
-const B7_01 = board('B7-01-SA-Overview.dc.html');
-const B7_06 = board('B7-06-All-Content.dc.html');
 const RITU = 'per-ritu-sharma';
+const ALL = '/admin/content/all';
 
 function inAdmin(runtime: PlatformRuntime, path: string, page: ReactNode, search = '') {
   const navigation = testNavigation(path, search);
@@ -67,438 +64,222 @@ function text(element: Element | null | undefined): string {
 const heading = (name: string) =>
   screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
 
-async function overviewOf(runtime: PlatformRuntime) {
-  const answer = await runtime.ports.operations.getSuperAdminOverview();
-  if (!answer.ok) throw new Error(answer.error.kind);
-  return answer.value;
+/** No reference in the page's words or names (HANDOFF “Internal references”). */
+function expectNoReferences() {
+  const reference = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+  expect(main().textContent ?? '').not.toMatch(reference);
+  for (const element of main().querySelectorAll('[aria-label], [title]')) {
+    expect(element.getAttribute('aria-label') ?? '').not.toMatch(reference);
+  }
 }
 
-// ---- SA-01 Overview (B7-01) -------------------------------------------------------------------
-
-describe('SA-01 Overview — the full overview (B7-01 f0, f3)', () => {
-  it('the header line, the two figures and the eight groups in the drawn order', async () => {
-    const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    inAdmin(runtime, '/admin', <Overview />);
-    const requests = await screen.findByRole('region', { name: /^Requests/ });
-    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(text(main().querySelector('.xr-overline'))).toBe('Super Admin · Arjun Mehta');
-    const overview = await overviewOf(runtime);
-    const groups = overviewGroups(overview);
-    const items = groups.reduce((sum, group) => sum + group.count, 0);
-    // The sum of the service's counts and today on the sample clock (B7-01 f0).
-    expect(text(main().querySelector('.xr-phead-meta'))).toBe(
-      `${items} items waiting across ${groups.length} groups · 23 Oct 2026`,
-    );
-    expect(groups).toHaveLength(8);
-    const figures = screen.getByRole('region', { name: 'Platform at a glance' });
-    expect([...figures.querySelectorAll('.xd-fig')].map(text)).toEqual([
-      `${overview.figures.activeInstitutions} Active institutions Access active or ending soon · ${overview.figures.paused} paused · ${overview.figures.awaitingPayment} awaiting payment`,
-      `${overview.figures.publishedExperiments} Published experiments Live in the catalogue today`,
-    ]);
-    expect(overview.figures).toMatchObject({
-      activeInstitutions: 4,
-      paused: 1,
-      awaitingPayment: 1,
-      publishedExperiments: 13,
-    });
-    const heads = [...main().querySelectorAll('section.xd-group h2')].map(text);
-    expect(heads).toEqual([
-      `Requests ${overview.requests.count}`,
-      `Corrections waiting for your release decision ${overview.updates.count}`,
-      `Device transfers ${overview.deviceTransfers.count}`,
-      `Support reports ${overview.support.count}`,
-      `Access ending within 15 days ${overview.accessEnding.count}`,
-      `Institutions without an Institute Admin ${overview.institutionsWithoutAdmin.count}`,
-      `Stuck content ${overview.stuckContent.count}`,
-      `Role holders without scope ${overview.holdersWithoutScope.count}`,
-    ]);
-    for (const head of heads) expect(B7_01).toContain(head.replace(/ \d+$/, ' '));
-    expect(within(requests).getByRole('link', { name: 'Open Requests' })).toHaveAttribute(
-      'href',
-      '/admin/requests',
-    );
-  });
-
-  it('every row as B7-01 words it, each opening the page where it is handled', async () => {
-    const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    inAdmin(runtime, '/admin', <Overview />);
-    await screen.findByRole('region', { name: /^Requests/ });
-    const rowOf = (title: string) => {
-      const row = [...main().querySelectorAll('.xr-row')].find(
-        (candidate) => text(candidate.querySelector('.xr-row-title')) === title,
-      );
-      if (!row) throw new Error(`no row ${title}`);
-      return {
-        sub: text(row.querySelector('.xr-row-sub')),
-        link: row.querySelector('a.xr-btn--secondary')!,
-      };
-    };
-    const expectations: readonly (readonly [string, string, string, string])[] = [
-      [
-        'REQ-0038 · BITS Pilani — Hyderabad Campus',
-        'Renewal · under review since 26 Sep 2026 · access ends 31 Oct 2026',
-        'Open',
-        '/admin/requests/REQ-0038',
-      ],
-      [
-        'REQ-0040 · Konark Polytechnic',
-        'Additional licences · under review since 29 Sep 2026',
-        'Open',
-        '/admin/requests/REQ-0040',
-      ],
-      [
-        'UPD-0005 · Distillation Column 1.2 → 1.3',
-        'Approved by the Academic Reviewer on 22 Oct 2026 · version 1.2 is live',
-        'Review',
-        '/admin/content/updates/UPD-0005',
-      ],
-      [
-        'DTR-0018 · Rahul Verma · VR',
-        'Godavari Institute of Technology · forwarded 23 Oct 2026',
-        'Review',
-        '/admin/operations/device-transfers/DTR-0018',
-      ],
-      [
-        'SUP-0207 · The preview of the WEB delivery link showed an empty frame',
-        'Kavya Nair · Content Manager · reopened 6 Oct 2026',
-        'Open',
-        '/admin/operations/support/SUP-0207',
-      ],
-      [
-        'SUP-0213 · The VR simulation stopped loading at the second step',
-        'Rahul Verma · Student · sent 16 Oct 2026',
-        'Open',
-        '/admin/operations/support/SUP-0213',
-      ],
-      [
-        'BITS Pilani — Hyderabad Campus · ends 31 Oct 2026',
-        'Renewal in progress — REQ-0038',
-        'Open',
-        '/admin/operations/access-ending',
-      ],
-      [
-        'Konark Polytechnic · ends 2 Nov 2026',
-        'Reminder due — nothing is sent from here',
-        'Open',
-        '/admin/operations/access-ending',
-      ],
-      [
-        'Sahyadri Institute of Engineering',
-        'Access active since 30 Sep 2026 — nobody can give students access',
-        'Assign',
-        '/admin/institutions/sahyadri',
-      ],
-      [
-        'SUB-0085 · DC Motor Speed Control · EEE ZC341',
-        'With the Academic Reviewer since 2 Oct 2026 — no reviewer has EEE ZC341 in scope',
-        'Open',
-        '/admin/content/records/SUB-0085',
-      ],
-      [
-        'Dr K. Iyer · Academic Reviewer',
-        'Registered 20 Oct 2026 — can’t act on anything yet',
-        'Assign scope',
-        '/admin/roles/role-0001',
-      ],
-    ];
-    for (const [title, sub, action, href] of expectations) {
-      const row = rowOf(title);
-      expect(row.sub, title).toBe(sub);
-      expect(row.link).toHaveTextContent(action);
-      expect(row.link).toHaveAttribute('href', href);
-      expect(row.link).toHaveAccessibleName(`${action}: ${title}`);
-    }
-    // B7-01's own words where the sample matches the board.
-    for (const words of [
-      'REQ-0040 · Konark Polytechnic',
-      'Additional licences · under review since 29 Sep 2026',
-      'Renewal in progress — REQ-0038',
-      'Reminder due — nothing is sent from here',
-      'Access active since 30 Sep 2026 — nobody can give students access',
-      'With the Academic Reviewer since 2 Oct 2026 — no reviewer has EEE ZC341 in scope',
-      'Registered 20 Oct 2026 — can’t act on anything yet',
-      'Godavari Institute of Technology · forwarded 23 Oct 2026',
-      'Kavya Nair · Content Manager · reopened 6 Oct 2026',
-    ]) {
-      expect(B7_01).toContain(words);
-    }
-    // No two links on the page share a name (the demonstration specs click rows by name).
-    const names = within(main())
-      .getAllByRole('link')
-      .map((link) => link.getAttribute('aria-label') ?? text(link));
-    expect(new Set(names).size).toBe(names.length);
-  });
-
-  it('a group with nothing in it is left out (spine-start)', async () => {
-    const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
-    inAdmin(runtime, '/admin', <Overview />);
-    await screen.findByRole('region', { name: /^Requests/ });
-    const overview = await overviewOf(runtime);
-    const shown = overviewGroups(overview).map((group) => group.title);
-    expect(shown).toEqual([
-      'Requests',
-      'Access ending within 15 days',
-      'Institutions without an Institute Admin',
-      'Stuck content',
-    ]);
-    expect(
-      [...main().querySelectorAll('section.xd-group h2')].map((node) =>
-        text(node).replace(/ \d+$/, ''),
-      ),
-    ).toEqual(shown);
-  });
-
-  it('at most four rows, the count the service’s (B7-01 caption)', async () => {
-    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    // Three more open reports, from Ritu Sharma and Rahul Verma: five open in all.
-    for (const [person, what] of [
-      [RITU, 'The editor lost the second learning outcome.'],
-      ['per-0002', 'The AR model did not load on my phone.'],
-      [RITU, 'The preview link check took a long time.'],
-    ] as const) {
-      const sent = await asPersonId(sample, person).operations.reportProblem({
-        whatHappened: what,
-        where: null,
-        screenshotFileName: null,
-      } as never);
-      expect(sent.ok, JSON.stringify(sent)).toBe(true);
-    }
-    inAdmin(runtime, '/admin', <Overview />);
-    const support = await screen.findByRole('region', { name: /^Support reports/ });
-    expect(support.querySelectorAll('.xr-row')).toHaveLength(4);
-    expect(Number(text(support.querySelector('.xd-gn')))).toBe(5);
-  });
-
-  it('nothing waiting: the calm state, the two figures kept (B7-01 f1, B7-10 f15)', async () => {
-    const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    const real = await runtime.ports.operations.getSuperAdminOverview();
-    if (!real.ok) throw new Error(real.error.kind);
-    const empty = { count: 0, rows: [] };
-    // A state sample: every group empty (the screen's handling of such an answer).
-    vi.spyOn(runtime.ports.operations, 'getSuperAdminOverview').mockResolvedValue({
-      ...real,
-      value: {
-        figures: real.value.figures,
-        requests: empty,
-        updates: empty,
-        deviceTransfers: empty,
-        support: empty,
-        accessEnding: empty,
-        institutionsWithoutAdmin: empty,
-        stuckContent: empty,
-        holdersWithoutScope: empty,
-      },
-    });
-    inAdmin(runtime, '/admin', <Overview />);
-    const calm = await screen.findByRole('region', { name: 'Waiting on you' });
-    expect(
-      within(calm).getByRole('heading', { level: 3, name: 'Nothing is waiting' }),
-    ).toBeVisible();
-    const line =
-      'Requests, corrections to release, device transfers, support reports, ending access, institutions without an Institute Admin, stuck content and role holders without scope appear here when they need you.';
-    expect(text(calm.querySelector('p'))).toBe(line);
-    expect(B7_01).toContain(line);
-    expect(screen.getByRole('region', { name: 'Platform at a glance' })).toBeVisible();
-    expect(main().querySelectorAll('section.xd-group')).toHaveLength(0);
-    expect(text(main().querySelector('.xr-phead-meta'))).toBe('23 Oct 2026');
-  });
-
-  it('announces its loading in the header (f2); a failure has a way forward', async () => {
-    const user = userEvent.setup();
-    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    faults(sample).failNext('OperationsService.getSuperAdminOverview');
-    renderInTab(<Overview />, { runtime, navigation: testNavigation('/admin') });
-    expect(document.querySelector('.xr-phead-meta [role="status"]')).toHaveTextContent(
-      'Loading what is waiting…',
-    );
-    expect(document.querySelectorAll('.xd-figs .xr-skel')).toHaveLength(4);
-    const failed = await screen.findByText('What is waiting didn’t load. Nothing was lost.');
-    expect(failed.closest('.xr-notice')).toHaveTextContent(
-      'Try again. If it keeps happening, report the problem.',
-    );
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(await screen.findByRole('region', { name: /^Requests/ })).toBeVisible();
-  });
-});
-
-// ---- SA-12 Content › All content (B7-06 f0, f7) -----------------------------------------------
+// ---- SA-12 All content (SA-v1 `V.allContent`) -------------------------------------------------
 
 const tableRows = () => [
-  ...main().querySelectorAll<HTMLTableRowElement>('table.xr-table tbody tr'),
+  ...main().querySelectorAll<HTMLTableRowElement>('table.rk-table tbody tr'),
 ];
 const rowNamed = (name: string) =>
-  tableRows().find((row) => text(row.querySelector('td strong')) === name);
-const tab = (name: string) => screen.getByRole('tab', { name: new RegExp(`^${name}`) });
+  tableRows().find((row) => text(row.querySelector('a.rk-rowlink')) === name);
+const rowNames = () => tableRows().map((row) => text(row.querySelector('a.rk-rowlink')));
+const count = () => text(main().querySelector('.rk-statusline [role="status"]'));
+const statusFilter = () => screen.getByRole('combobox', { name: 'Workflow status' });
+const search = () => screen.getByRole('searchbox', { name: 'Search' });
 
-describe('SA-12 All content — the list is the service’s answer (B7-06 f0)', () => {
-  it('the notices, the tabs with their figures, the count and the rows', async () => {
+describe('SA-12 All content — the list is the service’s answer', () => {
+  it('the head, the notices, the filter with its figures, the count and the rows', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    inAdmin(runtime, '/admin/content/all', <AllContent />);
+    inAdmin(runtime, ALL, <AllContent />);
     await waitFor(() => expect(tableRows().length).toBeGreaterThan(0));
     expect(screen.getByRole('heading', { level: 1, name: 'Content' })).toBeVisible();
-    const subnav = screen.getByRole('navigation', { name: 'Content' });
-    expect(within(subnav).getByRole('link', { name: 'All content' })).toHaveAttribute(
+    expect(text(main().querySelector('.rk-head .rk-sub'))).toBe(
+      'Where every experiment and submission is in the workflow, and who can act on it.',
+    );
+    const tabs = screen.getByRole('navigation', { name: 'Content' });
+    expect(within(tabs).getByRole('link', { name: 'All content' })).toHaveAttribute(
       'aria-current',
       'page',
     );
-    expect(within(subnav).getByRole('link', { name: 'Updates' })).toHaveAttribute(
+    expect(within(tabs).getByRole('link', { name: 'Updates' })).toHaveAttribute(
       'href',
       '/admin/content/updates',
     );
     const all = await runtime.ports.production.listAllContent({});
     if (!all.ok) throw new Error('list');
     expect(all.value).toHaveLength(19);
-    expect(screen.getAllByRole('tab').map(text)).toEqual([
-      'All 19',
-      'Stuck 1',
-      'In the workflow 6',
-      'Published 13',
+    expect(
+      within(statusFilter())
+        .getAllByRole('option')
+        .map((option) => [option.getAttribute('value'), option.textContent]),
+    ).toEqual([
+      ['all', 'All statuses (19)'],
+      ['published', 'Published (13)'],
+      ['review', 'With the Academic Reviewer (2)'],
+      ['cm', 'With the Content Manager (2)'],
+      ['vendor', 'Returned to the vendor (1)'],
+      ['stuck', 'Stuck — nobody can act (1)'],
     ]);
-    expect(text(main().querySelector('.xr-toolbar-status [role="status"]'))).toBe(
-      '19 of 19 records',
+    expect(statusFilter()).toHaveValue('all');
+    expect(search()).toHaveAttribute('placeholder', 'Experiment or course code');
+    expect(count()).toBe('19 records · read-only');
+    const notices = [...main().querySelectorAll('.rk-notice')].map(text);
+    expect(notices).toEqual([
+      '1 record stuck — nobody can act DC Motor Speed Control (EEE ZC341). Open the record to see why. Show stuck records',
+      'A correction is waiting for your release decision Distillation Column 1.2 → 1.3. Open Updates',
+    ]);
+    expect(screen.getByRole('link', { name: 'Open Updates' })).toHaveAttribute(
+      'href',
+      '/admin/content/updates',
     );
-    const notices = [...main().querySelectorAll('.xr-notice')].map(text);
-    expect(notices[0]).toBe(
-      '1 record stuck — nobody can act SUB-0085 · DC Motor Speed Control (EEE ZC341). Open the record to see why. Show stuck records',
-    );
-    expect(notices[1]).toBe(
-      'A correction is waiting for your release decision UPD-0005 · Distillation Column 1.2 → 1.3 — approved by the Academic Reviewer. Open Updates',
-    );
-    for (const words of [
-      "' stuck — nobody can act'",
-      "'. Open the record to see why.'",
-      "' · ' + r.name + ' (' + r.course + ')'",
-      'A correction is waiting for your release decision',
-      'UPD-0005 · Distillation Column 1.2 → 1.3 — approved by the Academic Reviewer.',
-      'Every experiment and submission',
-      'Read-only · open a record for its history',
-    ]) {
-      expect(B7_06).toContain(words);
-    }
+    const table = screen.getByRole('table', {
+      name: 'Experiments and submissions with their workflow status',
+    });
+    expect([...table.querySelectorAll('thead th')].map(text)).toEqual([
+      'Experiment',
+      'Where it is',
+      'Who can act',
+      'Formats',
+      'Status',
+    ]);
     expect(tableRows()).toHaveLength(19);
     const distillation = rowNamed('Distillation Column')!;
-    expect(text(distillation.cells[1])).toBe(
-      'Published Published · version 1.2 · live since 3 Jul 2026 Update UPD-0005 · approved — waiting for your release decision',
-    );
-    expect(text(distillation.cells[0])).toBe(
-      'Distillation Column Published experiment · CHE ZG513 WEB VR',
-    );
-    expect(text(rowNamed('Boiler Drum Level')!.cells[1])).toContain('Update UPD-0004 · on hold');
-    // UPD-0006 is returned: the service names no such update to the Super Admin (UPD-18).
-    expect(text(rowNamed('Induction Motor Loading')!.cells[1])).toBe(
-      'Published Published · version 1.0 · live since 9 Jun 2026',
-    );
-    const stuck = rowNamed('DC Motor Speed Control')!;
-    expect(text(stuck.cells[0])).toBe('DC Motor Speed Control SUB-0085 · EEE ZC341 WEB');
-    expect(text(stuck.cells[1])).toBe(
-      'Stuck — nobody can act With the Academic Reviewer since 2 Oct 2026',
-    );
-    expect(text(stuck.cells[2])).toBe('Nobody — no Academic Reviewer has EEE ZC341 in scope');
-    const open = within(stuck).getByRole('link', { name: 'Open DC Motor Speed Control' });
-    expect(open).toHaveAttribute('href', '/admin/content/records/SUB-0085');
-    expect(text(rowNamed('Venturi Meter Calibration')!.cells[1])).toBe(
-      'With Academic Reviewer Back with the Academic Reviewer for a re-check since 25 Aug 2026',
-    );
-    expect(text(rowNamed('Forced Convection')!.cells[2])).toBe(
-      'Anil Shetty · Northline Simulation Studio',
-    );
+    expect([...distillation.cells].map(text)).toEqual([
+      'Distillation Column CHE ZG513',
+      'Published · version 1.2 · live since 3 Jul 2026 Correction waiting for your release decision',
+      'Nobody needs to act',
+      'Formats: WEB, VR WEB VR',
+      'Published',
+    ]);
+    expect(distillation.querySelector('.xr-st')).toHaveClass('xr-st--ok');
     expect(
-      within(rowNamed('Distillation Column')!).getByRole('link', {
-        name: 'Open Distillation Column',
+      within(distillation).getByRole('link', {
+        name: 'Distillation Column, Published. Open the record',
       }),
     ).toHaveAttribute('href', '/admin/content/records/distillation-column');
-    expect(B7_06).toContain('Back with the Academic Reviewer for a re-check since 25 Aug 2026');
+    expect(text(rowNamed('Boiler Drum Level')!.cells[1])).toContain('Correction on hold');
+    // UPD-0006 is returned: the service names no such correction to the Super Admin (UPD-18).
+    expect(text(rowNamed('Induction Motor Loading')!.cells[1])).toBe(
+      'Published · version 1.0 · live since 9 Jun 2026',
+    );
+    const stuck = rowNamed('DC Motor Speed Control')!;
+    expect([...stuck.cells].map(text)).toEqual([
+      'DC Motor Speed Control EEE ZC341',
+      'With the Academic Reviewer since 2 Oct 2026',
+      'Nobody — no Academic Reviewer has EEE ZC341 in scope',
+      'Formats: WEB WEB',
+      'Stuck — nobody can act',
+    ]);
+    expect(stuck.querySelector('.xr-st')).toHaveClass('xr-st--err');
+    expect(
+      within(stuck).getByRole('link', {
+        name: 'DC Motor Speed Control, Stuck — nobody can act. Open the record',
+      }),
+    ).toHaveAttribute('href', '/admin/content/records/SUB-0085');
+    const venturi = rowNamed('Venturi Meter Calibration')!;
+    expect(text(venturi.cells[1])).toBe(
+      'Back with the Academic Reviewer for a re-check since 25 Aug 2026',
+    );
+    expect(text(venturi.cells[4])).toBe('With the Academic Reviewer');
+    expect(venturi.querySelector('.xr-st')).toHaveClass('xr-st--info');
+    const forced = rowNamed('Forced Convection')!;
+    expect(text(forced.cells[2])).toBe('Anil Shetty · Northline Simulation Studio');
+    expect(forced.querySelector('.xr-st')).toHaveClass('xr-st--warn');
+    expect(text(main().querySelector('.rk-ca-foot'))).toBe(
+      'Published content is read-only. It changes only through a correction: Content Manager, then Academic Reviewer, then your release decision.',
+    );
+    expectNoReferences();
   });
 
-  it('“Show stuck records” selects the Stuck tab (and the address mirrors it)', async () => {
+  it('“Show stuck records” sets the filter to Stuck (focus on it; the address mirrors it); the filter keeps one status', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    const navigation = inAdmin(runtime, '/admin/content/all', <AllContent />);
+    const navigation = inAdmin(runtime, ALL, <AllContent />);
     await waitFor(() => expect(tableRows()).toHaveLength(19));
     await user.click(screen.getByRole('button', { name: 'Show stuck records' }));
-    expect(tab('Stuck')).toHaveAttribute('aria-selected', 'true');
-    await waitFor(() => expect(tab('Stuck')).toHaveFocus());
-    expect(tableRows().map((row) => text(row.querySelector('strong')))).toEqual([
-      'DC Motor Speed Control',
-    ]);
-    expect(navigation.replace).toHaveBeenLastCalledWith('/admin/content/all?show=stuck');
-    expect(text(main().querySelector('.xr-toolbar-status [role="status"]'))).toBe(
-      '1 of 19 records',
-    );
-    await user.click(tab('In the workflow'));
-    expect(tableRows()).toHaveLength(6);
-    await user.click(tab('Published'));
+    expect(statusFilter()).toHaveValue('stuck');
+    await waitFor(() => expect(statusFilter()).toHaveFocus());
+    expect(rowNames()).toEqual(['DC Motor Speed Control']);
+    expect(navigation.replace).toHaveBeenLastCalledWith(`${ALL}?show=stuck`);
+    expect(count()).toBe('1 of 19 records · read-only');
+    expect(
+      screen.getByRole('button', { name: 'Remove filter Status: Stuck — nobody can act' }),
+    ).toBeVisible();
+    await user.selectOptions(statusFilter(), 'review');
+    expect(rowNames()).toEqual(['Venturi Meter Calibration', 'Flash Distillation']);
+    await user.selectOptions(statusFilter(), 'published');
     expect(tableRows()).toHaveLength(13);
-    expect(navigation.replace).toHaveBeenLastCalledWith('/admin/content/all?show=published');
+    expect(navigation.replace).toHaveBeenLastCalledWith(`${ALL}?show=published`);
+    // Removing the chip shows every status again.
+    await user.click(screen.getByRole('button', { name: 'Remove filter Status: Published' }));
+    expect(tableRows()).toHaveLength(19);
+    expect(statusFilter()).toHaveValue('all');
   });
 
-  it('no match: “No content matches” and one way back, Clear filters (f7)', async () => {
+  it('no match: “No content matches” and one way back, Clear filters', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    const navigation = inAdmin(runtime, '/admin/content/all', <AllContent />);
+    const navigation = inAdmin(runtime, ALL, <AllContent />);
     await waitFor(() => expect(tableRows()).toHaveLength(19));
-    await user.type(screen.getByRole('searchbox', { name: 'Search content' }), 'Heat pump');
-    await screen.findByRole('heading', { level: 3, name: 'No content matches' });
-    expect(text(main().querySelector('.xr-toolbar-status [role="status"]'))).toBe(
-      '0 of 19 records',
-    );
-    expect(main()).toHaveTextContent('Try another name, reference or course code.');
-    expect(navigation.replace).toHaveBeenLastCalledWith('/admin/content/all?q=Heat+pump');
+    await user.type(search(), 'Heat pump');
+    await screen.findByText('No content matches');
+    expect(count()).toBe('0 of 19 records · read-only');
+    expect(main()).toHaveTextContent('Try another name or course code.');
+    expect(navigation.replace).toHaveBeenLastCalledWith(`${ALL}?q=Heat+pump`);
+    expect(screen.getByRole('button', { name: 'Remove filter Search: “Heat pump”' })).toBeVisible();
     const clears = screen.getAllByRole('button', { name: 'Clear filters' });
     expect(clears).toHaveLength(2);
     await user.click(clears[1]!);
     await waitFor(() => expect(tableRows()).toHaveLength(19));
-    expect(navigation.replace).toHaveBeenLastCalledWith('/admin/content/all');
+    expect(navigation.replace).toHaveBeenLastCalledWith(ALL);
+    expect(search()).toHaveValue('');
+    expect(search()).toHaveFocus();
     // The search is the service's: a course code finds its records.
-    await user.type(screen.getByRole('searchbox', { name: 'Search content' }), 'EEE ZC341');
+    await user.type(search(), 'EEE ZC341');
     await waitFor(() => expect(tableRows()).toHaveLength(4));
   });
 
-  it('opens on the view and search its address names; an unknown view is replaced', async () => {
+  it('opens on the status and search its address names', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    inAdmin(runtime, '/admin/content/all', <AllContent />, '?show=workflow&q=CHE');
-    await waitFor(() => expect(tab('In the workflow')).toHaveAttribute('aria-selected', 'true'));
+    inAdmin(runtime, ALL, <AllContent />, '?show=review&q=CHE');
+    await waitFor(() => expect(statusFilter()).toHaveValue('review'));
     await waitFor(() =>
-      expect(tableRows().map((row) => text(row.querySelector('strong')))).toEqual([
-        'Packed Bed Pressure Drop',
-        'Venturi Meter Calibration',
-        'Flash Distillation',
-      ]),
+      expect(rowNames()).toEqual(['Venturi Meter Calibration', 'Flash Distillation']),
     );
-    expect(screen.getByRole('searchbox', { name: 'Search content' })).toHaveValue('CHE');
+    expect(search()).toHaveValue('CHE');
+    expect(count()).toBe('2 of 19 records · read-only');
   });
 
-  it('an unknown view in the address names All and is replaced', async () => {
+  it('an unknown status in the address (the Phase 6 `workflow` too) names every status and is replaced', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    const navigation = inAdmin(runtime, '/admin/content/all', <AllContent />, '?show=archived');
+    const navigation = inAdmin(runtime, ALL, <AllContent />, '?show=workflow');
     await waitFor(() => expect(tableRows()).toHaveLength(19));
-    expect(tab('All')).toHaveAttribute('aria-selected', 'true');
-    expect(navigation.replace).toHaveBeenCalledWith('/admin/content/all');
+    expect(statusFilter()).toHaveValue('all');
+    expect(navigation.replace).toHaveBeenCalledWith(ALL);
   });
 
   it('no correction waiting: no notice (spine-start)', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
-    inAdmin(runtime, '/admin/content/all', <AllContent />);
+    inAdmin(runtime, ALL, <AllContent />);
     await waitFor(() => expect(tableRows().length).toBeGreaterThan(0));
     expect(main()).not.toHaveTextContent('A correction is waiting for your release decision');
     expect(main()).toHaveTextContent('1 record stuck — nobody can act');
   });
 
-  it('a failure has a way forward', async () => {
+  it('loading is announced; a failure has a way forward', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     faults(sample).failNext('ProductionService.listAllContent');
-    renderInTab(<AllContent />, { runtime, navigation: testNavigation('/admin/content/all') });
-    expect(document.querySelector('.xr-section-head [role="status"]')).toHaveTextContent(
-      'Loading all content',
+    renderInTab(<AllContent />, { runtime, navigation: testNavigation(ALL) });
+    expect(await screen.findByText('Loading content…')).toHaveAttribute('role', 'status');
+    const failed = await screen.findByRole('alert');
+    expect(text(failed)).toBe(
+      'We couldn’t load the content Nothing has changed. Try again. Try again',
     );
-    await screen.findByText('We couldn’t load all content');
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
     await waitFor(() => expect(tableRows()).toHaveLength(19));
   });
 });
 
-// ---- SA-13 Content record (B7-06 f1 … f6; B7-10 f5, f6) ---------------------------------------
+// ---- SA-13 Content record (SA-v1 `V.record`) --------------------------------------------------
 
 function showRecord(runtime: PlatformRuntime, recordId: string) {
   return inAdmin(
@@ -507,50 +288,60 @@ function showRecord(runtime: PlatformRuntime, recordId: string) {
     <ContentRecord recordId={recordId} />,
   );
 }
-const historyLines = () =>
-  [...main().querySelectorAll('ol.xr-timeline > li')].map((item) => text(item));
-const kv = () => text(main().querySelector('dl.xl-kv'));
+const historyLines = () => [...main().querySelectorAll('ol.rk-tl > li')].map((item) => text(item));
+const details = () => text(main().querySelector('dl.rk-dl'));
+const meta = () => text(main().querySelector('.rk-head .rk-meta'));
+const overridePanel = () => screen.queryByRole('complementary', { name: 'Move status (override)' });
 
-describe('SA-13 Content record — stuck (B7-06 f1, f5; B7-10 f6)', () => {
-  it('why nobody can act, the way to Platform roles and the override', async () => {
+describe('SA-13 Content record — stuck', () => {
+  it('why nobody can act, the way to Platform roles and the override panel', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'SUB-0085');
     await heading('DC Motor Speed Control');
-    expect(main().querySelector('a.xr-back')).toHaveAttribute('href', '/admin/content/all');
-    expect(text(main().querySelector('.xr-overline'))).toBe(
-      'SUB-0085 · EEE ZC341 · Electrical Machines',
-    );
-    expect(text(main().querySelector('.xr-phead-meta'))).toBe(
-      'Stuck — nobody can act With the Academic Reviewer since 2 Oct 2026',
-    );
-    const notice = main().querySelector('.xr-notice--err')!;
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(
+      within(crumbs)
+        .getAllByRole('link')
+        .map((link) => [link.textContent, link.getAttribute('href')]),
+    ).toEqual([
+      ['Content', '/admin/content/updates'],
+      ['All content', ALL],
+    ]);
+    expect(text(crumbs.querySelector('[aria-current="page"]'))).toBe('DC Motor Speed Control');
+    expect(text(main().querySelector('.rk-head .rk-eyebrow'))).toBe('Submission');
+    expect(meta()).toBe('Stuck — nobody can act EEE ZC341 Electrical Machines');
+    expect(main().querySelector('.rk-head .rk-meta .xr-st')).toHaveClass('xr-st--err', 'rk-st-lg');
+    expect(main().querySelector('a.rk-goto')).toHaveAttribute('href', '#content-record-panel');
+    const notice = main().querySelector('.rk-notice--warn')!;
     expect(text(notice)).toBe(
-      'Stuck — nobody can act Nobody — no Academic Reviewer has EEE ZC341 in scope. It has been waiting since 2 Oct 2026. Open Platform roles Move status (override)',
-    );
-    expect(B7_06).toContain(
-      'Giving an Academic Reviewer EEE ZC341 in Platform roles lets the review continue. Use the override only when that isn’t possible.',
-    );
-    expect(main()).toHaveTextContent(
-      'Giving an Academic Reviewer EEE ZC341 in Platform roles lets the review continue. Use the override only when that isn’t possible.',
+      'Stuck — nobody can act No Academic Reviewer has EEE ZC341 in scope, so this review can’t continue. Giving an Academic Reviewer EEE ZC341 in Platform roles lets the review continue. Use the override only when that isn’t possible. Open Platform roles',
     );
     expect(
       within(notice as HTMLElement).getByRole('link', { name: 'Open Platform roles' }),
     ).toHaveAttribute('href', '/admin/roles?tab=reviewers');
-    expect(kv()).toBe(
-      'Summary Control the speed of a DC motor under load and compare armature and field control. Formats WEB Vendor Meridian Virtual Labs Who can act Nobody — no Academic Reviewer has EEE ZC341 in scope',
+    expect(details()).toBe(
+      'Summary Control the speed of a DC motor under load and compare armature and field control. Formats Formats: WEB WEB Live version Not published Vendor Ritu Sharma · Meridian Virtual Labs Who can act Nobody — no Academic Reviewer has EEE ZC341 in scope',
     );
     expect(historyLines()).toEqual([
       'No Academic Reviewer has EEE ZC341 in scope 2 Oct 2026 Prof. A. Menon’s EEE ZC341 scope was withdrawn on 1 Oct 2026 (Platform roles).',
       'Submitted for academic review 2 Oct 2026 Revision 1 · from Ritu Sharma, Meridian Virtual Labs',
     ]);
-    expect(B7_06).toContain(
-      'Prof. A. Menon’s EEE ZC341 scope was withdrawn on 1 Oct 2026 (Platform roles).',
+    const panel = overridePanel()!;
+    expect(panel).toHaveClass('rk-aside');
+    expect(text(panel.querySelector('dl.rk-stand'))).toBe(
+      'From With the Academic Reviewer To Returned to the vendor',
     );
-    expect(B7_06).toContain('Revision 1 · from Ritu Sharma, Meridian Virtual Labs');
-    // The crumbs name the record.
-    expect(text(screen.getByRole('list', { name: 'You are here' }))).toMatch(
-      /Content\s*\/\s*All content\s*\/\s*DC Motor Speed Control/,
+    expect(text(panel.querySelector('.rk-panel-body > p.rk-hint'))).toBe(
+      'Returning it to the vendor is the one supported move for a stuck record. Published is never offered; only the Content Manager publishes.',
     );
+    expect(
+      within(panel).getByRole('textbox', { name: 'Reason (required)' }),
+    ).toHaveAccessibleDescription(
+      'Recorded with your name. The vendor sees it with the returned submission.',
+    );
+    expect(within(panel).getByRole('button', { name: 'Move status' })).toHaveClass('rk-go');
+    await waitFor(() => expect(document.title).toContain('DC Motor Speed Control'));
+    expectNoReferences();
   });
 
   it('Move status: a reason is required; the move returns it to the vendor (Vendor reads returned)', async () => {
@@ -558,20 +349,13 @@ describe('SA-13 Content record — stuck (B7-06 f1, f5; B7-10 f6)', () => {
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'SUB-0085');
     await heading('DC Motor Speed Control');
-    await user.click(screen.getByRole('button', { name: 'Move status (override)' }));
-    const dialog = screen.getByRole('dialog', { name: 'Move SUB-0085 out of review?' });
-    expect(text(dialog.querySelector('dl'))).toBe(
-      'From With Academic Reviewer — nobody can act To Returned to vendor — Ritu Sharma · Meridian Virtual Labs can change it and send it again',
-    );
-    expect(dialog).toHaveTextContent(
-      'An override is recorded with your name and reason. Published is never offered — only the Content Manager publishes.',
-    );
-    const reason = within(dialog).getByRole('textbox', { name: 'Reason — kept in the history' });
-    await waitFor(() => expect(reason).toHaveFocus());
-    await user.click(within(dialog).getByRole('button', { name: 'Move status' }));
-    await within(dialog).findByText('Add a reason — it is kept in the history');
+    const panel = overridePanel()!;
+    const reason = within(panel).getByRole('textbox', { name: 'Reason (required)' });
+    await user.click(within(panel).getByRole('button', { name: 'Move status' }));
+    expect(within(panel).getByText('Add a reason — it is kept in the history')).toBeVisible();
     expect(reason).toHaveAttribute('aria-invalid', 'true');
-    expect(B7_06).toContain('Add a reason — it is kept in the history');
+    await waitFor(() => expect(reason).toHaveFocus());
+    expect(screen.queryByRole('dialog')).toBeNull();
     // Nothing moved.
     const still = await runtime.ports.production.getContentRecord({
       kind: 'SUB',
@@ -580,23 +364,50 @@ describe('SA-13 Content record — stuck (B7-06 f1, f5; B7-10 f6)', () => {
     expect(still.ok && still.value.stuck).toBe(true);
 
     await user.type(reason, 'No reviewer for Electrical Machines until November.');
-    await user.click(within(dialog).getByRole('button', { name: 'Move status' }));
-    const flash = await screen.findByText(
-      'SUB-0085 is now with the vendor. Ritu Sharma · Meridian Virtual Labs can act on it.',
+    expect(reason).not.toHaveAttribute('aria-invalid');
+    const go = within(panel).getByRole('button', { name: 'Move status' });
+    await user.click(go);
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Return DC Motor Speed Control to the vendor?',
+    });
+    expect(dialog).toHaveAccessibleDescription('An override, recorded with your name and reason.');
+    expect(text(dialog.querySelector('.rk-dlg-now'))).toBe(
+      'What happens now Its status moves from “With the Academic Reviewer” to “Returned to the vendor”. Ritu Sharma · Meridian Virtual Labs can work on it again.',
     );
-    await waitFor(() => expect(flash.closest('p')).toHaveFocus());
+    expect(text(dialog.querySelector('.rk-dlg-later'))).toBe(
+      'Only after later events, or not from here Nothing is published. It goes through academic review again after the vendor resubmits.',
+    );
+    expect(text(dialog.querySelector('blockquote.rk-quote'))).toBe(
+      'No reviewer for Electrical Machines until November. Your reason',
+    );
+    expect(within(dialog).getByRole('button', { name: 'Move status' })).toHaveFocus();
+    // Cancel moves nothing; focus back to the button.
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(go).toHaveFocus();
+
+    await user.click(go);
+    const again = await screen.findByRole('dialog', {
+      name: 'Return DC Motor Speed Control to the vendor?',
+    });
+    await user.click(within(again).getByRole('button', { name: 'Move status' }));
+    const flash = (await screen.findByText('Returned to the vendor.')).closest('.rk-notice')!;
+    expect(text(flash)).toBe(
+      'Returned to the vendor. The override and your reason are in the governance history.',
+    );
+    await waitFor(() => expect(flash).toHaveFocus());
     await waitFor(() =>
-      expect(text(main().querySelector('.xr-phead-meta'))).toBe(
-        'Returned to vendor Moved back to the vendor on 23 Oct 2026 (Super Admin override)',
-      ),
+      expect(meta()).toBe('Returned to the vendor EEE ZC341 Electrical Machines'),
     );
-    expect(screen.queryByRole('button', { name: 'Move status (override)' })).toBeNull();
-    expect(text(main().querySelector('.xr-notice'))).toBe(
-      'In the workflow Who can act: Ritu Sharma · Meridian Virtual Labs. Nothing to do here.',
+    expect(overridePanel()).toBeNull();
+    expect(main().querySelector('div.sa-single')).not.toBeNull();
+    expect(text(main().querySelector('.rk-notice--ok:not(#content-record-flash)'))).toBe(
+      'In the workflow Ritu Sharma · Meridian Virtual Labs can act on it. Nothing is needed from you.',
     );
-    expect(historyLines()[0]).toBe(
-      'Status moved by Arjun Mehta — override 23 Oct 2026, 10:05 “No reviewer for Electrical Machines until November.” From “With Academic Reviewer” to “Returned to vendor”.',
+    expect(historyLines()[0]).toMatch(
+      /^Status moved by Arjun Mehta \(override\) 23 Oct 2026, \d\d:\d\d “No reviewer for Electrical Machines until November\.” From “With the Academic Reviewer” to “Returned to the vendor”\.$/,
     );
+    expectNoReferences();
     // The Vendor's record reads returned (the one supported move, OD-B7-09).
     const vendor = await asPersonId(sample, RITU).production.getRecord('SUB-0085' as never);
     expect(vendor.ok && vendor.value.submission.status.state).toBe('returned');
@@ -607,12 +418,15 @@ describe('SA-13 Content record — stuck (B7-06 f1, f5; B7-10 f6)', () => {
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'SUB-0085');
     await heading('DC Motor Speed Control');
-    await user.click(screen.getByRole('button', { name: 'Move status (override)' }));
-    const dialog = screen.getByRole('dialog', { name: 'Move SUB-0085 out of review?' });
+    const panel = overridePanel()!;
     await user.type(
-      within(dialog).getByRole('textbox', { name: 'Reason — kept in the history' }),
+      within(panel).getByRole('textbox', { name: 'Reason (required)' }),
       'Nobody can review it.',
     );
+    await user.click(within(panel).getByRole('button', { name: 'Move status' }));
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Return DC Motor Speed Control to the vendor?',
+    });
     // Meanwhile (another tab) Dr K. Iyer is given EEE ZC341.
     const admin = asPersonId(sample, SUPER_ADMIN);
     const holder = await admin.platformRoles.getHolder('role-0001' as never);
@@ -626,21 +440,23 @@ describe('SA-13 Content record — stuck (B7-06 f1, f5; B7-10 f6)', () => {
       expect(assigned.ok).toBe(true);
     });
     await user.click(within(dialog).getByRole('button', { name: 'Move status' }));
-    await screen.findByText(
-      'Nothing was moved: this record has moved on. Its current state is shown.',
+    const refusal = await screen.findByRole('alert');
+    expect(text(refusal)).toBe(
+      'Nothing was moved: this record has moved on. Its current state is shown. Check it again',
     );
     await waitFor(() =>
-      expect(text(main().querySelector('.xr-phead-meta'))).toBe(
-        'With Academic Reviewer With the Academic Reviewer since 2 Oct 2026',
-      ),
+      expect(meta()).toBe('With the Academic Reviewer EEE ZC341 Electrical Machines'),
     );
-    expect(screen.getByRole('heading', { level: 1 })).toHaveFocus();
-    expect(screen.queryByRole('button', { name: 'Move status (override)' })).toBeNull();
+    await waitFor(() => expect(refusal).toHaveFocus());
+    expect(overridePanel()).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Move status' })).toBeNull();
     const vendor = await asPersonId(sample, RITU).production.getRecord('SUB-0085' as never);
     expect(vendor.ok && vendor.value.submission.status.state).toBe('with-academic-reviewer');
+    await user.click(within(refusal).getByRole('button', { name: 'Check it again' }));
+    await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toHaveFocus());
   });
 
-  it('a stale revision: nothing moves; the record is read again', async () => {
+  it('a stale revision: nothing moves; the record is read again; the panel says so', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     const stale: ServiceError = { kind: 'stale-version', currentRev: 99 } as ServiceError;
@@ -657,86 +473,106 @@ describe('SA-13 Content record — stuck (B7-06 f1, f5; B7-10 f6)', () => {
     });
     showRecord(runtime, 'SUB-0085');
     await heading('DC Motor Speed Control');
-    await user.click(screen.getByRole('button', { name: 'Move status (override)' }));
-    const dialog = screen.getByRole('dialog', { name: 'Move SUB-0085 out of review?' });
-    await user.type(within(dialog).getByRole('textbox'), 'Stuck too long.');
+    const panel = overridePanel()!;
+    await user.type(within(panel).getByRole('textbox'), 'Stuck too long.');
+    await user.click(within(panel).getByRole('button', { name: 'Move status' }));
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Return DC Motor Speed Control to the vendor?',
+    });
     await user.click(within(dialog).getByRole('button', { name: 'Move status' }));
-    await screen.findByText('This record changed since you opened it');
-    expect(main()).toHaveTextContent(
-      'Nothing was moved. It has been read again — check it, then decide again.',
+    const refusal = await within(overridePanel()!).findByRole('alert');
+    expect(text(refusal)).toBe(
+      'This record changed since you opened it Nothing was moved. It has been read again — check it, then decide again. Check it again',
     );
-    expect(screen.getByRole('button', { name: 'Move status (override)' })).toBeVisible();
+    await waitFor(() => expect(refusal).toHaveFocus());
+    expect(within(overridePanel()!).getByRole('button', { name: 'Move status' })).toBeVisible();
+    expect(within(overridePanel()!).getByRole('textbox')).toHaveValue('Stuck too long.');
+  });
+
+  it('failed for now: the confirmation stays open and says nothing was lost', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    showRecord(runtime, 'SUB-0085');
+    await heading('DC Motor Speed Control');
+    const panel = overridePanel()!;
+    await user.type(within(panel).getByRole('textbox'), 'Stuck too long.');
+    faults(sample).failNext('ProductionService.overrideStatus' as never);
+    await user.click(within(panel).getByRole('button', { name: 'Move status' }));
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Return DC Motor Speed Control to the vendor?',
+    });
+    await user.click(within(dialog).getByRole('button', { name: 'Move status' }));
+    expect(
+      await within(dialog).findByText('It wasn’t moved. Nothing was lost — try again.'),
+    ).toBeVisible();
+    expect(meta()).toBe('Stuck — nobody can act EEE ZC341 Electrical Machines');
   });
 });
 
-describe('SA-13 Content record — published, read-only (B7-06 f2, f3, f6; B7-10 f5)', () => {
-  it('update waiting for her: “Open the release decision”; no edit, no override (f2)', async () => {
+describe('SA-13 Content record — published, read-only', () => {
+  it('a correction waiting for her: “Open the release decision”; no edit, no override', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'distillation-column');
     await heading('Distillation Column');
-    expect(text(main().querySelector('.xr-overline'))).toBe(
-      'CHE ZG513 · Process Instrumentation & Control',
-    );
-    expect(text(main().querySelector('.xr-phead-meta'))).toBe(
-      'Published Published · version 1.2 · live since 3 Jul 2026',
-    );
-    expect(text(main().querySelector('p.xl-open'))).toBe(
-      'Published · read-only. Published content changes only through a correction: Content Manager → Academic Reviewer → your release decision.',
-    );
-    expect(B7_06).toContain(
-      'Published · read-only. Published content changes only through a correction',
-    );
-    const notice = main().querySelector('.xr-notice')!;
+    expect(text(main().querySelector('.rk-head .rk-eyebrow'))).toBe('Experiment');
+    expect(meta()).toBe('Published CHE ZG513 Process Instrumentation & Control');
+    expect(main().querySelector('a.rk-goto')).toBeNull();
+    const notice = main().querySelector('.rk-notice')!;
+    expect(notice).toHaveClass('rk-notice--info');
     expect(text(notice)).toBe(
-      'Update UPD-0005 · approved — waiting for your release decision Version 1.2 stays live until you release it. Open the release decision',
+      'Published · read-only Published content changes only through a correction: Content Manager, then Academic Reviewer, then your release decision. Open the release decision',
     );
-    expect(
-      within(notice as HTMLElement).getByRole('link', { name: 'Open the release decision' }),
-    ).toHaveAttribute('href', '/admin/content/updates/UPD-0005');
+    const open = within(notice as HTMLElement).getByRole('link', {
+      name: 'Open the release decision',
+    });
+    expect(open).toHaveAttribute('href', '/admin/content/updates/UPD-0005');
+    expect(open).toHaveClass('rb-btn');
+    expect(overridePanel()).toBeNull();
     expect(screen.queryByRole('button', { name: /Move status|Edit/ })).toBeNull();
     expect(screen.queryByRole('textbox')).toBeNull();
-    expect(kv()).toBe(
-      'Summary Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag. Formats WEB VR Live version 1.2 · since 3 Jul 2026 Vendor Meridian Virtual Labs Who can act —',
+    expect(main().querySelector('div.sa-single')).not.toBeNull();
+    expect(details()).toBe(
+      'Summary Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag. Formats Formats: WEB, VR WEB VR Live version Version 1.2, live since 3 Jul 2026 Vendor Meridian Virtual Labs Who can act Nobody needs to act',
     );
-    expect([...main().querySelectorAll('ul.xv-los li')].map(text)).toEqual([
+    expect([...main().querySelectorAll('ul.sa-bullets li')].map(text)).toEqual([
       'Bring a column to steady state from cold start',
       'Tune reflux ratio against an overhead purity target',
     ]);
     expect(historyLines()).toEqual([
-      'UPD-0005 approved by the Academic Reviewer — waiting for the release decision 22 Oct 2026 Correction 1.2 → 1.3. Version 1.2 stays live until it is released.',
-      'Version 1.2 released 3 Jul 2026 Correction UPD-0002 — released by the Super Admin.',
-      'Version 1.1 released 19 Jun 2026 Correction UPD-0001 — released by the Super Admin.',
+      'Correction approved by the Academic Reviewer — waiting for the release decision 22 Oct 2026 Correction 1.2 → 1.3. Version 1.2 stays live until it is released.',
+      'Version 1.2 released 3 Jul 2026 Released by the Super Admin.',
+      'Version 1.1 released 19 Jun 2026 Released by the Super Admin.',
       'Published · version 1.0 2 Jun 2026 By Kavya Nair, Content Manager.',
     ]);
-    expect(B7_06).toContain('Correction 1.2 → 1.3. Version 1.2 stays live until it is released.');
+    expectNoReferences();
   });
 
-  it('update on hold: version 2.0 stays live; “Open Updates” (f6)', async () => {
+  it('a correction on hold: “Open the held correction”', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'boiler-drum-level');
     await heading('Boiler Drum Level');
-    const notice = main().querySelector('.xr-notice--warn')!;
-    expect(text(notice)).toBe('Update UPD-0004 · on hold Version 2.0 stays live. Open Updates');
+    const notice = main().querySelector('.rk-notice')!;
     expect(
-      within(notice as HTMLElement).getByRole('link', { name: 'Open Updates' }),
-    ).toHaveAttribute('href', '/admin/content/updates?show=on-hold');
-    expect(kv()).toContain('Vendor —');
+      within(notice as HTMLElement).getByRole('link', { name: 'Open the held correction' }),
+    ).toHaveAttribute('href', '/admin/content/updates/UPD-0004');
+    expect(details()).toContain('Vendor —');
     expect(historyLines()[0]).toBe(
-      'UPD-0004 put on hold by Arjun Mehta 20 Aug 2026 Version 2.0 stays live.',
+      'Correction put on hold by Arjun Mehta 20 Aug 2026 Version 2.0 stays live.',
     );
-    expect(B7_06).toContain('UPD-0004 put on hold by Arjun Mehta');
+    expectNoReferences();
   });
 
-  it('published from SUB-0077: read-only, its review history (f3; B7-10 f5)', async () => {
+  it('published from a submission: read-only, its review history', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'SUB-0077');
     await heading('Conduction Through a Composite Wall');
-    expect(text(main().querySelector('.xr-overline'))).toBe(
-      'SUB-0077 · ME ZG523 · Thermodynamics & Heat Transfer',
-    );
-    expect(main().querySelectorAll('.xr-notice')).toHaveLength(0);
-    expect(kv()).toBe(
-      'Summary Measure the temperature profile across a three-layer wall and compare it with the series-resistance model. Formats WEB VR Live version 1.0 · since 23 Oct 2026 Vendor Northline Simulation Studio Who can act —',
+    expect(text(main().querySelector('.rk-head .rk-eyebrow'))).toBe('Experiment');
+    expect(meta()).toBe('Published ME ZG523 Thermodynamics & Heat Transfer');
+    const notices = main().querySelectorAll('.rk-notice');
+    expect(notices).toHaveLength(1);
+    expect(within(notices[0] as HTMLElement).queryByRole('link')).toBeNull();
+    expect(details()).toBe(
+      'Summary Measure the temperature profile across a three-layer wall and compare it with the series-resistance model. Formats Formats: WEB, VR WEB VR Live version Version 1.0, live since 23 Oct 2026 Vendor Anil Shetty · Northline Simulation Studio Who can act Nobody needs to act',
     );
     expect(historyLines()).toEqual([
       'Published · version 1.0 23 Oct 2026 By Kavya Nair, Content Manager.',
@@ -745,35 +581,31 @@ describe('SA-13 Content record — published, read-only (B7-06 f2, f3, f6; B7-10
       'Returned to the vendor by Prof. A. Menon 14 Oct 2026 Revision 1.',
       'Submitted for academic review 7 Oct 2026 Revision 1 · from Anil Shetty, Northline Simulation Studio',
     ]);
-    for (const words of [
-      'By Kavya Nair, Content Manager.',
-      'Academic review, revision 2.',
-      'From Anil Shetty, Northline Simulation Studio.',
-      'Returned to the vendor by Prof. A. Menon',
-    ]) {
-      expect(B7_06).toContain(words);
-    }
+    expectNoReferences();
   });
 
   it('a returned correction is never named to her (UPD-0006, spine-start)', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     showRecord(runtime, 'induction-motor-loading');
     await heading('Induction Motor Loading');
-    expect(main().querySelectorAll('.xr-notice')).toHaveLength(0);
+    const notices = main().querySelectorAll('.rk-notice');
+    expect(notices).toHaveLength(1);
+    expect(within(notices[0] as HTMLElement).queryByRole('link')).toBeNull();
     expect(main()).not.toHaveTextContent('UPD-0006');
   });
 });
 
-describe('SA-13 Content record — in the workflow; not found (B7-06 f4)', () => {
-  it('someone can act: nothing to do here', async () => {
+describe('SA-13 Content record — in the workflow; not available; failed', () => {
+  it('someone can act: nothing is needed from her', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'SUB-0086');
     await heading('Flash Distillation');
-    expect(text(main().querySelector('.xr-notice'))).toBe(
-      'In the workflow Who can act: Prof. A. Menon · Academic Reviewer. Nothing to do here.',
+    expect(text(main().querySelector('.rk-head .rk-eyebrow'))).toBe('Submission');
+    expect(text(main().querySelector('.rk-notice'))).toBe(
+      'In the workflow Prof. A. Menon · Academic Reviewer can act on it. Nothing is needed from you.',
     );
-    expect(B7_06).toContain('Nothing to do here.');
-    expect(screen.queryByRole('button', { name: 'Move status (override)' })).toBeNull();
+    expect(overridePanel()).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Move status' })).toBeNull();
     expect(historyLines()).toEqual([
       'Submitted for academic review 24 Aug 2026 Revision 1 · from Ritu Sharma, Meridian Virtual Labs',
     ]);
@@ -790,11 +622,13 @@ describe('SA-13 Content record — in the workflow; not found (B7-06 f4)', () =>
     await heading('Flash Distillation');
   });
 
-  it('an address that names no record shows the in-shell not-found page', async () => {
+  it('an address that names no record is the GL-04 “This page isn’t available”', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showRecord(runtime, 'SUB-9999');
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'We can’t find that page' }),
-    ).toBeVisible();
+    expect(await heading('This page isn’t available')).toBeVisible();
+    expect(screen.getByRole('link', { name: 'Back to Overview' })).toHaveAttribute(
+      'href',
+      '/admin',
+    );
   });
 });

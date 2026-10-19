@@ -1,48 +1,27 @@
 /**
- * The words of the Super Admin's Platform roles — SA-16 Platform roles and SA-17 Role holder
- * (B7-08 f0 … f8; B7-10 f10, f11; B7-12 “Role holder”) — written from the facts
+ * The words of the Super Admin's Platform roles — SA-16 Platform roles and SA-17 Role holder — in
+ * the owner-approved V3 Refined B design (design/v3-refined-b/roles/SA-v1, `project/sa-views-d.js`
+ * `V.roles`, `V.holder`, `SA.DLG.register`, `SA.DLG.restoreScope`), written from the facts
  * `PlatformRoleService` answers (`holderView`: the holder record and each scope's status, course
- * code and name; PC-70): read models carry no words. Each entry names the board place that draws
- * it; what no board words is a provisional entry of the state-copy register
- * (`state-copy-platform-roles.ts`), never an invented rule.
- *
- * P1-14 / VD-10 (owner decision, as `copy/institutions.ts`): B7-08 writes the decision id “(T-11)”
- * into two sentences. The product shows each without it; `STRIPPED_ROLES` keeps the frozen board
- * wording and its ids, so the copy stays traceable (`platform-roles.test.ts`).
+ * code and name; PC-70): read models carry no words. What the export does not draw keeps its
+ * provisional entry of the state-copy register (`state-copy-platform-roles.ts`), never an
+ * invented rule. Nothing here names an internal reference; how a registered person first signs in
+ * is open (T-11), so nothing claims a message is sent.
  */
 import type { PlatformRole } from '@xr/domain';
-
-import type { StrippedSentence } from './institutions';
-
-function stripped(drawn: string, board: string): StrippedSentence {
-  const ids = [...drawn.matchAll(/ \((T-\d{2})\)/g)].map((match) => match[1]!);
-  return { words: drawn.replace(/ \(T-\d{2}\)/g, ''), drawn, ids, board };
-}
-
-/** The two B7-08 sentences that carry “(T-11)” (P1-14: the suffix goes, the sentence stays). */
-export const STRIPPED_ROLES = {
-  footNote: stripped(
-    'Registering doesn’t send an invitation. How a registered person first signs in is still open (T-11).',
-    'B7-08 f0, f3, f6 `p.xl-open` under the table',
-  ),
-  signInNote: stripped(
-    'How they first sign in is still open (T-11) — nothing is sent from here.',
-    'B7-08 f1 … f8 “Role holder” `p.xl-meta`',
-  ),
-} as const satisfies Readonly<Record<string, StrippedSentence>>;
 
 function plural(count: number, word: string): string {
   return `${count} ${word}${count === 1 ? '' : 's'}`;
 }
 
-/** The role in words (B7-08 `tabs[2]`: “Vendor”, “Academic Reviewer”, “Content Manager”). */
+/** The role in words (the export's `TABS[i][2]`: “Vendor”, “Academic Reviewer”, “Content Manager”). */
 export const ROLE_WORDS: Readonly<Record<PlatformRole, string>> = {
   vendor: 'Vendor',
   academic_reviewer: 'Academic Reviewer',
   content_manager: 'Content Manager',
 };
 
-/** The three tabs in board order (B7-08 `tabs`): label, the role each holds, the header action. */
+/** The three tabs in the export's order (`TABS`): label, the role each holds, the head's action. */
 export const ROLE_TAB_WORDS = {
   vendors: { label: 'Vendors', role: 'vendor', register: 'Register a Vendor' },
   reviewers: { label: 'Reviewers', role: 'academic_reviewer', register: 'Register a Reviewer' },
@@ -55,47 +34,89 @@ export const ROLE_TAB_WORDS = {
   Record<string, { readonly label: string; readonly role: PlatformRole; readonly register: string }>
 >;
 
-// ---- SA-16 Platform roles (B7-08 f0, f3, f6) ----
+/** What a role can do with its scope (the export's `EFF`): the lead before the scopes, and the line with none. */
+const EFFECT: Readonly<Record<PlatformRole, readonly [lead: string, none: string]>> = {
+  vendor: [
+    'Can create experiments and submit them for: ',
+    'Can’t create or submit experiments yet. Nothing is in scope.',
+  ],
+  academic_reviewer: [
+    'Sees submissions and updates for these in the review queue: ',
+    'Their review queue is empty. Nothing is in scope, and submissions for courses nobody reviews get stuck.',
+  ],
+  content_manager: [
+    'Decides publication and raises corrections for: ',
+    'Can’t publish or correct anything yet. Nothing is in scope.',
+  ],
+};
+
+/**
+ * The “Can act on” line (the export's `EFF[tab][0] + scopes + '.'`): “Sees submissions and
+ * updates for these in the review queue: ME ZG523, MEL ZG512, CHE ZG513.”, or the role's line
+ * with nothing in scope.
+ */
+export function effectLine(role: PlatformRole, inScope: readonly string[]): string {
+  const [lead, none] = EFFECT[role];
+  return inScope.length > 0 ? `${lead}${inScope.join(', ')}.` : none;
+}
+
+/** What a role holder with no scope cannot do (the export's `EFF[tab][1]`). */
+export function noScopeLine(role: PlatformRole): string {
+  return EFFECT[role][1];
+}
+
+export const ALL_EXPERIMENTS = 'All experiments';
+
+// ---- SA-16 Platform roles (`V.roles`) ----
 
 export const ROLES_PAGE = {
   title: 'Platform roles',
-  meta: 'Who can produce, review and publish content — and for what',
-  /** `div.xr-tabs[role=tablist][aria-label]`. */
-  tabsLabel: 'Role',
-  columns: { holder: 'Role holder', canActOn: 'Can act on', action: 'Action' },
-  open: 'Open',
-  /** The row's tag when nothing is in scope (`span.xw-tag.xw-tag--warn`). */
-  nothing: 'Nothing — no scope yet',
-  noScopeLine: 'Open the holder and assign a scope.',
-  /** B7-08 `p.xl-open`, without “(T-11)” (P1-14). */
-  footNote: STRIPPED_ROLES.footNote.words,
+  lead: 'Who can produce, review and publish content, and for what.',
+  /** `nav.rk-tabs.sa-tabs[aria-label]`. */
+  tabsLabel: 'Platform roles',
+  columns: {
+    holder: 'Role holder',
+    canActOn: 'Can act on',
+    workEmail: 'Work e-mail',
+    registered: 'Registered',
+    scope: 'Scope',
+  },
+  /** The row's “Can act on” with nothing active. */
+  nothing: 'Nothing yet',
+  hasScope: 'Has scope',
+  noScope: 'No scope',
+  /** The no-scope notice's action (to the first holder without scope). */
+  assignScope: 'Assign scope',
+  /** `p.rk-ca-foot` at the foot of the surface. */
+  footNote:
+    'Registering doesn’t send an invitation. How a registered person first signs in is still open.',
 } as const;
 
-/** “Open Dr K. Iyer” (the row's `aria-label`). */
-export function openHolderLabel(name: string): string {
-  return `Open ${name}`;
+/** The table's caption: “Reviewers and what they can act on”. */
+export function holdersCaption(tabLabel: string): string {
+  return `${tabLabel} and what they can act on`;
 }
 
-/** f0: “1 holder with no scope — they can’t act on anything yet”. */
-export function noScopeTitle(count: number): string {
-  return `${plural(count, 'holder')} with no scope — they can’t act on anything yet`;
+/** The row link's name: “Dr K. Iyer, Academic Reviewer, no scope. Open”. */
+export function holderRowLabel(name: string, role: PlatformRole, hasScope: boolean): string {
+  return `${name}, ${ROLE_WORDS[role]}${hasScope ? '' : ', no scope'}. Open`;
 }
 
-/** f0 “1 scope withdrawn”. */
+/** The no-scope notice: “Dr K. Iyer has no scope yet”, or “2 role holders have no scope yet”. */
+export function noScopeTitle(names: readonly string[]): string {
+  return names.length === 1
+    ? `${names[0]} has no scope yet`
+    : `${names.length} role holders have no scope yet`;
+}
+
+/** “1 scope withdrawn”. */
 export function withdrawnCountWords(count: number): string {
   return `${plural(count, 'scope')} withdrawn`;
 }
 
-/** f0 row line: “BITS Pilani · WILP · Registered 2 Jun 2026”. */
-export function registeredLine(organisation: string, day: string): string {
-  return `${organisation} · Registered ${day}`;
-}
-
-/** B7-08 f6 “Register a Vendor” (DL-3 with three fields). */
+/** `SA.DLG.register`: “Register a Vendor”, its line, the three fields. */
 export const REGISTER_DIALOG = {
-  rolePrefix: 'Role: ',
-  /** After the role in bold. */
-  roleTail: '. They start with no scope — you assign it next. Nothing is sent from here.',
+  description: 'Registering doesn’t send an invitation. You assign what they can act on next.',
   name: 'Name',
   workEmail: 'Work e-mail',
   organisation: 'Organisation',
@@ -104,27 +125,33 @@ export const REGISTER_DIALOG = {
   cancel: 'Cancel',
 } as const;
 
-/** B7-08 `doReg` flash, shown on the new holder's page (SA-17). */
-export function registeredFlash(name: string, role: PlatformRole): string {
-  return `${name} is registered as ${ROLE_WORDS[role]}. They have no scope yet — assign one so they can act. Nothing is sent from here.`;
+/** One flash (`div.rk-notice--ok`): what happened, and its line. */
+export interface FlashWords {
+  readonly title: string;
+  readonly line?: string;
 }
 
-// ---- SA-17 Role holder (B7-08 f1, f2, f4, f5, f7, f8; B7-10 f10, f11) ----
+/** The flash the new holder's page opens with (`SA.setFlash` after Register). */
+export function registeredFlash(name: string, role: PlatformRole): FlashWords {
+  return {
+    title: `${name} is registered as ${ROLE_WORDS[role]}.`,
+    line: 'Assign what they can act on. Nothing was sent to them.',
+  };
+}
+
+// ---- SA-17 Role holder (`V.holder`) ----
 
 export const HOLDER_PAGE = {
-  back: 'Platform roles',
-  assign: 'Assign scope',
+  /** “Go to assign scope” (`a.rk-goto`, under 860 px). */
+  goTo: 'Go to assign scope',
   noScopeTitle: 'No scope — can’t act on anything yet',
   noScopeLine: 'Assign a scope so they can act: all experiments, a course, or one experiment.',
   canActOn: 'Can act on',
-  scopeListLabel: 'Scope',
   withdrawnHeading: 'Withdrawn',
-  withdrawnListLabel: 'Withdrawn scope',
   withdraw: 'Withdraw',
-  reasonHint: 'Kept in the history. They stop seeing it straight away.',
+  reasonHint: 'Kept with the scope in the history.',
   withdrawConfirm: 'Withdraw scope',
   restore: 'Restore',
-  restoreConfirm: 'Restore scope',
   cancel: 'Cancel',
   holder: 'Role holder',
   keys: {
@@ -133,112 +160,79 @@ export const HOLDER_PAGE = {
     workEmail: 'Work e-mail',
     registered: 'Registered',
   },
-  /** B7-08 “Role holder” `p.xl-meta`, without “(T-11)” (P1-14). */
-  signInNote: STRIPPED_ROLES.signInNote.words,
+  signInNote: 'How they first sign in is still open. Nothing is sent from here.',
   history: 'History',
   historyMeta: 'Newest first',
 } as const;
 
-/** f1 overline: “Academic Reviewer · BITS Pilani · WILP” (drawn in capitals by `xr-overline`). */
-export function holderOverline(role: PlatformRole, organisation: string): string {
-  return `${ROLE_WORDS[role]} · ${organisation}`;
+/** The head's meta: “Registered 20 Oct 2026”. */
+export function registeredOn(day: string): string {
+  return `Registered ${day}`;
 }
 
-/** “Can act on” per role (B7-08 `eff`): the lead before the scopes, and the line with none. */
-const EFFECT: Readonly<Record<PlatformRole, readonly [lead: string, none: string]>> = {
-  vendor: [
-    'Can create experiments and submit them for: ',
-    'Can’t create or submit experiments yet — nothing is in scope.',
-  ],
-  academic_reviewer: [
-    'Sees submissions and updates for these in the review queue: ',
-    'Their review queue is empty — nothing is in scope. Submissions for courses nobody reviews get stuck.',
-  ],
-  content_manager: [
-    'Decides publication and raises corrections for: ',
-    'Can’t publish or correct anything yet — nothing is in scope.',
-  ],
-};
-
-/**
- * The “Can act on” line (B7-08 `effect`): “Sees submissions and updates for these in the review
- * queue: ME ZG523, MEL ZG512, CHE ZG513.”, or the role's line with nothing in scope.
- */
-export function effectLine(role: PlatformRole, inScope: readonly string[]): string {
-  const [lead, none] = EFFECT[role];
-  return inScope.length > 0 ? `${lead}${inScope.join(', ')}.` : none;
-}
-
-/** B7-08 f5 dialog sentence: “Scope decides what … sees and can act on. <lead> the scope you choose.” */
-export function assignHelp(name: string, role: PlatformRole): string {
-  return `Scope decides what ${name} sees and can act on. ${EFFECT[role][0].replace(': ', ' the scope you choose.')}`;
-}
-
-/** What a scope names, in its row (B7-08 `scopeTxt`): the course “ME ZG523 · Thermodynamics & Heat Transfer”. */
+/** What a course scope names in full (the export's `scopeLabel`): “ME ZG523 · Thermodynamics & Heat Transfer”. */
 export function courseScopeWords(code: string | null, name: string | null): string {
   if (code && name) return `${code} · ${name}`;
   return code ?? name ?? '';
 }
 
-/** B7-08 `scopeTxt` for one experiment: “Distillation Column (experiment)”. */
-export function experimentScopeWords(name: string): string {
-  return `${name} (experiment)`;
+/** A scope row's line: “Assigned 2 Jun 2026”. */
+export function assignedWords(day: string): string {
+  return `Assigned ${day}`;
 }
 
-export const ALL_EXPERIMENTS = 'All experiments';
-
-/** f4 “Since 4 Jul 2026”. */
-export function sinceWords(day: string): string {
-  return `Since ${day}`;
-}
-
-/** f4 “Withdrawn 15 Aug 2026 · “Manufacturing Processes content …”” */
+/** A withdrawn row's line: “Withdrawn 1 Oct 2026 · “Electrical Machines reviews move …””. */
 export function withdrawnWords(day: string, reason: string): string {
-  return `Withdrawn ${day} · “${reason}”`;
+  return reason ? `Withdrawn ${day} · “${reason}”` : `Withdrawn ${day}`;
 }
 
-/** The row's Withdraw `aria-label`: “Withdraw ME ZG523 · Thermodynamics & Heat Transfer”. */
+/** The row's Withdraw name: “Withdraw scope ME ZG523 · Thermodynamics & Heat Transfer”. */
 export function withdrawLabel(scope: string): string {
-  return `Withdraw ${scope}`;
+  return `Withdraw scope ${scope}`;
 }
 
-/** f4 inline panel label: “Reason for withdrawing ME ZG523 · Thermodynamics & Heat Transfer”. */
+/** The inline form's label: “Reason for withdrawing ME ZG523”. */
 export function reasonLabel(scope: string): string {
   return `Reason for withdrawing ${scope}`;
 }
 
-/** The withdrawn row's Restore `aria-label`. */
+/** The withdrawn row's Restore name: “Restore scope EEE ZC341 · Electrical Machines”. */
 export function restoreLabel(scope: string): string {
-  return `Restore ${scope}`;
+  return `Restore scope ${scope}`;
 }
 
-/** f8 inline confirmation (no reason asked, OD-B7-10). */
-export function restoreQuestion(scope: string): string {
-  return `Restore ${scope}? They can act on it again straight away.`;
+/** `SA.DLG.restoreScope`: “Restore EEE ZC341 for Prof. A. Menon?”. */
+export const RESTORE_DIALOG = {
+  description:
+    'The same scope comes back. No reason is asked; the earlier withdrawal stays in the history.',
+  confirm: 'Restore scope',
+  busy: 'Restoring…',
+  cancel: 'Cancel',
+} as const;
+
+export function restoreQuestion(scope: string, name: string): string {
+  return `Restore ${scope} for ${name}?`;
 }
 
-/** B7-08 `save` flash after Withdraw scope: “ME ZG523 withdrawn. Anil Shetty can no longer act on it.” */
-export function withdrawnFlash(scope: string, name: string): string {
-  return `${scope} withdrawn. ${name} can no longer act on it.`;
+/** `A.hoAssign` flash: “Scope assigned: EEE ZC341.” */
+export function assignedFlash(scope: string): FlashWords {
+  return { title: `Scope assigned: ${scope}.`, line: 'It now appears in their workspace.' };
 }
 
-/** B7-08 restore flash: “EEE ZC341 restored. Prof. A. Menon can act on it again.” */
-export function restoredFlash(scope: string, name: string): string {
-  return `${scope} restored. ${name} can act on it again.`;
+/** `A.wdSave` flash: “Scope withdrawn: ME ZG523.” */
+export function withdrawnFlash(scope: string): FlashWords {
+  return { title: `Scope withdrawn: ${scope}.`, line: 'The reason is kept with the scope.' };
 }
 
-/** B7-08 `doScope` flash: “Dr K. Iyer can now act on EEE ZC341.” */
-export function assignedFlash(name: string, scope: string): string {
-  return `${name} can now act on ${scope}.`;
+/** `SA.DLG.restoreScope` flash: “Scope restored: EEE ZC341.” */
+export function restoredFlash(scope: string): FlashWords {
+  return { title: `Scope restored: ${scope}.` };
 }
 
-/** f1 “20 Oct 2026 · by Arjun Mehta”. */
-export function registeredByWords(day: string, by: string): string {
-  return `${day} · by ${by}`;
-}
-
-/** B7-08 f5 “Assign scope to Dr K. Iyer” (DL-3). */
-export const ASSIGN_DIALOG = {
+/** The “Assign scope” panel (`aside#ho-panel`). */
+export const ASSIGN_PANEL = {
+  title: 'Assign scope',
+  errorsTitle: 'Check the scope',
   legend: 'What can they act on?',
   choices: {
     all: { title: 'All experiments', sub: 'Everything on the platform, now and later.' },
@@ -251,19 +245,15 @@ export const ASSIGN_DIALOG = {
   chooseExperiment: 'Choose an experiment',
   confirm: 'Assign scope',
   busy: 'Assigning…',
-  cancel: 'Cancel',
+  hint: 'Scope decides what appears in their workspace. It doesn’t change their role.',
 } as const;
 
-export function assignTitle(name: string): string {
-  return `Assign scope to ${name}`;
-}
-
-/** f5 option: “Distillation Column · CHE ZG513” (the name alone without a code). */
+/** An experiment option: “Distillation Column · CHE ZG513” (the name alone without a code). */
 export function experimentOption(name: string, code: string | null): string {
   return code ? `${name} · ${code}` : name;
 }
 
-// ---- History (B7-08 `hist`, newest first) ----
+// ---- History (`x.hist`, newest first) ----
 
 /** “Registered as Academic Reviewer”. */
 export function registeredAs(role: PlatformRole): string {
@@ -275,19 +265,19 @@ export function registeredNote(by: string, scopes: readonly string[]): string {
   return scopes.length > 0 ? `${by} · scope ${scopes.join(', ')}` : `${by} · no scope yet`;
 }
 
-/** “Scope withdrawn — MEL ZG512”. */
+/** “Scope withdrawn: MEL ZG512”. */
 export function scopeWithdrawnWhat(scope: string): string {
-  return `Scope withdrawn — ${scope}`;
+  return `Scope withdrawn: ${scope}`;
 }
 
-/** “Scope assigned — EEE ZC341” (B7-10 f11). */
+/** “Scope assigned: EEE ZC341”. */
 export function scopeAssignedWhat(scope: string): string {
-  return `Scope assigned — ${scope}`;
+  return `Scope assigned: ${scope}`;
 }
 
-/** “Scope restored — EEE ZC341” (B7-08 restore `hist`). */
+/** “Scope restored: EEE ZC341”. */
 export function scopeRestoredWhat(scope: string): string {
-  return `Scope restored — ${scope}`;
+  return `Scope restored: ${scope}`;
 }
 
 /** “"Manufacturing Processes content …" · Arjun Mehta”. */

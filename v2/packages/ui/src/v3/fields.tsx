@@ -129,13 +129,27 @@ export interface TextInputProps extends Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'id' | 'className' | 'aria-describedby' | 'aria-invalid'
 > {
+  /**
+   * Marked invalid without an error line under it: the service refused a rule about this field
+   * that has no words (SA-03, state-copy `SA-03.undrawn-refusal`). A Field error marks it too.
+   */
+  readonly invalid?: boolean;
   readonly ref?: Ref<HTMLInputElement>;
 }
 
 /** `input.rk-input` (44 px), wired by its Field. */
-export function TextInput({ ref, type = 'text', ...rest }: TextInputProps) {
+export function TextInput({ ref, type = 'text', invalid = false, ...rest }: TextInputProps) {
   const control = useControlWiring('TextInput');
-  return <input {...rest} {...control} ref={ref} type={type} className="rk-input" />;
+  return (
+    <input
+      {...rest}
+      {...control}
+      aria-invalid={control['aria-invalid'] ?? (invalid ? true : undefined)}
+      ref={ref}
+      type={type}
+      className="rk-input"
+    />
+  );
 }
 
 /** The search field's input with its icon (`div.rk-inputwrap` > icon + `input.rk-input`). */
@@ -159,15 +173,23 @@ export interface SelectProps extends Omit<
   'id' | 'className' | 'aria-describedby' | 'aria-invalid' | 'children'
 > {
   readonly options: readonly SelectOption[];
+  /** Marked invalid without an error line (as `TextInput`'s `invalid`). */
+  readonly invalid?: boolean;
   readonly ref?: Ref<HTMLSelectElement>;
 }
 
 /** `div.rk-selwrap` > `select.rk-select` + chevron, wired by its Field. */
-export function Select({ options, ref, ...rest }: SelectProps) {
+export function Select({ options, invalid = false, ref, ...rest }: SelectProps) {
   const control = useControlWiring('Select');
   return (
     <div className="rk-selwrap">
-      <select {...rest} {...control} ref={ref} className="rk-select">
+      <select
+        {...rest}
+        {...control}
+        aria-invalid={control['aria-invalid'] ?? (invalid ? true : undefined)}
+        ref={ref}
+        className="rk-select"
+      >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -367,8 +389,17 @@ export interface ErrorSummaryItem {
 export interface ErrorSummaryProps {
   /** "Check your decision". */
   readonly title: string;
-  /** One linked entry per invalid field, in page order. Nothing renders while it is empty. */
+  /**
+   * One linked entry per invalid field, in page order. Nothing renders while it is empty, unless
+   * `alwaysShown`.
+   */
   readonly items: readonly ErrorSummaryItem[];
+  /**
+   * Shown with no entry too — the title alone, still an alert that takes focus: a refusal the
+   * service gives without words (SA-03 `formHtml`, state-copy `SA-03.undrawn-refusal`). The caller
+   * decides when the summary is there.
+   */
+  readonly alwaysShown?: boolean;
   readonly id?: string;
   /**
    * Moves focus to the summary when it appears (default `true`). To focus it again on a later
@@ -383,7 +414,14 @@ export interface ErrorSummaryProps {
  * move focus to their fields without navigating — the v46 ErrorSummary behaviour (VD-22) in the
  * Refined B look.
  */
-export function ErrorSummary({ title, items, id, autoFocus = true, ref }: ErrorSummaryProps) {
+export function ErrorSummary({
+  title,
+  items,
+  alwaysShown = false,
+  id,
+  autoFocus = true,
+  ref,
+}: ErrorSummaryProps) {
   const Link = useLinkComponent();
   const node = useRef<HTMLDivElement | null>(null);
   const attach: RefCallback<HTMLDivElement> = useCallback(
@@ -405,7 +443,7 @@ export function ErrorSummary({ title, items, id, autoFocus = true, ref }: ErrorS
     },
     [ref],
   );
-  const shown = items.length > 0;
+  const shown = alwaysShown || items.length > 0;
   useEffect(() => {
     if (autoFocus && shown) node.current?.focus();
   }, [autoFocus, shown]);
@@ -417,15 +455,17 @@ export function ErrorSummary({ title, items, id, autoFocus = true, ref }: ErrorS
   return (
     <div ref={attach} className="rk-errsum" role="alert" id={id} tabIndex={-1}>
       <p className="rk-errsum-t">{title}</p>
-      <ul>
-        {items.map((item) => (
-          <li key={item.fieldId}>
-            <Link href={`#${item.fieldId}`} onClick={(event) => follow(event, item.fieldId)}>
-              {item.summaryText}
-            </Link>
-          </li>
-        ))}
-      </ul>
+      {items.length > 0 ? (
+        <ul>
+          {items.map((item) => (
+            <li key={`${item.fieldId}:${item.summaryText}`}>
+              <Link href={`#${item.fieldId}`} onClick={(event) => follow(event, item.fieldId)}>
+                {item.summaryText}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      ) : null}
     </div>
   );
 }
@@ -473,10 +513,23 @@ export function LockedValue({ children }: { readonly children: ReactNode }) {
   );
 }
 
+export interface HintProps {
+  readonly id?: string;
+  /**
+   * The note that closes a section under its table (`table`, 10 px above: `rk-x-hint-table`) or
+   * under its definition list (`list`, 12 px above: `rk-x-hint-list`) — the Super Admin export's
+   * inline spacings (V3P-12).
+   */
+  readonly under?: 'table' | 'list';
+  readonly children: ReactNode;
+}
+
+const HINT_UNDER = { table: 'rk-x-hint-table', list: 'rk-x-hint-list' } as const;
+
 /** A hint line on its own (`p.rk-hint`), e.g. "Access term: Yearly. Additional licences follow …". */
-export function Hint({ id, children }: { readonly id?: string; readonly children: ReactNode }) {
+export function Hint({ id, under, children }: HintProps) {
   return (
-    <p className="rk-hint" id={id}>
+    <p className={joinClasses('rk-hint', under && HINT_UNDER[under])} id={id}>
       {children}
     </p>
   );

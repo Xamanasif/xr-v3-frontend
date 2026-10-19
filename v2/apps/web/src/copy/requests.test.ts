@@ -1,18 +1,22 @@
 /**
- * The words of SA-02, SA-03 and XS-01 are the frozen boards' (B1-10, B1-11) and the owner-approved
- * XS export's (sign-in; it keeps B1-09's words): each drawn
- * phrase is found verbatim in its board's markup or script; the field words equal the contract
- * catalogue's; and nothing undrawn is written here without a state-copy entry.
+ * The words of SA-02 and SA-03 are the owner-approved Super Admin export's (design/v3-refined-b/
+ * roles/SA-v1: `sa-views-a.js`, `sa-core.js`, and the sentence forms of its sample records in
+ * `sa-data.js`); the words of XS-01 are the owner-approved XS export's (sign-in; it keeps B1-09's
+ * words). Each drawn phrase is found verbatim in its export's source; the field words equal the
+ * contract catalogue's; and nothing undrawn is written here without a state-copy entry.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board, xsExport } from '@/test-support/boards';
+import { board, saExport, xsExport } from '@/test-support/boards';
 
 import {
+  CONFIRM_DIALOG,
   CONFIRM_LINES,
   DECISION_ACTIONS,
   DECISION_CHOICES,
+  DECISION_ERRORS,
   DECISION_PAGE,
+  FORMAT_WORDS,
   FOUR_EVENTS,
   NEXT_LINES,
   PAUSED_BLOCK,
@@ -23,6 +27,9 @@ import {
   ROUTE_CHOICE,
   SMALLER_SCOPE,
   STAND,
+  confirmTitle,
+  decidedMeta,
+  requestRowLinkLabel,
 } from './requests';
 import { SIGN_IN, SIGN_IN_NOTICES } from './sign-in';
 
@@ -36,8 +43,9 @@ function words(file: string): string {
 }
 
 const B1_09 = words('B1-09-Sign-In.dc.html');
-const B1_10 = words('B1-10-SA-Requests.dc.html');
-const B1_11 = words('B1-11-SA-Decision.dc.html');
+
+/** The SA export's views, runtime and sample records, as one source of drawn words. */
+const SA = ['sa-views-a.js', 'sa-core.js', 'sa-data.js'].map(saExport).join('\n');
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -46,20 +54,31 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-describe('SA-02 words are on B1-10', () => {
-  it.each(strings(REQUESTS_PAGE).filter((text) => !['Search', 'Status', 'Type'].includes(text)))(
-    '%s',
-    (text) => {
-      expect(B1_10).toContain(text);
-    },
-  );
+describe('SA-02 words are the SA export’s (`V.requests`)', () => {
+  it.each(strings(REQUESTS_PAGE))('%s', (text) => {
+    expect(SA).toContain(text);
+  });
 
   it.each(Object.values(REQUEST_TYPE_WORDS))('type “%s”', (text) => {
-    expect(B1_10).toContain(text);
+    expect(SA).toContain(text);
+  });
+
+  it('a row link names the request by its institution, never by its reference', () => {
+    const name = requestRowLinkLabel(
+      'Konark Polytechnic',
+      'additional-licences',
+      '2026-09-29T07:07:00.000Z',
+      'Under review',
+    );
+    expect(name).toBe(
+      'Konark Polytechnic, additional licences, received 29 Sep 2026, Under review. Open the request',
+    );
+    expect(SA).toContain(". Open the request') + '\">'");
   });
 });
 
-describe('SA-03 words are on B1-11', () => {
+describe('SA-03 words are the SA export’s (`V.decision`, `SA.DLG.approveReq`)', () => {
+  const { activePlanUnchanged, ...drawnNext } = NEXT_LINES;
   const drawn = [
     ...strings(DECISION_PAGE),
     ...strings(FOUR_EVENTS),
@@ -70,16 +89,63 @@ describe('SA-03 words are on B1-11', () => {
     ...strings(DECISION_ACTIONS),
     ...strings(PENDING_HINTS),
     ...strings(PAUSED_BLOCK),
-    ...strings(NEXT_LINES),
+    ...strings(drawnNext),
     ...strings(CONFIRM_LINES),
+    ...strings(CONFIRM_DIALOG),
+    ...strings(FORMAT_WORDS),
+    ...strings(DECISION_ERRORS),
     ...strings({
-      label: STAND.label,
       keys: [STAND.institutionRecord, STAND.request, STAND.payment, STAND.access],
-      values: [STAND.notCreated, STAND.exists, STAND.paymentNotNeeded, STAND.paymentWaiting],
+      values: [
+        STAND.notCreated,
+        STAND.exists,
+        STAND.informationRequested,
+        STAND.paymentNotStarted,
+        STAND.paymentNotNeeded,
+        STAND.paymentWaiting,
+        STAND.paymentNotConfirmed,
+        STAND.accessNotActive,
+        STAND.accessUnchanged,
+      ],
     }),
   ];
   it.each(drawn.filter((text) => text.trim().length > 1))('%s', (text) => {
-    expect(B1_11).toContain(text.trim());
+    expect(SA).toContain(text.trim());
+  });
+
+  it('an approval whose plan effect is open never claims the plan — written from the export’s own phrases', () => {
+    expect(activePlanUnchanged).toBe(
+      `${NEXT_LINES.active} The current plan isn’t changed from this page.`,
+    );
+    expect(SA).toContain('Institutional access is active.');
+    expect(SA).toContain('The current plan isn’t changed from this page');
+  });
+
+  it('the confirmation and the decided line name the institution and the route in words', () => {
+    expect(confirmTitle(false, false, 'Godavari Institute of Technology')).toBe(
+      'Approve the request from Godavari Institute of Technology?',
+    );
+    expect(confirmTitle(false, true, 'BITS Pilani — Hyderabad Campus')).toBe(
+      'Approve the renewal from BITS Pilani — Hyderabad Campus?',
+    );
+    expect(confirmTitle(true, false, 'Konark Polytechnic')).toBe(
+      'Approve a smaller scope for Konark Polytechnic?',
+    );
+    for (const form of [
+      "'Approve a smaller scope for '",
+      "'Approve the renewal from '",
+      "'Approve the request from '",
+    ]) {
+      expect(SA).toContain(form);
+    }
+    expect(
+      decidedMeta({ kind: 'approval', at: '2026-10-08T04:35:00.000Z', route: 'external' }, null),
+    ).toBe('Decided by you on 8 Oct 2026, 10:05, external');
+    expect(decidedMeta({ kind: 'information', at: '2026-10-08T04:35:00.000Z' }, null)).toBe(
+      'Sent by you on 8 Oct 2026, 10:05',
+    );
+    expect(SA).toContain("'Decided by you on ' + s.when + ', ' + rl(rt)");
+    expect(SA).toContain("'Sent by you on ' + s.when");
   });
 });
 

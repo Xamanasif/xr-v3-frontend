@@ -22,11 +22,12 @@
 // committed file and its sources disagree.
 //
 // It also writes the scoped derivative of each owner-approved role export's extension sheet
-// (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): today XS-v6's xs-shared.css →
-// src/styles/v3/xs-scoped.css, with the same selector-only transform. Before anything is written,
-// the export must name this foundation, its three base sheets must be the foundation's own bytes
-// (a different base is a new foundation version: STOP), and the extension sheet must match both
-// the export's FOUNDATION-LOCK.json and its SHA256SUMS.txt.
+// (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): XS-v6's xs-shared.css →
+// src/styles/v3/xs-scoped.css and SA-v1's sa-role.css → src/styles/v3/sa-scoped.css, with the
+// same selector-only transform. Before anything is written, the export must name this foundation,
+// its three base sheets must be the foundation's own bytes (a different base is a new foundation
+// version: STOP), and the extension sheet must match both the export's FOUNDATION-LOCK.json and
+// its checksums (the export's own SHA256SUMS.txt, or the list recorded at intake beside it).
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { basename, join, relative } from 'node:path';
@@ -217,7 +218,8 @@ export function scopeSelectorList(prelude) {
 /**
  * Rewrites the selectors of every style rule in `css` (recursively inside grouping at-rules) and
  * copies every other byte unchanged. `keepRule(prelude)` (default: every rule) leaves out a style
- * rule it refuses — the whole rule, its selector and block — and nothing else.
+ * rule it refuses — the whole rule, its selector and block — and nothing else; a grouping at-rule
+ * whose every rule is refused goes with them.
  */
 export function scopeStylesheet(css, keepRule = () => true) {
   let output = '';
@@ -258,7 +260,14 @@ export function scopeStylesheet(css, keepRule = () => true) {
     if (prelude.startsWith('@')) {
       const name = /^@([\w-]+)/.exec(prelude)?.[1] ?? '';
       if (GROUPING_AT_RULES.has(name)) {
-        output += prelude + '{' + scopeStylesheet(css.slice(end + 1, close), keepRule) + '}';
+        const inner = css.slice(end + 1, close);
+        const scoped = scopeStylesheet(inner, keepRule);
+        if (scoped.trim() === '' && inner.trim() !== '') {
+          // Every rule inside was left out: the grouping rule goes too, with its line.
+          cursor = css[close + 1] === '\n' ? close + 2 : close + 1;
+          continue;
+        }
+        output += prelude + '{' + scoped + '}';
       } else {
         // @keyframes, @font-face, …: copied as written.
         output += css.slice(cursor, close + 1);
@@ -319,25 +328,77 @@ export const ROLE_SHEETS = [
     directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'XS-v6'),
     /** The extension sheet inside the export (every rule selects an `xs-` class). */
     sheet: 'project/xs-shared.css',
+    /** The export ships its own SHA256SUMS.txt. */
+    sums: 'inside',
     output: join(packageRoot, 'src', 'styles', 'v3', 'xs-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these: the export's canvas scaffolding,
+     * "never product UI" (its COMPONENT-EXTENSIONS.md §2 "Preview only") — dashed slots for other
+     * workstreams' pages (`xs-slot*`), the public slot pages (`xs-pub*`), specimen notes
+     * (`xs-spec`) and galleries (`xs-kit*`).
+     */
+    omit: /\.xs-(?:slot|pub|spec|kit)[\w-]*/,
+    /** The header's words for what is left out, line by line. */
+    omitNote: [
+      'preview-only scaffolding (xs-slot*, xs-pub*, xs-spec, xs-kit*: "never product UI") is left out.',
+    ],
+  },
+  {
+    /** The workstream: SA · Super Admin (18 screens). */
+    role: 'SA',
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'SA-v1'),
+    /** The role extension sheet (every rule selects an `sa-` class). */
+    sheet: 'project/sa-role.css',
+    /** No SHA256SUMS.txt in the export: the list recorded at intake, `SA-v1.SHA256SUMS.txt`. */
+    sums: 'beside',
+    output: join(packageRoot, 'src', 'styles', 'v3', 'sa-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these (the export's COMPONENT-EXTENSIONS.md):
+     * the design-only preview controls (`sa-pv-*`: "Never part of the product"), and the placements
+     * of the XS surfaces the export borrowed until XS was delivered — the account menu
+     * (`sa-acctwrap`, `sa-acctmenu*`), Help & support (`sa-help`, `sa-form`, `sa-file`,
+     * `sa-list-row--static`) and the signed-out page (`sa-out`): "Replace with the XS component
+     * when delivered". The delivered XS export (XS-v6) draws them.
+     */
+    omit: /\.sa-(?:pv(?:-[\w-]*)?|acctwrap|acctmenu[\w-]*|help|form|file|out|list-row--static)(?![\w-])/,
+    omitNote: [
+      'preview controls (sa-pv-*) and its borrowed XS placements (sa-acctwrap, sa-acctmenu*, sa-help,',
+      'sa-form, sa-file, sa-list-row--static, sa-out), which the delivered XS export draws, are left out.',
+    ],
   },
 ];
 
-/**
- * Whether every selector of a rule names the XS export's canvas scaffolding, "never product UI"
- * (its COMPONENT-EXTENSIONS.md §2 "Preview only"): dashed slots for other workstreams' pages
- * (`xs-slot*`), the public slot pages (`xs-pub*`), specimen notes (`xs-spec`) and galleries
- * (`xs-kit*`). Those rules are left out of the product sheet.
- */
-export function previewOnlyRule(_role, prelude) {
-  return splitTopLevel(prelude, ',').every((selector) =>
-    /\.xs-(?:slot|pub|spec|kit)[\w-]*/.test(selector),
+/** Whether every selector of a rule names something its export says is not product UI. */
+export function previewOnlyRule(role, prelude) {
+  return splitTopLevel(prelude, ',').every((selector) => role.omit.test(selector));
+}
+
+/** The export's recorded SHA-256 of one of its base sheets, in either lock layout. */
+function exportedBaseSheet(exportLock, sheet) {
+  return (
+    exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
+    exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256
   );
 }
 
+/** The export's recorded SHA-256 of its extension sheet, in either lock layout. */
+function exportedLocalAddition(exportLock, sheet) {
+  const entry = exportLock.localAdditions?.[sheet] ?? exportLock.localAdditions?.[basename(sheet)];
+  return typeof entry === 'string' ? entry : entry?.sha256;
+}
+
+/** The export's checksum lines: its own SHA256SUMS.txt, or the list recorded beside it. */
+export function roleSums(role) {
+  const file =
+    role.sums === 'inside'
+      ? join(role.directory, 'SHA256SUMS.txt')
+      : `${role.directory}.SHA256SUMS.txt`;
+  return readFileSync(file, 'utf8').split('\n');
+}
+
 /**
- * A role export's extension sheet, checked against the export's own FOUNDATION-LOCK.json and
- * SHA256SUMS.txt, after checking that the export is built on this foundation's base sheets.
+ * A role export's extension sheet, checked against the export's own FOUNDATION-LOCK.json and its
+ * checksums, after checking that the export is built on this foundation's base sheets.
  */
 export function readRoleInput(role) {
   const exportLock = JSON.parse(readFileSync(join(role.directory, 'FOUNDATION-LOCK.json'), 'utf8'));
@@ -348,23 +409,23 @@ export function readRoleInput(role) {
   }
   const foundationLock = JSON.parse(readFileSync(FOUNDATION_LOCK, 'utf8'));
   for (const sheet of SHEETS) {
-    const exported = exportLock.baseFiles?.[`project/${sheet}`]?.sha256;
+    const exported = exportedBaseSheet(exportLock, sheet);
     const locked = foundationLock.baseFiles[`references/v3/project/${sheet}`];
-    if (exported !== locked) {
+    const bytes = sha256(readFileSync(join(role.directory, 'project', sheet), 'utf8'));
+    if (exported !== locked || bytes !== locked) {
       throw new Error(
-        `${role.role}: ${sheet} is ${exported}, the foundation lock says ${locked} — a new foundation version: STOP`,
+        `${role.role}: ${sheet} is ${exported} (file ${bytes}), the foundation lock says ${locked} — a new foundation version: STOP`,
       );
     }
   }
   const css = readFileSync(join(role.directory, role.sheet), 'utf8');
   const actual = sha256(css);
-  const expected = exportLock.localAdditions?.[role.sheet]?.sha256;
+  const expected = exportedLocalAddition(exportLock, role.sheet);
   if (actual !== expected) {
     throw new Error(`${role.role}: ${role.sheet} is ${actual}, its lock says ${expected}: STOP`);
   }
-  const sums = readFileSync(join(role.directory, 'SHA256SUMS.txt'), 'utf8').split('\n');
-  if (!sums.includes(`${actual}  ${role.sheet}`)) {
-    throw new Error(`${role.role}: ${role.sheet} does not match the export's SHA256SUMS.txt: STOP`);
+  if (!roleSums(role).includes(`${actual}  ${role.sheet}`)) {
+    throw new Error(`${role.role}: ${role.sheet} does not match the export's checksums: STOP`);
   }
   return { ...role, sha256: actual, css };
 }
@@ -379,7 +440,7 @@ export function renderRoleCss(input) {
     ` * (\`${SCOPE_PREFIX.trim()}\`, or the root class itself) and kept out of v46 islands`,
     ` * (\`${ISLAND_EXCLUSION}\`). Both additions have zero specificity; every`,
     ` * declaration, at-rule, comment and the rule order are the source's own bytes. The export's`,
-    ` * preview-only scaffolding (xs-slot*, xs-pub*, xs-spec, xs-kit*: "never product UI") is left out.`,
+    ...input.omitNote.map((line) => ` * ${line}`),
     ` *   ${basename(input.sheet).padEnd(13)} sha256 ${input.sha256}`,
     ` */`,
   ].join('\n');

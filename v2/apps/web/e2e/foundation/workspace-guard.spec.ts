@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 
 import { TEST_HOOKS_URL } from '../support';
 import {
+  currentSidebarItem,
   expectSameDocument,
   markDocument,
   openAs,
@@ -55,11 +56,10 @@ for (const { person, other } of PAIRS) {
       `${person.base}/help`,
     );
     // The person's own shell; nothing current in the sidebar; the account menu is theirs.
-    await expect(page.locator('aside.xr-side')).toHaveAttribute(
-      'aria-label',
-      `${person.label} workspace`,
-    );
-    await expect(page.locator('aside.xr-side [aria-current]')).toHaveCount(0);
+    // The v46 sidebar, or the Super Admin's V3 rail (SA-v1).
+    const side = page.locator('aside.xr-side, aside.rb-rail');
+    await expect(side).toHaveAttribute('aria-label', `${person.label} workspace`);
+    await expect(side.locator('[aria-current]')).toHaveCount(0);
     await expect(sidebarHelp(page)).toHaveAttribute('href', `${person.base}/help`);
     await expect(
       page.getByRole('button', { name: new RegExp(`^Account menu, [^,]+, ${person.label}`) }),
@@ -67,7 +67,8 @@ for (const { person, other } of PAIRS) {
     // Nothing of the requested page, no route, role code or status code. The person's own
     // sidebar is left out: since Package 2A it names their own destinations ("Student access").
     await expect(page.getByRole('heading', { name: 'Help & support' })).toHaveCount(0);
-    const nav = page.locator('aside.xr-side nav');
+    // The destinations (the V3 rail draws Help in a navigation of its own, after them).
+    const nav = side.locator('nav').first();
     const navText = (await nav.count()) > 0 ? await nav.innerText() : '';
     const text = (await page.locator('body').innerText()).replace(navText, '').toLowerCase();
     for (const leak of [other.base, other.role, '403', '404', 'not-permitted', 'forbidden']) {
@@ -94,10 +95,7 @@ for (const { person, other } of PAIRS) {
     if (homeHeading) {
       await page.waitForURL((url) => url.pathname === person.base);
       await expect(page.getByRole('heading', { level: 1, name: homeHeading })).toBeVisible();
-      await expect(page.locator('aside.xr-side a[aria-current="page"]')).toHaveAttribute(
-        'href',
-        person.base,
-      );
+      await expect(currentSidebarItem(page)).toHaveAttribute('href', person.base);
     } else {
       await page.waitForURL(`**${person.base}/help`);
       await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();

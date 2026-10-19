@@ -1,39 +1,52 @@
 'use client';
 
 import type { RequestRow } from '@xr/contracts/draft';
-import type { InstitutionKind, RequestStatus, RequestType } from '@xr/domain';
 import {
-  DataTable,
-  type DataTableSortableColumn,
-  DataTableSortBar,
-  type DataTableSortDirection,
-  type DataTableSorting,
-  Field,
-  type FilterChip,
-  ListToolbar,
-  PageContent,
-  PageHeader,
-  Select,
-} from '@xr/ui';
-import { type FocusEvent, useMemo, useState } from 'react';
+  FORMAT_META,
+  type InstitutionKind,
+  type RequestStatus,
+  type RequestType,
+} from '@xr/domain';
+import type { FormatCode } from '@xr/ui';
+import {
+  Button,
+  CellLines,
+  FilterToolbar,
+  FormatBadges,
+  ListState,
+  ListSurface,
+  LoadingRows,
+  PageHead,
+  RecordTable,
+  type RecordTableRow,
+  type RecordTableSort,
+  SortBar,
+  type SortDirection,
+  type ToolbarChip,
+} from '@xr/ui/v3';
+import { useMemo, useRef, useState } from 'react';
 
-import { dayMonthYear } from '@/copy/dates';
+import { dayMonthYear, weekdayDate } from '@/copy/dates';
 import {
   experimentsCell,
-  openRequestLabel,
+  filterChipWords,
+  formatsRequestedLabel,
   REQUEST_TYPE_WORDS,
   requestCountWords,
+  requestRowLinkLabel,
   REQUESTS_PAGE,
   routeWords,
+  searchChipWords,
 } from '@/copy/requests';
 import { requestAddress, requestsPlacement } from '@/nav/requests';
 import { type RequestFilter, useAllRequests, useRequestRows } from '@/queries/access-requests';
 import { usePublishedCatalogue } from '@/queries/catalogue';
+import { useSession } from '@/queries/session';
 
-import { RequestStatusPill, requestStatusWords } from '../shared/request-status';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { RequestStatusPill, requestStatusWords } from '../shared/request-status';
 
-/** B1-10's Status filter, in board order (no Declined, T-02). */
+/** The Status filter, in order (no Declined, T-02). */
 const STATUS_OPTIONS: readonly RequestStatus[] = [
   'under-review',
   'information-requested',
@@ -46,93 +59,78 @@ const ROUTE_OPTIONS: readonly (InstitutionKind | 'not-set')[] = ['internal', 'ex
 
 const ALL = 'all';
 
-/** A row as SA-02 draws it: the port's row with its experiments named from the catalogue. */
+/** The list's id prefix: the search field and the More filters panel (the export's `rq-*`). */
+const SEARCH_ID = 'rq-q';
+const MORE_ID = 'rq-more';
+
+/** A row as SA-02 draws it: the port's row with its first experiment named from the catalogue. */
 interface ListedRequest {
   readonly row: RequestRow;
-  readonly experiments: { readonly line: string; readonly sub: string | null };
+  readonly experiments: ReturnType<typeof experimentsCell>;
 }
 
-const RECEIVED: DataTableSortableColumn<ListedRequest> = {
-  key: 'received',
-  header: REQUESTS_PAGE.receivedHeader,
-  sortWords: REQUESTS_PAGE.sortWords,
-  className: 'xr-num',
-  cell: (listed) => dayMonthYear(listed.row.receivedAt),
-};
-
-const COLUMNS = [
-  {
-    key: 'institution',
-    header: 'Institution and contact person',
-    cell: (listed: ListedRequest) => (
+function tableRow({ row, experiments }: ListedRequest): RecordTableRow {
+  const status = requestStatusWords(row.status);
+  return {
+    key: row.id,
+    href: requestAddress(row.id),
+    title: row.institutionName,
+    titleDetail: row.contactPerson,
+    linkLabel: requestRowLinkLabel(row.institutionName, row.type, row.receivedAt, status),
+    what: (
       <>
-        {listed.row.institutionName}
-        <span className="xr-sub">{listed.row.contactPerson}</span>
+        <CellLines strong={experiments.line} />
+        {experiments.formats.length > 0 ? (
+          <FormatBadges
+            formats={experiments.formats.map((format) => FORMAT_META[format].code as FormatCode)}
+            label={formatsRequestedLabel(experiments.formats)}
+          />
+        ) : null}
       </>
     ),
-  },
-  {
-    key: 'experiments',
-    header: 'Experiments',
-    cell: (listed: ListedRequest) => (
-      <>
-        {listed.experiments.line}
-        {listed.experiments.sub ? <span className="xr-sub">{listed.experiments.sub}</span> : null}
-      </>
-    ),
-  },
-  {
-    key: 'type',
-    header: 'Type',
-    cell: (listed: ListedRequest) => (
-      <>
-        {REQUEST_TYPE_WORDS[listed.row.type]}
-        <span className="xr-sub">{routeWords(listed.row.route)}</span>
-      </>
-    ),
-  },
-  RECEIVED,
-  {
-    key: 'status',
-    header: 'Status',
-    cell: (listed: ListedRequest) => <RequestStatusPill status={listed.row.status} />,
-  },
-];
+    kind: <CellLines strong={REQUEST_TYPE_WORDS[row.type]} small={routeWords(row.route)} />,
+    when: dayMonthYear(row.receivedAt),
+    status: <RequestStatusPill status={row.status} />,
+  };
+}
 
 /**
- * SA-02 Requests — board B1-10 ("Which requests need a decision?"), at `/admin/requests`.
+ * SA-02 Requests — the V3 Refined B design (the owner-approved Super Admin export,
+ * `sa-views-a.js` `V.requests`), at `/admin/requests`.
  *
  * - **The list is the port's answer.** Search, Status, Type and "Internal or external" go to
  *   `AccessRequestService.listRequests` as filters, and Received's order as `sort`; the service
  *   decides which requests the Super Admin sees and which match. The rows already on show are
- *   reordered in the same render when the order changes (DataTable "sort in place"), and they stay
- *   on show while a new filter's answer loads.
- * - **Toolbar as B1-10 draws it**: Search · Status · Type · More filters (Internal or external);
- *   Type moves into More filters below 600 px of content; every filter is a removable chip; the
- *   count reads "7 requests", or "2 of 7 requests" while something is applied; "More filters (1)"
- *   counts the route filter it holds.
- * - **B1-10 accessibility defect fixed** (START-HERE Known exception 1): below 760 px of content
- *   the header's sort button is hidden and the visible `DataTableSortBar` takes its place
- *   (WP-0.7, PF-01; VD-04 placement provisional).
- * - Each row's reference opens its decision (SA-03); the row is tinted while its link holds focus
- *   (B1-10 f2). Statuses are words with their drawn tone; there is no Declined status or filter.
+ *   reordered in the same render when the order changes, and they stay on show while a new
+ *   filter's answer loads.
+ * - **As the export draws it**: the page head; one list surface with the filter toolbar (Search ·
+ *   Status · Type · More filters with "Internal or external"; Type moves into More filters on a
+ *   narrow toolbar), the count ("8 requests", "2 of 8 requests" while something is applied), one
+ *   removable chip per applied filter and Clear filters; the record table in its three width
+ *   layouts, its Received head the sort (the sort bar in the status line where the head is
+ *   hidden). Each row opens its decision (SA-03), named by its institution, never by its
+ *   reference. States: loading, failed with Try again, no requests yet, no match.
+ * - Statuses are words with their tone; there is no Declined status, filter or action.
  */
 export function Requests() {
   useShellPage(requestsPlacement());
+  const session = useSession();
+  const date = session.status === 'signed-in' ? weekdayDate(session.signedInAt) : undefined;
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<RequestStatus | typeof ALL>(ALL);
   const [type, setType] = useState<RequestType | typeof ALL>(ALL);
   const [route, setRoute] = useState<InstitutionKind | 'not-set' | typeof ALL>(ALL);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [direction, setDirection] = useState<DataTableSortDirection>('descending');
-  const [focusedRow, setFocusedRow] = useState<string | null>(null);
+  const [direction, setDirection] = useState<SortDirection>('desc');
 
   const filter: RequestFilter = {
     status: status === ALL ? null : status,
     type: type === ALL ? null : type,
     route: route === ALL ? null : route,
     search,
-    order: direction === 'descending' ? 'received-newest' : 'received-oldest',
+    order: direction === 'desc' ? 'received-newest' : 'received-oldest',
   };
   const rows = useRequestRows(filter);
   const all = useAllRequests();
@@ -160,9 +158,9 @@ export function Requests() {
         row.itemCount,
       ),
     }));
-    // The rows on show follow the order asked for in the same render (B1-10 sorts in place);
-    // the service's own order is kept among requests received at the same moment.
-    const sign = direction === 'descending' ? -1 : 1;
+    // The rows on show follow the order asked for in the same render (sorted in place); the
+    // service's own order is kept among requests received at the same moment.
+    const sign = direction === 'desc' ? -1 : 1;
     return [...answer].sort((a, b) =>
       a.row.receivedAt === b.row.receivedAt
         ? 0
@@ -177,9 +175,9 @@ export function Requests() {
   const loading =
     (rows.isPending && !rows.data) || catalogue.isPending || (all.isPending && !all.data);
   const failed = rows.isError || catalogue.isError || all.isError;
-  const noRequestsAtAll = total === 0 && !failed;
+  const noRequestsAtAll = total === 0 && !failed && !loading;
 
-  // The count is announced (ListToolbar's `role="status"`): while a new filter's answer loads, the
+  // The count is announced (the toolbar's `role="status"`): while a new filter's answer loads, the
   // rows on show are the previous answer's (`keepPrevious`), so the count keeps its last settled
   // words rather than announcing a figure for the wrong filter.
   const settledCount =
@@ -190,6 +188,7 @@ export function Requests() {
         : requestCountWords(listed.length, total, filtered);
   const [countWords, setCountWords] = useState('');
   if (settledCount !== null && settledCount !== countWords) setCountWords(settledCount);
+  const count = loading || failed ? undefined : (settledCount ?? countWords);
 
   const clearFilters = () => {
     setSearch('');
@@ -198,40 +197,40 @@ export function Requests() {
     setRoute(ALL);
   };
 
-  const chips: FilterChip[] = [];
+  const chips: ToolbarChip[] = [];
   if (search.trim() !== '') {
-    chips.push({
-      key: 'search',
-      label: `Search: “${search.trim()}”`,
-      onRemove: () => setSearch(''),
-    });
+    chips.push({ key: 'q', label: searchChipWords(search.trim()), onRemove: () => setSearch('') });
   }
   if (status !== ALL) {
     chips.push({
-      key: 'status',
-      label: `Status: ${requestStatusWords(status)}`,
+      key: 'st',
+      label: filterChipWords(REQUESTS_PAGE.statusLabel, requestStatusWords(status)),
       onRemove: () => setStatus(ALL),
     });
   }
   if (type !== ALL) {
     chips.push({
       key: 'type',
-      label: `Type: ${REQUEST_TYPE_WORDS[type]}`,
+      label: filterChipWords(REQUESTS_PAGE.typeLabel, REQUEST_TYPE_WORDS[type]),
       onRemove: () => setType(ALL),
     });
   }
   if (route !== ALL) {
     chips.push({
       key: 'route',
-      label: `${REQUESTS_PAGE.routeLabel}: ${routeWords(route === 'not-set' ? null : route)}`,
+      label: filterChipWords(
+        REQUESTS_PAGE.routeLabel,
+        routeWords(route === 'not-set' ? null : route),
+      ),
       onRemove: () => setRoute(ALL),
     });
   }
 
-  const sorting: DataTableSorting = {
-    column: RECEIVED.key,
+  const sort: RecordTableSort = {
+    header: REQUESTS_PAGE.receivedHeader,
     direction,
-    onSortChange: (next) => setDirection(next.direction),
+    words: REQUESTS_PAGE.sortWords,
+    onToggle: () => setDirection((current) => (current === 'desc' ? 'asc' : 'desc')),
   };
   const listing = !loading && !failed && listed.length > 0;
 
@@ -239,133 +238,122 @@ export function Requests() {
     if (rows.isError) void rows.refetch();
     if (catalogue.isError) void catalogue.refetch();
     if (all.isError) void all.refetch();
-  };
-
-  // B1-10 f2: the row is tinted while its reference link holds focus.
-  const trackFocus = (event: FocusEvent<HTMLDivElement>) => {
-    const link =
-      event.target instanceof HTMLElement ? event.target.closest('td.is-primary a') : null;
-    setFocusedRow(link?.textContent ?? null);
+    titleRef.current?.focus();
   };
 
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-5"
-        overline={REQUESTS_PAGE.overline}
+    <>
+      <PageHead
         title={REQUESTS_PAGE.title}
-        summary={REQUESTS_PAGE.summary}
+        titleRef={titleRef}
+        titleFocusTarget
+        date={date}
+        lead={REQUESTS_PAGE.summary}
       />
-      {noRequestsAtAll ? null : (
-        <ListToolbar
-          search={{
-            label: REQUESTS_PAGE.searchLabel,
-            placeholder: REQUESTS_PAGE.searchPlaceholder,
-            value: search,
-            onChange: setSearch,
-          }}
-          filters={[
-            {
-              label: REQUESTS_PAGE.statusLabel,
-              value: status,
-              onChange: (value) => setStatus(value as RequestStatus | typeof ALL),
-              options: [
-                { value: ALL, label: 'All statuses' },
-                ...STATUS_OPTIONS.map((value) => ({ value, label: requestStatusWords(value) })),
+      <ListSurface label={REQUESTS_PAGE.caption} busy={loading}>
+        {noRequestsAtAll ? null : (
+          <FilterToolbar
+            label={REQUESTS_PAGE.filterLabel}
+            search={{
+              id: SEARCH_ID,
+              label: REQUESTS_PAGE.searchLabel,
+              placeholder: REQUESTS_PAGE.searchPlaceholder,
+              value: search,
+              onChange: setSearch,
+            }}
+            filters={[
+              {
+                id: 'rq-st',
+                label: REQUESTS_PAGE.statusLabel,
+                size: 'status',
+                value: status,
+                onChange: (value) => setStatus(value as RequestStatus | typeof ALL),
+                options: [
+                  { value: ALL, label: REQUESTS_PAGE.allStatuses },
+                  ...STATUS_OPTIONS.map((value) => ({ value, label: requestStatusWords(value) })),
+                ],
+              },
+              {
+                id: 'rq-type',
+                label: REQUESTS_PAGE.typeLabel,
+                size: 'type',
+                value: type,
+                onChange: (value) => setType(value as RequestType | typeof ALL),
+                options: [
+                  { value: ALL, label: REQUESTS_PAGE.allTypes },
+                  ...TYPE_OPTIONS.map((value) => ({ value, label: REQUEST_TYPE_WORDS[value] })),
+                ],
+              },
+            ]}
+            more={{
+              id: MORE_ID,
+              label: REQUESTS_PAGE.moreFilters,
+              open: moreOpen,
+              onToggle: () => setMoreOpen((open) => !open),
+              filters: [
+                {
+                  id: 'rq-route',
+                  label: REQUESTS_PAGE.routeLabel,
+                  value: route,
+                  onChange: (value) => setRoute(value as InstitutionKind | 'not-set' | typeof ALL),
+                  options: [
+                    { value: ALL, label: REQUESTS_PAGE.allRoutes },
+                    ...ROUTE_OPTIONS.map((option) => ({
+                      value: option,
+                      label: routeWords(option === 'not-set' ? null : option),
+                    })),
+                  ],
+                },
               ],
-            },
-            {
-              label: REQUESTS_PAGE.typeLabel,
-              value: type,
-              onChange: (value) => setType(value as RequestType | typeof ALL),
-              options: [
-                { value: ALL, label: 'All types' },
-                ...TYPE_OPTIONS.map((value) => ({ value, label: REQUEST_TYPE_WORDS[value] })),
-              ],
-            },
-          ]}
-          moreFilters={{
-            open: moreOpen,
-            onOpenChange: setMoreOpen,
-            activeCount: route === ALL ? 0 : 1,
-            children: (
-              <RouteFilter
-                value={route}
-                onChange={(value) => setRoute(value as InstitutionKind | 'not-set' | typeof ALL)}
-              />
-            ),
-          }}
-          status={settledCount ?? countWords}
-          chips={chips}
-          onClearFilters={chips.length > 0 ? clearFilters : undefined}
-          sortBar={listing ? <DataTableSortBar column={RECEIVED} sort={sorting} /> : undefined}
-        />
-      )}
-      <div onFocus={trackFocus} onBlur={() => setFocusedRow(null)}>
-        <DataTable
-          caption={REQUESTS_PAGE.caption}
-          primary={{
-            key: 'reference',
-            header: 'Reference',
-            href: (listedRequest) => requestAddress(listedRequest.row.id),
-            title: (listedRequest) => listedRequest.row.id,
-            linkLabel: (listedRequest) =>
-              openRequestLabel(listedRequest.row.id, listedRequest.row.institutionName),
-            // B1-10: `a.xr-id style="font-weight:700;color:#1F4FD8"` — the link blue, bold.
-            linkClassName: 'xr-id font-[700] text-link',
-          }}
-          columns={COLUMNS}
-          rows={listed}
-          rowKey={(listedRequest) => listedRequest.row.id}
-          rowState={(listedRequest) =>
-            listedRequest.row.id === focusedRow ? 'changed' : undefined
-          }
-          sort={sorting}
-          loading={loading}
-          loadingLabel={REQUESTS_PAGE.loading}
-          failed={
-            failed
-              ? {
-                  title: REQUESTS_PAGE.failedTitle,
-                  children: REQUESTS_PAGE.failedLine,
-                  onRetry: retry,
-                }
-              : null
-          }
-          filtered={filtered}
-          empty={{
-            icon: 'requests',
-            title: REQUESTS_PAGE.emptyTitle,
-            children: REQUESTS_PAGE.emptyLine,
-          }}
-          noMatch={{ title: REQUESTS_PAGE.noMatchTitle, onClearFilters: clearFilters }}
-        />
-      </div>
-    </PageContent>
-  );
-}
-
-/** "Internal or external" inside More filters (B1-10 f1). */
-function RouteFilter({
-  value,
-  onChange,
-}: {
-  readonly value: string;
-  readonly onChange: (value: string) => void;
-}) {
-  return (
-    <Field label={REQUESTS_PAGE.routeLabel}>
-      <Select
-        options={[
-          { value: ALL, label: 'All' },
-          ...ROUTE_OPTIONS.map((option) => ({
-            value: option,
-            label: routeWords(option === 'not-set' ? null : option),
-          })),
-        ]}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </Field>
+            }}
+            count={count}
+            sortBar={listing ? <SortBar sort={sort} /> : undefined}
+            chips={chips}
+            onClearFilters={clearFilters}
+            searchRef={searchRef}
+          />
+        )}
+        {failed ? (
+          <ListState
+            kind="failed"
+            title={REQUESTS_PAGE.failedTitle}
+            action={<Button onClick={retry}>{REQUESTS_PAGE.retry}</Button>}
+          >
+            {REQUESTS_PAGE.failedLine}
+          </ListState>
+        ) : loading ? (
+          <LoadingRows message={REQUESTS_PAGE.loading} />
+        ) : noRequestsAtAll ? (
+          <ListState kind="empty" title={REQUESTS_PAGE.emptyTitle}>
+            {REQUESTS_PAGE.emptyLine}
+          </ListState>
+        ) : listed.length === 0 ? (
+          <ListState
+            kind="nomatch"
+            title={REQUESTS_PAGE.noMatchTitle}
+            action={
+              <Button
+                onClick={() => {
+                  clearFilters();
+                  searchRef.current?.focus();
+                }}
+              >
+                {REQUESTS_PAGE.clearFilters}
+              </Button>
+            }
+          >
+            {REQUESTS_PAGE.noMatchLine}
+          </ListState>
+        ) : (
+          <RecordTable
+            caption={REQUESTS_PAGE.caption}
+            headers={REQUESTS_PAGE.headers}
+            rows={listed.map(tableRow)}
+            sort={sort}
+            whenLabel={REQUESTS_PAGE.receivedHeader}
+          />
+        )}
+      </ListSurface>
+    </>
   );
 }

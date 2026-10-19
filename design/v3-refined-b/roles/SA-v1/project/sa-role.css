@@ -1,0 +1,125 @@
+/* XR Learning Platform · Design V3 · Super Admin complete role · role extension (sa- prefix)
+   Additive only. Uses the .xr / .rb tokens from core.css and rb.css; never restyles rb- or rk- classes,
+   never redefines a global token. Every class is recorded in COMPONENT-EXTENSIONS.md. */
+
+/* account menu — placement of the shared XS account menu (borrowed contract: name, Help, Sign out) */
+.sa-acctwrap{position:relative;margin-left:auto}
+.sa-acctwrap .rb-acct{margin-left:0}
+.sa-acctmenu{position:absolute;right:0;top:calc(100% + 6px);z-index:40;width:min(300px,calc(100vw - 32px));padding:8px;border:1px solid var(--rb-line);border-radius:14px;background:var(--paper);box-shadow:0 18px 50px -18px rgba(19,25,56,.35)}
+.sa-acctmenu-who{display:flex;align-items:center;gap:12px;padding:8px 10px 12px;margin-bottom:6px;border-bottom:1px solid var(--rb-line)}
+.sa-acctmenu-who b{display:block;font:650 15.5px/21px var(--sans);color:var(--ink)}
+.sa-acctmenu-who span span{display:block;font:400 14px/20px var(--sans);color:var(--ink-3);overflow-wrap:anywhere}
+.rb .sa-acctmenu a{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 10px;border-radius:10px;color:var(--navy);font:600 15px/20px var(--sans);text-decoration:none}
+.rb .sa-acctmenu a:hover{background:var(--rb-sel-tint);color:var(--navy)}
+.sa-acctmenu a svg{width:20px;height:20px;fill:none;stroke:var(--indigo);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* quiet line inside an Overview group with nothing in it */
+.sa-quietrow{display:flex;align-items:center;gap:10px;padding:16px 0 18px;font:400 15.5px/23px var(--sans);color:var(--ink-2)}
+.sa-quietrow svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--ok);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+
+/* page tabs sit between the head and the surface */
+.sa-tabs{margin-top:-8px}
+.sa-tabn{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:22px;margin-left:8px;padding:0 7px;border-radius:11px;background:var(--rb-sel-tint);color:var(--indigo-2);font:700 13px/22px var(--sans)}
+.sa-seg{margin:0}
+
+/* layout helpers */
+.sa-stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+.sa-single{display:block}
+.sa-btnrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.sa-pad{padding:20px 22px 0}
+.sa-footnote{font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.sa-bullets{display:flex;flex-direction:column;gap:6px;padding-left:20px!important;list-style:disc!important;font:400 16px/24px var(--sans);color:var(--ink)}
+.sa-term-only{margin-top:10px;font:500 14.5px/20px var(--sans);color:var(--ink-2)}
+
+/* action groups inside a DecisionPanel that is not a single decision */
+.sa-act{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding-bottom:16px;border-bottom:1px solid var(--rb-line)}
+.sa-act:last-child{padding-bottom:0;border-bottom:0}
+.sa-act .rk-go{width:100%}
+.sa-act-k{font:700 14.5px/20px var(--sans);color:var(--ink-3)}
+.sa-act-v{font:650 16px/23px var(--sans);color:var(--ink)}
+.sa-act-v span{display:block;font:400 14.5px/21px var(--sans);color:var(--ink-3);overflow-wrap:anywhere}
+.sa-attn{display:flex;flex-direction:column;gap:8px;width:100%}
+.sa-attn li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 12px;font:400 15px/22px var(--sans);color:var(--ink-2)}
+
+/* experiments inside a PlanBand: name + the shared format strip */
+.sa-plan-exps{display:flex;flex-direction:column;gap:12px;padding:0 28px 24px}
+.sa-plan-exp{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.6fr);align-items:center;gap:12px 40px;padding:14px 16px;border:1px solid var(--rb-tint-line);border-radius:14px;background:var(--paper)}
+@container rkplan (max-width: 759.98px){ .sa-plan-exps{padding:0 20px 20px} .sa-plan-exp{grid-template-columns:minmax(0,1fr)} }
+@container rkplan (max-width: 479.98px){ .sa-plan-exps{padding:0 0 16px} .sa-plan-exp{padding:12px} .sa-plan-exp .rk-fstrip{grid-template-columns:repeat(2,minmax(0,1fr))} }
+
+/* simple read-only data table (not row-clickable): reports, comparisons, access ending */
+.sa-tablewrap{container:satable / inline-size;overflow-x:auto}
+.sa-table{width:100%;border-collapse:collapse;font:400 15.5px/23px var(--sans);color:var(--ink-2)}
+.sa-table th,.sa-table td{padding:12px 14px;border-bottom:1px solid var(--rb-line);text-align:left;vertical-align:top}
+.sa-table thead th{background:#F7F8FC;color:var(--ink-3);font:600 14px/20px var(--sans);white-space:nowrap}
+.sa-table tbody th{color:var(--ink);font:600 15.5px/23px var(--sans)}
+.sa-table tbody tr:last-child > *{border-bottom:0}
+.sa-table--rows th:first-child,.sa-table--rows td:first-child{padding-left:22px}
+.sa-table--rows th:last-child,.sa-table--rows td:last-child{padding-right:22px}
+.sa-table a{font-weight:650;text-decoration:none}
+.sa-table a:hover{text-decoration:underline;text-underline-offset:3px}
+.sa-table .rk-small{display:block}
+.sa-table .xr-st + .rk-small{margin-top:6px}
+.sa-compare td{width:40%}
+@container satable (max-width: 639.98px){ .sa-compare td{min-width:0} .sa-compare-new{margin-top:6px;padding:6px 8px!important;border-radius:8px} .sa-table--rows td.xr-num{font-variant-numeric:tabular-nums} }
+.sa-compare-new{background:#F4F7EF;color:var(--ink)}
+.sa-byfmt{display:flex;flex-direction:column;gap:6px}
+.sa-byfmt li{display:flex;align-items:center;gap:8px;white-space:nowrap}
+@container satable (max-width: 639.98px){
+  .sa-table--rows thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+  .sa-table--rows,.sa-table--rows tbody,.sa-table--rows tr,.sa-table--rows th,.sa-table--rows td{display:block;width:auto}
+  .sa-table--rows tr{padding:14px 16px;border-bottom:1px solid var(--rb-line)}
+  .sa-table--rows tr:last-child{border-bottom:0}
+  .sa-table--rows th,.sa-table--rows td,.sa-table--rows th:first-child,.sa-table--rows td:first-child,.sa-table--rows th:last-child,.sa-table--rows td:last-child{padding:4px 0;border:0}
+  .sa-table--rows td[data-label]::before{content:attr(data-label);display:block;font:600 13.5px/19px var(--sans);color:var(--ink-3)}
+  .sa-table--rows .sa-btnrow{margin-top:4px}
+}
+
+/* list rows that open a record (academic structure, My reports) */
+.sa-list{display:flex;flex-direction:column;border:1px solid var(--rb-line);border-radius:14px;overflow:hidden}
+.sa-list > li + li{border-top:1px solid var(--rb-line)}
+.rb a.sa-list-row,.sa-list-row{display:flex;align-items:center;gap:16px;min-height:64px;padding:12px 16px;color:var(--ink);text-decoration:none;background:var(--paper)}
+.rb a.sa-list-row:hover{background:#F8F9FD;color:var(--ink)}
+.sa-list-main{display:flex;flex-direction:column;gap:4px;flex:1 1 auto;min-width:0}
+.sa-list-t{font:650 16.5px/23px var(--sans);color:var(--navy)}
+.sa-list-d{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.sa-list-go svg{width:20px;height:20px;fill:none;stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* people and scope rows with an inline override form */
+.sa-people,.sa-scopes{display:flex;flex-direction:column;border:1px solid var(--rb-line);border-radius:14px}
+.sa-people > li + li,.sa-scopes > li + li{border-top:1px solid var(--rb-line)}
+.sa-people-row,.sa-scope-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:8px 16px;padding:10px 12px 10px 16px}
+.sa-scope-row{grid-template-columns:minmax(0,1fr) auto}
+.sa-people-n,.sa-scope-t{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font:600 16px/23px var(--sans);color:var(--ink)}
+.sa-inline{display:flex;flex-direction:column;gap:12px;margin:0 12px 14px;padding:14px 16px;border-radius:12px;background:#F6F7FC}
+@container rbpage (max-width: 519.98px){ .sa-people-row{grid-template-columns:minmax(0,1fr) auto} .sa-people-row .rb-btn{grid-column:1 / -1;justify-self:start} }
+
+/* message / refusal page (GL-04 template) and signed-out page */
+.sa-msg{display:flex;flex-direction:column;align-items:flex-start;gap:12px;max-width:600px;padding-top:24px}
+.sa-msg-ico{display:flex;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:var(--rb-sel-tint);color:var(--indigo)}
+.sa-msg-ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.sa-msg .sa-btnrow{margin-top:8px}
+.sa-out{min-height:100vh;padding:48px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));background:#F3F4F9}
+.sa-out .sa-msg{margin:0 auto}
+
+/* help & support (borrowed XS layout) */
+.sa-help{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+.sa-form{display:flex;flex-direction:column;gap:16px}
+.sa-file{font:400 15px/22px var(--sans);color:var(--ink-2);max-width:100%}
+@container rbpage (max-width: 859.98px){ .sa-help{grid-template-columns:minmax(0,1fr)} }
+.sa-list-row--static{justify-content:space-between}
+
+/* design-only preview controls: outside the product chrome, hidden with ?clean=1 */
+.sa-pv-fab{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:70;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:1px dashed #8E97C2;border-radius:999px;background:#FFFFFF;color:#141B5E;font:600 14.5px/20px 'Public Sans',system-ui,sans-serif;box-shadow:0 10px 30px -12px rgba(19,25,56,.35);cursor:pointer}
+.sa-pv-fab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sa-pv{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:max(16px,env(safe-area-inset-bottom,0px));z-index:70;display:flex;flex-direction:column;gap:12px;width:min(340px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow-y:auto;padding:16px;border:1px dashed #8E97C2;border-radius:16px;background:#FFFFFF;color:#131938;font:400 14.5px/21px 'Public Sans',system-ui,sans-serif;box-shadow:0 24px 60px -18px rgba(19,25,56,.45)}
+.sa-pv-head{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sa-pv-head h2{font:700 17px/23px 'Public Sans',system-ui,sans-serif;color:#141B5E}
+.sa-pv .rb-btn{color:#141B5E;border-color:#C3C9E4;background:#FFFFFF}
+.sa-pv .rb-close{border-color:#CDD1E1;color:#141B5E;width:40px;height:40px}
+.sa-pv-note{color:#555C7E}
+.sa-pv-check{min-height:40px;font-size:14px}
+.sa-pv-screens ul{list-style:none;padding:0;margin:6px 0 0;display:grid;grid-template-columns:1fr;gap:2px;margin-top:6px}
+.sa-pv-screens a{display:block;padding:5px 8px;border-radius:8px;color:#3B49B8;text-decoration:none}
+.sa-pv-screens a:hover{background:#EEF0FB}
+.sa-pv-screens b{display:inline-block;min-width:48px;color:#141B5E}

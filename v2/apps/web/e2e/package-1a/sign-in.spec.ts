@@ -154,7 +154,8 @@ test('XS-03 session expired (f9): the return address in words, then back there',
   await page.goto('/sign-in?reason=expired&returnTo=%2Fadmin%2Frequests%2FREQ-0038');
   const signIn = await card(page);
   await expect(signIn.locator('.rk-notice').first()).toContainText(
-    'Sign in again to go back to where you were: Requests › REQ-0038.',
+    // The Super Admin's records are named without their reference (SA-v1): the destination alone.
+    'Sign in again to go back to where you were: Requests.',
   );
   await checkState(page, 'Sign in');
   const mark = await markDocument(page);
@@ -165,8 +166,11 @@ test('XS-03 session expired (f9): the return address in words, then back there',
   ).toBeVisible();
   // Signing in moved within the document: the tab's sample world is kept (ADR-0004).
   await expectSameDocument(page, mark);
-  // After signing in, focus is in the workspace's main content.
-  await expect(page.locator('main.xr-page#main')).toBeFocused();
+  // After signing in, focus is in the workspace's main content: in the Super Admin's V3 shell, the
+  // page's H1 once the record has loaded (SA-v1 "route change → page heading").
+  await expect(
+    page.getByRole('heading', { level: 1, name: 'BITS Pilani — Hyderabad Campus' }),
+  ).toBeFocused();
 });
 
 test('open redirects and other workspaces are refused: the person’s own base instead', async ({

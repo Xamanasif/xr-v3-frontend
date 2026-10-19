@@ -52,13 +52,16 @@ function inWorkspace(runtime: PlatformRuntime, path: string, page: ReactNode) {
   return { navigation, view };
 }
 
-/** The My reports rows (`a.xs-report` in the V3 region of main). */
+/**
+ * The My reports rows (`a.xs-report` in the V3 region of the shell's main: `main.xr-page` in a v46
+ * role shell, `main.rb-page` in the Super Admin's V3 shell).
+ */
 async function reportRows(): Promise<HTMLElement[]> {
   // The session's loading state has a `main` of its own until the shell renders: query afresh.
   await waitFor(() =>
-    expect(document.querySelector('main.xr-page .rk-x-region ul.xs-reports')).not.toBeNull(),
+    expect(document.querySelector('main#main .rk-x-region ul.xs-reports')).not.toBeNull(),
   );
-  return [...document.querySelectorAll<HTMLElement>('main.xr-page ul.xs-reports a.xs-report')];
+  return [...document.querySelectorAll<HTMLElement>('main#main ul.xs-reports a.xs-report')];
 }
 
 async function signedIn(role: Role, fixture: 'after-flow-d' | 'spine-start' = 'after-flow-d') {

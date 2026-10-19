@@ -64,7 +64,8 @@ async function expectSameTab(page: Page, tab: Tab): Promise<void> {
 
 /** The workspace shell is the person's own: sidebar landmark and account-menu line (board 06). */
 async function expectShellOf(page: Page, entry: RoleEntry): Promise<void> {
-  await expect(page.locator('aside.xr-side')).toHaveAttribute(
+  // The v46 sidebar, or a migrated role's V3 rail (the Super Admin, SA-v1).
+  await expect(page.locator('aside.xr-side, aside.rb-rail')).toHaveAttribute(
     'aria-label',
     `${entry.label} workspace`,
   );
@@ -397,7 +398,10 @@ test('D · identity continuity: a change made as one role is there for the next,
   // The new role's actual workspace: its shell, its navigation (every Super Admin destination since
   // Phase 6, and Help) and its permissions: the Student's addresses are not part of it.
   await expectShellOf(page, ADMIN);
-  await expect(page.locator('aside.xr-side nav a .xr-nav-text')).toHaveText([
+  // The Super Admin's V3 rail (SA-v1): each destination's label is its first `span`.
+  await expect(
+    page.locator('aside.rb-rail nav[aria-label="Super Admin navigation"] a > span:first-of-type'),
+  ).toHaveText([
     'Overview',
     'Requests',
     'Institutions',

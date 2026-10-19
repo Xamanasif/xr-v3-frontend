@@ -127,7 +127,11 @@ export const INSTITUTION_TAB_WORDS = [
   ['no-institute-admin', 'No Institute Admin'],
 ] as const;
 
-export type InstitutionTabId = (typeof INSTITUTION_TAB_WORDS)[number][0];
+/**
+ * The SA-06 list's status filter (`listInstitutions` tabs): the V3 status select's options
+ * (`SA_INSTITUTION_FILTERS`), which add Access ended to B7-02's tabs.
+ */
+export type InstitutionTabId = (typeof SA_INSTITUTION_FILTERS)[number][0];
 
 /** B7-02 status line: "7 of 7 institutions" (always "x of y"; `plural(n, 'institution')`). */
 export function institutionCountWords(shown: number, total: number): string {
@@ -462,4 +466,322 @@ export const HISTORY_OVERRIDE = 'Student status changed';
 /** Formats as the boards write them in a chip ("WEB", "VR"). */
 export function formatCode(format: Technology): string {
   return format.toUpperCase();
+}
+
+// ==== V3 Refined B — the owner-approved Super Admin export (SA-v1) ===============================
+//
+// SA-06 and SA-07 in the V3 Refined B design (design/v3-refined-b/roles/SA-v1, `sa-views-b.js`
+// `V.institutions`, `V.institution`, its dialogs and flashes): the export's words for what it
+// draws; the state-copy register's for what it does not. No internal reference (REQ-, ACC-, DTR-)
+// appears in these words or in an accessible name: plans are named by their content and term,
+// requests by their content (the export's HANDOFF "Shell and shared behaviour"). The B7 wording
+// above stays for its traceability tests; the screens read the words below.
+
+/** SA-06's status select, in the export's order (`FILTERS`), by `listInstitutions` tab. */
+export const SA_INSTITUTION_FILTERS = [
+  ['all', 'All statuses'],
+  ['access-active', 'Access active'],
+  ['ending-soon', 'Ending soon'],
+  ['access-paused', 'Access paused'],
+  ['approved-payment-required', 'Approved — payment required'],
+  ['access-ended', 'Access ended'],
+  ['no-institute-admin', 'No Institute Admin'],
+] as const;
+
+export const SA_INSTITUTIONS = {
+  title: 'Institutions',
+  lead: 'Every institution on the platform. Each one is created when a request is approved.',
+  /** The list surface's name (`section.rk-surface[aria-label]`). */
+  surface: 'Institutions',
+  toolbar: 'Filter institutions',
+  searchLabel: 'Search',
+  searchPlaceholder: 'Institution or Institute Admin',
+  statusLabel: 'Status',
+  caption: 'Institutions, by name',
+  columns: {
+    institution: 'Institution',
+    plan: 'Access plan',
+    instituteAdmin: 'Institute Admin',
+    accessEnds: 'Access ends',
+    status: 'Status',
+  },
+  needsOne: 'Needs one',
+  adminLater: 'Assigned once access is active',
+  /** An ended institution that never had an Institute Admin (undrawn; state-copy SA-06.admin-cell). */
+  notAssigned: 'Not assigned',
+  endsLabel: 'Access ends',
+  notSetLabel: 'Access ends:',
+  notSetYet: 'not set yet',
+  /** Under the empty state's title (state-copy SA-06.none; loading and failed are SA-06.*). */
+  emptyLine: 'An institution appears here when you approve its first request.',
+  noMatchTitle: 'No institutions match',
+  noMatchLine: 'Try another name or clear the filters.',
+  clearFilters: 'Clear filters',
+  foot: 'Institutions are created only by approving a request. A plan can’t be amended here; changes come through a new request.',
+} as const;
+
+/** A status option with its figure: "All statuses (7)"; the words alone while figures load. */
+export function filterOptionWords(label: string, count: number | null): string {
+  return count === null ? label : `${label} (${count})`;
+}
+
+/** The count line: "7 institutions"; "1 of 7 institutions" while a search or status applies. */
+export function saInstitutionCountWords(shown: number, total: number, filtered: boolean): string {
+  return filtered ? `${shown} of ${plural(total, 'institution')}` : plural(total, 'institution');
+}
+
+/** The chips of the applied filters: "Search: “kulkarni”", "Status: Access paused". */
+export function searchChipWords(search: string): string {
+  return `Search: “${search}”`;
+}
+export function statusChipWords(label: string): string {
+  return `Status: ${label}`;
+}
+
+/**
+ * The row link's name: "Sahyadri Institute of Engineering, Access active, no Institute Admin.
+ * Open the institution" (the export's `aria-label`).
+ */
+export function institutionRowLabel(name: string, status: string, needsAdmin: boolean): string {
+  return `${name}, ${status}${needsAdmin ? ', no Institute Admin' : ''}. Open the institution`;
+}
+
+/**
+ * "Access plan": "1 course · 1 experiment"; with several plans "… · 2 plans" (each plan's courses
+ * and experiments as the service counts them, added up — state-copy SA-06.plan-cell); before the
+ * payment "No access plan yet · 1 experiment requested".
+ */
+export function saPlanSummaryWords(
+  plans: readonly { readonly courseCount: number; readonly experimentCount: number }[],
+  requestedExperiments: number,
+): string {
+  if (plans.length === 0) {
+    return `No access plan yet · ${plural(requestedExperiments, 'experiment')} requested`;
+  }
+  const courses = plans.reduce((sum, plan) => sum + plan.courseCount, 0);
+  const experiments = plans.reduce((sum, plan) => sum + plan.experimentCount, 0);
+  const several = plans.length > 1 ? ` · ${plans.length} plans` : '';
+  return `${plural(courses, 'course')} · ${plural(experiments, 'experiment')}${several}`;
+}
+
+/** "Ended 15 Oct 2026" (an ended institution's access end). */
+export function endedOnWords(endsOn: string): string {
+  return `Ended ${calendarDay(endsOn)}`;
+}
+
+/** SA-07 Institution detail as SA-v1 `V.institution` draws it. */
+export const SA_INSTITUTION = {
+  goTo: 'Go to actions',
+  noAdminTitle: 'No Institute Admin',
+  noAdminLine: 'Nobody at this institution can give students access until you assign one.',
+  facts: {
+    status: 'Status',
+    kind: 'Internal or external',
+    instituteAdmin: 'Institute Admin',
+    people: 'People',
+  },
+  notAssigned: 'Not assigned',
+  whyPaused: 'Why access is paused',
+  pausedSeen:
+    'Its Institute Admin, Faculty and Students see “Your institution’s access is paused — your work is kept.”',
+  noPlanTitle: 'Access plan',
+  noPlanLine:
+    'No access plan yet. It is created when the payment for the approved request is confirmed. Payment isn’t recorded here.',
+  openApproved: 'Open the approved request',
+  planKicker: 'Access plan',
+  renewalUnderReview: 'Its renewal request is under review.',
+  renewalApproved: 'Its renewal was approved. This page does not change the term.',
+  openRenewal: 'Open renewal request',
+  viewRenewal: 'View renewal',
+  notCovered: 'Not covered by the renewal request.',
+  reminderDue: 'Reminder due. Nothing is sent from here.',
+  viewAccessEnding: 'View access ending',
+  pausedNoteTitle: 'Read-only while access is paused',
+  pausedNoteLine: 'Students can’t open its experiments. Everyone’s work is kept.',
+  endedNoteLine: 'Ended access comes back only through a renewal request.',
+  planFootnote: 'A plan can’t be amended here; changes come through a new request.',
+  inPlan: 'In the plan',
+  notInPlan: 'Not in the plan',
+  notPublished: 'Not published',
+  activity: 'Activity by format',
+  activityCaption: 'Students with access and activity by format',
+  activityColumns: {
+    experiment: 'Experiment',
+    studentsWithAccess: 'Students with access',
+    byFormat: 'By format',
+  },
+  activityNote: 'Per format, never added up into one figure. Student feedback is not shown here.',
+  people: 'People',
+  peopleLine:
+    'The Institute Admin manages people. A status change here is an override with a reason.',
+  nobody: 'Nobody has been added yet. The Institute Admin adds students and Faculty.',
+  changeStatus: 'Change status',
+  overrideHint: 'An override, kept in the history. The Institute Admin normally changes this.',
+  cancel: 'Cancel',
+  history: 'History',
+  newestFirst: 'Newest first',
+  panel: 'What you can do',
+  groupAdmin: 'Institute Admin',
+  groupAccess: 'Access',
+  groupWaiting: 'Also waiting for this institution',
+  adminLater: 'The Institute Admin is assigned once access is active.',
+  adminNone: 'Not assigned. They manage people, groups and student access for this institution.',
+  assign: 'Assign Institute Admin',
+  pauseHint:
+    'Pausing stops students opening experiments. It is reversible and everyone’s work is kept.',
+  pause: 'Pause access',
+  restoreHint: 'Restoring lets everyone work again on the experiments in its access plan.',
+  restore: 'Restore access',
+  paymentHint: 'No status action here. Payment is confirmed on the request, outside this page.',
+  openRequest: 'Open request',
+  endedHint: 'No status action here. Ended access comes back only through a renewal request.',
+  nothingWaiting: 'Nothing else needs you here.',
+  reviewTransfer: 'Review transfer',
+  assignDescription:
+    'They manage people, groups and student access for this institution. Nothing is sent from here; how they first sign in is still open.',
+  assignFields: { name: 'Name', workEmail: 'Work e-mail' },
+  assignConfirm: 'Assign',
+  assignBusy: 'Assigning…',
+  reasonLabel: 'Reason, kept in the history',
+  pauseBlocksRequest: 'Its open request can’t be decided while access is paused.',
+  pauseBusy: 'Pausing…',
+  restoreBusy: 'Restoring…',
+  assignedLine: 'Nothing is sent from here. How they first sign in is still open.',
+  pausedTitle: 'Access paused.',
+  restoredTitle: 'Access restored.',
+  overriddenLine: 'The change and your reason are in the history.',
+} as const;
+
+/** The eyebrow over the name: "External institution". */
+export function institutionEyebrow(kind: InstitutionKind): string {
+  return `${kindWords(kind)} institution`;
+}
+
+/**
+ * The head's line beside the status: "Institute Admin: Meera Iyer", "Institute Admin: not
+ * assigned", "Institute Admin: assigned once access is active" (awaiting payment).
+ */
+export function saInstituteAdminLine(name: string | null, assignedLater: boolean): string {
+  return `Institute Admin: ${name ?? (assignedLater ? 'assigned once access is active' : 'not assigned')}`;
+}
+
+/** The paused banner: "Access paused on 12 Oct 2026. Students can’t open experiments. …". */
+export function pausedBannerWords(pausedOn: string): string {
+  return `Access paused on ${pausedOn}. Students can’t open experiments. Everyone’s work is kept.`;
+}
+
+/** Who paused it, and when, under the reason: "Arjun Mehta, 12 Oct 2026, 09:40". */
+export function pausedByWords(by: string, when: string): string {
+  return by ? `${by}, ${when}` : when;
+}
+
+/** The plan band's kicker: "Access plan"; with several plans "Access plan 1 of 2". */
+export function planKickerWords(index: number, count: number): string {
+  return count > 1
+    ? `${SA_INSTITUTION.planKicker} ${index + 1} of ${count}`
+    : SA_INSTITUTION.planKicker;
+}
+
+/** The plan's name, by content: "1 experiment · 120 licences". */
+export function planNameWords(experiments: number, licences: number): string {
+  return `${plural(experiments, 'experiment')} · ${licences} licences`;
+}
+
+/** The line under it: "120 licences, as approved. How licences are counted is still open." */
+export function planLicenceLine(licences: number): string {
+  return `${licences} licences, as approved. How licences are counted is still open.`;
+}
+
+/** The term's label: "Yearly term" ("Until a fixed date" alone; state-copy SA-07.term-until). */
+export function termLabelWords(term: AccessPlanTerm): string {
+  return term === 'until-date' ? planTermWords(term) : `${planTermWords(term)} term`;
+}
+
+/** What is left of the term: "349 days left", "Paused · 263 days left", "Ended 8 days ago". */
+export function termLeftWords(state: 'live' | 'paused' | 'ended', days: number): string {
+  if (state === 'ended') return `Ended ${plural(days, 'day')} ago`;
+  const left = `${plural(days, 'day')} left`;
+  return state === 'paused' ? `Paused · ${left}` : left;
+}
+
+/** The term track's name: "Yearly term from 8 Oct 2026 to 7 Oct 2027. 349 days left." */
+export function termDescription(label: string, start: string, end: string, left: string): string {
+  return `${label} from ${start} to ${end}. ${left}.`;
+}
+
+/** The format strip's name: "In the plan: WEB, VR. Published: WEB, AR, VR." */
+export function planFormatsLabel(inPlan: readonly string[], published: readonly string[]): string {
+  return `In the plan: ${inPlan.join(', ')}. Published: ${published.join(', ')}.`;
+}
+
+/** The ending note's title: "Ends on 31 Oct 2026"; the ended note's: "This plan ended on …". */
+export function endsOnWords(endsOn: string): string {
+  return `Ends on ${endsOn}`;
+}
+export function planEndedWords(endsOn: string): string {
+  return `This plan ended on ${endsOn}`;
+}
+
+/** The approved formats of an experiment awaiting payment, for assistive technology. */
+export function approvedFormatsLabel(formats: readonly string[]): string {
+  return `Formats approved: ${formats.join(', ')}`;
+}
+
+/**
+ * People without a list of names (undrawn as such; state-copy SA-07.people-without-list):
+ * "18 students and 1 Faculty."
+ */
+export function peopleCountsLine(studentCount: number, facultyCount: number): string {
+  return `${students(studentCount)} and ${facultyCount} Faculty.`;
+}
+
+/** "Also waiting for this institution": "Additional licences request under review". */
+export function waitingRequestWords(type: RequestType): string {
+  return `${REQUEST_TYPE_WORDS[type]} request under review`;
+}
+
+/** "VR device transfer for Rahul Verma" (without a listed name: "VR device transfer"). */
+export function waitingTransferWords(format: Technology, student: string | null): string {
+  return `${formatCode(format)} device transfer${student ? ` for ${student}` : ''}`;
+}
+
+/** The flash after Assign: "N. Joshi is now the Institute Admin for Sahyadri Institute of Engineering." */
+export function assignedTitle(adminName: string, name: string): string {
+  return `${adminName} is now the Institute Admin for ${name}.`;
+}
+
+/** The flash line after Pause: "Everyone at Konark Polytechnic now sees the paused banner. …". */
+export function pausedFlashLine(name: string): string {
+  return `Everyone at ${name} now sees the paused banner. Their work is kept.`;
+}
+
+/** The flash line after Restore: "Konark Polytechnic can work again." */
+export function restoredFlashLine(name: string): string {
+  return `${name} can work again.`;
+}
+
+/** The flash after a status change: "Sneha Reddy is now active." */
+export function overriddenTitle(name: string, to: 'active' | 'inactive'): string {
+  return `${name} is now ${to}.`;
+}
+
+// ---- History (SA-v1 `hist`): the institution record's own events, by content ----
+
+/** "Request approved, payment required" (external) / "Request approved" (internal). */
+export function saHistoryApproved(kind: InstitutionKind): string {
+  return kind === 'external' ? 'Request approved, payment required' : 'Request approved';
+}
+
+export const SA_HISTORY = {
+  activated: 'Institutional access activated',
+  /** The note of an internal activation: "Internal, no payment step." */
+  activatedInternal: 'Internal, no payment step.',
+  licencesRequested: 'Request for additional licences received',
+  renewalRequested: 'Renewal request received',
+  ended: 'Access ended',
+} as const;
+
+/** "Institute Admin assigned: Meera Iyer". */
+export function saHistoryAssigned(name: string): string {
+  return `Institute Admin assigned: ${name}`;
 }

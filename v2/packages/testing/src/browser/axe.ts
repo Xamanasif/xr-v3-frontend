@@ -50,6 +50,16 @@ export async function expectNoAxeViolations(
   if (options.disableRules?.length) {
     builder = builder.disableRules(options.disableRules.map((rule) => rule.id));
   }
+  // Colours are measured at rest: an entrance animation still running (the V3 dialog's 180 ms
+  // `rk-pop`, a drawer's slide) would be read half-faded. Finite animations only.
+  await page.evaluate(() =>
+    Promise.all(
+      document
+        .getAnimations()
+        .filter((animation) => animation.effect?.getTiming().iterations !== Infinity)
+        .map((animation) => animation.finished.catch(() => null)),
+    ),
+  );
   const results = await builder.analyze();
   if (results.violations.length > 0) {
     throw new AxeViolationsError(formatAxeViolations(results.violations), results.violations);

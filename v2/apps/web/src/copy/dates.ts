@@ -72,3 +72,29 @@ export function calendarDay(date: string): string {
   if (!match) throw new Error(`"${date}" is not a calendar date.`);
   return `${Number(match[3])} ${MONTHS[Number(match[2]) - 1]} ${match[1]}`;
 }
+
+const FULL_MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+] as const;
+
+const IST_WEEKDAY = new Intl.DateTimeFormat('en-GB', { timeZone: 'Asia/Kolkata', weekday: 'long' });
+
+/**
+ * The weekday, day, month and year in words, "Friday 23 October 2026" — the top line of the V3
+ * shell (Refined B `p.rb-top-date`; the Super Admin export's date line).
+ */
+export function weekdayDate(instant: string): string {
+  const { day, month, year } = partsOf(instant);
+  return `${IST_WEEKDAY.format(new Date(instant))} ${day} ${FULL_MONTHS[month - 1]} ${year}`;
+}

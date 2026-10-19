@@ -12,16 +12,21 @@ const PUBLISHED_RECORD = '/admin/content/records/distillation-column';
 const HELD_RECORD = '/admin/content/records/boiler-drum-level';
 
 /**
- * Phase 6 link targets: SA-01 Overview in full (B7-01 f0 … f3; B7-10 f15), SA-12 Content › All
- * content (B7-06 f0, f7) and SA-13 Content record (B7-06 f1 … f6, f8; B7-10 f5, f6). SA-01 and
- * SA-12 draw no primary action: every Overview row opens the page where its item is handled
- * (routes.json SA-01) and every All content row opens its record. SA-13's one primary is “Open the
- * release decision” on a published record whose correction waits for her (B7-06 f2, SA-11); the
- * override's “Move status” is DL-2's confirm (a command). Nothing here says “Publish”.
+ * Phase 6 link targets: SA-01 Overview in full (SA-v1 `V.overview`, LINK-MAP SA-01), SA-12 Content ›
+ * All content (B7-06 f0, f7) and SA-13 Content record (B7-06 f1 … f6, f8; B7-10 f5, f6). Every
+ * Overview row opens the page where its item is handled; the priority band's first item is drawn
+ * as the page's one primary button. SA-12 draws no primary action: every All content row opens its
+ * record. SA-12 and SA-13 follow the
+ * owner-approved Super Admin export (SA-v1 LINK-MAP SA-12, SA-13): SA-13's one primary is the
+ * override panel's “Move status” on a stuck record (a command, through its confirmation); a
+ * published record's “Open the release decision” is a default button. Nothing here says
+ * “Publish”, and no link is named by a reference.
  */
 export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
-  // SA-01 Overview (B7-01 f0, f3): the seven groups Phase 6 adds — each "Open <list>" and its
-  // rows' action. The Requests group's two rows and "Try again" are Package 1D's (`link-targets.ts`).
+  // SA-01 Overview (SA-v1 `V.overview`; LINK-MAP SA-01): the seven groups beside Requests — each
+  // "Open <list>" and its rows' action, which the priority band also draws for the access-ending
+  // and correction items it shows. The Requests group, the switch and "Try again" are in
+  // `link-targets.ts`. No link is named by a reference.
   ...pageRows('SA-01', OVERVIEW, [
     [
       'Corrections group head',
@@ -29,15 +34,16 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       UPDATES,
       'built',
-      'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B7-05)',
+      'SA-v1 LINK-MAP SA-01 “Open Updates” → SA-10',
     ],
     [
-      'Each correction row',
-      'Review',
+      'Each correction row (and its priority-band item)',
+      'Review correction',
       'secondary',
       '/admin/content/updates/UPD-0005',
       'built',
-      'B7-01 f0; routes.json SA-01 (UPD → /admin/content/updates/[updateId], SA-11)',
+      'SA-v1 LINK-MAP SA-01 “Review the Distillation Column correction” → SA-11',
+      'Named “Review the <experiment> correction”. The band’s first item is drawn as the page’s primary button.',
     ],
     [
       'Device transfers group head',
@@ -45,15 +51,16 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/operations/device-transfers',
       'built',
-      'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B7-09)',
+      'SA-v1 LINK-MAP SA-01 “Open Device transfers” → SA-18',
     ],
     [
       'Each device transfer row',
-      'Review',
+      'Review transfer',
       'secondary',
       '/admin/operations/device-transfers/DTR-0018',
       'built',
-      'B7-01 f0; routes.json SA-01 (DTR → /admin/operations/device-transfers/[transferId], SA-19)',
+      'SA-v1 LINK-MAP SA-01 “Review the VR device transfer for Rahul Verma” → SA-19',
+      'Named “Review the <format> device transfer for <student>”.',
     ],
     [
       'Support reports group head',
@@ -61,15 +68,16 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/operations/support',
       'built',
-      'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B7-09)',
+      'SA-v1 LINK-MAP SA-01 “Open Support” → SA-20',
     ],
     [
       'Each support report row',
-      'Open',
+      'Open report',
       'secondary',
       '/admin/operations/support/SUP-0213',
       'built',
-      'B7-01 f0; routes.json SA-01 (SUP → /admin/operations/support/[reportId], SA-21)',
+      'SA-v1 LINK-MAP SA-01 “Open the report: …” → SA-21',
+      'Named “Open the report: <title>”.',
     ],
     [
       'Access ending group head',
@@ -77,15 +85,25 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/operations/access-ending',
       'built',
-      'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B7-09)',
+      'SA-v1 LINK-MAP SA-01 “Open Access ending” → SA-22',
     ],
     [
-      'Each access-ending row',
-      'Open',
+      'Each access-ending row with a renewal in progress (and its priority-band item)',
+      'Open renewal request',
+      'secondary',
+      '/admin/requests/{requestId}',
+      'built',
+      'SA-v1 LINK-MAP SA-01 “Open the renewal request from BITS Pilani — Hyderabad Campus” → SA-03',
+      'Named “Open the renewal request from <institution>”. The band’s first item is drawn as the page’s primary button.',
+    ],
+    [
+      'Each access-ending row with the reminder due (and its priority-band item)',
+      'View access ending',
       'secondary',
       '/admin/operations/access-ending',
       'built',
-      'B7-01 f0; routes.json SA-01 (“access-ending rows -> /admin/operations/access-ending (no record page)”, SA-22)',
+      'SA-v1 LINK-MAP SA-01 “View access ending for Konark Polytechnic” → SA-22',
+      'Named “View access ending for <institution>”; access ending has no record page.',
     ],
     [
       'Institutions without an Institute Admin group head',
@@ -93,15 +111,16 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/institutions',
       'built',
-      'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B7-02)',
+      'SA-v1 LINK-MAP SA-01 “Open Institutions” → SA-06',
     ],
     [
       'Each institution without an Institute Admin',
-      'Assign',
+      'Assign Institute Admin',
       'secondary',
       '/admin/institutions/{institutionId}',
       'built',
-      'B7-01 f0 (href B7-03); routes.json SA-01 (→ /admin/institutions/[institutionId], SA-07)',
+      'SA-v1 LINK-MAP SA-01 “Assign an Institute Admin to Sahyadri Institute of Engineering” → SA-07',
+      'The export opens the institution with its assign dialog (`#/institutions/<id>/assign`); the product opens the institution page, where Assign Institute Admin is the first action.',
     ],
     [
       'Stuck content group head',
@@ -109,15 +128,16 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       ALL_CONTENT,
       'built',
-      'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B7-06)',
+      'SA-v1 LINK-MAP SA-01 “Open All content” → SA-12',
     ],
     [
       'Each stuck content row',
-      'Open',
+      'Open in All content',
       'secondary',
       STUCK_RECORD,
       'built',
-      'B7-01 f0; routes.json SA-01 (stuck SUB → /admin/content/records/[recordId], SA-13)',
+      'SA-v1 LINK-MAP SA-01 “Open DC Motor Speed Control in All content” → SA-13',
+      'Named “Open <experiment> in All content”.',
     ],
     [
       'Role holders without scope group head',
@@ -125,7 +145,7 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/roles',
       'built',
-      'B7-01 f0, f3 (`a.xr-btn--text.xr-btn--sm` → B7-08)',
+      'SA-v1 LINK-MAP SA-01 “Open Platform roles” → SA-16',
     ],
     [
       'Each role holder without scope',
@@ -133,27 +153,28 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/roles/role-0001',
       'built',
-      'B7-01 f0; routes.json SA-01 (holder → /admin/roles/[holderId], SA-17)',
+      'SA-v1 LINK-MAP SA-01 “Assign scope to Dr K. Iyer” → SA-17',
+      'Named “Assign scope to <name>”.',
     ],
   ]),
 
-  // SA-12 Content › All content (B7-06 f0, f7).
+  // SA-12 All content (SA-v1 `V.allContent`; LINK-MAP SA-12).
   ...pageRows('SA-12', ALL_CONTENT, [
     [
-      'Sub-navigation',
+      'Page tabs',
       'Updates',
       'secondary',
       UPDATES,
       'built',
-      'B7-06 f0, f7 `nav.xr-tabs > a.xr-tab` (SA-10)',
+      'SA-v1 LINK-MAP SA-12 “Updates” tab → SA-10',
     ],
     [
-      'Sub-navigation',
+      'Page tabs',
       'All content',
       'secondary',
       ALL_CONTENT,
       'built',
-      'B7-06 f0, f7 `nav.xr-tabs > a.xr-tab[aria-current="page"]`',
+      'SA-v1 LINK-MAP SA-12 “All content” tab (`a.rk-tab[aria-current="page"]`)',
     ],
     [
       'Stuck notice',
@@ -161,7 +182,7 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B7-06 f0 `div.xr-notice--err` (`showStuck`: selects the Stuck tab; mirrored in `?show=stuck`)',
+      'Kept from the product (B7-06 f0 `showStuck`); the SA-v1 export draws no stuck notice: sets “Workflow status” to Stuck, mirrored in `?show=stuck`',
     ],
     [
       'Correction waiting notice',
@@ -169,31 +190,31 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       UPDATES,
       'built',
-      'B7-06 f0 `div.xr-notice` (only while a correction waits for her; state-copy `SA-12.update-notice`)',
+      'SA-v1 LINK-MAP SA-12 “Open Updates” → SA-10 (only while a correction waits for her)',
     ],
     [
-      'Status tabs',
-      'All · Stuck · In the workflow · Published',
+      'Toolbar',
+      'Search · Workflow status',
       'secondary',
       null,
       'in-page',
-      'B7-06 f0, f7 `div.xr-tabs[role="tablist"] > button.xr-tab` (mirrored in `?show=`; state-copy `SA-12.address`)',
+      'SA-v1 `V.allContent` `rk-tools` (mirrored in `?q=` and `?show=`; state-copy `SA-12.address`)',
     ],
     [
-      'Toolbar status row (and the no-match state)',
+      'Toolbar status line (and the no-match state)',
       'Clear filters',
       'secondary',
       null,
       'in-page',
-      'B7-06 f7 (“One way back: Clear filters”)',
+      'SA-v1 `V.allContent` `ctClear` (focus to the search)',
     ],
     [
       'Each row',
-      'Open',
+      'DC Motor Speed Control, Stuck — nobody can act. Open the record',
       'secondary',
       STUCK_RECORD,
       'built',
-      'B7-06 f0 `a.xr-btn--secondary.xr-btn--sm` (SA-13; a record without a SUB reference by its experiment id)',
+      'SA-v1 LINK-MAP SA-12 row links (`a.rk-rowlink`, the whole row) → SA-13',
     ],
     [
       'Failed state',
@@ -201,19 +222,35 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'Board 04 "State grammar" Failed + retry (B7-06 draws no failed frame)',
+      'SA-v1 `SA.listState` failed (`retryList`)',
     ],
   ]),
 
-  // SA-13 Content record (B7-06 f1 … f6, f8; B7-10 f5, f6).
+  // SA-13 Content record (SA-v1 `V.record`, `SA.DLG.override`; LINK-MAP SA-13).
   ...pageRows('SA-13', STUCK_RECORD, [
     [
-      'Back link',
+      'Breadcrumb',
+      'Content',
+      'secondary',
+      UPDATES,
+      'built',
+      'SA-v1 LINK-MAP SA-13 breadcrumb → SA-10',
+    ],
+    [
+      'Breadcrumb',
       'All content',
       'secondary',
       ALL_CONTENT,
       'built',
-      'B7-06 f1 … f6, f8 `a.xr-back`',
+      'SA-v1 LINK-MAP SA-13 breadcrumb → SA-12',
+    ],
+    [
+      'Go to override',
+      'Go to override',
+      'secondary',
+      '#content-record-panel',
+      'in-page',
+      'SA-v1 LINK-MAP SA-13 “Go to override” → `#rc-panel` (below 860 px of page width)',
     ],
     [
       'Stuck notice',
@@ -221,51 +258,59 @@ export const P6_CONTENT_OVERSIGHT_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/roles?tab=reviewers',
       'built',
-      'B7-06 f1, f8 `div.xr-notice--err` (B7-08; state-copy `SA-13.platform-roles`)',
+      'SA-v1 LINK-MAP SA-13 “Open Platform roles” → SA-16 Reviewers (state-copy `SA-13.platform-roles`)',
     ],
     [
-      'Stuck notice',
-      'Move status (override)',
-      'secondary',
+      'Move status (override) panel',
+      'Move status',
+      'primary',
       null,
       'in-page',
-      'B7-06 f1, f8; B7-10 f6 (opens DL-2; only on a stuck, non-published record)',
+      'SA-v1 `V.record` `button.rk-go` (`rc-go`; only on a stuck, non-published record) → `SA.DLG.override`',
     ],
     [
-      'DL-2 Move status (override)',
+      'Override confirmation',
       'Move status',
       'secondary',
       null,
       'in-page',
-      'B7-06 f5; B7-10 f6 `div.xr-dialog-foot` (the `overrideStatus` command with a reason and the revision shown)',
+      'SA-v1 `dialogHtml` `dlg-ok` (the `overrideStatus` command with the reason and the revision shown)',
     ],
     [
-      'DL-2 Move status (override)',
+      'Override confirmation',
       'Cancel',
       'secondary',
       null,
       'in-page',
-      'B7-06 f5 `div.xr-dialog-foot` (nothing is moved)',
+      'SA-v1 `dialogHtml` `dlg-cancel` (nothing is moved)',
+    ],
+    [
+      'A refused move',
+      'Check it again',
+      'secondary',
+      null,
+      'in-page',
+      'SA-v1 `SA.refusalHtml` (`clearRefusal`; the words are state-copy `SA-13.stale.*`)',
     ],
   ]),
   ...pageRows('SA-13', PUBLISHED_RECORD, [
     [
-      'Correction waiting notice',
+      'Published notice (correction waiting)',
       'Open the release decision',
-      'primary',
+      'secondary',
       '/admin/content/updates/UPD-0005',
       'built',
-      'B7-06 f2 `a.xr-btn--primary.xr-btn--sm` (SA-11)',
+      'SA-v1 LINK-MAP SA-13 “Open the release decision” → SA-11 (`a.rb-btn`)',
     ],
   ]),
   ...pageRows('SA-13', HELD_RECORD, [
     [
-      'Correction on hold notice',
-      'Open Updates',
+      'Published notice (correction on hold)',
+      'Open the held correction',
       'secondary',
-      '/admin/content/updates?show=on-hold',
+      '/admin/content/updates/UPD-0004',
       'built',
-      'B7-06 f6 `div.xr-notice--warn` (SA-10 on its On hold tab)',
+      'SA-v1 `V.record` published notice (`a.rb-btn` → SA-11 of the held correction)',
     ],
   ]),
 ];

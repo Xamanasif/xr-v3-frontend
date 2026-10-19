@@ -3,7 +3,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 import { openInTab, sendRequest, statusHead } from '../package-1c/flow';
 import { reachAndClick } from '../support';
 import { checkState } from '../support/screen-checks';
-import { expectSameDocument, markDocument, revealSidebar } from '../support/workspace';
+import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 
 /**
  * Phase 6 on the PRODUCT build — one browser tab each, no test hooks, nothing but the screens, at
@@ -72,7 +72,7 @@ async function signOut(page: Page, accountLine: string): Promise<void> {
 
 async function sidebar(page: Page, href: string): Promise<void> {
   await revealSidebar(page);
-  await reachAndClick(page, page.locator(`aside.xr-side nav a[href="${href}"]`));
+  await reachAndClick(page, sidebarLink(page, href));
   await page.waitForURL((url) => url.pathname === href);
 }
 
@@ -124,15 +124,19 @@ async function accessBeforeCorrections(page: Page): Promise<void> {
   await page.waitForURL('**/admin');
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open: REQ-0042 · Godavari Institute of Technology' }),
+    page.getByRole('link', {
+      name: 'Open the new access request from Godavari Institute of Technology',
+    }),
   );
   const saPanel = decision(page);
   await reachAndClick(page, saPanel.locator('label[for="decision-approve"]'));
   await reachAndClick(page, saPanel.locator('label[for="decision-route-external"]'));
   await reachAndClick(page, saPanel.getByRole('button', { name: 'Approve request' }));
-  const approveRequest = page.getByRole('dialog', { name: 'Approve REQ-0042?' });
+  const approveRequest = page.getByRole('dialog', {
+    name: 'Approve the request from Godavari Institute of Technology?',
+  });
   await reachAndClick(page, approveRequest.getByRole('button', { name: 'Approve request' }));
-  await expect(saPanel.locator('.xr-status')).toHaveText('Approved — payment required');
+  await expect(saPanel.locator('.rk-done .xr-st')).toHaveText('Approved — payment required');
   await signOut(page, ARJUN);
   await openInTab(page, address);
   await reachAndClick(page, statusHead(page).getByRole('link', { name: 'Continue to payment' }));
@@ -146,12 +150,14 @@ async function accessBeforeCorrections(page: Page): Promise<void> {
   await sidebar(page, '/admin/institutions');
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open Godavari Institute of Technology' }),
+    page.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the institution$/ }),
   );
   await page.waitForURL('**/admin/institutions/godavari');
   await reachAndClick(
     page,
-    main(page).locator('.xw-actions').getByRole('button', { name: 'Assign Institute Admin' }),
+    page
+      .getByRole('complementary', { name: 'What you can do' })
+      .getByRole('button', { name: 'Assign Institute Admin' }),
   );
   const assign = page.getByRole('dialog', {
     name: 'Assign the Institute Admin for Godavari Institute of Technology',
@@ -159,7 +165,7 @@ async function accessBeforeCorrections(page: Page): Promise<void> {
   await assign.getByRole('textbox', { name: 'Name' }).fill('Meera Iyer');
   await assign.getByRole('textbox', { name: 'Work e-mail' }).fill('meera.iyer@godavari.edu.in');
   await reachAndClick(page, assign.getByRole('button', { name: 'Assign' }));
-  await expect(main(page).locator('.xr-phead-meta')).toContainText('Institute Admin: Meera Iyer');
+  await expect(main(page).locator('.rk-meta')).toContainText('Institute Admin: Meera Iyer');
   await signOut(page, ARJUN);
   await signIn(page, 'meera.iyer@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/institute');
@@ -222,12 +228,18 @@ async function approveAsReviewer(page: Page, name: string): Promise<void> {
   await signOut(page, MENON);
 }
 
-/** SA-10 Waiting for you → SA-11 for the update on `name`. */
-async function openDecision(page: Page, title: RegExp): Promise<void> {
+/**
+ * SA-10 Waiting for your decision → SA-11 for the correction of `name` from `from` to `to` (the
+ * V3 row link names the correction by its content: SA-v1).
+ */
+async function openDecision(page: Page, name: string, from: string, to: string): Promise<void> {
   await sidebar(page, '/admin/content/updates');
-  const row = main(page).locator('table.xr-table tbody tr').filter({ hasText: title });
-  await expect(row).toHaveCount(1);
-  await reachAndClick(page, row.getByRole('link', { name: /^Review/ }));
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', {
+      name: `${name} correction, version ${from} to ${to}, Waiting for your decision. Open`,
+    }),
+  );
   await page.waitForURL(/\/admin\/content\/updates\/UPD-\d{4}$/);
 }
 
@@ -278,18 +290,21 @@ test('one tab, the product build: Flow F — a correction released, then another
   // 3. Arjun: the Overview names the correction waiting for him; he releases it (never “Publish”).
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
-  await expect(main(page)).toContainText('Corrections waiting for your release decision');
-  await expect(main(page)).toContainText(`${SHELL} 1.0 → 1.1`);
-  await openDecision(page, /1\.0 → 1\.1/);
-  await expect(h1(page)).toHaveText(`${SHELL} · 1.0 → 1.1`);
-  await expect(main(page)).toContainText('Nothing here changes any institution’s access');
+  await expect(
+    main(page).getByRole('link', { name: `Review the ${SHELL} correction` }),
+  ).toBeVisible();
+  await openDecision(page, SHELL, '1.0', '1.1');
+  await expect(h1(page)).toHaveText(SHELL);
+  // SA-11 (V3): choose the decision, then confirm it.
+  await reachAndClick(page, decision(page).getByRole('radio', { name: 'Release update' }));
   await reachAndClick(page, decision(page).getByRole('button', { name: 'Release update' }));
-  const release = page.getByRole('dialog', { name: /^Release UPD-\d{4}\?$/ });
+  const release = page.getByRole('dialog', { name: `Release version 1.1 of ${SHELL}?` });
+  await expect(release).toContainText('No institution’s or student’s access changes.');
   await expect(release).not.toContainText('Publish');
   await reachAndClick(page, release.getByRole('button', { name: 'Release update' }));
   await expect(release).toBeHidden();
-  await expect(page.locator('#update-decided .xr-status--ok')).toHaveText('Released');
-  await checkState(page, `${SHELL} · 1.0 → 1.1`);
+  await expect(page.locator('#update-decided .xr-st--ok')).toHaveText('Released');
+  await checkState(page, SHELL);
   await signOut(page, ARJUN);
 
   // 4. The public pages show the released version…
@@ -334,19 +349,19 @@ test('one tab, the product build: Flow F — a correction released, then another
   await approveAsReviewer(page, RELEASED_NAME);
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
-  await openDecision(page, /1\.1 → 1\.2/);
-  await reachAndClick(page, decision(page).getByRole('radio', { name: /^Hold/ }));
-  await reachAndClick(page, decision(page).getByRole('button', { name: 'Hold' }));
-  const hold = page.getByRole('dialog', { name: /^Hold UPD-\d{4}\?$/ });
-  await expect(hold).toContainText('Version 1.1 stays live.');
-  await hold
-    .getByRole('textbox', { name: 'Reason the Content Manager will see' })
+  await openDecision(page, RELEASED_NAME, '1.1', '1.2');
+  // SA-11 (V3): the hold's reason is typed in the panel and quoted in the confirmation.
+  await reachAndClick(page, decision(page).getByRole('radio', { name: 'Hold' }));
+  await decision(page)
+    .getByRole('textbox', { name: 'Reason for the hold (required)' })
     .fill('Version 1.1 stays live while the new summary is checked.');
-  await reachAndClick(page, hold.getByRole('button', { name: 'Hold' }));
+  await reachAndClick(page, decision(page).getByRole('button', { name: 'Hold update' }));
+  const hold = page.getByRole('dialog', { name: `Hold the ${RELEASED_NAME} correction?` });
+  await expect(hold).toContainText('Version 1.1 stays live while the new summary is checked.');
+  await reachAndClick(page, hold.getByRole('button', { name: 'Hold update' }));
   await expect(hold).toBeHidden();
-  await expect(decision(page).getByRole('button', { name: 'Release update' })).toHaveCount(0);
-  await expect(decision(page).getByRole('button', { name: 'Lift hold' })).toBeVisible();
-  await checkState(page, `${RELEASED_NAME} · 1.1 → 1.2`);
+  await expect(decision(page).getByRole('button')).toHaveText(['Lift hold']);
+  await checkState(page, RELEASED_NAME);
   await signOut(page, ARJUN);
 
   // The held correction reaches no one: the public page and Rahul's keep the released version.
@@ -398,32 +413,45 @@ test('one tab, the product build: governance — a renamed course reaches the pu
   await page.waitForURL('**/admin');
   await sidebar(page, '/admin/structure');
   await expect(h1(page)).toHaveText('Academic structure');
+  // The V3 course rows are named by their content (SA-v1 `sa-list-row`).
   await reachAndClick(
     page,
-    main(page).getByRole('link', { name: 'Open Process Instrumentation & Control', exact: true }),
+    main(page).getByRole('link', { name: /^Process Instrumentation & Control/ }),
   );
   await page.waitForURL('**/admin/structure/courses/process-instrumentation-control');
   await reachAndClick(page, main(page).getByRole('button', { name: 'Rename' }));
-  const rename = page.getByRole('dialog', { name: 'Rename course' });
+  const rename = page.getByRole('dialog', { name: 'Rename Process Instrumentation & Control' });
   await retype(page, rename.getByRole('textbox').first(), RENAMED);
   await reachAndClick(page, rename.getByRole('button', { name: 'Save name' }));
   await expect(h1(page)).toHaveText(RENAMED);
   await checkState(page, RENAMED);
 
   // Platform roles (SA-16 → SA-17): withdraw Prof. A. Menon's CHE ZG513 with a reason.
+  // The V3 page tabs are links (`nav` "Platform roles"); the holder rows are named by content.
   await sidebar(page, '/admin/roles');
-  await pressTab(page, page.getByRole('tab', { name: /^Reviewers/ }));
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Open Prof. A. Menon' }));
+  await reachAndClick(
+    page,
+    page
+      .getByRole('navigation', { name: 'Platform roles' })
+      .getByRole('link', { name: /^Reviewers/ }),
+  );
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', { name: 'Prof. A. Menon, Academic Reviewer. Open' }),
+  );
   await page.waitForURL('**/admin/roles/role-a-menon');
   await reachAndClick(
     page,
-    main(page).getByRole('button', { name: new RegExp(`^Withdraw CHE ZG513`) }),
+    main(page).getByRole('button', { name: /^Withdraw scope CHE ZG513 · / }),
   );
   await main(page)
     .getByRole('textbox', { name: /^Reason for withdrawing CHE ZG513/ })
     .fill('Process control reviews move to another reviewer for this term.');
-  await reachAndClick(page, main(page).getByRole('button', { name: 'Withdraw scope' }));
-  await expect(main(page)).toContainText('Prof. A. Menon can no longer act on it.');
+  await reachAndClick(
+    page,
+    main(page).locator('.sa-inline').getByRole('button', { name: 'Withdraw scope' }),
+  );
+  await expect(main(page)).toContainText('Scope withdrawn: CHE ZG513.');
   await signOut(page, ARJUN);
 
   // The rename reaches the public course page and the Content Manager's course codes.
@@ -459,13 +487,26 @@ test('one tab, the product build: governance — a renamed course reaches the pu
   await signIn(page, 'arjun.mehta@wilp.example');
   await page.waitForURL('**/admin');
   await sidebar(page, '/admin/roles');
-  await pressTab(page, page.getByRole('tab', { name: /^Reviewers/ }));
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Open Prof. A. Menon' }));
   await reachAndClick(
     page,
-    main(page).getByRole('button', { name: new RegExp(`^Restore CHE ZG513`) }),
+    page
+      .getByRole('navigation', { name: 'Platform roles' })
+      .getByRole('link', { name: /^Reviewers/ }),
   );
-  await reachAndClick(page, main(page).getByRole('button', { name: 'Restore scope' }));
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', { name: 'Prof. A. Menon, Academic Reviewer. Open' }),
+  );
+  await reachAndClick(
+    page,
+    main(page).getByRole('button', { name: /^Restore scope CHE ZG513 · / }),
+  );
+  await reachAndClick(
+    page,
+    page
+      .getByRole('dialog', { name: 'Restore CHE ZG513 for Prof. A. Menon?' })
+      .getByRole('button', { name: 'Restore scope' }),
+  );
   await signOut(page, ARJUN);
   await signIn(page, 'a.menon@wilp.example');
   await page.waitForURL((url) => url.pathname === '/reviewer');
@@ -509,16 +550,20 @@ test('one tab, the product build: operations — a report resolved with a note t
     page.getByRole('navigation', { name: 'Operations' }).getByRole('link', { name: 'Support' }),
   );
   await page.waitForURL('**/admin/operations/support');
+  // SA-20 / SA-21 in the V3 design (SA-v1): the row is named by the report's title, never its
+  // reference.
+  const title = what.replace(/\.$/, '');
   await reachAndClick(
     page,
-    main(page).getByRole('link', { name: new RegExp(`^Open ${reference}`) }),
+    main(page).getByRole('link', { name: `${title}, Open. Open the report` }),
   );
   await page.waitForURL(`**/admin/operations/support/${reference}`);
   const resolve = page.getByRole('complementary', { name: 'Resolve' });
-  await resolve.getByRole('textbox', { name: 'Note to the reporter' }).fill(note);
-  await reachAndClick(page, resolve.getByRole('button', { name: 'Resolve' }));
-  await expect(main(page)).toContainText(`${reference} resolved. The reporter sees your note.`);
-  await checkState(page, what.replace(/\.$/, ''));
+  await resolve.getByRole('textbox', { name: 'Resolution note (required)' }).fill(note);
+  await reachAndClick(page, resolve.getByRole('button', { name: 'Resolve report' }));
+  await expect(page.locator('#support-flash')).toContainText('Report resolved.');
+  await expect(main(page)).not.toContainText(reference);
+  await checkState(page, title);
 
   // Access ending: a reminder due is a status only; the row opens the institution.
   await sidebar(page, '/admin/operations/device-transfers');
@@ -531,7 +576,7 @@ test('one tab, the product build: operations — a report resolved with a note t
   await page.waitForURL('**/admin/operations/access-ending');
   const malnad = main(page).locator('tr, li').filter({ hasText: 'Malnad College of Engineering' });
   await expect(malnad.first()).toContainText('Reminder due');
-  await expect(main(page)).toContainText('nothing is sent from here');
+  await expect(main(page)).toContainText('Nothing is sent from here');
   await checkState(page, 'Operations');
   await reachAndClick(
     page,
@@ -559,15 +604,22 @@ test('one tab, the product build: operations — a report resolved with a note t
     page,
     page.getByRole('navigation', { name: 'Operations' }).getByRole('link', { name: 'Support' }),
   );
-  await pressTab(page, page.getByRole('tab', { name: /Resolved/ }));
   await reachAndClick(
     page,
-    main(page).getByRole('link', { name: new RegExp(`^Open ${reference}`) }),
+    page
+      .getByRole('group', { name: 'Show support reports' })
+      .getByRole('button', { name: /^Resolved/ }),
+  );
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', {
+      name: `${what.replace(/\.$/, '')}, Resolved. Open the report`,
+    }),
   );
   await reachAndClick(page, page.getByRole('button', { name: 'Reopen' }));
-  const reopen = page.getByRole('dialog', { name: `Reopen ${reference}?` });
+  const reopen = page.getByRole('dialog', { name: 'Reopen this report?' });
   await reachAndClick(page, reopen.getByRole('button', { name: 'Reopen' }));
-  await expect(main(page)).toContainText(`${reference} is open again.`);
+  await expect(page.locator('#support-flash')).toContainText('Report reopened.');
   await signOut(page, ARJUN);
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');

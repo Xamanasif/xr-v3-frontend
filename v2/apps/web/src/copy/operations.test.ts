@@ -1,52 +1,49 @@
 /**
- * The words of SA-18 Device transfers and SA-19 Device transfer decision are the frozen boards':
- * B3-11 (and its re-use on B7-09), B7-10 f14 for a transfer that has not reached BITS, and B7-03
- * for SA-07's device-transfer row. Each fixed phrase is found verbatim in the boards' markup or
- * script; the composed ones are checked against the boards' own sample record (DTR-0018) and the
- * script expressions that compose them. Undrawn words are provisional register entries.
+ * The words of the Operations head, SA-18 Device transfers and SA-19 Device transfer decision are
+ * the owner-approved Super Admin export's (design/v3-refined-b/roles/SA-v1, `sa-views-d.js`
+ * `opsHead`, `V.transfers`, `V.transfer`, `SA.DLG.approveDtr`; `sa-core.js` dialogs): each fixed
+ * phrase is found verbatim in its views, and the composed ones are checked against the views'
+ * expressions. The SA-07 device-transfer row keeps B7-03's words. No Super Admin word carries an
+ * internal reference or a decision id.
  */
+import { POLICY_WORD_TERMS } from '@xr/config/policy-terms';
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, saExport } from '@/test-support/boards';
 
 import { TRANSFER_ACTIONS, transferWords, wordsOf } from './flow-state-words';
 import {
-  approvedFlash,
+  approvedFlashLine,
+  approvedNextWords,
   approvedOnWords,
   approvingMovesWords,
   ATTENTION_OPERATIONS,
   attentionTransfer,
-  confirmEffectParts,
+  confirmNowItems,
   confirmTitle,
   DECISION_PAGE,
   decisionTitle,
-  formatForWords,
   forwardedByWords,
-  forwardedCell,
+  formatValue,
   HISTORY_WORDS,
-  NOT_YET_WITH_BITS,
   OPERATIONS_PAGE,
-  reviewLabel,
-  transferSubLine,
+  quotedNote,
+  studentWords,
+  transferKindWords,
+  transferRowLabel,
+  transfersCaption,
   TRANSFERS_LIST,
 } from './operations';
 import { STATE_COPY } from './state-copy';
 import { STATE_COPY_OPERATIONS } from './state-copy-operations';
 
-/** A board's text with tags removed and entities read, then its raw markup (attributes, script). */
-function words(file: string): string {
-  const raw = board(file);
-  const text = raw
-    .replace(/<[^>]+>/g, '')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ');
-  return `${text}\n${raw}`;
-}
+const VIEWS = saExport('sa-views-d.js');
+const CORE = saExport('sa-core.js');
+const DATA = saExport('sa-data.js');
+const B7_03 = board('B7-03-Institution-Detail.dc.html');
 
-const B3_11 = words('B3-11-SA-Device-Transfers.dc.html');
-const B7_09 = words('B7-09-Operations.dc.html');
-const B7_10 = words('B7-10-Critical-States.dc.html');
-const B7_03 = words('B7-03-Institution-Detail.dc.html');
+/** The export's own linked-control names (`LINK-MAP.json`). */
+const LINK_MAP = saExport('../LINK-MAP.json');
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -55,74 +52,139 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-describe('SA-18 Operations › Device transfers (B3-11 f0, f2, f3)', () => {
-  it.each([...strings(OPERATIONS_PAGE), ...strings(TRANSFERS_LIST)])(
-    '“%s” is on B3-11 and on its B7-09 re-use',
-    (phrase) => {
-      expect(B3_11).toContain(phrase);
-      expect(B7_09).toContain(phrase);
+const INTERNAL = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * The export's three device-transfer sentences that carry words the repository's business-rule
+ * scan forbids in copy (B8-03 "Decline / Reject 0", "0 shipping words"): the product says the
+ * same without them — "send" for "ship", and the "There is no Decline" clause left out (no Decline
+ * is drawn, T-32). Product words → the export's (SA-INTEGRATION-RECORD, differences).
+ */
+const POLICY_REWORDED: Readonly<Record<string, string>> = {
+  [TRANSFERS_LIST.foot]:
+    'Approving moves a student’s authorisation to a new device. It doesn’t ship, collect or register a device. There is no Decline; a transfer BITS doesn’t approve stays Forwarded.',
+  [DECISION_PAGE.noDecline]:
+    'Nothing is shipped, collected or registered from here. There is no Decline; a transfer BITS doesn’t approve stays Forwarded.',
+  [DECISION_PAGE.notShipped]: 'Nothing is shipped, collected or registered from here.',
+};
+
+const exportPhrase = (phrase: string): string => POLICY_REWORDED[phrase] ?? phrase;
+
+describe('the export sentences reworded for the business-rule scan (B8-03)', () => {
+  const policy = POLICY_WORD_TERMS.filter((term) =>
+    ['decline-reject', 'shipping-words'].includes(term.id),
+  );
+  it.each(Object.entries(POLICY_REWORDED))(
+    '“%s” rewords the export’s “%s”',
+    (product, original) => {
+      expect(`${VIEWS}\n${CORE}`).toContain(original);
+      expect(policy.some((term) => term.pattern.test(original))).toBe(true);
+      for (const term of policy) expect(product, term.id).not.toMatch(term.pattern);
     },
   );
+});
 
-  it('the composed cells follow the board’s rows and script', () => {
-    expect(B3_11).toContain(`aria-label="${reviewLabel('DTR-0018')}"`);
-    expect(B3_11).toContain(transferSubLine('Rahul Verma', 'vr'));
-    expect(B3_11).toContain(transferSubLine('Imran Shaikh', 'vr'));
-    // `fwdText: D.t.fwd + ' · ' + D.ia` with D.t.fwd "23 Oct 2026, 10:00" and D.ia "Meera Iyer".
-    expect(forwardedCell('23 Oct 2026, 10:00', 'Meera Iyer')).toBe(
-      '23 Oct 2026, 10:00 · Meera Iyer',
-    );
-    expect(B3_11).toContain("D.t.fwd + ' · ' + D.ia");
-    expect(B3_11).toContain(forwardedCell('14 Oct 2026', 'Meera Iyer'));
+describe('the Operations head and tabs (SA-v1 `opsHead`)', () => {
+  it.each(strings(OPERATIONS_PAGE))('“%s” is in the export’s views', (phrase) => {
+    expect(VIEWS).toContain(phrase);
+  });
+});
+
+describe('SA-18 Operations › Device transfers (SA-v1 `V.transfers`)', () => {
+  it.each(strings(TRANSFERS_LIST))('“%s” is in the export’s views', (phrase) => {
+    expect(VIEWS).toContain(exportPhrase(phrase));
   });
 
-  it('the status words are the shared Super Admin words (Appendix D §5.4)', () => {
+  it('the composed words follow the views’ expressions', () => {
+    expect(VIEWS).toContain("<caption>Device transfers, ' + esc(tabs.find");
+    expect(transfersCaption('Approved')).toBe('Device transfers, Approved');
+    expect(VIEWS).toContain("esc(t.fmt) + ' device transfer</span>");
+    expect(transferKindWords('vr')).toBe('VR device transfer');
+    expect(VIEWS).toContain(
+      "esc(t.fmt + ' device transfer for ' + t.student + ', ' + DTR_LBL[t.st][1] + '. Open')",
+    );
+    expect(transferRowLabel('vr', 'Rahul Verma', 'Forwarded')).toBe(
+      'VR device transfer for Rahul Verma, Forwarded. Open',
+    );
+    expect(LINK_MAP).toContain(transferRowLabel('vr', 'Rahul Verma', 'Forwarded'));
+    expect(DATA).toContain(`fwdBy: '${forwardedByWords('Meera Iyer', 'Institute Admin')}'`);
+  });
+
+  it('the status words are the shared Super Admin words, as the export writes them', () => {
     for (const state of ['with-institute-admin', 'forwarded', 'approved'] as const) {
-      expect(B3_11).toContain(wordsOf(transferWords(state, 'super_admin'))!);
+      expect(VIEWS).toContain(`'${wordsOf(transferWords(state, 'super_admin'))!}'`);
     }
   });
 });
 
-describe('SA-19 Device transfer decision (B3-11 f1, f4, f5; B7-10 f14)', () => {
-  it.each([...strings(DECISION_PAGE), TRANSFER_ACTIONS.approve])('“%s” is on B3-11', (phrase) => {
-    expect(B3_11).toContain(phrase);
+describe('SA-19 Device transfer decision (SA-v1 `V.transfer`, `SA.DLG.approveDtr`)', () => {
+  it.each([...strings(DECISION_PAGE), TRANSFER_ACTIONS.approve])(
+    '“%s” is in the export’s views or its dialog helper',
+    (phrase) => {
+      expect(`${VIEWS}\n${CORE}`).toContain(exportPhrase(phrase));
+    },
+  );
+
+  it('the composed sentences follow the views’ expressions', () => {
+    expect(VIEWS).toContain("esc(t.fmt + ' device transfer for ' + t.student)");
+    expect(decisionTitle('vr', 'Rahul Verma')).toBe('VR device transfer for Rahul Verma');
+    expect(VIEWS).toContain("t.student + (t.studentNo ? ' · ' + t.studentNo : '')");
+    expect(studentWords('Rahul Verma', 'GIT-2026-0418')).toBe('Rahul Verma · GIT-2026-0418');
+    expect(studentWords('Imran Shaikh', null)).toBe('Imran Shaikh');
+    expect(VIEWS).toContain("t.fmt + (t.exp ? ' for ' + t.exp : '')");
+    expect(formatValue('vr', 'Shell-and-Tube Heat Exchanger')).toBe(
+      'VR for Shell-and-Tube Heat Exchanger',
+    );
+    expect(formatValue('vr', null)).toBe('VR');
+    expect(VIEWS).toContain("'“' + t.note + '”'");
+    expect(quotedNote('x')).toBe('“x”');
+    expect(VIEWS).toContain(
+      "Approving moves ' + esc(t.student) + '’s ' + esc(t.fmt) + ' authorisation to the new device.",
+    );
+    expect(approvingMovesWords('Rahul Verma', 'vr')).toBe(
+      'Approving moves Rahul Verma’s VR authorisation to the new device.',
+    );
+    expect(VIEWS).toContain(
+      "title: 'Approve the ' + t.fmt + ' device transfer for ' + t.student + '?'",
+    );
+    expect(confirmTitle('vr', 'Rahul Verma')).toBe(
+      'Approve the VR device transfer for Rahul Verma?',
+    );
+    expect(VIEWS).toContain("t.student + '’s ' + t.fmt + ' authorisation moves from '");
+    expect(VIEWS).toContain("t.student + ' and the Institute Admin see “Approved”.'");
+    expect(confirmNowItems('Rahul Verma', 'vr', 'A', 'B')).toEqual([
+      'Rahul Verma’s VR authorisation moves from A to B.',
+      'Rahul Verma and the Institute Admin see “Approved”.',
+    ]);
+    expect(VIEWS).toContain("t.student + ' and the Institute Admin now see “Approved”.'");
+    expect(approvedFlashLine('Rahul Verma')).toBe(
+      'Rahul Verma and the Institute Admin now see “Approved”.',
+    );
+    expect(VIEWS).toContain("Approved on ' + esc(t.apprWhen) + ' by '");
+    expect(approvedOnWords('24 Oct 2026, 12:30', 'Arjun Mehta')).toBe(
+      'Approved on 24 Oct 2026, 12:30 by Arjun Mehta',
+    );
+    expect(VIEWS).toContain(
+      "esc(t.student) + ' and the Institute Admin see “Approved”. This decision is read-only.",
+    );
+    expect(approvedNextWords('Rahul Verma')).toBe(
+      'Rahul Verma and the Institute Admin see “Approved”. This decision is read-only.',
+    );
   });
 
-  it('the composed sentences read as the board draws DTR-0018', () => {
-    for (const phrase of [
-      decisionTitle('vr', 'Rahul Verma'),
-      `VR${formatForWords('Shell-and-Tube Heat Exchanger')}`,
-      forwardedByWords('Meera Iyer', 'Institute Admin'),
-      approvingMovesWords('Rahul Verma', 'vr'),
-      approvedOnWords('24 Oct 2026, 12:30', 'Arjun Mehta'),
-      confirmTitle('DTR-0018'),
-      approvedFlash('Rahul Verma', 'Meera Iyer'),
-    ]) {
-      expect(B3_11).toContain(phrase);
-    }
-    const effect = confirmEffectParts('Rahul Verma', 'vr', 'Meera Iyer');
-    expect(B3_11).toContain(`${effect.before.trimEnd()} {{ d.devNew }}${effect.after}`);
-  });
-
-  it('the history lines follow the board’s script (`hist`)', () => {
-    expect(B3_11).toContain(`what: '${HISTORY_WORDS.approved}'`);
-    expect(B3_11).toContain(`'${HISTORY_WORDS.approvedNote('')}' + devNew`);
-    expect(B3_11).toContain(`'${HISTORY_WORDS.forwarded('')}' + D.ia`);
-    expect(B3_11).toContain(`'${HISTORY_WORDS.requested('')}' + D.stu`);
-    expect(HISTORY_WORDS.requestedNote('A', 'B')).toBe('From A to B');
-    expect(B3_11).toContain("'From ' + D.devOld + ' to ' + devNew");
-  });
-
-  it('a transfer that has not reached BITS reads as B3-11 `beforeSA` and B7-10 f14', () => {
-    for (const phrase of [
-      NOT_YET_WITH_BITS.back,
-      NOT_YET_WITH_BITS.title,
-      NOT_YET_WITH_BITS.heading('DTR-0018'),
-      NOT_YET_WITH_BITS.line,
-    ]) {
-      expect(B3_11).toContain(phrase);
-      expect(B7_10).toContain(phrase);
-    }
+  it('the history lines are the export’s (`hist`, `trGo`)', () => {
+    expect(VIEWS).toContain(
+      "['Approved by Arjun Mehta', when, 'The ' + t.fmt + ' authorisation moved to the new device.']",
+    );
+    expect(HISTORY_WORDS.approved('Arjun Mehta')).toBe('Approved by Arjun Mehta');
+    expect(HISTORY_WORDS.approvedNote('vr')).toBe('The VR authorisation moved to the new device.');
+    expect(DATA).toContain(
+      `['${HISTORY_WORDS.forwarded}', '23 Oct 2026, 10:00', '${HISTORY_WORDS.by('Meera Iyer', 'Institute Admin')}']`,
+    );
+    expect(DATA).toContain(
+      `['${HISTORY_WORDS.requested}', '22 Oct 2026, 09:10', '${HISTORY_WORDS.by('Rahul Verma', 'Student')}']`,
+    );
+    expect(HISTORY_WORDS.by('Rahul Verma', null)).toBe('By Rahul Verma.');
   });
 });
 
@@ -142,7 +204,14 @@ describe('the operations state-copy entries', () => {
     }
   });
 
-  it('no visible words carry a decision id (P1-14)', () => {
+  it('the owner-approved words are the export’s', () => {
+    for (const entry of Object.values(STATE_COPY_OPERATIONS)) {
+      if (entry.status !== 'owner-approved' || entry.words === null) continue;
+      expect(VIEWS).toContain(entry.words);
+    }
+  });
+
+  it('no visible words carry an internal reference or a decision id', () => {
     for (const phrase of [
       ...strings(OPERATIONS_PAGE),
       ...strings(TRANSFERS_LIST),
@@ -152,6 +221,7 @@ describe('the operations state-copy entries', () => {
       ),
     ]) {
       expect(phrase).not.toMatch(/\b[A-Z]{1,3}-\d{2}\b/);
+      expect(phrase).not.toMatch(INTERNAL);
     }
   });
 });

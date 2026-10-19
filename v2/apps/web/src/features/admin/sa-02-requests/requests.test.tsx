@@ -1,17 +1,19 @@
 /**
- * SA-02 Requests (board B1-10) on the real composition root and the spine-start sample world:
- * the rows are `AccessRequestService.listRequests`'s answer (search, Status, Type and "Internal or
- * external" go to the port as filters, Received's order as `sort`), named from the published
- * catalogue; every applied filter is a removable chip; the count follows B1-10; each reference
- * opens its decision; and nothing decides a status here.
+ * SA-02 Requests in the V3 design (the Super Admin export `sa-views-a.js` `V.requests`) on the real
+ * composition root and the spine-start sample world: the rows are
+ * `AccessRequestService.listRequests`'s answer (search, Status, Type and "Internal or external" go
+ * to the port as filters, Received's order as `sort`), named from the published catalogue; every
+ * applied filter is a removable chip; the count follows the export; each row opens its decision,
+ * named by its institution, never by its reference; and nothing decides a status here.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
+import { faults } from '@xr/sample-platform/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import type { PlatformRuntime } from '@/platform/runtime';
-import { board } from '@/test-support/boards';
+import { saExport } from '@/test-support/boards';
 import {
   renderInTab,
   SUPER_ADMIN,
@@ -29,7 +31,7 @@ afterEach(() => {
   forgetLastAddress();
 });
 
-const B1_10 = board('B1-10-SA-Requests.dc.html');
+const VIEWS = saExport('sa-views-a.js');
 
 function inAdmin(runtime: PlatformRuntime, page: ReactNode) {
   const navigation = testNavigation('/admin/requests');
@@ -42,19 +44,22 @@ function inAdmin(runtime: PlatformRuntime, page: ReactNode) {
   return navigation;
 }
 
-/** The listed rows (the loading skeleton's rows have no reference link). */
+/** The listed rows (the loading skeleton's rows have no row link). */
 async function rowsShown(): Promise<HTMLTableRowElement[]> {
   await waitFor(() =>
-    expect(document.querySelectorAll('main table.xr-table td.is-primary a').length).toBeGreaterThan(
-      0,
-    ),
+    expect(document.querySelectorAll('main table.rk-table a.rk-rowlink').length).toBeGreaterThan(0),
   );
-  return [...document.querySelectorAll<HTMLTableRowElement>('main table.xr-table tbody tr')];
+  return [...document.querySelectorAll<HTMLTableRowElement>('main table.rk-table tbody tr')];
 }
 
+/** Each row's request, read from where its link goes (the reference is never shown). */
 function references(rows: readonly HTMLTableRowElement[]): string[] {
-  return rows.map((row) => row.querySelector('td.is-primary a')!.textContent!);
+  return rows.map((row) =>
+    decodeURIComponent(row.querySelector('a.rk-rowlink')!.getAttribute('href')!.split('/').at(-1)!),
+  );
 }
+
+const count = () => document.querySelector('main .rk-count[role="status"]');
 
 async function portRows(runtime: PlatformRuntime, filter: Record<string, unknown> = {}) {
   const answer = await runtime.ports.accessRequests.listRequests({
@@ -65,41 +70,54 @@ async function portRows(runtime: PlatformRuntime, filter: Record<string, unknown
   return answer.value;
 }
 
-describe('SA-02 — the list is the port’s answer (B1-10 f0)', () => {
-  it('every request the Super Admin can see, newest first, with B1-10’s columns and words', async () => {
+describe('SA-02 — the list is the port’s answer', () => {
+  it('every request the Super Admin can see, newest first, with the export’s columns and words', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     inAdmin(runtime, <Requests />);
     const rows = await rowsShown();
     const expected = await portRows(runtime);
     expect(references(rows)).toEqual(expected.map((row) => row.id));
-    expect(screen.getByRole('heading', { level: 1, name: 'Requests' })).toBeVisible();
+    expect(screen.getByRole('heading', { level: 1, name: 'Requests' })).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
     expect(
       screen.getByText(
         'Institutional access requests sent from the public site. Open one to decide it.',
       ),
-    ).toBeVisible();
-    // The count: every request, in B1-10's words.
-    expect(document.querySelector('.xr-toolbar-status [role="status"]')).toHaveTextContent(
-      `${expected.length} requests`,
+    ).toHaveClass('rk-sub');
+    expect(screen.getByRole('region', { name: 'Institutional access requests' })).toHaveClass(
+      'rk-surface',
     );
+    expect(screen.getByRole('search', { name: 'Filter requests' })).toBeVisible();
+    expect(screen.getByRole('searchbox', { name: 'Search' })).toHaveAttribute(
+      'placeholder',
+      'Institution or contact person',
+    );
+    // The count: every request, in the export's words.
+    expect(count()).toHaveTextContent(`${expected.length} requests`);
     const headers = [...document.querySelectorAll('main thead th')].map(
       (th) => th.textContent ?? '',
     );
-    expect(headers.slice(0, 4)).toEqual([
-      'Reference',
+    expect(headers).toEqual([
       'Institution and contact person',
       'Experiments',
       'Type',
+      'Received',
+      'Status',
     ]);
-    expect(headers[4]).toContain('Received');
-    expect(headers[5]).toBe('Status');
     for (const words of [
       'Institution and contact person',
-      'Reference, institution or contact',
+      'Institution or contact person',
       'No requests match these filters',
       'Institutional access requests sent from the public site. Open one to decide it.',
     ]) {
-      expect(B1_10).toContain(words);
+      expect(VIEWS).toContain(words);
+    }
+    // No internal reference anywhere on the page: requests are named by their institution.
+    expect(screen.getByRole('main').textContent).not.toMatch(/REQ-\d/);
+    for (const link of screen.getByRole('main').querySelectorAll('a')) {
+      expect(link.getAttribute('aria-label') ?? '').not.toMatch(/REQ-\d/);
     }
   });
 
@@ -107,49 +125,44 @@ describe('SA-02 — the list is the port’s answer (B1-10 f0)', () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     inAdmin(runtime, <Requests />);
     const rows = await rowsShown();
-    const row = (reference: string) =>
-      rows.find(
-        (candidate) => candidate.querySelector('td.is-primary a')!.textContent === reference,
-      )!;
+    const row = (reference: string) => rows[references(rows).indexOf(reference)]!;
     const cells = (reference: string) =>
       [...row(reference).querySelectorAll('td')].map((cell) => cell.textContent);
     expect(cells('REQ-0040')).toEqual([
-      'REQ-0040',
       'Konark PolytechnicR. Bhatt',
-      'Buck Converter RippleWEB, AR',
+      'Buck Converter RippleFormats requested: WEB, ARWEBAR',
       'Additional licencesExternal',
-      '29 Sep 2026',
+      'Received 29 Sep 2026',
       'Under review',
     ]);
     expect(cells('REQ-0038')).toEqual([
-      'REQ-0038',
       'BITS Pilani — Hyderabad CampusA. Menon',
       '2 experiments',
       'RenewalInternal',
-      '26 Sep 2026',
+      'Received 26 Sep 2026',
       'Under review',
     ]);
     expect(cells('REQ-0041')).toEqual([
-      'REQ-0041',
       'Krishna College of EngineeringS. Pillai',
       '3 experiments',
       'New accessNot set yet',
-      '30 Sep 2026',
+      'Received 30 Sep 2026',
       'Information requested',
     ]);
-    // Status tones as B1-10 draws them.
-    expect(row('REQ-0040').querySelector('.xr-status')).toHaveClass('xr-status--info');
-    expect(row('REQ-0041').querySelector('.xr-status')).toHaveClass('xr-status--err');
-    // The reference opens the decision, named as B1-10 names it.
+    // Status tones as the export draws them (`SA.REQ_KIND`).
+    expect(row('REQ-0040').querySelector('.xr-st')).toHaveClass('xr-st--info');
+    expect(row('REQ-0041').querySelector('.xr-st')).toHaveClass('xr-st--err');
+    // The row link opens the decision, named as the export names it.
     const link = within(row('REQ-0040')).getByRole('link', {
-      name: 'Open request REQ-0040, Konark Polytechnic',
+      name: 'Konark Polytechnic, additional licences, received 29 Sep 2026, Under review. Open the request',
     });
     expect(link).toHaveAttribute('href', '/admin/requests/REQ-0040');
-    expect(link).toHaveClass('xr-id', 'font-[700]', 'text-link');
+    expect(link).toHaveClass('rk-rowlink');
+    expect(link).toHaveTextContent('Konark Polytechnic');
   });
 });
 
-describe('SA-02 — search, filters and chips (B1-10 f1, f3, f4)', () => {
+describe('SA-02 — search, filters and chips', () => {
   it('Status: Under review — the requests that need a decision; the chip removes it', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     inAdmin(runtime, <Requests />);
@@ -161,10 +174,8 @@ describe('SA-02 — search, filters and chips (B1-10 f1, f3, f4)', () => {
       expect(references(await rowsShown())).toEqual(expected.map((row) => row.id)),
     );
     const all = await portRows(runtime);
-    expect(document.querySelector('.xr-toolbar-status [role="status"]')).toHaveTextContent(
-      `${expected.length} of ${all.length} requests`,
-    );
-    await user.click(screen.getByRole('button', { name: 'Remove Status: Under review' }));
+    expect(count()).toHaveTextContent(`${expected.length} of ${all.length} requests`);
+    await user.click(screen.getByRole('button', { name: 'Remove filter Status: Under review' }));
     await waitFor(async () => expect(await rowsShown()).toHaveLength(all.length));
   });
 
@@ -172,7 +183,7 @@ describe('SA-02 — search, filters and chips (B1-10 f1, f3, f4)', () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     inAdmin(runtime, <Requests />);
     await rowsShown();
-    const status = document.querySelector('.xr-toolbar-status [role="status"]')!;
+    const status = count()!;
     const all = (await portRows(runtime)).length;
     const underReview = (await portRows(runtime, { status: 'under-review' })).length;
     const heard: string[] = [status.textContent ?? ''];
@@ -199,15 +210,24 @@ describe('SA-02 — search, filters and chips (B1-10 f1, f3, f4)', () => {
         (await portRows(runtime, { search: 'konark' })).map((row) => row.id),
       ),
     );
-    expect(screen.getByRole('button', { name: 'Remove Search: “konark”' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Remove filter Search: “konark”' })).toBeVisible();
     await user.clear(search);
     await user.type(search, 'Narmada');
-    await screen.findByRole('heading', { name: 'No requests match these filters' });
-    await user.click(screen.getAllByRole('button', { name: 'Clear filters' }).at(-1)!);
+    const none = await screen.findByText('No requests match these filters');
+    expect(none).toHaveClass('rk-state-t');
+    expect(none.closest('.rk-state')).toHaveTextContent(
+      'Try fewer filters or a different spelling of the institution or contact person.',
+    );
+    expect(count()).toHaveTextContent(`0 of ${(await portRows(runtime)).length} requests`);
+    const clear = within(none.closest('.rk-state') as HTMLElement).getByRole('button', {
+      name: 'Clear filters',
+    });
+    await user.click(clear);
     await waitFor(async () =>
       expect(await rowsShown()).toHaveLength((await portRows(runtime)).length),
     );
     expect(search).toHaveValue('');
+    expect(search).toHaveFocus();
   });
 
   it('More filters: “Internal or external” applies at once; the button counts it', async () => {
@@ -219,15 +239,15 @@ describe('SA-02 — search, filters and chips (B1-10 f1, f3, f4)', () => {
     expect(more).toHaveAttribute('aria-expanded', 'false');
     await user.click(more);
     expect(more).toHaveAttribute('aria-expanded', 'true');
-    const panel = screen.getByRole('group', { name: 'More filters' });
+    const panel = document.getElementById(more.getAttribute('aria-controls')!)!;
     await user.selectOptions(within(panel).getByLabelText('Internal or external'), 'External');
     const expected = await portRows(runtime, { route: 'external' });
     await waitFor(async () =>
       expect(references(await rowsShown())).toEqual(expected.map((row) => row.id)),
     );
-    expect(screen.getByRole('button', { name: 'More filters (1)' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'More filters, 1 applied' })).toBe(more);
     expect(
-      screen.getByRole('button', { name: 'Remove Internal or external: External' }),
+      screen.getByRole('button', { name: 'Remove filter Internal or external: External' }),
     ).toBeVisible();
     await user.selectOptions(within(panel).getByLabelText('Internal or external'), 'Not set yet');
     const notSet = await portRows(runtime, { route: 'not-set' });
@@ -241,7 +261,7 @@ describe('SA-02 — search, filters and chips (B1-10 f1, f3, f4)', () => {
     inAdmin(runtime, <Requests />);
     await rowsShown();
     const user = userEvent.setup();
-    const type = document.querySelector('.xr-toolbar .xr-filter-2 select') as HTMLSelectElement;
+    const type = screen.getByLabelText('Type') as HTMLSelectElement;
     expect([...type.options].map((option) => option.textContent)).toEqual([
       'All types',
       'New access',
@@ -263,7 +283,7 @@ describe('SA-02 — search, filters and chips (B1-10 f1, f3, f4)', () => {
   });
 });
 
-describe('SA-02 — Received sorts newest / oldest first (B1-10; PF-01 fix)', () => {
+describe('SA-02 — Received sorts newest / oldest first', () => {
   it('the header button reverses the order in place and is the only th[aria-sort]', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     inAdmin(runtime, <Requests />);
@@ -280,6 +300,9 @@ describe('SA-02 — Received sorts newest / oldest first (B1-10; PF-01 fix)', ()
     expect(document.querySelector('main [aria-busy="true"]')).toBeNull();
     expect(references(await rowsShown())).toEqual([...newest].reverse());
     expect(document.querySelector('main th[aria-sort]')).toHaveAttribute('aria-sort', 'ascending');
+    expect(document.querySelector('main table caption')).toHaveTextContent(
+      'Institutional access requests, received, oldest first',
+    );
     await waitFor(async () =>
       expect(references(await rowsShown())).toEqual(
         (await portRows(runtime, { sort: 'received-oldest' })).map((row) => row.id),
@@ -288,7 +311,24 @@ describe('SA-02 — Received sorts newest / oldest first (B1-10; PF-01 fix)', ()
   });
 });
 
-describe('SA-02 — the sidebar count (B1-10 “Nav count = requests under review”)', () => {
+describe('SA-02 — the list’s states', () => {
+  it('loading, then failed with Try again: nothing has changed, and trying again lists the rows', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    faults(sample).failNext('AccessRequestService.listRequests');
+    inAdmin(runtime, <Requests />);
+    expect(await screen.findByText('Loading requests…')).toHaveClass('rk-loading-msg');
+    const failed = await screen.findByRole('alert');
+    expect(failed).toHaveTextContent('We couldn’t load the requests');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    expect(count()).toBeNull();
+    const user = userEvent.setup();
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    await rowsShown();
+    expect(screen.getByRole('heading', { level: 1, name: 'Requests' })).toHaveFocus();
+  });
+});
+
+describe('SA-02 — the rail count (requests under review)', () => {
   it('Requests is current and counts the requests under review, in words', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'spine-start');
     inAdmin(runtime, <Requests />);
@@ -297,7 +337,7 @@ describe('SA-02 — the sidebar count (B1-10 “Nav count = requests under revie
     const item = document.querySelector('aside nav a[href="/admin/requests"]')!;
     expect(item).toHaveAttribute('aria-current', 'page');
     await waitFor(() =>
-      expect(item.querySelector('.xr-count .xr-sr')).toHaveTextContent(
+      expect(item.querySelector('.rb-count .xr-sr')).toHaveTextContent(
         `${underReview} requests under review`,
       ),
     );
@@ -309,7 +349,7 @@ describe('SA-02 — only the Super Admin', () => {
     const { runtime } = await tabPlatform('per-kavya-nair', 'spine-start');
     inAdmin(runtime, <Requests />);
     await screen.findByRole('heading', { name: 'This page isn’t part of your workspace' });
-    expect(document.querySelector('table.xr-table')).toBeNull();
-    expect(document.body.textContent).not.toContain('REQ-0040');
+    expect(document.querySelector('table.rk-table')).toBeNull();
+    expect(document.body.textContent).not.toContain('Konark Polytechnic');
   });
 });

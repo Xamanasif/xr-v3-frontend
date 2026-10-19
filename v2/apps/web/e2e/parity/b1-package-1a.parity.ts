@@ -2,7 +2,7 @@ import type { BrowserContext, Locator, Page, TestInfo } from '@playwright/test';
 
 import { compareAll } from '../../../../tools/board-capture/src/parity.mjs';
 import { bootWorld, type SamplePerson } from '../support';
-import { type CompareItem, expect, test } from './support';
+import { type CompareItem, expect, recordSuperseded, test } from './support';
 
 /**
  * Phase-1 Package 1A: boards B1-09 (XS-01/03/04 Sign in), B1-10 (SA-02 Requests) and B1-11
@@ -16,10 +16,13 @@ import { type CompareItem, expect, test } from './support';
  * its Package-1A register entry — measured, pinned, and reported for the owner's review, never
  * approved here. Panel-only frames of B1-11 drawn at their own widths (f1 … f8, f10 … f14) are
  * not compared: the product panel takes its width from the page layout.
+ *
+ * Since the V3 integrations the B1-09 comparisons are retired by name for the Entry & shared
+ * sign-in (XS-v6), and B1-10 and B1-11 are superseded entirely by the Super Admin screens (SA-v1):
+ * see docs/v3/V3-COMPARISON-MAP.json.
  */
 const SPINE_START = 'spine-start';
 const FROZEN = new Date('2026-10-02T10:00:00+05:30');
-const ARJUN: SamplePerson = { personId: 'sa-arjun-mehta' };
 
 async function open(
   context: BrowserContext,
@@ -47,13 +50,6 @@ async function rest(page: Page): Promise<void> {
 const signInReady = async (page: Page) => {
   await expect(page.locator('.xs-card h1')).toHaveText('Sign in');
 };
-const requestsReady = async (page: Page) => {
-  await expect(page.locator('table.xr-table tbody td.is-primary a').first()).toBeVisible();
-};
-const decisionReady = async (page: Page) => {
-  await expect(page.getByRole('complementary', { name: 'Your decision' })).toBeVisible();
-};
-
 function collector(testInfo: TestInfo) {
   const failures: string[] = [];
   return {
@@ -224,287 +220,17 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
   });
 });
 
-test.describe('B1-10 · SA-02 Requests on the built screen', () => {
-  let frames: Locator;
-
-  test.beforeEach(async ({ openBoardPage }) => {
-    const { page: board } = await openBoardPage('B1-10-SA-Requests.dc.html', {
-      uncrop: true,
-      frameMinHeight: 900,
-    });
-    frames = board.locator('.b1-frame');
-    await expect(frames).toHaveCount(10);
-  });
-
-  test('f0 · Requests · 1440', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 1440, ARJUN, '/admin/requests', requestsReady);
-    await rest(ours);
-    const frame = frames.nth(0);
-    await run([
-      {
-        name: 'b1-10-f0-top-bar',
-        reference: frame.locator('header.xr-top'),
-        product: ours.locator('header.xr-top'),
-      },
-      {
-        name: 'b1-10-f0-sidebar-head',
-        reference: frame.locator('aside.xr-side .xr-side-head'),
-        product: ours.locator('aside.xr-side .xr-side-head'),
-      },
-      {
-        name: 'b1-10-f0-sidebar-help',
-        reference: frame.locator('aside.xr-side .xr-side-foot'),
-        product: ours.locator('aside.xr-side .xr-side-foot'),
-      },
-      {
-        // Phase 6 builds the Super Admin's last destinations (Content, Academic structure,
-        // Platform roles): measured as `-phase-6`; the Package-1A and Phase-3 pins (DEV-21) stay
-        // as the record. The Requests count is the world's (DEV-22).
-        name: 'b1-10-f0-sidebar-phase-6',
-        reference: frame.locator('aside.xr-side'),
-        product: ours.locator('aside.xr-side'),
-        deviation: 'DEV-22',
-      },
-      {
-        name: 'b1-10-f0-header',
-        reference: frame.locator('main .xr-phead'),
-        product: ours.locator('main .xr-phead'),
-      },
-      {
-        name: 'b1-10-f0-toolbar',
-        reference: frame.locator('main .xr-toolbar'),
-        product: ours.locator('main .xr-toolbar'),
-      },
-      {
-        name: 'b1-10-f0-count',
-        reference: frame.locator('main .xr-toolbar-status'),
-        product: ours.locator('main .xr-toolbar-status'),
-        deviation: 'DEV-22',
-      },
-      {
-        // Auto table layout: the columns take their widths from the rows' words (DEV-22).
-        name: 'b1-10-f0-table-head',
-        reference: frame.locator('main table.xr-table thead'),
-        product: ours.locator('main table.xr-table thead'),
-        deviation: 'DEV-22',
-      },
-      {
-        // REQ-0040's row holds the same words on the board and in the world: its reference link
-        // and its status are compared as elements (the columns' widths follow the other rows).
-        name: 'b1-10-f0-req-0040-reference',
-        reference: frame.locator('td.is-primary a', { hasText: 'REQ-0040' }),
-        product: ours.locator('td.is-primary a', { hasText: 'REQ-0040' }),
-      },
-      {
-        name: 'b1-10-f0-req-0040-status',
-        reference: frame.locator('tr', { hasText: 'REQ-0040' }).locator('.xr-status'),
-        product: ours.locator('tr', { hasText: 'REQ-0040' }).locator('.xr-status'),
-      },
-      {
-        name: 'b1-10-f0-table',
-        reference: frame.locator('main .xr-table-wrap'),
-        product: ours.locator('main .xr-table-wrap'),
-        deviation: 'DEV-22',
-      },
-      {
-        name: 'b1-10-f0-whole-frame-phase-6',
-        reference: frame.locator('.xr-app'),
-        product: ours.locator('div.xr-app'),
-        kind: 'screen',
-        frame: true,
-        deviation: 'DEV-22',
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  test('f1 · More filters open · External (1080)', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 1080, ARJUN, '/admin/requests', requestsReady);
-    await ours.getByRole('button', { name: 'More filters' }).click();
-    await ours
-      .getByRole('group', { name: 'More filters' })
-      .getByLabel('Internal or external')
-      .selectOption({ label: 'External' });
-    await expect(ours.getByRole('button', { name: 'More filters (1)' })).toBeVisible();
-    await rest(ours);
-    const frame = frames.nth(1);
-    await run([
-      {
-        name: 'b1-10-f1-more-filters-toolbar',
-        reference: frame.locator('main .xr-toolbar'),
-        product: ours.locator('main .xr-toolbar'),
-      },
-      {
-        name: 'b1-10-f1-more-filters-panel',
-        reference: frame.locator('main .xp-morefilters'),
-        product: ours.locator('main .xp-morefilters'),
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  test('f4 · No match (720)', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 720, ARJUN, '/admin/requests', requestsReady);
-    await ours.getByRole('searchbox', { name: 'Search' }).fill('Narmada');
-    await expect(
-      ours.getByRole('heading', { name: 'No requests match these filters' }),
-    ).toBeVisible();
-    await rest(ours);
-    const frame = frames.nth(4);
-    await run([
-      {
-        name: 'b1-10-f4-no-match',
-        reference: frame.locator('main .xr-section'),
-        product: ours.locator('main .xr-section'),
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  test('f8 · Mobile 375', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 375, ARJUN, '/admin/requests', requestsReady);
-    await rest(ours);
-    const frame = frames.nth(8);
-    await run([
-      {
-        name: 'b1-10-f8-mobile-top-bar',
-        reference: frame.locator('header.xr-top'),
-        product: ours.locator('header.xr-top'),
-      },
-      {
-        name: 'b1-10-f8-mobile-header',
-        reference: frame.locator('main .xr-phead'),
-        product: ours.locator('main .xr-phead'),
-      },
-      {
-        name: 'b1-10-f8-mobile-toolbar',
-        reference: frame.locator('main .xr-toolbar'),
-        product: ours.locator('main .xr-toolbar'),
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
+/*
+ * B1-10 (SA-02 Requests) and B1-11 (SA-03 Request decision) are superseded by the owner-approved
+ * V3 Super Admin screens (design/v3-refined-b/roles/SA-v1; docs/v3/V3-COMPARISON-MAP.json): every
+ * comparison of these boards is retired by name and recorded as such, nothing of them is captured,
+ * and the screens' behaviour is checked by the browser suites at the four widths. The pins and the
+ * register keep the v46 measurements as history.
+ */
+test('B1-10 · SA-02 Requests — superseded by the V3 Super Admin screen (SA-v1)', async () => {
+  await recordSuperseded(test.info(), 'b1-10-');
 });
 
-test.describe('B1-11 · SA-03 Request decision on the built screen', () => {
-  let frames: Locator;
-
-  test.beforeEach(async ({ openBoardPage }) => {
-    const { page: board } = await openBoardPage('B1-11-SA-Decision.dc.html', {
-      uncrop: true,
-      frameMinHeight: 900,
-    });
-    frames = board.locator('.b1-frame');
-    await expect(frames).toHaveCount(17);
-  });
-
-  test('f16 · Renewal · 1060 (REQ-0038)', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 1060, ARJUN, '/admin/requests/REQ-0038', decisionReady);
-    await rest(ours);
-    const frame = frames.nth(16);
-    // Each section is a region named by its H2, on the board and in the product.
-    const section = (page: Page | Locator, name: string) =>
-      page.locator('main').getByRole('region', { name, exact: true });
-    await run([
-      {
-        name: 'b1-11-f16-top-bar',
-        reference: frame.locator('header.xr-top'),
-        product: ours.locator('header.xr-top'),
-        deviation: 'DEV-25',
-      },
-      {
-        name: 'b1-11-f16-back-link',
-        reference: frame.locator('main a.xr-back'),
-        product: ours.locator('main a.xr-back'),
-        deviation: 'DEV-23',
-      },
-      {
-        // "Received 26 Sep 2026, 16:02" against the drawn 24 Sep (DEV-22's text): inside the
-        // component tolerance, so compared unregistered.
-        name: 'b1-11-f16-header',
-        reference: frame.locator('main .xr-phead'),
-        product: ours.locator('main .xr-phead'),
-      },
-      {
-        name: 'b1-11-f16-summary',
-        reference: frame.locator('main section[aria-label="Summary"]'),
-        product: ours.locator('main section[aria-label="Summary"]'),
-        deviation: 'DEV-22',
-      },
-      {
-        name: 'b1-11-f16-organisation',
-        reference: section(frame, 'Organisation and contact person'),
-        product: section(ours, 'Organisation and contact person'),
-      },
-      {
-        name: 'b1-11-f16-message',
-        reference: section(frame, 'Message from the requester'),
-        product: section(ours, 'Message from the requester'),
-      },
-      {
-        name: 'b1-11-f16-four-events',
-        reference: frame.locator('main details.xr-section'),
-        product: ours.locator('main details.xr-section'),
-      },
-      {
-        name: 'b1-11-f16-panel',
-        reference: frame.locator('aside.xr-dpanel'),
-        product: ours.locator('aside.xr-dpanel'),
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  test('f3 · Confirm · internal — the effects (REQ-0038, 520)', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    // B1-11 f3 draws the dialog in a 520 px frame inside the canvas scrim's 16 px gutter (488 px);
-    // the product dialog has the same gutter (PF-04) at a 520 px viewport. Only the effect lines
-    // are compared: below 600 px the product draws the dialog as board 10's bottom sheet, while
-    // the canvas frame keeps the centred box (board 10's dialog is compared in Phase 0).
-    const ours = await open(context, 520, ARJUN, '/admin/requests/REQ-0038', decisionReady);
-    const panel = ours.getByRole('complementary', { name: 'Your decision' });
-    await panel.locator('label[for="decision-approve"]').click();
-    await panel.getByRole('button', { name: 'Approve request' }).click();
-    const dialog = ours.getByRole('dialog', { name: 'Approve REQ-0038?' });
-    await expect(dialog).toBeVisible();
-    await rest(ours);
-    const drawn = frames.nth(3).locator('.xr-dialog');
-    // B1-11 f3 confirms REQ-0042, a new institution: its first line creates the record; the
-    // renewal's three other lines are the same words.
-    await run(
-      [1, 2, 3].map((index) => ({
-        name: `b1-11-f3-confirm-internal-line-${index}`,
-        reference: drawn.locator('.xr-dialog-body li').nth(index),
-        product: dialog.locator('.xr-dialog-body li').nth(index - 1),
-      })),
-    );
-    expect(failures).toEqual([]);
-  });
-
-  test('f15 · Mobile 375 — the jump link and the open panel (REQ-0040)', async ({
-    context,
-  }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 375, ARJUN, '/admin/requests/REQ-0040', decisionReady);
-    await rest(ours);
-    const frame = frames.nth(15);
-    await run([
-      {
-        name: 'b1-11-f15-mobile-jump',
-        reference: frame.locator('main a.xr-jump'),
-        product: ours.locator('main a.xr-jump'),
-      },
-      {
-        name: 'b1-11-f15-mobile-panel',
-        reference: frame.locator('aside.xr-dpanel'),
-        product: ours.locator('aside.xr-dpanel'),
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
+test('B1-11 · SA-03 Request decision — superseded by the V3 Super Admin screen (SA-v1)', async () => {
+  await recordSuperseded(test.info(), 'b1-11-');
 });

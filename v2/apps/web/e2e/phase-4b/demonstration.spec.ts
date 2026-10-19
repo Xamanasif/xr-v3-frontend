@@ -10,6 +10,7 @@ import {
   expectSameDocument,
   markDocument,
   revealSidebar,
+  sidebarLink,
 } from '../support/workspace';
 
 /**
@@ -74,7 +75,7 @@ async function signOut(page: Page, accountLine: string): Promise<void> {
 
 async function sidebar(page: Page, href: string): Promise<void> {
   await revealSidebar(page);
-  await reachAndClick(page, page.locator(`aside.xr-side nav a[href="${href}"]`));
+  await reachAndClick(page, sidebarLink(page, href));
   await page.waitForURL((url) => url.pathname === href);
 }
 
@@ -146,15 +147,19 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await page.waitForURL('**/admin');
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open: REQ-0042 · Godavari Institute of Technology' }),
+    page.getByRole('link', {
+      name: 'Open the new access request from Godavari Institute of Technology',
+    }),
   );
   const panel = page.getByRole('complementary', { name: 'Your decision' });
   await reachAndClick(page, panel.locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel.locator('label[for="decision-route-external"]'));
   await reachAndClick(page, panel.getByRole('button', { name: 'Approve request' }));
-  const approve = page.getByRole('dialog', { name: 'Approve REQ-0042?' });
+  const approve = page.getByRole('dialog', {
+    name: 'Approve the request from Godavari Institute of Technology?',
+  });
   await reachAndClick(page, approve.getByRole('button', { name: 'Approve request' }));
-  await expect(panel.locator('.xr-status')).toHaveText('Approved — payment required');
+  await expect(panel.locator('.rk-done .xr-st')).toHaveText('Approved — payment required');
   await signOut(page, ARJUN);
   await openInTab(page, address);
   await reachAndClick(page, statusHead(page).getByRole('link', { name: 'Continue to payment' }));
@@ -168,12 +173,14 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await sidebar(page, '/admin/institutions');
   await reachAndClick(
     page,
-    page.getByRole('link', { name: 'Open Godavari Institute of Technology' }),
+    page.getByRole('link', { name: /^Godavari Institute of Technology, .*Open the institution$/ }),
   );
   await page.waitForURL('**/admin/institutions/godavari');
   await reachAndClick(
     page,
-    main(page).locator('.xw-actions').getByRole('button', { name: 'Assign Institute Admin' }),
+    page
+      .getByRole('complementary', { name: 'What you can do' })
+      .getByRole('button', { name: 'Assign Institute Admin' }),
   );
   const assign = page.getByRole('dialog', {
     name: 'Assign the Institute Admin for Godavari Institute of Technology',
@@ -181,7 +188,7 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await assign.getByRole('textbox', { name: 'Name' }).fill('Meera Iyer');
   await assign.getByRole('textbox', { name: 'Work e-mail' }).fill('meera.iyer@godavari.edu.in');
   await reachAndClick(page, assign.getByRole('button', { name: 'Assign' }));
-  await expect(main(page).locator('.xr-phead-meta')).toContainText('Institute Admin: Meera Iyer');
+  await expect(main(page).locator('.rk-meta')).toContainText('Institute Admin: Meera Iyer');
   await signOut(page, ARJUN);
 
   await signIn(page, 'meera.iyer@godavari.edu.in');

@@ -1,18 +1,18 @@
 /**
- * Phase 6 · the Super Admin's Platform roles: SA-16 Platform roles (B7-08 f0, f3, f6) and SA-17
- * Role holder (B7-08 f1, f2, f4, f5, f7, f8; B7-10 f10, f11), on the real composition root and the
- * sample world after Flow E (23 Oct 2026: Dr K. Iyer registered with no scope, SUB-0085 stuck).
- * The lists and the holder are the service's answers; Register, Assign, Withdraw and Restore are
- * its commands, each with the revision its dialog or panel opened on; field errors are the
- * contract's drawn words; a refusal writes nothing. A scope change reaches the holder's own
- * workspace at once (the reviewer's queue), and nothing is sent (T-11).
+ * The Super Admin's Platform roles in the owner-approved V3 design (design/v3-refined-b/roles/SA-v1,
+ * `sa-views-d.js` `V.roles`, `V.holder`): SA-16 Platform roles and SA-17 Role holder, on the real
+ * composition root and the sample world after Flow E (23 Oct 2026: Dr K. Iyer registered with no
+ * scope, SUB-0085 stuck). The lists and the holder are the service's answers; Register, Assign,
+ * Withdraw and Restore are its commands, each with its revision; field errors are the contract's
+ * words; a refusal writes nothing. A scope change reaches the holder's own workspace at once (the
+ * reviewer's queue), and nothing is sent (T-11). No internal reference is shown.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { PlatformRoleHolder } from '@xr/domain';
-import { asPersonId, faults } from '@xr/sample-platform/testing';
+import { asPersonId, faults, fixtureWorld } from '@xr/sample-platform/testing';
 import type { ReactNode } from 'react';
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { expandTarget } from '@/nav/link-targets';
 import { P6_PLATFORM_ROLES_LINK_TARGETS } from '@/nav/link-targets-p6/platform-roles';
@@ -25,6 +25,7 @@ import {
   tabPlatform,
   TestNotFoundBoundary,
   testNavigation,
+  worldPlatform,
 } from '@/test-support/workspace';
 
 import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
@@ -64,11 +65,12 @@ const showHolder = (runtime: PlatformRuntime, id: string) =>
   inAdmin(runtime, `${ROLES}/${id}`, <RoleHolder holderId={id} />);
 
 const main = () => screen.getByRole('main');
-const topTitle = () => document.querySelector('.xr-top-title')?.textContent;
-const crumbs = () => text(screen.getByRole('list', { name: 'You are here' }));
 const heading = (name: string) =>
   screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
-const flash = () => text(main().querySelector('p.xa-save'));
+const flash = () => text(main().querySelector('#role-holder-flash'));
+const panel = () => screen.getByRole('complementary', { name: 'Assign scope' });
+const region = (name: string) => screen.getByRole('region', { name });
+const assignButton = () => within(panel()).getByRole('button', { name: 'Assign scope' });
 
 /** An element's words, its text nodes joined by spaces (as a screen reader reads them). */
 function text(element: Element | null): string {
@@ -82,19 +84,29 @@ function text(element: Element | null): string {
 }
 
 const rows = () =>
-  [...main().querySelectorAll('table.xr-table tbody tr')].map((row) =>
+  [...main().querySelectorAll('table.rk-table tbody tr')].map((row) =>
     [...row.querySelectorAll('td')].map((cell) => text(cell)),
   );
-const scopeRows = (label: string) =>
-  [...within(main()).getByRole('list', { name: label }).querySelectorAll(':scope > li')].map(
-    (row) => text(row.querySelector('.xg-lo-main')),
+/** The scope rows of a section (“Can act on”, “Withdrawn”): their words, without the action. */
+const scopeRows = (section: 'Can act on' | 'Withdrawn') =>
+  [...region(section).querySelectorAll('ul.sa-scopes > li > .sa-scope-row > div')].map((row) =>
+    text(row),
   );
 const historyWhat = () =>
-  [...main().querySelectorAll('ol.xr-timeline .xr-tl-what')].map((node) => text(node));
+  [...main().querySelectorAll('ol.rk-tl > li .rk-tl-w')].map((node) => text(node));
 const historyNotes = () =>
-  [...main().querySelectorAll('ol.xr-timeline li')].map((node) =>
-    text(node.querySelector('.xr-tl-note')),
-  );
+  [...main().querySelectorAll('ol.rk-tl > li')].map((node) => text(node.querySelector('.rk-tl-n')));
+const effect = () => text(region('Can act on').querySelector('p.rk-next'));
+
+/** The Super Admin rule: no internal reference in the page's words or accessible names. */
+function expectNoInternalReferences() {
+  const INTERNAL = /\b(REQ|ACC|UPD|DTR|SUP|SUB)-\d/;
+  expect(main().textContent).not.toMatch(INTERNAL);
+  for (const element of main().querySelectorAll('[aria-label], [title]')) {
+    expect(element.getAttribute('aria-label') ?? '').not.toMatch(INTERNAL);
+    expect(element.getAttribute('title') ?? '').not.toMatch(INTERNAL);
+  }
+}
 
 async function holderOf(sample: unknown, id: string): Promise<HolderView> {
   const answer = await asPersonId(sample as never, SUPER_ADMIN).platformRoles.getHolder(
@@ -110,92 +122,137 @@ async function queueOf(sample: unknown, personId: string): Promise<string[]> {
   return answer.value.map((item) => `${item.ref.id} ${item.courseCode ?? ''}`.trim());
 }
 
-describe('SA-16 Platform roles (B7-08 f0, f3)', () => {
-  it('Vendors is the bare address (f3): the counts, the rows, the foot note without “(T-11)”', async () => {
+describe('SA-16 Platform roles (SA-v1 `V.roles`)', () => {
+  it('Vendors is the bare address: the head, the page tabs with counts, the rows, the foot note', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     const navigation = showRoles(runtime);
-    await heading('Platform roles');
+    const title = await heading('Platform roles');
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(text(main().querySelector('.xr-phead-meta'))).toBe(
-      'Who can produce, review and publish content — and for what',
+    expect(title).toHaveAttribute('tabindex', '-1');
+    expect(text(main().querySelector('.rk-head .rk-sub'))).toBe(
+      'Who can produce, review and publish content, and for what.',
     );
-    expect(topTitle()).toBe('Platform roles');
-    const tabs = screen.getByRole('tablist', { name: 'Role' });
+    expect(screen.getByRole('button', { name: 'Register a Vendor' })).toHaveClass(
+      'rb-btn',
+      'rb-btn--navy',
+    );
+    const tabs = screen.getByRole('navigation', { name: 'Platform roles' });
+    expect(tabs).toHaveClass('rk-tabs', 'sa-tabs');
     await waitFor(() =>
       expect(
         within(tabs)
-          .getAllByRole('tab')
-          .map((tab) => text(tab)),
-      ).toEqual(['Vendors 2', 'Reviewers 2', 'Content Managers 1']),
+          .getAllByRole('link')
+          .map((tab) => [text(tab), tab.getAttribute('href'), tab.getAttribute('aria-current')]),
+      ).toEqual([
+        ['Vendors 2', ROLES, 'page'],
+        ['Reviewers 2', `${ROLES}?tab=reviewers`, null],
+        ['Content Managers 1', `${ROLES}?tab=content-managers`, null],
+      ]),
     );
-    expect(within(tabs).getByRole('tab', { name: /^Vendors/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
-    expect(screen.getByRole('heading', { level: 2, name: 'Vendors' })).toBeVisible();
-    expect(screen.getByRole('button', { name: 'Register a Vendor' })).toHaveClass(
-      'xr-btn--secondary',
-      'xr-btn--sm',
-    );
+    expect(tabs.querySelectorAll('.sa-tabn')).toHaveLength(3);
+    const surface = region('Vendors');
+    expect(surface).toHaveClass('rk-surface');
     await waitFor(() => expect(rows()).toHaveLength(2));
     expect(rows()).toEqual([
       [
-        'Anil Shetty Northline Simulation Studio · Registered 4 Jul 2026',
+        'Anil Shetty Northline Simulation Studio',
         'ME ZG523 1 scope withdrawn',
-        'Open',
+        'anil.shetty@northline.example',
+        'Registered 4 Jul 2026',
+        'Has scope',
       ],
-      ['Ritu Sharma Meridian Virtual Labs · Registered 1 Aug 2026', 'CHE ZG513, EEE ZC341', 'Open'],
+      [
+        'Ritu Sharma Meridian Virtual Labs',
+        'CHE ZG513 EEE ZC341',
+        'ritu.sharma@meridian.example',
+        'Registered 1 Aug 2026',
+        'Has scope',
+      ],
     ]);
-    expect(screen.getByRole('link', { name: 'Open Anil Shetty' })).toHaveAttribute(
+    expect([...surface.querySelectorAll('thead th')].map((cell) => text(cell))).toEqual([
+      'Role holder',
+      'Can act on',
+      'Work e-mail',
+      'Registered',
+      'Scope',
+    ]);
+    expect(text(surface.querySelector('caption'))).toBe('Vendors and what they can act on');
+    // Course scopes are code chips; each row opens its holder, named by content.
+    expect(surface.querySelectorAll('tbody tr:nth-child(2) .rk-code')).toHaveLength(2);
+    expect(screen.getByRole('link', { name: 'Anil Shetty, Vendor. Open' })).toHaveAttribute(
       'href',
       `${ROLES}/${ANIL}`,
     );
     // Nobody without a scope on this tab: no notice.
-    expect(main().querySelector('.xr-notice--warn')).toBeNull();
-    expect(text(main().querySelector('p.xl-open'))).toBe(
+    expect(main().querySelector('.rk-notice--warn')).toBeNull();
+    expect(text(surface.querySelector('p.rk-ca-foot'))).toBe(
       'Registering doesn’t send an invitation. How a registered person first signs in is still open.',
     );
     expect(main().textContent).not.toMatch(/T-11/);
+    expectNoInternalReferences();
     expect(navigation.replace).not.toHaveBeenCalled();
   });
 
-  it('Reviewers (f0): the no-scope notice and tag; choosing a tab replaces the address', async () => {
-    const user = userEvent.setup();
+  it('Reviewers: the no-scope notice names the holder and opens them; the row is flagged No scope', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    const navigation = showRoles(runtime, '?tab=reviewers');
+    showRoles(runtime, '?tab=reviewers');
     await heading('Platform roles');
-    expect(screen.getByRole('heading', { level: 2, name: 'Reviewers' })).toBeVisible();
+    const tabs = screen.getByRole('navigation', { name: 'Platform roles' });
+    expect(within(tabs).getByRole('link', { name: /^Reviewers/ })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(region('Reviewers')).toBeVisible();
     await waitFor(() => expect(rows()).toHaveLength(2));
     expect(rows()).toEqual([
       [
-        'Prof. A. Menon BITS Pilani · WILP · Registered 2 Jun 2026',
-        'ME ZG523, MEL ZG512, CHE ZG513 1 scope withdrawn',
-        'Open',
+        'Prof. A. Menon BITS Pilani · WILP',
+        'ME ZG523 MEL ZG512 CHE ZG513 1 scope withdrawn',
+        'a.menon@wilp.example',
+        'Registered 2 Jun 2026',
+        'Has scope',
       ],
-      ['Dr K. Iyer BITS Pilani · WILP · Registered 20 Oct 2026', 'Nothing — no scope yet', 'Open'],
+      [
+        'Dr K. Iyer BITS Pilani · WILP',
+        'Nothing yet',
+        'k.iyer@wilp.example',
+        'Registered 20 Oct 2026',
+        'No scope',
+      ],
     ]);
-    expect(main().querySelector('tbody .xw-tag.xw-tag--warn')).toHaveTextContent(
-      'Nothing — no scope yet',
+    expect(main().querySelector('tbody tr:nth-child(2) .xr-st.xr-st--warn')).toHaveTextContent(
+      'No scope',
     );
-    const notice = main().querySelector('.xr-notice.xr-notice--warn');
-    expect(text(notice)).toBe(
-      '1 holder with no scope — they can’t act on anything yet Open the holder and assign a scope.',
-    );
-    expect(screen.getByRole('button', { name: 'Register a Reviewer' })).toBeVisible();
-
-    await user.click(screen.getByRole('tab', { name: /^Content Managers/ }));
-    expect(navigation.replace).toHaveBeenLastCalledWith(`${ROLES}?tab=content-managers`);
     expect(
-      await screen.findByRole('heading', { level: 2, name: 'Content Managers' }),
-    ).toBeVisible();
+      screen.getByRole('link', { name: 'Dr K. Iyer, Academic Reviewer, no scope. Open' }),
+    ).toHaveAttribute('href', `${ROLES}/${IYER}`);
+    const notice = main().querySelector('.rk-notice.rk-notice--warn');
+    expect(text(notice)).toBe(
+      'Dr K. Iyer has no scope yet Their review queue is empty. Nothing is in scope, and submissions for courses nobody reviews get stuck. Assign scope',
+    );
+    expect(
+      within(notice as HTMLElement).getByRole('link', { name: 'Assign scope' }),
+    ).toHaveAttribute('href', `${ROLES}/${IYER}`);
+    expect(screen.getByRole('button', { name: 'Register a Reviewer' })).toBeVisible();
+  });
+
+  it('Content Managers: one holder with All experiments', async () => {
+    const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    showRoles(runtime, '?tab=content-managers');
+    await heading('Platform roles');
+    expect(region('Content Managers')).toBeVisible();
     await waitFor(() =>
       expect(rows()).toEqual([
-        ['Kavya Nair BITS Pilani · WILP · Registered 2 Jun 2026', 'All experiments', 'Open'],
+        [
+          'Kavya Nair BITS Pilani · WILP',
+          'All experiments',
+          'kavya.nair@wilp.example',
+          'Registered 2 Jun 2026',
+          'Has scope',
+        ],
       ]),
     );
     expect(screen.getByRole('button', { name: 'Register a Content Manager' })).toBeVisible();
-    await user.click(screen.getByRole('tab', { name: /^Vendors/ }));
-    expect(navigation.replace).toHaveBeenLastCalledWith(ROLES);
   });
 
   it('`?tab=vendors` and an unknown tab are replaced by the bare address (D-11)', async () => {
@@ -203,7 +260,7 @@ describe('SA-16 Platform roles (B7-08 f0, f3)', () => {
     const navigation = showRoles(runtime, '?tab=vendors');
     await heading('Platform roles');
     await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith(ROLES));
-    expect(screen.getByRole('heading', { level: 2, name: 'Vendors' })).toBeVisible();
+    expect(region('Vendors')).toBeVisible();
   });
 
   it('an unknown tab shows Vendors and is replaced too', async () => {
@@ -211,22 +268,79 @@ describe('SA-16 Platform roles (B7-08 f0, f3)', () => {
     const navigation = showRoles(runtime, '?tab=institute-admins');
     await heading('Platform roles');
     await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith(ROLES));
-    expect(screen.getByRole('heading', { level: 2, name: 'Vendors' })).toBeVisible();
+    expect(region('Vendors')).toBeVisible();
   });
 
-  it('failed for now: the drawn failed state; Try again reads again', async () => {
+  it('loading: the loading line over skeleton rows; then the rows', async () => {
+    const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    // The service answers only when the test lets it.
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const roles = runtime.ports.platformRoles;
+    const listHolders = roles.listHolders.bind(roles);
+    const spy = vi.spyOn(roles, 'listHolders').mockImplementation(async (filter) => {
+      await gate;
+      return listHolders(filter);
+    });
+    showRoles(runtime);
+    expect(await screen.findByText('Loading role holders…')).toHaveClass('rk-loading-msg');
+    expect(region('Vendors')).toHaveAttribute('aria-busy', 'true');
+    expect(main().querySelectorAll('.rk-skel-row')).toHaveLength(3);
+    release();
+    await waitFor(() => expect(rows()).toHaveLength(2));
+    expect(screen.queryByText('Loading role holders…')).toBeNull();
+    expect(region('Vendors')).not.toHaveAttribute('aria-busy');
+    spy.mockRestore();
+  });
+
+  it('failed for now: the failed state; Try again reads again', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     faults(sample).failNext('PlatformRoleService.listHolders' as never);
     showRoles(runtime);
-    expect(await screen.findByText('We couldn’t load the role holders')).toBeVisible();
+    const failed = await screen.findByText('We couldn’t load the role holders');
+    expect(failed.closest('.rk-state')).toHaveAttribute('role', 'alert');
     expect(screen.getByText('Nothing has changed. Try again.')).toBeVisible();
+    // The foot note stays.
+    expect(main().querySelector('p.rk-ca-foot')).not.toBeNull();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     await waitFor(() => expect(rows()).toHaveLength(2));
   });
+
+  it('a tab with nobody in it: the empty state, Register stays', async () => {
+    // A world with no Content Manager registered (the fixture after Flow E, without Kavya Nair).
+    const world = await fixtureWorld('after-flow-e');
+    const { runtime } = await worldPlatform(SUPER_ADMIN, {
+      ...world,
+      records: {
+        ...world.records,
+        holders: Object.fromEntries(
+          Object.entries(world.records.holders).filter(
+            ([, holder]) => (holder as PlatformRoleHolder).role !== 'content_manager',
+          ),
+        ),
+      },
+    });
+    showRoles(runtime, '?tab=content-managers');
+    await heading('Platform roles');
+    const empty = await screen.findByText('Nobody is registered in this role yet');
+    expect(empty.closest('.rk-state')).not.toBeNull();
+    expect(screen.getByText('Register someone, then assign what they can act on.')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Register a Content Manager' })).toBeVisible();
+    expect(main().querySelector('.rk-notice--warn')).toBeNull();
+    expect(main().querySelector('table')).toBeNull();
+    const tabs = screen.getByRole('navigation', { name: 'Platform roles' });
+    await waitFor(() =>
+      expect(within(tabs).getByRole('link', { name: /^Content Managers/ })).toHaveTextContent(
+        'Content Managers 0',
+      ),
+    );
+  });
 });
 
-describe('SA-16 Register a <role> (B7-08 f6)', () => {
+describe('SA-16 Register a <role> (SA-v1 `SA.DLG.register`)', () => {
   it('all three required at once; the e-mail format; an e-mail already in use is refused with SA-16’s words (PC-49)', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
@@ -234,12 +348,13 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
     await heading('Platform roles');
     await user.click(await screen.findByRole('button', { name: 'Register a Vendor' }));
     const dialog = await screen.findByRole('dialog', { name: 'Register a Vendor' });
-    expect(dialog.querySelector('.xr-dialog-body p')?.textContent).toBe(
-      'Role: Vendor. They start with no scope — you assign it next. Nothing is sent from here.',
+    expect(dialog).toHaveClass('rk-dialog');
+    expect(dialog).toHaveAccessibleDescription(
+      'Registering doesn’t send an invitation. You assign what they can act on next.',
     );
     expect(within(dialog).getByRole('textbox', { name: 'Name' })).toHaveFocus();
     await user.click(within(dialog).getByRole('button', { name: 'Register' }));
-    expect([...dialog.querySelectorAll('.xr-error')].map((error) => text(error))).toEqual([
+    expect([...dialog.querySelectorAll('.rk-ferr')].map((error) => text(error))).toEqual([
       'Enter the person’s name',
       'Enter a work e-mail address',
       'Enter the organisation',
@@ -251,14 +366,14 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
     );
     // Editing a field clears its error.
     await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), 'Kavya Nair');
-    expect(dialog.querySelectorAll('.xr-error')).toHaveLength(2);
+    expect(dialog.querySelectorAll('.rk-ferr')).toHaveLength(2);
     await user.type(within(dialog).getByRole('textbox', { name: 'Work e-mail' }), 'kavya.nair');
     await user.type(
       within(dialog).getByRole('textbox', { name: 'Organisation' }),
       'BITS Pilani · WILP',
     );
     await user.click(within(dialog).getByRole('button', { name: 'Register' }));
-    expect(text(dialog.querySelector('.xr-error'))).toBe(
+    expect(text(dialog.querySelector('.rk-ferr'))).toBe(
       'Enter an e-mail address like name@organisation.com',
     );
     await user.clear(within(dialog).getByRole('textbox', { name: 'Work e-mail' }));
@@ -268,7 +383,7 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
     );
     await user.click(within(dialog).getByRole('button', { name: 'Register' }));
     await waitFor(() =>
-      expect(text(dialog.querySelector('.xr-error'))).toBe(
+      expect(text(dialog.querySelector('.rk-ferr'))).toBe(
         'Someone is already registered with this e-mail address',
       ),
     );
@@ -276,14 +391,14 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
       expect(within(dialog).getByRole('textbox', { name: 'Work e-mail' })).toHaveFocus(),
     );
     // The Institute Admin's sample e-mail (another identity, not a holder) is refused the same
-    // way: nobody's sign-in is taken over or hidden (PC-49).
+    // way: nobody's sign-in is taken over or hidden, and nobody is named (PC-49).
     const email = within(dialog).getByRole('textbox', { name: 'Work e-mail' });
     await user.clear(email);
-    expect(dialog.querySelector('.xr-error')).toBeNull();
+    expect(dialog.querySelector('.rk-ferr')).toBeNull();
     await user.type(email, 'meera.iyer@godavari.edu.in');
     await user.click(within(dialog).getByRole('button', { name: 'Register' }));
     await waitFor(() =>
-      expect(text(dialog.querySelector('.xr-error'))).toBe(
+      expect(text(dialog.querySelector('.rk-ferr'))).toBe(
         'Someone is already registered with this e-mail address',
       ),
     );
@@ -291,13 +406,13 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
       tab: 'vendors',
     });
     expect(vendors.ok && vendors.value).toHaveLength(2);
-    // Cancel: nothing registered, focus back on the header's button.
+    // Cancel: nothing registered, focus back on the head's button.
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(screen.getByRole('button', { name: 'Register a Vendor' })).toHaveFocus();
   });
 
-  it('registered: the new holder opens on SA-17 with B7-08’s flash; nothing is sent', async () => {
+  it('registered: the new holder opens on SA-17 with the flash; nothing is sent', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     const navigation = showRoles(runtime);
@@ -318,9 +433,10 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
     const address = navigation.navigate.mock.calls[0]![0];
     const holderId = address.replace(`${ROLES}/`, '');
     expect(resolveAddress(address).kind).not.toBe('workspace-not-found');
-    expect(arrivalFor(holderId)).toBe(
-      'Neha Kapoor is registered as Vendor. They have no scope yet — assign one so they can act. Nothing is sent from here.',
-    );
+    expect(arrivalFor(holderId)).toEqual({
+      title: 'Neha Kapoor is registered as Vendor.',
+      line: 'Assign what they can act on. Nothing was sent to them.',
+    });
     const holder = await holderOf(sample, holderId);
     expect(holder.holder).toMatchObject({
       role: 'vendor',
@@ -331,6 +447,7 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
     });
     forgetArrival(holderId);
   });
+
   it('failed for now: the dialog stays open with what was typed and says nothing was lost', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
@@ -361,72 +478,124 @@ describe('SA-16 Register a <role> (B7-08 f6)', () => {
   });
 });
 
-describe('SA-17 Role holder (B7-08 f1, f2; B7-10 f10)', () => {
-  it('no scope: the notice, the role’s line, the facts, the sign-in note and the history', async () => {
+describe('SA-17 Role holder (SA-v1 `V.holder`)', () => {
+  it('no scope: the crumbs, the head, the notice, the role’s line, the facts, the sign-in note, the history and the panel', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, IYER);
     const title = await heading('Dr K. Iyer');
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(title).toHaveAttribute('id', 'role-holder-title');
-    expect(main().querySelector('a.xr-back')).toHaveAttribute('href', ROLES);
-    expect(text(main().querySelector('.xr-overline'))).toBe(
-      'Academic Reviewer · BITS Pilani · WILP',
+    expect(title).toHaveAttribute('tabindex', '-1');
+    expect(title).toHaveClass('rk-title');
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(
+      within(crumbs)
+        .getAllByRole('link')
+        .map((link) => [text(link), link.getAttribute('href')]),
+    ).toEqual([
+      ['Platform roles', ROLES],
+      ['Reviewers', `${ROLES}?tab=reviewers`],
+    ]);
+    expect(crumbs.querySelector('[aria-current="page"]')).toHaveTextContent('Dr K. Iyer');
+    expect(text(main().querySelector('.rk-head .rk-eyebrow'))).toBe('Academic Reviewer');
+    expect(text(main().querySelector('.rk-head .rk-meta'))).toBe(
+      'No scope BITS Pilani · WILP Registered 20 Oct 2026',
     );
-    expect(topTitle()).toBe('Platform roles');
-    expect(crumbs()).toMatch(/Platform roles\s*\/\s*Dr K\. Iyer/);
-    expect(screen.getByRole('button', { name: 'Assign scope' })).toHaveClass('xr-btn--primary');
-    expect(text(main().querySelector('.xr-notice--warn'))).toBe(
+    expect(main().querySelector('.rk-meta .xr-st.xr-st--warn.rk-st-lg')).not.toBeNull();
+    expect(screen.getByRole('link', { name: 'Go to assign scope' })).toHaveAttribute(
+      'href',
+      '#assign-scope',
+    );
+    expect(text(main().querySelector('.rk-notice--warn'))).toBe(
       'No scope — can’t act on anything yet Assign a scope so they can act: all experiments, a course, or one experiment.',
     );
-    const canActOn = screen.getByRole('region', { name: 'Can act on' });
-    expect(text(canActOn.querySelector('p.xr-body'))).toBe(
-      'Their review queue is empty — nothing is in scope. Submissions for courses nobody reviews get stuck.',
+    expect(effect()).toBe(
+      'Their review queue is empty. Nothing is in scope, and submissions for courses nobody reviews get stuck.',
     );
-    expect(within(canActOn).queryByRole('list')).toBeNull();
-    const facts = screen.getByRole('region', { name: 'Role holder' });
-    expect(text(facts.querySelector('dl.xl-kv.xv-kv'))).toBe(
-      'Role Academic Reviewer Organisation BITS Pilani · WILP Work e-mail k.iyer@wilp.example Registered 20 Oct 2026 · by Arjun Mehta',
+    expect(within(region('Can act on')).queryByRole('list')).toBeNull();
+    expect(screen.queryByRole('region', { name: 'Withdrawn' })).toBeNull();
+    const facts = region('Role holder');
+    expect(text(facts.querySelector('dl.rk-dl'))).toBe(
+      'Role Academic Reviewer Organisation BITS Pilani · WILP Work e-mail k.iyer@wilp.example Registered 20 Oct 2026',
     );
-    expect(text(facts.querySelector('p.xl-meta'))).toBe(
-      'How they first sign in is still open — nothing is sent from here.',
+    expect(text(facts.querySelector('p.rk-hint'))).toBe(
+      'How they first sign in is still open. Nothing is sent from here.',
     );
-    const history = screen.getByRole('region', { name: 'History' });
-    expect(text(history.querySelector('.xr-section-head .xr-meta'))).toBe('Newest first');
+    const history = region('History');
+    expect(text(history.querySelector('.rk-sec-h p'))).toBe('Newest first');
     expect(historyWhat()).toEqual(['Registered as Academic Reviewer']);
     expect(historyNotes()).toEqual(['Arjun Mehta · no scope yet']);
-    expect(text(history.querySelector('.xr-tl-when'))).toBe('20 Oct 2026');
-    expect(flash()).toBe('');
+    expect(text(history.querySelector('.rk-tl-t'))).toBe('20 Oct 2026');
+    // The Assign scope panel beside the record.
+    const aside = panel();
+    expect(aside).toHaveAttribute('id', 'assign-scope');
+    const group = within(aside).getByRole('group', { name: 'What can they act on?' });
+    expect(
+      within(group)
+        .getAllByRole('radio')
+        .map((radio) => [
+          radio.getAttribute('aria-describedby') && radio.id,
+          text(radio.closest('label')),
+        ]),
+    ).toEqual([
+      ['assign-kind-all', 'All experiments Everything on the platform, now and later.'],
+      ['assign-kind-course', 'A course Every experiment in one course.'],
+      ['assign-kind-experiment', 'One experiment Only the experiment you choose.'],
+    ]);
+    expect(assignButton()).toHaveClass('rb-btn', 'rb-btn--primary', 'rk-go');
+    expect(text(aside.querySelector('.rk-panel-body > p.rk-hint'))).toBe(
+      'Scope decides what appears in their workspace. It doesn’t change their role.',
+    );
+    expect(main().querySelector('#role-holder-flash')).toBeNull();
     expect(main().textContent).not.toMatch(/T-11/);
+    expectNoInternalReferences();
   });
 
   it('opened straight after Register: the flash, and focus on the name', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
-    noteArrival(
-      IYER,
-      'Dr K. Iyer is registered as Academic Reviewer. They have no scope yet — assign one so they can act. Nothing is sent from here.',
-    );
+    noteArrival(IYER, {
+      title: 'Dr K. Iyer is registered as Academic Reviewer.',
+      line: 'Assign what they can act on. Nothing was sent to them.',
+    });
     showHolder(runtime, IYER);
     const title = await heading('Dr K. Iyer');
     expect(flash()).toBe(
-      'Dr K. Iyer is registered as Academic Reviewer. They have no scope yet — assign one so they can act. Nothing is sent from here.',
+      'Dr K. Iyer is registered as Academic Reviewer. Assign what they can act on. Nothing was sent to them.',
     );
+    expect(main().querySelector('#role-holder-flash')).toHaveClass('rk-notice', 'rk-notice--ok');
     await waitFor(() => expect(title).toHaveFocus());
     // Shown once: a later visit has no flash.
     expect(arrivalFor(IYER)).toBeNull();
   });
 
-  it('an address that names no holder is the in-shell not-found page', async () => {
+  it('an address that names no holder is the GL-04 message in place', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, 'role-nobody');
     expect(
-      await screen.findByRole('heading', { level: 1, name: 'We can’t find that page' }),
+      await screen.findByRole('heading', { level: 1, name: 'This page isn’t available' }),
     ).toBeVisible();
-    expect(topTitle()).not.toBe('role-nobody');
+    expect(screen.getByRole('link', { name: 'Back to Overview' })).toHaveAttribute(
+      'href',
+      '/admin',
+    );
+    expect(main().textContent).not.toMatch(/role-nobody/);
+  });
+
+  it('loading, then failed for now: Try again reads again', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    faults(sample).failNext('PlatformRoleService.getHolder' as never);
+    showHolder(runtime, IYER);
+    expect(await screen.findByText('Loading the role holder')).toHaveClass('rk-loading-msg');
+    expect(await screen.findByText('We couldn’t load this role holder')).toBeVisible();
+    expect(screen.getByText('Nothing has changed. Try again.')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await heading('Dr K. Iyer')).toBeVisible();
   });
 });
 
-describe('SA-17 Assign scope (B7-08 f5)', () => {
-  it('what, then the course; assigned: the flash, the scope and history — SUB-0085 is no longer stuck and is in his queue', async () => {
+describe('SA-17 Assign scope (the panel)', () => {
+  it('what, then the course; the summary and the fields; assigned: the flash, the scope and history — SUB-0085 is no longer stuck and is in his queue', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, IYER);
@@ -437,25 +606,25 @@ describe('SA-17 Assign scope (B7-08 f5)', () => {
     } as never);
     expect(before.ok && before.value.stuck).toBe(true);
 
-    await user.click(screen.getByRole('button', { name: 'Assign scope' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Assign scope to Dr K. Iyer' });
-    expect(text(dialog.querySelector('.xr-dialog-body > p'))).toBe(
-      'Scope decides what Dr K. Iyer sees and can act on. Sees submissions and updates for these in the review queue the scope you choose.',
-    );
-    const group = within(dialog).getByRole('group', { name: 'What can they act on?' });
-    expect(
-      within(group)
-        .getAllByRole('radio')
-        .map((radio) => radio.closest('label')?.querySelector('.xr-choice-title')?.textContent),
-    ).toEqual(['All experiments', 'A course', 'One experiment']);
-    expect(within(group).getByRole('radio', { name: /All experiments/ })).toHaveFocus();
-    // Nothing chosen: “Choose what they can act on”.
-    await user.click(within(dialog).getByRole('button', { name: 'Assign scope' }));
-    expect(text(group.querySelector('.xr-error'))).toBe('Choose what they can act on');
-    // A course, but none picked (f5).
-    await user.click(within(group).getByRole('radio', { name: /A course/ }));
-    expect(group.querySelector('.xr-error')).toBeNull();
-    const course = within(dialog).getByRole('combobox', { name: 'Course' });
+    // Nothing chosen: “Choose what they can act on”, in the summary (which takes focus) and under
+    // the choices.
+    await user.click(assignButton());
+    const summary = await within(panel()).findByRole('alert');
+    expect(summary).toHaveClass('rk-errsum');
+    expect(text(summary)).toBe('Check the scope Choose what they can act on');
+    await waitFor(() => expect(summary).toHaveFocus());
+    const group = within(panel()).getByRole('group', { name: 'What can they act on?' });
+    expect(group).toHaveClass('rk-fieldset', 'is-invalid');
+    expect(text(group.querySelector('.rk-ferr'))).toBe('Choose what they can act on');
+    // The summary's link takes focus to the choices.
+    await user.click(within(summary).getByRole('link', { name: 'Choose what they can act on' }));
+    expect(within(group).getByRole('radio', { name: 'All experiments' })).toHaveFocus();
+
+    // A course, but none picked.
+    await user.click(within(group).getByRole('radio', { name: 'A course' }));
+    expect(group.querySelector('.rk-ferr')).toBeNull();
+    expect(within(panel()).queryByRole('alert')).toBeNull();
+    const course = within(panel()).getByRole('combobox', { name: 'Course' });
     expect([...course.querySelectorAll('option')].map((option) => option.textContent)).toEqual([
       'Choose a course',
       'ME ZG523 · Thermodynamics & Heat Transfer',
@@ -465,26 +634,35 @@ describe('SA-17 Assign scope (B7-08 f5)', () => {
       'EEE ZG512 · Power Electronics',
       'CHE ZG513 · Process Instrumentation & Control',
     ]);
-    await user.click(within(dialog).getByRole('button', { name: 'Assign scope' }));
-    expect(text(dialog.querySelector('.xr-field .xr-error'))).toBe('Choose a course');
-    await waitFor(() => expect(course).toHaveFocus());
+    await user.click(assignButton());
+    expect(text(within(panel()).getByRole('alert'))).toBe('Check the scope Choose a course');
+    expect(text(course.closest('.rk-field')!.querySelector('.rk-ferr'))).toBe('Choose a course');
     expect(course).toHaveAttribute('aria-invalid', 'true');
+    await user.click(within(panel()).getByRole('link', { name: 'Choose a course' }));
+    expect(course).toHaveFocus();
     await user.selectOptions(course, 'EEE ZC341 · Electrical Machines');
-    await user.click(within(dialog).getByRole('button', { name: 'Assign scope' }));
+    await user.click(assignButton());
 
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(flash()).toBe('Dr K. Iyer can now act on EEE ZC341.');
-    await waitFor(() => expect(main().querySelector('p.xa-save')).toHaveFocus());
-    expect(main().querySelector('.xr-notice--warn')).toBeNull();
-    expect(scopeRows('Scope')).toEqual(['EEE ZC341 · Electrical Machines Since 23 Oct 2026']);
-    expect(
-      text(screen.getByRole('region', { name: 'Can act on' }).querySelector('p.xr-body')),
-    ).toBe('Sees submissions and updates for these in the review queue: EEE ZC341.');
-    expect(historyWhat()).toEqual([
-      'Scope assigned — EEE ZC341',
-      'Registered as Academic Reviewer',
-    ]);
+    await waitFor(() =>
+      expect(flash()).toBe('Scope assigned: EEE ZC341. It now appears in their workspace.'),
+    );
+    await waitFor(() => expect(main().querySelector('#role-holder-flash')).toHaveFocus());
+    expect(main().querySelector('.rk-notice--warn')).toBeNull();
+    await waitFor(() =>
+      expect(scopeRows('Can act on')).toEqual([
+        'EEE ZC341 Electrical Machines Assigned 23 Oct 2026',
+      ]),
+    );
+    expect(region('Can act on').querySelector('.sa-scope-t .rk-code')).toHaveTextContent(
+      'EEE ZC341',
+    );
+    expect(effect()).toBe('Sees submissions and updates for these in the review queue: EEE ZC341.');
+    expect(text(main().querySelector('.rk-head .rk-meta'))).toMatch(/^Has scope /);
+    expect(historyWhat()).toEqual(['Scope assigned: EEE ZC341', 'Registered as Academic Reviewer']);
     expect(historyNotes()).toEqual(['Arjun Mehta', 'Arjun Mehta · no scope yet']);
+    // The panel starts again.
+    expect(within(panel()).queryByRole('combobox')).toBeNull();
+    expect(within(panel()).getByRole('radio', { name: 'A course' })).not.toBeChecked();
     // Straight away, in the same world: not stuck, and in Dr K. Iyer's queue.
     const after = await asPersonId(sample, SUPER_ADMIN).production.getContentRecord({
       kind: 'SUB',
@@ -500,38 +678,40 @@ describe('SA-17 Assign scope (B7-08 f5)', () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, MENON);
     await heading('Prof. A. Menon');
-    await user.click(screen.getByRole('button', { name: 'Assign scope' }));
-    let dialog = await screen.findByRole('dialog', { name: 'Assign scope to Prof. A. Menon' });
-    await user.click(within(dialog).getByRole('radio', { name: /A course/ }));
-    const course = within(dialog).getByRole('combobox', { name: 'Course' });
+    await user.click(within(panel()).getByRole('radio', { name: 'A course' }));
+    const course = within(panel()).getByRole('combobox', { name: 'Course' });
     // (by value: user-event compares an option's `innerHTML`, where “&” is “&amp;”).
     await user.selectOptions(course, 'thermodynamics-heat-transfer');
-    await user.click(within(dialog).getByRole('button', { name: 'Assign scope' }));
+    await user.click(assignButton());
     await waitFor(() =>
-      expect(text(dialog.querySelector('.xr-field .xr-error'))).toBe(
+      expect(text(course.closest('.rk-field')!.querySelector('.rk-ferr'))).toBe(
         'ME ZG523 is already in scope',
       ),
     );
+    expect(text(within(panel()).getByRole('alert'))).toBe(
+      'Check the scope ME ZG523 is already in scope',
+    );
     // One experiment: the published catalogue, “<name> · <code>”.
-    await user.click(within(dialog).getByRole('radio', { name: /One experiment/ }));
-    const experiment = within(dialog).getByRole('combobox', { name: 'Experiment' });
+    await user.click(within(panel()).getByRole('radio', { name: 'One experiment' }));
+    const experiment = within(panel()).getByRole('combobox', { name: 'Experiment' });
     expect(experiment.querySelectorAll('option')).toHaveLength(14);
     expect(experiment.querySelectorAll('option')[10]).toHaveTextContent(
       'Distillation Column · CHE ZG513',
     );
-    await user.click(within(dialog).getByRole('button', { name: 'Assign scope' }));
-    expect(text(dialog.querySelector('.xr-field .xr-error'))).toBe('Choose an experiment');
+    await user.click(assignButton());
+    expect(text(experiment.closest('.rk-field')!.querySelector('.rk-ferr'))).toBe(
+      'Choose an experiment',
+    );
     await user.selectOptions(experiment, 'Synchronous Generator · EEE ZC341');
-    await user.click(within(dialog).getByRole('button', { name: 'Assign scope' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(flash()).toBe('Prof. A. Menon can now act on Synchronous Generator.');
-    expect(scopeRows('Scope').at(-1)).toBe('Synchronous Generator (experiment) Since 23 Oct 2026');
-    // Cancel closes and assigns nothing.
-    await user.click(screen.getByRole('button', { name: 'Assign scope' }));
-    dialog = await screen.findByRole('dialog', { name: 'Assign scope to Prof. A. Menon' });
-    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(screen.getByRole('button', { name: 'Assign scope' })).toHaveFocus();
+    await user.click(assignButton());
+    await waitFor(() =>
+      expect(flash()).toBe(
+        'Scope assigned: Synchronous Generator. It now appears in their workspace.',
+      ),
+    );
+    await waitFor(() =>
+      expect(scopeRows('Can act on').at(-1)).toBe('Synchronous Generator Assigned 23 Oct 2026'),
+    );
   });
 
   it('a Vendor given All experiments: shown as held, its meaning for a Vendor open (ROLE-11)', async () => {
@@ -539,62 +719,105 @@ describe('SA-17 Assign scope (B7-08 f5)', () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, ANIL);
     await heading('Anil Shetty');
-    await user.click(screen.getByRole('button', { name: 'Assign scope' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Assign scope to Anil Shetty' });
-    expect(text(dialog.querySelector('.xr-dialog-body > p'))).toBe(
-      'Scope decides what Anil Shetty sees and can act on. Can create experiments and submit them for the scope you choose.',
+    await user.click(within(panel()).getByRole('radio', { name: 'All experiments' }));
+    await user.click(assignButton());
+    await waitFor(() =>
+      expect(flash()).toBe('Scope assigned: All experiments. It now appears in their workspace.'),
     );
-    await user.click(within(dialog).getByRole('radio', { name: /All experiments/ }));
-    await user.click(within(dialog).getByRole('button', { name: 'Assign scope' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(flash()).toBe('Anil Shetty can now act on All experiments.');
-    expect(scopeRows('Scope')).toEqual([
-      'ME ZG523 · Thermodynamics & Heat Transfer Since 4 Jul 2026',
-      'All experiments Since 23 Oct 2026',
-    ]);
-    expect(
-      text(screen.getByRole('region', { name: 'Can act on' }).querySelector('p.xr-body')),
-    ).toBe(
+    await waitFor(() =>
+      expect(scopeRows('Can act on')).toEqual([
+        'ME ZG523 Thermodynamics & Heat Transfer Assigned 4 Jul 2026',
+        'All experiments Assigned 23 Oct 2026',
+      ]),
+    );
+    expect(effect()).toBe(
       'Can create experiments and submit them for: ME ZG523. What “All experiments” or one experiment lets a Vendor do isn’t decided yet.',
     );
   });
+
+  it('failed for now: the panel keeps the choice and says nothing was changed', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    showHolder(runtime, IYER);
+    await heading('Dr K. Iyer');
+    await user.click(within(panel()).getByRole('radio', { name: 'All experiments' }));
+    faults(sample).failNext('PlatformRoleService.assignScope' as never);
+    await user.click(assignButton());
+    expect(await within(panel()).findByText('Nothing was changed. Try again.')).toBeVisible();
+    expect(within(panel()).getByRole('radio', { name: 'All experiments' })).toBeChecked();
+    expect((await holderOf(sample, IYER)).scopes).toEqual([]);
+  });
+
+  it('changed since the page read it: nothing is assigned, the holder is read again, the refusal in the panel takes focus', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    showHolder(runtime, IYER);
+    await heading('Dr K. Iyer');
+    await user.click(within(panel()).getByRole('radio', { name: 'All experiments' }));
+    // Meanwhile, in another tab, the Super Admin assigned him a course (the revision moved on).
+    const iyer = await holderOf(sample, IYER);
+    const assigned = await asPersonId(sample, SUPER_ADMIN).platformRoles.assignScope({
+      holderId: IYER as never,
+      target: { kind: 'course', courseId: 'electrical-machines' as never },
+      expectedRev: iyer.holder.rev,
+    });
+    expect(assigned.ok).toBe(true);
+    await user.click(assignButton());
+    const notice = await within(panel()).findByRole('alert');
+    expect(text(notice)).toBe(
+      'This role holder changed since you opened it It has been read again. Check it, then try again.',
+    );
+    await waitFor(() => expect(notice).toHaveFocus());
+    await waitFor(() =>
+      expect(scopeRows('Can act on')).toEqual([
+        'EEE ZC341 Electrical Machines Assigned 23 Oct 2026',
+      ]),
+    );
+    const after = await holderOf(sample, IYER);
+    expect(after.scopes).toHaveLength(1);
+  });
 });
 
-describe('SA-17 Withdraw (B7-08 f4; B7-10 f11) and Restore (f8)', () => {
-  it('a reason is required, inline beside the scope; withdrawn, it moves to Withdrawn, newest first', async () => {
+describe('SA-17 Withdraw (inline, a reason required) and Restore (a confirmation)', () => {
+  it('a reason is required, inline below the scope; withdrawn, it moves to Withdrawn, newest first', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, ANIL);
     await heading('Anil Shetty');
-    expect(
-      text(screen.getByRole('region', { name: 'Can act on' }).querySelector('p.xr-body')),
-    ).toBe('Can create experiments and submit them for: ME ZG523.');
-    expect(scopeRows('Scope')).toEqual([
-      'ME ZG523 · Thermodynamics & Heat Transfer Since 4 Jul 2026',
+    expect(effect()).toBe('Can create experiments and submit them for: ME ZG523.');
+    expect(scopeRows('Can act on')).toEqual([
+      'ME ZG523 Thermodynamics & Heat Transfer Assigned 4 Jul 2026',
     ]);
-    expect(scopeRows('Withdrawn scope')).toEqual([
-      'MEL ZG512 · Manufacturing Processes Withdrawn 15 Aug 2026 · “Manufacturing Processes content is being produced in-house this term.”',
+    expect(scopeRows('Withdrawn')).toEqual([
+      'MEL ZG512 Manufacturing Processes Withdrawn 15 Aug 2026 · “Manufacturing Processes content is being produced in-house this term.”',
     ]);
-    expect(historyWhat()).toEqual(['Scope withdrawn — MEL ZG512', 'Registered as Vendor']);
+    expect(historyWhat()).toEqual(['Scope withdrawn: MEL ZG512', 'Registered as Vendor']);
     expect(historyNotes()).toEqual([
       '“Manufacturing Processes content is being produced in-house this term.” · Arjun Mehta',
       'Arjun Mehta · scope ME ZG523, MEL ZG512',
     ]);
     const withdraw = screen.getByRole('button', {
-      name: 'Withdraw ME ZG523 · Thermodynamics & Heat Transfer',
+      name: 'Withdraw scope ME ZG523 · Thermodynamics & Heat Transfer',
     });
-    expect(withdraw).toHaveClass('xr-btn--text', 'xg-del');
+    expect(withdraw).toHaveClass('rb-btn', 'rb-btn--ghost');
+    expect(withdraw).toHaveTextContent('Withdraw');
     await user.click(withdraw);
     const reason = await screen.findByRole('textbox', {
-      name: 'Reason for withdrawing ME ZG523 · Thermodynamics & Heat Transfer',
+      name: 'Reason for withdrawing ME ZG523',
     });
     await waitFor(() => expect(reason).toHaveFocus());
-    expect(reason.closest('.xw-inline-panel')).not.toBeNull();
+    expect(reason.closest('.sa-inline')?.parentElement?.tagName).toBe('LI');
+    expect(reason).toHaveAccessibleDescription('Kept with the scope in the history.');
+    // The row's own button is gone while the form is open.
     expect(
-      screen.getByText('Kept in the history. They stop seeing it straight away.'),
-    ).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Withdraw scope' }));
-    expect(text(reason.closest('.xr-field')!.querySelector('.xr-error'))).toBe(
+      screen.queryByRole('button', {
+        name: 'Withdraw scope ME ZG523 · Thermodynamics & Heat Transfer',
+      }),
+    ).toBeNull();
+    const confirm = screen.getByRole('button', { name: 'Withdraw scope' });
+    expect(confirm).toHaveClass('rb-btn--navy');
+    await user.click(confirm);
+    expect(text(reason.closest('.rk-field')!.querySelector('.rk-ferr'))).toBe(
       'Add a reason — it is kept in the history',
     );
     expect(reason).toHaveAttribute('aria-invalid', 'true');
@@ -603,11 +826,15 @@ describe('SA-17 Withdraw (B7-08 f4; B7-10 f11) and Restore (f8)', () => {
     await user.click(screen.getByRole('button', { name: 'Cancel' }));
     await waitFor(() =>
       expect(
-        screen.getByRole('button', { name: 'Withdraw ME ZG523 · Thermodynamics & Heat Transfer' }),
+        screen.getByRole('button', {
+          name: 'Withdraw scope ME ZG523 · Thermodynamics & Heat Transfer',
+        }),
       ).toHaveFocus(),
     );
     await user.click(
-      screen.getByRole('button', { name: 'Withdraw ME ZG523 · Thermodynamics & Heat Transfer' }),
+      screen.getByRole('button', {
+        name: 'Withdraw scope ME ZG523 · Thermodynamics & Heat Transfer',
+      }),
     );
     await user.type(
       await screen.findByRole('textbox', { name: /Reason for withdrawing/ }),
@@ -615,23 +842,23 @@ describe('SA-17 Withdraw (B7-08 f4; B7-10 f11) and Restore (f8)', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Withdraw scope' }));
     await waitFor(() =>
-      expect(flash()).toBe('ME ZG523 withdrawn. Anil Shetty can no longer act on it.'),
+      expect(flash()).toBe('Scope withdrawn: ME ZG523. The reason is kept with the scope.'),
     );
-    expect(within(main()).queryByRole('list', { name: 'Scope' })).toBeNull();
-    expect(text(main().querySelector('.xr-notice--warn'))).toMatch(
+    await waitFor(() => expect(main().querySelector('#role-holder-flash')).toHaveFocus());
+    await waitFor(() => expect(within(region('Can act on')).queryByRole('list')).toBeNull());
+    expect(text(main().querySelector('.rk-notice--warn'))).toMatch(
       /^No scope — can’t act on anything yet/,
     );
-    expect(
-      text(screen.getByRole('region', { name: 'Can act on' }).querySelector('p.xr-body')),
-    ).toBe('Can’t create or submit experiments yet — nothing is in scope.');
-    expect(scopeRows('Withdrawn scope')).toEqual([
-      'ME ZG523 · Thermodynamics & Heat Transfer Withdrawn 23 Oct 2026 · “Thermodynamics content moves to the in-house team.”',
-      'MEL ZG512 · Manufacturing Processes Withdrawn 15 Aug 2026 · “Manufacturing Processes content is being produced in-house this term.”',
+    expect(effect()).toBe('Can’t create or submit experiments yet. Nothing is in scope.');
+    expect(scopeRows('Withdrawn')).toEqual([
+      'ME ZG523 Thermodynamics & Heat Transfer Withdrawn 23 Oct 2026 · “Thermodynamics content moves to the in-house team.”',
+      'MEL ZG512 Manufacturing Processes Withdrawn 15 Aug 2026 · “Manufacturing Processes content is being produced in-house this term.”',
     ]);
-    expect(historyWhat()[0]).toBe('Scope withdrawn — ME ZG523');
+    expect(historyWhat()[0]).toBe('Scope withdrawn: ME ZG523');
     expect(historyNotes()[0]).toBe(
       '“Thermodynamics content moves to the in-house team.” · Arjun Mehta',
     );
+    expectNoInternalReferences();
   });
 
   it('withdrawn, the reviewer stops seeing it straight away; restored (no reason asked), it is back', async () => {
@@ -645,80 +872,112 @@ describe('SA-17 Withdraw (B7-08 f4; B7-10 f11) and Restore (f8)', () => {
     ]);
     await user.click(
       screen.getByRole('button', {
-        name: 'Withdraw CHE ZG513 · Process Instrumentation & Control',
+        name: 'Withdraw scope CHE ZG513 · Process Instrumentation & Control',
       }),
     );
     await user.type(
-      await screen.findByRole('textbox', { name: /Reason for withdrawing CHE ZG513/ }),
+      await screen.findByRole('textbox', { name: 'Reason for withdrawing CHE ZG513' }),
       'Process control reviews move to the chemical faculty.',
     );
     await user.click(screen.getByRole('button', { name: 'Withdraw scope' }));
     await waitFor(() =>
-      expect(flash()).toBe('CHE ZG513 withdrawn. Prof. A. Menon can no longer act on it.'),
+      expect(flash()).toBe('Scope withdrawn: CHE ZG513. The reason is kept with the scope.'),
     );
     expect(await queueOf(sample, MENON_PERSON)).toEqual([]);
 
-    // f8: Restore asks no reason — one confirmation, inline.
-    await user.click(
-      screen.getByRole('button', { name: 'Restore CHE ZG513 · Process Instrumentation & Control' }),
+    // Restore asks no reason — one confirmation, focus on its button.
+    const restore = await screen.findByRole('button', {
+      name: 'Restore scope CHE ZG513 · Process Instrumentation & Control',
+    });
+    expect(restore).toHaveClass('rb-btn');
+    expect(restore).toHaveTextContent('Restore');
+    await user.click(restore);
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Restore CHE ZG513 for Prof. A. Menon?',
+    });
+    expect(dialog).toHaveAccessibleDescription(
+      'The same scope comes back. No reason is asked; the earlier withdrawal stays in the history.',
     );
-    const confirm = await screen.findByRole('button', { name: 'Restore scope' });
+    const confirm = within(dialog).getByRole('button', { name: 'Restore scope' });
     await waitFor(() => expect(confirm).toHaveFocus());
-    expect(confirm).toHaveClass('xr-btn--primary', 'xr-btn--sm');
-    expect(text(confirm.closest('.xw-inline-panel')!.querySelector('p'))).toBe(
-      'Restore CHE ZG513 · Process Instrumentation & Control? They can act on it again straight away.',
-    );
-    expect(confirm.closest('.xw-inline-panel')!.querySelector('textarea')).toBeNull();
+    expect(confirm).toHaveClass('rb-btn--primary', 'rb-btn--lg');
+    expect(dialog.querySelector('textarea')).toBeNull();
     await user.click(confirm);
-    await waitFor(() =>
-      expect(flash()).toBe('CHE ZG513 restored. Prof. A. Menon can act on it again.'),
-    );
+    await waitFor(() => expect(flash()).toBe('Scope restored: CHE ZG513.'));
+    await waitFor(() => expect(main().querySelector('#role-holder-flash')).toHaveFocus());
     expect(await queueOf(sample, MENON_PERSON)).toEqual([
       'SUB-0086 CHE ZG513',
       'SUB-0071 CHE ZG513',
     ]);
-    expect(scopeRows('Scope')).toEqual([
-      'ME ZG523 · Thermodynamics & Heat Transfer Since 2 Jun 2026',
-      'MEL ZG512 · Manufacturing Processes Since 2 Jun 2026',
-      'CHE ZG513 · Process Instrumentation & Control Since 23 Oct 2026',
-    ]);
-    expect(scopeRows('Withdrawn scope')).toEqual([
-      'EEE ZC341 · Electrical Machines Withdrawn 1 Oct 2026 · “Electrical Machines reviews move to a reviewer from the electrical faculty.”',
+    await waitFor(() =>
+      expect(scopeRows('Can act on')).toEqual([
+        'ME ZG523 Thermodynamics & Heat Transfer Assigned 2 Jun 2026',
+        'MEL ZG512 Manufacturing Processes Assigned 2 Jun 2026',
+        'CHE ZG513 Process Instrumentation & Control Assigned 23 Oct 2026',
+      ]),
+    );
+    expect(scopeRows('Withdrawn')).toEqual([
+      'EEE ZC341 Electrical Machines Withdrawn 1 Oct 2026 · “Electrical Machines reviews move to a reviewer from the electrical faculty.”',
     ]);
     expect(historyWhat()).toEqual([
-      'Scope restored — CHE ZG513',
-      'Scope withdrawn — CHE ZG513',
-      'Scope withdrawn — EEE ZC341',
+      'Scope restored: CHE ZG513',
+      'Scope withdrawn: CHE ZG513',
+      'Scope withdrawn: EEE ZC341',
       'Registered as Academic Reviewer',
     ]);
   });
 
-  it('EEE ZC341 restored for Prof. A. Menon (f8): SUB-0085 can be reviewed again', async () => {
+  it('EEE ZC341 restored for Prof. A. Menon: SUB-0085 can be reviewed again; Cancel restores nothing', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    showHolder(runtime, MENON);
+    await heading('Prof. A. Menon');
+    const restore = screen.getByRole('button', {
+      name: 'Restore scope EEE ZC341 · Electrical Machines',
+    });
+    await user.click(restore);
+    let dialog = await screen.findByRole('dialog', {
+      name: 'Restore EEE ZC341 for Prof. A. Menon?',
+    });
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(restore).toHaveFocus();
+    expect(await queueOf(sample, MENON_PERSON)).not.toContain('SUB-0085 EEE ZC341');
+    await user.click(restore);
+    dialog = await screen.findByRole('dialog', { name: 'Restore EEE ZC341 for Prof. A. Menon?' });
+    await user.click(within(dialog).getByRole('button', { name: 'Restore scope' }));
+    await waitFor(() => expect(flash()).toBe('Scope restored: EEE ZC341.'));
+    expect(await queueOf(sample, MENON_PERSON)).toContain('SUB-0085 EEE ZC341');
+    await waitFor(() => expect(screen.queryByRole('region', { name: 'Withdrawn' })).toBeNull());
+  });
+
+  it('restore failed for now: the confirmation stays open and says nothing was changed', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, MENON);
     await heading('Prof. A. Menon');
     await user.click(
-      screen.getByRole('button', { name: 'Restore EEE ZC341 · Electrical Machines' }),
+      screen.getByRole('button', { name: 'Restore scope EEE ZC341 · Electrical Machines' }),
     );
-    await user.click(await screen.findByRole('button', { name: 'Restore scope' }));
-    await waitFor(() =>
-      expect(flash()).toBe('EEE ZC341 restored. Prof. A. Menon can act on it again.'),
-    );
-    expect(await queueOf(sample, MENON_PERSON)).toContain('SUB-0085 EEE ZC341');
-    expect(within(main()).queryByRole('heading', { level: 3, name: 'Withdrawn' })).toBeNull();
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Restore EEE ZC341 for Prof. A. Menon?',
+    });
+    faults(sample).failNext('PlatformRoleService.restoreScope' as never);
+    await user.click(within(dialog).getByRole('button', { name: 'Restore scope' }));
+    expect(await within(dialog).findByText('Nothing was changed. Try again.')).toBeVisible();
+    expect(await queueOf(sample, MENON_PERSON)).not.toContain('SUB-0085 EEE ZC341');
   });
 
-  it('changed since the panel opened: nothing is withdrawn, the holder is read again, the notice takes focus', async () => {
+  it('changed since the form opened: nothing is withdrawn, the holder is read again, the refusal in the panel takes focus', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, RITU);
     await heading('Ritu Sharma');
     await user.click(
-      screen.getByRole('button', { name: 'Withdraw EEE ZC341 · Electrical Machines' }),
+      screen.getByRole('button', { name: 'Withdraw scope EEE ZC341 · Electrical Machines' }),
     );
     await user.type(
-      await screen.findByRole('textbox', { name: /Reason for withdrawing EEE ZC341/ }),
+      await screen.findByRole('textbox', { name: 'Reason for withdrawing EEE ZC341' }),
       'Electrical content is paused this term.',
     );
     // Meanwhile, in another tab, the Super Admin assigned her a course (the revision moved on).
@@ -731,40 +990,39 @@ describe('SA-17 Withdraw (B7-08 f4; B7-10 f11) and Restore (f8)', () => {
     });
     expect(assigned.ok).toBe(true);
     await user.click(screen.getByRole('button', { name: 'Withdraw scope' }));
-    const notice = await screen.findByRole('alert');
+    const notice = await within(panel()).findByRole('alert');
     expect(text(notice)).toBe(
       'This role holder changed since you opened it It has been read again. Check it, then try again.',
     );
     await waitFor(() => expect(notice).toHaveFocus());
-    expect(main().querySelector('.xw-inline-panel')).toBeNull();
+    expect(main().querySelector('.sa-inline')).toBeNull();
     await waitFor(() =>
-      expect(scopeRows('Scope')).toEqual([
-        'CHE ZG513 · Process Instrumentation & Control Since 1 Aug 2026',
-        'EEE ZC341 · Electrical Machines Since 20 Sep 2026',
-        'EEE ZG512 · Power Electronics Since 23 Oct 2026',
+      expect(scopeRows('Can act on')).toEqual([
+        'CHE ZG513 Process Instrumentation & Control Assigned 1 Aug 2026',
+        'EEE ZC341 Electrical Machines Assigned 20 Sep 2026',
+        'EEE ZG512 Power Electronics Assigned 23 Oct 2026',
       ]),
     );
     const after = await holderOf(sample, RITU);
     expect(after.scopes.every((scope) => scope.status === 'active')).toBe(true);
   });
 
-  it('failed for now: the panel stays open with the reason and says nothing was changed', async () => {
+  it('failed for now: the form stays open with the reason and says nothing was changed', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, KAVYA);
     await heading('Kavya Nair');
-    expect(scopeRows('Scope')).toEqual(['All experiments Since 2 Jun 2026']);
-    expect(
-      text(screen.getByRole('region', { name: 'Can act on' }).querySelector('p.xr-body')),
-    ).toBe('Decides publication and raises corrections for: All experiments.');
-    await user.click(screen.getByRole('button', { name: 'Withdraw All experiments' }));
+    expect(scopeRows('Can act on')).toEqual(['All experiments Assigned 2 Jun 2026']);
+    expect(effect()).toBe('Decides publication and raises corrections for: All experiments.');
+    await user.click(screen.getByRole('button', { name: 'Withdraw scope All experiments' }));
     const reason = await screen.findByRole('textbox', {
       name: 'Reason for withdrawing All experiments',
     });
     await user.type(reason, 'Testing a failure.');
     faults(sample).failNext('PlatformRoleService.withdrawScope' as never);
     await user.click(screen.getByRole('button', { name: 'Withdraw scope' }));
-    expect(await screen.findByText('Nothing was changed. Try again.')).toBeVisible();
+    const failed = await screen.findByText('Nothing was changed. Try again.');
+    expect(failed.closest('.sa-inline')).not.toBeNull();
     expect(reason).toHaveValue('Testing a failure.');
     expect((await holderOf(sample, KAVYA)).scopes[0]!.status).toBe('active');
   });
@@ -810,10 +1068,10 @@ describe('the holder view (pure)', () => {
     view = await holderOf(sample, IYER);
     const lines = historyLines(view.holder, scopeNamings(view));
     expect(lines.map((line) => line.what)).toEqual([
-      'Scope restored — EEE ZC341',
-      'Scope withdrawn — EEE ZC341',
-      'Scope assigned — All experiments',
-      'Scope assigned — EEE ZC341',
+      'Scope restored: EEE ZC341',
+      'Scope withdrawn: EEE ZC341',
+      'Scope assigned: All experiments',
+      'Scope assigned: EEE ZC341',
       'Registered as Academic Reviewer',
     ]);
     expect(lines[1]!.note).toBe('“Moved.” · Arjun Mehta');
@@ -823,7 +1081,7 @@ describe('the holder view (pure)', () => {
   });
 });
 
-describe('the link targets (B7-08)', () => {
+describe('the link targets (SA-v1 LINK-MAP)', () => {
   it('every built link reaches SA-16 or SA-17; each page has one primary', () => {
     for (const entry of P6_PLATFORM_ROLES_LINK_TARGETS) {
       if (entry.outcome !== 'built') continue;

@@ -11,12 +11,13 @@ import { useAppNavigation } from '@/nav/navigation';
 import { recordPageVisit } from '@/nav/page-location';
 import { isFocusedAddress } from '@/nav/routes';
 import { useNavCounts } from '@/queries/nav-counts';
-import { useCurrentSession, useWorkspaceAccess } from '@/queries/session';
+import { useCurrentSession, useSession, useWorkspaceAccess } from '@/queries/session';
 
 import { useMyDeviceEntry } from '../../student/st-18-my-device/device-entry';
 import { DocumentTitle } from '../document-title';
 import { SessionGate, SessionLoading, useSignOut } from '../session-gate/session-gate';
 import { RoleWorkspaceShell } from '../workspace-shell/role-workspace-shell';
+import { V3_SHELL_ROLES, V3RoleShell } from '../workspace-shell/v3-role-shell';
 import type { ShellPerson } from '../xs-05-account-menu/account-menu';
 import { NotYourWorkspace } from '../xs-06-not-your-workspace/not-your-workspace';
 import { useRouteFocus } from './route-focus';
@@ -128,6 +129,8 @@ function FrameShell({
   readonly children?: ReactNode;
 }) {
   const signOut = useSignOut();
+  // Today on the sample clock: the session's sign-in instant (state-copy `SA-01.today`).
+  const snapshot = useSession();
   const { pathname } = useAppNavigation();
   const [placement, setPlacement] = useState<ShellPlacement | null>(null);
   const config = WORKSPACE_NAV[role];
@@ -175,22 +178,37 @@ function FrameShell({
           over "Godavari Institute of Technology"), the record leads. */}
       <DocumentTitle title={placement ? documentWords(placement) : ''} />
       <ShellPlacementContext value={setPlacement}>
-        <RoleWorkspaceShell
-          role={role}
-          person={person}
-          // Before the page registers (the same commit, before paint): nothing current, no title.
-          screen={placement?.screen ?? 'XS-06'}
-          title={placement?.title ?? ''}
-          trail={placement?.trail}
-          currentCrumb={placement?.currentCrumb}
-          wrap="none"
-          banner={bannerKindOf(banners)}
-          deviceEligible={device.offered}
-          counts={counts}
-          onSignOut={signOut}
-        >
-          {own ? children : <NotYourWorkspace />}
-        </RoleWorkspaceShell>
+        {V3_SHELL_ROLES.has(role) ? (
+          // A migrated role: its workspace in the V3 Refined B shell (pack prompt 11).
+          <V3RoleShell
+            role={role}
+            person={person}
+            screen={placement?.screen ?? 'XS-06'}
+            banner={bannerKindOf(banners)}
+            counts={counts}
+            today={snapshot.status === 'signed-in' ? snapshot.signedInAt : null}
+            onSignOut={signOut}
+          >
+            {own ? children : <NotYourWorkspace />}
+          </V3RoleShell>
+        ) : (
+          <RoleWorkspaceShell
+            role={role}
+            person={person}
+            // Before the page registers (the same commit, before paint): nothing current, no title.
+            screen={placement?.screen ?? 'XS-06'}
+            title={placement?.title ?? ''}
+            trail={placement?.trail}
+            currentCrumb={placement?.currentCrumb}
+            wrap="none"
+            banner={bannerKindOf(banners)}
+            deviceEligible={device.offered}
+            counts={counts}
+            onSignOut={signOut}
+          >
+            {own ? children : <NotYourWorkspace />}
+          </RoleWorkspaceShell>
+        )}
       </ShellPlacementContext>
     </WorkspaceIdentityContext>
   );

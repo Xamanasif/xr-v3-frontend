@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-import { Glyph } from './icons.js';
+import { Glyph, type V3IconName } from './icons.js';
 
 export interface CourseCodeProps {
   /** The meaningful academic course code, as given: "ME ZG523". */
@@ -23,11 +23,21 @@ export function InstitutionCode({ code }: { readonly code: string }) {
   return <span className="rk-owncode">{code}</span>;
 }
 
-/** The ivory tag for a missing value (`span.rk-tag-warn`): "Your course code: not added". */
-export function MissingTag({ children }: { readonly children: ReactNode }) {
+/**
+ * The ivory tag for a missing value (`span.rk-tag-warn`): "Your course code: not added" (IA-02,
+ * the warning triangle), "Needs one" (SA-06 without an Institute Admin, the export's person-minus
+ * `userMinus`), "No platform code yet" (SA-14, SA-15: no icon, `icon={null}`).
+ */
+export function MissingTag({
+  icon = 'alertTriangle',
+  children,
+}: {
+  readonly icon?: V3IconName | null;
+  readonly children: ReactNode;
+}) {
   return (
     <span className="rk-tag-warn">
-      <Glyph name="alertTriangle" />
+      {icon ? <Glyph name={icon} /> : null}
       {children}
     </span>
   );

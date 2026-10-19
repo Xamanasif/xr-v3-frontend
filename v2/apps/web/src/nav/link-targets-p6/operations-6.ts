@@ -6,10 +6,9 @@ const SUPPORT = '/admin/operations/support';
 const ACCESS_ENDING = '/admin/operations/access-ending';
 /** SA-21, by report reference: the sample's SUP-0213 stands for any (`expandTarget`'s `{id}`). */
 const REPORT = '/admin/operations/support/{id}';
-const HELP_REPORT = '/admin/help/report';
 
-/** The three Operations tab links of a Phase-6 list (rule T1; B7-09 f4, f7). */
-function operationsTabs(board: string): Parameters<typeof pageRows>[2] {
+/** The three Operations tab links of a Phase-6 list (SA-v1 `opsHead`, LINK-MAP). */
+function operationsTabs(screen: string): Parameters<typeof pageRows>[2] {
   return [
     [
       'Operations tabs',
@@ -17,97 +16,95 @@ function operationsTabs(board: string): Parameters<typeof pageRows>[2] {
       'secondary',
       DEVICE_TRANSFERS,
       'built',
-      `${board} (\`nav.xr-tabs.xr-tabs--on-white\` → B7-09 f0)`,
+      `SA-v1 LINK-MAP ${screen} “Device transfers” (tab → SA-18)`,
     ],
-    ['Operations tabs', 'Support', 'secondary', SUPPORT, 'built', `${board} (→ B7-09 f7)`],
+    [
+      'Operations tabs',
+      'Support',
+      'secondary',
+      SUPPORT,
+      'built',
+      `SA-v1 LINK-MAP ${screen} “Support” (tab → SA-20)`,
+    ],
     [
       'Operations tabs',
       'Access ending',
       'secondary',
       ACCESS_ENDING,
       'built',
-      `${board} (→ B7-09 f4)`,
-    ],
-    [
-      'Top-bar crumb (from 1024 px)',
-      'Operations',
-      'secondary',
-      DEVICE_TRANSFERS,
-      'built',
-      `${board} (\`ol.xr-crumbs\`)`,
+      `SA-v1 LINK-MAP ${screen} “Access ending” (tab → SA-22)`,
     ],
   ];
 }
 
-/** Board 04's failed state on a Phase-6 Operations page (no board draws it). */
-function failedRows(id: string): Parameters<typeof pageRows>[2] {
+/** The kit's failed state on a Phase-6 Operations page. */
+function failedRow(id: string): Parameters<typeof pageRows>[2][number] {
   return [
-    [
-      'Failed state',
-      'Try again',
-      'secondary',
-      null,
-      'in-page',
-      `Board 04 "State grammar" Failed + retry (B7-09 draws no failed page; state-copy ${id}.failed)`,
-    ],
-    [
-      'Failed state',
-      'Report a problem',
-      'secondary',
-      HELP_REPORT,
-      'built',
-      'Board 03 failed notice (`xr-notice-actions`)',
-    ],
+    'Failed state',
+    'Try again',
+    'secondary',
+    null,
+    'in-page',
+    `SA-v1 sa-core.js \`SA.listState\` failed (state-copy ${id}.failed)`,
   ];
 }
 
 /**
- * Phase 6 link targets: SA-20 Support, SA-21 Support report and SA-22 Access ending (B7-09,
- * B7-10), with the SA-07 "Needs attention" row they enable. SA-21's one primary is the panel's
- * "Resolve" (the `resolveReport` command); Reopen is secondary and confirms first (DL-1). SA-20 and
- * SA-22 draw no primary: every row opens a record. Nothing on these pages sends anything.
+ * Link targets of SA-20 Support, SA-21 Support report and SA-22 Access ending in the
+ * owner-approved V3 design (the Super Admin export SA-v1: `sa-views-d.js` `V.support`,
+ * `V.report`, `V.accessEnding`, its LINK-MAP), with the SA-07 "Needs attention" row they enable.
+ * SA-21's one primary is the panel's "Resolve report" (the `resolveReport` command); Reopen is
+ * secondary and confirms first. SA-20 and SA-22 draw no primary: every row opens a record. Nothing
+ * on these pages sends anything, and no control is named by a SUP, REQ or ACC reference.
  */
 export const P6_OPERATIONS_6_LINK_TARGETS: readonly LedgerEntry[] = [
-  // SA-20 Operations › Support (B7-09 f7, f13).
+  // SA-20 Operations › Support (SA-v1 `V.support`).
   ...pageRows('SA-20', SUPPORT, [
-    ...operationsTabs('B7-09 f7, f13'),
+    ...operationsTabs('SA-20'),
     [
-      'View tabs (`role="tablist"`)',
+      'View switch (`sa-seg`)',
       'Open · Resolved · All',
       'secondary',
       null,
       'in-page',
-      'B7-09 f7, f13 (`button.xr-tab[role=tab]` with `xr-tab-count`)',
+      'SA-v1 sa-views-d.js `V.support` (`SA.seg`, buttons with `aria-pressed` and counts)',
       'Filters the one list; the address mirrors the view (`?show=resolved`, `?show=all`; state-copy SA-20.show-address).',
     ],
     [
       'Each report row',
-      'Open',
+      '<title>, <status>. Open the report',
       'secondary',
       REPORT,
       'built',
-      'B7-09 f7 (`xr-btn--secondary.xr-btn--sm`, “Open SUP-0213 …”)',
+      'SA-v1 LINK-MAP SA-20 “Student import stopped part-way, Reopened. Open the report” (`a.rk-rowlink`, the whole row)',
     ],
-    ...failedRows('SA-20'),
+    failedRow('SA-20'),
   ]),
-  // SA-21 Support report (B7-09 f8 … f12, f14; B7-10 f12; B7-12 f28 … f31).
+  // SA-21 Support report (SA-v1 `V.report`, `SA.DLG.reopen`).
   ...pageRows('SA-21', REPORT, [
-    ['Back link', 'Support', 'secondary', SUPPORT, 'built', 'B7-09 f8 … f14 (`a.xr-back`)'],
     [
-      'Top-bar crumbs (from 1024 px)',
+      'Breadcrumbs',
       'Operations',
       'secondary',
       DEVICE_TRANSFERS,
       'built',
-      'B7-09 f8 (`ol.xr-crumbs` “Operations / Support / SUP-0213”)',
+      'SA-v1 LINK-MAP SA-21 “Operations” (breadcrumb)',
     ],
     [
-      'Top-bar crumbs (from 1024 px)',
+      'Breadcrumbs',
       'Support',
       'secondary',
       SUPPORT,
       'built',
-      'B7-09 f8 (`ol.xr-crumbs`)',
+      'SA-v1 LINK-MAP SA-21 “Support” (breadcrumb)',
+    ],
+    [
+      'Page head (under 860 px)',
+      'Go to decision',
+      'secondary',
+      '#support-decision',
+      'in-page',
+      'SA-v1 LINK-MAP SA-21 “Go to decision” (`a.rb-btn.rk-goto` → the panel)',
     ],
     [
       'What they reported (a reporter with an institution)',
@@ -115,16 +112,16 @@ export const P6_OPERATIONS_6_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/institutions/{institutionId}',
       'built',
-      'B7-09 f8 … f12 (`a.xr-btn--text.xr-btn--sm` → B7-03)',
+      'B7-09 f8 … f12 (→ B7-03); kept from the product — SA-v1 draws none',
       'State-copy SA-21.institution-link.',
     ],
     [
       'Resolve panel (open or reopened)',
-      'Resolve',
+      'Resolve report',
       'primary',
       null,
       'in-page',
-      'B7-09 f8, f10, f11 (`button.xr-btn--primary.xr-btn--block`); B7-10 f12',
+      'SA-v1 sa-views-d.js `V.report` (`button.rb-btn--primary.rk-go`); LINK-MAP actions SA-21',
       'The resolveReport command with the note the reporter sees (required: “Add a note — the reporter sees it”).',
     ],
     [
@@ -133,31 +130,48 @@ export const P6_OPERATIONS_6_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B7-09 f9, f12 (`button.xr-btn--secondary.xr-btn--block`)',
-      'Opens the confirmation (DL-1); Reopen is the only action on a resolved report.',
+      'SA-v1 sa-views-d.js `V.report` (`div.rk-done` > `button.rb-btn`)',
+      'Opens the confirmation; Reopen is the only action on a resolved report.',
     ],
     [
-      'Confirmation (DL-1)',
+      'Confirmation',
       'Reopen',
       'secondary',
       null,
       'in-page',
-      'B7-09 f12 “Reopen SUP-0189?”',
+      'SA-v1 sa-views-d.js `SA.DLG.reopen` (“Reopen this report?”)',
       'The reopenReport command, with the report’s revision from when the confirmation opened.',
     ],
-    ['Confirmation (DL-1)', 'Cancel', 'secondary', null, 'in-page', 'B7-09 f12 (Cancel, Close)'],
-    ...failedRows('SA-21'),
+    ['Confirmation', 'Cancel', 'secondary', null, 'in-page', 'SA-v1 sa-core.js dialog (Cancel)'],
+    [
+      'Refusal notice',
+      'Check it again',
+      'secondary',
+      null,
+      'in-page',
+      'SA-v1 sa-core.js `SA.refusalHtml` (state-copy SA-21.stale.title)',
+      'Closes the notice; focus moves to the page’s heading. Nothing is sent.',
+    ],
+    failedRow('SA-21'),
   ]),
-  // SA-22 Operations › Access ending (B7-09 f4, f5, f6; B7-10 f13).
+  // SA-22 Operations › Access ending (SA-v1 `V.accessEnding`).
   ...pageRows('SA-22', ACCESS_ENDING, [
-    ...operationsTabs('B7-09 f4, f5, f6'),
+    ...operationsTabs('SA-22'),
+    [
+      'Each row (the institution’s name)',
+      '<institution>',
+      'secondary',
+      '/admin/institutions/{institutionId}',
+      'built',
+      'SA-v1 LINK-MAP SA-22 “Konark Polytechnic” (`th[scope=row] a` → SA-07)',
+    ],
     [
       'A renewal in progress',
       'Open request',
       'secondary',
       '/admin/requests/{requestId}',
       'built',
-      'B7-09 f4 (`xr-btn--secondary.xr-btn--sm`, “Open request REQ-0038” → B1-11 SA-03)',
+      'SA-v1 LINK-MAP SA-22 “Open the renewal request from BITS Pilani — Hyderabad Campus” (`a.rb-btn--ghost` → SA-03)',
       'Nothing here approves a renewal (state-copy SA-22.renewal-line).',
     ],
     [
@@ -166,21 +180,21 @@ export const P6_OPERATIONS_6_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/admin/institutions/{institutionId}',
       'built',
-      'B7-09 f4, f6 (`xr-btn--text.xr-btn--sm` → B7-03 SA-07)',
+      'SA-v1 LINK-MAP SA-22 “Open Konark Polytechnic” (`a.rb-btn--ghost` → SA-07)',
       'No status action on any row; “Reminder due” sends nothing (state-copy SA-22.read-only).',
     ],
-    ...failedRows('SA-22'),
+    failedRow('SA-22'),
   ]),
-  // SA-07 Institution detail: the access-ending row of “Needs attention” (B7-03 konark).
+  // SA-07 Institution detail: the access-ending note of a plan band (SA-v1 `planBand`).
   {
     screen: 'SA-07',
-    where: '“Needs attention” — access ending with a reminder due',
-    action: 'Operations › Access ending',
+    where: 'Plan band note — ending soon, reminder due',
+    action: 'View access ending',
     role: 'secondary',
     on: '/admin/institutions/{institutionId}',
     target: ACCESS_ENDING,
     outcome: 'built',
-    board: 'B7-03 `att` (konark → B7-09 f4)',
-    note: 'Phase 6: rendered with SA-22 Operations › Access ending, for a plan ending within 15 days with a reminder due (state-copy SA-07.attention-access-ending).',
+    board: 'SA-v1 LINK-MAP SA-07 (bitshyd, konark) “View access ending” → SA-22 (`planBand` note)',
+    note: 'For a plan ending within 15 days with a reminder due (state-copy SA-07.attention-access-ending).',
   },
 ];

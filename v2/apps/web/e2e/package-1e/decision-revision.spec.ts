@@ -12,8 +12,9 @@ import { checkState } from '../support/screen-checks';
 import { SUPER_ADMIN } from '../support/workspace';
 
 /**
- * Package 1E — SA-03 keeps the revision a decision began with (P1-21; state-copy `SA-03.moved-on`),
- * through the screen, at 1440, 1024, 768 and 375. Test-hook build: the change made meanwhile is the
+ * Package 1E — SA-03 (V3: the Super Admin export `V.decision`) keeps the revision a decision began
+ * with (P1-21; state-copy `SA-03.moved-on`, the repo's existing handling: no notice), through the
+ * screen, at 1440, 1024, 768 and 375. Test-hook build: the change made meanwhile is the
  * AD-14 review start, a CI-only fact (`startReview`) that keeps the request under review with a
  * newer revision — no ordinary product interaction can make it. Before Package 1E the panel sent
  * the revision read at confirm, so these decisions were accepted on a request that had changed.
@@ -22,6 +23,8 @@ test.use({ baseURL: TEST_HOOKS_URL });
 
 const panel = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
 const heading = (page: Page) => panel(page).getByRole('heading', { name: 'Your decision' });
+/** The confirmation names the request by its institution, never by its reference. */
+const KONARK_APPROVE = 'Approve the request from Konark Polytechnic?';
 
 interface DecisionAnswer {
   readonly value: {
@@ -65,7 +68,7 @@ test('the confirmation open while the request changes: refused as stale, nothing
   await openDecision(page, 'REQ-0040');
   await reachAndClick(page, panel(page).locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel(page).getByRole('button', { name: 'Approve request' }));
-  const dialog = page.getByRole('dialog', { name: 'Approve REQ-0040?' });
+  const dialog = page.getByRole('dialog', { name: KONARK_APPROVE });
   await expect(dialog).toBeVisible();
   const lines = await dialog.locator('li').allTextContents();
   await reviewStartedMeanwhile(page, 'REQ-0040');
@@ -83,7 +86,7 @@ test('the confirmation open while the request changes: refused as stale, nothing
   // Decided again on the request as it is now shown: accepted.
   await reachAndClick(page, panel(page).getByRole('button', { name: 'Approve request' }));
   await reachAndClick(page, dialog.getByRole('button', { name: 'Approve request' }));
-  await expect(panel(page).locator('.xr-status')).toHaveText('Approved — payment required');
+  await expect(panel(page).locator('.rk-done .xr-st')).toHaveText('Approved — payment required');
   await expect(heading(page)).toBeFocused();
 });
 
@@ -104,7 +107,7 @@ test('Request more information typed before the change: refused, the question ke
   await expect(question).toHaveValue('Please confirm the size of the second section.');
   await checkState(page, 'Konark Polytechnic');
   await reachAndClick(page, send);
-  await expect(panel(page).locator('.xr-status')).toHaveText('Information requested');
+  await expect(panel(page).locator('.rk-done .xr-st')).toHaveText('Information requested');
 });
 
 test('decided in another session while the confirmation is open: the decided panel, focus kept on the page', async ({
@@ -113,7 +116,7 @@ test('decided in another session while the confirmation is open: the decided pan
   await openDecision(page, 'REQ-0040');
   await reachAndClick(page, panel(page).locator('label[for="decision-approve"]'));
   await reachAndClick(page, panel(page).getByRole('button', { name: 'Approve request' }));
-  const dialog = page.getByRole('dialog', { name: 'Approve REQ-0040?' });
+  const dialog = page.getByRole('dialog', { name: KONARK_APPROVE });
   await expect(dialog).toBeVisible();
   const opened = await requestOf(page, 'REQ-0040');
   // The bridge's `actAs` is another session on this world; its receipt refreshes this page.
@@ -124,7 +127,7 @@ test('decided in another session while the confirmation is open: the decided pan
   });
   expect(elsewhere.ok).toBe(true);
   const after = await inspectWorld(page);
-  await expect(panel(page).locator('.xr-status')).toHaveText('Information requested');
+  await expect(panel(page).locator('.rk-done .xr-st')).toHaveText('Information requested');
   await expect(dialog).toBeHidden();
   await expect(heading(page)).toBeFocused();
   expect((await inspectWorld(page)).worldVersion).toBe(after.worldVersion);

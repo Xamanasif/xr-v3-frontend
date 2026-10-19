@@ -267,11 +267,13 @@ function RecordRow({
 }) {
   const Link = useLinkComponent();
   const linkRef = useRef<HTMLAnchorElement>(null);
-  // A press anywhere on the row follows its link — not on another control, and not when the
-  // press ended a text selection.
+  // A press anywhere on the row follows its link — not on another control of the row, and not
+  // when the press ended a text selection. Only controls inside the row count: the V3 shell's
+  // `main` (`tabIndex=-1`, the skip link's target) is an ancestor of every row.
   const onRowClick = (event: MouseEvent<HTMLTableRowElement>) => {
     const target = event.target;
-    if (target instanceof Element && target.closest(INTERACTIVE)) return;
+    const control = target instanceof Element ? target.closest(INTERACTIVE) : null;
+    if (control && event.currentTarget.contains(control)) return;
     if (window.getSelection()?.toString()) return;
     linkRef.current?.click();
   };

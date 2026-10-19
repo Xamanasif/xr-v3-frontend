@@ -8,9 +8,10 @@ import { WORKSPACE_NAV } from './nav-config';
  * the Device transfer decision (SA-19, B3-11 f1 · f4 … f7; B7-09 f1, f3; B7-10 f14): their
  * addresses (Appendix A register routes; the transfer id is the canonical `transferId` segment;
  * `/admin/operations` redirects to the list) and their place in the shell — Operations current in
- * the sidebar on both (Appendix A §3.6). B3-11's top bars: "Operations" on the list (no crumbs
- * above it), the transfer's reference under the "Operations" crumb on its decision
- * ("Operations / DTR-0018"), also while it has not reached BITS (B7-10 f14).
+ * the sidebar on both (Appendix A §3.6). Their places (the browser tab, Help's "Where did it
+ * happen?"): "Operations" on the list, the transfer's name under the "Operations" crumb on its
+ * decision — never its DTR reference (SA-v1 HANDOFF). In the V3 shell the crumbs and tabs are drawn
+ * in the page.
  */
 const destination = WORKSPACE_NAV.super_admin.destinations.find(
   (candidate) => candidate.screen === 'SA-18',
@@ -26,8 +27,8 @@ export const OPERATIONS_TITLE = destination.label;
 export const OPERATIONS_REPORT_ADDRESS = `${WORKSPACE_NAV.super_admin.help.href}/report`;
 
 /**
- * The list's "Show" filter (B3-11 `xl-seg`: "Forwarded to BITS · Still with an institution ·
- * Approved"), in the address as `?show=`; the forwarded view is the list's own address.
+ * The list's views (SA-v1 `sa-seg`: "Forwarded to BITS · Still with an institution · Approved"),
+ * in the address as `?show=`; the forwarded view is the list's own address.
  */
 export const TRANSFER_SHOWS = ['forwarded', 'with-institution', 'approved'] as const;
 export type TransferShow = (typeof TRANSFER_SHOWS)[number];
@@ -71,7 +72,7 @@ export const OPERATIONS_TABS = [
   { key: 'access-ending', label: 'Access ending', href: ACCESS_ENDING_ADDRESS },
 ] as const;
 
-/** SA-20's views (B7-09 f7: Open · Resolved · All; Open holds open and reopened reports). */
+/** SA-20's views (SA-v1 `sa-seg`: Open · Resolved · All; Open holds open and reopened reports). */
 export const SUPPORT_SHOWS = ['open', 'resolved', 'all'] as const;
 export type SupportShow = (typeof SUPPORT_SHOWS)[number];
 
@@ -97,16 +98,20 @@ export interface OperationsPlacement {
   readonly currentCrumb?: string;
 }
 
-/** B3-11 f0 top bar: "Operations", the destination's own page. */
+/** SA-18's place: "Operations", the destination's own page. */
 export function deviceTransfersPlacement(): OperationsPlacement {
   return { screen: 'SA-18', title: OPERATIONS_TITLE, trail: [] };
 }
 
-/** B3-11 f1 top bar: "DTR-0018" under the "Operations" crumb. */
-export function deviceTransferPlacement(reference: string): OperationsPlacement {
+/**
+ * SA-19's place: the transfer by its name ("VR device transfer for Rahul Verma") under the
+ * "Operations" crumb — the browser tab's words and Help's "Where did it happen?". Never the DTR
+ * reference: the Super Admin's words carry no internal reference (SA-v1 HANDOFF).
+ */
+export function deviceTransferPlacement(name: string): OperationsPlacement {
   return {
     screen: 'SA-19',
-    title: reference,
+    title: name,
     trail: [{ label: OPERATIONS_TITLE, href: DEVICE_TRANSFERS_ADDRESS }],
   };
 }
@@ -116,7 +121,7 @@ const OPERATIONS_CRUMB: BreadcrumbLevel = {
   href: DEVICE_TRANSFERS_ADDRESS,
 };
 
-/** B7-09 f7 "Operations / Support" (mobile: "Operations"). */
+/** SA-20's place: "Operations / Support". */
 export function supportPlacement(): OperationsPlacement {
   return {
     screen: 'SA-20',
@@ -126,9 +131,12 @@ export function supportPlacement(): OperationsPlacement {
   };
 }
 
-/** B7-09 f8 "Operations / Support / SUP-0213"; while it loads, "Operations / Support". */
-export function supportReportPlacement(reportId: string | null): OperationsPlacement {
-  return reportId === null
+/**
+ * SA-21's place: "Operations / Support / <the report's title>"; while it loads, "Operations /
+ * Support". Never the SUP reference (SA-v1 HANDOFF; owner decision 6).
+ */
+export function supportReportPlacement(title: string | null): OperationsPlacement {
+  return title === null
     ? {
         screen: 'SA-21',
         title: OPERATIONS_TITLE,
@@ -139,11 +147,11 @@ export function supportReportPlacement(reportId: string | null): OperationsPlace
         screen: 'SA-21',
         title: OPERATIONS_TITLE,
         trail: [OPERATIONS_CRUMB, { label: 'Support', href: SUPPORT_ADDRESS }],
-        currentCrumb: reportId,
+        currentCrumb: title,
       };
 }
 
-/** B7-09 f4 "Operations / Access ending" (mobile: "Operations"). */
+/** SA-22's place: "Operations / Access ending". */
 export function accessEndingPlacement(): OperationsPlacement {
   return {
     screen: 'SA-22',
@@ -151,4 +159,15 @@ export function accessEndingPlacement(): OperationsPlacement {
     trail: [OPERATIONS_CRUMB],
     currentCrumb: 'Access ending',
   };
+}
+
+/**
+ * A transfer or report the service does not answer: the GL-04 "This page isn’t available" message
+ * in place, its place named "Not available" (`@/copy/sa-shared`), never the address's reference.
+ */
+export function operationsUnavailablePlacement(
+  screen: 'SA-19' | 'SA-21',
+  words: string,
+): OperationsPlacement {
+  return { screen, title: words, trail: [] };
 }

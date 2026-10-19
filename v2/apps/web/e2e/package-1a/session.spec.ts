@@ -25,7 +25,8 @@ test('Arjun signs in, out, then Kavya: own namespaces, cache cleared, one world'
 
   await signInAs(page, { email: 'arjun.mehta@wilp.example' });
   await page.waitForURL('**/admin/requests');
-  await expect(page.locator('table.xr-table tbody td.is-primary a').first()).toBeVisible();
+  // SA-02 in the V3 design (SA-v1): the request table's row links.
+  await expect(page.locator('table.rk-table tbody a.rk-rowlink').first()).toBeVisible();
   const arjun = await inspectWorld(page);
   expect(arjun.session).toMatchObject({ status: 'signed-in', personId: 'sa-arjun-mehta' });
   const arjunKey = (arjun.session as { sessionKey: string }).sessionKey;
@@ -69,6 +70,6 @@ test('Arjun signs in, out, then Kavya: own namespaces, cache cleared, one world'
   await expect(
     page.getByRole('heading', { name: 'This page isn’t part of your workspace' }),
   ).toBeVisible();
-  await expect(page.locator('main')).not.toContainText('REQ-0040');
+  await expect(page.locator('main')).not.toContainText(/REQ-0040|Konark Polytechnic/);
   await expectSameDocument(page, mark);
 });

@@ -1,7 +1,8 @@
 /**
- * SA-03's view of the port's answers (B1-11), on the seeded decision pages: which panel applies,
- * the drawn checks the panel runs before a confirmation, the difference a smaller scope makes, and
- * the words of the decided panel. The commands decide; these only read.
+ * SA-03's view of the port's answers (the Super Admin export's `V.decision`), on the seeded
+ * decision pages: which panel applies, the checks the panel runs before a confirmation, the
+ * difference a smaller scope makes, what the confirmation says, and the words of the decided panel.
+ * The commands decide; these only read.
  */
 import type { DecisionPage } from '@xr/contracts/draft';
 import { DRAWN_MESSAGES } from '@xr/contracts/draft';
@@ -11,6 +12,8 @@ import { DECISION_ERRORS } from '@/copy/requests';
 import { SUPER_ADMIN, tabPlatform } from '@/test-support/workspace';
 
 import {
+  approvalCreatesPlan,
+  confirmLines,
   createdByThisApproval,
   decisionCommand,
   differencesOf,
@@ -21,9 +24,11 @@ import {
   hasPanelErrors,
   historyLines,
   needsRoute,
+  nextLine,
   panelErrorsOf,
   panelKindOf,
   pendingHint,
+  planEffectOf,
   smallerScopeItems,
   standRows,
   termValue,
@@ -163,29 +168,34 @@ describe('the drawn checks before a confirmation (B1-11 `validate`)', () => {
   });
 });
 
-describe('the decided panel and the details (B1-11 f9 … f12)', () => {
+describe('the decided panel and the details (the export’s `doneHtml`, `existing`, `hist`)', () => {
   it('“Where this request stands” for each decided seeded request', async () => {
     const seeded = await pages();
     const values = (id: string) => standRows(seeded[id]!).map((row) => row.value);
-    expect(values('REQ-0041')).toEqual(['Not created', 'Information requested', '—', 'Not active']);
+    expect(values('REQ-0041')).toEqual([
+      'Not created',
+      'Information requested',
+      'Not started',
+      'Not active',
+    ]);
     expect(values('REQ-0037')).toEqual([
-      'Created · 22 Sep 2026, 15:00',
-      'Approved · External',
-      'Waiting — not confirmed',
+      'Created 22 Sep 2026, 15:00',
+      'Approved (external)',
+      'Waiting, not confirmed',
       'Not active',
     ]);
     expect(values('REQ-0039')).toEqual([
-      'Created · 26 Sep 2026, 11:00',
-      'Approved · Internal',
+      'Created 26 Sep 2026, 11:00',
+      'Approved (internal)',
       'Not needed (internal)',
-      'Active · ACC-0098',
+      'Active since 26 Sep 2026, 11:00',
     ]);
-    expect(values('REQ-0036')).toEqual([
-      'Exists',
-      'Approved · External',
-      'Waiting — not confirmed',
-      'Active',
-    ]);
+    // A payment started but not confirmed: no access line (the export's `pend`).
+    expect(values('REQ-0036')).toEqual(['Exists', 'Approved (external)', 'Not confirmed']);
+    // No plan is named by its reference.
+    for (const id of ['REQ-0036', 'REQ-0037', 'REQ-0039', 'REQ-0041']) {
+      expect(values(id).join(' ')).not.toMatch(/ACC-\d/);
+    }
   });
 
   it('the record this approval created is read from the request and its plans only', async () => {
@@ -197,27 +207,89 @@ describe('the decided panel and the details (B1-11 f9 … f12)', () => {
     expect(createdByThisApproval(seeded['REQ-0041']!)).toBe(false);
   });
 
-  it('“Existing access” before and after a decision', async () => {
+  it('“Existing access” before and after a decision, plans named by content and term', async () => {
     const seeded = await pages();
     expect(existingAccessWords(seeded['REQ-0039']!, name)).toBe(
-      'Institution record created · 26 Sep 2026, 11:00. Institutional access active since 26 Sep 2026, 11:00 (internal, no payment step) · access plan ACC-0098.',
+      'Institution record created on 26 Sep 2026, 11:00. Institutional access active since then (internal, no payment step).',
     );
     expect(existingAccessWords(seeded['REQ-0040']!, () => 'Buck Converter Ripple')).toBe(
-      'Access plan ACC-0091 · Buck Converter Ripple (WEB, AR) · 60 licences · term ends 2 Nov 2026.',
+      'An access plan with Buck Converter Ripple (WEB, AR) and 60 licences, on a quarterly term that ends on 2 Nov 2026.',
+    );
+    expect(existingAccessWords(seeded['REQ-0038']!, name)).toBe(
+      'The current access plan holds these 2 experiments and 80 licences. Its current term ends on 31 Oct 2026.',
+    );
+    expect(existingAccessWords(newInstitutionRequest(seeded['REQ-0040']!), name)).toBe(
+      'None. There is no institution record for Konark Polytechnic yet. Approving this request creates the record; it does not activate access.',
     );
   });
 
-  it('the history for the Super Admin, newest first, in B1-11’s words', async () => {
+  it('the history for the Super Admin, newest first, in the export’s words', async () => {
     const lines = historyLines((await pages())['REQ-0037']!);
     expect(lines.map((line) => line.what)).toEqual([
-      'Request approved · External',
+      'Request approved (external)',
       'Request submitted',
     ]);
     expect(lines[0]!.note).toBe(
       'Institution record created. Status: Approved — payment required. Access not active until the payment is confirmed.',
     );
-    expect(lines[0]!.when).toBe('22 Sep 2026, 15:00 · Arjun Mehta');
-    expect(lines[1]!.when).toBe('22 Sep 2026, 10:00 · K. Rao, contact person');
+    expect(lines[0]!.when).toBe('22 Sep 2026, 15:00 by Arjun Mehta');
+    expect(lines[1]!.when).toBe('22 Sep 2026, 10:00 by K. Rao, contact person');
+  });
+
+  it('the plan effect: the command’s answer when decided here, else read from the page', async () => {
+    const seeded = await pages();
+    // A new institution's internal approval created its plan; nothing else writes one (OD-B3-09).
+    expect(planEffectOf(seeded['REQ-0039']!, null)).toBe('plan-created');
+    expect(planEffectOf(seeded['REQ-0037']!, null)).toBe('none');
+    expect(planEffectOf(seeded['REQ-0038']!, { kind: 'policy-open', decision: 'OD-B3-09' })).toBe(
+      'policy-open',
+    );
+    const renewalActive = {
+      ...seeded['REQ-0038']!,
+      request: { ...seeded['REQ-0038']!.request, status: 'access-active' as const },
+    };
+    expect(planEffectOf(renewalActive, null)).toBe('policy-open');
+    expect(nextLine(renewalActive)).toBe(
+      'The renewal is approved. The current plan isn’t changed from this page; its term still shows as ending on 31 Oct 2026.',
+    );
+    expect(nextLine(seeded['REQ-0039']!)).toBe(
+      'Institutional access is active. The institution administrator can now give students access.',
+    );
+    // Payment started but not confirmed: no next line (state-copy `SA-03.next-undrawn`).
+    expect(nextLine(seeded['REQ-0036']!)).toBeNull();
+  });
+
+  it('the confirmation claims a plan only where the approval creates one', async () => {
+    const seeded = await pages();
+    const approve = { ...EMPTY_DRAFT, choice: 'approve' as const };
+    const fresh = newInstitutionRequest(seeded['REQ-0040']!);
+    expect(approvalCreatesPlan(fresh)).toBe(true);
+    expect(confirmLines(fresh, approve, 'internal')).toEqual({
+      now: [
+        'Creates the institution record for Konark Polytechnic, classified internal.',
+        'Approves the request. There is no payment step.',
+        'Institutional access is activated now and the access plan is created.',
+      ],
+      later: ['Students get access only when the institution’s administrator gives it.'],
+    });
+    expect(confirmLines(fresh, approve, 'external')).toEqual({
+      now: [
+        'Creates the institution record for Konark Polytechnic, classified external.',
+        'Approves the request. Its status becomes Approved — payment required.',
+      ],
+      later: [
+        'Institutional access is not activated now. It is activated only after the payment is confirmed.',
+        'Students get access only when the institution’s administrator gives it.',
+      ],
+    });
+    expect(approvalCreatesPlan(seeded['REQ-0038']!)).toBe(false);
+    expect(confirmLines(seeded['REQ-0038']!, approve, 'internal')).toEqual({
+      now: ['Approves the renewal. There is no payment step.'],
+      later: [
+        'This page does not change the current plan. Its term still shows as ending on 31 Oct 2026.',
+        'Students get access only when the institution’s administrator gives it.',
+      ],
+    });
   });
 });
 

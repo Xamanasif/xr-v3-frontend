@@ -57,9 +57,24 @@ export const XS_EXPORT_DIRECTORY = join(
   'project',
 );
 
-/** Every class a selector of the V3 derivative, the XS derivative or the V3 patches names. */
+/**
+ * The owner-approved Super Admin export (SA-v1): its plain HTML + JS views (`sa-views-*.js`,
+ * `sa-core.js`), read as the reference for the Super Admin pages' markup, words and icons.
+ */
+export const SA_EXPORT_DIRECTORY = join(
+  V3_BOARDS_DIRECTORY,
+  '..',
+  '..',
+  '..',
+  '..',
+  'roles',
+  'SA-v1',
+  'project',
+);
+
+/** Every class a selector of the V3, XS and SA derivatives or the V3 patches names. */
 export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
-  ['rb-scoped.css', 'xs-scoped.css', 'patch.css'].flatMap((sheet) => [
+  ['rb-scoped.css', 'xs-scoped.css', 'sa-scoped.css', 'patch.css'].flatMap((sheet) => [
     ...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8')),
   ]),
 );
@@ -67,6 +82,11 @@ export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
 /** The raw text of an XS export file (`XsSignIn.dc.html`, …), for markup and icon checks. */
 export function xsExportText(file: string): string {
   return readFileSync(join(XS_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The raw text of an SA export file (`sa-views-a.js`, …), for markup, words and icon checks. */
+export function saExportText(file: string): string {
+  return readFileSync(join(SA_EXPORT_DIRECTORY, file), 'utf8');
 }
 
 /**

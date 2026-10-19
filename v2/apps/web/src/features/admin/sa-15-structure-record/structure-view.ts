@@ -1,22 +1,26 @@
-import type { Out, getStructureCourseOutput } from '@xr/contracts/draft';
+import type { getStructureCourseOutput, Out } from '@xr/contracts/draft';
 import type { ActorRef, HistoryEntry, StructureEvent } from '@xr/domain';
+import type { StructureLink } from '@xr/ui/v3';
 
 import { dayMonthYear } from '@/copy/dates';
 import {
   courseAddedNote,
+  facultyCountWords,
   facultyUseWords,
   historyWhat,
-  institutionUseWords,
+  institutionAfterWords,
   movedNote,
-  RECORD_PAGE,
+  peopleFiledWords,
   renamedNote,
-  usesList,
 } from '@/copy/structure';
+import { institutionAddress } from '@/nav/institutions';
+import { holderAddress } from '@/nav/platform-roles';
+import type { MoveCheck } from '@/queries/structure-forms';
 
 /** `AcademicStructureService.getCourse`: the course, its area’s name, what uses it (PC-69). */
 export type CourseView = Out<typeof getStructureCourseOutput>;
 
-/** One line of a record’s History (`li.xr-tl`). */
+/** One line of a record’s History (`ol.rk-tl > li`). */
 export interface HistoryLine {
   readonly id: string;
   readonly what: string;
@@ -76,19 +80,13 @@ function movedNoteOf(
   return from && to ? movedNote(from, to) : null;
 }
 
-/** One row of “What uses this course” (`dl.xl-kv.xv-kv`). */
-export interface UseRow {
-  readonly key: string;
-  readonly value: string;
-}
-
 /**
- * “What uses this course” (B7-07 f1 … f4, f8): the service’s counts and the named facts beside
- * them, in the board’s order (state-copy `SA-15.uses.*`).
+ * “Institutions” (state-copy `SA-15.uses.institutions`): each institution whose access plan holds
+ * one of the course’s experiments, current ones first, linked to its record (SA-07) by its name,
+ * its own code for the course and “ended” after the link.
  */
-export function usesRows(view: CourseView): readonly UseRow[] {
-  const keys = RECORD_PAGE.usesKeys;
-  const institutions = [...view.detail.institutions]
+export function institutionLinks(view: CourseView): readonly StructureLink[] {
+  return [...view.detail.institutions]
     .map((institution, index) => ({ institution, index }))
     .sort((a, b) =>
       a.institution.ended === b.institution.ended
@@ -97,28 +95,44 @@ export function usesRows(view: CourseView): readonly UseRow[] {
           ? 1
           : -1,
     )
-    .map(({ institution }) =>
-      institutionUseWords(institution.name, institution.institutionCode, institution.ended),
-    );
-  const vendors = [...new Set(view.detail.vendors.map((vendor) => vendor.organisation))];
-  const faculty = view.detail.faculty.map((group) =>
-    facultyUseWords(group.institutionName, group.names),
-  );
-  return [
-    { key: keys.experiments, value: String(view.usage.publishedExperiments) },
-    { key: keys.institutions, value: usesList(institutions) },
-    { key: keys.vendors, value: usesList(vendors) },
-    { key: keys.faculty, value: usesList(faculty) },
-    { key: keys.students, value: String(view.usage.studentsFiled) },
-  ];
+    .map(({ institution }) => ({
+      key: institution.institutionId,
+      href: institutionAddress(institution.institutionId),
+      label: institution.name,
+      after: institutionAfterWords(institution.institutionCode, institution.ended) || undefined,
+    }));
 }
 
-/** The Faculty part of the blocked notice: the record’s own “Faculty mapped to it” words. */
-export function facultyWords(view: CourseView, facultyFiled: number): string {
+/** “Vendors in scope” (state-copy `SA-15.uses.vendors`): each holder once, linked to SA-17. */
+export function vendorLinks(view: CourseView): readonly StructureLink[] {
+  const seen = new Set<string>();
+  return view.detail.vendors
+    .filter((vendor) => {
+      if (seen.has(vendor.holderId)) return false;
+      seen.add(vendor.holderId);
+      return true;
+    })
+    .map((vendor) => ({
+      key: vendor.holderId,
+      href: holderAddress(vendor.holderId),
+      label: vendor.name,
+    }));
+}
+
+/** The Faculty mapped to the course, per institution, as the record words them. */
+function facultyParts(view: CourseView, facultyFiled: number): readonly string[] {
   if (view.detail.faculty.length > 0) {
-    return view.detail.faculty
-      .map((group) => facultyUseWords(group.institutionName, group.names))
-      .join(', ');
+    return view.detail.faculty.map((group) => facultyUseWords(group.institutionName, group.names));
   }
-  return facultyFiled > 0 ? `${facultyFiled} Faculty member${facultyFiled === 1 ? '' : 's'}` : '';
+  return facultyFiled > 0 ? [facultyCountWords(facultyFiled)] : [];
+}
+
+/** “People filed against it” (state-copy `SA-15.uses.people`): who, or nothing. */
+export function peopleWords(view: CourseView): string {
+  return peopleFiledWords(view.usage.studentsFiled, facultyParts(view, view.usage.facultyMapped));
+}
+
+/** Who blocks the move, from the service’s move check (the blocked notice’s “<who>”). */
+export function blockedWho(view: CourseView, check: MoveCheck): string {
+  return peopleFiledWords(check.blockers.students, facultyParts(view, check.blockers.faculty));
 }

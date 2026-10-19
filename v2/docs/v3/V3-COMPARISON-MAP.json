@@ -326,6 +326,763 @@
         "05-student-inactive-built-banner"
       ],
       "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-shell",
+      "state": "The Super Admin workspace in the V3 shell: rail, Menu drawer below 1024 px, top line date, XS account menu, Help & support",
+      "route": "/admin/*",
+      "sources": [
+        "apps/web/src/features/shared/workspace-shell/v3-role-shell.tsx",
+        "apps/web/src/features/shared/workspace-frame/workspace-frame.tsx",
+        "apps/web/src/features/shared/pu-15-not-found/not-found.tsx",
+        "apps/web/src/features/admin/shared"
+      ],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-core.js",
+        "compared": [
+          "state_1440_shell-drawer.png",
+          "state_768_shell-drawer.png",
+          "state_375_shell-drawer.png",
+          "state_1440_shell-account-menu.png",
+          "state_768_shell-account-menu.png",
+          "state_375_shell-account-menu.png",
+          "state_1440_xs-not-available.png",
+          "state_768_xs-not-available.png",
+          "state_375_xs-not-available.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The rail, drawer, top line, account menu and Help & support are the export's V3 shell; the account menu and Help & support are the delivered XS components (the export borrowed earlier XS drafts until XS was delivered).",
+        "The top line's date is today on the sample clock (the session's sign-in day), not the export's fixed sample date.",
+        "PU-15 (an unknown /admin address) shows its v46 page inside a V46Island in the V3 shell: its V3 design is not supplied."
+      ],
+      "supersedes": [
+        "05-super-admin-help-built-sidebar-head",
+        "05-super-admin-help-built-sidebar-help",
+        "05-super-admin-help-built-sidebar-phase-6",
+        "05-super-admin-help-built-sidebar-workspace",
+        "05-super-admin-help-built-top-bar"
+      ],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-01",
+      "state": "Overview: figures, category switch, priority band, queue groups, quiet and loading states",
+      "route": "/admin",
+      "sources": ["apps/web/src/features/admin/sa-01-overview"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-a.js",
+        "compared": [
+          "1440_overview.png",
+          "1024_overview.png",
+          "768_overview.png",
+          "375_overview.png",
+          "state_1440_sa01-loading.png",
+          "state_768_sa01-loading.png",
+          "state_375_sa01-loading.png",
+          "state_1440_sa01-quiet.png",
+          "state_768_sa01-quiet.png",
+          "state_375_sa01-quiet.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The note beside “Also waiting on you” (“Oldest first in each group”) is left out: the approved order lists requests newest first (state-copy SA-01.queue-note).",
+        "While the read loads the head shows without its figures (they come with the same read); the export keeps its sample figures.",
+        "“Assign Institute Admin” opens SA-07, where Assign is the first action; the export opens its dialog in place.",
+        "Counts, groups and rows are the service's (PC-67) on the sample world, not the export's scenarios (busy / new / quiet / konark)."
+      ],
+      "supersedes": [
+        "b7-01-f0-figures",
+        "b7-01-f0-group-access-ending",
+        "b7-01-f0-group-corrections",
+        "b7-01-f0-group-device-transfers",
+        "b7-01-f0-group-holders",
+        "b7-01-f0-group-no-institute-admin",
+        "b7-01-f0-group-requests",
+        "b7-01-f0-group-stuck",
+        "b7-01-f0-group-support",
+        "b7-01-f0-header-phase-6",
+        "b7-01-f0-sidebar-phase-6",
+        "b7-01-f0-top-bar",
+        "b7-01-f0-whole-frame-phase-6",
+        "b7-01-f1-calm-head",
+        "b7-01-f1-calm-icon",
+        "b7-01-f1-calm-phase-6",
+        "b7-01-f1-calm-title",
+        "b7-01-f3-mobile-figures",
+        "b7-01-f3-mobile-group-stuck",
+        "b7-01-f3-mobile-req-0040-row",
+        "b7-01-f3-mobile-requests-head",
+        "b7-01-f3-mobile-top-bar"
+      ],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-02",
+      "state": "Requests: filters, sort, the three table layouts, no match, failed",
+      "route": "/admin/requests",
+      "sources": ["apps/web/src/features/admin/sa-02-requests"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-a.js",
+        "compared": [
+          "1440_requests.png",
+          "1024_requests.png",
+          "768_requests.png",
+          "375_requests.png",
+          "state_1440_sa02-failed.png",
+          "state_768_sa02-failed.png",
+          "state_375_sa02-failed.png",
+          "state_1440_sa02-nomatch.png",
+          "state_768_sa02-nomatch.png",
+          "state_375_sa02-nomatch.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "Rows are the sample world's requests; the row link and table name the request by its institution, type, day and status — never by its reference."
+      ],
+      "supersedes": [
+        "b1-10-f0-count",
+        "b1-10-f0-header",
+        "b1-10-f0-req-0040-reference",
+        "b1-10-f0-req-0040-status",
+        "b1-10-f0-sidebar-head",
+        "b1-10-f0-sidebar-help",
+        "b1-10-f0-sidebar-phase-6",
+        "b1-10-f0-table",
+        "b1-10-f0-table-head",
+        "b1-10-f0-toolbar",
+        "b1-10-f0-top-bar",
+        "b1-10-f0-whole-frame-phase-6",
+        "b1-10-f1-more-filters-panel",
+        "b1-10-f1-more-filters-toolbar",
+        "b1-10-f4-no-match",
+        "b1-10-f8-mobile-header",
+        "b1-10-f8-mobile-toolbar",
+        "b1-10-f8-mobile-top-bar"
+      ],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-03",
+      "state": "Request decision: approve, smaller scope, request information, classification, confirm, decided, paused-blocked, validation, renewal",
+      "route": "/admin/requests/{id}",
+      "sources": ["apps/web/src/features/admin/sa-03-request-decision"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-a.js",
+        "compared": [
+          "1440_requests_hyderabad-renewal.png",
+          "1024_requests_hyderabad-renewal.png",
+          "768_requests_hyderabad-renewal.png",
+          "375_requests_hyderabad-renewal.png",
+          "state_1440_sa03-confirm-external.png",
+          "state_768_sa03-confirm-external.png",
+          "state_375_sa03-confirm-external.png",
+          "state_1440_sa03-decided-payment.png",
+          "state_768_sa03-decided-payment.png",
+          "state_375_sa03-decided-payment.png",
+          "state_1440_sa03-paused-blocked.png",
+          "state_768_sa03-paused-blocked.png",
+          "state_375_sa03-paused-blocked.png",
+          "state_1440_sa03-validation.png",
+          "state_768_sa03-validation.png",
+          "state_375_sa03-validation.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "Named by the institution everywhere (H1, crumbs, tab title, the confirmation's question), never by the reference.",
+        "“Decided … by <name>” when another person decided (the export draws only “by you”)."
+      ],
+      "supersedes": [
+        "b1-11-f15-mobile-jump",
+        "b1-11-f15-mobile-panel",
+        "b1-11-f16-back-link",
+        "b1-11-f16-four-events",
+        "b1-11-f16-header",
+        "b1-11-f16-message",
+        "b1-11-f16-organisation",
+        "b1-11-f16-panel",
+        "b1-11-f16-summary",
+        "b1-11-f16-top-bar",
+        "b1-11-f3-confirm-internal-line-1",
+        "b1-11-f3-confirm-internal-line-2",
+        "b1-11-f3-confirm-internal-line-3"
+      ],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-06",
+      "state": "Institutions: search, status filter, empty and no match",
+      "route": "/admin/institutions",
+      "sources": ["apps/web/src/features/admin/sa-06-institutions"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-b.js",
+        "compared": [
+          "1440_institutions.png",
+          "1024_institutions.png",
+          "768_institutions.png",
+          "375_institutions.png",
+          "state_1440_sa06-empty.png",
+          "state_768_sa06-empty.png",
+          "state_375_sa06-empty.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "Listed by name (the service's order). The Status options carry the service's figures; the plan cell counts courses and experiments without a plan reference."
+      ],
+      "supersedes": [
+        "b7-02-f0-count",
+        "b7-02-f0-header",
+        "b7-02-f0-header-line",
+        "b7-02-f0-row-bits-pilani-hyderabad-campus",
+        "b7-02-f0-row-deccan-institute-of-technology",
+        "b7-02-f0-row-godavari-institute-of-technology",
+        "b7-02-f0-row-konark-polytechnic",
+        "b7-02-f0-row-malnad-college-of-engineering",
+        "b7-02-f0-row-sahyadri-institute-of-engineering",
+        "b7-02-f0-row-vizag-polytechnic",
+        "b7-02-f0-section-head",
+        "b7-02-f0-sidebar-phase-6",
+        "b7-02-f0-table",
+        "b7-02-f0-table-head",
+        "b7-02-f0-tabs",
+        "b7-02-f0-toolbar",
+        "b7-02-f0-top-bar",
+        "b7-02-f0-whole-frame-phase-6",
+        "b7-02-f2-count",
+        "b7-02-f2-table",
+        "b7-02-f2-tabs",
+        "b7-02-f3-count",
+        "b7-02-f3-table",
+        "b7-02-f4-count",
+        "b7-02-f4-no-match",
+        "b7-02-f4-toolbar",
+        "b7-02-f6-mobile-row-godavari-institute-of-technology",
+        "b7-02-f6-mobile-row-vizag-polytechnic",
+        "b7-02-f6-mobile-tabs",
+        "b7-02-f6-mobile-top-bar"
+      ],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-07",
+      "state": "Institution detail: plan band, What you can do (assign, pause / restore, student override), activity, history; no admin, awaiting payment, paused, ended, validation",
+      "route": "/admin/institutions/{id}",
+      "sources": ["apps/web/src/features/admin/sa-07-institution-detail"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-b.js",
+        "compared": [
+          "1440_institutions_godavari.png",
+          "1024_institutions_godavari.png",
+          "768_institutions_godavari.png",
+          "375_institutions_godavari.png",
+          "state_1440_sa07-assign-validation.png",
+          "state_768_sa07-assign-validation.png",
+          "state_375_sa07-assign-validation.png",
+          "state_1440_sa07-awaiting-payment.png",
+          "state_768_sa07-awaiting-payment.png",
+          "state_375_sa07-awaiting-payment.png",
+          "state_1440_sa07-ended.png",
+          "state_768_sa07-ended.png",
+          "state_375_sa07-ended.png",
+          "state_1440_sa07-noadmin.png",
+          "state_768_sa07-noadmin.png",
+          "state_375_sa07-noadmin.png",
+          "state_1440_sa07-paused.png",
+          "state_768_sa07-paused.png",
+          "state_375_sa07-paused.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "Only what waits on the Super Admin is listed under “Also waiting for this institution” (an active institution's approved request is not offered as “Open request”).",
+        "People are counted without the export's sample sentence; “1 student” in the singular (the export draws the plural only).",
+        "A record that changed meanwhile is read again without a notice (the export's proposed “This record changed after you opened it” is not used)."
+      ],
+      "supersedes": [
+        "b7-03-f0-actions",
+        "b7-03-f0-attention",
+        "b7-03-f0-back-link",
+        "b7-03-f0-header",
+        "b7-03-f0-history",
+        "b7-03-f0-people",
+        "b7-03-f0-plans",
+        "b7-03-f0-plans-table",
+        "b7-03-f0-report",
+        "b7-03-f0-sidebar-phase-6",
+        "b7-03-f0-summary",
+        "b7-03-f0-top-bar",
+        "b7-03-f0-whole-frame-phase-6",
+        "b7-03-f1-actions",
+        "b7-03-f1-attention",
+        "b7-03-f1-back-link",
+        "b7-03-f1-header",
+        "b7-03-f1-notice",
+        "b7-03-f1-people",
+        "b7-03-f1-summary",
+        "b7-03-f2-actions",
+        "b7-03-f2-attention",
+        "b7-03-f2-back-link",
+        "b7-03-f2-header",
+        "b7-03-f2-history",
+        "b7-03-f2-paused-notice",
+        "b7-03-f2-summary",
+        "b7-03-f3-actions",
+        "b7-03-f3-attention",
+        "b7-03-f3-back-link",
+        "b7-03-f3-header",
+        "b7-03-f3-plans",
+        "b7-03-f3-report-body",
+        "b7-03-f3-summary",
+        "b7-03-f4-actions",
+        "b7-03-f4-attention",
+        "b7-03-f4-back-link",
+        "b7-03-f4-header",
+        "b7-03-f4-summary",
+        "b7-03-f5-actions",
+        "b7-03-f5-attention",
+        "b7-03-f5-back-link",
+        "b7-03-f5-header",
+        "b7-03-f5-plans-table",
+        "b7-03-f6-assign-dialog",
+        "b7-03-f6-assign-email",
+        "b7-03-f6-assign-fields",
+        "b7-03-f6-assign-sentence",
+        "b7-03-f7-pause-dialog",
+        "b7-03-f8-override-row",
+        "b7-03-f9-mobile-actions",
+        "b7-03-f9-mobile-back-link",
+        "b7-03-f9-mobile-header",
+        "b7-03-f9-mobile-plans-table",
+        "b7-03-f9-mobile-summary",
+        "b7-03-f9-mobile-top-bar",
+        "b7-04-f0-actions",
+        "b7-04-f0-back-link",
+        "b7-04-f0-header",
+        "b7-04-f0-summary"
+      ],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-10",
+      "state": "Content updates (awaiting release), Updates · All content tabs",
+      "route": "/admin/content/updates",
+      "sources": ["apps/web/src/features/admin/sa-10-updates"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-c.js",
+        "compared": [
+          "1440_content_updates.png",
+          "1024_content_updates.png",
+          "768_content_updates.png",
+          "375_content_updates.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The views and rows are the sample world's corrections; the row link is named by the experiment and its versions, never by the reference."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-11",
+      "state": "Release or hold an update: comparison, institutions using it, release / hold / lift hold; not approved, on hold, released",
+      "route": "/admin/content/updates/{id}",
+      "sources": ["apps/web/src/features/admin/sa-11-update-decision"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-c.js",
+        "compared": [
+          "1440_content_updates_distillation-1-3.png",
+          "1024_content_updates_distillation-1-3.png",
+          "768_content_updates_distillation-1-3.png",
+          "375_content_updates_distillation-1-3.png",
+          "state_1440_sa11-not-approved.png",
+          "state_768_sa11-not-approved.png",
+          "state_375_sa11-not-approved.png",
+          "state_1440_sa11-on-hold.png",
+          "state_768_sa11-on-hold.png",
+          "state_375_sa11-on-hold.png",
+          "state_1440_sa11-released.png",
+          "state_768_sa11-released.png",
+          "state_375_sa11-released.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The calm “Nothing to decide” message for a correction not yet approved is the GL-04 template as drawn; the Content Manager's “what changes and why” is quoted with its author only when there is one."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-12",
+      "state": "All content and stuck items",
+      "route": "/admin/content/all",
+      "sources": ["apps/web/src/features/admin/sa-12-all-content"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-c.js",
+        "compared": [
+          "1440_content_all.png",
+          "1024_content_all.png",
+          "768_content_all.png",
+          "375_content_all.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "Kept from Phase 6: the stuck notice with “Show stuck records” (sets Workflow status to Stuck and focuses it) and the “Resubmitted” row until routing is decided (M-3); the export draws neither."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-13",
+      "state": "Content record: stuck override with a reason; published",
+      "route": "/admin/content/records/{id}",
+      "sources": ["apps/web/src/features/admin/sa-13-content-record"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-c.js",
+        "compared": [
+          "1440_content_records_dc-motor.png",
+          "1024_content_records_dc-motor.png",
+          "768_content_records_dc-motor.png",
+          "375_content_records_dc-motor.png",
+          "state_1440_sa13-published.png",
+          "state_768_sa13-published.png",
+          "state_375_sa13-published.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The override's reason is checked in the panel before the confirmation opens (the confirmation quotes it)."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-14",
+      "state": "Academic structure: areas and their courses, add area, add course",
+      "route": "/admin/structure",
+      "sources": ["apps/web/src/features/admin/sa-14-structure"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-c.js",
+        "compared": [
+          "1440_structure.png",
+          "1024_structure.png",
+          "768_structure.png",
+          "375_structure.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The area link reads “Open area <name>” (WCAG 2.5.3 label in name); the export's “Open the area <name>” does not contain its visible words."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-15",
+      "state": "Area and course records: rename, edit description, move (blocked while people are filed)",
+      "route": "/admin/structure/areas/{id} · /admin/structure/courses/{id}",
+      "sources": ["apps/web/src/features/admin/sa-15-structure-record"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-c.js",
+        "compared": [
+          "1440_structure_areas_chemical.png",
+          "1024_structure_areas_chemical.png",
+          "768_structure_areas_chemical.png",
+          "375_structure_areas_chemical.png",
+          "1440_structure_courses_me-zg523.png",
+          "1024_structure_courses_me-zg523.png",
+          "768_structure_courses_me-zg523.png",
+          "375_structure_courses_me-zg523.png",
+          "state_1440_sa15-move-blocked.png",
+          "state_768_sa15-move-blocked.png",
+          "state_375_sa15-move-blocked.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "A course's experiments are counted (the service answers a number); the export links each experiment to its record."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-16",
+      "state": "Platform roles: Vendors · Reviewers · Content Managers, register a holder",
+      "route": "/admin/roles",
+      "sources": ["apps/web/src/features/admin/sa-16-roles"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-d.js",
+        "compared": [
+          "1440_roles_reviewers.png",
+          "1024_roles_reviewers.png",
+          "768_roles_reviewers.png",
+          "375_roles_reviewers.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": ["The holders are the sample world's; registering sends nothing (T-11)."],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-17",
+      "state": "Role holder: assign scope, withdraw with a reason (inline), restore",
+      "route": "/admin/roles/{id}",
+      "sources": ["apps/web/src/features/admin/sa-17-role-holder"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-d.js",
+        "compared": [
+          "1440_roles_holder_k-iyer.png",
+          "1024_roles_holder_k-iyer.png",
+          "768_roles_holder_k-iyer.png",
+          "375_roles_holder_k-iyer.png",
+          "state_1440_sa17-withdraw-inline.png",
+          "state_768_sa17-withdraw-inline.png",
+          "state_375_sa17-withdraw-inline.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": ["Withdraw opens its form in place of its button; one form open at a time."],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-18",
+      "state": "Device transfers (Operations tabs)",
+      "route": "/admin/operations/device-transfers",
+      "sources": ["apps/web/src/features/admin/sa-18-device-transfers"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-d.js",
+        "compared": [
+          "1440_operations_device-transfers.png",
+          "1024_operations_device-transfers.png",
+          "768_operations_device-transfers.png",
+          "375_operations_device-transfers.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The foot line says “It doesn't send, collect or register a device.” and leaves out “There is no Decline;” (the business-rule scan B8-03 forbids those words in copy; no Decline is drawn)."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-19",
+      "state": "Device transfer decision: approve a forwarded transfer; still with the institution; stale refusal",
+      "route": "/admin/operations/device-transfers/{id}",
+      "sources": ["apps/web/src/features/admin/sa-19-device-transfer"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-d.js",
+        "compared": [
+          "1440_operations_device-transfers_rahul-verma-vr.png",
+          "1024_operations_device-transfers_rahul-verma-vr.png",
+          "768_operations_device-transfers_rahul-verma-vr.png",
+          "375_operations_device-transfers_rahul-verma-vr.png",
+          "state_1440_sa19-still-with-institution.png",
+          "state_768_sa19-still-with-institution.png",
+          "state_375_sa19-still-with-institution.png",
+          "state_1440_sa19-stale-refusal.png",
+          "state_768_sa19-stale-refusal.png",
+          "state_375_sa19-stale-refusal.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "“Nothing is sent, collected or registered from here.” in place of the export's shipping word (B8-03); the institution number is shown only where the institution lists the Student (open decision 7)."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-20",
+      "state": "Support reports",
+      "route": "/admin/operations/support",
+      "sources": ["apps/web/src/features/admin/sa-20-support"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-d.js",
+        "compared": [
+          "1440_operations_support.png",
+          "1024_operations_support.png",
+          "768_operations_support.png",
+          "375_operations_support.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "Reports are listed oldest first (the service's order); the row is named by the report's own words, not the export's sample titles; the list's “Where” cell is empty."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-21",
+      "state": "Support report: resolve with a note (note required), reopen; resolved",
+      "route": "/admin/operations/support/{id}",
+      "sources": ["apps/web/src/features/admin/sa-21-support-report"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-d.js",
+        "compared": [
+          "1440_operations_support_import-part-way.png",
+          "1024_operations_support_import-part-way.png",
+          "768_operations_support_import-part-way.png",
+          "375_operations_support_import-part-way.png",
+          "state_1440_sa21-resolve-note-required.png",
+          "state_768_sa21-resolve-note-required.png",
+          "state_375_sa21-resolve-note-required.png",
+          "state_1440_sa21-resolved.png",
+          "state_768_sa21-resolved.png",
+          "state_375_sa21-resolved.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "No “Where” row (the reporter's own detail has none); “Reopened by <name>” when the Super Admin reopened it (the export draws only the reporter's case)."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "SA-22",
+      "state": "Access ending and renewals",
+      "route": "/admin/operations/access-ending",
+      "sources": ["apps/web/src/features/admin/sa-22-access-ending"],
+      "reference": {
+        "archive": "XR-V3-Super-Admin-Role-Source.zip",
+        "archiveSha256": "aee94cd54af33717976699eaa47556355ee9616b496214267e65821060216adc",
+        "revision": "SA-v1 (no revision number in the export; package date 18 Oct 2026)",
+        "renders": "XR-V3-Super-Admin-Role-Screenshots.zip (SHA-256 f5aed4ef781e26bff4d53a44eebdaa205b71ecc699cabc088f9e93cf0ad61fa9), kept by the owner",
+        "file": "design/v3-refined-b/roles/SA-v1/project/sa-views-d.js",
+        "compared": [
+          "1440_operations_access-ending.png",
+          "1024_operations_access-ending.png",
+          "768_operations_access-ending.png",
+          "375_operations_access-ending.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors, no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in text or accessible names. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample records (scenarios busy/new/quiet/konark), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "“Renewal approved — the term isn't changed here” and “· access paused” are not drawn: the service holds no such facts."
+      ],
+      "supersedes": [],
+      "migration": "Super Admin integration, branch v3/refined-b-ui, 19 Oct 2026"
     }
   ],
   "foundationEvidence": {
@@ -982,5 +1739,11 @@
         }
       ]
     }
+  },
+  "productEvidenceSA": {
+    "note": "Not baselines. Captures of the normal product build (next build + next start, port 3300) driven through the real UI by tools/v3-reference/capture-product.mjs (the SA_CASES), 19 Oct 2026, full page at each width, device scale 1, reduced motion; run folders tools/v3-reference/.runs/2026-10-19T15-09-15-984Z-product and 2026-10-19T15-14-42-707Z-product (git-ignored). The fresh product world holds no device transfer and no open support report, so SA-18 (Approved), SA-19 (approved DTR-0018), SA-20 and SA-21 (SUP-0213) were also captured on the test-hook build (fixtures after-flow-device and after-flow-e, the Super Admin booted) into the second folder (hooks-*).",
+    "tool": "tools/v3-reference/capture-product.mjs",
+    "measured": "35 Super Admin cases × 4 widths (140 captures) on the product build (every screen, the no-match and unknown-record states, the Pause and Add area dialogs, the Menu drawer, PU-15 in the shell) plus 4 test-hook cases × 4 widths: no horizontal overflow at any width, no clipped text (visually hidden words excluded), Public Sans 400, 600, 650, 700 and 800 loaded on every capture, no console error, and no internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in the page's words or accessible names — except one: SA-11 for UPD-0004 quotes the Content Manager's own seeded words “Correction UPD-0004.” (sample-world text, used by the Content Manager's tests; not a label the page makes).",
+    "review": "Reviewed side by side with the export renders of the same screen and width (overview, requests, institutions and an institution, content updates and a correction, all content and a record, structure, an area and a course, roles and a holder, device transfers and a transfer, support and a report, access ending, help). Layout, type, colour, spacing, icons and the shell match the export. What differs is the sample content (the product's sample world against the export's scenarios), the arrival focus ring the export renders on its focused H1, and the differences listed under each SA entry."
   }
 }

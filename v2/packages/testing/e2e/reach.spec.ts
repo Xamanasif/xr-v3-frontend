@@ -111,6 +111,48 @@ test.describe('reachAndClick', () => {
     expect(await page.evaluate(() => scrollY + innerHeight)).toBeGreaterThan(2000);
   });
 
+  test('reaches an inline link that wraps onto two lines, where its box centre misses the words', async ({
+    page,
+  }) => {
+    await openFixture(page, 'reach-wrapped');
+    const link = page.getByRole('link', { name: 'Heat Exchanger' });
+    // The fixture really is the case: two line boxes, and the centre of the union is not on it.
+    const lines = await link.evaluate((element) => element.getClientRects().length);
+    expect(lines).toBeGreaterThan(1);
+    const centreHits = await link.evaluate((element) => {
+      const box = element.getBoundingClientRect();
+      const at = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
+      return at === element || element.contains(at);
+    });
+    expect(centreHits).toBe(false);
+
+    await reachAndClick(page, link);
+
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { __fixture: { clicks: string[] } }).__fixture.clicks,
+      ),
+    ).toEqual(['open']);
+  });
+
+  test('still fails on a wrapped inline link that something covers', async ({ page }) => {
+    await openFixture(page, 'reach-wrapped');
+
+    const error = await failureOf(
+      reachAndClick(page, page.getByRole('link', { name: 'Heat Conductor' }), {
+        maxSteps: 12,
+      }),
+    );
+
+    expect(error).toBeInstanceOf(ReachError);
+    expect(error.message).toContain('span.cover');
+    expect(
+      await page.evaluate(
+        () => (window as unknown as { __fixture: { clicks: string[] } }).__fixture.clicks,
+      ),
+    ).toEqual([]);
+  });
+
   test('reaches the unclipped control on the same page (positive control)', async ({ page }) => {
     await openFixture(page, 'reach-clip');
 

@@ -35,6 +35,36 @@ export function xsExport(file: string): string {
   return readFileSync(join(XS_EXPORT_DIRECTORY, file), 'utf8');
 }
 
+/** The owner-approved Super Admin export (SA-v1), read only: its views and role sheet. */
+export const SA_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'SA-v1',
+  'project',
+);
+
+/** An SA export file's source (`sa-views-a.js`, …), by file name. */
+export function saExport(file: string): string {
+  return readFileSync(join(SA_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The SA export's link map (`LINK-MAP.json`): every named control and where it goes. */
+export function saLinkMap(): {
+  readonly links: readonly {
+    readonly source: string;
+    readonly sourceRoute: string;
+    readonly control: string;
+    readonly location: string;
+    readonly destination: string;
+    readonly destinationRoute: string;
+    readonly class: string;
+  }[];
+} {
+  return JSON.parse(readFileSync(join(SA_EXPORT_DIRECTORY, '..', 'LINK-MAP.json'), 'utf8'));
+}
+
 /** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
 export function xsContract(): {
   readonly components: readonly {

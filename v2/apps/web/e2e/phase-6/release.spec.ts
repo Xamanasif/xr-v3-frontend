@@ -1,20 +1,22 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { actAs, bootWorld, reachAndClick, switchIdentity, TEST_HOOKS_URL } from '../support';
 import { checkState } from '../support/screen-checks';
 import { currentSidebarItem, expectSameDocument, markDocument } from '../support/workspace';
 
 /**
- * SA-10 Content › Updates (B7-05 f0, f2, f3, f4; B7-11 f0) and SA-11 Release or hold an update
- * (B7-05 f1, f5 … f11; B7-10 f0 … f4; B7-11 f1; B7-12 f0 … f3) on the test-hook build at 1440,
- * 1024, 768 and 375, as Arjun Mehta. Each drawn state passes `checkState` (axe WCAG A/AA, one h1,
- * visible focus targets, 24 × 24 targets, no developer surface, no sideways scroll).
+ * SA-10 Content updates and SA-11 Release or hold an update in the V3 Refined B design (the
+ * owner-approved Super Admin export, design/v3-refined-b/roles/SA-v1 `V.updates`, `V.update`) on
+ * the test-hook build at 1440, 1024, 768 and 375, as Arjun Mehta. Each drawn state passes
+ * `checkState` (axe WCAG A/AA, one h1, visible focus targets, 24 × 24 targets, no developer
+ * surface, no sideways scroll); no reference (UPD-) is shown or names a control.
  *
  * Flow F, steps 3–5, in one tab (one world, client-side navigation only): on after-flow-e the
- * Super Admin opens UPD-0005 from Updates, releases it through DL-1, and the Content Manager's
+ * Super Admin opens the Distillation Column correction (UPD-0005) from Updates, releases it through
+ * its confirmation, and the Content Manager's
  * published experiment then reads version 1.3 with the corrected description, while the
  * institutions' plans, licences and Student grants read exactly as before. A second approved
  * correction (Shell-and-Tube Heat Exchanger, set up through the CI seam as Kavya Nair and Prof.
@@ -39,7 +41,7 @@ const HOLD_REASON = 'Hold until the Hyderabad lab has finished this month’s ru
 /** Where the product screenshots for the visual comparison go (the session scratchpad). */
 const SHOTS =
   process.env['XR_PRODUCT_SHOTS'] ??
-  '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/fca2accf-8a10-47fc-bc4c-75960334d92a/scratchpad/shots-product/release';
+  '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/a566da95-3982-4d42-9ae6-383145b4d848/scratchpad/sa-content/spec-shots/release';
 
 type PortAnswer<T> =
   | { readonly ok: true; readonly value: T }
@@ -119,20 +121,15 @@ const main = (page: Page) => page.locator('main');
 const heading = (page: Page, name: string) => page.getByRole('heading', { level: 1, name });
 const width = (page: Page) => page.viewportSize()?.width ?? 1440;
 const panel = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
-const chip = (page: Page) => main(page).locator('.xr-phead-meta .xr-status');
-const tabs = (page: Page) => page.getByRole('tablist', { name: 'Show' });
+const chip = (page: Page) => main(page).locator('.rk-head .rk-meta .xr-st');
+const segments = (page: Page) => page.getByRole('group', { name: 'Show corrections' });
+const rows = (page: Page) => main(page).locator('table.rk-table tbody tr');
+const history = (page: Page) => main(page).locator('ol.rk-tl .rk-tl-w');
+const crumbs = (page: Page) => page.getByRole('navigation', { name: 'Breadcrumb' });
 
 async function shot(page: Page, name: string): Promise<void> {
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: join(SHOTS, `${name}-${width(page)}.png`), fullPage: true });
-}
-
-/** A 720 frame of a board, taken in the 768 project. */
-async function shot720(page: Page, name: string): Promise<void> {
-  if (width(page) !== 768) return;
-  await page.setViewportSize({ width: 720, height: 1024 });
-  await shot(page, name);
-  await page.setViewportSize({ width: 768, height: 1024 });
 }
 
 /** Client-side navigation (the world lives in the tab: a full load would start it again). */
@@ -144,148 +141,189 @@ async function softNavigate(page: Page, href: string): Promise<void> {
   }, href);
 }
 
-/** ~74 / 26 from 860 px of content; below, the panel under the content with “Go to decision”. */
+/**
+ * The detail layout: the record on the left and the decision panel beside it; below 860 px of
+ * page width the panel under the record, with “Go to decision” in the head.
+ */
 async function expectDecisionLayout(page: Page): Promise<void> {
-  const stack = await main(page).locator('.xr-decide > .xr-stack').boundingBox();
+  const sheet = await main(page).locator('.rk-mainsheet').boundingBox();
   const aside = await panel(page).boundingBox();
-  if (!stack || !aside) throw new Error('not laid out');
-  const contentWidth = await main(page)
-    .locator('.xr-content')
-    .first()
-    .evaluate((element) => element.getBoundingClientRect().width);
-  const jump = main(page).locator('a.xr-jump');
-  if (contentWidth >= 860) {
-    expect(aside.x).toBeGreaterThan(stack.x + stack.width - 1);
-    expect(aside.width / (stack.width + aside.width)).toBeLessThan(0.34);
-    await expect(jump).toBeHidden();
+  if (!sheet || !aside) throw new Error('not laid out');
+  const goTo = main(page).locator('a.rk-goto');
+  if (await goTo.isVisible()) {
+    expect(aside.y).toBeGreaterThan(sheet.y + sheet.height - 1);
   } else {
-    expect(aside.y).toBeGreaterThan(stack.y + stack.height - 1);
-    await expect(jump).toBeVisible();
+    expect(aside.x).toBeGreaterThan(sheet.x + sheet.width - 1);
   }
+}
+
+/** Waits for the element's CSS animations and transitions (a dialog fading in) to finish. */
+async function settle(locator: Locator): Promise<void> {
+  await locator.evaluate((element) =>
+    Promise.all(
+      element
+        .getAnimations({ subtree: true })
+        .map((animation) => animation.finished.catch(() => null)),
+    ),
+  );
+}
+
+/** A segment press: the pressed colours fade in over 120 ms (rb.css), read once they have. */
+async function pressSegment(page: Page, name: RegExp): Promise<void> {
+  const button = segments(page).getByRole('button', { name });
+  // On a phone the segments scroll sideways (a swipe brings a hidden one into view).
+  await button.scrollIntoViewIfNeeded();
+  await reachAndClick(page, button);
+  await expect(button).toHaveAttribute('aria-pressed', 'true');
+  await settle(segments(page));
 }
 
 async function expectNoPublish(page: Page): Promise<void> {
   expect(await main(page).innerText()).not.toMatch(/\bPublish/);
 }
 
-test.describe('SA-10 Content › Updates', () => {
-  test('Waiting for you, On hold and Released by real clicks; each row opens its decision (f0, f2, f3)', async ({
+/** No reference in the page's words or the names of its controls (HANDOFF “Internal references”). */
+async function expectNoReferences(page: Page): Promise<void> {
+  const reference = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+  expect(await main(page).innerText()).not.toMatch(reference);
+  const names = await main(page)
+    .locator('[aria-label]')
+    .evaluateAll((elements) => elements.map((element) => element.getAttribute('aria-label') ?? ''));
+  for (const name of names) expect(name).not.toMatch(reference);
+  expect(await page.title()).not.toMatch(reference);
+}
+
+test.describe('SA-10 Content updates', () => {
+  test('Waiting for your decision, On hold and Released by real clicks; each row opens its decision', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'after-flow-e', session: ARJUN });
     await page.goto(LIST);
     await expect(heading(page, 'Content')).toBeVisible({ timeout: 90_000 });
-    await expect(tabs(page)).toBeVisible({ timeout: 60_000 });
+    await expect(segments(page)).toBeVisible({ timeout: 60_000 });
     const mark = await markDocument(page);
-    await expect(main(page).locator('.xr-phead-meta')).toHaveText(
-      'Corrections raised by the Content Manager and approved by the Academic Reviewer wait here for release',
+    await expect(main(page).locator('.rk-head .rk-sub')).toHaveText(
+      'Corrections to published experiments reach you after the Academic Reviewer approves them. Nothing goes live until you release it.',
     );
-    const subnav = page.getByRole('navigation', { name: 'Content' });
-    await expect(subnav.getByRole('link')).toHaveText(['Updates', 'All content']);
-    await expect(subnav.getByRole('link', { name: 'Updates' })).toHaveAttribute(
+    const tabs = page.getByRole('navigation', { name: 'Content' });
+    await expect(tabs.getByRole('link')).toHaveText(['Updates', 'All content']);
+    await expect(tabs.getByRole('link', { name: 'Updates' })).toHaveAttribute(
       'aria-current',
       'page',
     );
-    await expect(tabs(page).getByRole('tab')).toHaveText([
-      /Waiting for you\s*1/,
+    await expect(segments(page).getByRole('button')).toHaveText([
+      /Waiting for your decision\s*1/,
       /On hold\s*1/,
       /Released\s*3/,
     ]);
-    const rows = main(page).locator('table.xr-table tbody tr');
-    await expect(rows).toHaveCount(1);
-    await expect(rows.first()).toContainText('Distillation Column · 1.2 → 1.3');
-    await expect(rows.first()).toContainText('UPD-0005 · CHE ZG513');
-    await expect(rows.first().locator('.xr-status--wait')).toHaveText('Waiting for your decision');
-    await expect(rows.first()).toContainText('Approved by the Academic Reviewer on 22 Oct 2026');
+    await expect(rows(page)).toHaveCount(1);
+    const first = rows(page).first();
+    await expect(first.locator('a.rk-rowlink')).toHaveText('Distillation Column');
+    await expect(first.locator('.rk-code')).toHaveText('CHE ZG513');
+    await expect(first).toContainText('Version 1.2 → 1.3');
+    await expect(first).toContainText('Version 1.2 stays live until released');
+    await expect(first).toContainText('Prof. A. Menon');
+    await expect(first).toContainText('22 Oct 2026');
+    await expect(first.locator('.xr-st--warn')).toHaveText('Waiting for your decision');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', LIST);
     await expectNoPublish(page);
+    await expectNoReferences(page);
     await checkState(page, 'Content');
-    if (width(page) === 1440) await shot(page, 'b705-f0-updates');
-    await shot720(page, 'b705-f0-updates');
+    await shot(page, 'sa10-waiting');
 
-    // f2: On hold (the address follows the tab).
-    await reachAndClick(page, tabs(page).getByRole('tab', { name: /On hold/ }));
+    // On hold (the address follows the segment).
+    await pressSegment(page, /^On hold/);
     await expect(page).toHaveURL(/\/admin\/content\/updates\?show=on-hold$/);
-    await expect(rows).toHaveCount(1);
-    await expect(rows.first()).toContainText('Boiler Drum Level · 2.0 → 2.1');
-    await expect(rows.first()).toContainText('On hold since 20 Aug 2026');
-    await expect(rows.first().getByRole('link')).toHaveText('Open');
+    await expect(segments(page).getByRole('button', { name: /^On hold/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await expect(rows(page)).toHaveCount(1);
+    await expect(rows(page).first().locator('a.rk-rowlink')).toHaveText('Boiler Drum Level');
+    await expect(rows(page).first()).toContainText('Version 2.0 → 2.1');
+    await expect(rows(page).first().locator('.xr-st--paused')).toHaveText('On hold');
     await checkState(page, 'Content');
-    await shot720(page, 'b705-f2-on-hold');
-    if (width(page) === 375) await shot(page, 'b705-f2-on-hold');
+    if (width(page) === 375) await shot(page, 'sa10-on-hold');
 
-    // f3: Released, newest first.
-    await reachAndClick(page, tabs(page).getByRole('tab', { name: /Released/ }));
+    // Released, newest first.
+    await pressSegment(page, /^Released/);
     await expect(page).toHaveURL(/\/admin\/content\/updates\?show=released$/);
-    await expect(rows).toHaveCount(3);
-    await expect(rows.locator('td.is-primary strong')).toHaveText([
-      'Orifice Plate Metering · 1.0 → 1.1',
-      'Distillation Column · 1.1 → 1.2',
-      'Distillation Column · 1.0 → 1.1',
+    await expect(rows(page)).toHaveCount(3);
+    await expect(rows(page).locator('a.rk-rowlink')).toHaveText([
+      'Orifice Plate Metering',
+      'Distillation Column',
+      'Distillation Column',
     ]);
-    await expect(rows.first()).toContainText('Released on 5 Aug 2026');
+    await expect(rows(page).first()).toContainText('Released 5 Aug 2026');
     await checkState(page, 'Content');
-    await shot720(page, 'b705-f3-released');
 
-    // Back to Waiting for you; “Review” opens SA-11 in the same document.
-    await reachAndClick(page, tabs(page).getByRole('tab', { name: /Waiting for you/ }));
+    // Back to Waiting for your decision; the row's link opens SA-11 in the same document.
+    await pressSegment(page, /^Waiting for your decision/);
     await expect(page).toHaveURL(/\/admin\/content\/updates$/);
     await reachAndClick(
       page,
-      rows.first().getByRole('link', { name: 'Review UPD-0005 Distillation Column · 1.2 → 1.3' }),
+      rows(page).first().getByRole('link', {
+        name: 'Distillation Column correction, version 1.2 to 1.3, Waiting for your decision. Open',
+      }),
     );
-    await expect(heading(page, 'Distillation Column · 1.2 → 1.3')).toBeVisible({
-      timeout: 90_000,
-    });
+    await expect(heading(page, 'Distillation Column')).toBeVisible({ timeout: 90_000 });
     await expect(page).toHaveURL(/\/admin\/content\/updates\/UPD-0005$/);
     await expectSameDocument(page, mark);
   });
 
-  test('nothing waiting: the calm empty state (f4)', async ({ page }) => {
+  test('nothing waiting: the calm empty state', async ({ page }) => {
     await bootWorld(page, { fixture: 'spine-start', session: ARJUN });
     await page.goto(LIST);
     await expect(heading(page, 'Content')).toBeVisible({ timeout: 90_000 });
-    const empty = main(page).locator('.xr-empty');
-    await expect(empty.getByRole('heading', { level: 3 })).toHaveText(
-      'Nothing is waiting for a release decision',
+    const empty = main(page).locator('.rk-state');
+    await expect(empty.locator('.rk-state-t')).toHaveText(
+      'Nothing is waiting for your release decision',
       { timeout: 60_000 },
     );
-    await expect(empty.locator('p')).toHaveText(
+    await expect(empty.locator('.rk-state-d')).toHaveText(
       'Corrections reach you after the Academic Reviewer approves them.',
     );
-    await expect(tabs(page).getByRole('tab')).toHaveText([
-      /Waiting for you\s*0/,
+    await expect(segments(page).getByRole('button')).toHaveText([
+      /Waiting for your decision\s*0/,
       /On hold\s*1/,
       /Released\s*3/,
     ]);
     await checkState(page, 'Content');
-    await shot720(page, 'b705-f4-nothing-waiting');
-    // An unknown tab in the address is replaced by the list's own address.
+    if (width(page) === 1440) await shot(page, 'sa10-nothing-waiting');
+    // An unknown segment in the address is replaced by the list's own address.
     await page.goto(`${LIST}?show=everything`);
     await expect(page).toHaveURL(/\/admin\/content\/updates$/, { timeout: 60_000 });
   });
 });
 
 test.describe('SA-11 Release or hold an update', () => {
-  test('Flow F: UPD-0005 released through DL-1; the Content Manager reads 1.3; no access changed (f1, f8, f6)', async ({
+  test('Flow F: UPD-0005 released through its confirmation; the Content Manager reads 1.3; no access changed', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'after-flow-e', session: ARJUN });
     await page.goto(`${LIST}/UPD-0005`);
-    const title = heading(page, 'Distillation Column · 1.2 → 1.3');
+    const title = heading(page, 'Distillation Column');
     await expect(title).toBeVisible({ timeout: 90_000 });
     await expect(panel(page)).toBeVisible();
     const mark = await markDocument(page);
 
-    // f1: waiting for your decision.
-    await expect(main(page).locator('.xr-overline')).toHaveText(
-      'UPD-0005 · Correction to published content',
+    // Waiting for your decision.
+    await expect(main(page).locator('.rk-head .rk-eyebrow')).toHaveText(
+      'Correction to a published experiment',
     );
     await expect(chip(page)).toHaveText('Waiting for your decision');
-    await expect(main(page).locator('.xr-phead-meta')).toContainText(
-      'Live now: version 1.2 · since 3 Jul 2026',
+    await expect(main(page).locator('.rk-head .rk-meta')).toContainText('Version 1.2 → 1.3');
+    await expect(main(page).locator('.rk-head .rk-meta')).toContainText(
+      'Approved by Prof. A. Menon on 22 Oct 2026',
     );
-    const comparison = main(page).getByRole('table', { name: 'Current and proposed' });
+    await expect(crumbs(page).getByRole('link')).toHaveText(['Content', 'Updates']);
+    await expect(main(page).locator('dl.rk-factstrip .rk-fact')).toHaveText([
+      /Live now\s*Version 1\.2/,
+      /Proposed\s*Version 1\.3/,
+      /Course\s*CHE ZG513/,
+      /Formats\s*WEB, VR/,
+    ]);
+    const comparison = main(page).getByRole('table', { name: 'Changed fields, live and proposed' });
     await expect(comparison.getByRole('rowheader')).toHaveText([
       'Description',
       'WEB · web link',
@@ -293,85 +331,92 @@ test.describe('SA-11 Release or hold an update', () => {
     ]);
     await expect(
       main(page).getByRole('region', { name: 'Institutions using it' }).locator('tbody tr'),
-    ).toHaveText([
-      /BITS Pilani — Hyderabad Campus\s*ACC-0098 · WEB \+ VR.*Access ends 31 Oct 2026 · renewal REQ-0038 under review/,
-    ]);
+    ).toHaveText([/BITS Pilani — Hyderabad Campus\s*In its access plan · WEB, VR\s*Ending soon/]);
     await expect(main(page)).toContainText(
       'Release changes the experiment for everyone at once. Nothing here changes any institution’s access.',
     );
-    await expect(panel(page).getByRole('radio', { name: /^Release update/ })).toBeChecked();
-    if (width(page) < 1024) {
-      await expect(page.locator('.xr-top-title')).toHaveText('Content');
-    } else {
-      await expect(page.getByRole('list', { name: 'You are here' })).toHaveText(
-        /Content\s*\/\s*Updates\s*\/\s*UPD-0005/,
-      );
-    }
+    await expect(panel(page).getByRole('radio', { name: 'Release update' })).not.toBeChecked();
     await expect(currentSidebarItem(page)).toHaveAttribute('href', LIST);
     await expectDecisionLayout(page);
     await expectNoPublish(page);
-    await checkState(page, 'Distillation Column · 1.2 → 1.3');
-    if (width(page) === 1440) await shot(page, 'b705-f1-waiting');
-    if (width(page) === 1024) await shot(page, 'b712-f1-waiting');
-    if (width(page) === 768) await shot(page, 'b712-f2-waiting');
-    if (width(page) === 375) await shot(page, 'b705-f11-mobile');
+    await expectNoReferences(page);
+    await checkState(page, 'Distillation Column');
+    await shot(page, 'sa11-waiting');
 
-    // f11: “Go to decision” jumps to the panel below 860 px of content.
-    const jump = main(page).locator('a.xr-jump');
-    if (await jump.isVisible()) {
-      await reachAndClick(page, jump);
-      await expect(panel(page)).toBeFocused();
+    // “Go to decision” leads to the panel below 860 px of page width.
+    const goTo = main(page).locator('a.rk-goto');
+    if (await goTo.isVisible()) {
+      await reachAndClick(page, goTo);
+      await expect(panel(page)).toBeInViewport();
+      await expect(
+        panel(page).getByRole('heading', { level: 2, name: 'Your decision' }),
+      ).toBeFocused();
     }
 
     const before = await accessFacts(page);
 
-    // f8 / B7-10 f0: DL-1 says exactly what goes live and for whom; Cancel changes nothing.
-    await reachAndClick(page, panel(page).getByRole('button', { name: 'Release update' }));
-    const dialog = page.getByRole('dialog', { name: 'Release UPD-0005?' });
+    // A decision is required before anything opens.
+    const go = panel(page).getByRole('button', { name: 'Release update' });
+    await reachAndClick(page, go);
+    const summary = panel(page).locator('.rk-errsum');
+    await expect(summary).toHaveText(/Check your decision\s*Choose a decision/);
+    await expect(summary).toBeFocused();
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+
+    // The confirmation says exactly what goes live and for whom; Cancel changes nothing.
+    await reachAndClick(page, panel(page).getByRole('radio', { name: 'Release update' }));
+    await reachAndClick(page, go);
+    const dialog = page.getByRole('dialog', {
+      name: 'Release version 1.3 of Distillation Column?',
+    });
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator('.xr-dialog-body')).toHaveText(
-      'Version 1.3 of Distillation Column goes live for everyone — the public catalogue and every institution that uses it. Version 1.2 is no longer shown.',
+    await expect(dialog.locator('.rk-dlg-now')).toContainText(
+      'Version 1.3 goes live for everyone: the public catalogue and every institution using it.',
+    );
+    await expect(dialog.locator('.rk-dlg-later')).toContainText(
+      'No institution’s or student’s access changes.',
     );
     await expect(dialog.getByRole('button', { name: 'Release update' })).toBeFocused();
-    await checkState(page, 'Distillation Column · 1.2 → 1.3');
-    if (width(page) === 1024) await shot(page, 'b705-f8-release');
+    await settle(dialog);
+    await checkState(page, 'Distillation Column');
+    if (width(page) === 1024) await shot(page, 'sa11-release-confirm');
     await reachAndClick(page, dialog.getByRole('button', { name: 'Cancel' }));
     await expect(dialog).toBeHidden();
-    await expect(panel(page).getByRole('button', { name: 'Release update' })).toBeFocused();
+    await expect(go).toBeFocused();
     await expect(chip(page)).toHaveText('Waiting for your decision');
 
-    await reachAndClick(page, panel(page).getByRole('button', { name: 'Release update' }));
+    await reachAndClick(page, go);
     await expect(dialog).toBeVisible();
     await reachAndClick(page, dialog.getByRole('button', { name: 'Release update' }));
     await expect(dialog).toBeHidden({ timeout: 30_000 });
 
-    // f6 / B7-10 f3: released — decided, read-only; focus on the result.
+    // Released — the flash takes focus; the panel is read-only.
+    const flash = main(page).locator('.rk-notice--ok').filter({ hasText: 'Version 1.3 is live.' });
+    await expect(flash).toBeFocused();
+    await expect(flash).toContainText(
+      'Everyone now sees the corrected experiment. No access changed.',
+    );
     const decided = page.locator('#update-decided');
-    await expect(decided).toBeFocused();
-    await expect(decided.locator('.xr-status--ok')).toHaveText('Released');
-    await expect(decided).toContainText('Released on 23 Oct 2026 · Arjun Mehta');
-    await expect(decided).toContainText(
-      'Version 1.3 is live for everyone. The history below keeps the earlier version and every decision.',
+    await expect(decided.locator('.xr-st--ok')).toHaveText('Released');
+    await expect(decided).toContainText('Released on 23 Oct 2026 by Arjun Mehta');
+    await expect(decided.locator('dl.rk-stand')).toHaveText(
+      /Live now\s*Version 1\.3\s*Live before\s*Version 1\.2\s*Institutional access\s*Unchanged/,
     );
     await expect(panel(page).getByRole('button')).toHaveCount(0);
     await expect(chip(page)).toHaveText('Released');
-    await expect(main(page).locator('.xr-phead-meta')).toContainText(
-      'Live now: version 1.3 · released 23 Oct 2026',
-    );
-    await expect(main(page).locator('ol.xr-timeline .xr-tl-what').first()).toHaveText(
-      'Released by Arjun Mehta',
-    );
+    await expect(history(page).first()).toHaveText('Released by Arjun Mehta');
     await expectNoPublish(page);
-    await checkState(page, 'Distillation Column · 1.2 → 1.3');
-    if (width(page) === 1024) await shot(page, 'b705-f6-released');
+    await expectNoReferences(page);
+    await checkState(page, 'Distillation Column');
+    if (width(page) === 1440) await shot(page, 'sa11-released');
 
     // Releasing changed no plan, licence or Student grant (BC9).
     expect(await accessFacts(page)).toBe(before);
 
     // The Updates list moved it to Released.
-    await reachAndClick(page, main(page).getByRole('link', { name: 'Updates' }).first());
-    await expect(tabs(page).getByRole('tab')).toHaveText(
-      [/Waiting for you\s*0/, /On hold\s*1/, /Released\s*4/],
+    await reachAndClick(page, crumbs(page).getByRole('link', { name: 'Updates' }));
+    await expect(segments(page).getByRole('button')).toHaveText(
+      [/Waiting for your decision\s*0/, /On hold\s*1/, /Released\s*4/],
       { timeout: 60_000 },
     );
     await expectSameDocument(page, mark);
@@ -403,13 +448,13 @@ test.describe('SA-11 Release or hold an update', () => {
     await expectSameDocument(page, mark);
   });
 
-  test('a held correction: Hold needs a reason; 1.1 never reaches the public until Lift hold, then Release (f9, f5, f7)', async ({
+  test('a held correction: Hold needs a reason; 1.1 never reaches the public until Lift hold, then Release', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'after-flow-e', session: ARJUN });
     // Set up before the tab reads Updates: the CI seam's writes are the world's, not this tab's.
     await page.goto(`${LIST}/UPD-0004`);
-    await expect(heading(page, 'Boiler Drum Level · 2.0 → 2.1')).toBeVisible({ timeout: 90_000 });
+    await expect(heading(page, 'Boiler Drum Level')).toBeVisible({ timeout: 90_000 });
     const mark = await markDocument(page);
     const id = await approvedShellCorrection(page);
     const before = await accessFacts(page);
@@ -419,59 +464,71 @@ test.describe('SA-11 Release or hold an update', () => {
     expect(publicSummary).not.toBe(SHELL_SUMMARY);
 
     // The Super Admin sees it only now it is approved, and opens it from Updates.
-    await reachAndClick(page, main(page).getByRole('link', { name: 'Updates' }).first());
-    await expect(tabs(page).getByRole('tab').first()).toHaveText(/Waiting for you\s*2/, {
-      timeout: 60_000,
-    });
-    const row = main(page)
-      .locator('table.xr-table tbody tr')
-      .filter({ hasText: 'Shell-and-Tube Heat Exchanger · 1.0 → 1.1' });
+    await reachAndClick(page, crumbs(page).getByRole('link', { name: 'Updates' }));
+    await expect(segments(page).getByRole('button').first()).toHaveText(
+      /Waiting for your decision\s*2/,
+      { timeout: 60_000 },
+    );
+    const row = rows(page).filter({ hasText: 'Shell-and-Tube Heat Exchanger' });
     await expect(row).toHaveCount(1, { timeout: 60_000 });
-    await reachAndClick(page, row.getByRole('link', { name: /^Review/ }));
-    const title = heading(page, 'Shell-and-Tube Heat Exchanger · 1.0 → 1.1');
+    await expect(row).toContainText('Version 1.0 → 1.1');
+    await reachAndClick(
+      page,
+      row.getByRole('link', {
+        name: 'Shell-and-Tube Heat Exchanger correction, version 1.0 to 1.1, Waiting for your decision. Open',
+      }),
+    );
+    const title = heading(page, 'Shell-and-Tube Heat Exchanger');
     await expect(title).toBeVisible({ timeout: 90_000 });
     await expect(page).toHaveURL(new RegExp(`/admin/content/updates/${id}$`));
 
-    // f9 / B7-10 f1: Hold with no reason — the error on the field; nothing is held.
-    await reachAndClick(page, panel(page).getByRole('radio', { name: /^Hold/ }));
-    await expect(panel(page).getByRole('radio', { name: /^Hold/ })).toBeChecked();
-    await reachAndClick(page, panel(page).getByRole('button', { name: 'Hold' }));
-    const dialog = page.getByRole('dialog', { name: `Hold ${id}?` });
-    await expect(dialog).toBeVisible();
-    await expect(dialog.locator('.xr-dialog-body > p').first()).toHaveText(
-      'Version 1.0 stays live. The update waits until you lift the hold. The Content Manager sees your reason.',
+    // Hold with no reason — the error on the field and in the summary; nothing opens or is held.
+    await reachAndClick(page, panel(page).getByRole('radio', { name: 'Hold' }));
+    await expect(panel(page).getByRole('radio', { name: 'Hold' })).toBeChecked();
+    const reason = panel(page).getByRole('textbox', { name: 'Reason for the hold (required)' });
+    await expect(panel(page).locator('.rk-pending')).toHaveText('Add the reason before holding.');
+    const go = panel(page).getByRole('button', { name: 'Hold update' });
+    await reachAndClick(page, go);
+    const summary = panel(page).locator('.rk-errsum');
+    await expect(summary).toHaveText(
+      /Check your decision\s*Add a reason — the Content Manager sees it/,
     );
-    const reason = dialog.getByRole('textbox', { name: 'Reason the Content Manager will see' });
-    await expect(reason).toBeFocused();
-    await reachAndClick(page, dialog.getByRole('button', { name: 'Hold' }));
-    await expect(dialog.locator('.xr-error')).toHaveText(
-      'Add a reason — the Content Manager sees it',
-    );
+    await expect(summary).toBeFocused();
     await expect(reason).toHaveAttribute('aria-invalid', 'true');
-    await expect(reason).toBeFocused();
-    await checkState(page, 'Shell-and-Tube Heat Exchanger · 1.0 → 1.1');
-    if (width(page) === 1024) await shot(page, 'b705-f9-hold-reason');
+    await expect(page.getByRole('dialog')).toHaveCount(0);
+    await checkState(page, 'Shell-and-Tube Heat Exchanger');
+    if (width(page) === 1024) await shot(page, 'sa11-hold-reason');
     await reason.fill(HOLD_REASON);
-    await reachAndClick(page, dialog.getByRole('button', { name: 'Hold' }));
+    await reachAndClick(page, go);
+    const dialog = page.getByRole('dialog', {
+      name: 'Hold the Shell-and-Tube Heat Exchanger correction?',
+    });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.locator('blockquote.rk-quote')).toContainText(HOLD_REASON);
+    await reachAndClick(page, dialog.getByRole('button', { name: 'Hold update' }));
     await expect(dialog).toBeHidden({ timeout: 30_000 });
 
-    // f5 / B7-10 f2: on hold — the reason and date first; Lift hold the only action.
+    // On hold — the reason and date; Release isn't available; Lift hold the only action.
+    const flash = main(page)
+      .locator('.rk-notice--ok')
+      .filter({ hasText: 'The correction is on hold.' });
+    await expect(flash).toBeFocused();
     const decided = page.locator('#update-decided');
-    await expect(decided).toBeFocused();
     await expect(chip(page)).toHaveText('On hold');
-    await expect(decided).toContainText('On hold since 23 Oct 2026 · Arjun Mehta');
-    await expect(decided).toContainText(`“${HOLD_REASON}”`);
-    await expect(decided).toContainText('The live version stays as it is.');
+    await expect(decided).toContainText('Put on hold on 23 Oct 2026 by Arjun Mehta');
+    await expect(decided.locator('blockquote.rk-quote')).toHaveText(HOLD_REASON);
+    await expect(decided.locator('.rk-notice--paused')).toContainText(
+      'Release isn’t available while the update is on hold',
+    );
     await expect(decided).toContainText(
       'What else a hold affects, and whether it blocks later corrections, is still open.',
     );
     await expect(panel(page).getByRole('button')).toHaveText(['Lift hold']);
-    await expect(main(page).locator('ol.xr-timeline .xr-tl-what').first()).toHaveText(
-      'Put on hold by Arjun Mehta',
-    );
+    await expect(history(page).first()).toHaveText('Put on hold by Arjun Mehta');
     await expectNoPublish(page);
-    await checkState(page, 'Shell-and-Tube Heat Exchanger · 1.0 → 1.1');
-    if (width(page) === 1024) await shot(page, 'b705-f5-on-hold');
+    await expectNoReferences(page);
+    await checkState(page, 'Shell-and-Tube Heat Exchanger');
+    if (width(page) === 1440) await shot(page, 'sa11-on-hold');
 
     // Release is refused while held (`hold-must-be-lifted`); the public page keeps 1.0.
     const current = await port<{ readonly update: { readonly rev: number } }>(
@@ -495,37 +552,36 @@ test.describe('SA-11 Release or hold an update', () => {
     await expect(main(page).locator('.xp-xsum')).toHaveText(publicSummary);
     await expectSameDocument(page, mark);
 
-    // Lift hold (DL-1, no reason): back to waiting, nothing went live (f7).
+    // Lift hold (confirmed, no reason): back to waiting, nothing went live.
     await softNavigate(page, `${LIST}/${id}`);
     await expect(title).toBeVisible({ timeout: 90_000 });
     await reachAndClick(page, panel(page).getByRole('button', { name: 'Lift hold' }));
-    const lift = page.getByRole('dialog', { name: `Lift the hold on ${id}?` });
+    const lift = page.getByRole('dialog', {
+      name: 'Lift the hold on the Shell-and-Tube Heat Exchanger correction?',
+    });
     await expect(lift).toBeVisible();
-    await expect(lift.locator('.xr-dialog-body')).toHaveText(
-      'It goes back to waiting for your decision. Nothing goes live until you release it.',
-    );
     await expect(lift.getByRole('textbox')).toHaveCount(0);
     await reachAndClick(page, lift.getByRole('button', { name: 'Lift hold' }));
     await expect(lift).toBeHidden({ timeout: 30_000 });
-    await expect(title).toBeFocused();
+    const lifted = main(page).locator('.rk-notice--ok').filter({ hasText: 'Hold lifted.' });
+    await expect(lifted).toBeFocused();
+    await expect(lifted).toContainText(
+      'The correction is waiting for your decision again. Nothing went live.',
+    );
     await expect(chip(page)).toHaveText('Waiting for your decision');
-    const notice = main(page).locator('.xr-notice').filter({ hasText: 'Hold lifted' });
-    await expect(notice).toHaveText(
-      /Hold lifted\s*The hold was lifted on 23 Oct 2026\. It is waiting for your decision again\./,
-    );
-    await expect(main(page).locator('ol.xr-timeline .xr-tl-what').first()).toHaveText(
-      'Hold lifted by Arjun Mehta',
-    );
-    await checkState(page, 'Shell-and-Tube Heat Exchanger · 1.0 → 1.1');
-    if (width(page) === 1024) await shot(page, 'b705-f7-lifted');
+    await expect(history(page).first()).toHaveText('Hold lifted by Arjun Mehta');
+    await checkState(page, 'Shell-and-Tube Heat Exchanger');
     expect(
       (await port<{ readonly summary: string }>(page, RAHUL, 'catalogue', 'getExperiment', SHELL))
         .summary,
     ).toBe(publicSummary);
 
     // Released: the public page shows the new summary; Rahul still opens the experiment.
+    await reachAndClick(page, panel(page).getByRole('radio', { name: 'Release update' }));
     await reachAndClick(page, panel(page).getByRole('button', { name: 'Release update' }));
-    const release = page.getByRole('dialog', { name: `Release ${id}?` });
+    const release = page.getByRole('dialog', {
+      name: 'Release version 1.1 of Shell-and-Tube Heat Exchanger?',
+    });
     await reachAndClick(page, release.getByRole('button', { name: 'Release update' }));
     await expect(release).toBeHidden({ timeout: 30_000 });
     await expect(chip(page)).toHaveText('Released');
@@ -538,43 +594,48 @@ test.describe('SA-11 Release or hold an update', () => {
     await expectSameDocument(page, mark);
   });
 
-  test('on hold (UPD-0004), released (after-flow-f) and not approved yet (UPD-0006) as drawn (B7-10 f2 … f4; B7-05 f10)', async ({
+  test('on hold (UPD-0004), released (after-flow-f) and not approved yet (UPD-0006) as drawn', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'after-flow-f', session: ARJUN });
     await page.goto(`${LIST}/UPD-0005`);
-    await expect(heading(page, 'Distillation Column · 1.2 → 1.3')).toBeVisible({
-      timeout: 90_000,
-    });
+    await expect(heading(page, 'Distillation Column')).toBeVisible({ timeout: 90_000 });
     const mark = await markDocument(page);
     await expect(chip(page)).toHaveText('Released', { timeout: 60_000 });
-    await expect(main(page).locator('.xr-phead-meta')).toContainText(
-      'Live now: version 1.3 · released 24 Oct 2026',
+    await expect(page.locator('#update-decided')).toContainText(
+      'Released on 24 Oct 2026 by Arjun Mehta',
     );
+    await expect(
+      main(page)
+        .getByRole('table', { name: 'Changed fields, live and proposed' })
+        .getByRole('columnheader'),
+    ).toHaveText(['Field', 'Live before', 'Released · 1.3']);
     await expect(panel(page).getByRole('button')).toHaveCount(0);
-    await checkState(page, 'Distillation Column · 1.2 → 1.3');
+    await expectNoReferences(page);
+    await checkState(page, 'Distillation Column');
+    if (width(page) !== 1440) await shot(page, 'sa11-released');
 
     await softNavigate(page, `${LIST}/UPD-0004`);
-    await expect(heading(page, 'Boiler Drum Level · 2.0 → 2.1')).toBeVisible({ timeout: 90_000 });
+    await expect(heading(page, 'Boiler Drum Level')).toBeVisible({ timeout: 90_000 });
     await expect(chip(page)).toHaveText('On hold');
     await expect(panel(page).getByRole('button')).toHaveText(['Lift hold']);
-    await checkState(page, 'Boiler Drum Level · 2.0 → 2.1');
+    await checkState(page, 'Boiler Drum Level');
+    if (width(page) !== 1440) await shot(page, 'sa11-on-hold');
 
-    // B7-05 f10 / B7-10 f4: still with the Content Manager — nothing to decide, never not found.
+    // Still with the Content Manager — nothing to decide, never “not available”.
     await softNavigate(page, `${LIST}/UPD-0006`);
-    await expect(heading(page, 'Release or hold an update')).toBeVisible({ timeout: 90_000 });
-    const empty = main(page).locator('.xr-empty');
-    await expect(empty.getByRole('heading', { level: 2 })).toHaveText('Nothing to decide');
-    await expect(empty.locator('p')).toHaveText(
-      'This update hasn’t been approved by the Academic Reviewer yet. It reaches you when it is.',
+    await expect(heading(page, 'Nothing to decide')).toBeVisible({ timeout: 90_000 });
+    await expect(main(page).locator('.sa-msg .rk-sub')).toHaveText(
+      'This correction hasn’t been approved by the Academic Reviewer yet. It reaches you when it is. The live version is unchanged.',
     );
-    await expect(empty.getByRole('link', { name: 'Back to Updates' })).toHaveAttribute(
+    await expect(main(page).getByRole('link', { name: 'Back to Updates' })).toHaveAttribute(
       'href',
       LIST,
     );
     await expect(panel(page)).toHaveCount(0);
-    await checkState(page, 'Release or hold an update');
-    if (width(page) === 1024) await shot(page, 'b705-f10-nothing-to-decide');
+    await expectNoReferences(page);
+    await checkState(page, 'Nothing to decide');
+    await shot(page, 'sa11-not-approved');
     await expectSameDocument(page, mark);
   });
 });

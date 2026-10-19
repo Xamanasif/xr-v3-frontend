@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Fixture — an inline link that wraps onto two lines</title>
+    <style>
+      body {
+        font:
+          16px/1.5 system-ui,
+          sans-serif;
+        margin: 24px;
+      }
+      /* A 28-character cell in a monospace face: the link starts at the end of line 1 ("Heat")
+         and ends at the start of line 2, so the centre of the box around both lines falls on
+         the words before it (line 1) or beside its end (line 2), never on the link itself. */
+      .cell {
+        position: relative;
+        width: 28ch;
+        font:
+          16px/24px ui-monospace,
+          monospace;
+        margin-top: 16px;
+      }
+      .cover {
+        position: absolute;
+        inset: 0;
+        background: rgb(255 255 255 / 0.6);
+      }
+    </style>
+    <script>
+      window.__fixture = { clicks: [] };
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>Wrapped links</h1>
+      <p class="cell">
+        Record: Shell-and-Tube
+        <a
+          href="#open"
+          onclick="
+            window.__fixture.clicks.push('open');
+            return false;
+          "
+          >Heat Exchanger</a
+        >
+      </p>
+      <p class="cell">
+        Record: Shell-and-Tube
+        <a
+          href="#covered"
+          onclick="
+            window.__fixture.clicks.push('covered');
+            return false;
+          "
+          >Heat Conductor</a
+        >
+        <span class="cover"></span>
+      </p>
+    </main>
+  </body>
+</html>

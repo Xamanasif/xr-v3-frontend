@@ -4,9 +4,10 @@
 //
 // A class token must be a V3 root class (`xr`, `rb`), carry a Refined B prefix — `xr-` (core.css),
 // `rb-` (rb.css), `rk-` (rb-kit.css) — or the prefix of an owner-approved role export's extension
-// sheet — `xs-` (Entry & shared, design/v3-refined-b/roles/XS-v6/project/xs-shared.css) — or be
-// an `is-*` state class. The XS preview-only scaffolding (`xs-slot*`, `xs-pub*`, `xs-spec`,
-// `xs-kit*`) is canvas-only and refused by `xr/no-canvas-classes`. The `xr-` prefix is shared with
+// sheet — `xs-` (Entry & shared, design/v3-refined-b/roles/XS-v6/project/xs-shared.css), `sa-`
+// (Super Admin, design/v3-refined-b/roles/SA-v1/project/sa-role.css) — or be an `is-*` state
+// class. The XS preview-only scaffolding (`xs-slot*`, `xs-pub*`, `xs-spec`, `xs-kit*`) and the SA
+// preview controls (`sa-pv-*`) are canvas-only and refused by `xr/no-canvas-classes`. The `xr-` prefix is shared with
 // the v46 foundation sheet, so a v46 container class (`xr-app`, for a v46 island) is accepted here
 // too; the rendered-class tests (`expectV3ClassesOnly`) prove each token is defined. Product-added
 // V3 classes (`rk-x-*`) must be on V3_PRODUCT_CLASS_ALLOW_LIST, and the v46 product classes
@@ -14,7 +15,7 @@
 import { V3_PRODUCT_CLASS_ALLOW_LIST } from '../../policy/terms.mjs';
 import { classStringPieces, isClassAttribute, tokensOf } from './class-strings.mjs';
 
-const PREFIX = '(?:xr|rb|rk|xs)';
+const PREFIX = '(?:xr|rb|rk|xs|sa)';
 const WHOLE = new RegExp(
   `^(?:xr|rb|${PREFIX}-[a-z0-9]+(?:(?:-|--|__)[a-z0-9]+)*|is-[a-z0-9]+(?:-[a-z0-9]+)*)$`,
 );

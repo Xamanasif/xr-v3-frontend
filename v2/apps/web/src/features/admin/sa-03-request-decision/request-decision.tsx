@@ -1,51 +1,62 @@
 'use client';
 
-import type { DecisionPage, Result, ServiceError } from '@xr/contracts/draft';
-import type { Technology } from '@xr/domain';
+import type { DecisionPage, PlanEffect, Result, ServiceError } from '@xr/contracts/draft';
+import { FORMAT_META, type Technology } from '@xr/domain';
+import { Link } from '@xr/ui';
 import {
-  BackLink,
-  Button,
-  ChoiceCard,
-  ChoiceList,
+  AskList,
+  AskRow,
+  Breadcrumbs,
+  ButtonLink,
+  ButtonRow,
+  ChangeSummary,
+  CheckGroup,
+  ChoiceGroup,
   ConfirmDialog,
-  DecisionLayout,
+  CourseCode,
+  DecisionOutcome,
+  DecisionPanel,
+  DefinitionList,
+  DetailLayout,
+  ErrorSummary,
+  type ErrorSummaryItem,
+  EventSteps,
+  FactStrip,
   Field,
   FieldError,
-  Icon,
-  JumpLink,
-  Link,
+  FORMAT_ORDER,
+  FormatCells,
+  FormatKey,
+  GoButton,
+  LockedValue,
+  MetaSeparator,
   Notice,
-  PageContent,
-  PageHeader,
-  RadioGroup,
-  Section,
-  SectionBody,
+  PageHead,
+  PendingHint,
+  Quote,
+  RecordLine,
+  SectionNote,
   Select,
+  SurfaceSection,
   Textarea,
   TextInput,
   Timeline,
-} from '@xr/ui';
-import {
-  type ReactNode,
-  type RefObject,
-  useEffect,
-  useLayoutEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+} from '@xr/ui/v3';
+import { type RefObject, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 
+import { weekdayDate } from '@/copy/dates';
 import {
-  CONFIRM_LINES,
+  CONFIRM_DIALOG,
   confirmTitle,
-  courseLine,
+  contactPersonWords,
   DECISION_ACTIONS,
   DECISION_CHOICES,
   DECISION_PAGE,
   decidedBy,
   decidedMeta,
   type ExperimentName,
-  formatList,
+  FORMAT_WORDS,
+  formatCellsLabel,
   FOUR_EVENTS,
   licencesRequestedWords,
   PAUSED_BLOCK,
@@ -55,7 +66,6 @@ import {
   ROUTE_CHOICE,
   routeWords,
   SMALLER_SCOPE,
-  STAND,
   TERM_OPTIONS,
   termWords,
   unnamedExperiment,
@@ -65,13 +75,16 @@ import { institutionAddress } from '@/nav/institutions';
 import { decisionPlacement, REQUESTS_ADDRESS } from '@/nav/requests';
 import { useRequestForDecision } from '@/queries/access-requests';
 import { usePublishedCatalogue } from '@/queries/catalogue';
+import { useSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
 
-import { RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage, useWorkspaceIdentity } from '../../shared/workspace-frame/shell-page';
+import { SaRecordGuard } from '../shared/sa-record-guard';
 import { RequestStatusPill } from '../shared/request-status';
 import {
   type ApprovedTerm,
+  confirmLines,
+  createdByThisApproval,
   type DecisionChoice,
   type DecisionCommand,
   decisionCommand,
@@ -96,39 +109,42 @@ import {
   termValue,
 } from './decision-view';
 
-const PANEL_ID = 'decision';
+/** The decision column (`aside#dc-panel`) and its heading (`h2#dc-panel-h`), as the export names them. */
+const PANEL_ID = 'dc-panel';
+const PANEL_HEADING_ID = 'dc-panel-h';
 
 /**
- * SA-03 Request decision — board B1-11 (AR-4 decision page), at `/admin/requests/[requestId]`.
+ * SA-03 Request decision — the V3 Refined B design (the owner-approved Super Admin export,
+ * `sa-views-a.js` `V.decision`), at `/admin/requests/[requestId]`.
  *
  * - **Read**: `AccessRequestService.getRequestForDecision` — the request, the formats published
  *   now, the institution's existing access and where it stands — with the experiments named from
  *   the published catalogue. Opening the page changes nothing: review start stays the seeded or
  *   test-only fact (AD-14 / P1-04, owner interim).
- * - **Decide**: Approve request · Approve a smaller scope · Request more information, each the
- *   port's command through `useCommand` with the request's revision from when the decision began
- *   (`expectedRev`: the first change to the form, or the press that sends it or opens its
- *   confirmation), never a newer read. The panel runs B1-11's drawn checks before a confirmation
+ * - **The record**: the page head (the request's institution, its status, type and when it was
+ *   received; "Go to decision" below 860 px), the facts, the organisation and contact person (the
+ *   institution linked once its record exists), what they are asking for (requested against
+ *   published formats), existing access (plans named by content and term, never by reference),
+ *   the requester's message, the history and, until it is decided, the four separate events.
+ * - **Decide**: Approve request · Approve a smaller scope (not for a renewal) · Request more
+ *   information, each the port's command through `useCommand` with the request's revision from
+ *   when the decision began (`expectedRev`), never a newer read. Internal or external is chosen
+ *   only for a new institution, else shown locked. The panel runs its checks before a confirmation
  *   opens; the command checks again and its refusals are shown as they come: field errors in
  *   "Check your decision"; a request that moved on, a stale revision or a pause writes nothing and
- *   refetches the page, which then shows its current drawn state, with focus on the panel's
- *   heading (P1-21 interim; state-copy `SA-03.moved-on`). Approvals confirm first (DL-1, "what
- *   approving does — and does not do"), and the confirmation sends exactly the decision it names,
- *   fixed when it opened; a request for information does not confirm (B1-11 f6 → f12). After a
- *   decision the panel shows the decided state and focus moves to its heading.
- * - **Panels** (B1-11 `open`, `blocked`, `done`): open while under review; "This institution is
- *   paused" with no decision controls while its institution is paused (f14), and its "View
- *   institution" link (SA-07, Package 1D); decided otherwise.
- *   A renewal's smaller scope is shown unavailable with its reason (f13; T-07, D8).
- * - **Layout**: details ~72 % and the sticky decision panel ~28 % from 860 px of content; below,
- *   the panel follows the details and "Go to decision" at the top moves focus to it (VD-05: B1-11
- *   draws the sticky panel, owner-approved for SA-03).
+ *   refetches the page, which then shows its current state, with focus on the panel's heading
+ *   (state-copy `SA-03.moved-on`, the repo's existing wording: no notice). Approvals confirm first
+ *   — what approving does now and what only later events do; when the approval's plan effect is
+ *   open the words never claim a plan (`planEffect` policy-open) — and the confirmation sends
+ *   exactly the decision it names. After a decision the panel shows where the request stands and
+ *   focus moves to its heading. There is no Decline and no Mark paid.
+ * - **Paused institution**: "This institution is paused" with no decision controls, and its "View
+ *   institution" link.
  */
 export function RequestDecision({ requestId }: { readonly requestId: string }) {
   const read = useRequestForDecision(requestId);
   const catalogue = usePublishedCatalogue();
-  const reference = read.data?.ok ? read.data.value.request.id : requestId;
-  useShellPage(decisionPlacement(reference));
+  useShellPage(decisionPlacement(read.data?.ok ? read.data.value.request.institutionName : null));
 
   const names = useMemo(() => {
     const map = new Map<string, ExperimentName>();
@@ -136,7 +152,8 @@ export function RequestDecision({ requestId }: { readonly requestId: string }) {
       for (const entry of catalogue.data.value.entries) {
         map.set(entry.experimentId, {
           name: entry.name,
-          course: courseLine(entry.platformCode, entry.courseName),
+          code: entry.platformCode,
+          course: entry.courseName,
         });
       }
     }
@@ -146,25 +163,23 @@ export function RequestDecision({ requestId }: { readonly requestId: string }) {
     names.get(experimentId) ?? unnamedExperiment(experimentId);
 
   return (
-    <PageContent wrap="wide">
-      <RecordGuard
-        read={{
-          data: catalogue.isPending ? undefined : read.data,
-          isPending: read.isPending || catalogue.isPending,
-          isError: read.isError || catalogue.isError,
-          refetch: () => {
-            void read.refetch();
-            void catalogue.refetch();
-          },
-        }}
-        loadingLabel={stateWords('SA-03.loading')}
-        failed={{ title: stateWords('SA-03.failed'), line: stateWords('SA-03.failed.line') }}
-      >
-        {(page) => (
-          <DecisionContent page={page} nameOf={nameOf} refetch={() => void read.refetch()} />
-        )}
-      </RecordGuard>
-    </PageContent>
+    <SaRecordGuard
+      read={{
+        data: catalogue.isPending ? undefined : read.data,
+        isPending: read.isPending || catalogue.isPending,
+        isError: read.isError || catalogue.isError,
+        refetch: () => {
+          void read.refetch();
+          void catalogue.refetch();
+        },
+      }}
+      loadingLabel={stateWords('SA-03.loading')}
+      failedTitle={stateWords('SA-03.failed')}
+    >
+      {(page) => (
+        <DecisionContent page={page} nameOf={nameOf} refetch={() => void read.refetch()} />
+      )}
+    </SaRecordGuard>
   );
 }
 
@@ -178,59 +193,85 @@ function DecisionContent({
   readonly refetch: () => void;
 }) {
   const { request } = page;
+  const session = useSession();
+  const date = session.status === 'signed-in' ? weekdayDate(session.signedInAt) : undefined;
   const titleRef = useRef<HTMLHeadingElement>(null);
   const kind = panelKindOf(page);
-  // Once decided here, focus moves to the panel's heading (B1-11 `focus(pid + '-dp')`). The
-  // command's dependent reads have refetched before its answer arrives, so the decided panel is
-  // already on show; the heading itself stays mounted whatever the panel shows.
+  /** What the approval decided here did to the plans (the command's `planEffect`). */
+  const [answered, setAnswered] = useState<PlanEffect | null>(null);
+  // Once decided here, focus moves to the panel's heading. The command's dependent reads have
+  // refetched before its answer arrives, so the decided panel is already on show; the heading
+  // itself stays mounted whatever the panel shows.
   const focusTitle = () => {
     window.setTimeout(() => titleRef.current?.focus(), 0);
   };
   // Focus to the panel's heading when the open panel asks for it — after a refusal because the
   // request moved on, or when a change made elsewhere ends the panel while one of its controls has
-  // focus (the request decided, or its institution paused, in another session). Moved in an effect:
-  // in the same commit the confirmation's own close has given focus back to its trigger (a child's
-  // effect runs first), so this request wins (as SA-07).
+  // focus. Moved in an effect: in the same commit the confirmation's own close has given focus back
+  // to its trigger (a child's effect runs first), so this request wins.
   const [headingFocus, setHeadingFocus] = useState(0);
   useEffect(() => {
     if (headingFocus > 0) titleRef.current?.focus();
   }, [headingFocus]);
   const focusHeading = () => setHeadingFocus((count) => count + 1);
 
+  // "Go to decision" (below 860 px of page width) moves focus to the panel's heading, as the
+  // export's `goPanel` does — not only the view.
+  useEffect(() => {
+    const goPanel = (event: MouseEvent) => {
+      const link =
+        event.target instanceof Element ? event.target.closest(`a[href="#${PANEL_ID}"]`) : null;
+      if (!link) return;
+      event.preventDefault();
+      document.getElementById(PANEL_ID)?.scrollIntoView({ block: 'start' });
+      titleRef.current?.focus({ preventScroll: true });
+    };
+    document.addEventListener('click', goPanel);
+    return () => document.removeEventListener('click', goPanel);
+  }, []);
+
   return (
     <>
-      <PageHeader
-        className="mt-3 mb-4"
-        back={<BackLink href={REQUESTS_ADDRESS}>{DECISION_PAGE.back}</BackLink>}
-        overline={
-          <>
-            {DECISION_PAGE.overline} · <span className="xr-id">{request.id}</span>
-          </>
-        }
+      <PageHead
+        variant="record"
         title={request.institutionName}
+        titleFocusTarget
+        date={date}
+        eyebrow={DECISION_PAGE.eyebrow}
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: DECISION_PAGE.back, href: REQUESTS_ADDRESS }]}
+            current={request.institutionName}
+          />
+        }
         meta={
           <>
-            <RequestStatusPill status={request.status} />
-            <span>{receivedWords(request.receivedAt)}</span>
+            <RequestStatusPill status={request.status} size="lg" />
             <span>{REQUEST_TYPE_WORDS[request.type]}</span>
+            <MetaSeparator />
+            <span>{receivedWords(request.receivedAt)}</span>
           </>
         }
+        goTo={{ label: DECISION_PAGE.goTo, targetId: PANEL_ID, focusId: PANEL_HEADING_ID }}
       />
-      <JumpLink targetId={PANEL_ID} className="mb-4" />
-      <DecisionLayout
-        jump={false}
-        panel={{
-          id: PANEL_ID,
-          title: DECISION_PAGE.panelTitle,
-          titleFocusTarget: true,
-          titleRef,
-          position: 'sticky',
-          children:
-            kind === 'open' ? (
+      <DetailLayout
+        asideId={PANEL_ID}
+        asideLabelledBy={PANEL_HEADING_ID}
+        main={<DecisionDetails page={page} nameOf={nameOf} />}
+        aside={
+          <DecisionPanel
+            title={DECISION_PAGE.panelTitle}
+            titleId={PANEL_HEADING_ID}
+            titleRef={titleRef}
+          >
+            {kind === 'open' ? (
               <OpenPanel
                 page={page}
                 titleRef={titleRef}
-                onDecided={focusTitle}
+                onDecided={(effect) => {
+                  setAnswered(effect);
+                  focusTitle();
+                }}
                 onReread={refetch}
                 onMovedOn={() => {
                   refetch();
@@ -240,65 +281,53 @@ function DecisionContent({
               />
             ) : kind === 'blocked' ? (
               <Notice
-                tone="warn"
-                icon="paused"
+                tone="paused"
+                role="status"
                 title={PAUSED_BLOCK.title}
                 actions={
                   request.institutionId ? (
-                    <Link href={institutionAddress(request.institutionId)}>
+                    <ButtonLink href={institutionAddress(request.institutionId)}>
                       {PAUSED_BLOCK.viewInstitution}
-                    </Link>
+                    </ButtonLink>
                   ) : undefined
                 }
               >
                 {PAUSED_BLOCK.line}
               </Notice>
             ) : (
-              <DecidedPanel page={page} />
-            ),
-        }}
-      >
-        <DecisionDetails page={page} nameOf={nameOf} />
-      </DecisionLayout>
+              <DecidedPanel page={page} answered={answered} />
+            )}
+          </DecisionPanel>
+        }
+      />
     </>
   );
 }
 
-// ---- the details (B1-11 left column) ----
+// ---- the record (`rk-mainsheet`) ----
 
-/** A key–value list as B1-11 draws it (`dl.doc-kv.xp-kv`, 180 px keys; `doc-` is canvas-only). */
-function KeyValues({
-  rows,
+/** The format cells of one experiment: requested (on), published only (pub), not published. */
+function AskedFormats({
+  requested,
+  published,
 }: {
-  readonly rows: readonly (readonly [string, ReactNode, boolean?])[];
+  readonly requested: readonly Technology[];
+  readonly published: readonly Technology[];
 }) {
   return (
-    <dl className="xp-kv m-0 grid grid-cols-[180px_minmax(0,1fr)] gap-x-5 gap-y-[10px] text-[15px] leading-[22px]">
-      {rows.map(([key, value, wrapAnywhere]) => (
-        <KeyValue key={key} name={key} wrapAnywhere={wrapAnywhere === true}>
-          {value}
-        </KeyValue>
-      ))}
-    </dl>
-  );
-}
-
-function KeyValue({
-  name,
-  wrapAnywhere,
-  children,
-}: {
-  readonly name: string;
-  readonly wrapAnywhere: boolean;
-  readonly children: ReactNode;
-}) {
-  return (
-    <>
-      <dt className="font-[700] text-ink">{name}</dt>
-      <dd className={`m-0 text-ink-2${wrapAnywhere ? ' [overflow-wrap:anywhere]' : ''}`}>
-        {children}
-      </dd>
-    </>
+    <FormatCells
+      variant="strip"
+      label={formatCellsLabel(requested, published)}
+      cells={FORMAT_ORDER.map((code) => {
+        const format = code.toLowerCase() as Technology;
+        const state = requested.includes(format)
+          ? 'on'
+          : published.includes(format)
+            ? 'pub'
+            : 'none';
+        return { format: code, state, words: FORMAT_WORDS.cell[state] };
+      })}
+    />
   );
 }
 
@@ -310,161 +339,120 @@ function DecisionDetails({
   readonly nameOf: (experimentId: string) => ExperimentName;
 }) {
   const { request } = page;
-  const licences = licencesRequestedWords(request.type, request.licencesRequested);
-  const term = termWords(request.term);
-  const history = historyLines(page);
+  const decided = request.status !== 'under-review';
+  const institutionId = request.institutionId ?? page.existingAccess?.institutionId ?? null;
   return (
     <>
-      <Section label={DECISION_PAGE.summaryLabel}>
-        <dl className="m-0 grid grid-cols-[repeat(auto-fit,minmax(110px,1fr))] gap-x-6 gap-y-4 px-6 py-5">
-          <SummaryFact
-            name={DECISION_PAGE.facts.experiments}
-            value={String(request.items.length)}
-          />
-          <SummaryFact name={DECISION_PAGE.facts.licences} value={licences} />
-          <SummaryFact name={DECISION_PAGE.facts.term} value={term} />
-          <SummaryFact name={DECISION_PAGE.facts.route} value={routeWords(page.routeCommitted)} />
-        </dl>
-      </Section>
-      <Section title={DECISION_PAGE.organisation}>
-        <SectionBody>
-          <KeyValues
-            rows={[
-              [DECISION_PAGE.institution, request.institutionName],
-              [DECISION_PAGE.contactPerson, request.contact.person],
-              [DECISION_PAGE.email, request.contact.email, true],
-              [DECISION_PAGE.phone, request.contact.phone ?? DECISION_PAGE.phoneNotGiven],
-            ]}
-          />
-        </SectionBody>
-      </Section>
-      <Section title={DECISION_PAGE.asking} meta={REQUEST_TYPE_WORDS[request.type]}>
-        <div className="px-6 pb-2">
-          <div className="xr-table-wrap">
-            <table className="xr-table">
-              <thead>
-                <tr>
-                  <th scope="col">{DECISION_PAGE.experimentColumn}</th>
-                  <th scope="col">{DECISION_PAGE.requestedColumn}</th>
-                  <th scope="col">{DECISION_PAGE.publishedColumn}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {request.items.map((item) => {
-                  const experiment = nameOf(item.experimentId);
-                  return (
-                    <tr key={item.experimentId}>
-                      <td className="is-primary">
-                        {experiment.name}
-                        {experiment.course ? (
-                          <span className="xr-sub">{experiment.course}</span>
-                        ) : null}
-                      </td>
-                      <td data-label={DECISION_PAGE.requestedColumn}>{formatList(item.formats)}</td>
-                      <td data-label={DECISION_PAGE.publishedColumn}>
-                        {formatList(page.publishedFormats[item.experimentId] ?? [])}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <SectionBody className="pt-3">
-          <KeyValues
-            rows={[
-              [DECISION_PAGE.facts.licences, licences],
-              [DECISION_PAGE.facts.term, term],
-            ]}
-          />
-        </SectionBody>
-      </Section>
-      <Section title={DECISION_PAGE.existing}>
-        <SectionBody>
-          <p className="xr-body text-ink-2">
-            {existingAccessWords(page, (experimentId) => nameOf(experimentId).name)}
-          </p>
-        </SectionBody>
-      </Section>
-      {request.message ? (
-        <Section title={DECISION_PAGE.message}>
-          <SectionBody>
-            <blockquote className="m-0 rounded-r-[8px] border-l-[3px] border-indigo-200 bg-canvas px-4 py-3 text-[16px] leading-[24px] text-ink">
-              “{request.message}”
-            </blockquote>
-          </SectionBody>
-        </Section>
-      ) : null}
-      <Section title={DECISION_PAGE.history}>
-        <SectionBody>
-          <Timeline
-            lineElement="p"
-            events={history.map((line) => ({
-              id: line.id,
-              what: line.what,
-              when: line.when,
-              ...(line.note ? { note: line.note } : {}),
+      <FactStrip
+        facts={[
+          { term: DECISION_PAGE.facts.experiments, value: String(request.items.length) },
+          {
+            term: DECISION_PAGE.facts.licences,
+            value: licencesRequestedWords(request.type, request.licencesRequested),
+          },
+          { term: DECISION_PAGE.facts.term, value: termWords(request.term) },
+          {
+            term: DECISION_PAGE.facts.route,
+            value: routeWords(page.routeCommitted),
+            quiet: page.routeCommitted === null,
+          },
+        ]}
+      />
+      <SurfaceSection title={DECISION_PAGE.organisation} titleId="dc-org">
+        <DefinitionList
+          items={[
+            {
+              term: DECISION_PAGE.institution,
+              value:
+                institutionId && page.whereItStands.institutionRecord === 'created' ? (
+                  <Link href={institutionAddress(institutionId)}>{request.institutionName}</Link>
+                ) : (
+                  request.institutionName
+                ),
+            },
+            { term: DECISION_PAGE.contactPerson, value: request.contact.person },
+            { term: DECISION_PAGE.email, value: request.contact.email },
+            {
+              term: DECISION_PAGE.phone,
+              value: request.contact.phone ?? DECISION_PAGE.phoneNotGiven,
+            },
+          ]}
+        />
+      </SurfaceSection>
+      <SurfaceSection
+        title={DECISION_PAGE.asking}
+        titleId="dc-ask"
+        aside={
+          <FormatKey
+            items={(['on', 'pub', 'none'] as const).map((state) => ({
+              state,
+              words: FORMAT_WORDS.key[state],
             }))}
           />
-        </SectionBody>
-      </Section>
-      <FourEvents />
+        }
+      >
+        <AskList>
+          {request.items.map((item) => {
+            const experiment = nameOf(item.experimentId);
+            return (
+              <AskRow
+                key={item.experimentId}
+                title={experiment.name}
+                course={
+                  experiment.code || experiment.course ? (
+                    <>
+                      {experiment.code ? <CourseCode code={experiment.code} /> : null}
+                      {experiment.course ? <span>{experiment.course}</span> : null}
+                    </>
+                  ) : undefined
+                }
+                formats={
+                  <AskedFormats
+                    requested={item.formats}
+                    published={page.publishedFormats[item.experimentId] ?? []}
+                  />
+                }
+              />
+            );
+          })}
+        </AskList>
+      </SurfaceSection>
+      <SurfaceSection title={DECISION_PAGE.existing} titleId="dc-exist">
+        <RecordLine>
+          {existingAccessWords(page, (experimentId) => nameOf(experimentId).name)}
+        </RecordLine>
+      </SurfaceSection>
+      {request.message ? (
+        <SurfaceSection title={DECISION_PAGE.message} titleId="dc-msg">
+          <Quote by={contactPersonWords(request.contact.person)}>{request.message}</Quote>
+        </SurfaceSection>
+      ) : null}
+      <SurfaceSection title={DECISION_PAGE.history} titleId="dc-hist">
+        <Timeline
+          events={historyLines(page).map((line) => ({
+            what: line.what,
+            when: line.when,
+            ...(line.note ? { note: line.note } : {}),
+          }))}
+        />
+      </SurfaceSection>
+      {decided ? null : (
+        <SurfaceSection
+          title={FOUR_EVENTS.title}
+          titleId="dc-events"
+          aside={<SectionNote>{FOUR_EVENTS.note}</SectionNote>}
+        >
+          <EventSteps
+            steps={FOUR_EVENTS.steps.map((step) => ({ title: step.what, description: step.line }))}
+            note={FOUR_EVENTS.footnote}
+          />
+        </SurfaceSection>
+      )}
     </>
   );
 }
 
-function SummaryFact({ name, value }: { readonly name: string; readonly value: string }) {
-  return (
-    <div>
-      <dt className="xr-overline">{name}</dt>
-      <dd className="mx-0 mt-1 mb-0 text-[20px] font-[700]">{value}</dd>
-    </div>
-  );
-}
-
-/** "What happens after you decide — four separate events" (B1-11; replaces B2's chain diagram). */
-function FourEvents() {
-  return (
-    <details className="xr-section" open>
-      <summary className="flex min-h-14 cursor-pointer items-center gap-2 px-6 text-[17px] font-[700] text-ink">
-        <Icon name="help" />
-        {FOUR_EVENTS.summary}
-      </summary>
-      <SectionBody>
-        {/* B1-11: a rule above the steps and under each one. Drawn as the list's top and bottom rules
-            (the logical `border-y`) and a rule between steps — the same lines as the board's
-            `border-top` + `li{border-bottom}`, without `border-top-width`, a Preflight signature
-            the built-CSS check refuses (e2e/styles.spec.ts). */}
-        <ol className="m-0 flex list-none flex-col border-y border-line p-0">
-          {FOUR_EVENTS.steps.map((step, index) => (
-            <li
-              key={step.what}
-              className="grid grid-cols-[28px_minmax(0,1fr)] gap-3 border-b border-line py-[14px] last:border-b-0"
-            >
-              <b className="xp-step-dot">{index + 1}</b>
-              <div>
-                <p className="xr-tl-what">{step.what}</p>
-                <p className="xr-small text-ink-2">
-                  {step.line ?? (
-                    <>
-                      {FOUR_EVENTS.approvalBefore}
-                      <strong>{FOUR_EVENTS.approvalStatus}</strong>
-                      {FOUR_EVENTS.approvalAfter}
-                    </>
-                  )}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ol>
-        <p className="xr-small mt-3 text-ink-2">{FOUR_EVENTS.footnote}</p>
-      </SectionBody>
-    </details>
-  );
-}
-
-// ---- the open panel (B1-11 f0 … f8, f13) ----
+// ---- the open panel ----
 
 /**
  * An open confirmation: the page and the decision as they stood when it opened, and the command
@@ -474,6 +462,27 @@ interface Confirmation {
   readonly page: DecisionPage;
   readonly draft: DecisionDraft;
   readonly command: DecisionCommand;
+}
+
+/** Where each error of "Check your decision" sends focus (the controls' ids). */
+const ERROR_TARGET: Readonly<Record<Exclude<keyof PanelErrors, 'undrawn'>, string>> = {
+  choice: 'decision',
+  route: 'decision-route',
+  formats: 'decision-format',
+  licences: 'decision-licences',
+  term: 'decision-term',
+  change: 'decision-licences',
+  reason: 'decision-reason',
+};
+
+/** The summary's linked lines, in the panel's order. */
+function summaryItems(errors: PanelErrors): readonly ErrorSummaryItem[] {
+  return (['choice', 'route', 'formats', 'licences', 'term', 'change', 'reason'] as const).flatMap(
+    (key) => {
+      const message = errors[key];
+      return message ? [{ fieldId: ERROR_TARGET[key], summaryText: message }] : [];
+    },
+  );
 }
 
 function OpenPanel({
@@ -487,8 +496,8 @@ function OpenPanel({
   readonly page: DecisionPage;
   /** The panel's heading: where focus goes when the confirmation's trigger is gone on close. */
   readonly titleRef: RefObject<HTMLHeadingElement | null>;
-  /** A decision was recorded: the decided panel will show, with focus on its heading. */
-  readonly onDecided: () => void;
+  /** A decision was recorded (with what it did to the plans): the decided panel will show. */
+  readonly onDecided: (effect: PlanEffect | null) => void;
   /** Read the page again, focus staying where it is (an open policy: nothing to show). */
   readonly onReread: () => void;
   /** The request moved on, or its revision is stale: read it again, focus on the heading (P1-21). */
@@ -508,7 +517,7 @@ function OpenPanel({
   const [errors, setErrors] = useState<PanelErrors>({});
   const [confirmation, setConfirmation] = useState<Confirmation | null>(null);
   const errorsRef = useRef<HTMLDivElement>(null);
-  /** "Check your decision" takes focus once it has rendered (B1-11 `focus(pid + '-errs')`). */
+  /** "Check your decision" takes focus once it has rendered. */
   const focusErrors = useRef(false);
   const approve = useCommand((ports) => ports.accessRequests.approveRequest);
   const smaller = useCommand((ports) => ports.accessRequests.approveSmallerScope);
@@ -567,7 +576,12 @@ function OpenPanel({
   const handleAnswer = (answer: Result<unknown, ServiceError>) => {
     setConfirmation(null);
     if (answer.ok) {
-      onDecided();
+      const value = answer.value;
+      onDecided(
+        value && typeof value === 'object' && 'planEffect' in value
+          ? (value as { readonly planEffect: PlanEffect }).planEffect
+          : null,
+      );
       return;
     }
     const error = answer.error;
@@ -582,8 +596,8 @@ function OpenPanel({
       return;
     }
     // Moved on, stale, paused, not adjustable, not found: nothing was written; the page is read
-    // again and shows the request's current drawn state (P1-21 interim; B1-11 f13, f14), and the
-    // decision's revision is released (state-copy `SA-03.moved-on`).
+    // again and shows the request's current state, and the decision's revision is released
+    // (state-copy `SA-03.moved-on`).
     setBasis(null);
     onMovedOn();
   };
@@ -610,12 +624,11 @@ function OpenPanel({
     setBasis(expectedRev);
     const command = decisionCommand(page, draft, expectedRev);
     if (!command) return;
-    // A request for information is sent as it is (B1-11 f6 → f12); an approval confirms first.
+    // A request for information is sent as it is; an approval confirms first.
     if (command.choice === 'info') send(command);
     else setConfirmation({ page, draft, command });
   };
 
-  const listed = errorList(errors);
   const pending = pendingHint(page, draft);
   const differences = draft.choice === 'smaller' ? differencesOf(page, draft) : [];
   const labelOf = (choice: DecisionChoice | null) =>
@@ -628,104 +641,83 @@ function OpenPanel({
   // What the dialog names: the confirmation's own page and decision while it is open (the page
   // may be read again meanwhile); closed, the panel's, as before.
   const named = confirmation ?? { page, draft };
+  const lines = confirmLines(
+    named.page,
+    named.draft,
+    named.page.routeCommitted ?? named.draft.route,
+  );
+  const approving = draft.choice === 'approve' || draft.choice === 'smaller';
 
   return (
     <>
       {hasPanelErrors(errors) ? (
-        <div
+        <ErrorSummary
           ref={errorsRef}
-          className="xr-notice xr-notice--err"
-          role="alert"
-          id="decision-errors"
-          tabIndex={-1}
-        >
-          <Icon name="failed" />
-          <div className="xr-notice-body">
-            <span className="xr-notice-title">{DECISION_PAGE.checkTitle}</span>
-            {listed.length > 0 ? (
-              <ul className="mt-[2px] mb-0 pl-[18px]">
-                {listed.map((message) => (
-                  <li key={message}>{message}</li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
-        </div>
+          id="dc-errs"
+          title={DECISION_PAGE.checkTitle}
+          items={summaryItems(errors)}
+          alwaysShown
+          autoFocus={false}
+        />
       ) : null}
-      <RadioGroup
+      <ChoiceGroup
         legend={DECISION_PAGE.decisionLegend}
-        legendClass="xr-sr"
+        id="decision"
+        name="dc-choice"
         value={draft.choice}
-        onValueChange={(value) => {
-          update({ choice: value as DecisionChoice });
+        error={errors.choice}
+        onChange={(value) => {
+          update({ choice: value });
           setErrors({});
         }}
-        error={errors.choice}
-      >
-        <ChoiceList>
-          <ChoiceCard
-            value="approve"
-            id="decision-approve"
-            title={DECISION_CHOICES.approve.title}
-            sub={DECISION_CHOICES.approve.sub}
-          />
-          {renewal ? (
-            <ChoiceCard
-              value="smaller"
-              id="decision-smaller"
-              title={DECISION_CHOICES.smaller.title}
-              unavailable
-              sub={DECISION_CHOICES.smaller.renewal}
-            />
-          ) : (
-            <ChoiceCard
-              value="smaller"
-              id="decision-smaller"
-              title={DECISION_CHOICES.smaller.title}
-              sub={DECISION_CHOICES.smaller.sub}
-            />
-          )}
-          <ChoiceCard
-            value="info"
-            id="decision-info"
-            title={DECISION_CHOICES.info.title}
-            sub={DECISION_CHOICES.info.sub}
-          />
-        </ChoiceList>
-      </RadioGroup>
+        options={[
+          {
+            value: 'approve' as const,
+            title: DECISION_CHOICES.approve.title,
+            description: DECISION_CHOICES.approve.sub,
+          },
+          {
+            value: 'smaller' as const,
+            title: DECISION_CHOICES.smaller.title,
+            description: renewal ? DECISION_CHOICES.smaller.renewal : DECISION_CHOICES.smaller.sub,
+            unavailable: renewal,
+          },
+          {
+            value: 'info' as const,
+            title: DECISION_CHOICES.info.title,
+            description: DECISION_CHOICES.info.sub,
+          },
+        ]}
+      />
       {needsRoute(page, draft) ? (
-        <RadioGroup
+        <ChoiceGroup
           legend={ROUTE_CHOICE.legend}
-          marker={ROUTE_CHOICE.marker}
-          hint={ROUTE_CHOICE.hint}
+          legendHint={ROUTE_CHOICE.hint}
+          id="decision-route"
+          name="dc-route"
           value={draft.route}
-          onValueChange={(value) =>
-            update({ route: value === 'internal' ? 'internal' : 'external' }, ['route'])
-          }
           error={errors.route}
-        >
-          <ChoiceList>
-            <ChoiceCard
-              value="internal"
-              id="decision-route-internal"
-              title={ROUTE_CHOICE.internal.title}
-              sub={ROUTE_CHOICE.internal.sub}
-            />
-            <ChoiceCard
-              value="external"
-              id="decision-route-external"
-              title={ROUTE_CHOICE.external.title}
-              sub={ROUTE_CHOICE.external.sub}
-            />
-          </ChoiceList>
-        </RadioGroup>
+          onChange={(value) => update({ route: value }, ['route'])}
+          options={[
+            {
+              value: 'internal' as const,
+              title: ROUTE_CHOICE.internal.title,
+              description: ROUTE_CHOICE.internal.sub,
+            },
+            {
+              value: 'external' as const,
+              title: ROUTE_CHOICE.external.title,
+              description: ROUTE_CHOICE.external.sub,
+            },
+          ]}
+        />
       ) : null}
-      {(draft.choice === 'approve' || draft.choice === 'smaller') && page.routeCommitted ? (
-        <p className="xr-hint">
+      {approving && page.routeCommitted ? (
+        <LockedValue>
           {ROUTE_CHOICE.lockedBefore}
-          <strong className="text-ink">{routeWords(page.routeCommitted)}</strong>
+          <b>{routeWords(page.routeCommitted)}</b>
           {ROUTE_CHOICE.lockedAfter}
-        </p>
+        </LockedValue>
       ) : null}
       {draft.choice === 'smaller' ? (
         <SmallerScopeFields
@@ -744,31 +736,28 @@ function OpenPanel({
           error={errors.reason}
         >
           <Textarea
-            className="min-h-[104px]"
             value={draft.reason}
             onChange={(event) => update({ reason: event.target.value }, ['reason'])}
           />
         </Field>
       ) : null}
-      {pending ? (
-        <p className="xr-hint flex items-start gap-[6px]">
-          <Icon name="info" size={16} />
-          <span>{pending}</span>
-        </p>
-      ) : null}
-      <Button variant="primary" block busy={information.busy} busyLabel={goLabel} onClick={go}>
+      {pending ? <PendingHint>{pending}</PendingHint> : null}
+      <GoButton busy={information.busy} busyLabel={goLabel} onClick={go}>
         {goLabel}
-      </Button>
+      </GoButton>
       <ConfirmDialog
         open={confirmation !== null}
-        align="decision"
-        idPrefix="decision-confirm"
-        title={confirmTitle(named.draft.choice === 'smaller', named.page.request.id)}
-        effects={confirmEffects(
-          named.page,
-          named.draft,
-          named.page.routeCommitted ?? named.draft.route,
+        idPrefix="dlg"
+        title={confirmTitle(
+          named.draft.choice === 'smaller',
+          named.page.request.type === 'renewal',
+          named.page.request.institutionName,
         )}
+        description={CONFIRM_DIALOG.description}
+        groups={[
+          { kind: 'now', title: CONFIRM_DIALOG.now, items: lines.now },
+          { kind: 'later', title: CONFIRM_DIALOG.later, items: lines.later },
+        ]}
         confirmLabel={labelOf(named.draft.choice)}
         busy={busy}
         busyLabel={labelOf(named.draft.choice)}
@@ -782,45 +771,7 @@ function OpenPanel({
   );
 }
 
-/** The confirmation's lines for the chosen route only (B1-11 f2, f3; `cfNew`, `cfExt`, …). */
-function confirmEffects(
-  page: DecisionPage,
-  draft: DecisionDraft,
-  route: DecisionPage['routeCommitted'],
-): readonly ReactNode[] {
-  const lines: ReactNode[] = [];
-  const emphasised = ([before, strong, after]: readonly [string, string, string]) => (
-    <>
-      {before}
-      <strong>{strong}</strong>
-      {after}
-    </>
-  );
-  if (page.whereItStands.institutionRecord === 'not-created') {
-    lines.push(
-      <>
-        {CONFIRM_LINES.newBefore}
-        {page.request.institutionName}
-        {CONFIRM_LINES.newMiddle}
-        <strong>{routeWords(route)}</strong>
-        {CONFIRM_LINES.newAfter}
-      </>,
-    );
-  }
-  if (route === 'external') {
-    lines.push(emphasised(CONFIRM_LINES.externalApproves));
-    lines.push(emphasised(CONFIRM_LINES.externalNotActive));
-  }
-  if (route === 'internal') {
-    lines.push(emphasised(CONFIRM_LINES.internalApproves));
-    lines.push(emphasised(CONFIRM_LINES.internalActive));
-  }
-  if (draft.choice === 'smaller') lines.push(CONFIRM_LINES.smaller);
-  lines.push(CONFIRM_LINES.students);
-  return lines;
-}
-
-/** Approve a smaller scope (B1-11 f5, f8): formats, licences, term, and the difference. */
+/** Approve a smaller scope: formats, licences, term, and the difference. */
 function SmallerScopeFields({
   page,
   draft,
@@ -836,34 +787,32 @@ function SmallerScopeFields({
 }) {
   const requested = requestedFormatsOf(page);
   const kept = keptFormats(page, draft);
-  const toggle = (format: Technology) => {
-    const next = kept.includes(format)
-      ? kept.filter((item) => item !== format)
-      : requested.filter((item) => item === format || kept.includes(item));
-    update({ formats: next }, ['formats', 'change']);
-  };
   return (
     <>
-      <fieldset className="xp-pills">
-        <legend>{SMALLER_SCOPE.formatsLegend}</legend>
-        {requested.map((format) => (
-          <label key={format} className="xp-pill" htmlFor={`decision-format-${format}`}>
-            <input
-              type="checkbox"
-              id={`decision-format-${format}`}
-              checked={kept.includes(format)}
-              onChange={() => toggle(format)}
-            />
-            {format.toUpperCase()}
-          </label>
-        ))}
-      </fieldset>
-      {errors.formats ? <FieldError>{errors.formats}</FieldError> : null}
-      <Field id="decision-licences" label={SMALLER_SCOPE.licencesLabel} error={errors.licences}>
+      <CheckGroup
+        legend={SMALLER_SCOPE.formatsLegend}
+        id="decision-format"
+        values={kept}
+        error={errors.formats}
+        onChange={(next) => update({ formats: next }, ['formats', 'change'])}
+        options={requested.map((format) => ({
+          value: format,
+          label: FORMAT_META[format].code,
+          detail: FORMAT_META[format].name,
+        }))}
+      />
+      <Field
+        id="decision-licences"
+        label={
+          page.request.type === 'additional-licences'
+            ? SMALLER_SCOPE.additionalLicencesLabel
+            : SMALLER_SCOPE.licencesLabel
+        }
+        error={errors.licences}
+      >
         <TextInput
-          className="max-w-40"
           inputMode="numeric"
-          invalid={errors.licences !== undefined || errors.undrawn?.includes('licences')}
+          invalid={errors.undrawn?.includes('licences')}
           value={licencesValue(page, draft)}
           onChange={(event) => update({ licences: event.target.value }, ['licences', 'change'])}
         />
@@ -871,7 +820,7 @@ function SmallerScopeFields({
       <Field id="decision-term" label={SMALLER_SCOPE.termLabel} error={errors.term}>
         <Select
           options={TERM_OPTIONS}
-          invalid={errors.term !== undefined || errors.undrawn?.includes('term')}
+          invalid={errors.undrawn?.includes('term')}
           value={termValue(page, draft)}
           onChange={(event) =>
             update({ term: event.target.value as ApprovedTerm }, ['term', 'change'])
@@ -879,24 +828,22 @@ function SmallerScopeFields({
         />
       </Field>
       {differences.length > 0 ? (
-        <div className="xr-notice xr-notice--warn" role="status">
-          <Icon name="warning" />
-          <div className="xr-notice-body">
-            <span className="xr-notice-title">{SMALLER_SCOPE.differentTitle}</span>
-            {differences.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
-          </div>
-        </div>
+        <ChangeSummary title={SMALLER_SCOPE.differentTitle} lines={differences} />
       ) : null}
       {errors.change ? <FieldError>{errors.change}</FieldError> : null}
     </>
   );
 }
 
-// ---- the decided panel (B1-11 f9 … f12) ----
+// ---- the decided panel (`doneHtml`) ----
 
-function DecidedPanel({ page }: { readonly page: DecisionPage }) {
+function DecidedPanel({
+  page,
+  answered,
+}: {
+  readonly page: DecisionPage;
+  readonly answered: PlanEffect | null;
+}) {
   const { personId } = useWorkspaceIdentity();
   const { request } = page;
   const information = request.status === 'information-requested';
@@ -911,24 +858,26 @@ function DecidedPanel({ page }: { readonly page: DecisionPage }) {
             { kind: 'approval', at: request.decision.at, route: request.decision.route },
             decidedBy(request.decision.by, personId),
           )
-        : null;
-  const next = nextLine(request.status);
+        : undefined;
+  const institutionId = request.institutionId ?? page.existingAccess?.institutionId ?? null;
+  const created = createdByThisApproval(page) && institutionId !== null;
   return (
-    <div className="flex flex-col gap-3">
-      <RequestStatusPill status={request.status} />
-      {meta ? <p className="xr-small text-ink-2">{meta}</p> : null}
-      <dl className="xp-stand" aria-label={STAND.label}>
-        {standRows(page).map((row) => (
-          <div key={row.key}>
-            <dt>{row.key}</dt>
-            <dd>{row.value}</dd>
-          </div>
-        ))}
-      </dl>
-      {next ? <p className="xr-body text-ink">{next}</p> : null}
-      <Link className="xr-btn xr-btn--secondary xr-btn--block" href={REQUESTS_ADDRESS}>
-        {DECISION_PAGE.backToRequests}
-      </Link>
-    </div>
+    <DecisionOutcome
+      id="dc-done"
+      status={<RequestStatusPill status={request.status} size="lg" />}
+      meta={meta}
+      stand={standRows(page).map((row) => ({ term: row.key, value: row.value }))}
+      next={nextLine(page, answered) ?? undefined}
+      action={
+        <ButtonRow>
+          <ButtonLink href={REQUESTS_ADDRESS}>{DECISION_PAGE.backToRequests}</ButtonLink>
+          {created ? (
+            <ButtonLink variant="ghost" href={institutionAddress(institutionId)}>
+              {DECISION_PAGE.openInstitution}
+            </ButtonLink>
+          ) : null}
+        </ButtonRow>
+      }
+    />
   );
 }

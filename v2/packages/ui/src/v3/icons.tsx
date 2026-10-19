@@ -5,9 +5,9 @@ import { joinClasses } from '../internal/classes.js';
  * The line icons the Refined Direction B boards draw (foundation XR-V3-RB-1.0): the nav icons
  * inline in each rail, and the `rbi-*` / `rki-*` symbols of SA01, SA02, IA01 and IA02, plus the
  * ones the Entry & shared export (XS-v6) draws in its sign-in card, account menu, Help pages and
- * messages. Twenty-six are the very paths of the v46 registry (taken from it, so the two never
- * drift); eighteen are new to V3. `primitives.test.tsx` checks every path against the board that
- * draws it.
+ * messages, and the Super Admin export (SA-v1) in its sprite. Twenty-six are the very paths of
+ * the v46 registry (taken from it, so the two never drift); the others are new to V3.
+ * `primitives.test.tsx` checks every path against the board or export that draws it.
  */
 export const V3_ICON_PATHS = {
   // Shared with the v46 registry (identical paths).
@@ -63,6 +63,15 @@ export const V3_ICON_PATHS = {
   user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20.5a7.5 7.5 0 0 1 15 0',
   // New in the XS export (XS-v6): the information disc of its notices and prototype line.
   info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01',
+  // New in the Super Admin export (SA-v1, `sa-core.js` sprite): its own information disc, the
+  // done disc of its flashes, the plain calendar, the person, the way out and the layers.
+  infoDisc: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v6M12 7.5h.01',
+  okDisc: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l3 3 5-6',
+  calendarPlain:
+    'M8 3v3M16 3v3M4 9h16M5 5h14a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z',
+  person: 'M18 20v-1.5a4 4 0 0 0-4-4h-4a4 4 0 0 0-4 4V20M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8z',
+  exit: 'M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l-4-4 4-4M6 12h10',
+  layers: 'M12 3 3 8l9 5 9-5zM3 13l9 5 9-5',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;

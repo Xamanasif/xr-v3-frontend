@@ -2,7 +2,7 @@
 
 import { useId, type ReactNode, type RefObject } from 'react';
 
-import { useModalDialog } from '../overlays/modal-dialog.js';
+import { type ModalInitialFocus, useModalDialog } from '../overlays/modal-dialog.js';
 import { Button } from './actions.js';
 import { Glyph } from './icons.js';
 
@@ -23,7 +23,21 @@ export interface ConfirmDialogProps {
   /** The line under the title, read as the dialog's description. */
   readonly description: ReactNode;
   /** What the action does now and what happens only after later events. */
-  readonly groups: readonly ConfirmDialogGroup[];
+  readonly groups?: readonly ConfirmDialogGroup[];
+  /**
+   * More of the dialog's body after the groups (rb-kit.css `rk-dlg-body`): the fields a decision
+   * asks for (a reason, a name and e-mail), a quoted reason, a refusal notice. The Super Admin
+   * export (SA-v1) draws its form dialogs in the same frame.
+   */
+  readonly children?: ReactNode;
+  /**
+   * Where focus goes on opening: the title (default, SA-03), the first field of the body (a form
+   * dialog: SA-07 Assign, SA-14 Add course, SA-16 Register) or the confirm button (SA-11, SA-13:
+   * the export's `dlg-ok`). After a refused confirm, focus goes to the first invalid field.
+   */
+  readonly initialFocus?: Extract<ModalInitialFocus, 'title' | 'field' | 'confirm'>;
+  /** Enter in a field confirms (a form dialog). */
+  readonly submitOnEnter?: boolean;
   readonly confirmLabel: ReactNode;
   readonly cancelLabel?: ReactNode;
   /** While the command runs: presses are ignored and `busyLabel` replaces the confirm words. */
@@ -41,16 +55,23 @@ export interface ConfirmDialogProps {
 /**
  * The Refined B confirmation (`dialog.rk-dialog`; rb-kit.css ConfirmDialog, SA-03): the title and
  * its line, "What happens now" against "Only after later events", Cancel and the gold confirm.
- * Opening focuses the title; Tab cycles inside the dialog; Esc or Cancel returns focus to the
- * button that opened it. A native dialog opened with showModal(), so the page behind is inert —
- * the board's `div` over an `aria-hidden` scrim left it reachable (V3P-01). The behaviour is the
- * shared `useModalDialog` of the v46 dialogs.
+ * Opening focuses the title (or the first field, or the confirm button); Tab cycles inside the
+ * dialog; Esc or Cancel returns focus to the button that opened it. With a body (`children`) it is
+ * also every dialog of the Super Admin export (SA-v1 `sa-core.js` `dialogHtml`, the `SA.DLG`
+ * bodies): its form dialogs — fields under the head, the first field focused, Enter confirming, a
+ * refused confirm sending focus to the first invalid field — and its confirmations with a quoted
+ * reason or a refusal notice in the body. A native dialog opened with showModal(), so the page
+ * behind is inert — the board's `div` over an `aria-hidden` scrim left it reachable (V3P-01). The
+ * behaviour is the shared `useModalDialog` of the v46 dialogs.
  */
 export function ConfirmDialog({
   open,
   title,
   description,
-  groups,
+  groups = [],
+  children,
+  initialFocus = 'title',
+  submitOnEnter = false,
   confirmLabel,
   cancelLabel = 'Cancel',
   busy = false,
@@ -70,8 +91,8 @@ export function ConfirmDialog({
     onConfirm,
     onCancel,
     returnFocusFallback,
-    initialFocus: 'title',
-    submitOnEnter: false,
+    initialFocus,
+    submitOnEnter,
     bodySelector: '.rk-dlg-body',
   });
   return (
@@ -107,6 +128,7 @@ export function ConfirmDialog({
             </ul>
           </div>
         ))}
+        {children}
       </div>
       <div className="rk-dlg-foot">
         <Button ref={modal.cancelRef} size="lg" onClick={() => onCancel()}>

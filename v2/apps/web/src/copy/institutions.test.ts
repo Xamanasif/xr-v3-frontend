@@ -52,14 +52,6 @@ import {
   startedCompletedWords,
   STRIPPED,
 } from './institutions';
-import {
-  GROUP_ROWS,
-  OVERVIEW_PAGE,
-  openRowLabel,
-  overviewOverline,
-  requestRowLine,
-  requestRowTitle,
-} from './overview';
 
 /** A board's text with tags removed, then its raw markup (attributes and script strings). */
 function words(file: string): string {
@@ -67,7 +59,6 @@ function words(file: string): string {
   return `${raw.replace(/<[^>]+>/g, ' ')}\n${raw}`;
 }
 
-const B7_01 = words('B7-01-SA-Overview.dc.html');
 const B7_02 = words('B7-02-Institutions.dc.html');
 const B7_03 = words('B7-03-Institution-Detail.dc.html');
 
@@ -278,31 +269,5 @@ describe('SA-07 words are on B7-03', () => {
     }
     expect(historyRestored('Arjun Mehta')).toBe('Access restored by Arjun Mehta');
     expect(B7_03).toContain("'Access restored by ' + D.sa");
-  });
-});
-
-describe('SA-01 words are on B7-01', () => {
-  it.each(strings(OVERVIEW_PAGE))('%s', (text) => {
-    expect(B7_01).toContain(text);
-  });
-
-  it('the rows take B7-01’s forms', () => {
-    expect(overviewOverline('Super Admin', 'Arjun Mehta')).toBe('Super Admin · Arjun Mehta');
-    expect(B7_01).toContain('Super Admin · Arjun Mehta');
-    const title = requestRowTitle('REQ-0040', 'Konark Polytechnic');
-    expect(title).toBe('REQ-0040 · Konark Polytechnic');
-    expect(requestRowLine('additional-licences', '2026-09-29T07:07:00.000Z')).toBe(
-      'Additional licences · under review since 29 Sep 2026',
-    );
-    expect(openRowLabel(title)).toBe('Open: REQ-0040 · Konark Polytechnic');
-    for (const text of [
-      title,
-      'Additional licences · under review since 29 Sep 2026',
-      openRowLabel(title),
-    ]) {
-      expect(B7_01).toContain(text);
-    }
-    expect(GROUP_ROWS).toBe(4);
-    expect(B7_01).toContain('each with at most four rows');
   });
 });

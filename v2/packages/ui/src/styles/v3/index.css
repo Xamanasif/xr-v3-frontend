@@ -10,15 +10,20 @@
  * - `xs-scoped.css` is GENERATED the same way from the XS extension sheet (`xs-shared.css`) of
  *   the owner-approved Entry & shared export (design/v3-refined-b/roles/XS-v6/): sign-in, the
  *   account menu, Help & support, message pages and access notices. Never edit it.
+ * - `sa-scoped.css` is GENERATED the same way from the Super Admin role sheet (`sa-role.css`) of
+ *   the owner-approved Super Admin export (design/v3-refined-b/roles/SA-v1/): the role-level
+ *   patterns of its 18 screens (`sa-` classes). Never edit it.
  * - `patch.css` holds the central, versioned corrections (V3P-nn): accessibility and correctness
  *   fixes and the isolation from the v46 product layer. No aesthetic change goes there.
  * - The layer statement repeats the product statement of `@xr/ui/styles.css` and apps/web
- *   globals.css, which reserve `xr.v3` between `xr.product` and `utilities`, so the order holds
- *   whichever chunk loads first: v46 < product deltas < V3 < composition utilities.
+ *   globals.css with `xr.v3` after `xr.product`. `xr.v3` is a sublayer of `xr`, so it follows
+ *   `xr.v46` and `xr.product` and precedes `utilities` whichever chunk loads first:
+ *   v46 < product deltas < V3 (foundation < XS < SA < patches) < composition utilities.
  */
 @layer properties, theme, xr.v46, xr.product, xr.v3, utilities;
-@layer xr.v3.rb, xr.v3.xs, xr.v3.patch;
+@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.patch;
 
 @import './rb-scoped.css' layer(xr.v3.rb);
 @import './xs-scoped.css' layer(xr.v3.xs);
+@import './sa-scoped.css' layer(xr.v3.sa);
 @import './patch.css' layer(xr.v3.patch);

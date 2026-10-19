@@ -179,6 +179,9 @@ export const CANVAS_CLASS_PATTERNS = [
   /^xs-pub[\w-]*$/,
   /^xs-spec$/,
   /^xs-kit[\w-]*$/,
+  // The Super Admin export's design-only preview controls (design/v3-refined-b/roles/SA-v1/
+  // COMPONENT-EXTENSIONS.md: "`sa-pv-*` … Never part of the product").
+  /^sa-pv(?:-[\w-]*)?$/,
 ];
 
 /**
@@ -220,6 +223,8 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
  * - V3P-09: a V3 region (an Entry & shared surface) inside the v46 workspace shell.
  * - V3P-10: the XS account menu panel under the v46 account button.
  * - V3P-11: the XS "Report sent" breadcrumb, 12 px above its card.
+ * - V3P-12: the Super Admin export's inline spacings (a quiet line alone in a cell, the notes
+ *   under a table or a definition list, SA-07's lines and list, SA-01's head and loading queue).
  * (V3P-06 `rk-x-skip` and V3P-07 `rk-x-acct` were retired with the XS export: the shell now draws
  * its skip link and account wrapper with the XS classes `xs-skip`, `xs-acct-slot`, `xs-acct`.)
  */
@@ -230,6 +235,15 @@ export const V3_PRODUCT_CLASS_ALLOW_LIST = [
   'rk-x-region--banner',
   'rk-x-popover',
   'rk-x-crumbs-tight',
+  // V3P-12: the Super Admin export's (SA-v1) inline spacings, each on the element it styles.
+  'rk-x-small-flush',
+  'rk-x-hint-table',
+  'rk-x-hint-list',
+  'rk-x-next-above',
+  'rk-x-next-below',
+  'rk-x-ask-above',
+  'rk-x-sec-head-tight',
+  'rk-x-queue-flush',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

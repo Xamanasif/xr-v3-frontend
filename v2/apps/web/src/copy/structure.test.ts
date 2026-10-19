@@ -1,49 +1,50 @@
 /**
- * The words of SA-14 Academic structure and SA-15 Area / course record are the frozen B7-07
- * board’s: each drawn phrase is found verbatim in its markup or script, the composed ones with the
- * board’s own sample values (or, where the board composes them in its script, the script’s own
- * pieces); the two sentences with the decision id “(D3)” are shown without it (P1-14 / VD-10);
- * the undrawn forms are entries of the state-copy register, each with its decision and no
- * decision id in its words.
+ * The words of SA-14 Academic structure and SA-15 Area / course record are the owner-approved Super
+ * Admin export’s (V3 Refined B, design/v3-refined-b/roles/SA-v1 `sa-views-c.js`): each drawn
+ * phrase is found verbatim in its views, the composed ones with the export’s own pieces. The
+ * history’s events keep the frozen B7-07 wording (the export draws sample events). The undrawn
+ * forms are entries of the state-copy register, each with its decision and no decision id in its
+ * words; no word carries an internal reference.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, saExport } from '@/test-support/boards';
 
 import { STATE_COPY } from './state-copy';
 import { STATE_COPY_STRUCTURE } from './state-copy-structure';
 import {
   ADD_AREA_DIALOG,
   ADD_COURSE_DIALOG,
-  areaCourseLine,
+  addedWords,
+  AREA_PAGE,
   blockedWords,
+  COURSE_PAGE,
   courseAddedNote,
-  courseAddedWords,
-  courseCountWords,
-  courseOverline,
+  courseEyebrow,
   DESCRIPTION_DIALOG,
   descriptionTitle,
+  facultyCountWords,
   facultyUseWords,
   historyWhat,
-  institutionUseWords,
-  MOVE_PANEL,
+  institutionAfterWords,
+  MOVE_DIALOG,
+  movedNote,
   movedWords,
-  movesWithItWords,
   moveTitle,
   openAreaLabel,
-  openCourseLabel,
+  peopleFiledWords,
   publishedWords,
-  RECORD_PAGE,
   RENAME_DIALOG,
   renamedNote,
-  renameLabel,
+  renamedWords,
   renameTitle,
-  renameWarning,
-  STRIPPED_STRUCTURE,
   STRUCTURE_PAGE,
-  structureSummary,
-  usesList,
+  STRUCTURE_SHARED,
 } from './structure';
+
+/** The export’s views (`sa-views-c.js`) and its core (`sa-core.js`, the dialog frame). */
+const VIEWS = saExport('sa-views-c.js');
+const CORE = saExport('sa-core.js');
 
 /** A board’s text with tags removed and `&amp;` read, then its raw markup (attributes, script). */
 function words(file: string): string {
@@ -60,173 +61,150 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-describe('SA-14 Academic structure (B7-07 f0, f7)', () => {
-  const drawn = strings(STRUCTURE_PAGE);
-  it.each(drawn)('“%s” is on B7-07', (phrase) => {
-    expect(B7_07).toContain(phrase);
+describe('SA-14 Academic structure (SA-v1 `V.structure`)', () => {
+  it.each(strings(STRUCTURE_PAGE))('“%s” is in the export’s view', (phrase) => {
+    expect(VIEWS).toContain(phrase);
   });
 
-  it('the header line: the script’s two counts and f0’s tail', () => {
-    expect(structureSummary(3, 6)).toBe(
-      '3 engineering areas · 6 courses · feeds the public explorer, the catalogue, Vendor course lists and student-import matching',
-    );
-    expect(B7_07).toContain(
-      "plural(A.length, 'engineering area') + ' · ' + plural(C.length, 'course')",
-    );
-    expect(B7_07).toContain(
-      '· feeds the public explorer, the catalogue, Vendor course lists and student-import matching',
-    );
-    expect(structureSummary(1, 1)).toMatch(/^1 engineering area · 1 course · /);
+  it.each(
+    strings({
+      noCode: STRUCTURE_SHARED.noCode,
+      noDescription: STRUCTURE_SHARED.noDescription,
+      noCourses: STRUCTURE_SHARED.noCourses,
+      history: STRUCTURE_SHARED.history,
+      historyNote: STRUCTURE_SHARED.historyNote,
+    }),
+  )('shared: “%s” is in the export’s view', (phrase) => {
+    expect(VIEWS).toContain(phrase);
   });
 
-  it('an area’s head and a course row, as f0 draws them', () => {
-    expect(courseCountWords(3)).toBe('3 courses');
-    expect(courseCountWords(1)).toBe('1 course');
-    expect(B7_07).toContain("n: plural(cs.length, 'course')");
+  it('Cancel and the separator are the export’s dialog and join', () => {
+    expect(CORE).toContain(`>${STRUCTURE_SHARED.cancel}</button>`);
+    expect(VIEWS).toContain(`.join('${STRUCTURE_SHARED.separator}')`);
+  });
+
+  it('a course row’s experiments: the export’s `SA.plural`', () => {
     expect(publishedWords(4)).toBe('4 published experiments');
     expect(publishedWords(1)).toBe('1 published experiment');
-    expect(publishedWords(0)).toBe('no published experiments yet');
-    expect(B7_07).toContain(
-      "exps: c.exps ? plural(c.exps, 'published experiment') : 'no published experiments yet'",
-    );
+    expect(publishedWords(0)).toBe('0 published experiments');
+    expect(VIEWS).toContain("SA.plural(n, 'published experiment')");
+  });
+
+  it('“Open area” is named with its visible words first (state-copy `SA-14.open-area-name`)', () => {
     expect(openAreaLabel('Chemical & Process')).toBe('Open area Chemical & Process');
-    expect(B7_07).toContain("aria: 'Open area ' + a.name");
-    expect(openCourseLabel('Fluid Mechanics')).toBe('Open Fluid Mechanics');
-    expect(B7_07).toContain("aria: 'Open ' + c.name");
+    expect(openAreaLabel('Chemical & Process')).toContain(STRUCTURE_PAGE.openArea);
+    // The export’s own name, which the product does not take (WCAG 2.5.3).
+    expect(VIEWS).toContain('aria-label="Open the area \' + esc(a.name) + \'"');
+    expect(STATE_COPY_STRUCTURE['SA-14.open-area-name'].words).toBeNull();
   });
 
   it.each([...strings(ADD_AREA_DIALOG), ...strings(ADD_COURSE_DIALOG)])(
-    'the Add dialogs: “%s” is on B7-07',
+    'the Add dialogs: “%s” is in the export’s view',
     (phrase) => {
-      expect(B7_07).toContain(phrase);
+      expect(VIEWS).toContain(phrase);
     },
   );
 
-  it('a course added: the script’s flash with the area’s name', () => {
-    expect(courseAddedWords('Chemical & Process')).toBe(
-      'Course added to Chemical & Process. It has no platform code yet — the Content Manager adds it in Course codes.',
+  it('added: the export’s flash, with the record’s name', () => {
+    expect(addedWords('Civil & Structural')).toBe('Civil & Structural was added.');
+    expect(VIEWS).toContain("SA.setFlash('structure', n + ' was added.', 'Add courses to it");
+    expect(VIEWS).toContain(
+      "n + ' was added.', 'The Content Manager adds its platform course code.'",
     );
-    expect(B7_07).toContain(
-      "'Course added to ' + aName(c0.area) + '. It has no platform code yet — the Content Manager adds it in Course codes.'",
-    );
+  });
+
+  it('the list states are the export’s (state-copy)', () => {
+    for (const id of [
+      'SA-14.loading',
+      'SA-14.failed',
+      'SA-14.failed.line',
+      'SA-14.empty',
+      'SA-14.empty.line',
+    ] as const) {
+      expect(`${VIEWS}\n${CORE}`).toContain(STATE_COPY[id].words);
+    }
   });
 });
 
-describe('SA-15 Area / course record (B7-07 f1 … f6, f8; B7-10 f9)', () => {
-  it.each(strings(RECORD_PAGE))('“%s” is on B7-07', (phrase) => {
-    expect(B7_07).toContain(phrase);
-  });
-
-  it.each([...strings(RENAME_DIALOG), ...strings(DESCRIPTION_DIALOG), ...strings(MOVE_PANEL)])(
-    'the dialogs and the move panel: “%s” is on B7-07',
+describe('SA-15 Area record (SA-v1 `V.area`) and Course record (`V.course`)', () => {
+  it.each([...strings(AREA_PAGE), ...strings(COURSE_PAGE)])(
+    '“%s” is in the export’s view',
     (phrase) => {
-      expect(B7_07).toContain(phrase);
+      expect(VIEWS).toContain(phrase);
     },
   );
 
-  it('the overline, the area’s course lines and the dialog titles', () => {
-    expect(courseOverline('Chemical & Process')).toBe('Course · Chemical & Process');
-    expect(B7_07).toContain("'Course · ' + aName(c.area)");
-    expect(areaCourseLine('Process Instrumentation & Control', 'CHE ZG513')).toBe(
-      'Process Instrumentation & Control · CHE ZG513',
+  it('the course head and the blocked notice, in the export’s forms', () => {
+    expect(courseEyebrow('Mechanical & Manufacturing')).toBe('Course · Mechanical & Manufacturing');
+    expect(VIEWS).toContain('<p class="rk-eyebrow">Course · \' + esc(area.name) + \'</p>');
+    expect(blockedWords('12 students')).toBe(
+      'People are filed against it: 12 students. Nothing moves.',
     );
-    expect(areaCourseLine('Fluid Mechanics', null)).toBe('Fluid Mechanics · no platform code yet');
-    expect(B7_07).toContain("(x.code ? ' · ' + x.code : ' · no platform code yet')");
-    expect(renameTitle('course')).toBe('Rename course');
-    expect(renameTitle('area')).toBe('Rename area');
-    expect(B7_07).toContain("'Rename ' + (isC ? 'course' : 'area')");
-    expect(renameLabel('course')).toBe('Course name');
-    expect(renameLabel('area')).toBe('Area name');
-    expect(descriptionTitle('Chemical & Process')).toBe(
-      'Edit the description of Chemical & Process',
-    );
-    expect(B7_07).toContain("'Edit the description of ' + o.dName");
-    expect(moveTitle('Manufacturing Processes')).toBe(
-      'Move Manufacturing Processes to another area',
+    expect(VIEWS).toContain(
+      '<p class="rk-notice-d">People are filed against it: \' + esc(c.people.note) + \'. Nothing moves.</p>',
     );
   });
 
-  it('the rename warning: where the name shows, and what stays (f6)', () => {
-    expect(renameWarning({ kind: 'course', platformCode: 'ME ZG523' })).toBe(
-      'The new name shows in the public explorer, the catalogue, Vendor course lists and student-import matching. The platform code ME ZG523 and every institution’s own course code stay as they are.',
-    );
-    expect(renameWarning({ kind: 'course', platformCode: null })).toBe(
-      'The new name shows in the public explorer, the catalogue, Vendor course lists and student-import matching. The platform code and every institution’s own course code stay as they are.',
-    );
-    expect(renameWarning({ kind: 'area' })).toBe(
-      'The new name shows in the public explorer, the catalogue, Vendor course lists and student-import matching. Its courses stay in it.',
-    );
-    expect(B7_07).toContain(
-      "o.renWarn = 'The new name shows in the public explorer, the catalogue, Vendor course lists and student-import matching. ' + (isC ? 'The platform code' + (c.code ? ' ' + c.code : '') + ' and every institution’s own course code stay as they are.' : 'Its courses stay in it.');",
-    );
-  });
-
-  it('move blocked (f3; B7-10 f9): who is filed, and where it stays', () => {
-    expect(blockedWords(12, 'Dr S. Ranganathan — Godavari', 'Mechanical & Manufacturing')).toBe(
-      'People are filed against this course — 12 students · Dr S. Ranganathan — Godavari. It stays in Mechanical & Manufacturing.',
-    );
-    expect(B7_07).toContain("'People are filed against this course — ' + [c.students ? plural(");
-    expect(B7_07).toContain("'. It stays in ' + aName(c.area) + '.'");
-    expect(blockedWords(0, '1 Faculty member — Deccan', 'Electrical & Electronics')).toBe(
-      'People are filed against this course — 1 Faculty member — Deccan. It stays in Electrical & Electronics.',
-    );
-  });
-
-  it('move allowed (f4): what moves with it, in the script’s forms', () => {
-    expect(movesWithItWords(2, 1, 0)).toBe(
-      'Its 2 published experiments, 1 institution’s access move with it. The explorer and catalogue show it under the new area.',
-    );
-    expect(movesWithItWords(1, 0, 1)).toBe(
-      'Its 1 published experiment and 1 Vendor’s course list move with it. The explorer and catalogue show it under the new area.',
-    );
-    expect(B7_07).toContain(
-      "'Its ' + plural(c.exps, 'published experiment') + (c.insts.length ? ', ' + plural(c.insts.length, 'institution') + '’s access' : '') + (c.vendors.length ? ' and ' + plural(c.vendors.length, 'Vendor') + '’s course list' : '') + ' move with it. The explorer and catalogue show it under the new area.'",
-    );
-    expect(movesWithItWords(0, 0, 0)).toBe(
-      'Nothing else uses it yet. The explorer and catalogue show it under the new area.',
-    );
-    expect(B7_07).toContain(
-      "'Nothing else uses it yet. The explorer and catalogue show it under the new area.'",
-    );
-    // More than one: the plural possessive (state-copy `SA-15.moves-with-it`).
-    expect(movesWithItWords(3, 2, 2)).toBe(
-      'Its 3 published experiments, 2 institutions’ access and 2 Vendors’ course lists move with it. The explorer and catalogue show it under the new area.',
-    );
-    expect(movedWords('Manufacturing Processes', 'Electrical & Electronics')).toBe(
-      'Manufacturing Processes is now in Electrical & Electronics.',
-    );
-    expect(B7_07).toContain("c.name + ' is now in ' + to + '.'");
-  });
-
-  it('“What uses this course”: the board’s values from the record’s facts', () => {
-    expect(institutionUseWords('Godavari Institute of Technology', 'MEC-523', false)).toBe(
-      'Godavari Institute of Technology (MEC-523)',
-    );
-    expect(B7_07).toContain('Godavari Institute of Technology (MEC-523)');
-    expect(institutionUseWords('Malnad College of Engineering', null, true)).toBe(
-      'Malnad College of Engineering (ended)',
-    );
-    expect(B7_07).toContain('Malnad College of Engineering (ended)');
-    expect(institutionUseWords('Sahyadri Institute of Engineering', null, false)).toBe(
-      'Sahyadri Institute of Engineering',
-    );
-    expect(institutionUseWords('Godavari Institute of Technology', 'MEC-523', true)).toBe(
-      'Godavari Institute of Technology (MEC-523, ended)',
-    );
-    expect(facultyUseWords('Godavari', ['Dr S. Ranganathan'])).toBe('Dr S. Ranganathan — Godavari');
-    expect(B7_07).toContain('Dr S. Ranganathan — Godavari');
+  it('who is filed against it: the record’s facts (state-copy `SA-15.uses.people`)', () => {
+    expect(
+      peopleFiledWords(12, [
+        facultyUseWords('Godavari Institute of Technology', ['Dr S. Ranganathan']),
+      ]),
+    ).toBe('12 students · Dr S. Ranganathan — Godavari Institute of Technology');
+    expect(peopleFiledWords(1, [])).toBe('1 student');
+    expect(peopleFiledWords(0, [facultyCountWords(2)])).toBe('2 Faculty members');
+    expect(peopleFiledWords(0, [])).toBe('');
     expect(facultyUseWords('BITS Pilani — Hyderabad Campus', ['A', 'B', 'C', 'D'])).toBe(
       '4 Faculty members — BITS Pilani — Hyderabad Campus',
     );
     expect(B7_07).toContain('4 Faculty members — BITS Pilani — Hyderabad Campus');
-    expect(usesList([])).toBe('None');
-    expect(
-      usesList(['BITS Pilani — Hyderabad Campus', 'Malnad College of Engineering (ended)']),
-    ).toBe('BITS Pilani — Hyderabad Campus · Malnad College of Engineering (ended)');
-    expect(B7_07).toContain("c.insts.join(' · ') || 'None'");
   });
 
-  it('History: each event as B7-07 words it', () => {
+  it('an institution’s facts after its link (state-copy `SA-15.uses.institutions`)', () => {
+    expect(institutionAfterWords('MEC-523', false)).toBe(' (MEC-523)');
+    expect(institutionAfterWords(null, true)).toBe(' (ended)');
+    expect(institutionAfterWords('MEC-523', true)).toBe(' (MEC-523, ended)');
+    expect(institutionAfterWords(null, false)).toBe('');
+    expect(B7_07).toContain('Godavari Institute of Technology (MEC-523)');
+    expect(B7_07).toContain('Malnad College of Engineering (ended)');
+  });
+});
+
+describe('SA-15 dialogs (SA-v1 `SA.DLG.area`, `SA.DLG.course`)', () => {
+  it.each([...strings(RENAME_DIALOG), ...strings(DESCRIPTION_DIALOG), ...strings(MOVE_DIALOG)])(
+    '“%s” is in the export’s view',
+    (phrase) => {
+      expect(VIEWS).toContain(phrase);
+    },
+  );
+
+  it('the titles and flashes, in the export’s forms', () => {
+    expect(renameTitle('Chemical & Process')).toBe('Rename Chemical & Process');
+    expect(VIEWS).toContain("'Rename ' + a.name");
+    expect(VIEWS).toContain("'Rename ' + c.name");
+    expect(descriptionTitle('Fluid Mechanics')).toBe('Edit the description of Fluid Mechanics');
+    expect(VIEWS).toContain("'Edit the description of ' + c.name");
+    expect(moveTitle('Manufacturing Processes')).toBe(
+      'Move Manufacturing Processes to another area?',
+    );
+    expect(VIEWS).toContain("'Move ' + c.name + ' to another area?'");
+    expect(renamedWords('area', 'Chemical Engineering')).toBe(
+      'The area is now called Chemical Engineering.',
+    );
+    expect(VIEWS).toContain("'The area is now called ' + n + '.'");
+    expect(renamedWords('course', 'Heat Transfer')).toBe('The course is now called Heat Transfer.');
+    expect(VIEWS).toContain("'The course is now called ' + n + '.'");
+    expect(movedWords('Electrical & Electronics')).toBe(
+      'The course moved to Electrical & Electronics.',
+    );
+    expect(VIEWS).toContain(
+      "'The course moved to ' + S.areas.find(a => a.id === c.area).name + '.'",
+    );
+  });
+});
+
+describe('History: each event as B7-07 words it (the export draws sample events)', () => {
+  it('the events, the notes', () => {
     expect(historyWhat('area-added', 'Arjun Mehta', null)).toBe('Area added by Arjun Mehta');
     expect(B7_07).toContain("'Area added by ' + D.sa");
     expect(historyWhat('course-added', 'Arjun Mehta', null)).toBe('Course added by Arjun Mehta');
@@ -251,6 +229,9 @@ describe('SA-15 Area / course record (B7-07 f1 … f6, f8; B7-10 f9)', () => {
       'Was “Thermodynamics & Heat Transfer”.',
     );
     expect(B7_07).toContain("'Was “' + old + '”.'");
+    expect(movedNote('Mechanical & Manufacturing', 'Electrical & Electronics')).toBe(
+      'From Mechanical & Manufacturing to Electrical & Electronics.',
+    );
     expect(courseAddedNote('Mechanical & Manufacturing')).toBe(
       'Mechanical & Manufacturing · no platform code yet.',
     );
@@ -259,25 +240,21 @@ describe('SA-15 Area / course record (B7-07 f1 … f6, f8; B7-10 f9)', () => {
   });
 });
 
-describe('P1-14 / VD-10: two sentences without “(D3)”, traceable to B7-07', () => {
-  it.each(Object.entries(STRIPPED_STRUCTURE))('%s', (_, sentence) => {
-    expect(B7_07).toContain(sentence.drawn);
-    expect(sentence.ids).toEqual(['D3']);
-    expect(sentence.words).toBe(sentence.drawn.replace(' (D3)', ''));
-  });
-
-  it('no product word on SA-14 or SA-15 carries a decision id', () => {
+describe('no decision id or internal reference in a word of SA-14 or SA-15', () => {
+  it('every phrase', () => {
     for (const text of [
+      ...strings(STRUCTURE_SHARED),
       ...strings(STRUCTURE_PAGE),
-      ...strings(RECORD_PAGE),
+      ...strings(AREA_PAGE),
+      ...strings(COURSE_PAGE),
       ...strings(ADD_AREA_DIALOG),
       ...strings(ADD_COURSE_DIALOG),
       ...strings(RENAME_DIALOG),
       ...strings(DESCRIPTION_DIALOG),
-      ...strings(MOVE_PANEL),
-      ...Object.values(STRIPPED_STRUCTURE).map((sentence) => sentence.words),
+      ...strings(MOVE_DIALOG),
     ]) {
       expect(text).not.toMatch(/\((?:T|D|OD|PC)-?[\w-]*\d+\)/);
+      expect(text).not.toMatch(/\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d/);
     }
   });
 });

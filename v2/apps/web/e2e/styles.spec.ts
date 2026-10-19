@@ -35,7 +35,7 @@ const V46_SHEETS = [
   'xr-govern.css',
   'xr-admin.css',
 ];
-const V3_SHEETS = ['rb-scoped.css', 'xs-scoped.css', 'patch.css'];
+const V3_SHEETS = ['rb-scoped.css', 'xs-scoped.css', 'sa-scoped.css', 'patch.css'];
 const sourceCss = [
   ...V46_SHEETS.map((sheet) => readFileSync(join(stylesDirectory, 'v46', sheet), 'utf8')),
   readFileSync(join(stylesDirectory, 'product.css'), 'utf8'),

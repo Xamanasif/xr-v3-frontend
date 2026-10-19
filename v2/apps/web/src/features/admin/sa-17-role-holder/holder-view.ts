@@ -1,8 +1,8 @@
 /**
- * SA-16 / SA-17 views of a role holder (B7-08; B7-10 f10, f11): pure functions from the service's
- * facts (`holderView`: the record and its current scopes with their status, course code and name;
- * PC-70) to what the screens list. They decide nothing — every rule is the service's; they only
- * name, order and pair what it answered.
+ * SA-16 / SA-17 views of a role holder (the SA-v1 export's `V.roles`, `V.holder`): pure functions
+ * from the service's facts (`holderView`: the record and its current scopes with their status,
+ * course code and name; PC-70) to what the screens list. They decide nothing — every rule is the
+ * service's; they only name, order and pair what it answered.
  */
 import type { ActorRef, PlatformRoleHolder, RoleScope, ScopeTarget } from '@xr/domain';
 
@@ -11,7 +11,6 @@ import {
   ALL_EXPERIMENTS,
   courseScopeWords,
   effectLine,
-  experimentScopeWords,
   reasonByNote,
   registeredAs,
   registeredNote,
@@ -22,12 +21,16 @@ import {
 import { stateWords } from '@/copy/state-copy';
 import type { HolderView, ScopeView } from '@/queries/platform-roles-forms';
 
-/** How a scope is named: short in lists, the history and flashes; full in its own row. */
+/** How a scope is named: short in lists, the history and flashes; full in names; its row's parts. */
 export interface ScopeNaming {
   /** “ME ZG523”, “All experiments”, “Distillation Column”. */
   readonly short: string;
-  /** “ME ZG523 · Thermodynamics & Heat Transfer”, “All experiments”, “Distillation Column (experiment)”. */
+  /** “ME ZG523 · Thermodynamics & Heat Transfer”, “All experiments”, “Distillation Column”. */
   readonly full: string;
+  /** A course's platform code, drawn as its chip in the row (`null`: no chip). */
+  readonly code: string | null;
+  /** The row's words after the chip: “Thermodynamics & Heat Transfer”, “All experiments”. */
+  readonly title: string;
 }
 
 /** The courses and experiments a history-only scope may name (the structure, the catalogue). */
@@ -40,15 +43,25 @@ const NO_LOOKUP: TargetLookup = { courses: new Map(), experiments: new Map() };
 
 function courseNaming(code: string | null, name: string | null, id: string): ScopeNaming {
   // A course without a platform code is named by its name (T-17; state-copy `SA-16.can-act-on`).
-  return { short: code ?? name ?? id, full: courseScopeWords(code, name) || id };
+  return {
+    short: code ?? name ?? id,
+    full: courseScopeWords(code, name) || id,
+    code,
+    title: name ?? code ?? id,
+  };
 }
 
 function experimentNaming(name: string | null, id: string): ScopeNaming {
   const short = name ?? id;
-  return { short, full: experimentScopeWords(short) };
+  return { short, full: short, code: null, title: short };
 }
 
-const ALL: ScopeNaming = { short: ALL_EXPERIMENTS, full: ALL_EXPERIMENTS };
+const ALL: ScopeNaming = {
+  short: ALL_EXPERIMENTS,
+  full: ALL_EXPERIMENTS,
+  code: null,
+  title: ALL_EXPERIMENTS,
+};
 
 /** A current scope as the service names it. */
 export function namingOf(view: ScopeView): ScopeNaming {
@@ -117,7 +130,7 @@ export function withdrawnScopes(view: HolderView): readonly ScopeView[] {
 }
 
 /**
- * The “Can act on” line (B7-08 `effect`). A Vendor's scope that is not a course is shown as held,
+ * The “Can act on” line (the export's `EFF`). A Vendor's scope that is not a course is shown as held,
  * never as a right: what it lets a Vendor do is open (ROLE-11; state-copy `SA-17.vendor-open`).
  */
 export function effectWords(view: HolderView): string {
@@ -145,7 +158,7 @@ export function actorName(actor: ActorRef): string {
   return actor.system;
 }
 
-/** One history line (`li.xr-tl`). */
+/** One history line (`ol.rk-tl > li`). */
 export interface HistoryLine {
   readonly id: string;
   readonly what: string;
@@ -154,7 +167,7 @@ export interface HistoryLine {
 }
 
 /**
- * The history, newest first (B7-08 `hist`; state-copy `SA-17.history`). The record's scopes are
+ * The history, newest first (the export's `x.hist`; state-copy `SA-17.history`). The record's scopes are
  * appended one per assignment or restoration and its history one entry per command, both in
  * order, so the scopes added after registration pair with those entries in turn; the scopes
  * before them were given at registration. A withdrawal names the scope it withdrew (its time and
@@ -210,13 +223,16 @@ export function historyLines(
   return lines.reverse();
 }
 
-/** SA-16 row: “Can act on” as words, and how many scopes are withdrawn (B7-08 `rows`). */
+/**
+ * SA-16 row (the export's `V.roles` row): “Can act on” — each active scope named short, a course
+ * with its code chip — and how many scopes are withdrawn.
+ */
 export function rowFacts(view: HolderView): {
-  readonly inScope: readonly string[];
+  readonly inScope: readonly ScopeNaming[];
   readonly withdrawn: number;
 } {
   return {
-    inScope: activeScopes(view).map((scope) => namingOf(scope).short),
+    inScope: activeScopes(view).map(namingOf),
     withdrawn: view.scopes.filter((scope) => scope.status === 'withdrawn').length,
   };
 }

@@ -1,20 +1,20 @@
 import type { RequestStatus } from '@xr/domain';
-import { StatusPill, type StatusTone } from '@xr/ui';
+import { StatusPill, type StatusTone } from '@xr/ui/v3';
 
 import { requestWords, wordsOf } from '@/copy/flow-state-words';
 
 /**
- * A request's status as the Super Admin reads it (B1-10 "Status" column, B1-11 page header and
- * decided panel): the role-relative words and the tone each board draws — Under review `info`,
- * Information requested `err`, Approved — payment required and Payment not confirmed `wait`,
- * Access active `ok` (B1-10 `isInfo`/`isErr`/`isWait`/`isOk`; B1-11 `statusFor`). "Payment
- * failed" is not drawn for this reader: the failed tone of B1-08 f7, PROVISIONAL.
+ * A request's status as the Super Admin reads it (SA-02 "Status" column, SA-03 page head and
+ * decided panel), in the V3 status grammar of the Super Admin export (`SA.REQ_KIND`): Under review
+ * `info`, Information requested `err`, Approved — payment required and Payment not confirmed
+ * `warn`, Access active `ok`. "Payment failed" is not drawn for this reader: the failed tone of
+ * B1-08 f7, PROVISIONAL.
  */
 const TONE: Readonly<Record<RequestStatus, StatusTone>> = {
   'under-review': 'info',
   'information-requested': 'err',
-  'approved-payment-required': 'wait',
-  'payment-not-confirmed': 'wait',
+  'approved-payment-required': 'warn',
+  'payment-not-confirmed': 'warn',
   'payment-failed': 'err',
   'access-active': 'ok',
 };
@@ -24,6 +24,17 @@ export function requestStatusWords(status: RequestStatus): string {
   return wordsOf(requestWords({ status, reviewStarted: true }, 'super_admin')) ?? status;
 }
 
-export function RequestStatusPill({ status }: { readonly status: RequestStatus }) {
-  return <StatusPill tone={TONE[status]}>{requestStatusWords(status)}</StatusPill>;
+/** The status pill (`span.xr-st`); `lg` on a record head and a decided panel (`rk-st-lg`). */
+export function RequestStatusPill({
+  status,
+  size,
+}: {
+  readonly status: RequestStatus;
+  readonly size?: 'lg';
+}) {
+  return (
+    <StatusPill tone={TONE[status]} size={size}>
+      {requestStatusWords(status)}
+    </StatusPill>
+  );
 }

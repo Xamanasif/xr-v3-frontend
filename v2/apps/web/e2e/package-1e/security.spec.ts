@@ -75,7 +75,10 @@ test('the requester’s ticket reaches no Super Admin page or answer; sign-out l
   await toSignIn(page);
   await signInAs(page, { email: 'arjun.mehta@wilp.example' });
   await openInTab(page, '/admin/requests');
-  await expect(page.locator('main tbody tr', { hasText: 'REQ-0042' })).toBeVisible();
+  // SA-02 names requests by their institution, never by reference (SA-v1).
+  await expect(
+    page.locator('main tbody tr', { hasText: 'Godavari Institute of Technology' }),
+  ).toBeVisible();
   expect(await page.content()).not.toContain(token);
   await openInTab(page, '/admin/requests/REQ-0042');
   await expect(page.getByRole('complementary', { name: 'Your decision' })).toBeVisible();
