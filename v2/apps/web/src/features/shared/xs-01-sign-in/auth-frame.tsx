@@ -1,27 +1,21 @@
-import { BackLink } from '@xr/ui';
+import { EntryPage } from '@xr/ui/v3';
 import type { ReactNode } from 'react';
 
 import { SIGN_IN } from '@/copy/sign-in';
 
 /**
- * The `(auth)` frame (Appendix F §3.3 `(auth)/layout.tsx`; B1-09 "Pattern: AR-6 focused task: one
- * centred card on the calm B2 brand background … No navigation to wander off to"): `div.xp >
- * div.xp-auth`, the top row and `main.xp-auth-main` holding the card. No public header.
+ * The `(auth)` frame in the owner-approved Entry & shared design (XS-01, XS-03, XS-04;
+ * design/v3-refined-b/roles/XS-v6, `XsSignIn`): a whole V3 page outside any workspace shell — the
+ * top row with its one way out, and the centred column for the card and the prototype line. No
+ * public header, nothing else to wander off to.
  *
- * B1-09's two ways out render now that their pages are built (P0-35 built-screen navigation,
- * extended to Phase 1 by the owner; `nav/link-targets.ts`): "Back to experiments" in the top row
- * goes to the Landing, `/` (P1-17 follows the href; Package 1B); "Request institutional access"
- * under the card goes to Your selection (PU-07; Package 1C, in the card itself).
+ * "Back to experiments" opens the public catalogue (PU-04, `/experiments`), as the XS link map
+ * draws it; the v46 board's link to the Landing (P1-17) is superseded.
  */
 export function AuthFrame({ children }: { readonly children?: ReactNode }) {
   return (
-    <div className="xp">
-      <div className="xp-auth">
-        <div className="xp-in xp-auth-top">
-          <BackLink href="/">{SIGN_IN.backToExperiments}</BackLink>
-        </div>
-        <main className="xp-auth-main">{children}</main>
-      </div>
-    </div>
+    <EntryPage back={{ href: SIGN_IN.backHref, label: SIGN_IN.backToExperiments }}>
+      {children}
+    </EntryPage>
   );
 }

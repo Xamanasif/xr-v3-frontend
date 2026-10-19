@@ -1,0 +1,991 @@
+{
+ "about": "Every control on the XS surfaces and the shared chrome they sit in: where it goes, how it is classified and how it was checked. Route strings are v46 proposals used for identification; the app keeps its own routes. No control is an href=\"#\" placeholder: anchors point at real elements and every handler either navigates, changes state or (on a standalone component artboard) says where it leads.",
+ "classification_key": {
+  "same-page": "Changes the current page or focus only",
+  "shared": "Another XS surface (owned here)",
+  "shared (same page family)": "Another view of XS-07 Help & support",
+  "shared → role": "Leaves XS for a role workstream's page (role home or kept address)",
+  "other-workstream (X)": "A page owned by workstream X, shown in the preview as a labelled slot",
+  "policy-open (decision)": "The documented safe treatment for an undecided policy",
+  "specimen-note": "Standalone component artboard with no host: explains where the control leads"
+ },
+ "status_key": {
+  "LOGIC TESTED": "Exercised in a real browser render, result read back (see CHECKS.md)",
+  "RENDERED": "Drawn and inspected, not exercised",
+  "SOURCE CHECKED": "Read in source only",
+  "NOT TESTED": "Not checked"
+ },
+ "evidence_key": "See CHECKS.md §3 for J*, K*, L*, F2, SW, G.",
+ "links": [
+  {
+   "source": "XS-01 Sign in",
+   "control": "Back to experiments",
+   "kind": "link",
+   "destination": "PU-04 Catalogue",
+   "route_v46_proposal": "/experiments",
+   "classification": "other-workstream (Public)",
+   "preview_behaviour": "Labelled public slot page; its H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J5",
+    "K1"
+   ]
+  },
+  {
+   "source": "XS-01 Sign in",
+   "control": "Sign in with your institution",
+   "kind": "button",
+   "destination": "XS-01 state: Institution sign-in isn’t available right now",
+   "route_v46_proposal": "/sign-in",
+   "classification": "policy-open (T-10)",
+   "preview_behaviour": "The notice replaces the button and takes focus; e-mail sign-in stays available",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J5",
+    "F2",
+    "K1b",
+    "L6b"
+   ]
+  },
+  {
+   "source": "XS-01 Sign in",
+   "control": "Error summary links: Enter your e-mail address · Enter an e-mail address like name@institution.edu · Enter your password",
+   "kind": "link",
+   "destination": "The named field",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Moves focus to the field",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "K1"
+   ]
+  },
+  {
+   "source": "XS-01 Sign in",
+   "control": "Show password / Hide password",
+   "kind": "button",
+   "destination": "Password field shown as text / hidden",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Toggles the field type; name changes with it",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "K1"
+   ]
+  },
+  {
+   "source": "XS-04 Forgot password",
+   "control": "Forgot your password?",
+   "kind": "disclosure button (aria-expanded)",
+   "destination": "XS-04 contact route: Contact your institution administrator to reset it.",
+   "route_v46_proposal": "/sign-in (links only)",
+   "classification": "policy-open (T-11 / R02)",
+   "preview_behaviour": "Shows the sentence; nothing is sent",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J5",
+    "L6",
+    "L6b"
+   ]
+  },
+  {
+   "source": "XS-04 First-time activation",
+   "control": "First time signing in?",
+   "kind": "disclosure button (aria-expanded)",
+   "destination": "XS-04 contact route: Contact your institution administrator to find out how to sign in for the first time.",
+   "route_v46_proposal": "/sign-in (links only)",
+   "classification": "policy-open (T-11 / R02)",
+   "preview_behaviour": "Shows the sentence; nothing is sent",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J5",
+    "L6",
+    "L6b"
+   ]
+  },
+  {
+   "source": "XS-01 Sign in",
+   "control": "Sign in (submit; Enter in a field)",
+   "kind": "form submit",
+   "destination": "Role home: ST-01 Home (Student) · FA-01 · IA-01 · VE-01 · RV-01 · CM-01 · SA-01 Overview · or the kept return address · or XS-06 · or an XS-08 refusal",
+   "route_v46_proposal": "/sign-in → role routes",
+   "classification": "shared → role",
+   "preview_behaviour": "Validation, then Signing in… (busy), then the destination's H1 takes focus. Unknown e-mail: wrong-details message, password cleared, e-mail kept",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "J2",
+    "J2b",
+    "J3",
+    "J4",
+    "SW",
+    "K1",
+    "L10b"
+   ],
+   "note": "Pressing twice while busy is ignored (L10b)."
+  },
+  {
+   "source": "XS-01 Sign in",
+   "control": "Request institutional access",
+   "kind": "link",
+   "destination": "PU-08 Request institutional access",
+   "route_v46_proposal": "/request-access",
+   "classification": "other-workstream (Public)",
+   "preview_behaviour": "Labelled public slot page; its H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J5",
+    "K1"
+   ]
+  },
+  {
+   "source": "XS-01 public slot (preview only)",
+   "control": "Sign in",
+   "kind": "link",
+   "destination": "XS-01 Sign in",
+   "route_v46_proposal": "/sign-in",
+   "classification": "shared",
+   "preview_behaviour": "Back to the sign-in card; its H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J5"
+   ]
+  },
+  {
+   "source": "XS-03 Session ended",
+   "control": "Sign in (with a kept return address)",
+   "kind": "form submit",
+   "destination": "The kept address if it is in the person's workspace · XS-06 if it belongs to another workspace · XS-08 inactive refusal · XS-08 paused refusal for a paused institution's experiment",
+   "route_v46_proposal": "/signed-out → kept route",
+   "classification": "shared → role",
+   "preview_behaviour": "Rahul → ST-05 experiment slot; Meera → XS-06; Sneha → inactive refusal; paused Rahul → paused refusal",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J2",
+    "J2b",
+    "J3",
+    "J4"
+   ],
+   "note": "Design proposal; confirm against the app's redirect."
+  },
+  {
+   "source": "XS-05 Account menu (every workspace)",
+   "control": "Account menu, {name}, {role}[, {organisation}]",
+   "kind": "button (aria-expanded, aria-controls)",
+   "destination": "Account menu panel",
+   "route_v46_proposal": "(top bar)",
+   "classification": "shared",
+   "preview_behaviour": "Opens; focus to the first item. Arrow keys, Home, End; Escape and outside click close and return focus; Tab out closes",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "K3",
+    "K3b",
+    "J1",
+    "SW"
+   ]
+  },
+  {
+   "source": "XS-05 Account menu (Student with AR/VR/MR only)",
+   "control": "My device",
+   "kind": "link",
+   "destination": "ST-18 My device",
+   "route_v46_proposal": "/student/device",
+   "classification": "other-workstream (Student)",
+   "preview_behaviour": "Labelled Student slot; no rail item current",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L1",
+    "J1"
+   ]
+  },
+  {
+   "source": "XS-05 Account menu (every workspace)",
+   "control": "Help & support",
+   "kind": "link",
+   "destination": "XS-07 Help & support",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "Help list; its H1 takes focus; Where is pre-filled from the page left",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "SW"
+   ]
+  },
+  {
+   "source": "XS-05 Account menu (every workspace)",
+   "control": "Sign out",
+   "kind": "button",
+   "destination": "XS-03 You’re signed out",
+   "route_v46_proposal": "/signed-out",
+   "classification": "shared",
+   "preview_behaviour": "Ends the preview sign-in; the notice takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "K3",
+    "SW"
+   ]
+  },
+  {
+   "source": "XS-05 Account menu (every workspace)",
+   "control": "Close account menu (outside-click layer, not in the tab order)",
+   "kind": "button (tabindex -1)",
+   "destination": "Closes the panel",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Focus returns to the account button",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "K3b"
+   ]
+  },
+  {
+   "source": "Workspace shell (every workspace)",
+   "control": "Skip to main content",
+   "kind": "link",
+   "destination": "Main region",
+   "route_v46_proposal": "same page",
+   "classification": "same-page (shell patch XS-P1)",
+   "preview_behaviour": "Visible only when focused; focuses <main>",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "K3"
+   ]
+  },
+  {
+   "source": "Workspace shell (every workspace)",
+   "control": "Help & support (rail foot and drawer foot)",
+   "kind": "link",
+   "destination": "XS-07 Help & support",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "aria-current on Help; H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW",
+    "J1"
+   ]
+  },
+  {
+   "source": "Workspace shell (below 1024 px)",
+   "control": "Menu",
+   "kind": "button (aria-expanded)",
+   "destination": "Workspace drawer (role=dialog, aria-modal)",
+   "route_v46_proposal": "same page",
+   "classification": "same-page (V3 pattern)",
+   "preview_behaviour": "Focus to Close; Tab and Shift+Tab stay inside; Escape returns focus to Menu",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J7",
+    "K5"
+   ]
+  },
+  {
+   "source": "Workspace drawer",
+   "control": "Close menu",
+   "kind": "button",
+   "destination": "Closes the drawer",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Focus returns to Menu",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J7",
+    "K5"
+   ]
+  },
+  {
+   "source": "Workspace drawer",
+   "control": "Close menu (scrim, not in the tab order)",
+   "kind": "button (tabindex -1)",
+   "destination": "Closes the drawer",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Focus returns to Menu",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J7"
+   ]
+  },
+  {
+   "source": "Workspace drawer",
+   "control": "Rail destinations",
+   "kind": "link",
+   "destination": "The chosen page",
+   "route_v46_proposal": "role routes",
+   "classification": "other-workstream (role)",
+   "preview_behaviour": "Drawer closes and the page's H1 takes focus (shell patch XS-P2)",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J7",
+    "K5"
+   ]
+  },
+  {
+   "source": "ST-05 experiment slot (preview only)",
+   "control": "My courses (breadcrumb)",
+   "kind": "link",
+   "destination": "ST-02 My courses",
+   "route_v46_proposal": "/student/courses",
+   "classification": "other-workstream (Student)",
+   "preview_behaviour": "Student slot; aria-current on My courses",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L1"
+   ]
+  },
+  {
+   "source": "XS-06 Not your workspace",
+   "control": "Back to Home / Back to Overview",
+   "kind": "link (primary)",
+   "destination": "The signed-in person's home",
+   "route_v46_proposal": "role home",
+   "classification": "shared → role",
+   "preview_behaviour": "Home slot; its H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J2"
+   ]
+  },
+  {
+   "source": "XS-06 Not your workspace",
+   "control": "Help",
+   "kind": "link",
+   "destination": "XS-07 Help & support (Where: Not your workspace)",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "Help list; Report a problem pre-fills Where",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L2"
+   ]
+  },
+  {
+   "source": "XS-07 My reports",
+   "control": "Report a problem (page head)",
+   "kind": "link (primary)",
+   "destination": "XS-07 Report a problem",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "Form; its H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "K6",
+    "L7"
+   ]
+  },
+  {
+   "source": "XS-07 My reports",
+   "control": "Report row (title, reference, dates, status)",
+   "kind": "link",
+   "destination": "XS-07 report detail",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "Detail; its H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "K6",
+    "L4"
+   ]
+  },
+  {
+   "source": "XS-07 My reports (empty)",
+   "control": "Report a problem (in the empty state)",
+   "kind": "link (primary)",
+   "destination": "XS-07 Report a problem",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "Form; Where pre-filled",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L7b"
+   ]
+  },
+  {
+   "source": "XS-07 My reports (failed)",
+   "control": "Try again",
+   "kind": "button",
+   "destination": "My reports reloaded",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Loading, then the list; focus to My reports",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L4"
+   ]
+  },
+  {
+   "source": "XS-07 Report a problem",
+   "control": "Help & support (breadcrumb)",
+   "kind": "link",
+   "destination": "XS-07 My reports",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "List; nothing saved",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L4"
+   ]
+  },
+  {
+   "source": "XS-07 Report a problem",
+   "control": "Say what happened (error summary)",
+   "kind": "link",
+   "destination": "What happened? field",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Focus to the field; summary and field error clear when text is typed",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "K6",
+    "K6b"
+   ]
+  },
+  {
+   "source": "XS-07 Report a problem",
+   "control": "Screenshot (optional)",
+   "kind": "file input",
+   "destination": "Chosen image name kept",
+   "route_v46_proposal": "same page",
+   "classification": "same-page",
+   "preview_behaviour": "Only the file name is kept; nothing is uploaded",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1"
+   ]
+  },
+  {
+   "source": "XS-07 Report a problem",
+   "control": "Send report",
+   "kind": "form submit",
+   "destination": "XS-07 Report sent",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "Sending… then Report sent with the reference (none for Super Admin); the report is added to My reports and kept for the session",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "K6",
+    "L7",
+    "L10",
+    "F2",
+    "J6"
+   ],
+   "note": "Pressing twice while sending creates one report (L10)."
+  },
+  {
+   "source": "XS-07 Report a problem",
+   "control": "Cancel",
+   "kind": "link",
+   "destination": "XS-07 My reports",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "List unchanged; nothing saved",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L7"
+   ]
+  },
+  {
+   "source": "XS-07 Report sent",
+   "control": "Help & support (breadcrumb)",
+   "kind": "link",
+   "destination": "XS-07 My reports",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "List with the new report first",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L7"
+   ]
+  },
+  {
+   "source": "XS-07 Report sent",
+   "control": "View my reports",
+   "kind": "link (primary)",
+   "destination": "XS-07 My reports",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "List with the new report first",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "J1",
+    "K6"
+   ]
+  },
+  {
+   "source": "XS-07 Report sent",
+   "control": "Back to Home / Back to Overview",
+   "kind": "link",
+   "destination": "The person's home",
+   "route_v46_proposal": "role home",
+   "classification": "shared → role",
+   "preview_behaviour": "Home slot; its H1 takes focus",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L5"
+   ]
+  },
+  {
+   "source": "XS-07 report detail",
+   "control": "Help & support (breadcrumb)",
+   "kind": "link",
+   "destination": "XS-07 My reports",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "List",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L4"
+   ]
+  },
+  {
+   "source": "XS-07 report detail",
+   "control": "Report a problem (foot)",
+   "kind": "link",
+   "destination": "XS-07 Report a problem",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared (same page family)",
+   "preview_behaviour": "Form",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L4"
+   ]
+  },
+  {
+   "source": "XS-08 paused banner (every page: Institute Admin, Faculty, Student)",
+   "control": "Help",
+   "kind": "link",
+   "destination": "XS-07 Help & support",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "Help list",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L3",
+    "J8",
+    "L9d"
+   ]
+  },
+  {
+   "source": "XS-08 inactive banner (every page: Student, Faculty)",
+   "control": "Help",
+   "kind": "link",
+   "destination": "XS-07 Help & support",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "Help list",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L9"
+   ]
+  },
+  {
+   "source": "XS-08 home notice (Student paused · Institute Admin paused · inactive)",
+   "control": "Help",
+   "kind": "link",
+   "destination": "XS-07 Help & support",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "Help list",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L3",
+    "L9b",
+    "L7c"
+   ]
+  },
+  {
+   "source": "XS-08 paused refusal",
+   "control": "Back to Home",
+   "kind": "link (primary)",
+   "destination": "ST-01 Home (with the paused banner and notice)",
+   "route_v46_proposal": "/student",
+   "classification": "shared → role",
+   "preview_behaviour": "Home slot; notice still shown",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L7d",
+    "J3"
+   ]
+  },
+  {
+   "source": "XS-08 paused refusal",
+   "control": "Help",
+   "kind": "link",
+   "destination": "XS-07 Help & support (Where: Access paused)",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "Help list",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L3b"
+   ]
+  },
+  {
+   "source": "XS-08 inactive refusal",
+   "control": "Back to Home",
+   "kind": "link (primary)",
+   "destination": "ST-01 Home (with the inactive banner and notice)",
+   "route_v46_proposal": "/student",
+   "classification": "shared → role",
+   "preview_behaviour": "Home slot; notice still shown",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L7c"
+   ]
+  },
+  {
+   "source": "XS-08 inactive refusal",
+   "control": "Help",
+   "kind": "link",
+   "destination": "XS-07 Help & support (Where: Account inactive)",
+   "route_v46_proposal": "/[workspace]/help",
+   "classification": "shared",
+   "preview_behaviour": "Help list",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L9c"
+   ]
+  },
+  {
+   "source": "XsAccountMenu artboard (specimen)",
+   "control": "My device · Help & support · Sign out",
+   "kind": "link / button",
+   "destination": "Specimen note naming the destination",
+   "route_v46_proposal": "—",
+   "classification": "specimen-note",
+   "preview_behaviour": "Closes the menu, returns focus and says where the item leads (no silent no-op)",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L8"
+   ]
+  },
+  {
+   "source": "XsMessage artboard (specimen)",
+   "control": "Back to Home · Help",
+   "kind": "link",
+   "destination": "Specimen note",
+   "route_v46_proposal": "—",
+   "classification": "specimen-note",
+   "preview_behaviour": "Says where the control leads",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L8b"
+   ]
+  },
+  {
+   "source": "XsAccessNotice artboard (specimen)",
+   "control": "Help",
+   "kind": "link",
+   "destination": "Specimen note",
+   "route_v46_proposal": "—",
+   "classification": "specimen-note",
+   "preview_behaviour": "Says where the control leads",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L8c"
+   ]
+  },
+  {
+   "source": "XsSignIn artboard (specimen)",
+   "control": "Back to experiments · Request institutional access · Sign in",
+   "kind": "link / submit",
+   "destination": "“Opens outside this preview” notice; Sign in reads “isn’t right” (no host knows any account, as in v46)",
+   "route_v46_proposal": "—",
+   "classification": "specimen-note",
+   "preview_behaviour": "Notice naming PU-04 / PU-08",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L8d"
+   ]
+  },
+  {
+   "source": "XsHelp artboard (specimen)",
+   "control": "Back to Overview · View my reports",
+   "kind": "link",
+   "destination": "Specimen note · its own sample list",
+   "route_v46_proposal": "—",
+   "classification": "specimen-note",
+   "preview_behaviour": "Keeps its own sample list so the whole family can be tried",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "L8e"
+   ]
+  },
+  {
+   "source": "Galleries (XS01-SignIn-States, XS05-Menus, XS08-Notices)",
+   "control": "Every control on the cards",
+   "kind": "various",
+   "destination": "Same behaviour as the component artboards",
+   "route_v46_proposal": "—",
+   "classification": "specimen-note",
+   "preview_behaviour": "Each card is a live instance of the shared component",
+   "tested": "RENDERED · SOURCE CHECKED",
+   "evidence": [
+    "G"
+   ],
+   "note": "Interactions on gallery cards were not exercised separately; they run the same component code as the specimens above."
+  }
+ ],
+ "rail_destinations": [
+  {
+   "source": "Workspace shell · Student rail (and drawer)",
+   "kind": "link (aria-current on the current page)",
+   "destinations": [
+    {
+     "label": "Home",
+     "id": "ST-01",
+     "route_v46_proposal": "/student"
+    },
+    {
+     "label": "My courses",
+     "id": "ST-02",
+     "route_v46_proposal": "/student/courses"
+    },
+    {
+     "label": "Assessments",
+     "id": "ST-11",
+     "route_v46_proposal": "/student/assessments"
+    },
+    {
+     "label": "Progress",
+     "id": "ST-15",
+     "route_v46_proposal": "/student/progress"
+    }
+   ],
+   "classification": "other-workstream (Student)",
+   "preview_behaviour": "Labelled slot for the owning workstream; H1 takes focus; aria-current set. IA-01, IA-02, SA-01 and SA-02 note their approved V3 seed.",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW"
+   ]
+  },
+  {
+   "source": "Workspace shell · Faculty rail (and drawer)",
+   "kind": "link (aria-current on the current page)",
+   "destinations": [
+    {
+     "label": "Overview",
+     "id": "FA-01",
+     "route_v46_proposal": "/faculty"
+    },
+    {
+     "label": "My courses",
+     "id": "FA-02",
+     "route_v46_proposal": "/faculty/courses"
+    },
+    {
+     "label": "Assessments",
+     "id": "FA-06",
+     "route_v46_proposal": "/faculty/assessments"
+    },
+    {
+     "label": "Question bank",
+     "id": "FA-14",
+     "route_v46_proposal": "/faculty/question-bank"
+    },
+    {
+     "label": "Marking",
+     "id": "FA-18",
+     "route_v46_proposal": "/faculty/marking"
+    },
+    {
+     "label": "Students",
+     "id": "FA-20",
+     "route_v46_proposal": "/faculty/students"
+    }
+   ],
+   "classification": "other-workstream (Faculty)",
+   "preview_behaviour": "Labelled slot for the owning workstream; H1 takes focus; aria-current set. IA-01, IA-02, SA-01 and SA-02 note their approved V3 seed.",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW"
+   ]
+  },
+  {
+   "source": "Workspace shell · Institute Admin rail (and drawer)",
+   "kind": "link (aria-current on the current page)",
+   "destinations": [
+    {
+     "label": "Overview",
+     "id": "IA-01",
+     "route_v46_proposal": "/institute"
+    },
+    {
+     "label": "Content access",
+     "id": "IA-02",
+     "route_v46_proposal": "/institute/content-access"
+    },
+    {
+     "label": "Student access",
+     "id": "IA-04",
+     "route_v46_proposal": "/institute/student-access"
+    },
+    {
+     "label": "People",
+     "id": "IA-06",
+     "route_v46_proposal": "/institute/people?tab=students"
+    },
+    {
+     "label": "Requests",
+     "id": "IA-17",
+     "route_v46_proposal": "/institute/requests"
+    },
+    {
+     "label": "Usage",
+     "id": "IA-20",
+     "route_v46_proposal": "/institute/usage"
+    }
+   ],
+   "classification": "other-workstream (Institute Admin)",
+   "preview_behaviour": "Labelled slot for the owning workstream; H1 takes focus; aria-current set. IA-01, IA-02, SA-01 and SA-02 note their approved V3 seed.",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW"
+   ]
+  },
+  {
+   "source": "Workspace shell · Vendor rail (and drawer)",
+   "kind": "link (aria-current on the current page)",
+   "destinations": [
+    {
+     "label": "Overview",
+     "id": "VE-01",
+     "route_v46_proposal": "/vendor"
+    },
+    {
+     "label": "My experiments",
+     "id": "VE-02",
+     "route_v46_proposal": "/vendor/experiments"
+    }
+   ],
+   "classification": "other-workstream (Vendor)",
+   "preview_behaviour": "Labelled slot for the owning workstream; H1 takes focus; aria-current set. IA-01, IA-02, SA-01 and SA-02 note their approved V3 seed.",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW"
+   ]
+  },
+  {
+   "source": "Workspace shell · Academic Reviewer rail (and drawer)",
+   "kind": "link (aria-current on the current page)",
+   "destinations": [
+    {
+     "label": "Overview",
+     "id": "RV-01",
+     "route_v46_proposal": "/reviewer"
+    },
+    {
+     "label": "Review queue",
+     "id": "RV-02",
+     "route_v46_proposal": "/reviewer/queue"
+    },
+    {
+     "label": "Reviewed by me",
+     "id": "RV-05",
+     "route_v46_proposal": "/reviewer/reviewed"
+    }
+   ],
+   "classification": "other-workstream (Academic Reviewer)",
+   "preview_behaviour": "Labelled slot for the owning workstream; H1 takes focus; aria-current set. IA-01, IA-02, SA-01 and SA-02 note their approved V3 seed.",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW"
+   ]
+  },
+  {
+   "source": "Workspace shell · Content Manager rail (and drawer)",
+   "kind": "link (aria-current on the current page)",
+   "destinations": [
+    {
+     "label": "Overview",
+     "id": "CM-01",
+     "route_v46_proposal": "/content-manager"
+    },
+    {
+     "label": "Ready to publish",
+     "id": "CM-02",
+     "route_v46_proposal": "/content-manager/ready"
+    },
+    {
+     "label": "Content library",
+     "id": "CM-04",
+     "route_v46_proposal": "/content-manager/library"
+    },
+    {
+     "label": "Updates",
+     "id": "CM-08",
+     "route_v46_proposal": "/content-manager/updates"
+    },
+    {
+     "label": "Course codes",
+     "id": "CM-09",
+     "route_v46_proposal": "/content-manager/course-codes"
+    }
+   ],
+   "classification": "other-workstream (Content Manager)",
+   "preview_behaviour": "Labelled slot for the owning workstream; H1 takes focus; aria-current set. IA-01, IA-02, SA-01 and SA-02 note their approved V3 seed.",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW"
+   ]
+  },
+  {
+   "source": "Workspace shell · Super Admin rail (and drawer)",
+   "kind": "link (aria-current on the current page)",
+   "destinations": [
+    {
+     "label": "Overview",
+     "id": "SA-01",
+     "route_v46_proposal": "/admin"
+    },
+    {
+     "label": "Requests (count 3)",
+     "id": "SA-02",
+     "route_v46_proposal": "/admin/requests"
+    },
+    {
+     "label": "Institutions",
+     "id": "SA-06",
+     "route_v46_proposal": "/admin/institutions"
+    },
+    {
+     "label": "Content",
+     "id": "SA-10",
+     "route_v46_proposal": "/admin/content/updates"
+    },
+    {
+     "label": "Academic structure",
+     "id": "SA-14",
+     "route_v46_proposal": "/admin/structure"
+    },
+    {
+     "label": "Platform roles",
+     "id": "SA-16",
+     "route_v46_proposal": "/admin/roles?tab=vendors|reviewers|content-managers"
+    },
+    {
+     "label": "Operations",
+     "id": "SA-18",
+     "route_v46_proposal": "/admin/operations/device-transfers"
+    }
+   ],
+   "classification": "other-workstream (Super Admin)",
+   "preview_behaviour": "Labelled slot for the owning workstream; H1 takes focus; aria-current set. IA-01, IA-02, SA-01 and SA-02 note their approved V3 seed.",
+   "tested": "LOGIC TESTED",
+   "evidence": [
+    "SW"
+   ]
+  }
+ ],
+ "counts": {
+  "controls": 51,
+  "rail_destination_links": 33,
+  "not_tested": 0
+ }
+}

@@ -1,19 +1,20 @@
 /**
  * The workspace frame and XS-06 (Appendix F §5.2 "Workspace guard (XS-06)", WP-0.13 acceptance
- * 1; ADR-0005 §5; board 08): for every (role, workspace) pair the shell is the session role's, and
- * another role's workspace shows XS-06 in place — the board 08 words with the person's own
- * workspace named, nothing current in the sidebar, "Back to Home" to their own base and Help to
- * their own Help, and the requested page never rendered. On the real composition root and the
- * shared sample world; the same 42 pairs run in the browser (`e2e/foundation/workspace-guard`).
+ * 1; ADR-0005 §5; the owner-approved XS export's `XsMessage`): for every (role, workspace) pair the
+ * shell is the session role's, and another role's workspace shows XS-06 in place — the XS words
+ * with the person's own workspace named, nothing current in the sidebar, "Back to Home" /
+ * "Back to Overview" to their own base and Help to their own Help, and the requested page never
+ * rendered. On the real composition root and the shared sample world; the same 42 pairs run in the
+ * browser (`e2e/foundation/workspace-guard`).
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import { WORKSPACES } from '@xr/contracts/draft';
 import { PLATFORM_ROLES, ROLE_LABEL, type Role } from '@xr/domain';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { WORKSPACE_NAV } from '@/nav/nav-config';
+import { homeLabelOf, WORKSPACE_NAV } from '@/nav/nav-config';
 import { roleOfWorkspace, workspaceOf } from '@/nav/routes';
-import { BOARD_ACCOUNT_ROWS, board } from '@/test-support/boards';
+import { BOARD_ACCOUNT_ROWS, board, xsExport } from '@/test-support/boards';
 import { PERSON_OF_ROLE, renderInTab, tabPlatform, testNavigation } from '@/test-support/workspace';
 
 import { bannerKindOf, shellPersonOf, WorkspaceLayout } from './workspace-frame';
@@ -50,13 +51,13 @@ describe('XS-06 — the 42 (role, other workspace) pairs', () => {
     expect(PAIRS).toHaveLength(42);
   });
 
-  it('board 08 draws the words this test expects', () => {
-    expect(BOARD_08).toContain(
-      '<h1 class="xr-msg-title">This page isn’t part of your workspace</h1>',
+  it('the XS export draws the words this test expects (board 08 the top-bar title)', () => {
+    const message = xsExport('XsMessage.dc.html');
+    expect(message).toContain("title: 'This page isn’t part of your workspace'");
+    expect(message).toContain(
+      "'You’re signed in to the ' + ws + ' workspace. This address belongs to a different workspace.'",
     );
-    expect(BOARD_08).toContain(
-      'You’re signed in to the Student workspace. This address belongs to a different workspace.',
-    );
+    expect(message).toContain("action: 'Back to ' + home");
     expect(BOARD_08).toContain('<span class="xr-top-title">Not your workspace</span>');
   });
 
@@ -66,16 +67,15 @@ describe('XS-06 — the 42 (role, other workspace) pairs', () => {
       level: 1,
       name: 'This page isn’t part of your workspace',
     });
-    const message = heading.closest('.xr-msg') as HTMLElement;
-    expect(message).toHaveClass('xr-x-msg--shell');
+    const message = heading.closest('.xs-msg') as HTMLElement;
+    expect(message.closest('.rk-x-region')).not.toBeNull();
     expect(message).toHaveTextContent(
       `You’re signed in to the ${ROLE_LABEL[role]} workspace. This address belongs to a different workspace.`,
     );
     const own = WORKSPACE_NAV[role];
-    expect(within(message).getByRole('link', { name: 'Back to Home' })).toHaveAttribute(
-      'href',
-      own.base,
-    );
+    expect(
+      within(message).getByRole('link', { name: `Back to ${homeLabelOf(role)}` }),
+    ).toHaveAttribute('href', own.base);
     expect(within(message).getByRole('link', { name: 'Help' })).toHaveAttribute(
       'href',
       own.help.href,
@@ -84,7 +84,7 @@ describe('XS-06 — the 42 (role, other workspace) pairs', () => {
     expect(screen.getByRole('complementary', { name: `${own.workspace} workspace` })).toBeVisible();
     expect(document.querySelector('[aria-current="page"]:not(.xr-crumbs *)')).toBeNull();
     expect(
-      screen.getByRole('button', { name: new RegExp(`^Account menu: .*, ${ROLE_LABEL[role]}`) }),
+      screen.getByRole('button', { name: new RegExp(`^Account menu, .*, ${ROLE_LABEL[role]}`) }),
     ).toBeInTheDocument();
     // The requested page is never rendered; the address is never changed by the guard.
     expect(screen.queryByText('The requested page')).toBeNull();
@@ -107,7 +107,7 @@ describe('each role in its own workspace sees the requested page in its own shel
   });
 });
 
-describe('the shell’s person comes from the session (board 06 account-menu lines)', () => {
+describe('the shell’s person comes from the session (board 06 lines; XS-05 accessible name)', () => {
   it.each(PLATFORM_ROLES)('%s: name, role and line as board 06 draws them', async (role) => {
     const { runtime } = await tabPlatform(PERSON_OF_ROLE[role]);
     const answer = await runtime.ports.session.getSession();
@@ -118,9 +118,9 @@ describe('the shell’s person comes from the session (board 06 account-menu lin
     expect(person.initials).toBe(row.initials);
     if (row.line) expect(person.organisation).toBe(row.line);
     await renderAs(role, workspaceOf(role));
-    const button = await screen.findByRole('button', { name: /^Account menu: / });
+    const button = await screen.findByRole('button', { name: /^Account menu, / });
     expect(button).toHaveAccessibleName(
-      `Account menu: ${[row.name, row.role, row.line].filter(Boolean).join(', ')}`,
+      `Account menu, ${[row.name, row.role, row.line].filter(Boolean).join(', ')}`,
     );
   });
 });

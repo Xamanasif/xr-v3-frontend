@@ -20,9 +20,16 @@
 // Run `pnpm --filter @xr/ui generate:v3-css` only after an owner-approved change of the foundation
 // (a new FOUNDATION-LOCK). The drift test (src/styles/v3-provenance.test.ts) fails whenever the
 // committed file and its sources disagree.
+//
+// It also writes the scoped derivative of each owner-approved role export's extension sheet
+// (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): today XS-v6's xs-shared.css →
+// src/styles/v3/xs-scoped.css, with the same selector-only transform. Before anything is written,
+// the export must name this foundation, its three base sheets must be the foundation's own bytes
+// (a different base is a new foundation version: STOP), and the extension sheet must match both
+// the export's FOUNDATION-LOCK.json and its SHA256SUMS.txt.
 import { createHash } from 'node:crypto';
 import { readFileSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { basename, join, relative } from 'node:path';
 import process from 'node:process';
 
 const packageRoot = join(import.meta.dirname, '..');
@@ -209,9 +216,10 @@ export function scopeSelectorList(prelude) {
 
 /**
  * Rewrites the selectors of every style rule in `css` (recursively inside grouping at-rules) and
- * copies every other byte unchanged.
+ * copies every other byte unchanged. `keepRule(prelude)` (default: every rule) leaves out a style
+ * rule it refuses — the whole rule, its selector and block — and nothing else.
  */
-export function scopeStylesheet(css) {
+export function scopeStylesheet(css, keepRule = () => true) {
   let output = '';
   let cursor = 0;
   while (cursor < css.length) {
@@ -250,13 +258,17 @@ export function scopeStylesheet(css) {
     if (prelude.startsWith('@')) {
       const name = /^@([\w-]+)/.exec(prelude)?.[1] ?? '';
       if (GROUPING_AT_RULES.has(name)) {
-        output += prelude + '{' + scopeStylesheet(css.slice(end + 1, close)) + '}';
+        output += prelude + '{' + scopeStylesheet(css.slice(end + 1, close), keepRule) + '}';
       } else {
         // @keyframes, @font-face, …: copied as written.
         output += css.slice(cursor, close + 1);
       }
-    } else {
+    } else if (keepRule(prelude)) {
       output += scopeSelectorList(prelude) + css.slice(end, close + 1);
+    } else {
+      // A left-out rule takes its line with it.
+      cursor = css[close + 1] === '\n' ? close + 2 : close + 1;
+      continue;
     }
     cursor = close + 1;
   }
@@ -298,7 +310,91 @@ export function renderScopedCss(inputs) {
   return `${header}\n${body}${body.endsWith('\n') ? '' : '\n'}`;
 }
 
+/** The owner-approved role exports (design/v3-refined-b/roles/) whose extension sheet ships. */
+export const ROLE_SHEETS = [
+  {
+    /** The workstream: XS · Entry & shared (sign-in, account menu, Help, messages, notices). */
+    role: 'XS',
+    /** The export, byte for byte (`design/v3-refined-b/roles/README.md`). */
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'XS-v6'),
+    /** The extension sheet inside the export (every rule selects an `xs-` class). */
+    sheet: 'project/xs-shared.css',
+    output: join(packageRoot, 'src', 'styles', 'v3', 'xs-scoped.css'),
+  },
+];
+
+/**
+ * Whether every selector of a rule names the XS export's canvas scaffolding, "never product UI"
+ * (its COMPONENT-EXTENSIONS.md §2 "Preview only"): dashed slots for other workstreams' pages
+ * (`xs-slot*`), the public slot pages (`xs-pub*`), specimen notes (`xs-spec`) and galleries
+ * (`xs-kit*`). Those rules are left out of the product sheet.
+ */
+export function previewOnlyRule(_role, prelude) {
+  return splitTopLevel(prelude, ',').every((selector) =>
+    /\.xs-(?:slot|pub|spec|kit)[\w-]*/.test(selector),
+  );
+}
+
+/**
+ * A role export's extension sheet, checked against the export's own FOUNDATION-LOCK.json and
+ * SHA256SUMS.txt, after checking that the export is built on this foundation's base sheets.
+ */
+export function readRoleInput(role) {
+  const exportLock = JSON.parse(readFileSync(join(role.directory, 'FOUNDATION-LOCK.json'), 'utf8'));
+  if (exportLock.foundationId !== FOUNDATION_ID) {
+    throw new Error(
+      `${role.role}: the export names ${exportLock.foundationId}, not ${FOUNDATION_ID}`,
+    );
+  }
+  const foundationLock = JSON.parse(readFileSync(FOUNDATION_LOCK, 'utf8'));
+  for (const sheet of SHEETS) {
+    const exported = exportLock.baseFiles?.[`project/${sheet}`]?.sha256;
+    const locked = foundationLock.baseFiles[`references/v3/project/${sheet}`];
+    if (exported !== locked) {
+      throw new Error(
+        `${role.role}: ${sheet} is ${exported}, the foundation lock says ${locked} — a new foundation version: STOP`,
+      );
+    }
+  }
+  const css = readFileSync(join(role.directory, role.sheet), 'utf8');
+  const actual = sha256(css);
+  const expected = exportLock.localAdditions?.[role.sheet]?.sha256;
+  if (actual !== expected) {
+    throw new Error(`${role.role}: ${role.sheet} is ${actual}, its lock says ${expected}: STOP`);
+  }
+  const sums = readFileSync(join(role.directory, 'SHA256SUMS.txt'), 'utf8').split('\n');
+  if (!sums.includes(`${actual}  ${role.sheet}`)) {
+    throw new Error(`${role.role}: ${role.sheet} does not match the export's SHA256SUMS.txt: STOP`);
+  }
+  return { ...role, sha256: actual, css };
+}
+
+/** The committed derivative of one role export's extension sheet. */
+export function renderRoleCss(input) {
+  const source = relative(repositoryRoot, join(input.directory, input.sheet)).split('\\').join('/');
+  const header = [
+    `/* GENERATED by packages/ui/scripts/generate-v3-scoped-css.mjs — do not edit (ADR-0010).`,
+    ` * ${input.role} extension sheet of the owner-approved role export ${source}`,
+    ` * (foundation ${FOUNDATION_ID}), with each selector confined to a V3 root`,
+    ` * (\`${SCOPE_PREFIX.trim()}\`, or the root class itself) and kept out of v46 islands`,
+    ` * (\`${ISLAND_EXCLUSION}\`). Both additions have zero specificity; every`,
+    ` * declaration, at-rule, comment and the rule order are the source's own bytes. The export's`,
+    ` * preview-only scaffolding (xs-slot*, xs-pub*, xs-spec, xs-kit*: "never product UI") is left out.`,
+    ` *   ${basename(input.sheet).padEnd(13)} sha256 ${input.sha256}`,
+    ` */`,
+  ].join('\n');
+  const body = `\n/* ==== ${basename(input.sheet)} ==== */\n${scopeStylesheet(
+    input.css,
+    (prelude) => !previewOnlyRule(input, prelude),
+  )}`;
+  return `${header}\n${body}${body.endsWith('\n') ? '' : '\n'}`;
+}
+
 if (process.argv[1] === import.meta.filename) {
   writeFileSync(OUTPUT, renderScopedCss(readInputs()));
   process.stdout.write(`wrote ${OUTPUT}\n`);
+  for (const role of ROLE_SHEETS) {
+    writeFileSync(role.output, renderRoleCss(readRoleInput(role)));
+    process.stdout.write(`wrote ${role.output}\n`);
+  }
 }

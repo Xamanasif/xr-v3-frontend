@@ -1,0 +1,104 @@
+### J2 expired -> Meera -> XS-06 @1024
+expired note: Your session ended Sign in again to go back to where you were: My courses › Shell-and-Tube Heat Exchanger.
+shot j2-01-expired
+after sign-in focus: h1#xs-msg-title.rb-h1.xs-fit "This page isn’t part of your workspace"
+XS-06 text: This page isn’t part of your workspace You’re signed in to the Institute Admin workspace. This address belongs to a different workspace. Back to Overview Help
+nav current: no current nav
+shot j2-02-notyours
+back: h1#xs-page-title.rb-h1.xs-fit "Overview"
+top: OverviewFriday 23 October 2026 MI Meera Iyer Institute Admin
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+console clean
+
+### J2b expired -> Rahul -> experiment @1024
+focus: h1#xs-page-title.rb-h1.xs-fit "Shell-and-Tube Heat Exchanger"
+returned page: My courses Shell-and-Tube Heat Exchanger Shell-and-Tube Heat Exchanger ST-05 · Student workstream Shell-and-Tube Heat Exchanger is designed in the Student package. This preview shows only the shared shell, account menu, Help and notices around it. Preview slot, not product UI.
+nav current: My courses
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+console clean
+
+### J3 expired paused -> Rahul -> paused refusal; sign out/in again @768
+focus: h1#xs-msg-title.rb-h1.xs-fit "Your institution’s access is paused"
+refusal: Your institution’s access is paused — your work is kept. Help Your institution’s access is paused Your work is kept. Back to Home Help
+shot j3-01-paused-refusal
+home paused: Your institution’s access is paused — your work is kept. Help Home You can’t open experiments right now Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted. Help ST-01 · Student workstream Home is designed in the Student package. This preview shows only the shared shell, account menu, Help and notices around it. Preview slot, not product UI.
+after re-sign-in: Your institution’s access is paused — your work is kept. Help Home You can’t open experiments right now Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted. Help ST-01 · Student workstream Home is designed in the Student package. This preview shows only the shared shell, account menu, Help and notices around it. Preview slot, not product UI.
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+console clean
+
+### J4 expired -> Sneha -> inactive refusal @1440
+focus: h1#xs-msg-title.rb-h1.xs-fit "Your account is inactive"
+inactive refusal: Your account is inactive. Contact your institution administrator. Help Your account is inactive Nothing can be opened while the account is inactive. Contact your institution administrator. Back to Home Help
+home: Your account is inactive. Contact your institution administrator. Help Home Nothing can be opened right now Your account is inactive. Contact your institution administrator. Help ST-01 · Student workstream Home is designed in the Student package. This preview shows only the shared shell, account menu, Help and notices around it. Preview slot, not product UI.
+shot j4-01-inactive-home
+sneha menu (no device): SR Sneha Reddy Student Godavari Institute of Technology Help & support Sign out
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+console clean
+
+### J5 sso, forgot, first, public @1440
+sso -> notice: div#xs-signin-sso-note.rk-notice.rk-notice--info "Institution sign-in isn’t available right nowSign in with your e-mail "
+sso button gone: 0
+forgot expanded: true
+first time text: First time signing in? Contact your institution administrator to find out how to sign in for the first time.
+shot j5-01-sso-help
+public: h1#xs-pub-title.rb-h1.xs-fit "Browse experiments"
+public text: Official WILP logo XR Learning Platform Sign in Browse experiments PU-04 · Public workstream The public catalogue is designed by the Public workstream. Back to experiments on Sign in lands here. Preview slot, not product UI. The V1 Public Landing and its PU-14 section stay locked.
+back to sign in: h1#xs-signin-title.rb-h1.xs-fit "Sign in"
+request: Request institutional access
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+console clean
+
+### J6 SA help no ids @1024
+SA help empty: Help & support Something isn’t working? Report it here and follow what happens to your report. My reports No reports yet If something isn’t working, report it and follow it here. Report a problem
+SA sent: Help & support Report sent Report sent You can follow it in My reports. View my reports Back to Overview
+SA rows: The Requests list kept loading Sent 23 Oct 2026 Open
+SA id scan: no internal IDs in text or aria-labels
+SA detail: Help & support The Requests list kept loading The Requests list kept loading Open Sent 23 Oct 2026 What you reported What happened The Requests list kept loading. I left it for a minute. Where Overview Screenshot No screenshot added History Newest first Sent 23 Oct 2026 Something else isn’t working? Report a problem
+SA id scan detail: no internal IDs in text or aria-labels
+shot j6-01-sa-detail
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1 | 13px span.sc-interp x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+console clean
+
+### J7 drawer 375 @375
+open drawer: button#xs-drawer-close.rb-close "Close menu"
+shot j7-01-drawer
+shift-tab wraps: a "Help & support" [focus-visible]
+tab wraps: button#xs-drawer-close.rb-close "Close menu" [focus-visible]
+escape returns: button#xs-menu-btn.rb-menu "Menu" [focus-visible]
+pick destination: h1#xs-page-title.rb-h1.xs-fit "Usage"
+drawer closed: 0
+scrim click: button#xs-menu-btn.rb-menu "Menu"
+shot j7-02-usage
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 800
+console clean
+
+### J8 Meera paused @1440
+IA paused home: Your institution’s access is paused — your work is kept. Help Overview BITS has paused your institution’s access Students can’t open experiments. Pages are read-only until BITS lifts the pause. Help IA-01 · Institute Admin workstream Overview is designed in the Institute Admin package. This preview shows only the shared shell, account menu, Help and notices around it. Approved V3 seed: IA01.dc.htm
+shot j8-01-ia-paused
+banner help: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+console clean

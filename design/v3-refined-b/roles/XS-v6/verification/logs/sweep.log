@@ -1,0 +1,57 @@
+## Student <rahul.verma@godavari.edu.in>
+  rail: Home · My courses · Assessments · Progress
+  Help & support: Help & support | current=Help & support | rows=1
+  account button: Account menu, Rahul Verma, Student, Godavari Institute of Technology
+  menu head: RV /  / Rahul Verma /  / Student /  / Godavari Institute of Technology
+  menu items: My device · Help & support · Sign out
+  after Sign out focus: You’re signed out
+## Student (inactive) <sneha.reddy@godavari.edu.in>
+  rail: Home · My courses · Assessments · Progress
+  Help & support: Help & support | current=Help & support | rows=0 | No reports yet
+  account button: Account menu, Sneha Reddy, Student, Godavari Institute of Technology
+  menu head: SR /  / Sneha Reddy /  / Student /  / Godavari Institute of Technology
+  menu items: Help & support · Sign out
+  after Sign out focus: You’re signed out
+## Faculty <s.ranganathan@godavari.edu.in>
+  rail: Overview · My courses · Assessments · Question bank · Marking · Students
+  Help & support: Help & support | current=Help & support | rows=1
+  account button: Account menu, Dr S. Ranganathan, Faculty, Godavari Institute of Technology
+  menu head: SR /  / Dr S. Ranganathan /  / Faculty /  / Godavari Institute of Technology
+  menu items: Help & support · Sign out
+  after Sign out focus: You’re signed out
+## Institute Admin <meera.iyer@godavari.edu.in>
+  rail: Overview · Content access · Student access · People · Requests · Usage
+  Help & support: Help & support | current=Help & support | rows=3
+  account button: Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology
+  menu head: MI /  / Meera Iyer /  / Institute Admin /  / Godavari Institute of Technology
+  menu items: Help & support · Sign out
+  after Sign out focus: You’re signed out
+## Vendor <anil.shetty@northline.example>
+  rail: Overview · My experiments
+  Help & support: Help & support | current=Help & support | rows=0 | No reports yet
+  account button: Account menu, Anil Shetty, Vendor, Northline Simulation Studio
+  menu head: AS /  / Anil Shetty /  / Vendor /  / Northline Simulation Studio
+  menu items: Help & support · Sign out
+  after Sign out focus: You’re signed out
+## Academic Reviewer <a.menon@wilp.example>
+  rail: Overview · Review queue · Reviewed by me
+  Help & support: Help & support | current=Help & support | rows=0 | No reports yet
+  account button: Account menu, Prof. A. Menon, Academic Reviewer
+  menu head: AM /  / Prof. A. Menon /  / Academic Reviewer
+  menu items: Help & support · Sign out
+  after Sign out focus: You’re signed out
+## Content Manager <kavya.nair@wilp.example>
+  rail: Overview · Ready to publish · Content library · Updates · Course codes
+  Help & support: Help & support | current=Help & support | rows=1
+  account button: Account menu, Kavya Nair, Content Manager
+  menu head: KN /  / Kavya Nair /  / Content Manager
+  menu items: Help & support · Sign out
+  after Sign out focus: You’re signed out
+## Super Admin <arjun.mehta@wilp.example>
+  rail: Overview · Requests3, 3 requests under review · Institutions · Content · Academic structure · Platform roles · Operations
+  Help & support: Help & support | current=Help & support | rows=0 | No reports yet
+  account button: Account menu, Arjun Mehta, Super Admin
+  menu head: AM /  / Arjun Mehta /  / Super Admin
+  menu items: Help & support · Sign out
+  after Sign out focus: You’re signed out
+console errors: none

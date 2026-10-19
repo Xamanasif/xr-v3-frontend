@@ -35,10 +35,10 @@ import { expectSameDocument, markDocument, revealSidebar } from '../support/work
  * the provider's "pending" and "failed" outcomes.
  */
 
-const ARJUN = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
 const main = (page: Page) => page.locator('main');
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 const decisionPanel = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
 const godavariRow = (page: Page) =>
   main(page).locator('tbody tr', { hasText: 'Godavari Institute of Technology' });
@@ -51,7 +51,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 

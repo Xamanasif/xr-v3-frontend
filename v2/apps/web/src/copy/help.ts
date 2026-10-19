@@ -1,23 +1,86 @@
-import type { SupportReport, SupportState } from '@xr/domain';
-import type { HelpReportStatus, TimelineEvent } from '@xr/ui';
+import type { Role, SupportReport, SupportState } from '@xr/domain';
 
-import { dayMonth } from './dates';
+import { dayMonthYear } from './dates';
 import { stateWords } from './state-copy';
 
 /**
- * Help & support words (XS-07, board 07; Appendix F §3.2 `copy/`). The status words are board
- * 07's "Rules": "Open · Resolved · Reopened — identical to the Super Admin side"; the dates are
- * board 07's day-and-month form.
+ * Help & support words (XS-07) as the owner-approved Entry & shared export draws them
+ * (design/v3-refined-b/roles/XS-v6, `XsHelp`; SHARED-CONTRACT `XsHelp`), which keeps board 07's
+ * words and rules: no response times, service levels or named responders (ND-14); status is read
+ * here only, nothing is e-mailed (T-34). Dates read "1 Oct 2026". A Super Admin sees no reference
+ * anywhere (owner decision 6): every function that would show one takes `showReferences`.
  */
+export const HELP = {
+  title: 'Help & support',
+  lead: 'Something isn’t working? Report it here and follow what happens to your report.',
+  report: 'Report a problem',
+  mine: 'My reports',
+  empty: {
+    title: 'No reports yet',
+    line: 'If something isn’t working, report it and follow it here.',
+  },
+  loading: 'Loading your reports…',
+  failed: { title: 'We couldn’t load your reports', line: 'Nothing has changed. Try again.' },
+  retry: 'Try again',
+  form: {
+    lead: 'Describe what went wrong. You can follow your report in My reports.',
+    summary: 'One thing needs fixing',
+    whatSummary: 'Say what happened',
+    what: 'What happened?',
+    whatHint: 'Say what you were doing and what you saw.',
+    whatError: 'Say what happened, so it can be looked into',
+    where: 'Where did it happen?',
+    whereHint: 'Filled in from the page you came from. Change it if needed.',
+    screenshot: 'Screenshot',
+    optional: '(optional)',
+    screenshotHint: 'A picture of the screen can help.',
+    send: 'Send report',
+    sending: 'Sending…',
+    sendingStatus: 'Sending your report',
+    cancel: 'Cancel',
+  },
+  sent: {
+    title: 'Report sent',
+    referenceBefore: 'Your reference is ',
+    referenceAfter: '. You can follow it in My reports.',
+    withoutReference: 'You can follow it in My reports.',
+    view: 'View my reports',
+    /** "Back to Home" (Student) / "Back to Overview" (every other role). */
+    back: (homeLabel: string) => `Back to ${homeLabel}`,
+  },
+  detail: {
+    sheet: 'Report',
+    reported: 'What you reported',
+    history: 'History',
+    newestFirst: 'Newest first',
+    reopenedTitle: 'This report is open again',
+    foot: 'Something else isn’t working? ',
+    loading: 'Loading your report…',
+    failedTitle: 'We couldn’t load your report',
+  },
+  facts: {
+    what: 'What happened',
+    where: 'Where',
+    screenshot: 'Screenshot',
+    whereMissing: 'Not given',
+  },
+} as const;
 
-/** A report's state in words, with the tone and icon board 07 draws for it. */
-export const REPORT_STATUS: Readonly<Record<SupportState, HelpReportStatus>> = {
-  // `xr-status--info` with the info tone's own arrows (board 07 `OPEN`).
+/**
+ * Whether Help shows a report's reference (SUP-…): every role but the Super Admin, whose interfaces
+ * show no internal reference anywhere, accessible names included (owner decision 6; XS `showRefs`).
+ */
+export function showsReportReferences(role: Role): boolean {
+  return role !== 'super_admin';
+}
+
+/** A report's state in words, with the V3 status tone (XS: Open and Reopened info, Resolved ok). */
+export const REPORT_STATUS: Readonly<
+  Record<SupportState, { readonly tone: 'info' | 'ok'; readonly label: string }>
+> = {
   open: { tone: 'info', label: 'Open' },
-  // `xr-status--ok` with the tick (board 07 `RESOLVED`).
   resolved: { tone: 'ok', label: 'Resolved' },
-  // `xr-status--info` with the Retry arrow (board 07 `REOPENED`).
-  reopened: { tone: 'info', label: 'Reopened', icon: 'retry' },
+  reopened: { tone: 'info', label: 'Reopened' },
 };
 
 /**
@@ -48,99 +111,103 @@ function latest<T extends { readonly at: string }>(items: readonly T[]): T | und
 }
 
 /**
- * The facts after the reference in a My reports row (board 07: "sent 1 Oct · reopened 6 Oct",
- * "sent 30 Sep", "sent 15 Sep · resolved 18 Sep").
+ * The line under a report's title in My reports (XS: "SUP-0211 · Sent 1 Oct 2026 · Reopened 6 Oct
+ * 2026"); no reference for a Super Admin.
  */
-export function reportSub(report: SupportReport): string {
-  const sent = `sent ${dayMonth(report.sentAt)}`;
+export function reportMeta(report: SupportReport, showReferences: boolean): string {
+  const parts = [...(showReferences ? [report.id] : []), `Sent ${dayMonthYear(report.sentAt)}`];
   if (report.state === 'resolved') {
     const resolution = latest(report.resolutions);
-    return resolution ? `${sent} · resolved ${dayMonth(resolution.at)}` : sent;
+    if (resolution) parts.push(`Resolved ${dayMonthYear(resolution.at)}`);
   }
   if (report.state === 'reopened') {
     const reopening = latest(report.reopenings);
-    return reopening ? `${sent} · reopened ${dayMonth(reopening.at)}` : sent;
+    if (reopening) parts.push(`Reopened ${dayMonthYear(reopening.at)}`);
   }
-  return sent;
+  return parts.join(' · ');
 }
 
-/** `span.xr-meta` beside "My reports": "1 report", "3 reports" (board 07 s5, m2). */
+/** `p.rb-note` beside "My reports": "1 report · newest first", "3 reports · newest first". */
 export function reportCountText(count: number): string {
-  return count === 1 ? '1 report' : `${count} reports`;
+  return `${count === 1 ? '1 report' : `${count} reports`} · newest first`;
 }
 
-/** The person's own reports, newest first (board 07 "State 2"). */
+/** The person's own reports, newest first. */
 export function newestFirst(reports: readonly SupportReport[]): SupportReport[] {
   return [...reports].sort((a, b) =>
     a.sentAt < b.sentAt ? 1 : a.sentAt > b.sentAt ? -1 : a.id < b.id ? 1 : -1,
   );
 }
 
+/** "Sent 1 Oct 2026" in a report's head. */
+export function sentOn(report: SupportReport): string {
+  return `Sent ${dayMonthYear(report.sentAt)}`;
+}
+
 /**
- * The resolution note shown first on a resolved report (board 07 "State 3": "Resolution note ·
- * 23 Sep" and the note in quotation marks), or nothing.
+ * The resolution note shown first on a resolved report (XS: "Resolution note · 18 Sep 2026" and the
+ * note in quotation marks), or nothing.
  */
 export function resolutionOf(
   report: SupportReport,
-): { readonly date: string; readonly note: string } | null {
+): { readonly title: string; readonly note: string } | null {
   if (report.state !== 'resolved') return null;
   const resolution = latest(report.resolutions);
-  return resolution ? { date: dayMonth(resolution.at), note: `“${resolution.note}”` } : null;
+  return resolution
+    ? { title: `Resolution note · ${dayMonthYear(resolution.at)}`, note: `“${resolution.note}”` }
+    : null;
 }
 
-/** "This report is open again — It was reopened on 6 Oct" (board 07 "State 3a"), or nothing. */
-export function reopenedOf(report: SupportReport): { readonly date: string } | null {
+/** "This report is open again — It was reopened on 6 Oct 2026. You can follow it here." */
+export function reopenedOf(report: SupportReport): string | null {
   if (report.state !== 'reopened') return null;
   const reopening = latest(report.reopenings);
-  return reopening ? { date: dayMonth(reopening.at) } : null;
+  return reopening
+    ? `It was reopened on ${dayMonthYear(reopening.at)}. You can follow it here.`
+    : null;
 }
 
 const EVENT_WORDS = { sent: 'Sent', resolved: 'Resolved', reopened: 'Reopened' } as const;
 
+/** One line of a report's history, in words (the V3 timeline draws it). */
+export interface HistoryLine {
+  readonly what: string;
+  readonly when: string;
+  readonly note?: string;
+}
+
 /**
- * The report's history, newest first (board 07 "History comes last"): "Sent", "Resolved",
- * "Reopened" with the day. A resolution still in force reads "· resolution note added" (its note
- * is the first thing on the page, "State 3"); an earlier one, superseded by a reopening, keeps its
- * note in quotation marks ("State 3a": "Reopened reads as open again, with the earlier resolution
- * kept in the history").
+ * The report's history, newest first (XS): "Sent", "Resolved", "Reopened" with the day; a
+ * resolution keeps its note, in quotation marks, on its own line — the one in force and an earlier
+ * one a reopening superseded alike.
  */
-export function historyOf(report: SupportReport): TimelineEvent[] {
+export function historyOf(report: SupportReport): HistoryLine[] {
   const events = [...report.history].sort((a, b) =>
     a.at < b.at ? 1 : a.at > b.at ? -1 : a.id < b.id ? 1 : -1,
   );
-  return events.map((entry, index) => {
-    const day = dayMonth(entry.at);
-    let when = day;
-    if (entry.event === 'resolved') {
-      const inForce = index === 0 && report.state === 'resolved';
-      if (inForce) when = `${day} · resolution note added`;
-      else if (entry.note) when = `${day} · “${entry.note}”`;
-    }
-    return { id: entry.id, what: EVENT_WORDS[entry.event], when };
-  });
-}
-
-/** One row of "What you reported" (board 07 "State 3": What happened · Where · Screenshot). */
-export interface ReportedFact {
-  readonly term: 'What happened' | 'Where' | 'Screenshot';
-  readonly value: string;
-  /** The screenshot row draws the image icon before the file name. */
-  readonly icon?: 'image';
+  return events.map((entry) => ({
+    what: EVENT_WORDS[entry.event],
+    when: dayMonthYear(entry.at),
+    ...(entry.event === 'resolved' && entry.note ? { note: `“${entry.note}”` } : {}),
+  }));
 }
 
 /**
- * What the person reported, as board 07 lists it. A missing screenshot reads "No screenshot
- * added" (board 07 "State 3a"). An empty "Where" is not drawn: the row is left out rather than
- * given undrawn words (reported).
+ * What the person reported (XS "What you reported": What happened · Where · Screenshot). A missing
+ * place reads "Not given" and a missing screenshot "No screenshot added", as the export draws them.
  */
-export function reportedFacts(report: SupportReport): ReportedFact[] {
+export function reportedFacts(
+  report: SupportReport,
+): readonly { readonly term: string; readonly value: string }[] {
   return [
-    { term: 'What happened', value: report.whatHappened },
-    ...(report.where ? [{ term: 'Where', value: report.where } as const] : []),
+    { term: HELP.facts.what, value: report.whatHappened },
     {
-      term: 'Screenshot',
+      term: HELP.facts.where,
+      value: report.where?.trim() ? report.where : HELP.facts.whereMissing,
+    },
+    {
+      term: HELP.facts.screenshot,
       value: report.screenshotFileName ?? stateWords('XS-07.no-screenshot'),
-      icon: 'image',
     },
   ];
 }

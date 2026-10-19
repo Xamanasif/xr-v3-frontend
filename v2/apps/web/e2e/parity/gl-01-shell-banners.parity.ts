@@ -56,7 +56,7 @@ async function pauseGodavari(page: Page) {
     method: 'pauseInstitution',
     input: { institutionId: id, reason: 'Checking the student list.', expectedRev: rev },
   });
-  await expect(page.locator('.xr-banner--paused')).toBeVisible();
+  await expect(page.locator('.rk-x-region--banner .rk-banner')).toBeVisible();
 }
 
 test('board 05 · the built shell on Help for 7 roles, with the applicable banners', async ({

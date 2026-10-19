@@ -21,5 +21,7 @@ export {
   expectV3ClassesOnly,
   v3BoardElement,
   v3BoardText,
+  xsExportText,
+  XS_EXPORT_DIRECTORY,
   v3Canonical,
 } from './v3.js';

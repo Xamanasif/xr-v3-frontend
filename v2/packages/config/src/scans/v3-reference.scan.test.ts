@@ -90,7 +90,10 @@ describe('frozen V3 reference design/v3-refined-b (uncached integrity)', () => {
       .split('\n')
       .filter(Boolean)
       .map((line) => line.replace(/^[0-9a-f]{64} [ *]/, ''));
-    const present = walk(reference).map((file) => relative(reference, file).split('\\').join('/'));
+    // Owner-approved role exports live under `roles/`, each with its own checksums (below).
+    const present = walk(reference)
+      .map((file) => relative(reference, file).split('\\').join('/'))
+      .filter((file) => !file.startsWith('roles/'));
     expect(present.sort()).toEqual([...listed, 'README.md', 'SHA256SUMS.txt'].sort());
   });
 
@@ -109,6 +112,48 @@ describe('frozen V3 reference design/v3-refined-b (uncached integrity)', () => {
     expect(Object.keys(lock.baseFiles)).toHaveLength(10);
     for (const [file, hash] of Object.entries(lock.baseFiles)) {
       expect(sha256(join(pack, file)), file).toBe(hash);
+    }
+  });
+});
+
+describe('owner-approved role exports design/v3-refined-b/roles (uncached integrity)', () => {
+  const roles = join(reference, 'roles');
+  const EXPORTS = { 'XS-v6': 125 } as const;
+
+  it('each export: its own checksums all OK, and the folder holds exactly the listed files', () => {
+    const folders = walk(roles)
+      .map((file) => relative(roles, file).split('\\').join('/'))
+      .filter((file) => file.includes('/'))
+      .map((file) => file.split('/')[0]!);
+    expect([...new Set(folders)].sort()).toEqual(Object.keys(EXPORTS).sort());
+    for (const [folder, count] of Object.entries(EXPORTS)) {
+      const root = join(roles, folder);
+      const result = verifyChecksums(root);
+      summary.push(`role export ${folder}: ${result.ok}/${result.checked} OK`);
+      expect(result, folder).toEqual({ checked: count, ok: count, failed: [], missing: [] });
+      const listed = readFileSync(join(root, 'SHA256SUMS.txt'), 'utf8')
+        .split('\n')
+        .filter(Boolean)
+        .map((line) => line.replace(/^[0-9a-f]{64} [ *]/, ''));
+      const present = walk(root).map((file) => relative(root, file).split('\\').join('/'));
+      expect(present.sort(), folder).toEqual([...listed, 'SHA256SUMS.txt'].sort());
+    }
+  });
+
+  it('each export is built on this foundation, and the roles index names it', () => {
+    const index = readFileSync(join(roles, 'README.md'), 'utf8');
+    for (const folder of Object.keys(EXPORTS)) {
+      const exportLock = readJson(join(roles, folder, 'FOUNDATION-LOCK.json')) as {
+        foundationId: string;
+        baseFiles: Record<string, { sha256: string }>;
+      };
+      expect(exportLock.foundationId, folder).toBe(lock.foundationId);
+      for (const sheet of ['core.css', 'rb.css', 'rb-kit.css']) {
+        expect(exportLock.baseFiles[`project/${sheet}`]?.sha256, `${folder} ${sheet}`).toBe(
+          lock.baseFiles[`references/v3/project/${sheet}`],
+        );
+      }
+      expect(index, folder).toContain(`\`${folder}\``);
     }
   });
 });
@@ -223,15 +268,37 @@ describe('V3 status register and comparison map (docs/v3)', () => {
   });
 });
 
-describe('scope boundary until the first role migrates (ADR-0010)', () => {
-  it('no web app source loads the V3 layer while no screen is migrated', () => {
+describe('scope boundary: only migrated screens load the V3 layer (ADR-0010)', () => {
+  it('every web app source that loads the V3 layer is one the comparison map names', () => {
     const importers = walk(join(workspaceRoot, 'apps', 'web', 'src'))
       .filter((file) => /\.(?:tsx?|css)$/.test(file))
+      .filter((file) => !/\.test\.tsx?$/.test(file))
       .filter((file) => /@xr\/ui\/(?:v3|styles-v3\.css)\b/.test(readFileSync(file, 'utf8')))
       .map(toWorkspacePath);
-    // A role migration (pack prompt 11) lists its routes in docs/v3/V3-COMPARISON-MAP.json
-    // `productScreens` and replaces this check with one that names them.
-    expect(map.productScreens).toEqual([]);
-    expect(importers).toEqual([]);
+    const screens = map.productScreens as { id: string; sources: string[] }[];
+    expect(screens.length).toBeGreaterThan(0);
+    const named = new Set(screens.flatMap((screen) => screen.sources));
+    const unnamed = importers.filter(
+      (file) => ![...named].some((source) => file === source || file.startsWith(`${source}/`)),
+    );
+    expect(unnamed).toEqual([]);
+    // Today: the Entry & shared surfaces (XS), and nothing of the locked landing or a role page.
+    expect(new Set(screens.map((screen) => screen.id.slice(0, 2)))).toEqual(new Set(['XS']));
+    for (const file of importers) {
+      expect(file, file).toMatch(
+        /^apps\/web\/src\/(?:features\/shared\/|app\/\(auth\)\/layout\.tsx$|app\/_workspace\/workspace-route\.tsx$)/,
+      );
+    }
+    summary.push(
+      `V3 layer loaded by ${importers.length} web sources (XS), all on the comparison map`,
+    );
+  });
+
+  it('the root layout and the public landing never load it', () => {
+    for (const file of ['apps/web/src/app/layout.tsx', 'apps/web/src/app/(public)/page.tsx']) {
+      expect(readFileSync(join(workspaceRoot, file), 'utf8'), file).not.toMatch(
+        /@xr\/ui\/(?:v3|styles-v3\.css)|wght@400\.\.800/,
+      );
+    }
   });
 });

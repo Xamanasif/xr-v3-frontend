@@ -10,6 +10,7 @@ import { DocumentTitle } from '../document-title';
  * Platform").
  */
 export { AuthFrame } from './auth-frame';
+export { V3Fonts } from '../v3-fonts';
 export { SignIn } from './sign-in';
 export { type AppNavigation, NavigationProvider } from '@/nav/navigation';
 

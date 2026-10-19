@@ -58,11 +58,12 @@ describe('Report a problem — Sending (board 07 "State 1b")', () => {
     await user.type(await screen.findByLabelText('What happened?'), 'The VR simulation stopped.');
     await user.click(screen.getByRole('button', { name: 'Send report' }));
     const busy = await screen.findByRole('button', { name: 'Sending…' });
-    // The WP-0.6 Button's busy state (590 product-board instances: `is-busy`, `aria-disabled`);
-    // board 07 draws `aria-busy` on this one button. The owner kept the product-board look and
-    // the duplicate-submission guard (DEV-01, 14 Oct 2026).
+    // The XS export's busy look (`XsHelp` `sending`): the turning ring, the progress cursor and
+    // `aria-disabled`; the duplicate-submission guard is kept (DEV-01, 14 Oct 2026).
     expect(busy).toHaveAttribute('aria-disabled', 'true');
-    expect(busy).toHaveClass('is-busy');
+    expect(busy).toHaveClass('rb-btn rb-btn--primary rb-btn--lg xs-busy');
+    expect(busy.querySelector('.xs-spin')).not.toBeNull();
+    expect(screen.getByText('Sending your report')).toHaveAttribute('role', 'status');
     await user.click(busy);
     await user.click(busy);
     expect(calls).toHaveLength(1);

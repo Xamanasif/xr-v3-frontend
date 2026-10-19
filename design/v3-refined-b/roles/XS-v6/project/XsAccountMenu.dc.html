@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account menu · XS-05</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="{{ f.root }}">
+  <div class="{{ f.main }}">
+    <div class="{{ f.top }}">
+      <sc-if value="{{ f.spec }}" hint-placeholder-val="{{ false }}"><p class="rb-top-date">Account menu<span class="rb-top-sep" aria-hidden="true"></span>{{ roleLabel }}</p></sc-if>
+      <div class="xs-acct" ref="{{ boxRef }}" onKeyDown="{{ onKey }}" onBlur="{{ onBlur }}">
+        <button type="button" class="rb-acct" id="{{ ids.btn }}" aria-expanded="{{ expanded }}" aria-controls="{{ ids.menu }}" aria-label="{{ btnLabel }}" onClick="{{ toggle }}"><span class="xr-avatar" aria-hidden="true">{{ initials }}</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">{{ personName }}</span><span class="rb-acct-role">{{ roleLabel }}</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+        <sc-if value="{{ open }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ showCatch }}" hint-placeholder-val="{{ false }}"><button type="button" class="xs-catch" tabindex="-1" aria-label="Close account menu" onClick="{{ outside }}"></button></sc-if>
+          <div class="xs-menu xs-nofocus" id="{{ ids.menu }}" ref="{{ menuRef }}" tabindex="-1">
+            <div class="xs-menu-head">
+              <span class="xr-avatar" aria-hidden="true">{{ initials }}</span>
+              <p class="xs-menu-name">{{ personName }}</p>
+              <p class="xs-menu-role">{{ roleLabel }}</p>
+              <sc-if value="{{ hasOrg }}" hint-placeholder-val="{{ true }}"><p class="xs-menu-org">{{ org }}</p></sc-if>
+            </div>
+            <ul class="xs-menu-list" aria-label="Account">
+              <sc-if value="{{ device }}" hint-placeholder-val="{{ false }}"><li><a class="xs-menu-item" href="#xs-main" id="{{ ids.device }}" onClick="{{ goDevice }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5A2.5 2.5 0 0 1 5.5 7h13A2.5 2.5 0 0 1 21 9.5v5a2.5 2.5 0 0 1-2.5 2.5h-3.3a2 2 0 0 1-1.7-1l-.7-1.2a1 1 0 0 0-1.7 0l-.7 1.2a2 2 0 0 1-1.7 1H5.5A2.5 2.5 0 0 1 3 14.5z"></path></svg>My device</a></li></sc-if>
+              <li><a class="xs-menu-item" href="#xs-main" id="{{ ids.help }}" onClick="{{ goHelp }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg>Help &amp; support</a></li>
+            </ul>
+            <div class="xs-menu-foot"><button type="button" class="xs-menu-item" id="{{ ids.out }}" onClick="{{ signOut }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l4-4-4-4M14 12H4"></path></svg>Sign out</button></div>
+          </div>
+        </sc-if>
+      </div>
+    </div>
+    <sc-if value="{{ f.spec }}" hint-placeholder-val="{{ false }}">
+      <div class="xs-spec">
+        <p class="rb-note">{{ specNote }}</p>
+        <sc-if value="{{ hasPicked }}" hint-placeholder-val="{{ false }}"><p class="rk-notice-d" role="status" style="margin-top: 10px">{{ picked }}</p></sc-if>
+      </div>
+    </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"personName":{"editor":"text","default":"Rahul Verma","section":"Person (sample)"},"initials":{"editor":"text","default":"RV","section":"Person (sample)"},"roleLabel":{"editor":"enum","options":["Student","Faculty","Institute Admin","Vendor","Academic Reviewer","Content Manager","Super Admin"],"default":"Student","section":"Person (sample)"},"org":{"editor":"text","default":"Godavari Institute of Technology","section":"Person (sample)"},"device":{"editor":"boolean","default":true,"section":"Person (sample)"},"startOpen":{"editor":"boolean","default":true,"section":"Canvas state"},"catcher":{"editor":null},"embedded":{"editor":null},"idPrefix":{"editor":null},"onHelp":{"editor":null},"onDevice":{"editor":null},"onSignOut":{"editor":null},"$preview":{"width":760,"height":460}}'>
+class Component extends DCLogic {
+  // XS-05 · one account menu for every workspace. Disclosure pattern: a button that shows a short
+  // list of links (not an ARIA menu). Focus enters the first item on open; Up/Down/Home/End move;
+  // Escape and outside click close and return focus to the button; Tab out closes.
+  state = { open: null, byUser: false, picked: '' };
+
+  focusLater(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) el.focus(); }, 40); }
+  items() { const m = this.menuRef && this.menuRef.current; return m ? Array.prototype.slice.call(m.querySelectorAll('.xs-menu-item')) : []; }
+
+  renderVals() {
+    const P = this.props || {}, s = this.state;
+    if (!this.menuRef) this.menuRef = React.createRef();
+    if (!this.boxRef) this.boxRef = React.createRef();
+    const pre = P.idPrefix || 'xs-acct';
+    const ids = { btn: pre + '-btn', menu: pre + '-menu', device: pre + '-device', help: pre + '-help', out: pre + '-out' };
+    const name = P.personName || 'Rahul Verma', role = P.roleLabel || 'Student';
+    const org = P.org === undefined ? (P.embedded ? '' : 'Godavari Institute of Technology') : (P.org || '');
+    const device = P.device === undefined ? !P.embedded : !!P.device;
+    const open = s.open === null ? !!P.startOpen : s.open;
+    const spec = !P.embedded;
+    const first = device ? ids.device : ids.help;
+    const close = (back) => { this.setState({ open: false, byUser: false }); if (back) this.focusLater(ids.btn); };
+    const run = (fn, what) => (ev) => {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      if (typeof fn === 'function') { this.setState({ open: false, byUser: false }); fn(); return; }
+      // specimen only: there is no workspace to go to, so say where the item leads instead of doing nothing
+      this.setState({ open: false, byUser: false, picked: what }); this.focusLater(ids.btn);
+    };
+    return {
+      f: spec ? { root: 'xr rb', main: 'rb-main', top: 'rb-top', spec: true } : { root: 'xs-host', main: 'xs-host', top: 'xs-host', spec: false },
+      specNote: 'Specimen. In a workspace this sits at the right of the top bar. Items: ' + (device ? 'My device (Students with AR, VR or MR access only), ' : '') + 'Help & support, Sign out. No workspace or role switcher.',
+      ids, personName: name, initials: P.initials || 'RV', roleLabel: role, org, hasOrg: !!org, device,
+      btnLabel: 'Account menu, ' + name + ', ' + role + (org ? ', ' + org : ''),
+      open, expanded: open ? 'true' : 'false',
+      showCatch: open && P.catcher !== false && (s.byUser || !!P.embedded),
+      menuRef: this.menuRef, boxRef: this.boxRef,
+      toggle: () => { if (open) { close(false); return; } this.setState({ open: true, byUser: true }); this.focusLater(first); },
+      outside: () => close(true),
+      onKey: (ev) => {
+        if (ev.key === 'ArrowDown' && !open && ev.target && ev.target.id === ids.btn) { ev.preventDefault(); this.setState({ open: true, byUser: true }); this.focusLater(first); return; }
+        if (!open) return;
+        if (ev.key === 'Escape') { ev.preventDefault(); ev.stopPropagation(); close(true); return; }
+        const list = this.items(); if (!list.length) return;
+        const i = list.indexOf(document.activeElement);
+        if (ev.key === 'ArrowDown') { ev.preventDefault(); list[(i + 1 + list.length) % list.length].focus(); }
+        else if (ev.key === 'ArrowUp') { ev.preventDefault(); list[(i < 0 ? list.length - 1 : (i - 1 + list.length) % list.length)].focus(); }
+        else if (ev.key === 'Home') { ev.preventDefault(); list[0].focus(); }
+        else if (ev.key === 'End') { ev.preventDefault(); list[list.length - 1].focus(); }
+      },
+      onBlur: (ev) => {
+        // Tab past the last item (to the next control, or out of the document) closes the menu.
+        // Clicks inside the panel keep focus inside it (the panel has tabindex -1), so they don't close it.
+        if (!open) return;
+        const next = ev.relatedTarget, box = this.boxRef.current;
+        if (next && box && box.contains(next)) return;
+        this.setState({ open: false, byUser: false });
+      },
+      goDevice: run(P.onDevice, 'My device opens ST-18 My device in the Student workspace (Student workstream).'),
+      goHelp: run(P.onHelp, 'Help & support opens XS-07 in this workspace. Try it in the live preview (Main).'),
+      signOut: run(P.onSignOut, 'Sign out ends this tab’s sign-in and opens XS-03 “You’re signed out”. Try it in the live preview (Main).'),
+      picked: s.picked, hasPicked: !!s.picked
+    };
+  }
+}
+</script>
+</body>
+</html>

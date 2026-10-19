@@ -35,12 +35,10 @@ const SA_DESTINATIONS = (current: 'overview' | 'requests'): readonly ShellDestin
   { label: 'Operations', href: '#', icon: 'operations' },
 ];
 
-const ACCOUNT_ITEMS = (base: string) =>
-  [
-    { kind: 'link', label: 'Help', href: `${base}/help`, icon: 'help' },
-    { kind: 'separator' },
-    { kind: 'button', label: 'Sign out', icon: 'signOut', onSelect: () => undefined },
-  ] as const;
+/** The XS account menu's items for a specimen shell (XS-05): Help & support, then Sign out. */
+const ACCOUNT_LINKS = (base: string) =>
+  [{ label: 'Help & support', href: `${base}/help`, icon: 'help' }] as const;
+const SIGN_OUT = { label: 'Sign out', onSelect: () => undefined };
 
 /** The Super Admin shell of the V3 specimens (SA01, SA02). */
 export function SuperAdminShell({
@@ -65,7 +63,8 @@ export function SuperAdminShell({
             name="Arjun Mehta"
             role="Super Admin"
             initials="AM"
-            items={ACCOUNT_ITEMS('#admin')}
+            links={ACCOUNT_LINKS('#admin')}
+            signOut={SIGN_OUT}
           />
         }
       >
@@ -124,7 +123,8 @@ export function InstituteAdminShell({
             role="Institute Admin"
             organisation="Godavari Institute of Technology"
             initials="MI"
-            items={ACCOUNT_ITEMS('#institute')}
+            links={ACCOUNT_LINKS('#institute')}
+            signOut={SIGN_OUT}
           />
         }
       >

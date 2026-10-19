@@ -122,18 +122,16 @@ test('one tab, the product build: landing → areas → course → catalogue →
     }),
   ).toBeFocused();
 
-  // 11. Sign in, and back to a valid destination (the Landing; P1-17).
+  // 11. Sign in, and back to a valid destination: the public catalogue, PU-04 (the XS link map,
+  // design/v3-refined-b/roles/XS-v6/LINK-MAP.json "Back to experiments"; P1-17).
   if (wide(page)) await reachAndClick(page, page.locator('header a.xp-signin'));
   else await header(page, 'Sign in');
   await page.waitForURL('**/sign-in');
   await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
   await reachAndClick(page, page.getByRole('link', { name: 'Back to experiments' }));
-  await page.waitForURL((url) => url.pathname === '/');
-  await expect(page.getByRole('heading', { level: 1 })).toContainText('Set the conditions.');
+  await page.waitForURL((url) => url.pathname === '/experiments');
 
   // The same world all along: the catalogue still marks the experiment in the selection.
-  await header(page, 'Browse experiments');
-  await page.waitForURL('**/experiments');
   await expect(page.locator('.xp-erow.is-sel .xp-erow-title a')).toHaveText([
     'Shell-and-Tube Heat Exchanger',
   ]);

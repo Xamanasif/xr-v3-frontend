@@ -33,15 +33,16 @@ const RAHUL = roleEntry('student');
 
 test('XS-07 My reports, with reports', async ({ page }) => {
   await openAs(page, RAHUL.person, '/student/help');
-  await expect(page.locator('main.xr-page ul.xr-rows > li')).toHaveCount(1);
+  await expect(page.locator('main.xr-page ul.xs-reports > li')).toHaveCount(1);
   await checkState(page, 'Help & support');
-  // Board 07: rows open the report; status in words; at 375 the status moves under the title.
-  await expect(page.locator('main .xr-status')).toHaveText('Open');
+  // XS: rows open the report; status in words and shape; under 560 px the status moves under the
+  // title (the rows' own container query).
+  await expect(page.locator('main .xs-report .xr-st')).toHaveText('Open');
 });
 
 test('XS-07 My reports, empty', async ({ page }) => {
   await openAs(page, roleEntry('vendor').person, '/vendor/help');
-  await expect(page.getByRole('heading', { level: 3, name: 'No reports yet' })).toBeVisible();
+  await expect(page.locator('main .rk-state-t', { hasText: 'No reports yet' })).toBeVisible();
   await checkState(page, 'Help & support');
 });
 
@@ -55,7 +56,7 @@ test('XS-07 Report a problem: form, validation, Sent — "Send report" by real p
   await checkState(page, 'Report a problem');
   await page.getByLabel('What happened?').fill('The marking page did not open.');
   await reachAndClick(page, page.getByRole('button', { name: 'Send report' }));
-  await expect(page.locator('main .xr-msg')).toBeFocused();
+  await expect(page.locator('main .xs-msg h1')).toBeFocused();
   await checkState(page, 'Report sent');
 });
 
@@ -95,13 +96,15 @@ test('PU-15 public variant (product build)', async ({ page }) => {
 
 test('XS-08 paused banner', async ({ page }) => {
   await openAs(page, PAUSED_INSTITUTE_ADMIN, '/institute/help');
-  await expect(page.locator('.xr-banner--paused')).toBeVisible();
+  await expect(
+    page.locator('.rk-x-region--banner > .rk-banner:not(.xs-banner--inactive)'),
+  ).toBeVisible();
   await checkState(page, 'Help & support');
 });
 
 test('XS-08 inactive banner', async ({ page }) => {
   await openAs(page, INACTIVE_STUDENT, '/student/help');
-  await expect(page.locator('.xr-banner--inactive')).toBeVisible();
+  await expect(page.locator('.rk-banner.xs-banner--inactive')).toBeVisible();
   await checkState(page, 'Help & support');
 });
 
@@ -110,7 +113,7 @@ test('XS-05 account menu open (keyboard)', async ({ page }) => {
   const button = page.getByRole('button', { name: ACCOUNT_LINES.academic_reviewer, exact: true });
   await button.focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('.xr-menu')).toBeVisible();
+  await expect(page.locator('.xs-menu')).toBeVisible();
   await expectNoAxeViolations(page);
   expect(await smallTargets(page)).toEqual([]);
   await page.keyboard.press('Escape');

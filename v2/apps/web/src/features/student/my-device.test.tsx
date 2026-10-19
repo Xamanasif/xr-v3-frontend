@@ -194,7 +194,7 @@ describe('“My device” is offered to a Student holding AR, VR or MR (f1, f2)'
 
   async function menuItems() {
     const user = userEvent.setup();
-    const button = await screen.findByRole('button', { name: /^Account menu: Rahul Verma/ });
+    const button = await screen.findByRole('button', { name: /^Account menu, Rahul Verma/ });
     await user.click(button);
     const menu = document.getElementById(button.getAttribute('aria-controls')!)!;
     return within(menu);
@@ -212,7 +212,7 @@ describe('“My device” is offered to a Student holding AR, VR or MR (f1, f2)'
     const menu = await menuItems();
     expect(menu.getAllByRole('link').map((link) => link.textContent)).toEqual([
       'My device',
-      'Help',
+      'Help & support',
     ]);
     expect(menu.getByRole('link', { name: 'My device' })).toHaveAttribute(
       'href',
@@ -226,7 +226,7 @@ describe('“My device” is offered to a Student holding AR, VR or MR (f1, f2)'
     await screen.findByRole('heading', { level: 1, name: 'Help & support' });
     await waitFor(() => expect(runtime.queryClient.isFetching()).toBe(0));
     const menu = await menuItems();
-    expect(menu.getAllByRole('link').map((link) => link.textContent)).toEqual(['Help']);
+    expect(menu.getAllByRole('link').map((link) => link.textContent)).toEqual(['Help & support']);
     expect(menu.queryByText('My device')).toBeNull();
   });
 
@@ -428,7 +428,7 @@ describe('ST-18 when the request cannot move, and the undrawn states', () => {
       'You can’t request a transfer while your institution’s access is paused.',
     );
     expect(screen.queryByRole('button', { name: 'Request a device transfer' })).toBeNull();
-    expect(document.querySelector('.xr-banner--paused')).toHaveTextContent(
+    expect(document.querySelector('.rk-x-region--banner > .rk-banner')).toHaveTextContent(
       'Your institution’s access is paused — your work is kept.',
     );
   });

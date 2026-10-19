@@ -1,0 +1,16 @@
+{
+ "v-signin": {"start":"sign-in"},
+ "v-signin-errors": {"start":"sign-in","signin-preset":"validation"},
+ "v-signedout": {"start":"signed-out"},
+ "v-expired": {"start":"session-expired","return-to":"student-experiment"},
+ "v-menu": {"start":"signed-in","who":"rahul","acct-open":true},
+ "v-notyours": {"start":"signed-in","who":"meera","page":"not-allowed"},
+ "v-help": {"start":"signed-in","who":"meera","page":"help"},
+ "v-report-errors": {"start":"signed-in","who":"meera","page":"help-report","help-preset":"errors"},
+ "v-sent": {"start":"signed-in","who":"rahul","page":"help-sent"},
+ "v-detail": {"start":"signed-in","who":"kavya","page":"help-detail","detail":"SUP-0207"},
+ "v-paused-ia": {"start":"signed-in","who":"meera","scenario":"godavari-paused"},
+ "v-inactive": {"start":"signed-in","who":"sneha"},
+ "v-refusal": {"start":"signed-in","who":"rahul","page":"refusal-paused","scenario":"godavari-paused"},
+ "v-drawer": {"start":"signed-in","who":"meera","drawer-open":true}
+}

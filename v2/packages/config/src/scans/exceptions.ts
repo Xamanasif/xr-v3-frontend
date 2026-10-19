@@ -17,6 +17,19 @@ export interface ScanException {
 
 export const RECORDED_SCAN_EXCEPTIONS: readonly ScanException[] = [
   {
+    // XS integration. The owner-approved Entry & shared export draws one quiet line under the
+    // sign-in card of a local prototype build, saying the sign-in is a stand-in: it names no
+    // account and lists none (the B1-09 rule this term enforces is "no sample accounts" to pick
+    // from). The same sentence is the one recorded DOM exception (`RECORDED_DOM_TERM_EXCEPTIONS`).
+    rule: 'sample-accounts',
+    file: 'apps/web/src/copy/sign-in.ts',
+    found: 'Sample accounts open with any password.',
+    evidence:
+      'design/v3-refined-b/roles/XS-v6/project/XsSignIn.dc.html `p.xs-proto` "Prototype sign-in. … Sample accounts open with any password."; XS HANDOFF.md §1.1 "Prototype line"; owner approval of the XS export, 19 Oct 2026',
+    removal:
+      'real sign-in exists (the line is switched off, XS `prototypeNote = false`), or the owner rewords the line',
+  },
+  {
     // V3 foundation XR-V3-RB-1.0 (ADR-0010). The Refined Direction B term timeline places its fill,
     // remainder and today marker by the share of the plan's term that has passed — a value only
     // the plan's dates decide, which the boards draw as `style="width: 95.88%"` / `left: …`. The

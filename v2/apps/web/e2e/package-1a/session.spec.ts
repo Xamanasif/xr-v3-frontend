@@ -37,7 +37,7 @@ test('Arjun signs in, out, then Kavya: own namespaces, cache cleared, one world'
   expect(arjun.worldVersion).toBe(start.worldVersion);
 
   await page.getByRole('button', { name: ACCOUNT_LINES.super_admin, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
   await expect(page.getByText('You’re signed out')).toBeVisible();
   const out = await inspectWorld(page);

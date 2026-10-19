@@ -1,0 +1,795 @@
+[
+ {
+  "name": "L1 My device + experiment crumb",
+  "file": "fx-l-rahul-exp.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1400,
+  "checks": false,
+  "steps": [
+   {
+    "text": ".rk-crumbs",
+    "label": "crumbs"
+   },
+   {
+    "click": ".rk-crumbs a",
+    "wait": 400,
+    "focus": true,
+    "label": "crumb My courses -> H1"
+   },
+   {
+    "eval": "[...document.querySelectorAll('.rb-rail a[aria-current]')].map(a=>a.textContent.trim()).join('|')",
+    "label": "current"
+   },
+   {
+    "click": "#xs-acct-btn",
+    "wait": 300
+   },
+   {
+    "click": "#xs-acct-device",
+    "wait": 500,
+    "focus": true,
+    "label": "My device -> H1"
+   },
+   {
+    "text": ".xs-slot",
+    "label": "device slot"
+   },
+   {
+    "eval": "[...document.querySelectorAll('.rb-rail a[aria-current]')].map(a=>a.textContent.trim()).join('|') || 'none current'",
+    "label": "current on My device"
+   }
+  ]
+ },
+ {
+  "name": "L2 XS-06 Help",
+  "file": "XS06-InstituteAdmin-1440.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "clickText": "Help",
+    "exact": true,
+    "wait": 500,
+    "focus": true,
+    "label": "message Help -> XS-07"
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where (should be absent on list)"
+   },
+   {
+    "clickText": "Report a problem",
+    "wait": 500
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where prefilled from XS-06"
+   }
+  ]
+ },
+ {
+  "name": "L3 paused notices Help + refusal Help",
+  "file": "fx-l-rahul-paused.dc.html",
+  "width": 1024,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "click": ".rk-notice-act a",
+    "wait": 500,
+    "focus": true,
+    "label": "page notice Help -> XS-07"
+   },
+   {
+    "role": "link",
+    "name": "Home",
+    "exact": true,
+    "wait": 400
+   },
+   {
+    "click": ".rk-banner a",
+    "wait": 500,
+    "focus": true,
+    "label": "banner Help -> XS-07"
+   }
+  ]
+ },
+ {
+  "name": "L3b refusal Help",
+  "file": "XS08-Paused-Refusal-375.dc.html",
+  "width": 375,
+  "height": 812,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "click": ".xs-msg .rb-link",
+    "wait": 500,
+    "focus": true,
+    "label": "refusal Help -> XS-07"
+   },
+   {
+    "clickText": "Report a problem",
+    "wait": 500
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where prefilled from refusal"
+   }
+  ]
+ },
+ {
+  "name": "L4 Help internal links",
+  "file": "XS07-Failed-768.dc.html",
+  "width": 768,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "text": ".rk-surface",
+    "label": "failed state"
+   },
+   {
+    "role": "button",
+    "name": "Try again",
+    "exact": true,
+    "wait": 200,
+    "text": ".rk-surface",
+    "label": "loading after Try again"
+   },
+   {
+    "wait": 1100,
+    "focus": true,
+    "label": "focus after reload"
+   },
+   {
+    "count": ".xs-report",
+    "label": "rows after reload"
+   },
+   {
+    "click": ".xs-report",
+    "wait": 400,
+    "focus": true,
+    "label": "row -> detail"
+   },
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400,
+    "focus": true,
+    "label": "detail Report a problem -> form"
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where on form from detail"
+   },
+   {
+    "click": ".rk-crumbs a",
+    "wait": 400,
+    "focus": true,
+    "label": "form crumb -> list"
+   },
+   {
+    "count": ".xs-report",
+    "label": "rows on list"
+   },
+   {
+    "click": ".xs-report",
+    "wait": 400
+   },
+   {
+    "click": ".rk-crumbs a",
+    "wait": 400,
+    "focus": true,
+    "label": "detail crumb -> list"
+   }
+  ]
+ },
+ {
+  "name": "L5 Sent Back to Home",
+  "file": "XS07-Sent-768.dc.html",
+  "width": 768,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "clickText": "Back to Home",
+    "wait": 500,
+    "focus": true,
+    "label": "Back to Home -> ST-01"
+   }
+  ]
+ },
+ {
+  "name": "L6 XS04 disclosures axe",
+  "file": "Main.dc.html",
+  "width": 375,
+  "height": 812,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "clickText": "Forgot your password?",
+    "wait": 150
+   },
+   {
+    "clickText": "First time signing in?",
+    "wait": 150
+   },
+   {
+    "axe": true,
+    "label": "375 both open"
+   }
+  ]
+ },
+ {
+  "name": "L6b XS04 disclosures axe 1440",
+  "file": "Main.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "clickText": "Forgot your password?",
+    "wait": 150
+   },
+   {
+    "clickText": "First time signing in?",
+    "wait": 150
+   },
+   {
+    "click": "#xs-signin-sso",
+    "wait": 200
+   },
+   {
+    "axe": true,
+    "label": "1440 both open + institution unavailable"
+   }
+  ]
+ },
+ {
+  "name": "L7 Help secondary links (Meera)",
+  "file": "XS07-Help-InstituteAdmin-1440.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "count": ".xs-report",
+    "label": "rows at start"
+   },
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400,
+    "focus": true,
+    "label": "head Report a problem -> form"
+   },
+   {
+    "role": "link",
+    "name": "Cancel",
+    "exact": true,
+    "wait": 400,
+    "focus": true,
+    "label": "Cancel -> list"
+   },
+   {
+    "count": ".xs-report",
+    "label": "rows after Cancel (unchanged)"
+   },
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400
+   },
+   {
+    "fill": [
+     "#xs-help-what",
+     "Export button did nothing on Usage."
+    ]
+   },
+   {
+    "click": "#xs-help-send",
+    "wait": 1300,
+    "focus": true,
+    "label": "Send -> Report sent"
+   },
+   {
+    "text": ".xs-msg",
+    "label": "sent text"
+   },
+   {
+    "click": ".rk-crumbs a",
+    "wait": 400,
+    "focus": true,
+    "label": "sent crumb -> list"
+   },
+   {
+    "count": ".xs-report",
+    "label": "rows after send"
+   },
+   {
+    "text": ".xs-reports li:first-child",
+    "label": "newest row"
+   }
+  ]
+ },
+ {
+  "name": "L7b empty state Report a problem (Vendor)",
+  "file": "XS07-Empty-Vendor-768.dc.html",
+  "width": 768,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "text": ".rk-state",
+    "label": "empty state"
+   },
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400,
+    "focus": true,
+    "label": "empty Report a problem -> form"
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where"
+   }
+  ]
+ },
+ {
+  "name": "L7c inactive refusal links (Sneha)",
+  "file": "XS08-Inactive-Refusal-375.dc.html",
+  "width": 375,
+  "height": 812,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "text": ".xs-msg",
+    "label": "refusal"
+   },
+   {
+    "role": "link",
+    "name": "Back to Home",
+    "exact": true,
+    "wait": 500,
+    "focus": true,
+    "label": "Back to Home -> ST-01"
+   },
+   {
+    "text": ".rk-banner",
+    "label": "banner still shown"
+   },
+   {
+    "text": ".rk-notice",
+    "label": "home notice"
+   },
+   {
+    "click": ".rk-notice-act a",
+    "wait": 500,
+    "focus": true,
+    "label": "notice Help -> XS-07"
+   },
+   {
+    "eval": "(document.querySelector('.rk-state-t')||{}).textContent || 'rows ' + document.querySelectorAll('.xs-report').length",
+    "label": "Sneha list"
+   }
+  ]
+ },
+ {
+  "name": "L7d paused refusal Back to Home (Rahul)",
+  "file": "XS08-Paused-Refusal-375.dc.html",
+  "width": 375,
+  "height": 812,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "role": "link",
+    "name": "Back to Home",
+    "exact": true,
+    "wait": 500,
+    "focus": true,
+    "label": "Back to Home -> ST-01"
+   },
+   {
+    "text": ".rk-notice",
+    "label": "paused home notice"
+   }
+  ]
+ },
+ {
+  "name": "L8 specimen notes (account menu)",
+  "file": "XsAccountMenu.dc.html",
+  "width": 760,
+  "height": 460,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "click": "#xs-acct-help",
+    "wait": 300,
+    "focus": true,
+    "label": "focus after Help"
+   },
+   {
+    "text": ".xs-spec",
+    "label": "note"
+   }
+  ]
+ },
+ {
+  "name": "L8b specimen notes (message)",
+  "file": "XsMessage.dc.html",
+  "width": 1024,
+  "height": 440,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "role": "link",
+    "name": "Help",
+    "exact": true,
+    "wait": 300
+   },
+   {
+    "text": ".xs-msg .rb-note",
+    "label": "Help note"
+   },
+   {
+    "role": "link",
+    "name": "Back to Home",
+    "exact": true,
+    "wait": 300
+   },
+   {
+    "text": ".xs-msg .rb-note",
+    "label": "primary note"
+   }
+  ]
+ },
+ {
+  "name": "L8c specimen notes (access notice)",
+  "file": "XsAccessNotice.dc.html",
+  "width": 1024,
+  "height": 160,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "click": ".rk-banner a",
+    "wait": 300
+   },
+   {
+    "text": ".rb-page .rb-note",
+    "label": "Help note"
+   }
+  ]
+ },
+ {
+  "name": "L8d specimen notes (sign-in)",
+  "file": "XsSignIn.dc.html",
+  "width": 1024,
+  "height": 940,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "click": ".xs-back",
+    "wait": 300
+   },
+   {
+    "text": ".rk-notice",
+    "label": "Back to experiments"
+   },
+   {
+    "role": "link",
+    "name": "Request institutional access",
+    "exact": true,
+    "wait": 300
+   },
+   {
+    "text": ".rk-notice",
+    "label": "Request institutional access"
+   },
+   {
+    "fill": [
+     "#xs-signin-email",
+     "rahul.verma@godavari.edu.in"
+    ]
+   },
+   {
+    "fill": [
+     "#xs-signin-pw",
+     "x"
+    ]
+   },
+   {
+    "click": "#xs-signin-go",
+    "wait": 1300,
+    "focus": true,
+    "label": "standalone sign-in (no host)"
+   },
+   {
+    "text": ".rk-errsum",
+    "label": "message"
+   }
+  ]
+ },
+ {
+  "name": "L8e specimen notes (help sent)",
+  "file": "XsHelp.dc.html",
+  "width": 1024,
+  "height": 480,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400
+   },
+   {
+    "fill": [
+     "#xs-help-what",
+     "Specimen check."
+    ]
+   },
+   {
+    "click": "#xs-help-send",
+    "wait": 1300,
+    "focus": true,
+    "label": "sent"
+   },
+   {
+    "role": "link",
+    "name": "Back to Overview",
+    "exact": true,
+    "wait": 300
+   },
+   {
+    "text": ".xs-msg .rb-note",
+    "label": "Back note"
+   },
+   {
+    "role": "link",
+    "name": "View my reports",
+    "exact": true,
+    "wait": 400,
+    "focus": true,
+    "label": "View my reports"
+   },
+   {
+    "count": ".xs-report",
+    "label": "specimen rows"
+   }
+  ]
+ },
+ {
+  "name": "L9 inactive banner Help (Sneha)",
+  "file": "XS08-Inactive-Student-1440.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "click": ".rk-banner a",
+    "wait": 500,
+    "focus": true,
+    "label": "inactive banner Help -> XS-07"
+   },
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where from inactive home"
+   }
+  ]
+ },
+ {
+  "name": "L9b IA paused page notice Help (Meera)",
+  "file": "XS08-Paused-InstituteAdmin-1440.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "text": ".rk-notice",
+    "label": "IA notice"
+   },
+   {
+    "click": ".rk-notice-act a",
+    "wait": 500,
+    "focus": true,
+    "label": "IA notice Help -> XS-07"
+   }
+  ]
+ },
+ {
+  "name": "L9c inactive refusal Help (Sneha)",
+  "file": "XS08-Inactive-Refusal-375.dc.html",
+  "width": 375,
+  "height": 812,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "click": ".xs-msg .rb-link",
+    "wait": 500,
+    "focus": true,
+    "label": "refusal Help -> XS-07"
+   },
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where from inactive refusal"
+   }
+  ]
+ },
+ {
+  "name": "L9d Faculty paused: banner only, Help",
+  "file": "XS08-Paused-Faculty-1024.dc.html",
+  "width": 1024,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "count": ".rk-notice",
+    "label": "page notices (expect 0)"
+   },
+   {
+    "click": ".rk-banner a",
+    "wait": 500,
+    "focus": true,
+    "label": "Faculty banner Help -> XS-07"
+   }
+  ]
+ },
+ {
+  "name": "L10 Send pressed twice creates one report",
+  "file": "XS07-Help-InstituteAdmin-1440.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "count": ".xs-report",
+    "label": "rows before"
+   },
+   {
+    "role": "link",
+    "name": "Report a problem",
+    "exact": true,
+    "wait": 400
+   },
+   {
+    "fill": [
+     "#xs-help-what",
+     "Pressed Send twice."
+    ]
+   },
+   {
+    "eval": "(() => { document.getElementById('xs-help-send').focus(); return document.activeElement.id; })()",
+    "label": "focus"
+   },
+   {
+    "press": "Enter",
+    "wait": 60
+   },
+   {
+    "eval": "document.getElementById('xs-help-send').getAttribute('aria-disabled') + ' / ' + document.getElementById('xs-help-send').innerText.trim()",
+    "label": "busy after first Enter"
+   },
+   {
+    "press": "Enter",
+    "wait": 1400,
+    "focus": true,
+    "label": "after second Enter"
+   },
+   {
+    "role": "link",
+    "name": "View my reports",
+    "exact": true,
+    "wait": 500
+   },
+   {
+    "count": ".xs-report",
+    "label": "rows after (expect before + 1)"
+   }
+  ]
+ },
+ {
+  "name": "L10b Sign in pressed twice",
+  "file": "Main.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "fill": [
+     "#xs-signin-email",
+     "kavya.nair@wilp.example"
+    ]
+   },
+   {
+    "fill": [
+     "#xs-signin-pw",
+     "x"
+    ]
+   },
+   {
+    "eval": "(() => { document.getElementById('xs-signin-go').focus(); return document.activeElement.id; })()",
+    "label": "focus"
+   },
+   {
+    "press": "Enter",
+    "wait": 60
+   },
+   {
+    "eval": "document.getElementById('xs-signin-go').getAttribute('aria-disabled') + ' / ' + document.getElementById('xs-signin-go').innerText.trim()",
+    "label": "busy after first Enter"
+   },
+   {
+    "press": "Enter",
+    "wait": 1500,
+    "focus": true,
+    "label": "after second Enter"
+   },
+   {
+    "eval": "document.querySelector('.rb-top-date') ? document.querySelector('.rb-top-date').innerText : 'no shell'",
+    "label": "landed"
+   }
+  ]
+ }
+]

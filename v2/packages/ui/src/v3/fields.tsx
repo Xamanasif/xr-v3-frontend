@@ -71,11 +71,25 @@ export interface FieldProps {
   readonly id?: string;
   /** A Refined B context class on `div.rk-field` (`rk-search`, `rk-field--st`, …). */
   readonly className?: string;
+  /**
+   * Where the error line sits: under the control (`after`, the SA-03 decision form) or between the
+   * label (and hint) and the control (`before`, the Entry & shared export's sign-in and report
+   * forms). Either way it stays in the control's description.
+   */
+  readonly errorPlacement?: 'after' | 'before';
   readonly children: ReactNode | ((control: FieldControl) => ReactNode);
 }
 
 /** The V3 form field (`div.rk-field` > `label.rk-label` + hint + control + error). */
-export function Field({ label, hint, error, id, className, children }: FieldProps) {
+export function Field({
+  label,
+  hint,
+  error,
+  id,
+  className,
+  errorPlacement = 'after',
+  children,
+}: FieldProps) {
   const generatedId = useId();
   const controlId = id ?? generatedId;
   const hintId = hint ? `${controlId}-h` : undefined;
@@ -96,10 +110,11 @@ export function Field({ label, hint, error, id, className, children }: FieldProp
           {hint}
         </p>
       ) : null}
+      {error && errorPlacement === 'before' ? <FieldError id={errorId}>{error}</FieldError> : null}
       <FieldContext value={control}>
         {typeof children === 'function' ? children(control) : children}
       </FieldContext>
-      {error ? <FieldError id={errorId}>{error}</FieldError> : null}
+      {error && errorPlacement === 'after' ? <FieldError id={errorId}>{error}</FieldError> : null}
     </div>
   );
 }

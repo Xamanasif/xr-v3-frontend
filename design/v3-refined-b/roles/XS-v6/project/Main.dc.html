@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Entry &amp; shared · live role preview</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb" id="xs-app">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="xsi-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"></path></symbol>
+    <symbol id="xsi-overview" viewBox="0 0 24 24"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></symbol>
+    <symbol id="xsi-courses" viewBox="0 0 24 24"><path d="M5 5.5A1.5 1.5 0 0 1 6.5 4H19v13H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19M9 8h6"></path></symbol>
+    <symbol id="xsi-assess" viewBox="0 0 24 24"><path d="M9 3.5h6v3H9zM15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3M8.5 13.5l2.5 2.5 4.5-5"></path></symbol>
+    <symbol id="xsi-progress" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-4M12 16V7M17 16v-6"></path></symbol>
+    <symbol id="xsi-qbank" viewBox="0 0 24 24"><path d="M12 3 3 7.5 12 12l9-4.5zM3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5"></path></symbol>
+    <symbol id="xsi-marking" viewBox="0 0 24 24"><path d="M14.5 5.5l4 4L8 20H4v-4zM12.5 7.5l4 4"></path></symbol>
+    <symbol id="xsi-people" viewBox="0 0 24 24"><path d="M9 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM2.5 20a6.5 6.5 0 0 1 13 0M16 4.3a3.5 3.5 0 0 1 0 6.4M18.5 14.5A6.5 6.5 0 0 1 21.5 20"></path></symbol>
+    <symbol id="xsi-caccess" viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></symbol>
+    <symbol id="xsi-saccess" viewBox="0 0 24 24"><path d="M10 11a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM3.5 20a6.5 6.5 0 0 1 10-5.5M18 14v6M15 17h6"></path></symbol>
+    <symbol id="xsi-requests" viewBox="0 0 24 24"><path d="M4 13.5 6.5 5h11l2.5 8.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1zM4 13.5h4.5l1.5 2.5h4l1.5-2.5H20"></path></symbol>
+    <symbol id="xsi-usage" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"></path></symbol>
+    <symbol id="xsi-exps" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6.5L4.8 18.6A1.6 1.6 0 0 0 6.2 21h11.6a1.6 1.6 0 0 0 1.4-2.4L14 9.5V3M7.2 15h9.6"></path></symbol>
+    <symbol id="xsi-queue" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path></symbol>
+    <symbol id="xsi-reviewed" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></symbol>
+    <symbol id="xsi-publish" viewBox="0 0 24 24"><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M5 14v5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-5"></path></symbol>
+    <symbol id="xsi-library" viewBox="0 0 24 24"><path d="M4 4h4v16H4zM10 4h4v16h-4zM16 5l3.5-1 3 15.5-3.5 1z"></path></symbol>
+    <symbol id="xsi-updates" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.6-4.5L4 8M4 4v4h4M4 13a8 8 0 0 0 14.6 4.5L20 16M20 20v-4h-4"></path></symbol>
+    <symbol id="xsi-codes" viewBox="0 0 24 24"><path d="M9.5 4 7.5 20M16.5 4l-2 16M4.5 9h16M3.5 15h16"></path></symbol>
+    <symbol id="xsi-inst" viewBox="0 0 24 24"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18"></path></symbol>
+    <symbol id="xsi-content" viewBox="0 0 24 24"><path d="M8 3h7.5L20 7.5V17a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM15 3v5h5M4 7v13a1 1 0 0 0 1 1h11"></path></symbol>
+    <symbol id="xsi-structure" viewBox="0 0 24 24"><path d="M10 3h4v4h-4zM3.5 17h4v4h-4zM10 17h4v4h-4zM16.5 17h4v4h-4zM12 7v5M5.5 17v-5h13v5M12 12v5"></path></symbol>
+    <symbol id="xsi-roles" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9 12l2 2 4-4"></path></symbol>
+    <symbol id="xsi-ops" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M15 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4"></path></symbol>
+  </svg>
+
+  <sc-if value="{{ isEntry }}" hint-placeholder-val="{{ true }}">
+    <div class="xs-span"><dc-import name="XsSignIn" embedded="{{ true }}" mode="{{ entryMode }}" return-label="{{ returnLabel }}" preset="{{ signinPreset }}" autofocus="{{ entryFocus }}" id-prefix="xs-signin" on-sign-in="{{ signIn }}" on-public="{{ toPublic }}" hint-size="100%,900px"></dc-import></div>
+  </sc-if>
+
+  <sc-if value="{{ isPublic }}" hint-placeholder-val="{{ false }}">
+    <div class="xs-pub">
+      <header class="xs-pub-head">
+        <p class="xs-pub-brand"><span class="xs-pub-logo" aria-hidden="true">Official WILP logo</span><span>XR Learning Platform</span></p>
+        <a class="rb-btn" href="#xs-signin-title" onClick="{{ pubSignIn }}">Sign in</a>
+      </header>
+      <main class="xs-pub-main">
+        <h1 class="rb-h1 xs-fit" id="xs-pub-title" tabindex="-1">{{ pub.title }}</h1>
+        <section class="xs-slot" aria-label="Page designed by another workstream">
+          <p class="xs-slot-tag">{{ pub.id }} · Public workstream</p>
+          <p class="xs-slot-t">{{ pub.text }}</p>
+          <p class="xs-slot-d">Preview slot, not product UI. The V1 Public Landing and its PU-14 section stay locked.</p>
+        </section>
+      </main>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ isShell }}" hint-placeholder-val="{{ false }}">
+    <a class="xs-skip" href="#xs-main" onClick="{{ skip }}">Skip to main content</a>
+    <aside class="rb-rail" aria-label="{{ ws.label }} workspace">
+      <div class="rb-brand">
+        <div class="rb-logo">Official WILP logo</div>
+        <p class="rb-product">XR Learning Platform</p>
+        <p class="rb-ws"><span class="rb-ws-role">{{ ws.label }}</span><sc-if value="{{ hasOrg }}" hint-placeholder-val="{{ true }}"><span class="rb-ws-inst">{{ org }}</span></sc-if></p>
+      </div>
+      <nav class="rb-nav" aria-label="{{ ws.label }} navigation">
+        <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5"><a href="#xs-main" aria-current="{{ n.current }}" onClick="{{ n.go }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#xsi-{{ n.icon }}"></use></svg><span>{{ n.label }}</span><sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span class="rb-count"><span aria-hidden="true">{{ n.count }}</span><span class="xr-sr">, {{ n.countText }}</span></span></sc-if></a></sc-for>
+      </nav>
+      <div class="rb-rail-foot">
+        <nav class="rb-nav" aria-label="Help"><a href="#xs-main" aria-current="{{ helpCurrent }}" onClick="{{ goHelp }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span>Help &amp; support</span></a></nav>
+      </div>
+    </aside>
+
+    <div class="rb-main">
+      <div class="rb-top">
+        <button type="button" class="rb-menu" id="xs-menu-btn" aria-expanded="{{ drawerExp }}" onClick="{{ openDrawer }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+        <p class="rb-top-date">{{ topLabel }}<span class="rb-top-sep" aria-hidden="true"></span>{{ dateLong }}</p>
+        <div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" person-name="{{ acct.name }}" initials="{{ acct.initials }}" role-label="{{ acct.role }}" org="{{ acct.org }}" device="{{ acct.device }}" start-open="{{ acct.startOpen }}" id-prefix="xs-acct" on-help="{{ goHelp }}" on-device="{{ goDevice }}" on-sign-out="{{ signOut }}" hint-size="64px,46px"></dc-import></div>
+      </div>
+
+      <main class="rb-page xs-nofocus" id="xs-main" tabindex="-1">
+        <sc-if value="{{ bannerPaused }}" hint-placeholder-val="{{ false }}"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="paused" placement="banner" on-help="{{ goHelp }}" hint-size="100%,52px"></dc-import></sc-if>
+        <sc-if value="{{ bannerInactive }}" hint-placeholder-val="{{ false }}"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="inactive" placement="banner" on-help="{{ goHelp }}" hint-size="100%,52px"></dc-import></sc-if>
+
+        <sc-if value="{{ pgSlot }}" hint-placeholder-val="{{ true }}">
+          <div class="xs-slotpage">
+            <div>
+              <sc-if value="{{ slot.hasCrumb }}" hint-placeholder-val="{{ false }}"><nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#xs-main" onClick="{{ slot.crumbGo }}">{{ slot.crumb }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"></path></svg><span aria-current="page">{{ slot.title }}</span></nav></sc-if>
+              <div class="rk-head"><div class="rk-head-text"><p class="rb-eyebrow-date">{{ dateLong }}</p><h1 class="rb-h1 xs-fit" id="xs-page-title" tabindex="-1">{{ slot.title }}</h1></div></div>
+            </div>
+            <sc-if value="{{ notePausedStudent }}" hint-placeholder-val="{{ false }}"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="paused" placement="page" audience="student" on-help="{{ goHelp }}" hint-size="100%,120px"></dc-import></sc-if>
+            <sc-if value="{{ notePausedIa }}" hint-placeholder-val="{{ false }}"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="paused" placement="page" audience="ia" on-help="{{ goHelp }}" hint-size="100%,120px"></dc-import></sc-if>
+            <sc-if value="{{ noteInactive }}" hint-placeholder-val="{{ false }}"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="inactive" placement="page" audience="student" on-help="{{ goHelp }}" hint-size="100%,120px"></dc-import></sc-if>
+            <section class="xs-slot" aria-label="Page designed by another workstream">
+              <p class="xs-slot-tag">{{ slot.id }} · {{ slot.owner }} workstream</p>
+              <p class="xs-slot-t">{{ slot.text }}</p>
+              <sc-if value="{{ slot.hasSeed }}" hint-placeholder-val="{{ false }}"><p class="xs-slot-d">Approved V3 seed: {{ slot.seed }} (kept in its own canvas, not reproduced here).</p></sc-if>
+              <p class="xs-slot-d">Preview slot, not product UI.</p>
+            </section>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ pgHelp }}" hint-placeholder-val="{{ false }}">
+          <dc-import name="XsHelp" embedded="{{ true }}" reports="{{ help.reports }}" show-refs="{{ help.refs }}" home-label="{{ ws.home }}" where="{{ help.where }}" today="23 Oct 2026" date-long="{{ dateLong }}" next-ref="{{ help.nextRef }}" sent-ref="{{ help.sentRef }}" view="{{ help.view }}" detail="{{ help.detail }}" preset="{{ help.preset }}" reset-token="{{ helpNonce }}" id-prefix="xs-help" on-submit="{{ submitReport }}" on-home="{{ goHome }}" hint-size="100%,640px"></dc-import>
+        </sc-if>
+
+        <sc-if value="{{ pgMsg }}" hint-placeholder-val="{{ false }}">
+          <dc-import name="XsMessage" embedded="{{ true }}" kind="{{ msgKind }}" workspace="{{ ws.label }}" home-label="{{ ws.home }}" id-prefix="xs-msg" on-primary="{{ goHome }}" on-help="{{ goHelp }}" hint-size="100%,360px"></dc-import>
+        </sc-if>
+      </main>
+    </div>
+
+    <sc-if value="{{ drawerOpen }}" hint-placeholder-val="{{ false }}">
+      <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ closeDrawer }}"></button>
+      <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ drawerKey }}">
+        <div class="rb-drawer-head">
+          <p class="rb-product">XR Learning Platform</p>
+          <button type="button" class="rb-close" id="xs-drawer-close" aria-label="Close menu" onClick="{{ closeDrawer }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+        </div>
+        <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">{{ ws.label }}</span><sc-if value="{{ hasOrg }}" hint-placeholder-val="{{ true }}"><span class="rb-ws-inst">{{ org }}</span></sc-if></p></div>
+        <nav class="rb-nav" aria-label="{{ ws.label }} navigation">
+          <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5"><a href="#xs-main" aria-current="{{ n.current }}" onClick="{{ n.go }}"><span>{{ n.label }}</span><sc-if value="{{ n.hasCount }}" hint-placeholder-val="{{ false }}"><span class="rb-count"><span aria-hidden="true">{{ n.count }}</span><span class="xr-sr">, {{ n.countText }}</span></span></sc-if></a></sc-for>
+        </nav>
+        <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="#xs-main" aria-current="{{ helpCurrent }}" onClick="{{ goHelp }}"><span>Help &amp; support</span></a></nav></div>
+      </div>
+    </sc-if>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"start":{"editor":"enum","options":["sign-in","signed-out","session-expired","signed-in"],"default":"sign-in","section":"Start state (canvas only)"},"who":{"editor":"enum","options":["rahul","sneha","ranga","meera","anil","menon","kavya","arjun"],"default":"rahul","section":"Start state (canvas only)"},"page":{"editor":"enum","options":["home","help","help-report","help-sent","help-detail","device","experiment","not-allowed","refusal-paused","refusal-inactive","dest-1","dest-2"],"default":"home","section":"Start state (canvas only)"},"detail":{"editor":"text","default":"","section":"Start state (canvas only)"},"scenario":{"editor":"enum","options":["active","godavari-paused"],"default":"active","section":"Scenario"},"returnTo":{"editor":"enum","options":["student-experiment","ia-student-access"],"default":"student-experiment","section":"Start state (canvas only)"},"acctOpen":{"editor":"boolean","default":false,"section":"Start state (canvas only)"},"drawerOpen":{"editor":"boolean","default":false,"section":"Start state (canvas only)"},"signinPreset":{"editor":"enum","options":["","validation","invalid","busy","ssooff","ssobusy","forgot","filled"],"default":"","section":"Start state (canvas only)"},"helpPreset":{"editor":"enum","options":["","errors","sending","loading","failed"],"default":"","section":"Start state (canvas only)"},"$preview":{"width":1440,"height":940}}'>
+class Component extends DCLogic {
+  // Entry & shared surfaces · live role preview. One state for the whole journey: sign in → workspace
+  // shell with the XS-05 account menu, XS-07 Help & support, XS-06 refusal and XS-08 notices → sign out.
+  // Pages owned by other workstreams are labelled slots. Props only choose where a canvas board starts;
+  // nothing here is a product control (no “view as”, no sample-user chooser).
+  // Sample accounts. E-mails and identities follow the Phase-7 manager walkthrough; the two marked
+  // illustrative are added for this design scenario only (see SCENARIOS.json).
+  static get PEOPLE() {
+    const GIT = 'Godavari Institute of Technology';
+    return {
+      rahul: { email: 'rahul.verma@godavari.edu.in', name: 'Rahul Verma', initials: 'RV', role: 'st', org: GIT, inst: 'godavari', device: true, status: 'active' },
+      sneha: { email: 'sneha.reddy@godavari.edu.in', name: 'Sneha Reddy', initials: 'SR', role: 'st', org: GIT, inst: 'godavari', device: false, status: 'inactive', illustrative: true },
+      ranga: { email: 's.ranganathan@godavari.edu.in', name: 'Dr S. Ranganathan', initials: 'SR', role: 'fa', org: GIT, inst: 'godavari', device: false, status: 'active', illustrative: true },
+      meera: { email: 'meera.iyer@godavari.edu.in', name: 'Meera Iyer', initials: 'MI', role: 'ia', org: GIT, inst: 'godavari', device: false, status: 'active' },
+      anil: { email: 'anil.shetty@northline.example', name: 'Anil Shetty', initials: 'AS', role: 've', org: 'Northline Simulation Studio', inst: '', device: false, status: 'active' },
+      menon: { email: 'a.menon@wilp.example', name: 'Prof. A. Menon', initials: 'AM', role: 'rv', org: '', inst: '', device: false, status: 'active' },
+      kavya: { email: 'kavya.nair@wilp.example', name: 'Kavya Nair', initials: 'KN', role: 'cm', org: '', inst: '', device: false, status: 'active' },
+      arjun: { email: 'arjun.mehta@wilp.example', name: 'Arjun Mehta', initials: 'AM', role: 'sa', org: '', inst: '', device: false, status: 'active' }
+    };
+  }
+  static get ROLES() {
+    const n = (label, icon, id, seed, count, countText) => ({ label, icon, id, seed: seed || '', count: count || '', countText: countText || '' });
+    return {
+      st: { label: 'Student', home: 'Home', owner: 'Student', nav: [n('Home', 'home', 'ST-01'), n('My courses', 'courses', 'ST-02'), n('Assessments', 'assess', 'ST-11'), n('Progress', 'progress', 'ST-15')] },
+      fa: { label: 'Faculty', home: 'Overview', owner: 'Faculty', nav: [n('Overview', 'overview', 'FA-01'), n('My courses', 'courses', 'FA-02'), n('Assessments', 'assess', 'FA-06'), n('Question bank', 'qbank', 'FA-14'), n('Marking', 'marking', 'FA-18'), n('Students', 'people', 'FA-20')] },
+      ia: { label: 'Institute Admin', home: 'Overview', owner: 'Institute Admin', nav: [n('Overview', 'overview', 'IA-01', 'IA01.dc.html'), n('Content access', 'caccess', 'IA-02', 'IA02.dc.html'), n('Student access', 'saccess', 'IA-04'), n('People', 'people', 'IA-06'), n('Requests', 'requests', 'IA-17'), n('Usage', 'usage', 'IA-20')] },
+      ve: { label: 'Vendor', home: 'Overview', owner: 'Vendor', nav: [n('Overview', 'overview', 'VE-01'), n('My experiments', 'exps', 'VE-02')] },
+      rv: { label: 'Academic Reviewer', home: 'Overview', owner: 'Academic Reviewer', nav: [n('Overview', 'overview', 'RV-01'), n('Review queue', 'queue', 'RV-02'), n('Reviewed by me', 'reviewed', 'RV-05')] },
+      cm: { label: 'Content Manager', home: 'Overview', owner: 'Content Manager', nav: [n('Overview', 'overview', 'CM-01'), n('Ready to publish', 'publish', 'CM-02'), n('Content library', 'library', 'CM-04'), n('Updates', 'updates', 'CM-08'), n('Course codes', 'codes', 'CM-09')] },
+      sa: { label: 'Super Admin', home: 'Overview', owner: 'Super Admin', hideIds: true, nav: [n('Overview', 'overview', 'SA-01', 'SA01.dc.html'), n('Requests', 'requests', 'SA-02', 'SA02.dc.html', '3', '3 requests under review'), n('Institutions', 'inst', 'SA-06'), n('Content', 'content', 'SA-10'), n('Academic structure', 'structure', 'SA-14'), n('Platform roles', 'roles', 'SA-16'), n('Operations', 'ops', 'SA-18')] }
+    };
+  }
+  // Where a session ended (XS-03): the address is kept and offered back after sign-in.
+  static get RETURNS() {
+    return {
+      'student-experiment': { ws: 'st', kind: 'experiment', label: 'My courses › Shell-and-Tube Heat Exchanger' },
+      'ia-student-access': { ws: 'ia', kind: 'dest', dest: 2, label: 'Student access' }
+    };
+  }
+  // My reports per person on Fri 23 Oct 2026 (v46 boards 05 and 07, V3 SA-01; illustrative details flagged in SCENARIOS.json).
+  static get REPORTS() {
+    return {
+      rahul: [{ id: 'SUP-0213', title: 'VR simulation stopped loading at step 2', status: 'open', sent: '3 Oct 2026', iso: '2026-10-03', what: 'The VR simulation stopped loading at the second step.', where: 'Shell-and-Tube Heat Exchanger · VR', shot: 'No screenshot added', history: [{ what: 'Sent', when: '3 Oct 2026' }] }],
+      meera: [
+        { id: 'SUP-0211', title: 'Student import stopped part-way', status: 'reopened', sent: '1 Oct 2026', iso: '2026-10-01', reopened: '6 Oct 2026', what: 'The student import stopped part-way through the file.', where: 'People · Students · Import students', shot: 'No screenshot added',
+          history: [{ what: 'Reopened', when: '6 Oct 2026' }, { what: 'Resolved', when: '3 Oct 2026', note: '“The import now reads the whole file. Please try again.”' }, { what: 'Sent', when: '1 Oct 2026' }] },
+        { id: 'SUP-0209', title: 'Usage page took a long time to load', status: 'open', sent: '30 Sep 2026', iso: '2026-09-30', what: 'The Usage page took a long time to load.', where: 'Usage', shot: 'No screenshot added', history: [{ what: 'Sent', when: '30 Sep 2026' }] },
+        { id: 'SUP-0189', title: 'Group name didn’t save', status: 'resolved', sent: '15 Sep 2026', iso: '2026-09-15', resolved: '18 Sep 2026', note: '“Group names now save when you press Save.”', what: 'I renamed a group and the new name didn’t save.', where: 'People · Groups', shot: 'No screenshot added',
+          history: [{ what: 'Resolved', when: '18 Sep 2026', note: '“Group names now save when you press Save.”' }, { what: 'Sent', when: '15 Sep 2026' }] }
+      ],
+      ranga: [{ id: 'SUP-0198', title: 'Lab brief link opened a blank page', status: 'resolved', sent: '21 Sep 2026', iso: '2026-09-21', resolved: '23 Sep 2026', note: '“The lab brief link was updated. It now opens the brief in a new tab.”', what: 'The lab brief link on the Resources tab opened a blank page.', where: 'ME ZG523 · Shell-and-Tube Heat Exchanger · Resources', shot: 'blank-page.png',
+        history: [{ what: 'Resolved', when: '23 Sep 2026', note: 'Resolution note added' }, { what: 'Sent', when: '21 Sep 2026' }] }],
+      kavya: [{ id: 'SUP-0207', title: 'Delivery link preview showed an empty frame', status: 'reopened', sent: '28 Sep 2026', iso: '2026-09-28', reopened: '6 Oct 2026', what: 'The preview of the WEB delivery link showed an empty frame.', where: 'Content library · Forced Convection', shot: 'No screenshot added',
+        history: [{ what: 'Reopened', when: '6 Oct 2026' }, { what: 'Resolved', when: '30 Sep 2026', note: '“The preview now loads. Please try again.”' }, { what: 'Sent', when: '28 Sep 2026' }] }],
+      anil: [], menon: [], arjun: [], sneha: []
+    };
+  }
+
+  state = { nav: null, reports: null, seq: null, helpNonce: 0 };
+
+  focusLater(id, tries) {
+    const n = tries === undefined ? 24 : tries;
+    window.setTimeout(() => { const el = document.getElementById(id); if (el) { el.focus(); return; } if (n > 0) this.focusLater(id, n - 1); }, 50);
+  }
+  sentSample() { const P = this.props || {}; return P.start === 'signed-in' && P.page === 'help-sent'; }
+  navFromProps() {
+    const P = this.props || {}, PE = Component.PEOPLE;
+    const who = PE[P.who] ? P.who : 'rahul';
+    const start = ['sign-in', 'signed-out', 'session-expired', 'signed-in'].indexOf(P.start) >= 0 ? P.start : 'sign-in';
+    const base = { view: 'entry', entryMode: 'normal', who: null, page: null, returnTo: null, drawer: false, lastWhere: null, entryFocus: false, pub: '' };
+    if (start === 'signed-in') {
+      const p = PE[who];
+      let page = 'dest:0';
+      switch (P.page) {
+        case 'help': case 'help-report': case 'help-sent': case 'help-detail': page = 'help'; break;
+        case 'device': page = p.device ? 'device' : 'dest:0'; break;
+        case 'experiment': page = p.role === 'st' ? 'experiment' : 'dest:0'; break;
+        case 'not-allowed': page = 'notallowed'; break;
+        case 'refusal-paused': page = 'refusal:paused'; break;
+        case 'refusal-inactive': page = 'refusal:inactive'; break;
+        default: if (/^dest-\d$/.test(P.page || '')) page = 'dest:' + String(P.page).slice(5);
+      }
+      const max = Component.ROLES[p.role].nav.length - 1;
+      if (/^dest:/.test(page) && Number(page.slice(5)) > max) page = 'dest:0';
+      return Object.assign(base, { view: 'shell', who, page, drawer: !!P.drawerOpen });
+    }
+    if (start === 'signed-out') return Object.assign(base, { entryMode: 'signedout' });
+    if (start === 'session-expired') return Object.assign(base, { entryMode: 'expired', returnTo: Component.RETURNS[P.returnTo] ? P.returnTo : 'student-experiment' });
+    return base;
+  }
+  navNow() { return this.state.nav || this.navFromProps(); }
+  reportsAll() {
+    if (this.state.reports) return this.state.reports;
+    const all = JSON.parse(JSON.stringify(Component.REPORTS));
+    if (this.sentSample()) {
+      const who = Component.PEOPLE[(this.props || {}).who] ? this.props.who : 'rahul';
+      all[who] = [{ id: 'SUP-0214', title: 'The page went blank after I pressed Back', status: 'open', sent: '23 Oct 2026', iso: '2026-10-23 0214', what: 'The page went blank after I pressed Back.', where: Component.ROLES[Component.PEOPLE[who].role].home, shot: 'No screenshot added', history: [{ what: 'Sent', when: '23 Oct 2026' }] }].concat(all[who]);
+    }
+    return all;
+  }
+  seqNow() { return this.state.seq || (this.sentSample() ? 215 : 214); }
+  headId(page) { return page === 'help' ? 'xs-help-title' : (page === 'notallowed' || /^refusal/.test(page)) ? 'xs-msg-title' : 'xs-page-title'; }
+  whereOf(N) {
+    const p = Component.PEOPLE[N.who], R = p ? Component.ROLES[p.role] : null, pg = N.page || '';
+    if (/^dest:/.test(pg) && R) return R.nav[Number(pg.slice(5))].label;
+    return { experiment: 'My courses › Shell-and-Tube Heat Exchanger', device: 'My device', notallowed: 'Not your workspace', 'refusal:paused': 'Access paused', 'refusal:inactive': 'Account inactive' }[pg] || (R ? R.home : '');
+  }
+  go(page) {
+    const N = this.navNow(), patch = { page, drawer: false };
+    if (page === 'help' && N.page !== 'help') patch.lastWhere = this.whereOf(N);
+    this.setState({ nav: Object.assign({}, N, patch), helpNonce: this.state.helpNonce + 1 });
+    this.focusLater(this.headId(page));
+  }
+
+  renderVals() {
+    const P = this.props || {}, s = this.state, N = this.navNow(), PE = Component.PEOPLE, RO = Component.ROLES;
+    const paused = P.scenario === 'godavari-paused', touched = !!s.nav;
+    const dateLong = 'Friday 23 October 2026';
+    const handler = (fn) => (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); fn(); };
+    const o = { isEntry: N.view === 'entry', isPublic: N.view === 'public', isShell: N.view === 'shell', dateLong };
+
+    // ── entry: XS-01 · XS-03 · XS-04 ──────────────────────────────────────────────
+    const ret = Component.RETURNS[N.returnTo] || null;
+    o.entryMode = N.entryMode || 'normal';
+    o.returnLabel = ret ? ret.label : '';
+    o.signinPreset = touched ? '' : (P.signinPreset || '');
+    o.entryFocus = !!N.entryFocus;
+    o.signIn = (email) => {
+      const key = Object.keys(PE).find(k => PE[k].email === String(email || '').trim().toLowerCase());
+      if (!key) return false;
+      const cur = this.navNow(), p = PE[key], R = Component.RETURNS[cur.returnTo] || null;
+      let page = 'dest:0';
+      if (R) {
+        if (R.ws !== p.role) page = 'notallowed';
+        else if (p.status === 'inactive') page = 'refusal:inactive';
+        else if (paused && p.inst === 'godavari' && R.kind === 'experiment') page = 'refusal:paused';
+        else page = R.kind === 'experiment' ? 'experiment' : 'dest:' + R.dest;
+      }
+      this.setState({ nav: Object.assign({}, cur, { view: 'shell', who: key, page, returnTo: null, entryMode: 'normal', entryFocus: false, drawer: false, lastWhere: null, pub: '' }), helpNonce: this.state.helpNonce + 1 });
+      this.focusLater(this.headId(page));
+      return true;
+    };
+    o.toPublic = (target) => { this.setState({ nav: Object.assign({}, this.navNow(), { view: 'public', pub: target === 'request' ? 'request' : 'catalogue', returnTo: null }) }); this.focusLater('xs-pub-title'); };
+    o.pub = N.pub === 'request'
+      ? { id: 'PU-08', title: 'Request institutional access', text: 'The request form is designed by the Public workstream. Sign in never creates an account or a request.' }
+      : { id: 'PU-04', title: 'Browse experiments', text: 'The public catalogue is designed by the Public workstream. Back to experiments on Sign in lands here.' };
+    o.pubSignIn = handler(() => this.setState({ nav: Object.assign({}, this.navNow(), { view: 'entry', entryMode: 'normal', entryFocus: true, pub: '' }) }));
+
+    if (N.view !== 'shell') return o;
+
+    // ── workspace shell ────────────────────────────────────────────────────────────
+    const p = PE[N.who] || PE.rahul, R = RO[p.role], page = N.page || 'dest:0';
+    const destIdx = /^dest:/.test(page) ? Number(page.slice(5)) : (page === 'experiment' ? 1 : -1);
+    o.ws = { label: R.label, home: R.home };
+    o.org = p.org || ''; o.hasOrg = !!p.org;
+    o.nav = R.nav.map((n, i) => ({ label: n.label, icon: n.icon, current: i === destIdx ? 'page' : undefined, hasCount: !!n.count, count: n.count, countText: n.countText, go: handler(() => this.go('dest:' + i)) }));
+    o.helpCurrent = page === 'help' ? 'page' : undefined;
+    o.goHelp = handler(() => this.go('help'));
+    o.goHome = handler(() => this.go('dest:0'));
+    o.goDevice = handler(() => this.go('device'));
+    o.signOut = () => this.setState({ nav: Object.assign({}, this.navNow(), { view: 'entry', entryMode: 'signedout', who: null, page: null, returnTo: null, entryFocus: true, drawer: false, lastWhere: null }) });
+    o.skip = handler(() => this.focusLater('xs-main', 2));
+    o.topLabel = /^dest:/.test(page) ? R.nav[destIdx].label : ({ help: 'Help & support', device: 'My device', experiment: 'Shell-and-Tube Heat Exchanger', notallowed: 'Not your workspace', 'refusal:paused': 'Access paused', 'refusal:inactive': 'Account inactive' }[page] || R.home);
+    o.acct = { name: p.name, initials: p.initials, role: R.label, org: p.org || '', device: !!p.device, startOpen: !touched && !!P.acctOpen };
+
+    // XS-08: notices follow the person’s real state; signing in again never removes them
+    o.bannerPaused = paused && p.inst === 'godavari';
+    o.bannerInactive = p.status === 'inactive';
+    const onHome = page === 'dest:0';
+    o.notePausedStudent = onHome && o.bannerPaused && p.role === 'st' && p.status !== 'inactive';
+    o.notePausedIa = onHome && o.bannerPaused && p.role === 'ia';
+    o.noteInactive = onHome && p.status === 'inactive';
+
+    o.pgHelp = page === 'help';
+    o.pgMsg = page === 'notallowed' || /^refusal/.test(page);
+    o.msgKind = page === 'notallowed' ? 'notallowed' : page === 'refusal:paused' ? 'paused' : 'inactive';
+    o.pgSlot = !o.pgHelp && !o.pgMsg;
+    if (o.pgSlot) {
+      let slot;
+      if (page === 'experiment') slot = { id: 'ST-05', title: 'Shell-and-Tube Heat Exchanger', owner: 'Student', seed: '', hasCrumb: true, crumb: 'My courses', crumbGo: handler(() => this.go('dest:1')) };
+      else if (page === 'device') slot = { id: 'ST-18', title: 'My device', owner: 'Student', seed: '', hasCrumb: false };
+      else { const n = R.nav[destIdx] || R.nav[0]; slot = { id: n.id, title: n.label, owner: R.owner, seed: n.seed, hasCrumb: false }; }
+      slot.hasSeed = !!slot.seed;
+      slot.text = slot.title + ' is designed in the ' + slot.owner + ' package. This preview shows only the shared shell, account menu, Help and notices around it.';
+      o.slot = slot;
+    }
+
+    // XS-07 Help & support: records live here so a sent report is still listed after navigating away
+    const all = this.reportsAll(), seq = this.seqNow();
+    o.help = {
+      reports: all[N.who] || [], refs: !R.hideIds, where: N.lastWhere || R.nav[0].label,
+      nextRef: 'SUP-0' + seq, sentRef: this.sentSample() ? 'SUP-0214' : '',
+      view: touched ? 'list' : ({ 'help-report': 'report', 'help-sent': 'sent', 'help-detail': 'detail' }[P.page] || 'list'),
+      detail: touched ? '' : (P.detail || ''), preset: touched ? '' : (P.helpPreset || '')
+    };
+    o.helpNonce = s.helpNonce;
+    o.submitReport = (draft) => {
+      const cur = this.navNow(), A = this.reportsAll(), q = this.seqNow();
+      const rec = Object.assign({ id: 'SUP-0' + q, status: 'open', sent: '23 Oct 2026', iso: '2026-10-23 0' + q, history: [{ what: 'Sent', when: '23 Oct 2026' }] }, draft);
+      const next = Object.assign({}, A); next[cur.who] = [rec].concat(A[cur.who] || []);
+      this.setState({ reports: next, seq: q + 1 });
+      return rec;
+    };
+
+    // drawer below 1024 px (V3 behaviour: focus to Close, Tab stays inside, Escape or scrim closes, focus back to Menu)
+    o.drawerOpen = !!N.drawer; o.drawerExp = N.drawer ? 'true' : 'false';
+    o.openDrawer = () => { this.setState({ nav: Object.assign({}, this.navNow(), { drawer: true }) }); this.focusLater('xs-drawer-close'); };
+    o.closeDrawer = () => { this.setState({ nav: Object.assign({}, this.navNow(), { drawer: false }) }); this.focusLater('xs-menu-btn'); };
+    o.drawerKey = (ev) => {
+      if (ev.key === 'Escape') { ev.preventDefault(); o.closeDrawer(); return; }
+      if (ev.key !== 'Tab') return;
+      const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled])'));
+      if (!items.length) return;
+      const first = items[0], last = items[items.length - 1];
+      if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+      else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+    };
+    return o;
+  }
+}
+</script>
+</body>
+</html>

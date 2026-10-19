@@ -45,3 +45,9 @@ export const VENDOR_ROOT = join(TOOL_ROOT, 'vendor');
  * machine-specific and never committed as cross-OS baselines (Appendix E §9.1, VD-18).
  */
 export const RUNS_ROOT = join(TOOL_ROOT, '.runs');
+
+/**
+ * The scoped V3 comparison map (ADR-0010): migrated product screens and the v46 comparisons each
+ * one supersedes, retired by name.
+ */
+export const V3_COMPARISON_MAP = join(WORKSPACE_ROOT, 'docs', 'v3', 'V3-COMPARISON-MAP.json');

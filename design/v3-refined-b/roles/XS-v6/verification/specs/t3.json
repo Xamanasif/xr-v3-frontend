@@ -1,0 +1,263 @@
+[
+ {
+  "name": "journey 1 Rahul",
+  "file": "Main.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1200,
+  "steps": [
+   {
+    "wait": 200,
+    "shot": "j1-01-signin",
+    "full": false
+   },
+   {
+    "click": "#xs-signin-go",
+    "wait": 300,
+    "focus": true,
+    "label": "empty submit focus"
+   },
+   {
+    "text": "#xs-signin-errs",
+    "label": "errsum"
+   },
+   {
+    "shot": "j1-02-errors",
+    "full": false
+   },
+   {
+    "click": "#xs-signin-errs a",
+    "focus": true,
+    "label": "errsum link -> field"
+   },
+   {
+    "fill": [
+     "#xs-signin-email",
+     "rahul.verma@godavari.edu"
+    ]
+   },
+   {
+    "fill": [
+     "#xs-signin-pw",
+     "anything1"
+    ]
+   },
+   {
+    "click": "#xs-signin-go",
+    "wait": 1300,
+    "focus": true,
+    "label": "unknown email -> alert"
+   },
+   {
+    "attr": [
+     "#xs-signin-pw",
+     "value"
+    ],
+    "label": "pw cleared"
+   },
+   {
+    "attr": [
+     "#xs-signin-email",
+     "value"
+    ],
+    "label": "email kept"
+   },
+   {
+    "shot": "j1-03-wrong",
+    "full": false
+   },
+   {
+    "wait": 10
+   },
+   {
+    "fill": [
+     "#xs-signin-email",
+     "Rahul.Verma@godavari.edu.in "
+    ]
+   },
+   {
+    "fill": [
+     "#xs-signin-pw",
+     "any-password"
+    ]
+   },
+   {
+    "press": "Enter",
+    "wait": 300,
+    "text": "#xs-signin-go",
+    "label": "busy label"
+   },
+   {
+    "wait": 1400,
+    "focus": true,
+    "label": "after sign-in focus"
+   },
+   {
+    "text": ".rb-top",
+    "label": "top bar"
+   },
+   {
+    "shot": "j1-04-home",
+    "full": false
+   },
+   {
+    "click": "#xs-acct-btn",
+    "wait": 300,
+    "focus": true,
+    "label": "menu open focus"
+   },
+   {
+    "shot": "j1-05-menu",
+    "full": false
+   },
+   {
+    "press": "Escape",
+    "focus": true,
+    "label": "esc"
+   },
+   {
+    "click": "#xs-acct-btn",
+    "wait": 300
+   },
+   {
+    "press": "ArrowDown",
+    "focus": true,
+    "label": "arrow"
+   },
+   {
+    "press": "Enter",
+    "wait": 600,
+    "focus": true,
+    "label": "help via menu"
+   },
+   {
+    "text": "#xs-main",
+    "label": "help page"
+   },
+   {
+    "shot": "j1-06-help",
+    "full": false
+   },
+   {
+    "clickText": "Report a problem",
+    "wait": 600,
+    "focus": true,
+    "label": "report form"
+   },
+   {
+    "attr": [
+     "#xs-help-where",
+     "value"
+    ],
+    "label": "where prefilled"
+   },
+   {
+    "click": "#xs-help-send",
+    "wait": 400,
+    "focus": true,
+    "label": "empty send"
+   },
+   {
+    "shot": "j1-07-form-errors",
+    "full": true
+   },
+   {
+    "fill": [
+     "#xs-help-what",
+     "The Progress page showed yesterday's results. I refreshed and it was still the same."
+    ]
+   },
+   {
+    "upload": [
+     "#xs-help-shot",
+     "progress.png"
+    ]
+   },
+   {
+    "click": "#xs-help-send",
+    "wait": 300,
+    "text": "#xs-help-send",
+    "label": "sending label"
+   },
+   {
+    "wait": 1200,
+    "focus": true,
+    "label": "sent focus"
+   },
+   {
+    "text": ".xs-msg",
+    "label": "sent text"
+   },
+   {
+    "shot": "j1-08-sent",
+    "full": false
+   },
+   {
+    "clickText": "View my reports",
+    "wait": 500,
+    "focus": true,
+    "label": "list focus"
+   },
+   {
+    "count": ".xs-report",
+    "label": "rows"
+   },
+   {
+    "text": ".xs-reports",
+    "label": "rows text"
+   },
+   {
+    "click": ".xs-report",
+    "wait": 500,
+    "focus": true,
+    "label": "detail focus"
+   },
+   {
+    "text": "#xs-main",
+    "label": "detail text"
+   },
+   {
+    "shot": "j1-09-detail",
+    "full": true
+   },
+   {
+    "role": "link",
+    "name": "Home",
+    "exact": true,
+    "wait": 500,
+    "focus": true,
+    "label": "rail home"
+   },
+   {
+    "role": "link",
+    "name": "Help & support",
+    "exact": true,
+    "wait": 500,
+    "focus": true,
+    "label": "rail help"
+   },
+   {
+    "count": ".xs-report",
+    "label": "rows after leaving and returning"
+   },
+   {
+    "click": "#xs-acct-btn",
+    "wait": 300
+   },
+   {
+    "click": "#xs-acct-out",
+    "wait": 700,
+    "focus": true,
+    "label": "after sign out"
+   },
+   {
+    "text": "#xs-signin-note",
+    "label": "signed out note"
+   },
+   {
+    "shot": "j1-10-signedout",
+    "full": false
+   }
+  ]
+ }
+]

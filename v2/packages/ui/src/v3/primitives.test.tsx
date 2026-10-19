@@ -12,6 +12,7 @@ import {
   expectRenderedAsV3Drawn,
   expectV3ClassesOnly,
   v3BoardText,
+  xsExportText,
 } from '../testing/index.js';
 import { Button, ButtonLink, TextLink } from './actions.js';
 import { CourseCode, InstitutionCode, MissingTag } from './codes.js';
@@ -21,10 +22,21 @@ import { V46Island } from './island.js';
 import { StatusPill, toV3Tone } from './status.js';
 
 const BOARDS = ['SA01.dc.html', 'SA02.dc.html', 'IA01.dc.html', 'IA02.dc.html'];
+/** The XS export's component files and live root (design/v3-refined-b/roles/XS-v6). */
+const XS_FILES = [
+  'XsSignIn.dc.html',
+  'XsAccountMenu.dc.html',
+  'XsHelp.dc.html',
+  'XsMessage.dc.html',
+  'XsAccessNotice.dc.html',
+  'Main.dc.html',
+];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board draws (inline in a rail or as a symbol)', () => {
-    const drawn = BOARDS.map((file) => v3BoardText(file)).join('\n');
+  it('every icon is a path a V3 board or the XS export draws (inline or as a symbol)', () => {
+    const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
+      '\n',
+    );
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
       expect(drawn.includes(`d="${path}"`), name).toBe(true);
     }
@@ -34,7 +46,7 @@ describe('V3 icons', () => {
     const shared = Object.entries(V3_ICON_PATHS).filter(([, path]) =>
       Object.values(ICON_PATHS).includes(path as never),
     );
-    expect(shared.length).toBe(22);
+    expect(shared.length).toBe(26);
   });
 
   it('renders the core.css icon, decorative', () => {

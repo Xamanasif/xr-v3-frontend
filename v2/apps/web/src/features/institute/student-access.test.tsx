@@ -732,10 +732,12 @@ describe('IA-05 — failure, refusals and the empty states (B2-05 f12, f14–f17
       'href',
       '/institute/student-access',
     );
-    expect(within(main()).getByRole('link', { name: 'Help' })).toHaveAttribute(
-      'href',
-      '/institute/help',
-    );
+    // The page's own Help (the XS-08 banner at the top of the page column has its own).
+    const help = within(main())
+      .getAllByRole('link', { name: 'Help' })
+      .filter((link) => !link.closest('.rk-x-region--banner'));
+    expect(help).toHaveLength(1);
+    expect(help[0]).toHaveAttribute('href', '/institute/help');
   });
 
   it('access plan ended (f16): its id and end date; Request renewal (IA-17 since Phase 3) and Content access', async () => {

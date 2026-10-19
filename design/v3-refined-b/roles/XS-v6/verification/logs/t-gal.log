@@ -1,0 +1,51 @@
+### XS01-SignIn-States @1760
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x9
+Public Sans loaded: true (loaded,unloaded)
+doc height: 3058
+shot g-signin
+console clean
+
+### XS05-Menus @1640
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1116
+shot g-menus
+console clean
+
+### XS08-Notices @1440
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1714
+shot g-notices
+console clean
+
+### XsHelp @1024
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 474
+console clean
+
+### XsMessage @1024
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 430
+console clean
+
+### XsAccessNotice @1024
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 105
+console clean
+
+### XsSignIn @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 932
+console clean

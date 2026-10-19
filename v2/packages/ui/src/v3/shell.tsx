@@ -3,15 +3,8 @@
 import { useRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 
 import { useDrawer } from '../overlays/drawer.js';
-import {
-  AccountMenuPanel,
-  accountName,
-  useAccountMenu,
-  type AccountMenuItem,
-} from '../overlays/account-menu.js';
 import { useLinkComponent } from '../link.js';
 import { Icon, type V3IconName } from './icons.js';
-import { V46Island } from './island.js';
 
 /** The product name in the rail and the drawer head. */
 export const PRODUCT_NAME = 'XR Learning Platform';
@@ -59,9 +52,12 @@ export interface WorkspaceShellProps {
    * date" as IA-01 draws it. Hidden on phones, where the page head shows the date.
    */
   readonly topLine?: ReactNode;
-  /** The account chrome: `AccountMenu`. */
+  /** The account chrome: `AccountMenu` (XS-05; shell patch XS-P3). */
   readonly account: ReactNode;
-  /** A shell banner above the page (paused institution, inactive account). */
+  /**
+   * The XS-08 banner (`Banner`: paused institution, inactive account), the first thing in the page
+   * column as the XS export and the IA-02 seed place it.
+   */
   readonly banner?: ReactNode;
   /** The main region's id: the skip link's target. */
   readonly mainId?: string;
@@ -121,9 +117,8 @@ function Brand({
 }
 
 /**
- * "Skip to main content" (`a.rk-x-skip`, V3P-06): the first Tab stop, shown when it has focus. The
- * Refined B boards draw none; the product keeps the one every workspace has today (WCAG 2.4.1).
- * Activating it moves focus into the main region.
+ * "Skip to main content" (`a.xs-skip`, the XS export's shell patch XS-P1): the first Tab stop,
+ * shown when it has focus (WCAG 2.4.1). Activating it moves focus into the main region.
  */
 function SkipLink({
   targetId,
@@ -140,7 +135,7 @@ function SkipLink({
     target.focus();
   };
   return (
-    <Link className="rk-x-skip" href={`#${targetId}`} onClick={onClick} inert={inert}>
+    <Link className="xs-skip" href={`#${targetId}`} onClick={onClick} inert={inert}>
       Skip to main content
     </Link>
   );
@@ -223,8 +218,8 @@ export function WorkspaceShell({
           {topLine ? <p className="rb-top-date">{topLine}</p> : null}
           {account}
         </header>
-        {banner}
-        <main className="rb-page" id={mainId} tabIndex={-1}>
+        <main className="rb-page xs-nofocus" id={mainId} tabIndex={-1}>
+          {banner}
           {children}
         </main>
       </div>
@@ -265,75 +260,6 @@ export function WorkspaceShell({
             <div className="rb-rail-foot">{helpLink(false)}</div>
           </div>
         </>
-      ) : null}
-    </div>
-  );
-}
-
-export interface AccountMenuProps {
-  /** "Meera Iyer". */
-  readonly name: string;
-  /** The workspace role: "Institute Admin". */
-  readonly role: string;
-  /** The institution line, where the role has one (in the accessible name and the panel). */
-  readonly organisation?: string;
-  /** "MI" (decorative). */
-  readonly initials: string;
-  /** In order: My device*, Help, separator, Sign out — the v46 account menu's items. */
-  readonly items: readonly AccountMenuItem[];
-  readonly menuId?: string;
-}
-
-/**
- * The account chrome: the Refined B trigger (`button.rb-acct`: avatar, name, role, chevron) and
- * the existing account menu panel, kept as a v46 island until the shared-surfaces workstream (XS-05)
- * delivers its V3 design — the behaviour is the v46 disclosure's (`useAccountMenu`), the accessible
- * name the existing "Account menu: name, role[, organisation]".
- */
-export function AccountMenu({
-  name,
-  role,
-  organisation,
-  initials,
-  items,
-  menuId,
-}: AccountMenuProps) {
-  const menu = useAccountMenu(menuId);
-  return (
-    <div
-      ref={menu.rootRef}
-      className="rk-x-acct"
-      onKeyDown={menu.rootProps.onKeyDown}
-      onBlur={menu.rootProps.onBlur}
-    >
-      <button
-        ref={menu.buttonRef}
-        type="button"
-        className="rb-acct"
-        aria-expanded={menu.open}
-        aria-controls={menu.panelId}
-        aria-label={accountName(name, role, organisation)}
-        onClick={menu.toggle}
-      >
-        <span className="xr-avatar" aria-hidden="true">
-          {initials}
-        </span>
-        <span className="rb-acct-text" aria-hidden="true">
-          <span className="rb-acct-name">{name}</span>
-          <span className="rb-acct-role">{role}</span>
-        </span>
-        <Icon name="chevronDown" size={18} />
-      </button>
-      {menu.open ? (
-        <V46Island>
-          <AccountMenuPanel
-            menu={menu}
-            name={name}
-            role={role}
-            organisation={organisation}
-            items={items}
-          />
-        </V46Island>
       ) : null}
     </div>
   );

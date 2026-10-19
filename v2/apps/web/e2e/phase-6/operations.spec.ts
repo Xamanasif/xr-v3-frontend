@@ -121,7 +121,10 @@ async function switchTo(page: Page, person: { readonly personId: string }, home:
   await expect(
     page.getByRole('heading', { level: 1, name: 'This page isn’t part of your workspace' }),
   ).toBeVisible(LOAD);
-  await main(page).locator('.xr-msg').getByRole('link', { name: 'Back to Home' }).click();
+  await main(page)
+    .locator('.xs-msg')
+    .getByRole('link', { name: /^Back to (Home|Overview)$/ })
+    .click();
   await page.waitForURL((url) => url.pathname === home, LOAD);
 }
 
@@ -388,7 +391,7 @@ test.describe('Cross-role: a report from Help, resolved and reopened by the Supe
     await page.getByLabel('What happened?').fill(whatHappened);
     await reachAndClick(page, page.getByRole('button', { name: 'Send report' }));
     await expect(page.getByRole('heading', { level: 1, name: 'Report sent' })).toBeVisible(LOAD);
-    const reference = (await main(page).locator('.xr-msg .xr-id').textContent())!;
+    const reference = (await main(page).locator('.xs-msg .xs-msg-d b').textContent())!;
     expect(reference).toMatch(/^SUP-\d{4}$/);
 
     // 2. The Super Admin, in this tab, finds it in Support (Open, oldest first: last) and resolves it.
@@ -419,12 +422,12 @@ test.describe('Cross-role: a report from Help, resolved and reopened by the Supe
     // 3. Rahul's own report page: Resolved, with the note.
     await switchTo(page, RAHUL, '/student');
     await sidebar(page, '/student/help');
-    const row = main(page).locator('ul.xr-rows a.xr-row-link', { hasText: reference });
+    const row = main(page).locator('ul.xs-reports a.xs-report', { hasText: reference });
     await expect(row).toContainText('Resolved', LOAD);
     await reachAndClick(page, row);
     await page.waitForURL(`**/student/help/reports/${reference}`);
-    await expect(main(page).locator('.xr-notice--ok')).toContainText(`“${note}”`, LOAD);
-    await expect(main(page).locator('.xr-phead')).toContainText('Resolved');
+    await expect(main(page).locator('.rk-notice--ok')).toContainText(`“${note}”`, LOAD);
+    await expect(main(page).locator('.rk-head .rk-meta')).toContainText('Resolved');
     await expect(page.getByRole('button', { name: /reopen/i })).toHaveCount(0);
 
     // 4. The Super Admin reopens it (DL-1): Reopened on their side…
@@ -450,12 +453,12 @@ test.describe('Cross-role: a report from Help, resolved and reopened by the Supe
     // 5. …and on Rahul's.
     await switchTo(page, RAHUL, '/student');
     await sidebar(page, '/student/help');
-    const again = main(page).locator('ul.xr-rows a.xr-row-link', { hasText: reference });
+    const again = main(page).locator('ul.xs-reports a.xs-report', { hasText: reference });
     await expect(again).toContainText('Reopened', LOAD);
     await reachAndClick(page, again);
     await page.waitForURL(`**/student/help/reports/${reference}`);
     await expect(main(page)).toContainText('This report is open again', LOAD);
-    await expect(main(page).locator('.xr-phead')).toContainText('Reopened');
+    await expect(main(page).locator('.rk-head .rk-meta')).toContainText('Reopened');
     await expectSameDocument(page, mark);
   });
 });

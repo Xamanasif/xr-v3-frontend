@@ -13,7 +13,8 @@ import {
 } from '../support/workspace';
 
 /**
- * XS-07 Help & support, connected (Appendix F WP-0.13 acceptance 2, 7; board 07), at the four
+ * XS-07 Help & support, connected (Appendix F WP-0.13 acceptance 2, 7; the owner-approved XS export's
+ * `XsHelp`, which keeps board 07's words), at the four
  * widths, on the dedicated test-hook build: the report form sends through the session's
  * OperationsService (the service validates); "Report sent" carries the reference the shared world
  * gave the report; My reports and the detail read it back — all by client-side navigation in ONE
@@ -62,7 +63,7 @@ test('the seven steps on one world: report, Sent with SUP reference, My reports,
   await sidebarHelp(page).click();
   await page.waitForURL('**/student/help');
   await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
-  await expect(page.locator('main.xr-page ul.xr-rows > li')).toHaveCount(1);
+  await expect(page.locator('main.xr-page ul.xs-reports > li')).toHaveCount(1);
 
   // 2. Submits a report (from the header's "Report a problem").
   await page.locator('main').getByRole('link', { name: 'Report a problem' }).click();
@@ -75,10 +76,10 @@ test('the seven steps on one world: report, Sent with SUP reference, My reports,
   // 3. The confirmation carries the SUP reference the world gave the report.
   const sent = page.getByRole('heading', { level: 1, name: 'Report sent' });
   await expect(sent).toBeVisible();
-  const reference = (await page.locator('main .xr-msg .xr-id').textContent())!;
+  const reference = (await page.locator('main .xs-msg .xs-msg-d b').textContent())!;
   expect(reference).toMatch(/^SUP-\d{4}$/);
   expect(reference).not.toBe('SUP-0213');
-  await expect(page.locator('main .xr-msg')).toBeFocused();
+  await expect(sent).toBeFocused();
   await expect(page).toHaveURL(`${TEST_HOOKS_URL}/student/help/report`);
   const afterSend = await worldIdentity(page);
   expect(afterSend.worldVersion).toBe(before.worldVersion + 1);
@@ -86,7 +87,7 @@ test('the seven steps on one world: report, Sent with SUP reference, My reports,
   // 4. Navigates to My reports. 5. The same report is there.
   await page.getByRole('link', { name: 'View my reports' }).click();
   await page.waitForURL('**/student/help');
-  const rows = page.locator('main.xr-page ul.xr-rows a.xr-row-link');
+  const rows = page.locator('main.xr-page ul.xs-reports a.xs-report');
   await expect(rows).toHaveCount(2);
   await expect(rows.first()).toContainText(reference);
   await expect(rows.first()).toContainText('My reports took a long time to appear');
@@ -98,12 +99,18 @@ test('the seven steps on one world: report, Sent with SUP reference, My reports,
   await expect(
     page.getByRole('heading', { level: 1, name: 'My reports took a long time to appear' }),
   ).toBeVisible();
-  await expect(page.locator('.xr-phead .xr-id')).toHaveText(reference);
-  const reported = page.getByRole('region', { name: 'What you reported' });
+  await expect(page.locator('.rk-head .rk-eyebrow')).toHaveText(reference);
+  const reported = page.locator('.rk-sec', {
+    has: page.getByRole('heading', { name: 'What you reported', exact: true }),
+  });
   await expect(reported).toContainText('My reports took a long time to appear.');
   await expect(reported).toContainText('Not found');
   await expect(reported).toContainText('No screenshot added');
-  await expect(page.getByRole('region', { name: 'History' }).getByRole('listitem')).toHaveCount(1);
+  await expect(
+    page
+      .locator('.rk-sec', { has: page.getByRole('heading', { name: 'History', exact: true }) })
+      .getByRole('listitem'),
+  ).toHaveCount(1);
   await expect(page.getByRole('button', { name: /reopen/i })).toHaveCount(0);
 
   // The same document, world instance, QueryClient and session throughout.
@@ -125,7 +132,7 @@ test('the seven steps on one world: report, Sent with SUP reference, My reports,
   ).toEqual({ local: 0, session: 0, cookie: '' });
 });
 
-test('validation: the service refuses an empty "What happened" with board 07’s words; nothing is written', async ({
+test('validation: the service refuses an empty "What happened" with the XS words; nothing is written', async ({
   page,
 }) => {
   await openAs(page, RAHUL.person, '/student/help/report');
@@ -161,7 +168,7 @@ test('the screenshot field keeps the file NAME only; nothing is uploaded', async
   });
   await reachAndClick(page, page.getByRole('button', { name: 'Send report' }));
   await expect(page.getByRole('heading', { level: 1, name: 'Report sent' })).toBeVisible();
-  const reference = (await page.locator('main .xr-msg .xr-id').textContent())!;
+  const reference = (await page.locator('main .xs-msg .xs-msg-d b').textContent())!;
   const read = await actAs<{ ok: boolean; value: { screenshotFileName: string | null } }>(
     page,
     RAHUL.person,
@@ -180,7 +187,7 @@ test('My reports holds only the signed-in person’s reports; another person’s
   page,
 }) => {
   await openAs(page, RAHUL.person, '/student/help');
-  await expect(page.locator('main.xr-page ul.xr-rows a.xr-row-link')).toHaveCount(1);
+  await expect(page.locator('main.xr-page ul.xs-reports a.xs-report')).toHaveCount(1);
   // Kavya's SUP-0207 exists in this world …
   const kavyas = await actAs<{ ok: boolean; value: { id: string }[] }>(
     page,
@@ -210,7 +217,7 @@ test('a receipt refreshes the open page; another person’s report never joins R
   page,
 }) => {
   await openAs(page, RAHUL.person, '/student/help');
-  const rows = page.locator('main.xr-page ul.xr-rows a.xr-row-link');
+  const rows = page.locator('main.xr-page ul.xs-reports a.xs-report');
   await expect(rows).toHaveCount(1);
   // Rahul, in a session of his own (as from another tab of the same world): his open My reports
   // refreshes from the receipt (`changed: SUP`) — no reload, no polling.
@@ -252,12 +259,16 @@ test('report detail states from the world: reopened (SUP-0207) and resolved with
 }) => {
   await openAs(page, roleEntry('content_manager').person, '/content-manager/help/reports/SUP-0207');
   await expect(page.getByText('This report is open again')).toBeVisible();
-  await expect(page.getByText('It was reopened on 6 Oct. You can follow it here.')).toBeVisible();
-  const history = page.getByRole('region', { name: 'History' }).getByRole('listitem');
+  await expect(
+    page.getByText('It was reopened on 6 Oct 2026. You can follow it here.'),
+  ).toBeVisible();
+  const history = page
+    .locator('.rk-sec', { has: page.getByRole('heading', { name: 'History', exact: true }) })
+    .getByRole('listitem');
   await expect(history).toHaveText([
-    /Reopened\s*6 Oct/,
-    /Resolved\s*30 Sep · “The preview now loads\. Please try again\.”/,
-    /Sent\s*28 Sep/,
+    /Reopened\s*6 Oct 2026/,
+    /Resolved\s*30 Sep 2026\s*“The preview now loads\. Please try again\.”/,
+    /Sent\s*28 Sep 2026/,
   ]);
   // Resolved by the Super Admin in this world: the Content Manager reads the note first.
   const current = await actAs<{ ok: boolean; value: { rev: number } }>(
@@ -280,11 +291,13 @@ test('report detail states from the world: reopened (SUP-0207) and resolved with
   });
   expect(resolved).toMatchObject({ ok: true });
   await expect(page.getByText(/^Resolution note · /)).toBeVisible();
-  await expect(page.locator('.xr-notice--ok')).toContainText(
+  await expect(page.locator('.rk-notice--ok')).toContainText(
     '“The preview loads again after the fix.”',
   );
   await expect(page.getByText('This report is open again')).toHaveCount(0);
-  await expect(history.first()).toHaveText(/Resolved\s*.* · resolution note added/);
+  await expect(history.first()).toHaveText(
+    /Resolved\s*\d+ \w+ 2026\s*“The preview loads again after the fix\.”/,
+  );
 });
 
 test.describe('the same Help template in all seven workspaces', () => {
@@ -295,7 +308,9 @@ test.describe('the same Help template in all seven workspaces', () => {
       await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
       await expect(page.getByRole('heading', { level: 2, name: 'My reports' })).toBeVisible();
       await expect(
-        page.getByText('Something isn’t working? Report it here and follow what happens.'),
+        page.getByText(
+          'Something isn’t working? Report it here and follow what happens to your report.',
+        ),
       ).toBeVisible();
       await expect(sidebarHelp(page)).toHaveAttribute('aria-current', 'page');
       await expect(page).toHaveTitle('Help & support · XR Learning Platform');

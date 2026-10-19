@@ -36,10 +36,10 @@ import {
 const SHELL = 'Shell-and-Tube Heat Exchanger';
 const THERMO = 'Thermodynamics & Heat Transfer';
 const ASSESSMENT = 'Heat Exchanger — post-lab';
-const ARJUN = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 const main = (page: Page) => page.locator('main');
 const h1 = (page: Page) => page.getByRole('heading', { level: 1 });
 
@@ -51,7 +51,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 

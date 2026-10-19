@@ -27,18 +27,18 @@ export const EMAIL = {
 } as const;
 
 export const ACCOUNT = {
-  arjun: 'Account menu: Arjun Mehta, Super Admin',
-  meera: 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology',
-  rahul: 'Account menu: Rahul Verma, Student, Godavari Institute of Technology',
-  ranganathan: 'Account menu: Dr S. Ranganathan, Faculty, Godavari Institute of Technology',
-  anil: 'Account menu: Anil Shetty, Vendor, Northline Simulation Studio',
-  menon: 'Account menu: Prof. A. Menon, Academic Reviewer',
-  kavya: 'Account menu: Kavya Nair, Content Manager',
+  arjun: 'Account menu, Arjun Mehta, Super Admin',
+  meera: 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology',
+  rahul: 'Account menu, Rahul Verma, Student, Godavari Institute of Technology',
+  ranganathan: 'Account menu, Dr S. Ranganathan, Faculty, Godavari Institute of Technology',
+  anil: 'Account menu, Anil Shetty, Vendor, Northline Simulation Studio',
+  menon: 'Account menu, Prof. A. Menon, Academic Reviewer',
+  kavya: 'Account menu, Kavya Nair, Content Manager',
 } as const;
 
 export const main = (page: Page) => page.locator('main');
 export const h1 = (page: Page) => page.getByRole('heading', { level: 1 });
-export const card = (page: Page) => page.locator('.xp-auth-card');
+export const card = (page: Page) => page.locator('.xs-card');
 export const button = (page: Page, name: string) =>
   main(page).getByRole('button', { name, exact: true });
 export const decision = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
@@ -55,7 +55,7 @@ export async function signIn(page: Page, email: string): Promise<void> {
 /** Signs out through the account menu (XS-05) to the signed-out card. */
 export async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
@@ -212,7 +212,7 @@ export async function addRahulWithShell(page: Page): Promise<void> {
 /** My device (ST-18), from the Student's account menu. */
 export async function myDevice(page: Page): Promise<void> {
   await page.getByRole('button', { name: ACCOUNT.rahul, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('link', { name: 'My device' }).click();
+  await page.locator('.xs-menu').getByRole('link', { name: 'My device' }).click();
   await page.waitForURL('**/student/device');
 }
 

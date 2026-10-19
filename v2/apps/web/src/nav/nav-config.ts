@@ -373,6 +373,18 @@ export const WORKSPACE_NAV: Readonly<Record<Role, WorkspaceNavConfig>> = {
   ]),
 };
 
+/**
+ * The name of a workspace's home, as its sidebar names it — "Home" for the Student, "Overview" for
+ * every other role — for "Back to Home" / "Back to Overview" (XS-06, XS-07; the XS export's
+ * `homeLabel`). The destination at the workspace's own base.
+ */
+export function homeLabelOf(role: Role): string {
+  const config = WORKSPACE_NAV[role];
+  const home = config.destinations.find((destination) => destination.href === config.base);
+  if (!home) throw new Error(`The ${role} workspace has no destination at its base.`);
+  return home.label;
+}
+
 /** "My device" in the Student's account menu (board 06 "Account menu"; ST-18, B3-07). */
 export const MY_DEVICE = {
   label: 'My device',

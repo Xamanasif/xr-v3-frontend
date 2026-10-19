@@ -43,12 +43,13 @@ async function setGodavari(page: Page, paused: boolean): Promise<void> {
 }
 
 async function expectBanner(page: Page, kind: 'paused' | 'inactive', help: string): Promise<void> {
-  const banner = page.locator('.xr-banner');
+  const banner = page.locator('.rk-banner');
   await expect(banner).toHaveCount(1);
   await expect(banner).toHaveAttribute('role', 'status');
   await expect(banner).toContainText(kind === 'paused' ? PAUSED : INACTIVE);
   await expect(banner.getByRole('link', { name: 'Help' })).toHaveAttribute('href', help);
-  // Board 04/05 colours: amber paused (#FBF3E0 on #12173F, #E8D3A3 rule), navy inactive (#0C1247).
+  // The XS export's look (`XsAccessNotice`): the IA-02 paused banner (#F1F2FA, navy, #CDD2EC), and
+  // its grey inactive variant (#F4F5F8, ink-2, #C5CAD8).
   const look = await banner.evaluate((element) => {
     const style = getComputedStyle(element);
     return {
@@ -59,13 +60,19 @@ async function expectBanner(page: Page, kind: 'paused' | 'inactive', help: strin
   });
   expect(look).toEqual(
     kind === 'paused'
-      ? { background: 'rgb(251, 243, 224)', color: 'rgb(18, 23, 63)', border: 'rgb(232, 211, 163)' }
-      : { background: 'rgb(12, 18, 71)', color: 'rgb(255, 255, 255)', border: 'rgb(12, 18, 71)' },
+      ? { background: 'rgb(241, 242, 250)', color: 'rgb(20, 27, 94)', border: 'rgb(205, 210, 236)' }
+      : {
+          background: 'rgb(244, 245, 248)',
+          color: 'rgb(54, 61, 98)',
+          border: 'rgb(197, 202, 216)',
+        },
   );
-  // Below the top bar, above the page, and never modal: nothing inert, no dialog.
+  // The first thing in the page column (XS: first child of main), and never modal: nothing inert,
+  // no dialog.
   expect(
     await banner.evaluate(
-      (element) => element.previousElementSibling?.matches('header.xr-top') ?? false,
+      (element) =>
+        element.parentElement?.matches('main#main > .rk-x-region--banner:first-child') ?? false,
     ),
   ).toBe(true);
   await expect(
@@ -80,7 +87,7 @@ for (const role of ['student', 'faculty', 'tenant_admin'] as const) {
   }) => {
     await openAs(page, entry.person, `${entry.base}/help`);
     await waitForShell(page);
-    await expect(page.locator('.xr-banner')).toHaveCount(0);
+    await expect(page.locator('.rk-banner')).toHaveCount(0);
     await setGodavari(page, true);
     await expectBanner(page, 'paused', `${entry.base}/help`);
     // The page stays usable under the banner (Faculty: the banner only, OD-B7-07).
@@ -89,23 +96,23 @@ for (const role of ['student', 'faculty', 'tenant_admin'] as const) {
     await expectBanner(page, 'paused', `${entry.base}/help`);
     await expectNoAxeViolations(page);
     await setGodavari(page, false);
-    await expect(page.locator('.xr-banner')).toHaveCount(0);
+    await expect(page.locator('.rk-banner')).toHaveCount(0);
   });
 }
 
 test('the banner’s Help is the person’s own Help, reached client-side', async ({ page }) => {
   await openAs(page, PAUSED_INSTITUTE_ADMIN, '/institute/zz-unknown');
   await expectBanner(page, 'paused', '/institute/help');
-  await page.locator('.xr-banner').getByRole('link', { name: 'Help' }).click();
+  await page.locator('.rk-banner').getByRole('link', { name: 'Help' }).click();
   await page.waitForURL('**/institute/help');
   await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
 });
 
-test('an inactive Student: the navy inactive banner, distinct from paused', async ({ page }) => {
+test('an inactive Student: the grey inactive banner, distinct from paused', async ({ page }) => {
   await openAs(page, INACTIVE_STUDENT, '/student/help');
   await waitForShell(page);
   await expectBanner(page, 'inactive', '/student/help');
-  await expect(page.locator('.xr-banner')).toHaveClass(/xr-dark/);
+  await expect(page.locator('.rk-banner')).toHaveClass(/xs-banner--inactive/);
   await expectNoAxeViolations(page);
 });
 
@@ -145,7 +152,7 @@ test('the platform roles never see an institution banner, even while Godavari is
     await waitForShell(tab);
     await setGodavari(tab, true);
     await expect(tab.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
-    await expect(tab.locator('.xr-banner')).toHaveCount(0);
+    await expect(tab.locator('.rk-banner')).toHaveCount(0);
     await tab.close();
   }
 });

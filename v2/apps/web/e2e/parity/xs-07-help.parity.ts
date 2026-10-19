@@ -218,7 +218,7 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     // The world has issued SUP-0213 on its walk, so this report is SUP-0214 on every run (DEV-11);
     // nothing is masked. One glyph is inside the whole message's ratio, so the reference chip is
     // also compared on its own, where the difference shows.
-    await expect(ours.locator('main .xr-msg .xr-id')).toHaveText('SUP-0214');
+    await expect(ours.locator('main .xs-msg-d b')).toHaveText('SUP-0214');
     await run(testInfo, [
       // Phase 4B: with every Student destination built the whole frame comes within tolerance —
       // DEV-11 (only Rahul and Kavya hold reports) is no longer observed in this frame.
@@ -240,7 +240,7 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
 
   test('State 2a · My reports · empty · Vendor (1280)', async ({ context }, testInfo) => {
     const ours = await open(context, 1280, ANIL, '/vendor/help');
-    await expect(ours.getByRole('heading', { name: 'No reports yet' })).toBeVisible();
+    await expect(ours.locator('main .rk-state-t')).toHaveText('No reports yet');
     const frame = frames.nth(5);
     await run(testInfo, [
       // Phase 5: the Vendor sidebar lists Overview and My experiments, as board 07 draws it.
@@ -258,7 +258,7 @@ test.describe('board 07 · XS-07 Help & support on the built screens', () => {
     context,
   }, testInfo) => {
     const ours = await open(context, 1280, KAVYA, '/content-manager/help/reports/SUP-0207');
-    await expect(ours.locator('.xr-phead .xr-id')).toHaveText('SUP-0207');
+    await expect(ours.locator('main').getByText('SUP-0207', { exact: true })).toBeVisible();
     const frame = frames.nth(7);
     const sections = (where: Locator | Page) => where.locator('main section.xr-section');
     await run(testInfo, [

@@ -12,6 +12,17 @@ const LOCAL_HOSTS = new Set(['127.0.0.1', 'localhost', '[::1]']);
 const CORS = { 'access-control-allow-origin': '*' };
 
 /**
+ * The V3 surfaces' Public Sans weight range (`wght@400..800`, ADR-0010; apps/web
+ * `features/shared/v3-fonts.tsx`), which the sign-in page and the workspaces link for the Entry &
+ * shared (XS) surfaces. No v46 comparison draws a weight above 700, and the v46 comparisons of the
+ * XS screens are retired (docs/v3/V3-COMPARISON-MAP.json), so the capture network answers this one
+ * stylesheet empty — recorded in the ledger as `v3-font-range` — instead of blocking it: the
+ * product pages keep exactly the vendored v46 font files.
+ */
+export const V3_FONT_RANGE_URL =
+  'https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&display=swap';
+
+/**
  * Routes every request of `context`. `responses` is `verifiedVendor().responses` (URL → bytes).
  * Returns the ledger the run report and the network test read: what was served from the vendor
  * folder, what was blocked, and every font file requested.
@@ -29,6 +40,15 @@ export async function installCaptureNetwork(context, responses) {
     if ((protocol === 'http:' || protocol === 'https:') && LOCAL_HOSTS.has(hostname)) {
       ledger.local += 1;
       await route.continue();
+      return;
+    }
+    if (url === V3_FONT_RANGE_URL) {
+      ledger.served.push('v3-font-range (empty)');
+      await route.fulfill({
+        status: 200,
+        headers: { 'content-type': 'text/css; charset=utf-8', ...CORS },
+        body: '',
+      });
       return;
     }
     const vendored = responses.get(url);

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Message page · XS-06 · XS-08</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="{{ f.root }}">
+  <div class="{{ f.main }}">
+    <div class="{{ f.page }}">
+      <section class="xs-msg" aria-labelledby="{{ ids.title }}">
+        <span class="{{ m.icoCls }}" aria-hidden="true">
+          <sc-if value="{{ m.isLock }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2.5"></path></svg></sc-if>
+          <sc-if value="{{ m.isPause }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></svg></sc-if>
+          <sc-if value="{{ m.isMinus }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg></sc-if>
+        </span>
+        <h1 class="rb-h1 xs-fit" id="{{ ids.title }}" tabindex="-1">{{ m.title }}</h1>
+        <p class="xs-msg-d">{{ m.body }}</p>
+        <div class="xs-msg-act">
+          <a class="rb-btn rb-btn--primary rb-btn--lg" href="#xs-main" id="{{ ids.primary }}" onClick="{{ primary }}">{{ m.action }}</a>
+          <a class="rb-link" href="#xs-main" onClick="{{ help }}">Help</a>
+        </div>
+        <sc-if value="{{ hasPicked }}" hint-placeholder-val="{{ false }}"><p class="rb-note" role="status">{{ picked }}</p></sc-if>
+      </section>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["notallowed","paused","inactive"],"default":"notallowed","section":"Message"},"workspace":{"editor":"enum","options":["Student","Faculty","Institute Admin","Vendor","Academic Reviewer","Content Manager","Super Admin"],"default":"Student","section":"Message"},"homeLabel":{"editor":"enum","options":["Home","Overview"],"default":"Home","section":"Message"},"embedded":{"editor":null},"idPrefix":{"editor":null},"onPrimary":{"editor":null},"onHelp":{"editor":null},"$preview":{"width":1024,"height":440}}'>
+class Component extends DCLogic {
+  // One template for refusals in a workspace: icon, the page's only H1, one sentence, one primary
+  // action named by its destination, and Help. No route names, codes or protected data (v46 board 08).
+  static get M() {
+    return {
+      notallowed: { ico: 'xs-msg-ico', lock: true, title: 'This page isn’t part of your workspace', body: ws => 'You’re signed in to the ' + ws + ' workspace. This address belongs to a different workspace.' },
+      paused: { ico: 'xs-msg-ico xs-msg-ico--paused', pause: true, title: 'Your institution’s access is paused', body: () => 'Your work is kept.' },
+      inactive: { ico: 'xs-msg-ico xs-msg-ico--off', minus: true, title: 'Your account is inactive', body: () => 'Nothing can be opened while the account is inactive. Contact your institution administrator.' }
+    };
+  }
+  state = { picked: '' };
+  renderVals() {
+    const P = this.props || {}, k = Component.M[P.kind] ? P.kind : 'notallowed', D = Component.M[k];
+    const pre = P.idPrefix || 'xs-msg', home = P.homeLabel || 'Home', spec = !P.embedded;
+    const say = (t) => this.setState({ picked: t });
+    return {
+      f: spec ? { root: 'xr rb', main: 'rb-main', page: 'rb-page' } : { root: 'xs-host', main: 'xs-host', page: 'xs-host' },
+      ids: { title: pre + '-title', primary: pre + '-primary' },
+      m: { icoCls: D.ico, isLock: !!D.lock, isPause: !!D.pause, isMinus: !!D.minus, title: D.title, body: D.body(P.workspace || 'Student'), action: 'Back to ' + home },
+      primary: (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); if (typeof P.onPrimary === 'function') P.onPrimary(); else say('Back to ' + home + ' opens the role’s home page. Try it in the live preview (Main).'); },
+      help: (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); if (typeof P.onHelp === 'function') P.onHelp(); else say('Help & support opens XS-07 in this workspace. Try it in the live preview (Main).'); },
+      picked: this.state.picked, hasPicked: !!this.state.picked
+    };
+  }
+}
+</script>
+</body>
+</html>

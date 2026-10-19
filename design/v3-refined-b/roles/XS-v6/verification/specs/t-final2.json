@@ -1,0 +1,23 @@
+[
+ {"name":"SA ids · account menu board","file":"XS05-SuperAdmin-1024.dc.html","width":1024,"height":900,"settle":1500,"checks":false,"steps":[{"eval":"/SUP-|REQ-|ACC-|UPD-|DTR-|SUB-/.test(document.body.innerText + \" \" + [...document.querySelectorAll(\"[aria-label],[title]\")].map(e=>(e.getAttribute(\"aria-label\")||\"\")+\" \"+(e.getAttribute(\"title\")||\"\")).join(\" \")) ? \"ID FOUND\" : \"no internal record IDs in text, aria-label or title\"","label":"scan"}]},
+ {"name":"SA ids · sent board -> list -> detail","file":"XS07-SuperAdmin-Sent-1024.dc.html","width":1024,"height":900,"settle":1500,"checks":false,"steps":[
+   {"eval":"/SUP-|REQ-|ACC-|UPD-|DTR-|SUB-/.test(document.body.innerText + \" \" + [...document.querySelectorAll(\"[aria-label],[title]\")].map(e=>(e.getAttribute(\"aria-label\")||\"\")+\" \"+(e.getAttribute(\"title\")||\"\")).join(\" \")) ? \"ID FOUND\" : \"no internal record IDs in text, aria-label or title\"","label":"scan sent"},
+   {"clickText":"View my reports","wait":500,"eval":"/SUP-|REQ-|ACC-|UPD-|DTR-|SUB-/.test(document.body.innerText + \" \" + [...document.querySelectorAll(\"[aria-label],[title]\")].map(e=>(e.getAttribute(\"aria-label\")||\"\")+\" \"+(e.getAttribute(\"title\")||\"\")).join(\" \")) ? \"ID FOUND\" : \"no internal record IDs in text, aria-label or title\"","label":"scan list"},
+   {"click":".xs-report","wait":500,"eval":"/SUP-|REQ-|ACC-|UPD-|DTR-|SUB-/.test(document.body.innerText + \" \" + [...document.querySelectorAll(\"[aria-label],[title]\")].map(e=>(e.getAttribute(\"aria-label\")||\"\")+\" \"+(e.getAttribute(\"title\")||\"\")).join(\" \")) ? \"ID FOUND\" : \"no internal record IDs in text, aria-label or title\"","label":"scan detail"}]},
+ {"name":"SA ids · not your workspace","file":"fx-k-arjun-notyours.dc.html","width":1440,"height":900,"settle":1500,"checks":false,"steps":[{"eval":"/SUP-|REQ-|ACC-|UPD-|DTR-|SUB-/.test(document.body.innerText + \" \" + [...document.querySelectorAll(\"[aria-label],[title]\")].map(e=>(e.getAttribute(\"aria-label\")||\"\")+\" \"+(e.getAttribute(\"title\")||\"\")).join(\" \")) ? \"ID FOUND\" : \"no internal record IDs in text, aria-label or title\"","label":"scan"},{"text":"#xs-main","label":"text"}]},
+ {"name":"SSO by keyboard + persistence across sign-out","file":"Main.dc.html","width":1024,"height":900,"settle":1300,"checks":false,"steps":[
+   {"press":"Tab"},{"press":"Tab","focus":true,"label":"on institution button"},
+   {"press":"Enter","wait":300,"focus":true,"label":"after Enter"},
+   {"fill":["#xs-signin-email","anil.shetty@northline.example"]},{"fill":["#xs-signin-pw","a"]},{"click":"#xs-signin-go","wait":1500},
+   {"role":"link","name":"Help & support","exact":true,"wait":500},
+   {"clickText":"Report a problem","wait":500},
+   {"fill":["#xs-help-what","My experiment list didn't show the draft I saved this morning."]},
+   {"click":"#xs-help-send","wait":1400},
+   {"click":"#xs-acct-btn","wait":300},{"click":"#xs-acct-out","wait":700,"focus":true,"label":"signed out focus"},
+   {"fill":["#xs-signin-email","anil.shetty@northline.example"]},{"fill":["#xs-signin-pw","a"]},{"click":"#xs-signin-go","wait":1500},
+   {"role":"link","name":"Help & support","exact":true,"wait":500,"text":".xs-reports","label":"Anil's list after signing in again"},
+   {"click":"#xs-acct-btn","wait":300},{"click":"#xs-acct-out","wait":700},
+   {"fill":["#xs-signin-email","kavya.nair@wilp.example"]},{"fill":["#xs-signin-pw","a"]},{"click":"#xs-signin-go","wait":1500},
+   {"role":"link","name":"Help & support","exact":true,"wait":500,"text":".xs-reports","label":"Kavya's list (must not show Anil's)"}
+ ]}
+]

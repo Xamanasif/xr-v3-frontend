@@ -35,11 +35,11 @@ import { expectSameDocument, markDocument, revealSidebar } from '../support/work
 
 const SHELL = 'Shell-and-Tube Heat Exchanger';
 const SHELL_ID = 'shell-and-tube-heat-exchanger';
-const ARJUN = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
-const RAHUL = 'Account menu: Rahul Verma, Student, Godavari Institute of Technology';
+const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const RAHUL = 'Account menu, Rahul Verma, Student, Godavari Institute of Technology';
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 const main = (page: Page) => page.locator('main');
 
 async function signIn(page: Page, email: string): Promise<void> {
@@ -50,7 +50,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
@@ -251,7 +251,7 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
 
   // 4. My device: Rahul's pre-authorised sample VR headset (P3-03), and the transfer request.
   await page.getByRole('button', { name: RAHUL, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('link', { name: 'My device' }).click();
+  await page.locator('.xs-menu').getByRole('link', { name: 'My device' }).click();
   await page.waitForURL('**/student/device');
   await expect(main(page)).toContainText('ME lab VR headset, asset tag GIT-VR-03');
   await expect(main(page)).not.toContainText('No authorised device is recorded for you yet.');

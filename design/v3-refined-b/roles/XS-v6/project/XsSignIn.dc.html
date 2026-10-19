@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in · XS-01 · XS-03 · XS-04</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="{{ f.root }}">
+  <div class="{{ f.page }}">
+    <sc-if value="{{ f.chrome }}" hint-placeholder-val="{{ true }}">
+      <header class="xs-entry-top">
+        <a class="xs-back" href="#{{ ids.title }}" onClick="{{ toCatalogue }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6 8.5 12l6 6"></path></svg>Back to experiments</a>
+      </header>
+    </sc-if>
+    <div class="{{ f.main }}" role="{{ f.mainRole }}">
+      <div class="xs-card">
+        <div class="xs-card-head">
+          <div class="xs-logo-box"><div class="rb-logo">Official WILP logo</div></div>
+          <p class="rb-product">XR Learning Platform</p>
+        </div>
+        <div class="xs-card-body">
+          <sc-if value="{{ hasHandoff }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--info" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01"></path></svg><p class="rk-notice-t">Opens outside this preview</p><p class="rk-notice-d">{{ handoff }}</p></div>
+          </sc-if>
+          <sc-if value="{{ isSignedOut }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--ok" id="{{ ids.note }}" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></svg><p class="rk-notice-t">You’re signed out</p></div>
+          </sc-if>
+          <sc-if value="{{ isExpired }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--info" id="{{ ids.note }}" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></svg><p class="rk-notice-t">Your session ended</p><p class="rk-notice-d">Sign in again to go back to where you were: <b>{{ returnLabel }}</b>.</p></div>
+          </sc-if>
+          <sc-if value="{{ isInvalid }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-errsum" id="{{ ids.alert }}" tabindex="-1" role="alert"><p class="rk-errsum-t">The e-mail or password isn’t right</p><p class="xs-errsum-d">Check both and try again.</p></div>
+          </sc-if>
+          <sc-if value="{{ hasErrs }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-errsum" id="{{ ids.errsum }}" tabindex="-1" role="alert"><p class="rk-errsum-t">Check your sign-in details</p><ul><sc-for list="{{ errList }}" as="er" hint-placeholder-count="1"><li><a href="{{ er.href }}" onClick="{{ er.go }}">{{ er.t }}</a></li></sc-for></ul></div>
+          </sc-if>
+
+          <h1 class="rb-h1 xs-fit" id="{{ ids.title }}" tabindex="-1">Sign in</h1>
+
+          <sc-if value="{{ ssoIdle }}" hint-placeholder-val="{{ true }}">
+            <button type="button" class="rb-btn rb-btn--lg xs-block xs-sso" id="{{ ids.sso }}" onClick="{{ sso }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18"></path></svg>Sign in with your institution</button>
+          </sc-if>
+          <sc-if value="{{ ssoBusy }}" hint-placeholder-val="{{ false }}">
+            <button type="button" class="rb-btn rb-btn--lg xs-block xs-sso xs-busy" aria-disabled="true"><span class="xs-spin" aria-hidden="true"></span>Opening your institution’s sign-in…</button>
+          </sc-if>
+          <sc-if value="{{ ssoOff }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--info" id="{{ ids.ssoNote }}" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9.5 12 4l9 5.5M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20.5h18"></path></svg><p class="rk-notice-t">Institution sign-in isn’t available right now</p><p class="rk-notice-d">Sign in with your e-mail and password instead.</p></div>
+          </sc-if>
+          <sc-if value="{{ showOr }}" hint-placeholder-val="{{ true }}"><p class="xs-or">or sign in with e-mail</p></sc-if>
+
+          <form class="xs-form" novalidate="" onSubmit="{{ submit }}">
+            <div class="rk-field">
+              <label class="rk-label" for="{{ ids.email }}">E-mail</label>
+              <sc-if value="{{ he.email }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ ids.emailErr }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>{{ e.email }}</p></sc-if>
+              <input class="rk-input" id="{{ ids.email }}" name="email" type="email" autocomplete="username" inputmode="email" spellcheck="false" value="{{ email }}" onChange="{{ onEmail }}" aria-invalid="{{ emailInvalid }}" aria-describedby="{{ emailDesc }}">
+            </div>
+            <div class="xs-field-row">
+              <div class="rk-field">
+                <label class="rk-label" for="{{ ids.pw }}">Password</label>
+                <sc-if value="{{ he.pw }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ ids.pwErr }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>{{ e.pw }}</p></sc-if>
+                <div class="xs-pw">
+                  <input class="rk-input" id="{{ ids.pw }}" name="password" type="{{ pwType }}" autocomplete="current-password" value="{{ pw }}" onChange="{{ onPw }}" aria-invalid="{{ pwInvalid }}" aria-describedby="{{ pwDesc }}">
+                  <button type="button" class="xs-pw-toggle" aria-controls="{{ ids.pw }}" onClick="{{ toggleShow }}">{{ showLabel }}<span class="xr-sr"> password</span></button>
+                </div>
+              </div>
+              <button type="button" class="xs-linkbtn" aria-expanded="{{ forgotExp }}" aria-controls="{{ ids.forgot }}" onClick="{{ toggleForgot }}">Forgot your password?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+              <sc-if value="{{ forgot }}" hint-placeholder-val="{{ false }}"><p class="xs-disclose" id="{{ ids.forgot }}">Contact your institution administrator to reset it.</p></sc-if>
+            </div>
+            <button type="submit" class="{{ submitCls }}" id="{{ ids.go }}" aria-disabled="{{ busyAttr }}"><sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span class="xs-spin" aria-hidden="true"></span>Signing in…</sc-if><sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}">Sign in</sc-if></button>
+            <p class="xs-live" role="status">{{ live }}</p>
+          </form>
+
+          <div class="xs-trouble">
+            <button type="button" class="xs-linkbtn" aria-expanded="{{ firstExp }}" aria-controls="{{ ids.first }}" onClick="{{ toggleFirst }}">First time signing in?<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+            <sc-if value="{{ first }}" hint-placeholder-val="{{ false }}"><p class="xs-disclose" id="{{ ids.first }}">Contact your institution administrator to find out how to sign in for the first time.</p></sc-if>
+          </div>
+        </div>
+        <div class="xs-card-foot">Need access for your institution? <a class="rb-link" href="#{{ ids.title }}" onClick="{{ toRequest }}">Request institutional access</a></div>
+      </div>
+      <sc-if value="{{ showProto }}" hint-placeholder-val="{{ true }}">
+        <p class="xs-proto"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01"></path></svg><span><b>Prototype sign-in.</b> Real accounts, password checks and institution single sign-on aren’t connected in this build. Sample accounts open with any password.</span></p>
+      </sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"mode":{"editor":"enum","options":["normal","signedout","expired"],"default":"normal","section":"State"},"preset":{"editor":"enum","options":["","validation","invalid","busy","ssooff","ssobusy","forgot","filled"],"default":"","section":"State"},"returnLabel":{"editor":"text","default":"My courses › Shell-and-Tube Heat Exchanger","section":"State"},"prototypeNote":{"editor":"boolean","default":true,"section":"State"},"bare":{"editor":null},"embedded":{"editor":null},"idPrefix":{"editor":null},"autofocus":{"editor":null},"onSignIn":{"editor":null},"onPublic":{"editor":null},"$preview":{"width":1024,"height":940}}'>
+class Component extends DCLogic {
+  // XS-01 Sign in · XS-03 Signed out / session expired · XS-04 Forgot password / first time (links only).
+  // The sign-in decision belongs to the host: onSignIn(email) returns true for a known account. With no
+  // host (this artboard alone) nothing is known, so every attempt reads “isn’t right”, as in v46 B1-09.
+  // No sign-up, no sample-user chooser, no role chooser, no reset tokens, no invitation e-mail.
+  state = { touched: false };
+
+  base() {
+    const P = this.props || {};
+    const s = { email: P.email || '', pw: '', show: false, errs: {}, busy: false, sso: 'idle', forgot: false, first: false, alert: '', live: '', handoff: '' };
+    switch (P.preset) {
+      case 'validation': return Object.assign(s, { errs: { email: 'Enter your e-mail address', pw: 'Enter your password' } });
+      case 'invalid': return Object.assign(s, { email: 'meera.iyer@godavari.edu', alert: 'invalid' });
+      case 'busy': return Object.assign(s, { email: 'meera.iyer@godavari.edu.in', pw: 'xxxxxxxxxx', busy: true });
+      case 'ssooff': return Object.assign(s, { sso: 'off' });
+      case 'ssobusy': return Object.assign(s, { sso: 'busy' });
+      case 'forgot': return Object.assign(s, { forgot: true, first: true });
+      case 'filled': return Object.assign(s, { email: 'rahul.verma@godavari.edu.in', pw: 'xxxxxxxxxx' });
+      default: return s;
+    }
+  }
+  cur() { return this.state.touched ? this.state : Object.assign({}, this.base(), { touched: false }); }
+  set(patch) { this.setState(Object.assign({}, this.cur(), patch, { touched: true })); }
+  ids() {
+    const p = (this.props && this.props.idPrefix) || 'xs-signin';
+    return { title: p + '-title', note: p + '-note', alert: p + '-alert', errsum: p + '-errs', sso: p + '-sso', ssoNote: p + '-sso-note',
+      email: p + '-email', emailErr: p + '-email-err', pw: p + '-pw', pwErr: p + '-pw-err', forgot: p + '-forgot', first: p + '-first', go: p + '-go' };
+  }
+  focusLater(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) el.focus(); }, 60); }
+  componentDidMount() {
+    this.alive = true;
+    const P = this.props || {};
+    if (!P.autofocus) return;
+    const I = this.ids();
+    this.focusLater(P.mode === 'signedout' || P.mode === 'expired' ? I.note : I.title);
+  }
+  componentWillUnmount() { this.alive = false; }
+
+  renderVals() {
+    const P = this.props || {}, s = this.cur(), I = this.ids();
+    const bare = !!P.bare, spec = !P.embedded && !bare;
+    const mode = ['signedout', 'expired'].indexOf(P.mode) >= 0 ? P.mode : 'normal';
+    const e = s.errs || {};
+    const order = ['email', 'pw'];
+    const errList = order.filter(k => e[k]).map(k => ({ t: e[k], href: '#' + I[k], go: (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); const el = document.getElementById(I[k]); if (el) el.focus(); } }));
+    const pub = (target, text) => (ev) => {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      if (typeof P.onPublic === 'function') { P.onPublic(target); return; }
+      this.set({ handoff: text });
+    };
+    const submit = (ev) => {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      const c = this.cur();
+      if (c.busy) return;
+      const em = String(c.email || '').trim(), ne = {};
+      if (!em) ne.email = 'Enter your e-mail address';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) ne.email = 'Enter an e-mail address like name@institution.edu';
+      if (!c.pw) ne.pw = 'Enter your password';
+      if (Object.keys(ne).length) { this.set({ errs: ne, alert: '', live: '' }); this.focusLater(I.errsum); return; }
+      this.set({ busy: true, errs: {}, alert: '', live: 'Signing in' });
+      window.setTimeout(() => {
+        if (!this.alive) return;
+        const ok = typeof P.onSignIn === 'function' ? !!P.onSignIn(em) : false;
+        if (ok) return;
+        this.set({ busy: false, alert: 'invalid', pw: '', live: '' });
+        this.focusLater(I.alert);
+      }, 900);
+    };
+    return {
+      f: {
+        root: spec ? 'xr rb' : 'xs-host',
+        page: bare ? 'xs-host' : 'xs-entry',
+        chrome: !bare,
+        main: bare ? 'xs-host' : 'xs-entry-main',
+        mainRole: bare ? undefined : 'main'
+      },
+      ids: I, returnLabel: P.returnLabel || 'My courses › Shell-and-Tube Heat Exchanger',
+      isSignedOut: mode === 'signedout', isExpired: mode === 'expired', isInvalid: s.alert === 'invalid',
+      hasErrs: errList.length > 0, errList,
+      he: { email: !!e.email, pw: !!e.pw }, e: { email: e.email || '', pw: e.pw || '' },
+      email: s.email, pw: s.pw,
+      emailInvalid: e.email ? 'true' : 'false', pwInvalid: e.pw ? 'true' : 'false',
+      emailDesc: e.email ? I.emailErr : undefined, pwDesc: e.pw ? I.pwErr : undefined,
+      onEmail: (ev) => { const c = this.cur(), ne = Object.assign({}, c.errs); delete ne.email; this.set({ email: ev.target.value, errs: ne }); },
+      onPw: (ev) => { const c = this.cur(), ne = Object.assign({}, c.errs); delete ne.pw; this.set({ pw: ev.target.value, errs: ne }); },
+      pwType: s.show ? 'text' : 'password', showLabel: s.show ? 'Hide' : 'Show',
+      toggleShow: () => this.set({ show: !this.cur().show }),
+      ssoIdle: s.sso === 'idle', ssoBusy: s.sso === 'busy', ssoOff: s.sso === 'off', showOr: s.sso !== 'off',
+      sso: () => { this.set({ sso: 'off' }); this.focusLater(I.ssoNote); },
+      forgot: !!s.forgot, forgotExp: s.forgot ? 'true' : 'false', toggleForgot: () => this.set({ forgot: !this.cur().forgot }),
+      first: !!s.first, firstExp: s.first ? 'true' : 'false', toggleFirst: () => this.set({ first: !this.cur().first }),
+      busy: !!s.busy, idle: !s.busy, busyAttr: s.busy ? 'true' : undefined,
+      submitCls: 'rb-btn rb-btn--primary rb-btn--lg xs-block' + (s.busy ? ' xs-busy' : ''),
+      live: s.live || '', submit,
+      toCatalogue: pub('catalogue', 'Back to experiments opens the public catalogue (PU-04), designed by the Public workstream.'),
+      toRequest: pub('request', 'Request institutional access opens the public request form (PU-08), designed by the Public workstream.'),
+      handoff: s.handoff || '', hasHandoff: !!s.handoff,
+      showProto: !bare && P.prototypeNote !== false
+    };
+  }
+}
+</script>
+</body>
+</html>

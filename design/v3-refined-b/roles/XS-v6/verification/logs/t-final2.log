@@ -1,0 +1,22 @@
+### SA ids · account menu board @1024
+scan: no internal record IDs in text, aria-label or title
+console clean
+
+### SA ids · sent board -> list -> detail @1024
+scan sent: no internal record IDs in text, aria-label or title
+scan list: no internal record IDs in text, aria-label or title
+scan detail: no internal record IDs in text, aria-label or title
+console clean
+
+### SA ids · not your workspace @1440
+scan: no internal record IDs in text, aria-label or title
+text: This page isn’t part of your workspace You’re signed in to the Super Admin workspace. This address belongs to a different workspace. Back to Overview Help
+console clean
+
+### SSO by keyboard + persistence across sign-out @1024
+on institution button: button#xs-signin-sso.rb-btn.rb-btn--lg "Sign in with your institution" [focus-visible]
+after Enter: div#xs-signin-sso-note.rk-notice.rk-notice--info "Institution sign-in isn’t available right nowSign in with your e-mail " [focus-visible]
+signed out focus: div#xs-signin-note.rk-notice.rk-notice--ok "You’re signed out"
+Anil's list after signing in again: My experiment list didn't show the draft I saved this morning SUP-0214 · Sent 23 Oct 2026 Open
+Kavya's list (must not show Anil's): Delivery link preview showed an empty frame SUP-0207 · Sent 28 Sep 2026 · Reopened 6 Oct 2026 Reopened
+console clean

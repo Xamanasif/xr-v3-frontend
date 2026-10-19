@@ -354,16 +354,16 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     board: '06 (Student raw[]); B2-11 f0, B2-12 f0 (`aria-current="page"`)',
     note: 'Progress (ST-15) renders since Phase 3; Assessments (ST-11) is not rendered until Phase 4 (DEV-21).',
   },
-  // ---- XS-05 Account menu (boards 05, 06) ------------------------------------------------------
+  // ---- XS-05 Account menu (XS export, design/v3-refined-b/roles/XS-v6) --------------------------
   {
     screen: 'XS-05',
     where: 'Account menu',
-    action: 'Help',
+    action: 'Help & support',
     role: 'secondary',
     on: ANY_PAGE,
     target: '<base>/help',
     outcome: 'built',
-    board: '06 "Account menu · same pattern in every workspace"',
+    board: 'XS-v6 LINK-MAP “Help & support” (XsAccountMenu); 06 "Account menu"',
   },
   {
     screen: 'XS-05',
@@ -373,7 +373,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: ANY_PAGE,
     target: '/sign-in?reason=signed-out',
     outcome: 'built',
-    board: '06 "Account menu"; B1-09 f10 "Signed out" (XS-03)',
+    board: 'XS-v6 LINK-MAP “Sign out” → XS-03 “You’re signed out”; 06 "Account menu"',
     note: 'A SessionService.signOut command; the session gate then replaces the address with the sign-in card’s “You’re signed out” notice (XS-03, built in Package 1A). A client-side move: the tab’s sample world is kept (ADR-0004).',
   },
   {
@@ -384,10 +384,10 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '/student/*',
     target: '/student/device',
     outcome: 'built',
-    board: '06 "Account menu" (My device*); B3-07 f1, f2',
+    board: 'XS-v6 LINK-MAP “My device” → ST-18; B3-07 f1, f2',
     note: 'ST-18 (Phase 3): offered only to a Student given an AR, VR or MR format (B3-07 f2 “Entry hidden”); never a disabled item.',
   },
-  // ---- XS-08 Paused / inactive banners (boards 05, 08) ----------------------------------------
+  // ---- XS-08 Paused / inactive banners (XS export, XsStatusBanner) -----------------------------
   {
     screen: 'XS-08',
     where: 'Paused and inactive banners',
@@ -396,9 +396,9 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: ANY_PAGE,
     target: '<base>/help',
     outcome: 'built',
-    board: '05 (banner states); 04 "Paused · shell banner" / "Inactive"',
+    board: 'XS-v6 LINK-MAP “Help” → XS-07 (XsStatusBanner paused / inactive)',
   },
-  // ---- XS-06 Not your workspace (board 08) -----------------------------------------------------
+  // ---- XS-06 Not your workspace (XS export, XsMessagePage not-allowed) --------------------------
   {
     screen: 'XS-06',
     where: 'Message page, in the person’s own shell',
@@ -407,8 +407,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<other-base>/*',
     target: '<base>',
     outcome: 'interim-landing',
-    board: '08 "This page isn’t part of your workspace"; "At 375 px"',
-    note: 'The person’s own base; until their home is built it lands on their Help (ADR-0005 §8). The Super Admin’s home is built since Package 1D: SA-01 Overview.',
+    board: 'XS-v6 LINK-MAP “Back to Home / Back to Overview” (the label is the home’s own name)',
+    note: 'The person’s own base, labelled with its home destination (“Back to Overview” in the Super Admin’s, Faculty’s and Vendor’s workspaces); until a home is built it lands on their Help (ADR-0005 §8).',
   },
   {
     screen: 'XS-06',
@@ -418,7 +418,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<other-base>/*',
     target: '<base>/help',
     outcome: 'built',
-    board: '08 "This page isn’t part of your workspace"',
+    board: 'XS-v6 LINK-MAP “Help” (Where: Not your workspace)',
   },
   // ---- PU-15 Not found (board 08) ----------------------------------------------------------------
   {
@@ -453,16 +453,16 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     board: '08 "Page not found · public"',
     note: 'The Phase-0 dead link (P0-35) is gone: /experiments is PU-04, built in Phase-1 Package 1B; the page now sits in the public header and footer.',
   },
-  // ---- XS-07 Help & support (board 07) -----------------------------------------------------------
+  // ---- XS-07 Help & support (XS export, XsHelpSupport) ------------------------------------------
   {
     screen: 'XS-07',
-    where: 'My reports — page header (with reports) or empty state (none)',
+    where: 'My reports — page head (with reports) or empty state (none)',
     action: 'Report a problem',
     role: 'primary',
     on: '<base>/help',
     target: '<base>/help/report',
     outcome: 'built',
-    board: '07 "State 2 · My reports"; "State 2a · empty" (the action moves into the empty state)',
+    board: 'XS-v6 LINK-MAP “Report a problem (page head)” / “(in the empty state)”',
   },
   {
     screen: 'XS-07',
@@ -472,27 +472,17 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<base>/help',
     target: '<base>/help/reports/{id}',
     outcome: 'built',
-    board: '07 "State 2": "Rows open the report"',
+    board: 'XS-v6 LINK-MAP “Report row (title, reference, dates, status)”',
   },
   {
     screen: 'XS-07',
-    where: 'Report a problem — back link',
+    where: 'Report a problem — breadcrumb (in the page, every width)',
     action: 'Help & support',
     role: 'secondary',
     on: '<base>/help/report',
     target: '<base>/help',
     outcome: 'built',
-    board: '07 "State 1 · Report a problem"',
-  },
-  {
-    screen: 'XS-07',
-    where: 'Report a problem — top-bar crumb (from 1024 px)',
-    action: 'Help & support',
-    role: 'secondary',
-    on: '<base>/help/report',
-    target: '<base>/help',
-    outcome: 'built',
-    board: '07 "State 1" (`ol.xr-crumbs`)',
+    board: 'XS-v6 LINK-MAP “Help & support (breadcrumb)”',
   },
   {
     screen: 'XS-07',
@@ -502,7 +492,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<base>/help/report',
     target: '#<field>',
     outcome: 'in-page',
-    board: '07 "State 1a · Validation"',
+    board: 'XS-v6 LINK-MAP “Say what happened (error summary)”',
   },
   {
     screen: 'XS-07',
@@ -512,7 +502,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<base>/help/report',
     target: '<base>/help',
     outcome: 'built',
-    board: '07 "State 1"; 11 "375 · AR-8 form"',
+    board: 'XS-v6 LINK-MAP “Cancel” → My reports',
   },
   {
     screen: 'XS-07',
@@ -522,7 +512,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<base>/help/report',
     target: null,
     outcome: 'in-page',
-    board: '07 "State 1b · Sending", "State 1c · Sent · reference"',
+    board: 'XS-v6 LINK-MAP “Send report” → Report sent',
     note: 'An OperationsService.reportProblem command; "Report sent" replaces the form in place.',
   },
   {
@@ -533,7 +523,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<base>/help/report',
     target: '<base>/help',
     outcome: 'built',
-    board: '07 "State 1c · Sent · reference"',
+    board: 'XS-v6 LINK-MAP “View my reports”',
   },
   {
     screen: 'XS-07',
@@ -543,40 +533,30 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '<base>/help/report',
     target: '<base>',
     outcome: 'interim-landing',
-    board: '07 "State 1c · Sent · reference"',
+    board: 'XS-v6 LINK-MAP “Back to Home / Back to Overview” (the home’s own name)',
     note: 'Lands on My reports until the workspace home is built (ADR-0005 §8); in the Super Admin’s workspace, SA-01 Overview (Package 1D).',
   },
   {
     screen: 'XS-07',
-    where: 'Report detail — back link',
+    where: 'Report detail — breadcrumb (in the page, every width)',
     action: 'Help & support',
     role: 'secondary',
     on: '<base>/help/reports/{id}',
     target: '<base>/help',
     outcome: 'built',
-    board: '07 "State 3 · Report detail"; "State 3a"',
+    board: 'XS-v6 LINK-MAP “Help & support (breadcrumb)”',
   },
   {
     screen: 'XS-07',
-    where: 'Report detail — top-bar crumb (from 1024 px)',
-    action: 'Help & support',
-    role: 'secondary',
-    on: '<base>/help/reports/{id}',
-    target: '<base>/help',
-    outcome: 'built',
-    board: '07 "State 3" (`ol.xr-crumbs`)',
-  },
-  {
-    screen: 'XS-07',
-    where: 'Report detail — closing line',
+    where: 'Report detail — foot',
     action: 'Report a problem',
     role: 'secondary',
     on: '<base>/help/reports/{id}',
     target: '<base>/help/report',
     outcome: 'built',
-    board: '07 "State 3": "Something else isn’t working? Report a problem"',
+    board: 'XS-v6 LINK-MAP “Report a problem (foot)”',
   },
-  // ---- XS-01 Sign in, XS-03 notices, XS-04 disclosure (B1-09) — Package 1A ----------------------
+  // ---- XS-01 Sign in, XS-03 notices, XS-04 disclosures (XS export, XsSignIn) -------------------
   {
     screen: 'XS-01',
     where: 'Sign in with e-mail (the card’s form)',
@@ -585,7 +565,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '/sign-in',
     target: null,
     outcome: 'in-page',
-    board: 'B1-09 f0 … f4, f11, f12',
+    board: 'XS-v6 LINK-MAP “Sign in (submit; Enter in a field)”; B1-09 f0 … f4, f11, f12',
     note: 'A SessionService.signIn command. Accepted, the person goes to the validated return address in their own workspace, else their role’s base (the interim landing: their Help until the home is built, P0-35).',
   },
   {
@@ -596,7 +576,8 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '/sign-in',
     target: null,
     outcome: 'in-page',
-    board: 'B1-09 f0, f5 “Institution sign-in starting”, f6 “Institution sign-in unavailable”',
+    board:
+      'XS-v6 LINK-MAP “Sign in with your institution” → “Institution sign-in isn’t available right now”',
     note: 'A SessionService.signIn command (method sso): policy-open T-10, so the card shows f6 in place of the button.',
   },
   {
@@ -607,7 +588,7 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '/sign-in',
     target: null,
     outcome: 'in-page',
-    board: 'B1-09 f0 (`div.xp-pw` button “Show” / “Hide” + “password”)',
+    board: 'XS-v6 LINK-MAP “Show password / Hide password” (`div.xs-pw`)',
   },
   {
     screen: 'XS-01',
@@ -617,31 +598,42 @@ export const LINK_TARGET_LEDGER: readonly LedgerEntry[] = [
     on: '/sign-in',
     target: null,
     outcome: 'in-page',
-    board:
-      'B1-09 f0 (disclosure, `aria-expanded`; “Contact your institution administrator to reset it.”)',
+    board: 'XS-v6 LINK-MAP “Forgot your password?” (disclosure, `aria-expanded`)',
     note: 'A disclosure only: activation and recovery are OPEN (T-11 / R02), so it links nowhere.',
   },
   {
     screen: 'XS-01',
-    where: 'Top row of the focused frame',
-    action: 'Back to experiments',
+    where: 'Under the form (XS-04)',
+    action: 'First time signing in?',
     role: 'secondary',
     on: '/sign-in',
-    target: '/',
-    outcome: 'built',
-    board: 'B1-09 f0 (`a.xr-back` → B1-01 Landing; P1-17 follows the href)',
-    note: 'Rendered since Package 1B built the Landing (PU-01).',
+    target: null,
+    outcome: 'in-page',
+    board: 'XS-v6 LINK-MAP “First time signing in?” (disclosure, `aria-expanded`)',
+    note: 'A disclosure only: activation is OPEN (T-11 / R02), so it names who can help and links nowhere.',
   },
   {
     screen: 'XS-01',
-    where: 'Under the card',
+    where: 'Top row of the entry page',
+    action: 'Back to experiments',
+    role: 'secondary',
+    on: '/sign-in',
+    target: '/experiments',
+    outcome: 'built',
+    board:
+      'XS-v6 LINK-MAP “Back to experiments” → PU-04 Catalogue (`a.xs-back`; P1-17 follows the href)',
+    note: 'B1-09 sent it to the Landing; the XS export sends it to the public catalogue.',
+  },
+  {
+    screen: 'XS-01',
+    where: 'The card’s foot',
     action: 'Request institutional access',
     role: 'secondary',
     on: '/sign-in',
-    target: '/selection',
+    target: '/request-access',
     outcome: 'built',
-    board: 'B1-09 f0 (`div.xp-auth-links` → B1-06 Selection)',
-    note: 'Rendered since Package 1C built Your selection (PU-07).',
+    board: 'XS-v6 LINK-MAP “Request institutional access” → PU-08',
+    note: 'PU-08 sends a visitor with nothing selected to Your selection first (P1-03, Package 1C).',
   },
   // ---- SA-02 Requests (B1-10) — Package 1A ------------------------------------------------------------
   {

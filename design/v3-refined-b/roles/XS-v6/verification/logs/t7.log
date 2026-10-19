@@ -1,0 +1,4 @@
+### J7 drawer 375 again @375
+after scrim click: button#xs-menu-btn.rb-menu "Menu"
+drawer count: 0
+console clean

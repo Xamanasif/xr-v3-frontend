@@ -265,7 +265,7 @@ test('SA-07 Assign: both errors at once, then assigned; the Institute Admin’s 
   await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
   await expect(
     page.getByRole('button', {
-      name: 'Account menu: N. Joshi, Institute Admin, Sahyadri Institute of Engineering',
+      name: 'Account menu, N. Joshi, Institute Admin, Sahyadri Institute of Engineering',
       exact: true,
     }),
   ).toBeAttached();
@@ -309,7 +309,7 @@ test('SA-07 Pause, then Restore: a reason each time; its people see the paused b
       '/institute/help',
     );
   });
-  await expect(page.locator('.xr-banner')).toContainText(
+  await expect(page.locator('.rk-banner')).toContainText(
     'Your institution’s access is paused — your work is kept.',
   );
   // Back to the Super Admin: Restore.

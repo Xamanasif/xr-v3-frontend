@@ -3,6 +3,7 @@ import {
   CANVAS_CLASS_PATTERNS,
   CANVAS_TERMS,
   DEVELOPER_SURFACE_TERMS,
+  RECORDED_DOM_TERM_EXCEPTIONS,
 } from '@xr/config/policy-terms';
 
 export interface DeveloperSurfaceFinding {
@@ -63,7 +64,11 @@ export async function expectNoDeveloperSurfaces(page: Page): Promise<void> {
   const findings: DeveloperSurfaceFinding[] = [];
   for (const term of [...DEVELOPER_SURFACE_TERMS, ...CANVAS_TERMS]) {
     if (!term.scope.includes('dom')) continue;
-    for (const text of rendered.texts) {
+    // A recorded exception is one exact sentence for one term (`RECORDED_DOM_TERM_EXCEPTIONS`).
+    const allowed = RECORDED_DOM_TERM_EXCEPTIONS.filter((exception) => exception.term === term.id);
+    for (const text of rendered.texts.map((candidate) =>
+      allowed.reduce((rest, exception) => rest.split(exception.text).join(' '), candidate),
+    )) {
       const match = term.pattern.exec(text);
       if (match) {
         findings.push({

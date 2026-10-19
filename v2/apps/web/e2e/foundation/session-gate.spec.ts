@@ -24,7 +24,7 @@ test.describe('product build: nobody is ever signed in (no test hooks)', () => {
       await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
       await expect(page).toHaveTitle('Sign in · XR Learning Platform');
       // No notice: a visit without a session is not "session expired" (no expiry policy, P1-19).
-      await expect(page.locator('.xp-auth-card .xr-notice')).toHaveCount(0);
+      await expect(page.locator('.xs-entry .rk-notice')).toHaveCount(0);
       await expect(page.locator('aside, .xr-acct')).toHaveCount(0);
     });
   }

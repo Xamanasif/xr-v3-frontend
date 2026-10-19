@@ -29,16 +29,19 @@ export interface NoticeProps {
   readonly role?: 'status' | 'alert';
   /** For a notice that takes focus after an action (`tabIndex={-1}`). */
   readonly ref?: Ref<HTMLDivElement>;
+  /** The notice's id: a focus target after an action (`tabIndex={-1}` with it). */
+  readonly id?: string;
 }
 
 /** A notice (`div.rk-notice`): icon, title, description and actions. */
-export function Notice({ tone, title, children, actions, icon, role, ref }: NoticeProps) {
+export function Notice({ tone, title, children, actions, icon, role, ref, id }: NoticeProps) {
   return (
     <div
       ref={ref}
+      id={id}
       className={`rk-notice rk-notice--${tone}`}
       role={role}
-      tabIndex={ref ? -1 : undefined}
+      tabIndex={ref || id ? -1 : undefined}
     >
       <Glyph name={icon ?? NOTICE_ICON[tone]} />
       <p className="rk-notice-t">{title}</p>
@@ -53,14 +56,25 @@ export interface BannerProps {
   readonly children: ReactNode;
   /** A link at the end ("Help"). */
   readonly action?: ReactNode;
+  /**
+   * `paused` (the IA-02 banner) or `inactive` (the XS-08 neutral variant, `xs-banner--inactive`:
+   * an inactive account), with its own icon unless `icon` is given.
+   */
+  readonly tone?: 'paused' | 'inactive';
   readonly icon?: V3IconName;
 }
 
-/** The page banner (`div.rk-banner[role=status]`): a paused institution (IA-02). */
-export function Banner({ children, action, icon = 'pauseCircle' }: BannerProps) {
+/**
+ * The page banner (`div.rk-banner[role=status]`): a paused institution (IA-02; XS-08), or an
+ * inactive account in the grey XS variant. Display only: it never grants or hides anything.
+ */
+export function Banner({ children, action, tone = 'paused', icon }: BannerProps) {
   return (
-    <div className="rk-banner" role="status">
-      <Glyph name={icon} />
+    <div
+      className={tone === 'inactive' ? 'rk-banner xs-banner--inactive' : 'rk-banner'}
+      role="status"
+    >
+      <Glyph name={icon ?? (tone === 'inactive' ? 'ended' : 'pauseCircle')} />
       <p>{children}</p>
       {action}
     </div>

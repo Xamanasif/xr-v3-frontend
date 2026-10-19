@@ -283,8 +283,8 @@ describe('IA-01 — the status line, actions and attention rows are the port’s
       'href',
       '/institute/help',
     );
-    // The shell's paused banner (Batch 0) is the frame's.
-    expect(document.querySelector('.xr-banner--paused')).not.toBeNull();
+    // The shell's paused banner (the XS banner, XS-08) is the frame's.
+    expect(document.querySelector('.rk-x-region--banner > .rk-banner')).not.toBeNull();
   });
 
   it('supplied licence waits, never counted, open Student access (B2-01 f7; later sample)', async () => {

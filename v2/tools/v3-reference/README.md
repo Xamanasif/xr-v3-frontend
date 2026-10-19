@@ -62,3 +62,23 @@ raise.
 
 For a migrated product screen the comparison moves to `docs/v3/V3-COMPARISON-MAP.json`
 (`productScreens`), against the owner-approved role export and on the normal product build.
+
+## Product captures of a migrated role (`capture-product.mjs`)
+
+A migrated screen sits inside the product's own shell on the sample world, so it is not
+pixel-compared with the export's canvas. `capture-product.mjs` drives the **normal product build**
+through the real UI (the sign-in form, links, the account menu; a state the fresh world lacks is
+made through the UI first, for example the Super Admin pausing an institution) and captures each
+case full page at 1440, 1024, 768 and 375 px. Every capture is measured: page width (horizontal
+overflow), clipped text, the Public Sans weights 400–800, console errors. The captures are reviewed
+side by side with the export's renders and recorded in `docs/v3/V3-COMPARISON-MAP.json`; like
+every run artefact here they are evidence, never baselines.
+
+```sh
+pnpm --filter @xr/web build
+pnpm --dir apps/web exec next start -p 3300   # the normal build, not the test-hook one
+node tools/v3-reference/capture-product.mjs --product http://localhost:3300
+node tools/v3-reference/capture-product.mjs --only xs01-sign-in,xs06-not-your-workspace --widths 375
+```
+
+Cases today: the Entry & shared surfaces (XS-01, XS-03, XS-04, XS-05, XS-06, XS-07, XS-08 banner).

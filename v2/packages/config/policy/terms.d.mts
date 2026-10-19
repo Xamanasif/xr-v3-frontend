@@ -30,3 +30,11 @@ export const V3_PRODUCT_CLASS_ALLOW_LIST: readonly string[];
 export const POLICY_WORD_TERMS: readonly CopyTerm[];
 export const PUBLISH_CONTROL_TERM: CopyTerm;
 export const DENIED_UI_DEPENDENCIES: readonly DeniedDependency[];
+export interface DomTermException {
+  readonly term: string;
+  readonly text: string;
+  readonly where: string;
+  readonly evidence: string;
+  readonly removal: string;
+}
+export const RECORDED_DOM_TERM_EXCEPTIONS: readonly DomTermException[];

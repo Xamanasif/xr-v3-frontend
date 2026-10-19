@@ -1,0 +1,9 @@
+[
+ {"name":"XS01-SignIn-States","file":"XS01-SignIn-States.dc.html","width":1760,"height":400,"settle":1600,"shot":"g-signin"},
+ {"name":"XS05-Menus","file":"XS05-Menus.dc.html","width":1640,"height":400,"settle":1600,"shot":"g-menus"},
+ {"name":"XS08-Notices","file":"XS08-Notices.dc.html","width":1440,"height":400,"settle":1600,"shot":"g-notices"},
+ {"name":"XsHelp","file":"XsHelp.dc.html","width":1024,"height":300,"settle":1200},
+ {"name":"XsMessage","file":"XsMessage.dc.html","width":1024,"height":300,"settle":1200},
+ {"name":"XsAccessNotice","file":"XsAccessNotice.dc.html","width":1024,"height":100,"settle":1200},
+ {"name":"XsSignIn","file":"XsSignIn.dc.html","width":1024,"height":300,"settle":1200}
+]

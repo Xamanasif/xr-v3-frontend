@@ -129,8 +129,8 @@ test.describe('the test-hook build', () => {
 
     // Signed out through the product's own account menu: the tab's visitor reads it again.
     await openInTab(page, '/institute/help');
-    await page.getByRole('button', { name: /^Account menu: R\. Bhatt/ }).click();
-    await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+    await page.getByRole('button', { name: /^Account menu, R\. Bhatt/ }).click();
+    await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
     await page.waitForURL('**/sign-in?reason=signed-out');
     await openInTab(page, address);
     await expect(statusHead(page)).toContainText('Submitted');

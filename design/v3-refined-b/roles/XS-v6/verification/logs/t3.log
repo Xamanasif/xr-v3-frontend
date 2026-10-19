@@ -1,0 +1,46 @@
+### journey 1 Rahul @1440
+shot j1-01-signin
+empty submit focus: div#xs-signin-errs.rk-errsum "Check your sign-in detailsEnter your e-mail addressEnter your password"
+errsum: Check your sign-in details Enter your e-mail address Enter your password
+shot j1-02-errors
+errsum link -> field: input#xs-signin-email.rk-input "" [focus-visible]
+unknown email -> alert: div#xs-signin-alert.rk-errsum "The e-mail or password isn’t rightCheck both and try again."
+pw cleared: 
+email kept: rahul.verma@godavari.edu
+shot j1-03-wrong
+busy label: Signing in…
+after sign-in focus: h1#xs-page-title.rb-h1.xs-fit "Home" [focus-visible]
+top bar: HomeFriday 23 October 2026 RV Rahul Verma Student
+shot j1-04-home
+menu open focus: a#xs-acct-device.xs-menu-item "My device"
+shot j1-05-menu
+esc: button#xs-acct-btn.rb-acct "Account menu, Rahul Verma, Student, Godavari Institute of Technology" [focus-visible]
+arrow: a#xs-acct-help.xs-menu-item "Help & support" [focus-visible]
+help via menu: h1#xs-help-title.rb-h1.xs-fit "Help & support" [focus-visible]
+help page: Help & support Something isn’t working? Report it here and follow what happens to your report. Report a problem My reports 1 report · newest first VR simulation stopped loading at step 2 SUP-0213 · Sent 3 Oct 2026 Open
+shot j1-06-help
+report form: h1#xs-help-form-title.rb-h1.xs-fit "Report a problem"
+where prefilled: Home
+empty send: div#xs-help-errs.rk-errsum "One thing needs fixingSay what happened"
+shot j1-07-form-errors
+sending label: Sending…
+sent focus: h1#xs-help-sent-title.rb-h1.xs-fit "Report sent"
+sent text: Report sent Your reference is SUP-0214. You can follow it in My reports. View my reports Back to Home
+shot j1-08-sent
+list focus: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+rows: 2
+rows text: The Progress page showed yesterday's results SUP-0214 · Sent 23 Oct 2026 Open VR simulation stopped loading at step 2 SUP-0213 · Sent 3 Oct 2026 Open
+detail focus: h1#xs-help-detail-title.rk-title.xs-fit "The Progress page showed yesterday's results"
+detail text: Help & support The Progress page showed yesterday's results SUP-0214 The Progress page showed yesterday's results Open Sent 23 Oct 2026 What you reported What happened The Progress page showed yesterday's results. I refreshed and it was still the same. Where Home Screenshot progress.png History Newest first Sent 23 Oct 2026 Something else isn’t working? Report a problem
+shot j1-09-detail
+rail home: h1#xs-page-title.rb-h1.xs-fit "Home"
+rail help: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+rows after leaving and returning: 2
+after sign out: div#xs-signin-note.rk-notice.rk-notice--ok "You’re signed out"
+signed out note: You’re signed out
+shot j1-10-signedout
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1013
+console clean

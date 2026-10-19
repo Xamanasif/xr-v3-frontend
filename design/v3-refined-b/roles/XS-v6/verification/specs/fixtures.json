@@ -1,0 +1,23 @@
+{
+ "expired": {"start":"session-expired","return-to":"student-experiment"},
+ "expired-paused": {"start":"session-expired","return-to":"student-experiment","scenario":"godavari-paused"},
+ "sneha": {"start":"signed-in","who":"sneha"},
+ "meera-paused": {"start":"signed-in","who":"meera","scenario":"godavari-paused"},
+ "rahul-paused": {"start":"signed-in","who":"rahul","scenario":"godavari-paused"},
+ "ranga-paused": {"start":"signed-in","who":"ranga","scenario":"godavari-paused"},
+ "arjun": {"start":"signed-in","who":"arjun"},
+ "meera": {"start":"signed-in","who":"meera"},
+ "meera-help": {"start":"signed-in","who":"meera","page":"help"},
+ "kavya-detail": {"start":"signed-in","who":"kavya","page":"help-detail","detail":"SUP-0207"},
+ "ranga-detail": {"start":"signed-in","who":"ranga","page":"help-detail","detail":"SUP-0198"},
+ "anil-help": {"start":"signed-in","who":"anil","page":"help"},
+ "rahul-sent": {"start":"signed-in","who":"rahul","page":"help-sent"},
+ "arjun-sent": {"start":"signed-in","who":"arjun","page":"help-sent"},
+ "meera-loading": {"start":"signed-in","who":"meera","page":"help","help-preset":"loading"},
+ "meera-failed": {"start":"signed-in","who":"meera","page":"help","help-preset":"failed"},
+ "meera-errors": {"start":"signed-in","who":"meera","page":"help-report","help-preset":"errors"},
+ "meera-drawer": {"start":"signed-in","who":"meera","drawer-open":true},
+ "rahul-menu": {"start":"signed-in","who":"rahul","acct-open":true},
+ "signedout": {"start":"signed-out"},
+ "signin-validation": {"start":"sign-in","signin-preset":"validation"}
+}

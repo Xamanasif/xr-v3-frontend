@@ -1,11 +1,12 @@
 /**
- * The words of SA-02, SA-03 and XS-01 are the frozen boards' (B1-09, B1-10, B1-11): each drawn
+ * The words of SA-02, SA-03 and XS-01 are the frozen boards' (B1-10, B1-11) and the owner-approved
+ * XS export's (sign-in; it keeps B1-09's words): each drawn
  * phrase is found verbatim in its board's markup or script; the field words equal the contract
  * catalogue's; and nothing undrawn is written here without a state-copy entry.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, xsExport } from '@/test-support/boards';
 
 import {
   CONFIRM_LINES,
@@ -82,18 +83,43 @@ describe('SA-03 words are on B1-11', () => {
   });
 });
 
-describe('XS-01 / XS-03 / XS-04 words are on B1-09', () => {
+/**
+ * The owner-approved Entry & shared export's sign-in (`XsSignIn`, design/v3-refined-b/roles/XS-v6),
+ * read as B1-09 is: its text with tags removed, then its raw source. It keeps B1-09's words.
+ */
+const XS_SIGN_IN = (() => {
+  const raw = xsExport('XsSignIn.dc.html');
+  return `${raw.replace(/<[^>]+>/g, '')}\n${raw}`;
+})();
+
+describe('XS-01 / XS-03 / XS-04 words are the XS export’s', () => {
+  const { backHref, requestAccessHref, formLabel, ...words } = SIGN_IN;
   const drawn = [
-    ...strings(SIGN_IN),
+    ...strings(words),
     ...strings({
       wrong: SIGN_IN_NOTICES.wrongDetails,
       sso: SIGN_IN_NOTICES.ssoUnavailable,
       signedOut: SIGN_IN_NOTICES.signedOut,
-      inactive: SIGN_IN_NOTICES.inactive,
       expired: [SIGN_IN_NOTICES.expired.title, SIGN_IN_NOTICES.expired.before],
     }),
   ];
   it.each(drawn.filter((text) => text.trim().length > 1))('%s', (text) => {
-    expect(B1_09).toContain(text.trim());
+    expect(XS_SIGN_IN).toContain(text.trim());
+  });
+
+  it('the two ways out go where the XS link map sends them (PU-04, PU-08)', () => {
+    expect([backHref, requestAccessHref]).toEqual(['/experiments', '/request-access']);
+    expect(XS_SIGN_IN).toContain(
+      'Back to experiments opens the public catalogue (PU-04), designed by the Public workstream.',
+    );
+    expect(XS_SIGN_IN).toContain(
+      'Request institutional access opens the public request form (PU-08), designed by the Public workstream.',
+    );
+  });
+
+  it('the form’s name and the inactive refusal (SES-09, no XS state) keep B1-09’s words', () => {
+    expect(B1_09).toContain(formLabel);
+    expect(B1_09).toContain(SIGN_IN_NOTICES.inactive.title);
+    expect(B1_09).toContain(SIGN_IN_NOTICES.inactive.line);
   });
 });

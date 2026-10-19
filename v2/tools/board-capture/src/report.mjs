@@ -78,8 +78,14 @@ export function summariseRun(runDirectories) {
     frames: count((entry) => entry.frame === true),
     within: count((entry) => entry.outcome === 'within-tolerance'),
     registered: count((entry) => entry.outcome === 'registered-deviation'),
+    // Superseded by an owner-approved V3 screen and retired by name (V3-COMPARISON-MAP.json):
+    // neither passed nor failed.
+    retired: count((entry) => entry.outcome === 'retired-by-v3'),
     failed: count(
-      (entry) => entry.outcome !== 'within-tolerance' && entry.outcome !== 'registered-deviation',
+      (entry) =>
+        entry.outcome !== 'within-tolerance' &&
+        entry.outcome !== 'registered-deviation' &&
+        entry.outcome !== 'retired-by-v3',
     ),
     iconMismatches: count((entry) => entry.icons && !entry.icons.same),
     masked: records

@@ -59,6 +59,7 @@ export type WorkspaceBase = Workspace;
 /** The route layer supplies Next.js navigation through these (route files may import features only). */
 export { type AppNavigation, NavigationProvider } from '@/nav/navigation';
 export { BootTitle, SessionLoading } from '../session-gate/session-gate';
+export { V3Fonts } from '../v3-fonts';
 
 /**
  * One workspace's layout (Appendix F §3.3 `<base>/layout.tsx`): the session gate, then the

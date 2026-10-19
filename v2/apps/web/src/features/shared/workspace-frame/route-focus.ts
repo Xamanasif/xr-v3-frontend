@@ -59,9 +59,16 @@ function focusArrival(pathname: string): boolean {
 
 export const MAIN_ID = 'main';
 
+/**
+ * Focus into the new page: `main`, or — for an Entry & shared page drawn in V3 inside the v46
+ * shell (a V3 region: Help, "Not your workspace") — that page's own H1, as the XS export's shell
+ * patch XS-P2 asks ("the destination moves focus to its H1"). v46 pages keep `main` (VD-16).
+ */
 export function focusMain(): void {
   const main = document.getElementById(MAIN_ID);
-  if (main && main !== document.activeElement) main.focus({ preventScroll: true });
+  const heading = main?.querySelector<HTMLElement>('.rk-x-region h1[tabindex="-1"]');
+  const target = heading ?? main;
+  if (target && target !== document.activeElement) target.focus({ preventScroll: true });
 }
 
 /**

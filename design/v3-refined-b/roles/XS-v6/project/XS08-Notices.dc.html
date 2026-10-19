@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Access notices and refusals</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <div class="xs-kit">
+    <div class="xs-kit-head">
+      <h1 class="rb-h1">Access notices and refusals</h1>
+      <p class="rk-sub">XS-08 banners and role-context notices, and the one message template used for XS-06 and the XS-08 refusals. They explain a restriction and point to Help; none of them changes what the person may do.</p>
+    </div>
+    <div class="xs-kit-grid xs-kit-grid--wide">
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Banner · institution paused</b><span>Institute Admin, Faculty and Students of a paused institution, on every page</span></p><div class="xs-kit-frame"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="paused" placement="banner" hint-size="100%,52px"></dc-import></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Banner · account inactive</b><span>Students and Faculty whose account is inactive, on every page</span></p><div class="xs-kit-frame"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="inactive" placement="banner" hint-size="100%,52px"></dc-import></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Home notice · Student, paused</b><span>Placed by the Student workstream on Home</span></p><div class="xs-kit-frame"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="paused" placement="page" audience="student" hint-size="100%,120px"></dc-import></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Overview notice · Institute Admin, paused</b><span>Placed by the Institute Admin workstream; give actions are hidden there</span></p><div class="xs-kit-frame"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="paused" placement="page" audience="ia" hint-size="100%,120px"></dc-import></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Home notice · account inactive</b><span>Student or Faculty home page · Faculty while paused gets the banner only</span></p><div class="xs-kit-frame"><dc-import name="XsAccessNotice" embedded="{{ true }}" kind="inactive" placement="page" audience="student" hint-size="100%,120px"></dc-import></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Not your workspace · XS-06</b><span>Names only the person’s own workspace, never the page asked for</span></p><div class="xs-kit-frame"><dc-import name="XsMessage" embedded="{{ true }}" kind="notallowed" workspace="Student" home-label="Home" id-prefix="n6" hint-size="100%,360px"></dc-import></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Refusal · institution paused</b><span>Opening an experiment while access is paused</span></p><div class="xs-kit-frame"><dc-import name="XsMessage" embedded="{{ true }}" kind="paused" workspace="Student" home-label="Home" id-prefix="n7" hint-size="100%,330px"></dc-import></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Refusal · account inactive</b><span>Opening anything while the account is inactive</span></p><div class="xs-kit-frame"><dc-import name="XsMessage" embedded="{{ true }}" kind="inactive" workspace="Faculty" home-label="Overview" id-prefix="n8" hint-size="100%,360px"></dc-import></div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1720}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

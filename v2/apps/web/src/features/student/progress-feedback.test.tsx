@@ -335,9 +335,11 @@ describe('ST-15 Progress (B3-05)', () => {
     expect(line('VR').querySelector('.xl-fl-state')).toHaveTextContent(
       'PausedNot started before the pause',
     );
+    // The page's own links (the XS-08 banner at the top of the page column has its own Help).
     expect(
       within(main())
         .queryAllByRole('link')
+        .filter((link) => !link.closest('.rk-x-region--banner'))
         .map((link) => link.textContent),
     ).toEqual([SHELL_NAME]);
   });

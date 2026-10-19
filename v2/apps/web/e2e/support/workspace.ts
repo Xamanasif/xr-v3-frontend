@@ -53,13 +53,13 @@ export function roleEntry(role: RoleEntry['role']): RoleEntry {
 
 /** Board 06's account-menu lines, by workspace (the board's table, as the sample world holds them). */
 export const ACCOUNT_LINES: Readonly<Record<RoleEntry['role'], string>> = {
-  student: 'Account menu: Rahul Verma, Student, Godavari Institute of Technology',
-  faculty: 'Account menu: Dr S. Ranganathan, Faculty, Godavari Institute of Technology',
-  tenant_admin: 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology',
-  vendor: 'Account menu: Anil Shetty, Vendor, Northline Simulation Studio',
-  academic_reviewer: 'Account menu: Prof. A. Menon, Academic Reviewer',
-  content_manager: 'Account menu: Kavya Nair, Content Manager',
-  super_admin: 'Account menu: Arjun Mehta, Super Admin',
+  student: 'Account menu, Rahul Verma, Student, Godavari Institute of Technology',
+  faculty: 'Account menu, Dr S. Ranganathan, Faculty, Godavari Institute of Technology',
+  tenant_admin: 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology',
+  vendor: 'Account menu, Anil Shetty, Vendor, Northline Simulation Studio',
+  academic_reviewer: 'Account menu, Prof. A. Menon, Academic Reviewer',
+  content_manager: 'Account menu, Kavya Nair, Content Manager',
+  super_admin: 'Account menu, Arjun Mehta, Super Admin',
 };
 
 export const SUPER_ADMIN: SamplePerson = { personId: 'sa-arjun-mehta' };

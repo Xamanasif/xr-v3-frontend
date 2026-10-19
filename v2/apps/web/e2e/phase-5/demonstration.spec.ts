@@ -34,12 +34,12 @@ import { expectSameDocument, markDocument, revealSidebar } from '../support/work
 
 const SHELL = 'Shell-and-Tube Heat Exchanger';
 const COMPOSITE = 'Conduction Through a Composite Wall';
-const ARJUN = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
-const RAHUL = 'Account menu: Rahul Verma, Student, Godavari Institute of Technology';
-const ANIL = 'Account menu: Anil Shetty, Vendor, Northline Simulation Studio';
-const MENON = 'Account menu: Prof. A. Menon, Academic Reviewer';
-const KAVYA = 'Account menu: Kavya Nair, Content Manager';
+const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const RAHUL = 'Account menu, Rahul Verma, Student, Godavari Institute of Technology';
+const ANIL = 'Account menu, Anil Shetty, Vendor, Northline Simulation Studio';
+const MENON = 'Account menu, Prof. A. Menon, Academic Reviewer';
+const KAVYA = 'Account menu, Kavya Nair, Content Manager';
 
 const CONTENT = {
   summary: 'Heat flow through a wall of several layers.',
@@ -61,7 +61,7 @@ const OUTCOMES = [
   'Compare measured and predicted heat flux and explain the difference.',
 ];
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 const main = (page: Page) => page.locator('main');
 const h1 = (page: Page) => page.getByRole('heading', { level: 1 });
 const button = (page: Page, name: string) => main(page).getByRole('button', { name, exact: true });
@@ -76,7 +76,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
@@ -196,8 +196,8 @@ test('one tab, the product build: Flow E — create → return with a reason →
 
   // Before Flow E the public catalogue lists “Composite Wall Conduction” only (two records, BC11).
   await page.getByRole('link', { name: 'Back to experiments' }).click();
-  await page.waitForURL((url) => url.pathname === '/');
-  await catalogue(page);
+  await page.waitForURL((url) => url.pathname === '/experiments');
+  await expect(main(page).getByRole('heading', { level: 3, name: SHELL })).toBeVisible();
   await expect(
     main(page).getByRole('heading', { level: 3, name: 'Composite Wall Conduction' }),
   ).toBeVisible();
@@ -334,8 +334,8 @@ test('one tab, the product build: Flow E — create → return with a reason →
 
   // Approving published nothing.
   await page.getByRole('link', { name: 'Back to experiments' }).click();
-  await page.waitForURL((url) => url.pathname === '/');
-  await catalogue(page);
+  await page.waitForURL((url) => url.pathname === '/experiments');
+  await expect(main(page).getByRole('heading', { level: 3, name: SHELL })).toBeVisible();
   await expect(main(page).getByRole('heading', { level: 3, name: COMPOSITE })).toHaveCount(0);
 
   // 8–9. Kavya Nair: Ready to publish → the publication decision → Publish (DL-1).

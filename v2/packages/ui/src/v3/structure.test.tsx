@@ -15,7 +15,8 @@ import {
   expectRenderedAsV3Element,
   expectV3ClassesOnly,
 } from '../testing/index.js';
-import { ButtonLink, Button } from './actions.js';
+import { AccountMenu } from './account.js';
+import { ButtonLink, Button, TextLink } from './actions.js';
 import { CourseCode, InstitutionCode } from './codes.js';
 import {
   AskRow,
@@ -42,7 +43,7 @@ import {
 } from './overview.js';
 import { Breadcrumbs, PageHead } from './page.js';
 import { CodeKey, CourseGroup, ExperimentCard, PlanBand } from './plan.js';
-import { AccountMenu, WorkspaceShell, type ShellDestination } from './shell.js';
+import { WorkspaceShell, type ShellDestination } from './shell.js';
 import { StatusPill } from './status.js';
 import { TermTrack } from './term-track.js';
 
@@ -73,11 +74,8 @@ function SuperAdminShell({ children }: { readonly children?: React.ReactNode }) 
           name="Arjun Mehta"
           role="Super Admin"
           initials="AM"
-          items={[
-            { kind: 'link', label: 'Help', href: '/admin/help', icon: 'help' },
-            { kind: 'separator' },
-            { kind: 'button', label: 'Sign out', icon: 'signOut', onSelect: () => undefined },
-          ]}
+          links={[{ label: 'Help & support', href: '/admin/help', icon: 'help' }]}
+          signOut={{ label: 'Sign out', onSelect: () => undefined }}
         />
       }
     >
@@ -96,14 +94,15 @@ describe('V3 workspace shell (rb.css)', () => {
     );
   });
 
-  it('is the V3 root, with the skip link first and one main region', () => {
+  it('is the V3 root, with the XS skip link first (XS-P1) and one main region', () => {
     const { container } = render(<SuperAdminShell>Page</SuperAdminShell>);
     const root = container.firstElementChild!;
     expect(root.className).toBe('xr rb');
     const skip = root.firstElementChild!;
     expect(skip.textContent).toBe('Skip to main content');
-    expect(skip.className).toBe('rk-x-skip');
+    expect(skip.className).toBe('xs-skip');
     expect(screen.getByRole('main').id).toBe('main');
+    expect(screen.getByRole('main').className).toBe('rb-page xs-nofocus');
     fireEvent.click(skip);
     expect(document.activeElement).toBe(screen.getByRole('main'));
     expectV3ClassesOnly(root);
@@ -132,20 +131,38 @@ describe('V3 workspace shell (rb.css)', () => {
     expect(container.querySelector('.rb-main')?.hasAttribute('inert')).toBe(false);
   });
 
-  it('the account chrome: the V3 trigger, the existing menu panel as a v46 island', () => {
-    render(<SuperAdminShell />);
-    const trigger = screen.getByRole('button', { name: 'Account menu: Arjun Mehta, Super Admin' });
+  it('the account chrome: the V3 trigger opens the XS panel (XS-P3), focus on its first item', () => {
+    const { container } = render(<SuperAdminShell />);
+    const trigger = screen.getByRole('button', { name: 'Account menu, Arjun Mehta, Super Admin' });
     expect(trigger.className).toBe('rb-acct');
+    expect(trigger.closest('.xs-acct')?.parentElement?.className).toBe('xs-acct-slot');
     act(() => trigger.click());
     const panel = document.getElementById(trigger.getAttribute('aria-controls')!)!;
-    expect(panel.className).toBe('xr-menu');
-    expect(panel.closest('[data-xr-v46]')).not.toBeNull();
-    expect(within(panel).getByRole('link', { name: 'Help' }).getAttribute('href')).toBe(
-      '/admin/help',
-    );
+    expect(panel.className).toBe('xs-menu xs-nofocus');
+    expect(panel.closest('[data-xr-v46]')).toBeNull();
+    const help = within(panel).getByRole('link', { name: 'Help & support' });
+    expect(help.getAttribute('href')).toBe('/admin/help');
+    expect(document.activeElement).toBe(help);
+    expectV3ClassesOnly(container.firstElementChild!);
     fireEvent.keyDown(panel, { key: 'Escape' });
     expect(document.getElementById(trigger.getAttribute('aria-controls')!)).toBeNull();
     expect(document.activeElement).toBe(trigger);
+  });
+
+  it('the XS-08 banner is the first thing in the page column', () => {
+    render(
+      <WorkspaceShell
+        workspace="Institute Admin"
+        institution="Godavari Institute of Technology"
+        destinations={[]}
+        help={{ href: '#' }}
+        account={null}
+        banner={<Banner action={<TextLink href="#">Help</TextLink>}>Paused</Banner>}
+      >
+        Page
+      </WorkspaceShell>,
+    );
+    expect(screen.getByRole('main').firstElementChild?.className).toBe('rk-banner');
   });
 
   it('has no axe violations', async () => {

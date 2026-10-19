@@ -30,7 +30,7 @@ import { expectSameDocument, markDocument, revealSidebar } from '../support/work
  * address is reached by a link or a button, except where marked TEST NAVIGATION (the app router).
  */
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 const main = (page: Page) => page.locator('main');
 
 async function signIn(page: Page, email: string): Promise<void> {
@@ -41,7 +41,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
@@ -76,10 +76,10 @@ async function peopleTab(page: Page, name: string): Promise<void> {
   );
 }
 
-const ARJUN = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
-const ARUN = 'Account menu: Arun Kumar, Student, Godavari Institute of Technology';
-const RAHUL = 'Account menu: Rahul Verma, Student, Godavari Institute of Technology';
+const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const ARUN = 'Account menu, Arun Kumar, Student, Godavari Institute of Technology';
+const RAHUL = 'Account menu, Rahul Verma, Student, Godavari Institute of Technology';
 const SHELL = 'Shell-and-Tube Heat Exchanger';
 const GROUP = 'ME ZG523 — Sem II';
 const IDENTITY_WORDS =

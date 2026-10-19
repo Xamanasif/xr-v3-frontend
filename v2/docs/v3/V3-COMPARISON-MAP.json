@@ -8,7 +8,326 @@
     "v46 pins (tools/board-capture/src/pinned.json), DEVIATIONS.md and BASELINES.md stay as history; superseded comparisons are listed under supersedes with the migration commit, not deleted silently.",
     "Data may differ from a board fixture: the product binds its own records, so a comparison is made on a state whose content matches, or the difference is listed as content, not style."
   ],
-  "productScreens": [],
+  "productScreens": [
+    {
+      "id": "XS-01",
+      "state": "Sign in: default, missing details (summary + field errors), wrong details, institution sign-in unavailable, busy",
+      "route": "/sign-in",
+      "sources": [
+        "apps/web/src/app/(auth)/layout.tsx",
+        "apps/web/src/features/shared/xs-01-sign-in"
+      ],
+      "reference": {
+        "archive": "XR-V3-XS-Entry-Shared-Source.zip",
+        "archiveSha256": "1da3c72b8b931ffb5bd9bcf30548ad4556dafa96b1c16dfb51e69ce6efdc9d20",
+        "revision": "canvas Version 6, shared contract 1.0.0",
+        "renders": "XR-V3-XS-Entry-Shared-Screenshots.zip (SHA-256 3c1c4d0fa8fe5b2afe240b8a1cce2a09227334040cec2dcc97ba714cf64d5cdc), kept by the owner",
+        "file": "design/v3-refined-b/roles/XS-v6/project/XsSignIn.dc.html",
+        "boards": [
+          "design/v3-refined-b/roles/XS-v6/project/XS01-SignIn-States.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS01-SignIn-768.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS01-SignIn-Errors-375.dc.html"
+        ],
+        "compared": [
+          "02-width-matrix/v-signin-1440.png",
+          "02-width-matrix/v-signin-1024.png",
+          "02-width-matrix/v-signin-768.png",
+          "02-width-matrix/v-signin-375.png",
+          "02-width-matrix/v-signin-errors-1440.png",
+          "02-width-matrix/v-signin-errors-1024.png",
+          "02-width-matrix/v-signin-errors-768.png",
+          "02-width-matrix/v-signin-errors-375.png",
+          "04-journeys/j1-03-wrong.png",
+          "04-journeys/j5-01-sso-help.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI, captured full page at each width by tools/v3-reference/capture-product.mjs and reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights 400–800 loaded, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export draws each surface in its own V3 canvas shell with sample records, while the product draws it inside the v46 role shell (shells migrate with their roles) on the sample world. Differences are listed under differences, as content or as shell, never masked.",
+      "differences": [
+        "The export's preview-only notices (“Opens outside this preview”, slot pages) are not product UI: the product links go to the built PU-04 and PU-08.",
+        "The prototype line under the card is the export's own (HANDOFF §1.1), recorded as a scan exception (sample-accounts).",
+        "The SES-09 inactive refusal (service policy-open) is kept as the card's refusal; the export draws no such state."
+      ],
+      "supersedes": [
+        "b1-09-f0-brand",
+        "b1-09-f0-heading",
+        "b1-09-f0-single-sign-on",
+        "b1-09-f0-or",
+        "b1-09-f0-form",
+        "b1-09-f0-card",
+        "b1-09-f0-whole-frame",
+        "b1-09-f4-missing-fields-form",
+        "b1-09-f3-wrong-details-alert",
+        "b1-09-f3-wrong-details-form",
+        "b1-09-f6-unavailable-notice",
+        "b1-09-f11-mobile-form",
+        "b1-09-f11-mobile-card"
+      ],
+      "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "XS-03",
+      "state": "Signed out; session ended with the return address",
+      "route": "/sign-in?reason=signed-out · /sign-in?reason=expired&returnTo=…",
+      "sources": ["apps/web/src/features/shared/xs-01-sign-in"],
+      "reference": {
+        "archive": "XR-V3-XS-Entry-Shared-Source.zip",
+        "archiveSha256": "1da3c72b8b931ffb5bd9bcf30548ad4556dafa96b1c16dfb51e69ce6efdc9d20",
+        "revision": "canvas Version 6, shared contract 1.0.0",
+        "renders": "XR-V3-XS-Entry-Shared-Screenshots.zip (SHA-256 3c1c4d0fa8fe5b2afe240b8a1cce2a09227334040cec2dcc97ba714cf64d5cdc), kept by the owner",
+        "file": "design/v3-refined-b/roles/XS-v6/project/XsSignIn.dc.html",
+        "boards": [
+          "design/v3-refined-b/roles/XS-v6/project/XS03-SignedOut-375.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS03-SessionExpired-1024.dc.html"
+        ],
+        "compared": [
+          "02-width-matrix/v-signedout-1440.png",
+          "02-width-matrix/v-signedout-1024.png",
+          "02-width-matrix/v-signedout-768.png",
+          "02-width-matrix/v-signedout-375.png",
+          "02-width-matrix/v-expired-1440.png",
+          "02-width-matrix/v-expired-1024.png",
+          "02-width-matrix/v-expired-768.png",
+          "02-width-matrix/v-expired-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI, captured full page at each width by tools/v3-reference/capture-product.mjs and reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights 400–800 loaded, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export draws each surface in its own V3 canvas shell with sample records, while the product draws it inside the v46 role shell (shells migrate with their roles) on the sample world. Differences are listed under differences, as content or as shell, never masked.",
+      "differences": [],
+      "supersedes": ["b1-09-f10-signed-out-notice", "b1-09-f9-expired-notice"],
+      "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "XS-04",
+      "state": "Forgot your password? and First time signing in? disclosures (contact routes only; recovery and activation OPEN)",
+      "route": "/sign-in",
+      "sources": ["apps/web/src/features/shared/xs-01-sign-in"],
+      "reference": {
+        "archive": "XR-V3-XS-Entry-Shared-Source.zip",
+        "archiveSha256": "1da3c72b8b931ffb5bd9bcf30548ad4556dafa96b1c16dfb51e69ce6efdc9d20",
+        "revision": "canvas Version 6, shared contract 1.0.0",
+        "renders": "XR-V3-XS-Entry-Shared-Screenshots.zip (SHA-256 3c1c4d0fa8fe5b2afe240b8a1cce2a09227334040cec2dcc97ba714cf64d5cdc), kept by the owner",
+        "file": "design/v3-refined-b/roles/XS-v6/project/XsSignIn.dc.html",
+        "boards": ["design/v3-refined-b/roles/XS-v6/project/XS01-SignIn-States.dc.html"],
+        "compared": ["04-journeys/j5-01-sso-help.png", "05-galleries/g-signin.png"]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI, captured full page at each width by tools/v3-reference/capture-product.mjs and reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights 400–800 loaded, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export draws each surface in its own V3 canvas shell with sample records, while the product draws it inside the v46 role shell (shells migrate with their roles) on the sample world. Differences are listed under differences, as content or as shell, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "XS-05",
+      "state": "Account menu open: Super Admin (no organisation line), Institute Admin (institution line), Student with a headset format (My device)",
+      "route": "every workspace page (v46 top-bar trigger, V3 panel)",
+      "sources": [
+        "apps/web/src/app/_workspace/workspace-route.tsx",
+        "apps/web/src/features/shared/xs-05-account-menu"
+      ],
+      "reference": {
+        "archive": "XR-V3-XS-Entry-Shared-Source.zip",
+        "archiveSha256": "1da3c72b8b931ffb5bd9bcf30548ad4556dafa96b1c16dfb51e69ce6efdc9d20",
+        "revision": "canvas Version 6, shared contract 1.0.0",
+        "renders": "XR-V3-XS-Entry-Shared-Screenshots.zip (SHA-256 3c1c4d0fa8fe5b2afe240b8a1cce2a09227334040cec2dcc97ba714cf64d5cdc), kept by the owner",
+        "file": "design/v3-refined-b/roles/XS-v6/project/XsAccountMenu.dc.html",
+        "boards": [
+          "design/v3-refined-b/roles/XS-v6/project/XS05-Menus.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS05-SuperAdmin-1024.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS05-InstituteAdmin-375.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS05-Student-1440.dc.html"
+        ],
+        "compared": [
+          "02-width-matrix/v-menu-1440.png",
+          "02-width-matrix/v-menu-1024.png",
+          "02-width-matrix/v-menu-768.png",
+          "02-width-matrix/v-menu-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI, captured full page at each width by tools/v3-reference/capture-product.mjs and reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights 400–800 loaded, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export draws each surface in its own V3 canvas shell with sample records, while the product draws it inside the v46 role shell (shells migrate with their roles) on the sample world. Differences are listed under differences, as content or as shell, never masked.",
+      "differences": [
+        "The trigger stays the v46 top-bar account button (the v46 role shells are not migrated); the panel, its items, its keyboard contract and its accessible name are the export's."
+      ],
+      "supersedes": [],
+      "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "XS-06",
+      "state": "Not your workspace, in the person's own shell (Back to Home / Back to Overview, Help)",
+      "route": "<other workspace base>/*",
+      "sources": ["apps/web/src/features/shared/xs-06-not-your-workspace"],
+      "reference": {
+        "archive": "XR-V3-XS-Entry-Shared-Source.zip",
+        "archiveSha256": "1da3c72b8b931ffb5bd9bcf30548ad4556dafa96b1c16dfb51e69ce6efdc9d20",
+        "revision": "canvas Version 6, shared contract 1.0.0",
+        "renders": "XR-V3-XS-Entry-Shared-Screenshots.zip (SHA-256 3c1c4d0fa8fe5b2afe240b8a1cce2a09227334040cec2dcc97ba714cf64d5cdc), kept by the owner",
+        "file": "design/v3-refined-b/roles/XS-v6/project/XsMessage.dc.html",
+        "boards": [
+          "design/v3-refined-b/roles/XS-v6/project/XS06-InstituteAdmin-1440.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS06-Student-375.dc.html"
+        ],
+        "compared": [
+          "02-width-matrix/v-notyours-1440.png",
+          "02-width-matrix/v-notyours-1024.png",
+          "02-width-matrix/v-notyours-768.png",
+          "02-width-matrix/v-notyours-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI, captured full page at each width by tools/v3-reference/capture-product.mjs and reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights 400–800 loaded, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export draws each surface in its own V3 canvas shell with sample records, while the product draws it inside the v46 role shell (shells migrate with their roles) on the sample world. Differences are listed under differences, as content or as shell, never masked.",
+      "differences": ["Drawn inside the v46 role shell."],
+      "supersedes": [
+        "08-f3-not-your-workspace-message-icon",
+        "08-f3-not-your-workspace-message-title",
+        "08-f3-not-your-workspace-message-sentence",
+        "08-f3-not-your-workspace-message-actions",
+        "08-f9-at-375-message",
+        "08-f9-at-375-whole-frame"
+      ],
+      "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "XS-07",
+      "state": "Help & support: My reports (with reports, empty, loading, failed), Report a problem (form, errors, sending, sent with or without a reference), report detail (open, resolved, reopened)",
+      "route": "<base>/help · <base>/help/report · <base>/help/reports/{id}",
+      "sources": ["apps/web/src/features/shared/xs-07-help"],
+      "reference": {
+        "archive": "XR-V3-XS-Entry-Shared-Source.zip",
+        "archiveSha256": "1da3c72b8b931ffb5bd9bcf30548ad4556dafa96b1c16dfb51e69ce6efdc9d20",
+        "revision": "canvas Version 6, shared contract 1.0.0",
+        "renders": "XR-V3-XS-Entry-Shared-Screenshots.zip (SHA-256 3c1c4d0fa8fe5b2afe240b8a1cce2a09227334040cec2dcc97ba714cf64d5cdc), kept by the owner",
+        "file": "design/v3-refined-b/roles/XS-v6/project/XsHelp.dc.html",
+        "boards": [
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Help-InstituteAdmin-1440.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Help-Student-375.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Empty-Vendor-768.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Loading-1024.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Failed-768.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Report-375.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Report-Errors-1024.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Sent-768.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-SuperAdmin-Sent-1024.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Resolved-Faculty-1440.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS07-Reopened-ContentManager-1024.dc.html"
+        ],
+        "compared": [
+          "02-width-matrix/v-help-1440.png",
+          "02-width-matrix/v-help-1024.png",
+          "02-width-matrix/v-help-768.png",
+          "02-width-matrix/v-help-375.png",
+          "02-width-matrix/v-report-errors-1440.png",
+          "02-width-matrix/v-report-errors-1024.png",
+          "02-width-matrix/v-report-errors-768.png",
+          "02-width-matrix/v-report-errors-375.png",
+          "02-width-matrix/v-sent-1440.png",
+          "02-width-matrix/v-sent-1024.png",
+          "02-width-matrix/v-sent-768.png",
+          "02-width-matrix/v-sent-375.png",
+          "02-width-matrix/v-detail-1440.png",
+          "02-width-matrix/v-detail-1024.png",
+          "02-width-matrix/v-detail-768.png",
+          "02-width-matrix/v-detail-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI, captured full page at each width by tools/v3-reference/capture-product.mjs and reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights 400–800 loaded, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export draws each surface in its own V3 canvas shell with sample records, while the product draws it inside the v46 role shell (shells migrate with their roles) on the sample world. Differences are listed under differences, as content or as shell, never masked.",
+      "differences": [
+        "Drawn inside the v46 role shell; the breadcrumb is the page's own (every width), so the v46 top bar carries no Help trail on the deep views.",
+        "The export's date eyebrow over the page head belongs to its V3 shell and is not drawn in the v46 shells.",
+        "A Super Admin sees no report reference anywhere (owner decision 6).",
+        "The whole-sidebar comparisons of the two states whose page is taller than the viewport (Validation, Report detail) are retired: the v46 sidebar stretches to the page, so its height follows the XS content (996 and 1,010 px against the pinned 968 and 966, which carried DEV-12 and DEV-11/DEV-13 for the v46 content). The sidebar head, workspace and Help foot of the same states are still compared and pass.",
+        "The v46 sidebar and drawer foot keep their “Help” label; the export’s V3 shell names the same link “Help & support”. It changes with each role’s shell."
+      ],
+      "supersedes": [
+        "05-student-help-built-help-header",
+        "05-faculty-help-built-help-header",
+        "05-institute-admin-help-built-help-header",
+        "05-vendor-help-built-help-header",
+        "05-academic-reviewer-help-built-help-header",
+        "05-content-manager-help-built-help-header",
+        "05-super-admin-help-built-help-header",
+        "07-f0-state-1-report-a-problem-top-bar",
+        "07-f0-state-1-report-a-problem-whole-frame-phase-4b",
+        "07-f0-state-1-report-a-problem-page",
+        "07-f1-state-1a-validation-top-bar",
+        "07-f1-state-1a-validation-whole-frame-phase-4b",
+        "07-f1-state-1a-validation-header",
+        "07-f1-state-1a-validation-summary",
+        "07-f1-state-1a-validation-form",
+        "07-f3-state-1c-sent-top-bar",
+        "07-f3-state-1c-sent-whole-frame-phase-4b",
+        "07-f3-state-1c-sent-message",
+        "07-f3-state-1c-sent-reference",
+        "07-f5-state-2a-my-reports-empty-vendor-whole-frame-phase-5",
+        "07-f5-state-2a-my-reports-empty-vendor-page",
+        "07-f7-state-3a-report-detail-reopened-top-bar",
+        "07-f7-state-3a-report-detail-reopened-whole-frame-phase-6",
+        "07-f7-state-3a-back-link",
+        "07-f7-state-3a-header",
+        "07-f7-state-3a-reopened-notice",
+        "07-f7-state-3a-what-you-reported",
+        "07-f7-state-3a-history",
+        "07-f7-state-3a-report-another",
+        "07-f8-phone-375-report-a-problem-page",
+        "11-m-form-375-report-a-problem-page",
+        "07-f9-phone-375-my-reports-header",
+        "07-f9-phone-375-my-reports-list",
+        "07-f1-state-1a-validation-sidebar-phase-4b",
+        "07-f7-state-3a-report-detail-reopened-sidebar-phase-6"
+      ],
+      "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    },
+    {
+      "id": "XS-08",
+      "state": "Paused and inactive banners, first in the page of every workspace route (Help link)",
+      "route": "every workspace page of a paused institution's people or an inactive person",
+      "sources": ["apps/web/src/features/shared/workspace-shell/role-workspace-shell.tsx"],
+      "reference": {
+        "archive": "XR-V3-XS-Entry-Shared-Source.zip",
+        "archiveSha256": "1da3c72b8b931ffb5bd9bcf30548ad4556dafa96b1c16dfb51e69ce6efdc9d20",
+        "revision": "canvas Version 6, shared contract 1.0.0",
+        "renders": "XR-V3-XS-Entry-Shared-Screenshots.zip (SHA-256 3c1c4d0fa8fe5b2afe240b8a1cce2a09227334040cec2dcc97ba714cf64d5cdc), kept by the owner",
+        "file": "design/v3-refined-b/roles/XS-v6/project/XsAccessNotice.dc.html",
+        "boards": [
+          "design/v3-refined-b/roles/XS-v6/project/XS08-Notices.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS08-Paused-InstituteAdmin-1440.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS08-Paused-Faculty-1024.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS08-Paused-Student-768.dc.html",
+          "design/v3-refined-b/roles/XS-v6/project/XS08-Inactive-Student-1440.dc.html"
+        ],
+        "compared": [
+          "02-width-matrix/v-paused-ia-1440.png",
+          "02-width-matrix/v-paused-ia-1024.png",
+          "02-width-matrix/v-paused-ia-768.png",
+          "02-width-matrix/v-paused-ia-375.png",
+          "02-width-matrix/v-inactive-1440.png",
+          "02-width-matrix/v-inactive-1024.png",
+          "02-width-matrix/v-inactive-768.png",
+          "02-width-matrix/v-inactive-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI, captured full page at each width by tools/v3-reference/capture-product.mjs and reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights 400–800 loaded, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export draws each surface in its own V3 canvas shell with sample records, while the product draws it inside the v46 role shell (shells migrate with their roles) on the sample world. Differences are listed under differences, as content or as shell, never masked.",
+      "differences": [
+        "Banner placement only. The page-level notices on each role home are assembled with that role (pending), and the paused / inactive refusal pages of the export are not routed: their address rule is a design proposal with no approved route."
+      ],
+      "supersedes": [
+        "05-student-paused-built-banner",
+        "05-faculty-paused-built-banner",
+        "05-institute-admin-paused-built-banner",
+        "05-student-inactive-built-banner"
+      ],
+      "migration": "XS integration, branch v3/refined-b-ui, 19 Oct 2026"
+    }
+  ],
   "foundationEvidence": {
     "note": "Not product baselines. The five supplied V3 boards were rendered with the HISTORICAL v46 canvas runtime (design/handoff-v46/runtime/support.js; compatibility with the V3 runtime not established; vendored React 18.3.1 / ReactDOM / Babel 7.29.0 from tools/board-capture/vendor; Public Sans from the Google Fonts link the boards name) next to the React specimens of the built harness (apps/specimens, next build) in the same Chromium, full page, device scale 1, reduced motion. Pixels count as different when a channel differs by more than 24.",
     "tool": "tools/v3-reference/compare.mjs",
@@ -475,5 +794,193 @@
       }
     ],
     "run": "2026-10-18T19-14-27-074Z (UTC), harness built from this tree and served with next start; board page errors: none"
+  },
+  "productEvidence": {
+    "note": "Not baselines. Captures of the normal product build (next build + next start, port 3300) driven through the real UI by tools/v3-reference/capture-product.mjs, 19 Oct 2026, full page at each width, device scale 1, reduced motion; run folder tools/v3-reference/.runs/2026-10-19T10-17-32-253Z-product (git-ignored). The XS-08 inactive banner was captured on the test-hook build (fixture after-flow-d, the inactive Student per-0005) because the default product world holds no inactive person.",
+    "tool": "tools/v3-reference/capture-product.mjs",
+    "measured": "14 cases × 4 widths (60 captures with the My reports list) on the product build, plus the inactive banner × 4 on the test-hook build: no horizontal overflow at any width, no clipped text (visually hidden words excluded), Public Sans 400, 600, 650, 700 and 800 loaded on every capture, no console error. The paused banner was made through the real UI (the Super Admin pauses Deccan in SA-07, signs out, S. Kulkarni signs in); the banner is the first child of main at every width.",
+    "review": "Every capture was reviewed side by side with the export render of the same state and width. The XS surfaces match the export (layout, type, colour, spacing, icons, focus treatment). Differences are the v46 shell around the in-shell surfaces (top bar, sidebar, the export's date line), the role-home page notices (pending), sample content, and the focus ring of an element that takes focus on arrival (the export renders it at rest).",
+    "entryPagePixels": {
+      "method": "The sign-in page is a full V3 page in both, so its four states are also pixel-compared with the export's width-matrix renders (a pixel differs when a channel differs by more than 24, as tools/v3-reference/compare.mjs).",
+      "result": "Same page size in 15 of 16; what differs is glyph anti-aliasing (scattered text pixels, checked on a difference mask), the arrival focus ring of the error summary and the notices, and content: the session-ended notice names the capture's own return address (Institutions) where the export names a two-line course page, so at 375 its page is 46 px shorter. No layout, colour or spacing difference.",
+      "comparisons": [
+        {
+          "state": "XS-01 default",
+          "reference": "02-width-matrix/v-signin-1440.png",
+          "width": 1440,
+          "pageSize": {
+            "product": [1440, 932],
+            "reference": [1440, 932]
+          },
+          "differentPixels": 1377,
+          "share": 0.00103
+        },
+        {
+          "state": "XS-01 default",
+          "reference": "02-width-matrix/v-signin-1024.png",
+          "width": 1024,
+          "pageSize": {
+            "product": [1024, 932],
+            "reference": [1024, 932]
+          },
+          "differentPixels": 1377,
+          "share": 0.00144
+        },
+        {
+          "state": "XS-01 default",
+          "reference": "02-width-matrix/v-signin-768.png",
+          "width": 768,
+          "pageSize": {
+            "product": [768, 932],
+            "reference": [768, 932]
+          },
+          "differentPixels": 1377,
+          "share": 0.00192
+        },
+        {
+          "state": "XS-01 default",
+          "reference": "02-width-matrix/v-signin-375.png",
+          "width": 375,
+          "pageSize": {
+            "product": [375, 943],
+            "reference": [375, 943]
+          },
+          "differentPixels": 1157,
+          "share": 0.00327
+        },
+        {
+          "state": "XS-01 missing details",
+          "reference": "02-width-matrix/v-signin-errors-1440.png",
+          "width": 1440,
+          "pageSize": {
+            "product": [1440, 1108],
+            "reference": [1440, 1108]
+          },
+          "differentPixels": 4367,
+          "share": 0.00274
+        },
+        {
+          "state": "XS-01 missing details",
+          "reference": "02-width-matrix/v-signin-errors-1024.png",
+          "width": 1024,
+          "pageSize": {
+            "product": [1024, 1108],
+            "reference": [1024, 1108]
+          },
+          "differentPixels": 4367,
+          "share": 0.00385
+        },
+        {
+          "state": "XS-01 missing details",
+          "reference": "02-width-matrix/v-signin-errors-768.png",
+          "width": 768,
+          "pageSize": {
+            "product": [768, 1108],
+            "reference": [768, 1108]
+          },
+          "differentPixels": 4367,
+          "share": 0.00513
+        },
+        {
+          "state": "XS-01 missing details",
+          "reference": "02-width-matrix/v-signin-errors-375.png",
+          "width": 375,
+          "pageSize": {
+            "product": [375, 1119],
+            "reference": [375, 1119]
+          },
+          "differentPixels": 3551,
+          "share": 0.00846
+        },
+        {
+          "state": "XS-03 signed out",
+          "reference": "02-width-matrix/v-signedout-1440.png",
+          "width": 1440,
+          "pageSize": {
+            "product": [1440, 1013],
+            "reference": [1440, 1013]
+          },
+          "differentPixels": 3563,
+          "share": 0.00244
+        },
+        {
+          "state": "XS-03 signed out",
+          "reference": "02-width-matrix/v-signedout-1024.png",
+          "width": 1024,
+          "pageSize": {
+            "product": [1024, 1013],
+            "reference": [1024, 1013]
+          },
+          "differentPixels": 3863,
+          "share": 0.00372
+        },
+        {
+          "state": "XS-03 signed out",
+          "reference": "02-width-matrix/v-signedout-768.png",
+          "width": 768,
+          "pageSize": {
+            "product": [768, 1013],
+            "reference": [768, 1013]
+          },
+          "differentPixels": 3863,
+          "share": 0.00497
+        },
+        {
+          "state": "XS-03 signed out",
+          "reference": "02-width-matrix/v-signedout-375.png",
+          "width": 375,
+          "pageSize": {
+            "product": [375, 1024],
+            "reference": [375, 1024]
+          },
+          "differentPixels": 3047,
+          "share": 0.00793
+        },
+        {
+          "state": "XS-03 session ended",
+          "reference": "02-width-matrix/v-expired-1440.png",
+          "width": 1440,
+          "pageSize": {
+            "product": [1440, 1059],
+            "reference": [1440, 1059]
+          },
+          "differentPixels": 6349,
+          "share": 0.00416
+        },
+        {
+          "state": "XS-03 session ended",
+          "reference": "02-width-matrix/v-expired-1024.png",
+          "width": 1024,
+          "pageSize": {
+            "product": [1024, 1059],
+            "reference": [1024, 1059]
+          },
+          "differentPixels": 6349,
+          "share": 0.00585
+        },
+        {
+          "state": "XS-03 session ended",
+          "reference": "02-width-matrix/v-expired-768.png",
+          "width": 768,
+          "pageSize": {
+            "product": [768, 1059],
+            "reference": [768, 1059]
+          },
+          "differentPixels": 6349,
+          "share": 0.00781
+        },
+        {
+          "state": "XS-03 session ended",
+          "reference": "02-width-matrix/v-expired-375.png",
+          "width": 375,
+          "pageSize": {
+            "product": [375, 1070],
+            "reference": [375, 1116]
+          },
+          "differentPixels": 77877,
+          "share": 0.18609
+        }
+      ]
+    }
   }
 }

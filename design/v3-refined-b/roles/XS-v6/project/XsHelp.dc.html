@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Help &amp; support · XS-07</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="{{ f.root }}">
+  <div class="{{ f.main }}">
+    <div class="{{ f.page }}">
+      <div class="xs-read">
+
+        <sc-if value="{{ isList }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-head">
+            <div class="rk-head-text">
+              <sc-if value="{{ hasDate }}" hint-placeholder-val="{{ false }}"><p class="rb-eyebrow-date">{{ dateLong }}</p></sc-if>
+              <h1 class="rb-h1 xs-fit" id="{{ ids.title }}" tabindex="-1">Help &amp; support</h1>
+              <p class="rk-sub">Something isn’t working? Report it here and follow what happens to your report.</p>
+            </div>
+            <sc-if value="{{ headAct }}" hint-placeholder-val="{{ true }}"><div class="rk-head-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#{{ ids.formTitle }}" onClick="{{ toReport }}">Report a problem</a></div></sc-if>
+          </div>
+          <section class="rk-surface" aria-labelledby="{{ ids.mine }}" aria-busy="{{ busyList }}">
+            <div class="xs-sec-h"><h2 class="rb-h2" id="{{ ids.mine }}" tabindex="-1">My reports</h2><sc-if value="{{ hasCount }}" hint-placeholder-val="{{ true }}"><p class="rb-note">{{ countText }}</p></sc-if></div>
+            <sc-if value="{{ showRows }}" hint-placeholder-val="{{ true }}">
+              <ul class="xs-reports">
+                <sc-for list="{{ rows }}" as="r" hint-placeholder-count="3"><li><a class="xs-report" href="#{{ ids.detailTitle }}" onClick="{{ r.open }}"><span class="xs-report-main"><span class="xs-report-t">{{ r.title }}</span><span class="xs-report-m">{{ r.meta }}</span></span><span class="{{ r.stCls }}"><i></i>{{ r.stLabel }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"></path></svg></a></li></sc-for>
+              </ul>
+            </sc-if>
+            <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-state">
+                <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg></span>
+                <p class="rk-state-t">No reports yet</p>
+                <p class="rk-state-d">If something isn’t working, report it and follow it here.</p>
+                <a class="rb-btn rb-btn--primary rb-btn--lg" href="#{{ ids.formTitle }}" onClick="{{ toReport }}">Report a problem</a>
+              </div>
+            </sc-if>
+            <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}">
+              <p class="rk-loading-msg" role="status">Loading your reports…</p>
+              <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+              <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+              <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+            </sc-if>
+            <sc-if value="{{ isFailed }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-state" role="alert">
+                <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.5 4.5 0 0 0 7 18zM12 11v4M12 17.5h.01"></path></svg></span>
+                <p class="rk-state-t">We couldn’t load your reports</p>
+                <p class="rk-state-d">Nothing has changed. Try again.</p>
+                <button type="button" class="rb-btn rb-btn--lg" onClick="{{ retry }}">Try again</button>
+              </div>
+            </sc-if>
+          </section>
+        </sc-if>
+
+        <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#{{ ids.title }}" onClick="{{ toList }}">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"></path></svg><span aria-current="page">Report a problem</span></nav>
+            <div class="rk-head"><div class="rk-head-text"><h1 class="rb-h1 xs-fit" id="{{ ids.formTitle }}" tabindex="-1">Report a problem</h1><p class="rk-sub">Describe what went wrong. You can follow your report in My reports.</p></div></div>
+          </div>
+          <form class="rk-surface xs-form-surface" novalidate="" onSubmit="{{ send }}" aria-labelledby="{{ ids.formTitle }}">
+            <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-errsum" id="{{ ids.errsum }}" tabindex="-1" role="alert"><p class="rk-errsum-t">One thing needs fixing</p><ul><li><a href="#{{ ids.what }}" onClick="{{ toWhat }}">Say what happened</a></li></ul></div>
+            </sc-if>
+            <div class="xs-field">
+              <label class="rk-label" for="{{ ids.what }}">What happened?</label>
+              <p class="rk-hint" id="{{ ids.whatHint }}">Say what you were doing and what you saw.</p>
+              <sc-if value="{{ hasErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ ids.whatErr }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></svg>Say what happened, so it can be looked into</p></sc-if>
+              <textarea class="rk-textarea" id="{{ ids.what }}" name="what" rows="5" value="{{ what }}" onChange="{{ onWhat }}" aria-invalid="{{ whatInvalid }}" aria-describedby="{{ whatDesc }}"></textarea>
+            </div>
+            <div class="xs-field">
+              <label class="rk-label" for="{{ ids.where }}">Where did it happen?</label>
+              <p class="rk-hint" id="{{ ids.whereHint }}">Filled in from the page you came from. Change it if needed.</p>
+              <input class="rk-input" id="{{ ids.where }}" name="where" type="text" value="{{ where }}" onChange="{{ onWhere }}" aria-describedby="{{ ids.whereHint }}">
+            </div>
+            <div class="xs-field">
+              <label class="rk-label" for="{{ ids.shot }}">Screenshot <span class="xs-opt">(optional)</span></label>
+              <p class="rk-hint" id="{{ ids.shotHint }}">A picture of the screen can help.</p>
+              <input class="xs-file" id="{{ ids.shot }}" name="screenshot" type="file" accept="image/*" onChange="{{ onShot }}" aria-describedby="{{ ids.shotHint }}">
+            </div>
+            <div class="xs-form-act">
+              <button type="submit" class="{{ sendCls }}" id="{{ ids.send }}" aria-disabled="{{ busyAttr }}"><sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}"><span class="xs-spin" aria-hidden="true"></span>Sending…</sc-if><sc-if value="{{ idle }}" hint-placeholder-val="{{ true }}">Send report</sc-if></button>
+              <a class="rb-btn rb-btn--ghost rb-btn--lg" href="#{{ ids.title }}" onClick="{{ toList }}">Cancel</a>
+            </div>
+            <p class="xs-live" role="status">{{ live }}</p>
+          </form>
+        </sc-if>
+
+        <sc-if value="{{ isSent }}" hint-placeholder-val="{{ false }}">
+          <nav class="rk-crumbs" aria-label="Breadcrumb" style="margin-bottom: -12px"><a href="#{{ ids.title }}" onClick="{{ toList }}">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"></path></svg><span aria-current="page">Report sent</span></nav>
+          <section class="xs-msg" aria-labelledby="{{ ids.sentTitle }}">
+            <span class="xs-msg-ico xs-msg-ico--ok" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
+            <h1 class="rb-h1 xs-fit" id="{{ ids.sentTitle }}" tabindex="-1">Report sent</h1>
+            <sc-if value="{{ refs }}" hint-placeholder-val="{{ true }}"><p class="xs-msg-d">Your reference is <b>{{ sentRef }}</b>. You can follow it in My reports.</p></sc-if>
+            <sc-if value="{{ noRefs }}" hint-placeholder-val="{{ false }}"><p class="xs-msg-d">You can follow it in My reports.</p></sc-if>
+            <div class="xs-msg-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#{{ ids.title }}" onClick="{{ toList }}">View my reports</a><a class="rb-link" href="#xs-main" onClick="{{ home }}">Back to {{ homeLabel }}</a></div>
+            <sc-if value="{{ hasPicked }}" hint-placeholder-val="{{ false }}"><p class="rb-note" role="status">{{ picked }}</p></sc-if>
+          </section>
+        </sc-if>
+
+        <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+          <div>
+            <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#{{ ids.title }}" onClick="{{ toList }}">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.5 6l6 6-6 6"></path></svg><span aria-current="page">{{ d.title }}</span></nav>
+            <div class="rk-head"><div class="rk-head-text">
+              <sc-if value="{{ refs }}" hint-placeholder-val="{{ true }}"><p class="rk-eyebrow">{{ d.id }}</p></sc-if>
+              <h1 class="rk-title xs-fit" id="{{ ids.detailTitle }}" tabindex="-1">{{ d.title }}</h1>
+              <div class="rk-meta"><span class="{{ d.stClsLg }}"><i></i>{{ d.stLabel }}</span><span class="rk-meta-sep" aria-hidden="true"></span><span>Sent {{ d.sent }}</span></div>
+            </div></div>
+          </div>
+          <sc-if value="{{ d.isResolved }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--ok" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></svg><p class="rk-notice-t">Resolution note · {{ d.resolved }}</p><p class="rk-notice-d">{{ d.note }}</p></div>
+          </sc-if>
+          <sc-if value="{{ d.isReopened }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--info" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v4.5h-4.5"></path></svg><p class="rk-notice-t">This report is open again</p><p class="rk-notice-d">It was reopened on {{ d.reopened }}. You can follow it here.</p></div>
+          </sc-if>
+          <section class="rk-surface" aria-label="Report">
+            <div class="rk-sec">
+              <div class="rk-sec-h"><h2 class="rk-h3">What you reported</h2></div>
+              <dl class="rk-dl"><dt>What happened</dt><dd>{{ d.what }}</dd><dt>Where</dt><dd>{{ d.where }}</dd><dt>Screenshot</dt><dd>{{ d.shot }}</dd></dl>
+            </div>
+            <div class="rk-sec">
+              <div class="rk-sec-h"><h2 class="rk-h3">History</h2><p class="rb-note">Newest first</p></div>
+              <ol class="rk-tl"><sc-for list="{{ d.history }}" as="h" hint-placeholder-count="2"><li class="{{ h.cls }}"><p class="rk-tl-w">{{ h.what }}</p><p class="rk-tl-t">{{ h.when }}</p><sc-if value="{{ h.hasNote }}" hint-placeholder-val="{{ false }}"><p class="rk-tl-n">{{ h.note }}</p></sc-if></li></sc-for></ol>
+            </div>
+          </section>
+          <p class="xs-help-foot">Something else isn’t working? <a class="rb-link" href="#{{ ids.formTitle }}" onClick="{{ toReport }}">Report a problem</a></p>
+        </sc-if>
+
+      </div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["list","report","sent","detail"],"default":"list","section":"State"},"detail":{"editor":"text","default":"SUP-0211","section":"State"},"preset":{"editor":"enum","options":["","errors","sending","loading","failed"],"default":"","section":"State"},"showRefs":{"editor":"boolean","default":true,"section":"Workspace"},"homeLabel":{"editor":"enum","options":["Home","Overview"],"default":"Overview","section":"Workspace"},"where":{"editor":"text","default":"Overview","section":"Workspace"},"reports":{"editor":null},"today":{"editor":null},"dateLong":{"editor":null},"nextRef":{"editor":null},"sentRef":{"editor":null},"resetToken":{"editor":null},"embedded":{"editor":null},"idPrefix":{"editor":null},"onSubmit":{"editor":null},"onHome":{"editor":null},"$preview":{"width":1024,"height":480}}'>
+class Component extends DCLogic {
+  // XS-07 Help & support: My reports (list) · Report a problem (form) · Report sent · Report detail.
+  // The host owns the records (reports prop) and the sequence; onSubmit(draft) returns the stored record.
+  // Alone, this artboard keeps its own copy of a sample list so the whole family can be tried.
+  // showRefs=false is the Super Admin variant: no SUP numbers anywhere, including accessible names.
+  static get SAMPLE() {
+    return [
+      { id: 'SUP-0211', title: 'Student import stopped part-way', status: 'reopened', sent: '1 Oct 2026', iso: '2026-10-01', reopened: '6 Oct 2026', what: 'The student import stopped part-way through the file.', where: 'People · Students · Import students', shot: 'No screenshot added',
+        history: [{ what: 'Reopened', when: '6 Oct 2026' }, { what: 'Resolved', when: '3 Oct 2026', note: '“The import now reads the whole file. Please try again.”' }, { what: 'Sent', when: '1 Oct 2026' }] },
+      { id: 'SUP-0209', title: 'Usage page took a long time to load', status: 'open', sent: '30 Sep 2026', iso: '2026-09-30', what: 'The Usage page took a long time to load.', where: 'Usage', shot: 'No screenshot added', history: [{ what: 'Sent', when: '30 Sep 2026' }] },
+      { id: 'SUP-0189', title: 'Group name didn’t save', status: 'resolved', sent: '15 Sep 2026', iso: '2026-09-15', resolved: '18 Sep 2026', note: '“Group names now save when you press Save.”', what: 'I renamed a group and the new name didn’t save.', where: 'People · Groups', shot: 'No screenshot added',
+        history: [{ what: 'Resolved', when: '18 Sep 2026', note: '“Group names now save when you press Save.”' }, { what: 'Sent', when: '15 Sep 2026' }] }
+    ];
+  }
+  static get ST() {
+    return { open: { cls: 'xr-st xr-st--info', label: 'Open' }, reopened: { cls: 'xr-st xr-st--info', label: 'Reopened' }, resolved: { cls: 'xr-st xr-st--ok', label: 'Resolved' } };
+  }
+  state = { touched: false };
+
+  ids() {
+    const p = (this.props && this.props.idPrefix) || 'xs-help';
+    return { title: p + '-title', mine: p + '-mine', formTitle: p + '-form-title', sentTitle: p + '-sent-title', detailTitle: p + '-detail-title', errsum: p + '-errs',
+      what: p + '-what', whatHint: p + '-what-hint', whatErr: p + '-what-err', where: p + '-where', whereHint: p + '-where-hint', shot: p + '-shot', shotHint: p + '-shot-hint', send: p + '-send' };
+  }
+  base() {
+    const P = this.props || {};
+    const view = ['list', 'report', 'sent', 'detail'].indexOf(P.view) >= 0 ? P.view : 'list';
+    const s = { view, detail: P.detail || '', what: '', where: null, shot: '', err: false, busy: false, live: '', list: 'ready', sentRef: P.sentRef || '', local: null, picked: '' };
+    if (P.preset === 'errors') Object.assign(s, { view: 'report', err: true });
+    if (P.preset === 'sending') Object.assign(s, { view: 'report', busy: true, what: 'The VR simulation stopped loading at the second step.' });
+    if (P.preset === 'loading') Object.assign(s, { view: 'list', list: 'loading' });
+    if (P.preset === 'failed') Object.assign(s, { view: 'list', list: 'failed' });
+    return s;
+  }
+  cur() { return this.state.touched ? this.state : Object.assign({}, this.base(), { touched: false }); }
+  set(patch) { this.setState(Object.assign({}, this.cur(), patch, { touched: true })); }
+  focusLater(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) el.focus(); }, 60); }
+  componentDidMount() { this.alive = true; }
+  componentWillUnmount() { this.alive = false; }
+  componentDidUpdate(prev) {
+    const P = this.props || {};
+    if (prev && prev.resetToken !== P.resetToken && P.resetToken !== undefined) this.set({ view: 'list', err: false, busy: false, live: '', picked: '' });
+  }
+  hosted() { return typeof (this.props || {}).onSubmit === 'function'; }
+  records() { const P = this.props || {}, s = this.cur(); if (this.hosted()) return Array.isArray(P.reports) ? P.reports : []; return s.local || (Array.isArray(P.reports) ? P.reports : Component.SAMPLE); }
+  titleOf(text) {
+    const t = String(text || '').replace(/\s+/g, ' ').trim();
+    let first = t.split(/(?<=[.!?])\s/)[0].replace(/[.!?]+$/, '');
+    if (first.length > 72) { first = first.slice(0, 72); first = first.slice(0, first.lastIndexOf(' ') > 40 ? first.lastIndexOf(' ') : 72) + '…'; }
+    return first || 'Problem report';
+  }
+
+  renderVals() {
+    const P = this.props || {}, s = this.cur(), I = this.ids(), ST = Component.ST;
+    const refs = P.showRefs !== false, home = P.homeLabel || 'Overview', spec = !P.embedded;
+    const today = P.today || '23 Oct 2026';
+    const all = this.records().slice().sort((a, b) => (b.iso || '').localeCompare(a.iso || ''));
+    const nav = (view, focusId, extra) => (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); this.set(Object.assign({ view, err: false, live: '', picked: '' }, extra || {})); this.focusLater(focusId); };
+    const rows = all.map(r => {
+      const st = ST[r.status] || ST.open;
+      const parts = [refs ? r.id : null, 'Sent ' + r.sent, r.status === 'reopened' && r.reopened ? 'Reopened ' + r.reopened : null, r.status === 'resolved' && r.resolved ? 'Resolved ' + r.resolved : null].filter(Boolean);
+      return { title: r.title, meta: parts.join(' · '), stCls: st.cls, stLabel: st.label, open: nav('detail', I.detailTitle, { detail: r.id }) };
+    });
+    const rec = all.find(r => r.id === s.detail) || null;
+    const view = s.view === 'detail' && !rec ? 'list' : s.view;
+    let d = { history: [] };
+    if (rec) {
+      const st = ST[rec.status] || ST.open;
+      d = { id: rec.id, title: rec.title, sent: rec.sent, stClsLg: st.cls + ' rk-st-lg', stLabel: st.label,
+        isResolved: rec.status === 'resolved', isReopened: rec.status === 'reopened', resolved: rec.resolved || '', note: rec.note || '', reopened: rec.reopened || '',
+        what: rec.what || rec.title, where: rec.where || 'Not given', shot: rec.shot || 'No screenshot added',
+        history: (rec.history || [{ what: 'Sent', when: rec.sent }]).map((h, i) => ({ what: h.what, when: h.when, note: h.note || '', hasNote: !!h.note, cls: i === 0 ? 'is-latest' : '' })) };
+    }
+    const where = s.where === null ? (P.where || 'Overview') : s.where;
+    const send = (ev) => {
+      if (ev && ev.preventDefault) ev.preventDefault();
+      const c = this.cur();
+      if (c.busy) return;
+      if (!String(c.what || '').trim()) { this.set({ err: true, live: '' }); this.focusLater(I.errsum); return; }
+      this.set({ busy: true, err: false, live: 'Sending your report' });
+      window.setTimeout(() => {
+        if (!this.alive) return;
+        const c2 = this.cur();
+        const draft = { title: this.titleOf(c2.what), what: String(c2.what).trim(), where: String(c2.where === null ? (P.where || '') : c2.where).trim() || 'Not given', shot: c2.shot || 'No screenshot added' };
+        let stored = null;
+        if (this.hosted()) stored = P.onSubmit(draft);
+        if (!stored) {
+          const list = this.records(), n = 214 + list.filter(r => /^SUP-02(1[4-9]|[2-9]\d)$/.test(r.id)).length;
+          stored = Object.assign({ id: 'SUP-0' + n, status: 'open', sent: today, iso: '2026-10-23', history: [{ what: 'Sent', when: today }] }, draft);
+          if (!this.hosted()) { this.set({ local: [stored].concat(list), view: 'sent', busy: false, live: '', sentRef: stored.id, what: '', where: null, shot: '' }); this.focusLater(I.sentTitle); return; }
+        }
+        this.set({ view: 'sent', busy: false, live: '', sentRef: stored.id, what: '', where: null, shot: '' });
+        this.focusLater(I.sentTitle);
+      }, 900);
+    };
+    const listState = s.list || 'ready';
+    return {
+      f: spec ? { root: 'xr rb', main: 'rb-main', page: 'rb-page' } : { root: 'xs-host', main: 'xs-host', page: 'xs-host' },
+      ids: I, refs, noRefs: !refs, homeLabel: home,
+      hasDate: !!P.dateLong, dateLong: P.dateLong || '',
+      isList: view === 'list', isReport: view === 'report', isSent: view === 'sent', isDetail: view === 'detail',
+      rows, d,
+      showRows: listState === 'ready' && rows.length > 0, isEmpty: listState === 'ready' && rows.length === 0,
+      isLoading: listState === 'loading', isFailed: listState === 'failed', busyList: listState === 'loading' ? 'true' : undefined,
+      headAct: listState === 'ready' && rows.length > 0, hasCount: listState === 'ready' && rows.length > 0,
+      countText: rows.length + (rows.length === 1 ? ' report' : ' reports') + ' · newest first',
+      retry: () => { this.set({ list: 'loading' }); window.setTimeout(() => { if (!this.alive) return; this.set({ list: 'ready' }); this.focusLater(I.mine); }, 700); },
+      toReport: nav('report', I.formTitle, { what: '', where: null, shot: '' }), toList: nav('list', I.title), toWhat: (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); const el = document.getElementById(I.what); if (el) el.focus(); },
+      what: s.what, where, hasErr: !!s.err, whatInvalid: s.err ? 'true' : 'false', whatDesc: s.err ? I.whatHint + ' ' + I.whatErr : I.whatHint,
+      onWhat: (ev) => this.set({ what: ev.target.value, err: this.cur().err && !String(ev.target.value).trim() }),
+      onWhere: (ev) => this.set({ where: ev.target.value }),
+      onShot: (ev) => { const fl = ev.target.files && ev.target.files[0]; this.set({ shot: fl ? fl.name : '' }); },
+      busy: !!s.busy, idle: !s.busy, busyAttr: s.busy ? 'true' : undefined, sendCls: 'rb-btn rb-btn--primary rb-btn--lg' + (s.busy ? ' xs-busy' : ''), live: s.live || '', send,
+      sentRef: s.sentRef || P.nextRef || 'SUP-0214',
+      home: (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); if (typeof P.onHome === 'function') P.onHome(); else this.set({ picked: 'Back to ' + home + ' opens the role’s home page. Try it in the live preview (Main).' }); },
+      picked: s.picked || '', hasPicked: !!s.picked
+    };
+  }
+}
+</script>
+</body>
+</html>

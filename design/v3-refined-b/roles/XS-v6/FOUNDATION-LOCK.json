@@ -1,0 +1,245 @@
+{
+ "foundationId": "XR-V3-RB-1.0",
+ "basedOn": "FOUNDATION-LOCK.json of XR-V3-Shared-Surfaces-Reference-Pack (sha256 faae128e35813f03776c8376c5da218fea76b9bc0b8904f765b34f6ea9c31c49)",
+ "baseFiles": {
+  "project/core.css": {
+   "sha256": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+   "foundationPath": "references/v3/project/core.css",
+   "foundationSha256": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+   "byteIdentical": true
+  },
+  "project/rb.css": {
+   "sha256": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+   "foundationPath": "references/v3/project/rb.css",
+   "foundationSha256": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+   "byteIdentical": true
+  },
+  "project/rb-kit.css": {
+   "sha256": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+   "foundationPath": "references/v3/project/rb-kit.css",
+   "foundationSha256": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+   "byteIdentical": true
+  }
+ },
+ "allBaseFilesByteIdentical": true,
+ "foundationReferencesNotCopied": {
+  "references/v3/HANDOFF-original.md": {
+   "foundationSha256": "3598572e00da8148a47f5abda743eb868c3020d8405ac8f4530581f8e49cae67",
+   "packCopySha256": "3598572e00da8148a47f5abda743eb868c3020d8405ac8f4530581f8e49cae67",
+   "unchanged": true,
+   "use": "read-only reference; not copied into this package"
+  },
+  "references/v3/design-tokens.json": {
+   "foundationSha256": "98b94673f7363b4bf64f7e9dde24fd29ecde9eb0cc3889e230caf4c497b1d5a3",
+   "packCopySha256": "98b94673f7363b4bf64f7e9dde24fd29ecde9eb0cc3889e230caf4c497b1d5a3",
+   "unchanged": true,
+   "use": "read-only reference; not copied into this package"
+  },
+  "references/v3/project/IA01.dc.html": {
+   "foundationSha256": "f06c6e3e2fd8900a2a9f34360e11363f6ab506fb1d5676e4d4e0b0265a524b92",
+   "packCopySha256": "f06c6e3e2fd8900a2a9f34360e11363f6ab506fb1d5676e4d4e0b0265a524b92",
+   "unchanged": true,
+   "use": "read-only reference; not copied into this package"
+  },
+  "references/v3/project/IA02.dc.html": {
+   "foundationSha256": "71280219faa1f3910cff66ed65b9b2a7ee3664afc97398dc630bb5614c98a54f",
+   "packCopySha256": "71280219faa1f3910cff66ed65b9b2a7ee3664afc97398dc630bb5614c98a54f",
+   "unchanged": true,
+   "use": "read-only reference; not copied into this package"
+  },
+  "references/v3/project/SA01.dc.html": {
+   "foundationSha256": "3cdd6a194b3441d628b335d254782009bc8cecea92dda48667474ccf258e91fc",
+   "packCopySha256": "3cdd6a194b3441d628b335d254782009bc8cecea92dda48667474ccf258e91fc",
+   "unchanged": true,
+   "use": "read-only reference; not copied into this package"
+  },
+  "references/v3/project/SA02.dc.html": {
+   "foundationSha256": "4d88600e819c3b89b14efdfaf37914e23c57414e23fb947f1386ff5cda1d0496",
+   "packCopySha256": "4d88600e819c3b89b14efdfaf37914e23c57414e23fb947f1386ff5cda1d0496",
+   "unchanged": true,
+   "use": "read-only reference; not copied into this package"
+  },
+  "references/v3/project/canvas.json": {
+   "foundationSha256": "2131cfa9fcd0fb2a1889ed30ec943ada2c31638cca9f13cb17a91447233ff030",
+   "packCopySha256": "2131cfa9fcd0fb2a1889ed30ec943ada2c31638cca9f13cb17a91447233ff030",
+   "unchanged": true,
+   "use": "read-only reference; not copied into this package"
+  }
+ },
+ "localAdditions": {
+  "project/Main.dc.html": {
+   "sha256": "5f076fc08792a4943fe143973512e6c1659870a6c74397bd136ba58cdff1fe3a",
+   "kind": "live role root"
+  },
+  "project/Shell-Drawer-768.dc.html": {
+   "sha256": "7446d93c38797c1ce62bcb6eaba3e33b57df6c45e30b26cc643cdb35e4a42506",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS01-SignIn-768.dc.html": {
+   "sha256": "b7300208399c87347780da6e5407d5425451afea6daf6901d04990fd92213c09",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS01-SignIn-Errors-375.dc.html": {
+   "sha256": "e7495a9f07a9e325452d7139aa8a3d2ced0f17619ecdb514ae7e62ca28a51dfd",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS01-SignIn-States.dc.html": {
+   "sha256": "a4133aef31104dc667edef7d05ea4cdf22f4155698ae402cb2ef6520358f0ad6",
+   "kind": "gallery"
+  },
+  "project/XS03-SessionExpired-1024.dc.html": {
+   "sha256": "8b3b26b48443d6842c1846e15961ffa5169de941475bba1747d1902f658b9acf",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS03-SignedOut-375.dc.html": {
+   "sha256": "dbc4e9bc3a232fa5427a334bb6fc9c2c50e0c7c33547cf538714ecfb2f9bf7dd",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS05-InstituteAdmin-375.dc.html": {
+   "sha256": "198a7824bce998676d8b0f08b04180bb38209a9097a8389af3d5caf4d4425a2f",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS05-Menus.dc.html": {
+   "sha256": "e068f0c2cb5ef44c652e39fa556a5fadfeb1589cb19a875cd364f263e3bd9850",
+   "kind": "gallery"
+  },
+  "project/XS05-Student-1440.dc.html": {
+   "sha256": "29ac5b8afd70b7f11077c39c6d1ae73760cc8ac7164ee424774247fbc82c509b",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS05-SuperAdmin-1024.dc.html": {
+   "sha256": "4eb8112b38f8921263788690dcb869e03979a2b074d30bcca30994efa1a45709",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS06-InstituteAdmin-1440.dc.html": {
+   "sha256": "08a9f21568be738fd46d137c6ca90809e840ddebc8c0b9343716a9fb180a1707",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS06-Student-375.dc.html": {
+   "sha256": "f962bf042035d9c835e5491da1d8ea1c55210264de644c03e6e39f48c726d86d",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Empty-Vendor-768.dc.html": {
+   "sha256": "e49c20360c5122afecaef28739991f3bdf80cfa2b8b78c739adbacd43d7378c1",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Failed-768.dc.html": {
+   "sha256": "a353a16abf17c42895a2a0169c900cf605d4536ce2a27eaebccaf33076916910",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Help-InstituteAdmin-1440.dc.html": {
+   "sha256": "1e2e90f818ab866b40f96a967be4ef81767740c9ced7a74f0d60939f68bba1c7",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Help-Student-375.dc.html": {
+   "sha256": "94a0b16bb9f9ff6698848884eb2d79bae4fa36bc9e21b57c16c2fad5171a01ac",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Loading-1024.dc.html": {
+   "sha256": "8a38412de72d12b158e9b5b400d9d619d430030e50344330bdf2249c9999271c",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Reopened-ContentManager-1024.dc.html": {
+   "sha256": "4a083c15f8490f20699fb208b78a34fe323071a9b9f118fd1252315c8c0f66f3",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Report-375.dc.html": {
+   "sha256": "a0044c5b47f5f5a103e6ec9cae013c1465396e1273e55305c9d663f9c2654278",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Report-Errors-1024.dc.html": {
+   "sha256": "e285e76821d0a6b469ea686ef83e58a17e2645a16af860ef15265385e43526a5",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Resolved-Faculty-1440.dc.html": {
+   "sha256": "99af1d09cb64bacf942b501ee6f1fcd3a367829059107c4d845b9183ced3252e",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-Sent-768.dc.html": {
+   "sha256": "7312e21228321483b2f27e8cfbc5aa07906a61e8cf1223503544408395ce1dfa",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS07-SuperAdmin-Sent-1024.dc.html": {
+   "sha256": "ada06956910ddc0269489f938b075d383be9746a3135deaf2c319d9c6c71b5b8",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS08-Inactive-Refusal-375.dc.html": {
+   "sha256": "1d26935b0ebc1bc60379a50ed51a74b802983434862cdc0fcdccf4e29e97621a",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS08-Inactive-Student-1440.dc.html": {
+   "sha256": "7ff8bb929c6cfc92f5541206a90dc370ccb3a4f324b6e6c4ac1857ee1bd7b360",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS08-Notices.dc.html": {
+   "sha256": "c6f4b31a73c657b4769d2a5789fd3e1c63101cebb1559efa5be207b31b08cd35",
+   "kind": "gallery"
+  },
+  "project/XS08-Paused-Faculty-1024.dc.html": {
+   "sha256": "dacc607a997009b65e3ecade30bae6eba920cb0a4bd99bf1f75e5808ad1398df",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS08-Paused-InstituteAdmin-1440.dc.html": {
+   "sha256": "d62e0eb982083135d81c460562a43b27255130ae6dd9400b267a6b99a6c53d40",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS08-Paused-Refusal-375.dc.html": {
+   "sha256": "878adc4d4e56954d0f710d1f11d7c3b14648a42ef54c06bd5fb00954b386371b",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XS08-Paused-Student-768.dc.html": {
+   "sha256": "07eb47ba2451f740cb0dab354794a95d4b052569c5dca93f66d9f16ea62b0b3c",
+   "kind": "state/width wrapper of Main"
+  },
+  "project/XsAccessNotice.dc.html": {
+   "sha256": "1811e91272725f2566a6161ba2c9219eecd04e91bb205b7968e335c774491b73",
+   "kind": "shared component"
+  },
+  "project/XsAccountMenu.dc.html": {
+   "sha256": "f0f85bd6a7e888778f7eb9d1ba6ebc28a87795d8c9dc5395c3739af382a14fc2",
+   "kind": "shared component"
+  },
+  "project/XsHelp.dc.html": {
+   "sha256": "61af6ecdd290748031de70ff36dc340918dc699b84f7ea9e32be632871bdc6d4",
+   "kind": "shared component"
+  },
+  "project/XsMessage.dc.html": {
+   "sha256": "4e141fef4bb840e8ed865ad50bb820d39a7dc8fd07d99c92360b01fca9f94e2f",
+   "kind": "shared component"
+  },
+  "project/XsSignIn.dc.html": {
+   "sha256": "7a75af27becb7d7af8d9f312860a493bade3c3e862d8d5186ef0ed5b852e9e66",
+   "kind": "shared component"
+  },
+  "project/canvas.json": {
+   "sha256": "e80570b490593909bb26512cb8c890f28967ef8b91cd0e1b2d8a2c4a735c41a1",
+   "kind": "canvas index"
+  },
+  "project/xs-shared.css": {
+   "sha256": "d0000587ae6b0c5d2010cac234c1c2f8511e4cbf6c22e2aacf9a6000ebcd9ba5",
+   "kind": "shared stylesheet extension"
+  }
+ },
+ "tokenChanges": "none (no custom property added or redefined)",
+ "baseClassRestyles": "none (every rule in xs-shared.css selects an xs- class)",
+ "shellPatchesProposed": [
+  "XS-P1 skip link",
+  "XS-P2 focus H1 and close drawer after navigation",
+  "XS-P3 account button opens XsAccountMenu"
+ ],
+ "lockedLandingScreenIds": [
+  "PU-01",
+  "PU-14"
+ ],
+ "lockedLandingStatus": "untouched: no PU-01 or PU-14 file is part of this package or the XS canvas",
+ "noIndependentRoleTheme": true,
+ "designHostRuntime": {
+  "file": "support.js (served by the canvas as artifact-type/dc-runtime.js; not shipped)",
+  "sha256": "3f160299989dc595cf434dac7b7f3e6fd20ed015a2d99e075c3eac09dffe0f10"
+ },
+ "canvas": {
+  "title": "XR Learning Platform — V3 · Entry & shared (XS) · Refined B",
+  "version": "6",
+  "files": 41
+ }
+}

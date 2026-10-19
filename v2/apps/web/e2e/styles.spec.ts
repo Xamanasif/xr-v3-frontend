@@ -6,6 +6,7 @@ import { expect, test, type Page } from '@playwright/test';
 import {
   builtCssFiles,
   LAYER_ORDER,
+  V3_LAYER_ORDER,
   layerSequence,
   preflightFingerprint,
   preflightHits,
@@ -18,6 +19,9 @@ import {
  * Appendix F risk K-5). `@xr/ui/styles.css` (8 verbatim v46 sheets in one `xr.v46` layer + the
  * `xr.product` layer) and `globals.css` (Tailwind theme + utilities, no Preflight) go through
  * Next.js / Turbopack / @tailwindcss/postcss. Run `pnpm build` at the workspace root first.
+ * The V3 entry (`@xr/ui/styles-v3.css`, ADR-0010) reaches only the chunks of the routes that
+ * render a V3 surface (today the Entry & shared screens, XS): its generated, scoped sheets join
+ * the source CSS the Preflight fingerprint is taken against, as ADR-0010 sets out.
  */
 
 const stylesDirectory = dirname(resolveFromApp('@xr/ui/styles.css'));
@@ -31,9 +35,11 @@ const V46_SHEETS = [
   'xr-govern.css',
   'xr-admin.css',
 ];
+const V3_SHEETS = ['rb-scoped.css', 'xs-scoped.css', 'patch.css'];
 const sourceCss = [
   ...V46_SHEETS.map((sheet) => readFileSync(join(stylesDirectory, 'v46', sheet), 'utf8')),
   readFileSync(join(stylesDirectory, 'product.css'), 'utf8'),
+  ...V3_SHEETS.map((sheet) => readFileSync(join(stylesDirectory, 'v3', sheet), 'utf8')),
 ].join('\n');
 
 /** The product's stylesheet links on a served page (the 404 page is the only page in Phase 0). */
@@ -45,15 +51,32 @@ async function productStylesheets(page: Page): Promise<string[]> {
 }
 
 test.describe('built CSS: layers', () => {
-  test('every emitted CSS file declares exactly properties < theme < xr.v46 < xr.product < utilities and nothing unlayered', () => {
+  test('every emitted CSS file declares exactly properties < theme < xr.v46 < xr.product < [xr.v3 <] utilities and nothing unlayered', () => {
     const files = builtCssFiles();
     expect(files.length).toBeGreaterThan(0);
+    let v3Chunks = 0;
     for (const file of files) {
       const { layers, unlayered } = layerSequence(readFileSync(file, 'utf8'));
       // Each file on its own establishes the full order, so whichever chunk the browser meets
       // first, the order is the same (ADR-0001 §3). No other layer (`base`, `components`) exists.
-      expect(layers, basename(file)).toEqual([...LAYER_ORDER]);
+      // A chunk of a V3 route also reserves `xr.v3` and names its nested layers (ADR-0010).
+      const v3 = layers.includes('xr.v3');
+      if (v3) v3Chunks += 1;
+      expect(layers, basename(file)).toEqual([...(v3 ? V3_LAYER_ORDER : LAYER_ORDER)]);
       expect(unlayered, basename(file)).toEqual([]);
+    }
+    expect(v3Chunks).toBeGreaterThan(0);
+  });
+
+  test('the public landing’s stylesheets carry no V3 layer (ADR-0010)', async ({
+    page,
+    request,
+  }) => {
+    const hrefs = await productStylesheets(page);
+    expect(hrefs.length).toBeGreaterThan(0);
+    for (const href of hrefs) {
+      const { layers } = layerSequence(await (await request.get(href)).text());
+      expect(layers, href).toEqual([...LAYER_ORDER]);
     }
   });
 
@@ -229,6 +252,34 @@ test.describe('the cascade, in a fresh document', () => {
     ]);
     // utilities is now the FIRST (weakest) layer: the product layer wins --c.
     expect(result.layers).toEqual(['v46', 'product', 'product']);
+  });
+
+  test('a V3 chunk (ADR-0010): xr.v3 beats xr.product and loses to utilities, whichever loads first', async ({
+    page,
+    baseURL,
+  }) => {
+    const v3Chunks = builtCssFiles()
+      .filter((file) => layerSequence(readFileSync(file, 'utf8')).layers.includes('xr.v3'))
+      .map((file) => `/_next/static/${file.split(`${join('.next', 'static')}/`)[1]!}`);
+    expect(v3Chunks.length).toBeGreaterThan(0);
+    const landing = await productStylesheets(page);
+    // After the chunks, one rule in the innermost V3 layer for --b and --c.
+    const v3Probe = '<style>@layer xr.v3.patch{[data-probe=layers]{--b:v3;--c:v3}}</style>';
+    for (const order of [
+      [...v3Chunks, ...landing],
+      [...landing, ...v3Chunks],
+    ]) {
+      const { layers, deleteColour, publicRootOverflow } = await probeDocument(page, baseURL!, [
+        ...linksFor(order),
+        v3Probe,
+      ]);
+      expect(layers).toEqual(['v46', 'v3', 'utilities']);
+      // The v46 cascade is untouched by the V3 sheets (no V3 selector matches outside `.xr`).
+      expect([deleteColour, publicRootOverflow]).toEqual([
+        CANONICAL.deleteColour,
+        CANONICAL.publicRootOverflow,
+      ]);
+    }
   });
 });
 

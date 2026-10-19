@@ -42,14 +42,14 @@ for (const { person, other } of PAIRS) {
     await expect(page).toHaveURL(`${TEST_HOOKS_URL}${other.base}/help`);
     await expect(page).toHaveTitle('Not your workspace · XR Learning Platform');
 
-    const message = page.locator('main .xr-msg');
+    // The XS message page (`XsMessage`, owner-approved): the way back is named by the person's
+    // own home ("Back to Home" for the Student, "Back to Overview" for every other role).
+    const message = page.locator('main .rk-x-region .xs-msg');
+    const back = `Back to ${person.role === 'student' ? 'Home' : 'Overview'}`;
     await expect(message).toContainText(
       `You’re signed in to the ${person.label} workspace. This address belongs to a different workspace.`,
     );
-    await expect(message.getByRole('link', { name: 'Back to Home' })).toHaveAttribute(
-      'href',
-      person.base,
-    );
+    await expect(message.getByRole('link', { name: back })).toHaveAttribute('href', person.base);
     await expect(message.getByRole('link', { name: 'Help' })).toHaveAttribute(
       'href',
       `${person.base}/help`,
@@ -62,7 +62,7 @@ for (const { person, other } of PAIRS) {
     await expect(page.locator('aside.xr-side [aria-current]')).toHaveCount(0);
     await expect(sidebarHelp(page)).toHaveAttribute('href', `${person.base}/help`);
     await expect(
-      page.getByRole('button', { name: new RegExp(`^Account menu: [^,]+, ${person.label}`) }),
+      page.getByRole('button', { name: new RegExp(`^Account menu, [^,]+, ${person.label}`) }),
     ).toBeAttached();
     // Nothing of the requested page, no route, role code or status code. The person's own
     // sidebar is left out: since Package 2A it names their own destinations ("Student access").
@@ -80,7 +80,7 @@ for (const { person, other } of PAIRS) {
     // 4A, the Vendor's, Academic Reviewer's and Content Manager's Overviews (VE-01, RV-01, CM-01)
     // since Phase 5 — client-side, the same world.
     const mark = await markDocument(page);
-    await message.getByRole('link', { name: 'Back to Home' }).click();
+    await message.getByRole('link', { name: back }).click();
     const home: Readonly<Partial<Record<string, string>>> = {
       super_admin: 'Overview',
       tenant_admin: 'Overview',
@@ -116,16 +116,20 @@ test.describe('leaving XS-06 shown at another role’s bare base: focus moves in
       ).toBeVisible();
       await expect(page).toHaveURL(`${TEST_HOOKS_URL}/faculty`);
       const mark = await markDocument(page);
-      await page.locator('main .xr-msg').getByRole('link', { name: action }).click();
+      await page.locator('main .xs-msg').getByRole('link', { name: action }).click();
       // "Back to Home" reaches the Student's built Home (ST-01, Package 2A); Help reaches Help.
+      // Focus moves into the new page: Help's own H1 (an XS page, shell patch XS-P2); `main` on
+      // the Student's v46 Home.
       if (action === 'Help') {
         await page.waitForURL('**/student/help');
-        await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
+        const title = page.getByRole('heading', { level: 1, name: 'Help & support' });
+        await expect(title).toBeVisible();
+        await expect(title).toBeFocused();
       } else {
         await page.waitForURL(/\/student$/);
         await expect(page.getByRole('heading', { level: 1, name: 'Hello, Rahul' })).toBeVisible();
+        await expect(page.locator('main.xr-page#main')).toBeFocused();
       }
-      await expect(page.locator('main.xr-page#main')).toBeFocused();
       await expectSameDocument(page, mark);
     });
   }

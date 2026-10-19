@@ -1,0 +1,38 @@
+### K1b institution sign-in by keyboard after tabbing back @1440
+tab1: a.xs-back "Back to experiments" [focus-visible]
+tab2: button#xs-signin-sso.rb-btn.rb-btn--lg "Sign in with your institution" [focus-visible]
+tab3: input#xs-signin-email.rk-input "" [focus-visible]
+tab4: input#xs-signin-pw.rk-input "" [focus-visible]
+tab5: button.xs-pw-toggle "Show password" [focus-visible]
+tab6: button.xs-linkbtn "Forgot your password?" [focus-visible]
+tab7: button#xs-signin-go.rb-btn.rb-btn--primary "Sign in" [focus-visible]
+tab8: button.xs-linkbtn "First time signing in?" [focus-visible]
+tab9: a.rb-link "Request institutional access" [focus-visible]
+back on institution button (7 x Shift+Tab): button#xs-signin-sso.rb-btn.rb-btn--lg "Sign in with your institution" [focus-visible]
+Enter on institution sign-in -> notice: div#xs-signin-sso-note.rk-notice.rk-notice--info "Institution sign-in isn’t available right nowSign in with your e-mail " [focus-visible]
+next after notice: input#xs-signin-email.rk-input "" [focus-visible]
+console clean
+
+### K3b menu tab-out and click inside @1440
+eval: ok
+open: a#xs-acct-help.xs-menu-item "Help & support" [focus-visible]
+Tab: button#xs-acct-out.xs-menu-item "Sign out" [focus-visible]
+Tab out of menu: BODY
+expanded after tabbing out: false
+expanded after clicking the name in the panel: true
+expanded after outside click: false
+focus after outside click: button#xs-acct-btn.rb-acct "Account menu, Meera Iyer, Institute Admin, Godavari Institute of Techn"
+console clean
+
+### K6b help form errors by keyboard @1024
+eval: h1
+form H1: h1#xs-help-form-title.rb-h1.xs-fit "Report a problem" [focus-visible]
+on Send: button#xs-help-send.rb-btn.rb-btn--primary "Send report" [focus-visible]
+Enter on Send (empty) -> summary: div#xs-help-errs.rk-errsum "One thing needs fixingSay what happened" [focus-visible]
+aria-invalid: true
+describedby with error: xs-help-what-hint xs-help-what-err
+summary link: a "Say what happened" [focus-visible]
+link -> textarea: textarea#xs-help-what.rk-textarea "" [focus-visible]
+summary still shown after typing: 0
+field error after typing: 0
+console clean

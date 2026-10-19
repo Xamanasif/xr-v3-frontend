@@ -49,7 +49,7 @@ test('Package 1A: /sign-in answers 200; row 21 /signed-out → /sign-in?reason=s
   const html = await signIn.text();
   // The card is server-rendered without a notice (the query is read in the browser).
   expect(html).toContain('Sign in · XR Learning Platform');
-  expect(html).toContain('xp-auth-card');
+  expect(html).toContain('xs-card');
   const signedOut = await request.get('/signed-out', { maxRedirects: 0 });
   expect(signedOut.status()).toBe(307);
   expect(signedOut.headers()['location']).toBe('/sign-in?reason=signed-out');

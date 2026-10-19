@@ -3,9 +3,11 @@ import { joinClasses } from '../internal/classes.js';
 
 /**
  * The line icons the Refined Direction B boards draw (foundation XR-V3-RB-1.0): the nav icons
- * inline in each rail, and the `rbi-*` / `rki-*` symbols of SA01, SA02, IA01 and IA02. Twenty-two
- * are the very paths of the v46 registry (taken from it, so the two never drift); seventeen are
- * new to V3. `v3/icons.test.ts` checks every path against the board that draws it.
+ * inline in each rail, and the `rbi-*` / `rki-*` symbols of SA01, SA02, IA01 and IA02, plus the
+ * ones the Entry & shared export (XS-v6) draws in its sign-in card, account menu, Help pages and
+ * messages. Twenty-six are the very paths of the v46 registry (taken from it, so the two never
+ * drift); eighteen are new to V3. `primitives.test.tsx` checks every path against the board that
+ * draws it.
  */
 export const V3_ICON_PATHS = {
   // Shared with the v46 registry (identical paths).
@@ -31,6 +33,11 @@ export const V3_ICON_PATHS = {
   clock: ICON_PATHS.clock,
   pauseCircle: ICON_PATHS.paused,
   ended: ICON_PATHS.notAvailable,
+  // Shared with the v46 registry, drawn by the XS export (XS-v6).
+  back: ICON_PATHS.back,
+  signOut: ICON_PATHS.signOut,
+  retry: ICON_PATHS.retry,
+  checkCircle: ICON_PATHS.reviewedByMe,
   // New in Refined Direction B.
   inbox: 'M4 13l2.5-7h11L20 13v6H4zM4 13h5l1.5 2h3L15 13h5',
   calendar:
@@ -54,6 +61,8 @@ export const V3_ICON_PATHS = {
   lock: 'M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2.5',
   cloudAlert: 'M7 18h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.5 4.5 0 0 0 7 18zM12 11v4M12 17.5h.01',
   user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20.5a7.5 7.5 0 0 1 15 0',
+  // New in the XS export (XS-v6): the information disc of its notices and prototype line.
+  info: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5M12 8h.01',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;

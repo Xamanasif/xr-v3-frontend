@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Account menu · every workspace</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <div class="xs-kit">
+    <div class="xs-kit-head">
+      <h1 class="rb-h1">Account menu · every workspace</h1>
+      <p class="rk-sub">XS-05, one component in all seven workspaces. Name, role, the institution or organisation where the account has one, Help &amp; support and Sign out. My device appears only for a Student with AR, VR or MR access. No workspace or role switcher.</p>
+    </div>
+    <div class="xs-kit-grid xs-kit-grid--menus">
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Student · with a device</b><span>Rahul Verma has VR, so My device is listed</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Rahul Verma" initials="RV" role-label="Student" org="Godavari Institute of Technology" device="{{ true }}" id-prefix="m1" hint-size="200px,46px"></dc-import></div></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Student · no device</b><span>Sneha Reddy has no AR, VR or MR access</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Sneha Reddy" initials="SR" role-label="Student" org="Godavari Institute of Technology" device="{{ false }}" id-prefix="m2" hint-size="200px,46px"></dc-import></div></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Faculty</b><span>Institution line</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Dr S. Ranganathan" initials="SR" role-label="Faculty" org="Godavari Institute of Technology" device="{{ false }}" id-prefix="m3" hint-size="200px,46px"></dc-import></div></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Institute Admin</b><span>Institution line</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Meera Iyer" initials="MI" role-label="Institute Admin" org="Godavari Institute of Technology" device="{{ false }}" id-prefix="m4" hint-size="200px,46px"></dc-import></div></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Vendor</b><span>The vendor’s organisation in the institution line</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Anil Shetty" initials="AS" role-label="Vendor" org="Northline Simulation Studio" device="{{ false }}" id-prefix="m5" hint-size="200px,46px"></dc-import></div></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Academic Reviewer</b><span>Platform role, no organisation line (open, v46 board 13)</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Prof. A. Menon" initials="AM" role-label="Academic Reviewer" org="" device="{{ false }}" id-prefix="m6" hint-size="200px,46px"></dc-import></div></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Content Manager</b><span>Platform role, no organisation line</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Kavya Nair" initials="KN" role-label="Content Manager" org="" device="{{ false }}" id-prefix="m7" hint-size="200px,46px"></dc-import></div></div></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Super Admin</b><span>Platform role, no organisation line</span></p><div class="xs-kit-top"><div class="xs-acct-slot"><dc-import name="XsAccountMenu" embedded="{{ true }}" start-open="{{ true }}" catcher="{{ false }}" person-name="Arjun Mehta" initials="AM" role-label="Super Admin" org="" device="{{ false }}" id-prefix="m8" hint-size="200px,46px"></dc-import></div></div></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1640,"height":1120}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

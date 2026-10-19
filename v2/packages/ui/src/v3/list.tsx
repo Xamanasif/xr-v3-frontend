@@ -611,13 +611,22 @@ export function ListState({
   );
 }
 
+/** The skeleton cells of a request table row: two lines, two lines, then three single lines. */
+const TABLE_SKELETON = [2, 2, 1, 1, 1] as const;
+
 /** "Loading requests…" over skeleton rows (`p.rk-loading-msg` + `div.rk-skel-row` ×3). */
 export function LoadingRows({
   message,
   rows = 3,
+  cells = TABLE_SKELETON,
 }: {
   readonly message: ReactNode;
   readonly rows?: number;
+  /**
+   * The lines in each skeleton cell, in order: the request table's five cells by default; a
+   * report list row draws two cells, `[2, 1]` (XS-07 "Loading your reports…").
+   */
+  readonly cells?: readonly number[];
 }) {
   return (
     <div aria-busy="true">
@@ -626,23 +635,13 @@ export function LoadingRows({
       </p>
       {Array.from({ length: rows }, (_, index) => (
         <div key={index} className="rk-skel-row" aria-hidden="true">
-          <div>
-            <span className="rk-skel" />
-            <span className="rk-skel" />
-          </div>
-          <div>
-            <span className="rk-skel" />
-            <span className="rk-skel" />
-          </div>
-          <div>
-            <span className="rk-skel" />
-          </div>
-          <div>
-            <span className="rk-skel" />
-          </div>
-          <div>
-            <span className="rk-skel" />
-          </div>
+          {cells.map((lines, cell) => (
+            <div key={cell}>
+              {Array.from({ length: lines }, (_, line) => (
+                <span key={line} className="rk-skel" />
+              ))}
+            </div>
+          ))}
         </div>
       ))}
     </div>

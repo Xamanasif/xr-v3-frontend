@@ -12,6 +12,24 @@ import { join } from 'node:path';
  */
 export const LAYER_ORDER = ['properties', 'theme', 'xr.v46', 'xr.product', 'utilities'] as const;
 
+/**
+ * ADR-0010: a chunk that carries the V3 entry (`@xr/ui/styles-v3.css`, loaded only where a V3
+ * surface renders) repeats the statement with `xr.v3` reserved after `xr.product`, then names its
+ * nested layers. `xr.v3` is a sublayer of `xr`, so it follows `xr.v46` and `xr.product` and
+ * precedes `utilities` whichever chunk loads first.
+ */
+export const V3_LAYER_ORDER = [
+  'properties',
+  'theme',
+  'xr.v46',
+  'xr.product',
+  'xr.v3',
+  'utilities',
+  'xr.v3.rb',
+  'xr.v3.xs',
+  'xr.v3.patch',
+] as const;
+
 // apps/web is not an ES module package: Playwright loads its suites as CommonJS.
 const appRoot = join(__dirname, '..', '..');
 

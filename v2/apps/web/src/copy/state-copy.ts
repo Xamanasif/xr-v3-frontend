@@ -338,9 +338,9 @@ const PHASE_1_AND_EARLIER = {
     state:
       'The card’s ways out: “Back to experiments” (top row) and “Request institutional access” (under the card)',
     words: null,
-    rule: 'Each is rendered once its page is built: “Back to experiments” goes to the Landing `/` (P1-17 follows the href) since Package 1B; “Request institutional access” waits for the Selection (PU-07, Package 1C) — an unbuilt address shows the public not-found page and restarts the tab’s world.',
+    rule: 'Both are rendered (their pages are built): “Back to experiments” opens the public catalogue `/experiments` (PU-04) and “Request institutional access” the request form `/request-access` (PU-08), as the XS link map sends them; P1-17 follows the hrefs.',
     basis:
-      'B1-09 f0 (`a.xr-back` to B1-01, `div.xp-auth-links` to B1-06); owner P0-35 built-screen navigation, extended to Phase 1 (Package 1A authorisation)',
+      'XS-v6 LINK-MAP (“Back to experiments” → PU-04, “Request institutional access” → PU-08); B1-09 f0; owner P0-35 built-screen navigation, extended to Phase 1 (Package 1A authorisation)',
     status: 'provisional',
     decisions: ['P0-35', 'P1-17'],
   },

@@ -5,7 +5,6 @@ import { checkState } from '../support/screen-checks';
 import {
   ACCOUNT,
   button,
-  catalogue,
   COMPOSITE,
   decision,
   EMAIL,
@@ -251,11 +250,10 @@ async function openUpdate(page: Page, id: string): Promise<void> {
   await expect(h1(page)).toHaveText('Update to version 1.1');
 }
 
-/** From the signed-out card to Shell-and-Tube's public page (PU-01 → PU-04 → PU-06). */
+/** From the signed-out card to Shell-and-Tube's public page (PU-04 → PU-06). */
 async function publicShell(page: Page): Promise<void> {
   await reachAndClick(page, page.getByRole('link', { name: 'Back to experiments' }));
-  await page.waitForURL((url) => url.pathname === '/');
-  await catalogue(page);
+  await page.waitForURL((url) => url.pathname === '/experiments');
   await reachAndClick(page, main(page).getByRole('link', { name: SHELL, exact: true }));
   await page.waitForURL(`**/experiments/${SHELL_ID}`);
   await expect(h1(page)).toHaveText(SHELL);

@@ -1,0 +1,76 @@
+{
+  "v": 3,
+  "createdOnFiles": { "v": 1, "at": "2026-10-18T16:01:16Z" },
+  "title": "XR Learning Platform — V3 · Entry & shared (XS) · Refined B",
+  "launch": { "view": "canvas" },
+  "pages": [],
+  "boards": {
+    "Main.dc.html": { "x": 0, "y": 0, "w": 1440, "h": 940, "title": "Live role preview · starts at Sign in · all seven XS IDs connected · Fri 23 Oct 2026", "expand": "fill", "is_interactive": true },
+
+    "XS01-SignIn-States.dc.html": { "x": 0, "y": 1320, "w": 1760, "h": 3060, "title": "XS-01 · XS-03 · XS-04 · every sign-in and session state", "expand": "fill", "is_interactive": true },
+    "XS01-SignIn-768.dc.html": { "x": 1840, "y": 1320, "w": 768, "h": 940, "title": "XS-01 Sign in · 768", "expand": "fill", "is_interactive": true },
+    "XS01-SignIn-Errors-375.dc.html": { "x": 2688, "y": 1320, "w": 375, "h": 1120, "title": "XS-01 · missing details · 375", "expand": "fill", "is_interactive": true },
+    "XS03-SessionExpired-1024.dc.html": { "x": 3143, "y": 1320, "w": 1024, "h": 1060, "title": "XS-03 · session ended, return address kept · 1024 · try Meera, Rahul, Sneha", "expand": "fill", "is_interactive": true },
+    "XS03-SignedOut-375.dc.html": { "x": 4247, "y": 1320, "w": 375, "h": 1030, "title": "XS-03 · signed out · 375", "expand": "fill", "is_interactive": true },
+
+    "XS05-Menus.dc.html": { "x": 0, "y": 4760, "w": 1640, "h": 1120, "title": "XS-05 · account menu in all seven workspaces", "expand": "fill", "is_interactive": true },
+    "XS05-Student-1440.dc.html": { "x": 1720, "y": 4760, "w": 1440, "h": 900, "title": "XS-05 · Student with a device · 1440", "expand": "fill", "is_interactive": true },
+    "XS05-SuperAdmin-1024.dc.html": { "x": 3240, "y": 4760, "w": 1024, "h": 900, "title": "XS-05 · Super Admin, no organisation line · 1024", "expand": "fill", "is_interactive": true },
+    "XS05-InstituteAdmin-375.dc.html": { "x": 4344, "y": 4760, "w": 375, "h": 812, "title": "XS-05 · Institute Admin · 375", "expand": "fill", "is_interactive": true },
+    "Shell-Drawer-768.dc.html": { "x": 4799, "y": 4760, "w": 768, "h": 900, "title": "Workspace drawer below 1024 · Institute Admin · 768", "expand": "fill", "is_interactive": true },
+
+    "XS06-InstituteAdmin-1440.dc.html": { "x": 0, "y": 6260, "w": 1440, "h": 900, "title": "XS-06 Not your workspace · Institute Admin · 1440", "expand": "fill", "is_interactive": true },
+    "XS06-Student-375.dc.html": { "x": 1520, "y": 6260, "w": 375, "h": 812, "title": "XS-06 · Student · 375", "expand": "fill", "is_interactive": true },
+
+    "XS07-Help-InstituteAdmin-1440.dc.html": { "x": 0, "y": 7540, "w": 1440, "h": 900, "title": "XS-07 My reports · reopened, open, resolved · Institute Admin · 1440", "expand": "fill", "is_interactive": true },
+    "XS07-Report-Errors-1024.dc.html": { "x": 1520, "y": 7540, "w": 1024, "h": 950, "title": "XS-07 Report a problem · missing details · 1024", "expand": "fill", "is_interactive": true },
+    "XS07-Sent-768.dc.html": { "x": 2624, "y": 7540, "w": 768, "h": 900, "title": "XS-07 Report sent · Student · 768", "expand": "fill", "is_interactive": true },
+    "XS07-Help-Student-375.dc.html": { "x": 3472, "y": 7540, "w": 375, "h": 812, "title": "XS-07 My reports · Student · 375", "expand": "fill", "is_interactive": true },
+    "XS07-Report-375.dc.html": { "x": 3927, "y": 7540, "w": 375, "h": 890, "title": "XS-07 Report a problem · 375", "expand": "fill", "is_interactive": true },
+
+    "XS07-Resolved-Faculty-1440.dc.html": { "x": 0, "y": 8870, "w": 1440, "h": 900, "title": "XS-07 Report · resolved with note · Faculty · 1440", "expand": "fill", "is_interactive": true },
+    "XS07-Reopened-ContentManager-1024.dc.html": { "x": 1520, "y": 8870, "w": 1024, "h": 960, "title": "XS-07 Report · reopened · Content Manager · 1024", "expand": "fill", "is_interactive": true },
+    "XS07-SuperAdmin-Sent-1024.dc.html": { "x": 2624, "y": 8870, "w": 1024, "h": 900, "title": "XS-07 · Super Admin: no reference numbers anywhere · 1024", "expand": "fill", "is_interactive": true },
+    "XS07-Empty-Vendor-768.dc.html": { "x": 3728, "y": 8870, "w": 768, "h": 900, "title": "XS-07 My reports · empty · Vendor · 768", "expand": "fill", "is_interactive": true },
+    "XS07-Loading-1024.dc.html": { "x": 4576, "y": 8870, "w": 1024, "h": 900, "title": "XS-07 My reports · loading · 1024", "expand": "fill", "is_interactive": true },
+    "XS07-Failed-768.dc.html": { "x": 5680, "y": 8870, "w": 768, "h": 900, "title": "XS-07 My reports · failed, Try again · 768", "expand": "fill", "is_interactive": true },
+
+    "XS08-Paused-InstituteAdmin-1440.dc.html": { "x": 0, "y": 10210, "w": 1440, "h": 900, "title": "XS-08 · Godavari paused · Institute Admin · 1440", "expand": "fill", "is_interactive": true },
+    "XS08-Paused-Faculty-1024.dc.html": { "x": 1520, "y": 10210, "w": 1024, "h": 900, "title": "XS-08 · Godavari paused · Faculty, banner only · 1024", "expand": "fill", "is_interactive": true },
+    "XS08-Paused-Student-768.dc.html": { "x": 2624, "y": 10210, "w": 768, "h": 900, "title": "XS-08 · Godavari paused · Student · 768", "expand": "fill", "is_interactive": true },
+    "XS08-Paused-Refusal-375.dc.html": { "x": 3472, "y": 10210, "w": 375, "h": 812, "title": "XS-08 · paused refusal · 375", "expand": "fill", "is_interactive": true },
+    "XS08-Inactive-Student-1440.dc.html": { "x": 3927, "y": 10210, "w": 1440, "h": 900, "title": "XS-08 · account inactive · Student · 1440", "expand": "fill", "is_interactive": true },
+    "XS08-Inactive-Refusal-375.dc.html": { "x": 5447, "y": 10210, "w": 375, "h": 812, "title": "XS-08 · inactive refusal · 375", "expand": "fill", "is_interactive": true },
+    "XS08-Notices.dc.html": { "x": 5902, "y": 10210, "w": 1440, "h": 1720, "title": "XS-06 · XS-08 · banners, notices and refusal messages", "expand": "fill", "is_interactive": true },
+
+    "XsSignIn.dc.html": { "x": 0, "y": 12310, "w": 1024, "h": 940, "title": "Component · XsSignIn (XS-01 · XS-03 · XS-04)", "expand": "fill", "is_interactive": true },
+    "XsAccountMenu.dc.html": { "x": 1104, "y": 12310, "w": 760, "h": 460, "title": "Component · XsAccountMenu (XS-05)", "expand": "fill", "is_interactive": true },
+    "XsHelp.dc.html": { "x": 1944, "y": 12310, "w": 1024, "h": 480, "title": "Component · XsHelp (XS-07)", "expand": "fill", "is_interactive": true },
+    "XsMessage.dc.html": { "x": 3048, "y": 12310, "w": 1024, "h": 440, "title": "Component · XsMessage (XS-06 · XS-08 refusals)", "expand": "fill", "is_interactive": true },
+    "XsAccessNotice.dc.html": { "x": 4152, "y": 12310, "w": 1024, "h": 120, "title": "Component · XsAccessNotice (XS-08)", "expand": "fill", "is_interactive": true }
+  },
+  "order": [
+    "Main.dc.html",
+    "XS01-SignIn-States.dc.html", "XS01-SignIn-768.dc.html", "XS01-SignIn-Errors-375.dc.html", "XS03-SessionExpired-1024.dc.html", "XS03-SignedOut-375.dc.html",
+    "XS05-Menus.dc.html", "XS05-Student-1440.dc.html", "XS05-SuperAdmin-1024.dc.html", "XS05-InstituteAdmin-375.dc.html", "Shell-Drawer-768.dc.html",
+    "XS06-InstituteAdmin-1440.dc.html", "XS06-Student-375.dc.html",
+    "XS07-Help-InstituteAdmin-1440.dc.html", "XS07-Report-Errors-1024.dc.html", "XS07-Sent-768.dc.html", "XS07-Help-Student-375.dc.html", "XS07-Report-375.dc.html",
+    "XS07-Resolved-Faculty-1440.dc.html", "XS07-Reopened-ContentManager-1024.dc.html", "XS07-SuperAdmin-Sent-1024.dc.html", "XS07-Empty-Vendor-768.dc.html", "XS07-Loading-1024.dc.html", "XS07-Failed-768.dc.html",
+    "XS08-Paused-InstituteAdmin-1440.dc.html", "XS08-Paused-Faculty-1024.dc.html", "XS08-Paused-Student-768.dc.html", "XS08-Paused-Refusal-375.dc.html", "XS08-Inactive-Student-1440.dc.html", "XS08-Inactive-Refusal-375.dc.html", "XS08-Notices.dc.html",
+    "XsSignIn.dc.html", "XsAccountMenu.dc.html", "XsHelp.dc.html", "XsMessage.dc.html", "XsAccessNotice.dc.html"
+  ],
+  "notes": {
+    "n-review": { "x": 1520, "y": 0, "w": 480, "maxH": 900, "fill": "blue", "text": "How to review (about 5 minutes)\n1. Press Play on Main. Press Sign in with nothing filled (summary + field errors), then a wrong address (“isn’t right”).\n2. Sign in as rahul.verma@godavari.edu.in with any password. Account menu (top right) → Help & support → Report a problem → Send → View my reports → open it. Go to Home and back: the report is still listed.\n3. Account menu → Sign out → “You’re signed out”.\n4. Sign in as meera.iyer@godavari.edu.in and open the reopened and resolved reports in Help.\n5. Board XS-03 · session ended: sign in as Meera → Not your workspace; as Rahul → back to the experiment.\n6. Main’s Tweaks: scenario godavari-paused shows XS-08 to Godavari people. Signing out and in again keeps it." },
+    "n-accounts": { "x": 2040, "y": 0, "w": 480, "maxH": 760, "fill": "gray", "text": "Sample sign-ins · any non-empty password\nFrom the Phase-7 walkthrough: arjun.mehta@wilp.example (Super Admin) · meera.iyer@godavari.edu.in (Institute Admin) · rahul.verma@godavari.edu.in (Student, VR) · anil.shetty@northline.example (Vendor) · a.menon@wilp.example (Academic Reviewer) · kavya.nair@wilp.example (Content Manager).\nIllustrative, this design only: s.ranganathan@godavari.edu.in (Faculty) · sneha.reddy@godavari.edu.in (Student, account inactive, v46 B7-04).\nAny other address reads “The e-mail or password isn’t right”. None of this is shown in the product: there is no sample-user chooser." },
+    "n-rules": { "x": 2560, "y": 0, "w": 480, "maxH": 760, "fill": "green", "text": "Kept from v46 and the owner’s decisions\n· No sign-up, role chooser (XS-02 stays excluded), “view as” or reset links. Forgot password and First time show the contact route only (T-11).\n· Institution sign-in shows its unavailable state: real single sign-on isn’t connected (T-10).\n· Super Admin Help shows no SUP numbers, accessible names included. Other roles keep theirs.\n· Paused and inactive notices never change what a person may do.\n· Pages owned by other workstreams are dashed preview slots, not product UI.\n· V1 Public Landing untouched; the WILP logo slot stays reserved." },
+    "n-open": { "x": 3080, "y": 0, "w": 480, "maxH": 760, "fill": "orange", "text": "Open, not decided here\n· Identity provider and password policy (T-10); invitations and first activation (T-11).\n· Contact route on Forgot password / First time for people with no institution administrator (Vendor, BITS staff).\n· Whether platform roles show an organisation line in the account menu (v46 board 13).\n· Showing a pause reason to institution people; support response promises (ND-14); notifications (T-34).\n· A kept return address that belongs to another workspace shows Not your workspace here. Confirm against the app’s redirect." },
+    "t-signin": { "x": 0, "y": 1060, "text": "Sign in and session · XS-01 · XS-03 · XS-04", "kind": "title1", "maxW": 4622 },
+    "t-menu": { "x": 0, "y": 4500, "text": "Account menu · XS-05 · the same component in all seven workspaces", "kind": "title1", "maxW": 5567 },
+    "t-notyours": { "x": 0, "y": 6000, "text": "Not your workspace · XS-06", "kind": "title1", "maxW": 1895 },
+    "t-help": { "x": 0, "y": 7280, "text": "Help & support · XS-07 · list, form, sent", "kind": "title1", "maxW": 4302 },
+    "t-help2": { "x": 0, "y": 8610, "text": "Help & support · XS-07 · report detail, Super Admin and list states", "kind": "title1", "maxW": 6448 },
+    "t-access": { "x": 0, "y": 9950, "text": "Institution paused · account inactive · XS-08", "kind": "title1", "maxW": 7342 },
+    "t-comp": { "x": 0, "y": 12050, "text": "Shared components · importable by every role package", "kind": "title1", "maxW": 5176 }
+  },
+  "designSystems": []
+}

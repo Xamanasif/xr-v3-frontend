@@ -70,23 +70,25 @@ describe('XS-05 "Sign out"', () => {
       </WorkspaceLayout>,
       { runtime, navigation },
     );
-    await waitFor(() => expect(document.querySelector('main.xr-page ul.xr-rows')).not.toBeNull());
+    await waitFor(() =>
+      expect(document.querySelector('main.xr-page ul.xs-reports')).not.toBeNull(),
+    );
     const signedIn = runtime.session.getSnapshot();
     if (signedIn.status !== 'signed-in') throw new Error('not signed in');
     expect(runtime.queryClient.getQueryCache().getAll().length).toBeGreaterThan(0);
 
-    const button = screen.getByRole('button', { name: /^Account menu: Rahul Verma, Student/ });
+    const button = screen.getByRole('button', { name: /^Account menu, Rahul Verma, Student/ });
     // Rahul holds VR (Phase 3: ST-18 is built): "My device" joins once the shell's reads answer.
     await waitFor(() => expect(runtime.queryClient.isFetching()).toBe(0));
     await user.click(button);
     const menu = document.getElementById(button.getAttribute('aria-controls')!)!;
-    // Board 06: My device* · Help · Sign out — no switcher.
+    // XS-05: My device* · Help & support · Sign out — no switcher.
     expect(
       within(menu)
         .getAllByRole('link')
         .map((link) => link.textContent),
-    ).toEqual(['My device', 'Help']);
-    expect(within(menu).getByRole('link', { name: 'Help' })).toHaveAttribute(
+    ).toEqual(['My device', 'Help & support']);
+    expect(within(menu).getByRole('link', { name: 'Help & support' })).toHaveAttribute(
       'href',
       '/student/help',
     );

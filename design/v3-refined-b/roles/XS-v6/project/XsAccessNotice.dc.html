@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Access notices · XS-08</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="{{ f.root }}">
+  <div class="{{ f.main }}">
+    <div class="{{ f.page }}">
+      <sc-if value="{{ v.bannerPaused }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-banner" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></svg><p>Your institution’s access is paused — your work is kept.</p><a class="rb-link" href="#xs-main" onClick="{{ help }}">Help</a></div>
+      </sc-if>
+      <sc-if value="{{ v.bannerInactive }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-banner xs-banner--inactive" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg><p>Your account is inactive. Contact your institution administrator.</p><a class="rb-link" href="#xs-main" onClick="{{ help }}">Help</a></div>
+      </sc-if>
+      <sc-if value="{{ v.page }}" hint-placeholder-val="{{ false }}">
+        <div class="{{ v.cls }}">
+          <sc-if value="{{ v.isPause }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></svg></sc-if>
+          <sc-if value="{{ v.isMinus }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></svg></sc-if>
+          <p class="rk-notice-t">{{ v.title }}</p>
+          <p class="rk-notice-d">{{ v.body }}</p>
+          <div class="rk-notice-act"><a class="rb-link" href="#xs-main" onClick="{{ help }}">Help</a></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ v.none }}" hint-placeholder-val="{{ false }}">
+        <p class="rb-note">Faculty: no page notice while access is paused — the shell banner only (v46 OD-B7-07).</p>
+      </sc-if>
+      <sc-if value="{{ hasPicked }}" hint-placeholder-val="{{ false }}"><p class="rb-note" role="status">{{ picked }}</p></sc-if>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"kind":{"editor":"enum","options":["paused","inactive"],"default":"paused","section":"Notice"},"placement":{"editor":"enum","options":["banner","page"],"default":"banner","section":"Notice"},"audience":{"editor":"enum","options":["student","faculty","ia"],"default":"student","section":"Notice"},"embedded":{"editor":null},"onHelp":{"editor":null},"$preview":{"width":1024,"height":120}}'>
+class Component extends DCLogic {
+  // XS-08. The banner sits at the top of the page column in every screen of an affected person
+  // (Institute Admin, Faculty and Students of a paused institution; Students and Faculty whose account
+  // is inactive). The page notice is the role-context line a workstream places on its home page.
+  // Neither changes what the person may do; they only say why something is blocked and where to ask.
+  state = { picked: '' };
+  renderVals() {
+    const P = this.props || {}, kind = P.kind === 'inactive' ? 'inactive' : 'paused', place = P.placement === 'page' ? 'page' : 'banner';
+    const aud = ['student', 'faculty', 'ia'].indexOf(P.audience) >= 0 ? P.audience : 'student', spec = !P.embedded;
+    let v = { bannerPaused: false, bannerInactive: false, page: false, none: false };
+    if (place === 'banner') { v.bannerPaused = kind === 'paused'; v.bannerInactive = kind === 'inactive'; }
+    else if (kind === 'inactive') v = Object.assign(v, { page: true, cls: 'rk-notice rk-notice--off', isMinus: true, title: 'Nothing can be opened right now', body: 'Your account is inactive. Contact your institution administrator.' });
+    else if (aud === 'ia') v = Object.assign(v, { page: true, cls: 'rk-notice rk-notice--paused', isPause: true, title: 'BITS has paused your institution’s access', body: 'Students can’t open experiments. Pages are read-only until BITS lifts the pause.' });
+    else if (aud === 'student') v = Object.assign(v, { page: true, cls: 'rk-notice rk-notice--paused', isPause: true, title: 'You can’t open experiments right now', body: 'Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted.' });
+    else v.none = spec;
+    return {
+      f: spec ? { root: 'xr rb', main: 'rb-main', page: 'rb-page' } : { root: 'xs-host', main: 'xs-host', page: 'xs-host' },
+      v,
+      help: (ev) => { if (ev && ev.preventDefault) ev.preventDefault(); if (typeof P.onHelp === 'function') P.onHelp(); else this.setState({ picked: 'Help & support opens XS-07 in this workspace. Try it in the live preview (Main).' }); },
+      picked: this.state.picked, hasPicked: !!this.state.picked
+    };
+  }
+}
+</script>
+</body>
+</html>

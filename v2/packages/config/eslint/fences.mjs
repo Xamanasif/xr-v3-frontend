@@ -225,7 +225,16 @@ export function webFences(appDir) {
             fence: 'features',
             root: join(appDir, 'src', 'features'),
             scope: 'project',
-            allow: ['@/queries/**', '@/copy/**', '@/nav/**', '@/features/**', '@xr/ui'],
+            // `@xr/ui/v3`: the V3 presentation layer for migrated screens — today the Entry &
+            // shared surfaces of the owner-approved XS export (ADR-0010; docs/v3).
+            allow: [
+              '@/queries/**',
+              '@/copy/**',
+              '@/nav/**',
+              '@/features/**',
+              '@xr/ui',
+              '@xr/ui/v3',
+            ],
             typeOnly: ['@xr/contracts/draft'],
             vocabulary: { '@xr/domain': DOMAIN_VOCABULARY },
             deny: deny(

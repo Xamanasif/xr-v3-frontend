@@ -394,7 +394,7 @@ await step('parity', async () => {
   );
   return {
     ok,
-    detail: `${passedTests}/${summary.tests.length} tests · ${summary.comparisons} comparisons (${summary.frames} whole frames): ${summary.within} within tolerance, ${summary.registered} on the deviation register (${statuses || 'none'}), ${summary.failed} unregistered · ${summary.iconMismatches} icon differences (all registered or failed) · ${summary.masked.length} masked · ${summary.references}/${EXPECTED_REFERENCES} board references · ${summary.externalRequests} external requests · open owner decisions blocking parity: ${summary.blockingOpen.join(', ') || 'none'} · not closed by the owner: ${summary.open.join(', ') || 'none'} · ${relative(root, runRoot)}`,
+    detail: `${passedTests}/${summary.tests.length} tests · ${summary.comparisons} comparisons (${summary.frames} whole frames): ${summary.within} within tolerance, ${summary.registered} on the deviation register (${statuses || 'none'}), ${summary.retired} retired by name for owner-approved V3 screens (docs/v3/V3-COMPARISON-MAP.json), ${summary.failed} unregistered · ${summary.iconMismatches} icon differences (all registered or failed) · ${summary.masked.length} masked · ${summary.references}/${EXPECTED_REFERENCES} board references · ${summary.externalRequests} external requests · open owner decisions blocking parity: ${summary.blockingOpen.join(', ') || 'none'} · not closed by the owner: ${summary.open.join(', ') || 'none'} · ${relative(root, runRoot)}`,
   };
 });
 

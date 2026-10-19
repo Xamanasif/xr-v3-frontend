@@ -16,13 +16,18 @@ export interface BreadcrumbsProps {
   readonly levels: readonly BreadcrumbLevel[];
   /** This page (`span[aria-current=page]`): the record's name. */
   readonly current: ReactNode;
+  /**
+   * 12 px above what follows instead of the column gap (`rk-x-crumbs-tight`, V3P-11): the XS
+   * "Report sent" confirmation, which the export draws with an inline negative margin.
+   */
+  readonly tight?: boolean;
 }
 
 /** The breadcrumb trail of a record page (`nav.rk-crumbs`; SA-03). */
-export function Breadcrumbs({ levels, current }: BreadcrumbsProps) {
+export function Breadcrumbs({ levels, current, tight = false }: BreadcrumbsProps) {
   const Link = useLinkComponent();
   return (
-    <nav className="rk-crumbs" aria-label="Breadcrumb">
+    <nav className={joinClasses('rk-crumbs', tight && 'rk-x-crumbs-tight')} aria-label="Breadcrumb">
       {levels.map((level) => (
         <Fragment key={level.href}>
           <Link href={level.href}>{level.label}</Link>
@@ -46,6 +51,11 @@ export interface PageHeadProps {
   /** The H1 takes focus after a navigation or an action: `tabIndex={-1}`; focus it via `titleRef`. */
   readonly titleFocusTarget?: boolean;
   readonly titleRef?: Ref<HTMLHeadingElement>;
+  /**
+   * The focus ring hugs the title instead of the whole row (`xs-fit`, the Entry & shared export's
+   * headings that take focus after a navigation).
+   */
+  readonly titleFit?: boolean;
   /**
    * The date on phones (`p.rb-eyebrow-date`; the top bar shows it on wider screens). From the
    * application's clock, never a constant.
@@ -80,6 +90,7 @@ export function PageHead({
   variant = 'page',
   titleFocusTarget = false,
   titleRef,
+  titleFit = false,
   date,
   eyebrow,
   lead,
@@ -98,7 +109,10 @@ export function PageHead({
           <h1
             ref={titleRef}
             id={titleId}
-            className={variant === 'record' ? 'rk-title' : 'rb-h1'}
+            className={joinClasses(
+              variant === 'record' ? 'rk-title' : 'rb-h1',
+              titleFit && 'xs-fit',
+            )}
             tabIndex={titleFocusTarget ? -1 : undefined}
           >
             {title}

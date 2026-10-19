@@ -22,7 +22,7 @@ import { openInTab, sendRequest, statusHead } from './flow';
  * lists a request (R01 open), and an address typed into the bar would start a fresh world.
  */
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 
 async function signIn(page: Page, email: string): Promise<void> {
   await card(page).getByLabel('E-mail', { exact: true }).fill(email);
@@ -87,7 +87,7 @@ test('one tab, the product build: selection → request → status → Super Adm
 
   // 9. Sign out.
   await page.getByRole('button', { name: ACCOUNT_LINES.super_admin, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 
   // 10. The requester's status, in the same browser session: approved, payment required.

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sign in and session · states</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./xs-shared.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <div class="xs-kit">
+    <div class="xs-kit-head">
+      <h1 class="rb-h1">Sign in and session · states</h1>
+      <p class="rk-sub">XS-01 Sign in, XS-03 Signed out and session ended, XS-04 Forgot password and first time (links only). Every card is the shared XsSignIn component and stays usable; alone it knows no accounts, so any attempt reads “isn’t right”.</p>
+    </div>
+    <div class="xs-kit-grid">
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Default</b><span>Institution sign-in first, e-mail sign-in as the alternative</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" id-prefix="k1" hint-size="520px,720px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Missing details</b><span>Summary takes focus; each link focuses its field</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" preset="validation" id-prefix="k2" hint-size="520px,880px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Wrong details</b><span>Password cleared, e-mail kept, focus moves to the message</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" preset="invalid" id-prefix="k3" hint-size="520px,820px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Signing in</b><span>Busy in words and announced; it can’t be sent twice</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" preset="busy" id-prefix="k4" hint-size="520px,720px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Institution sign-in unavailable</b><span>The notice replaces the button, so there is no dead control</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" preset="ssooff" id-prefix="k5" hint-size="520px,720px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Forgot password and first time · XS-04</b><span>Both open the documented contact route; nothing is sent</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" preset="forgot" id-prefix="k6" hint-size="520px,880px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Signed out · XS-03</b><span>After Sign out in the account menu; focus on the notice</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" mode="signedout" id-prefix="k7" hint-size="520px,780px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Session ended · XS-03</b><span>The return address is kept and offered back after sign-in</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" mode="expired" return-label="My courses › Shell-and-Tube Heat Exchanger" id-prefix="k8" hint-size="520px,820px"></dc-import></div>
+      <div class="xs-kit-cell"><p class="xs-kit-label"><b>Institution sign-in starting</b><span>Needs an identity provider (T-10 open) · not reachable here</span></p><dc-import name="XsSignIn" embedded="{{ true }}" bare="{{ true }}" preset="ssobusy" id-prefix="k9" hint-size="520px,720px"></dc-import></div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1760,"height":3060}}'>
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

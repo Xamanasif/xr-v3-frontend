@@ -1,0 +1,144 @@
+### L1 My device + experiment crumb @1440
+crumbs: My courses Shell-and-Tube Heat Exchanger
+crumb My courses -> H1: h1#xs-page-title.rb-h1.xs-fit "My courses"
+current: My courses
+My device -> H1: h1#xs-page-title.rb-h1.xs-fit "My device"
+device slot: ST-18 · Student workstream My device is designed in the Student package. This preview shows only the shared shell, account menu, Help and notices around it. Preview slot, not product UI.
+current on My device: none current
+console clean
+
+### L2 XS-06 Help @1440
+message Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+where (should be absent on list): MISSING
+where prefilled from XS-06: Not your workspace
+console clean
+
+### L3 paused notices Help + refusal Help @1024
+page notice Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+banner Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+console clean
+
+### L3b refusal Help @375
+refusal Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+where prefilled from refusal: Access paused
+console clean
+
+### L4 Help internal links @768
+failed state: My reports We couldn’t load your reports Nothing has changed. Try again. Try again
+loading after Try again: My reports Loading your reports…
+focus after reload: h2#xs-help-mine.rb-h2 "My reports"
+rows after reload: 3
+row -> detail: h1#xs-help-detail-title.rk-title.xs-fit "Student import stopped part-way"
+detail Report a problem -> form: h1#xs-help-form-title.rb-h1.xs-fit "Report a problem"
+where on form from detail: Overview
+form crumb -> list: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+rows on list: 3
+detail crumb -> list: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+console clean
+
+### L5 Sent Back to Home @768
+Back to Home -> ST-01: h1#xs-page-title.rb-h1.xs-fit "Home"
+console clean
+
+### L6 XS04 disclosures axe @375
+375 both open axe wcag2a/aa/21aa/22aa: 0 violations
+console clean
+
+### L6b XS04 disclosures axe 1440 @1440
+1440 both open + institution unavailable axe wcag2a/aa/21aa/22aa: 0 violations
+console clean
+
+### L7 Help secondary links (Meera) @1440
+rows at start: 3
+head Report a problem -> form: h1#xs-help-form-title.rb-h1.xs-fit "Report a problem"
+Cancel -> list: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+rows after Cancel (unchanged): 3
+Send -> Report sent: h1#xs-help-sent-title.rb-h1.xs-fit "Report sent"
+sent text: Report sent Your reference is SUP-0214. You can follow it in My reports. View my reports Back to Overview
+sent crumb -> list: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+rows after send: 4
+newest row: Export button did nothing on Usage SUP-0214 · Sent 23 Oct 2026 Open
+console clean
+
+### L7b empty state Report a problem (Vendor) @768
+empty state: No reports yet If something isn’t working, report it and follow it here. Report a problem
+empty Report a problem -> form: h1#xs-help-form-title.rb-h1.xs-fit "Report a problem"
+where: Overview
+console clean
+
+### L7c inactive refusal links (Sneha) @375
+refusal: Your account is inactive Nothing can be opened while the account is inactive. Contact your institution administrator. Back to Home Help
+Back to Home -> ST-01: h1#xs-page-title.rb-h1.xs-fit "Home"
+banner still shown: Your account is inactive. Contact your institution administrator. Help
+home notice: Nothing can be opened right now Your account is inactive. Contact your institution administrator. Help
+notice Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+Sneha list: No reports yet
+console clean
+
+### L7d paused refusal Back to Home (Rahul) @375
+Back to Home -> ST-01: h1#xs-page-title.rb-h1.xs-fit "Home"
+paused home notice: You can’t open experiments right now Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted. Help
+console clean
+
+### L8 specimen notes (account menu) @760
+focus after Help: button#xs-acct-btn.rb-acct "Account menu, Rahul Verma, Student, Godavari Institute of Technology"
+note: Specimen. In a workspace this sits at the right of the top bar. Items: My device (Students with AR, VR or MR access only), Help & support, Sign out. No workspace or role switcher. Help & support opens XS-07 in this workspace. Try it in the live preview (Main).
+console clean
+
+### L8b specimen notes (message) @1024
+Help note: Help & support opens XS-07 in this workspace. Try it in the live preview (Main).
+primary note: Back to Home opens the role’s home page. Try it in the live preview (Main).
+console clean
+
+### L8c specimen notes (access notice) @1024
+Help note: Help & support opens XS-07 in this workspace. Try it in the live preview (Main).
+console clean
+
+### L8d specimen notes (sign-in) @1024
+Back to experiments: Opens outside this preview Back to experiments opens the public catalogue (PU-04), designed by the Public workstream.
+Request institutional access: Opens outside this preview Request institutional access opens the public request form (PU-08), designed by the Public workstream.
+standalone sign-in (no host): div#xs-signin-alert.rk-errsum "The e-mail or password isn’t rightCheck both and try again."
+message: The e-mail or password isn’t right Check both and try again.
+console clean
+
+### L8e specimen notes (help sent) @1024
+sent: h1#xs-help-sent-title.rb-h1.xs-fit "Report sent"
+Back note: Back to Overview opens the role’s home page. Try it in the live preview (Main).
+View my reports: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+specimen rows: 4
+console clean
+
+### L9 inactive banner Help (Sneha) @1440
+inactive banner Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+where from inactive home: Home
+console clean
+
+### L9b IA paused page notice Help (Meera) @1440
+IA notice: BITS has paused your institution’s access Students can’t open experiments. Pages are read-only until BITS lifts the pause. Help
+IA notice Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+console clean
+
+### L9c inactive refusal Help (Sneha) @375
+refusal Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+where from inactive refusal: Account inactive
+console clean
+
+### L9d Faculty paused: banner only, Help @1024
+page notices (expect 0): 0
+Faculty banner Help -> XS-07: h1#xs-help-title.rb-h1.xs-fit "Help & support"
+console clean
+
+### L10 Send pressed twice creates one report @1440
+rows before: 3
+focus: xs-help-send
+busy after first Enter: true / Sending…
+after second Enter: h1#xs-help-sent-title.rb-h1.xs-fit "Report sent" [focus-visible]
+rows after (expect before + 1): 4
+console clean
+
+### L10b Sign in pressed twice @1440
+focus: xs-signin-go
+busy after first Enter: true / Signing in…
+after second Enter: h1#xs-page-title.rb-h1.xs-fit "Overview" [focus-visible]
+landed: OverviewFriday 23 October 2026
+console clean

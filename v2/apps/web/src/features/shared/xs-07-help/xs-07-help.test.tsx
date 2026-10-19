@@ -1,9 +1,11 @@
 /**
  * XS-07 Help & support on the real composition root and the shared sample world (Appendix F
- * WP-0.13 acceptance 2; board 07): My reports lists the signed-in person's own reports only; the
- * report form sends through `useCommand` and the service's validation; "Report sent" carries the
- * reference the world gave the new report; the detail reads it back with its history; another
- * person's report is not found; and the same world serves the next person signed in in the tab.
+ * WP-0.13 acceptance 2; the owner-approved XS export's `XsHelp`, which keeps board 07's words): My
+ * reports lists the signed-in person's own reports only; the report form sends through
+ * `useCommand` and the service's validation; "Report sent" carries the reference the world gave
+ * the new report — none for a Super Admin (owner decision 6); the detail reads it back with its
+ * history; another person's report is not found; and the same world serves the next person signed
+ * in in the tab.
  */
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -14,7 +16,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { forgetPageVisits, recordPageVisit } from '@/nav/page-location';
 import type { PlatformRuntime } from '@/platform/runtime';
-import { board } from '@/test-support/boards';
+import { board, xsExport } from '@/test-support/boards';
 import {
   PERSON_OF_ROLE,
   renderInTab,
@@ -36,6 +38,7 @@ afterEach(() => {
 });
 
 const BOARD_07 = board('07-Help-Support.dc.html');
+const XS_HELP = xsExport('XsHelp.dc.html');
 
 function inWorkspace(runtime: PlatformRuntime, path: string, page: ReactNode) {
   const workspace = path.split('/')[1] as 'student';
@@ -49,11 +52,13 @@ function inWorkspace(runtime: PlatformRuntime, path: string, page: ReactNode) {
   return { navigation, view };
 }
 
-/** The My reports rows (`a.xr-row-link` in main). */
+/** The My reports rows (`a.xs-report` in the V3 region of main). */
 async function reportRows(): Promise<HTMLElement[]> {
   // The session's loading state has a `main` of its own until the shell renders: query afresh.
-  await waitFor(() => expect(document.querySelector('main.xr-page ul.xr-rows')).not.toBeNull());
-  return [...document.querySelectorAll<HTMLElement>('main.xr-page ul.xr-rows a.xr-row-link')];
+  await waitFor(() =>
+    expect(document.querySelector('main.xr-page .rk-x-region ul.xs-reports')).not.toBeNull(),
+  );
+  return [...document.querySelectorAll<HTMLElement>('main.xr-page ul.xs-reports a.xs-report')];
 }
 
 async function signedIn(role: Role, fixture: 'after-flow-d' | 'spine-start' = 'after-flow-d') {
@@ -69,9 +74,10 @@ describe('My reports — the person’s own reports (board 07 "State 2")', () =>
     expect(rows).toHaveLength(1);
     expect(rows[0]).toHaveAttribute('href', '/student/help/reports/SUP-0213');
     expect(rows[0]).toHaveTextContent('The VR simulation stopped loading at the second step');
-    expect(rows[0]).toHaveTextContent('SUP-0213 · sent 16 Oct');
-    expect(rows[0]).toHaveTextContent('Open');
-    expect(screen.getByText('1 report')).toBeVisible();
+    expect(rows[0]).toHaveTextContent('SUP-0213 · Sent 16 Oct 2026');
+    expect(rows[0]!.querySelector('.xr-st')).toHaveTextContent('Open');
+    expect(screen.getByText('1 report · newest first')).toBeVisible();
+    expect(XS_HELP).toContain("(rows.length === 1 ? ' report' : ' reports') + ' · newest first'");
     // The header carries "Report a problem" while there are reports.
     expect(screen.getByRole('link', { name: 'Report a problem' })).toHaveAttribute(
       'href',
@@ -89,18 +95,45 @@ describe('My reports — the person’s own reports (board 07 "State 2")', () =>
     inWorkspace(runtime, '/content-manager/help', <HelpHome />);
     const rows = await reportRows();
     expect(rows).toHaveLength(1);
-    expect(rows[0]).toHaveTextContent('SUP-0207 · sent 28 Sep · reopened 6 Oct');
-    expect(rows[0]).toHaveTextContent('Reopened');
+    expect(rows[0]).toHaveTextContent('SUP-0207 · Sent 28 Sep 2026 · Reopened 6 Oct 2026');
+    expect(rows[0]!.querySelector('.xr-st')).toHaveTextContent('Reopened');
   });
 
-  it('Anil (Vendor) has none: the empty state carries "Report a problem" (board 07 "State 2a")', async () => {
+  it('Arjun (Super Admin): no reference anywhere in Help (owner decision 6; XS showRefs=false)', async () => {
+    const { runtime } = await signedIn('super_admin');
+    const sent = await runtime.ports.operations.reportProblem({
+      whatHappened: 'The renewal list stopped loading.',
+      where: 'Overview',
+      screenshotFileName: null,
+    });
+    if (!sent.ok) throw new Error('reportProblem refused');
+    const list = inWorkspace(runtime, '/admin/help', <HelpHome />);
+    const rows = await reportRows();
+    expect(rows[0]).toHaveTextContent(/^The renewal list stopped loading\s*Sent \d+ \w+ 2026/);
+    expect(document.querySelector('main')!.textContent).not.toMatch(/SUP-/);
+    list.view.unmount();
+    inWorkspace(
+      runtime,
+      `/admin/help/reports/${sent.value.id}`,
+      <ReportDetail reportId={sent.value.id} />,
+    );
+    await screen.findByRole('heading', { level: 1, name: 'The renewal list stopped loading' });
+    expect(document.querySelector('main')!.textContent).not.toMatch(/SUP-/);
+    await waitFor(() =>
+      expect(document.title).toBe('The renewal list stopped loading · XR Learning Platform'),
+    );
+  });
+
+  it('Anil (Vendor) has none: the empty state carries "Report a problem" (XS; board 07 "State 2a")', async () => {
+    expect(XS_HELP).toContain('<p class="rk-state-t">No reports yet</p>');
     expect(BOARD_07).toContain('<h3 class="xr-h3">No reports yet</h3>');
     const { runtime } = await signedIn('vendor');
     inWorkspace(runtime, '/vendor/help', <HelpHome />);
-    expect(await screen.findByRole('heading', { level: 3, name: 'No reports yet' })).toBeVisible();
+    const empty = (await screen.findByText('No reports yet')).closest('.rk-state')!;
+    expect(empty).toHaveTextContent('If something isn’t working, report it and follow it here.');
     expect(within(screen.getByRole('main')).queryByRole('list')).toBeNull();
     const report = screen.getByRole('link', { name: 'Report a problem' });
-    expect(report.closest('.xr-empty')).not.toBeNull();
+    expect(report.closest('.rk-state')).toBe(empty);
     expect(report).toHaveAttribute('href', '/vendor/help/report');
   });
 });
@@ -150,7 +183,7 @@ describe('Report a problem — through the service (board 07 "State 1", "1a", "1
     await user.upload(screen.getByLabelText(/^Screenshot/), file);
     await user.click(screen.getByRole('button', { name: 'Send report' }));
     const sent = await screen.findByRole('heading', { level: 1, name: 'Report sent' });
-    const message = sent.closest('.xr-msg') as HTMLElement;
+    const message = sent.closest('.xs-msg') as HTMLElement;
     const reference = within(message).getByText(/^SUP-\d{4}$/).textContent!;
     expect(reference).not.toBe('SUP-0213');
     expect(message).toHaveTextContent(
@@ -164,7 +197,7 @@ describe('Report a problem — through the service (board 07 "State 1", "1a", "1
       'href',
       '/student',
     );
-    await waitFor(() => expect(document.activeElement).toBe(message));
+    await waitFor(() => expect(document.activeElement).toBe(sent));
     await waitFor(() => expect(document.title).toBe('Report sent · XR Learning Platform'));
     // The shared world holds it, as sent: trimmed text, the place, the file NAME only.
     const mine = await runtime.ports.operations.listMyReports();
@@ -194,21 +227,24 @@ describe('Report detail (board 07 "State 3", "State 3a")', () => {
         name: 'The preview of the WEB delivery link showed an empty frame',
       }),
     ).toBeVisible();
-    expect(screen.getByText('SUP-0207', { selector: '.xr-phead .xr-id' })).toBeVisible();
-    expect(screen.getByText('Sent 28 Sep')).toBeVisible();
+    expect(screen.getByText('SUP-0207', { selector: '.rk-head .rk-eyebrow' })).toBeVisible();
+    expect(screen.getByText('Sent 28 Sep 2026')).toBeVisible();
     expect(screen.getByText('This report is open again')).toBeVisible();
-    expect(screen.getByText('It was reopened on 6 Oct. You can follow it here.')).toBeVisible();
-    const history = screen.getByRole('region', { name: 'History' });
+    expect(
+      screen.getByText('It was reopened on 6 Oct 2026. You can follow it here.'),
+    ).toBeVisible();
+    const history = document.querySelector('.rk-sec:last-child .rk-tl') as HTMLElement;
+    expect(history.closest('.rk-sec')?.querySelector('h2')).toHaveTextContent('History');
     expect(
       within(history)
         .getAllByRole('listitem')
         .map((item) => item.textContent),
     ).toEqual([
-      'Reopened6 Oct',
-      'Resolved30 Sep · “The preview now loads. Please try again.”',
-      'Sent28 Sep',
+      'Reopened6 Oct 2026',
+      'Resolved30 Sep 2026“The preview now loads. Please try again.”',
+      'Sent28 Sep 2026',
     ]);
-    const reported = screen.getByRole('region', { name: 'What you reported' });
+    const reported = screen.getByRole('region', { name: 'Report' });
     expect(within(reported).getByText('No screenshot added')).toBeVisible();
     expect(screen.queryByRole('button', { name: /reopen/i })).toBeNull();
     expect(screen.queryByRole('link', { name: /reopen/i })).toBeNull();
@@ -221,8 +257,9 @@ describe('Report detail (board 07 "State 3", "State 3a")', () => {
       '/content-manager/help/reports/SUP-0207',
       <ReportDetail reportId="SUP-0207" />,
     );
-    const note = await screen.findByText('Resolution note · 30 Sep');
-    expect(note.closest('.xr-notice')).toHaveTextContent(
+    const note = await screen.findByText('Resolution note · 30 Sep 2026');
+    expect(note.closest('.rk-notice')).toHaveClass('rk-notice--ok');
+    expect(note.closest('.rk-notice')).toHaveTextContent(
       '“The preview now loads. Please try again.”',
     );
     expect(screen.queryByText('This report is open again')).toBeNull();

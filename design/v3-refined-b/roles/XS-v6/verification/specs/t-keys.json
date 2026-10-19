@@ -1,0 +1,496 @@
+[
+ {
+  "name": "K1 sign-in tab order",
+  "file": "Main.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab1"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab2"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab3"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab4"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab5"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab6"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab7"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab8"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab9"
+   },
+   {
+    "press": "Shift+Tab",
+    "focus": true,
+    "label": "back to First time"
+   },
+   {
+    "press": "Shift+Tab",
+    "focus": true,
+    "label": "back to Sign in"
+   },
+   {
+    "press": "Enter",
+    "wait": 300,
+    "focus": true,
+    "label": "Enter on Sign in (empty)"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab into summary link"
+   },
+   {
+    "press": "Enter",
+    "wait": 200,
+    "focus": true,
+    "label": "Enter on summary link"
+   },
+   {
+    "type": [
+     "#xs-signin-email",
+     "kavya.nair@wilp.example"
+    ]
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab to password"
+   },
+   {
+    "type": [
+     "#xs-signin-pw",
+     "p"
+    ]
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab to Show"
+   },
+   {
+    "press": "Enter",
+    "wait": 150,
+    "attr": [
+     "#xs-signin-pw",
+     "type"
+    ],
+    "label": "password type after Show"
+   },
+   {
+    "text": ".xs-pw-toggle",
+    "label": "toggle text"
+   },
+   {
+    "focus": true,
+    "label": "focus after Show"
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 100
+   },
+   {
+    "press": "Enter",
+    "wait": 1600,
+    "focus": true,
+    "label": "Enter in password field submits -> lands"
+   },
+   {
+    "text": ".rb-top",
+    "label": "top"
+   }
+  ]
+ },
+ {
+  "name": "K3 skip link + account menu keys",
+  "file": "fx-k-meera.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1400,
+  "checks": false,
+  "steps": [
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "first tab"
+   },
+   {
+    "eval": "getComputedStyle(document.querySelector('.xs-skip')).transform",
+    "label": "skip transform when focused"
+   },
+   {
+    "press": "Enter",
+    "wait": 300,
+    "focus": true,
+    "label": "after skip"
+   },
+   {
+    "eval": "(() => { const b = document.getElementById('xs-acct-btn'); b.focus(); return document.activeElement === b; })()",
+    "label": "focus account button"
+   },
+   {
+    "press": "Enter",
+    "wait": 300,
+    "focus": true,
+    "label": "Enter opens -> first item"
+   },
+   {
+    "press": "ArrowUp",
+    "focus": true,
+    "label": "ArrowUp wraps to last"
+   },
+   {
+    "press": "Home",
+    "focus": true,
+    "label": "Home"
+   },
+   {
+    "press": "End",
+    "focus": true,
+    "label": "End"
+   },
+   {
+    "press": "Escape",
+    "focus": true,
+    "label": "Escape -> button"
+   },
+   {
+    "attr": [
+     "#xs-acct-btn",
+     "aria-expanded"
+    ],
+    "label": "expanded"
+   },
+   {
+    "press": "ArrowDown",
+    "wait": 300,
+    "focus": true,
+    "label": "ArrowDown on closed button opens"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "Tab"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "Tab out of menu"
+   },
+   {
+    "attr": [
+     "#xs-acct-btn",
+     "aria-expanded"
+    ],
+    "label": "expanded after tabbing out"
+   },
+   {
+    "eval": "(() => { const b = document.getElementById('xs-acct-btn'); b.focus(); return 'ok'; })()"
+   },
+   {
+    "press": "Space",
+    "wait": 300,
+    "focus": true,
+    "label": "Space opens"
+   },
+   {
+    "press": "ArrowDown",
+    "focus": true,
+    "label": "ArrowDown -> Sign out"
+   },
+   {
+    "press": "Enter",
+    "wait": 600,
+    "focus": true,
+    "label": "Enter on Sign out -> signed out"
+   }
+  ]
+ },
+ {
+  "name": "K5 drawer keys 768",
+  "file": "fx-k-meera.dc.html",
+  "width": 768,
+  "height": 900,
+  "settle": 1400,
+  "checks": false,
+  "steps": [
+   {
+    "eval": "(() => { document.getElementById('xs-menu-btn').focus(); return 'menu focused'; })()"
+   },
+   {
+    "press": "Enter",
+    "wait": 400,
+    "focus": true,
+    "label": "open -> close btn"
+   },
+   {
+    "attr": [
+     "#xs-menu-btn",
+     "aria-expanded"
+    ],
+    "label": "Menu aria-expanded"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab1"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab2"
+   },
+   {
+    "press": "Shift+Tab",
+    "focus": true,
+    "label": "shift-tab"
+   },
+   {
+    "press": "Shift+Tab",
+    "focus": true,
+    "label": "shift-tab wraps"
+   },
+   {
+    "press": "Escape",
+    "wait": 300,
+    "focus": true,
+    "label": "Escape -> Menu"
+   },
+   {
+    "press": "Enter",
+    "wait": 400
+   },
+   {
+    "press": "Tab",
+    "focus": true
+   },
+   {
+    "press": "Tab",
+    "focus": true
+   },
+   {
+    "press": "Tab",
+    "focus": true
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "on People"
+   },
+   {
+    "press": "Enter",
+    "wait": 500,
+    "focus": true,
+    "label": "Enter on People -> H1"
+   },
+   {
+    "count": ".rb-drawer",
+    "label": "drawer open count"
+   }
+  ]
+ },
+ {
+  "name": "K6 help form by keyboard 1024",
+  "file": "fx-k-meera-help.dc.html",
+  "width": 1024,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "eval": "(() => { document.getElementById('xs-help-title').focus(); return 'h1'; })()"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab from H1"
+   },
+   {
+    "press": "Enter",
+    "wait": 500,
+    "focus": true,
+    "label": "Enter -> form"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab1"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab2"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab3"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab4"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab5"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab6"
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 80,
+    "focus": true,
+    "label": "Shift+Tab from outside -> Cancel"
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 80,
+    "focus": true,
+    "label": "Shift+Tab -> Send"
+   },
+   {
+    "press": "Enter",
+    "wait": 400,
+    "focus": true,
+    "label": "Enter on Send (empty) -> summary"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab to summary link"
+   },
+   {
+    "press": "Enter",
+    "wait": 200,
+    "focus": true,
+    "label": "summary link -> textarea"
+   },
+   {
+    "attr": [
+     "#xs-help-what",
+     "aria-describedby"
+    ],
+    "label": "textarea describedby (with error)"
+   },
+   {
+    "type": [
+     "#xs-help-what",
+     "Typing by keyboard only. The import button did nothing."
+    ]
+   },
+   {
+    "press": "Tab"
+   },
+   {
+    "press": "Tab"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "on Send"
+   },
+   {
+    "press": "Enter",
+    "wait": 1500,
+    "focus": true,
+    "label": "sent heading"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "View my reports"
+   },
+   {
+    "press": "Enter",
+    "wait": 500,
+    "focus": true,
+    "label": "list H1"
+   },
+   {
+    "press": "Tab",
+    "focus": true
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "first row"
+   },
+   {
+    "press": "Enter",
+    "wait": 500,
+    "focus": true,
+    "label": "detail H1"
+   },
+   {
+    "text": "#xs-help-detail-title",
+    "label": "title"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "next after detail H1"
+   }
+  ]
+ },
+ {
+  "name": "K7 reduced motion",
+  "file": "fx-k-meera.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1400,
+  "checks": false,
+  "reducedMotion": true,
+  "steps": [
+   {
+    "click": "#xs-acct-btn",
+    "wait": 300
+   },
+   {
+    "eval": "(() => { const m = document.querySelector('.xs-menu'); const s = getComputedStyle(m); return 'menu animation: ' + s.animationName + ' ' + s.animationDuration; })()",
+    "label": "menu"
+   },
+   {
+    "eval": "getComputedStyle(document.querySelector('.rb-rail')).position",
+    "label": "rail position"
+   }
+  ]
+ }
+]

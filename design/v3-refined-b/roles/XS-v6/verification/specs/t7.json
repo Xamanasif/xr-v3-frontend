@@ -1,0 +1,5 @@
+[{"name":"J7 drawer 375 again","file":"fx-meera.dc.html","width":375,"height":800,"settle":1200,"checks":false,"steps":[
+   {"click":"#xs-menu-btn","wait":500},
+   {"mouse":[350,400],"wait":500,"focus":true,"label":"after scrim click"},
+   {"count":".rb-drawer","label":"drawer count"}
+ ]}]

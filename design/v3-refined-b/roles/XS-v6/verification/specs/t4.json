@@ -1,0 +1,77 @@
+[
+ {"name":"J2 expired -> Meera -> XS-06","file":"fx-expired.dc.html","width":1024,"height":900,"settle":1200,"steps":[
+   {"text":"#xs-signin-note","label":"expired note"},
+   {"shot":"j2-01-expired","full":false},
+   {"fill":["#xs-signin-email","meera.iyer@godavari.edu.in"]},{"fill":["#xs-signin-pw","x"]},
+   {"click":"#xs-signin-go","wait":1500,"focus":true,"label":"after sign-in focus"},
+   {"text":"#xs-main","label":"XS-06 text"},
+   {"eval":"[...document.querySelectorAll('.rb-nav a[aria-current]')].map(a=>a.textContent).join('|') || 'no current nav'","label":"nav current"},
+   {"shot":"j2-02-notyours","full":false},
+   {"clickText":"Back to Overview","wait":500,"focus":true,"label":"back"},
+   {"text":".rb-top","label":"top"}
+ ]},
+ {"name":"J2b expired -> Rahul -> experiment","file":"fx-expired.dc.html","width":1024,"height":900,"settle":1200,"steps":[
+   {"fill":["#xs-signin-email","rahul.verma@godavari.edu.in"]},{"fill":["#xs-signin-pw","x"]},
+   {"click":"#xs-signin-go","wait":1500,"focus":true,"label":"focus"},
+   {"text":"#xs-main","label":"returned page"},
+   {"eval":"[...document.querySelectorAll('.rb-nav a[aria-current]')].map(a=>a.textContent).join('|') || 'none'","label":"nav current"}
+ ]},
+ {"name":"J3 expired paused -> Rahul -> paused refusal; sign out/in again","file":"fx-expired-paused.dc.html","width":768,"height":900,"settle":1200,"steps":[
+   {"fill":["#xs-signin-email","rahul.verma@godavari.edu.in"]},{"fill":["#xs-signin-pw","x"]},
+   {"click":"#xs-signin-go","wait":1500,"focus":true,"label":"focus"},
+   {"text":"#xs-main","label":"refusal"},
+   {"shot":"j3-01-paused-refusal","full":true},
+   {"clickText":"Back to Home","wait":500,"text":"#xs-main","label":"home paused"},
+   {"click":"#xs-acct-btn","wait":300},{"click":"#xs-acct-out","wait":700},
+   {"fill":["#xs-signin-email","rahul.verma@godavari.edu.in"]},{"fill":["#xs-signin-pw","x"]},
+   {"click":"#xs-signin-go","wait":1500,"text":"#xs-main","label":"after re-sign-in"}
+ ]},
+ {"name":"J4 expired -> Sneha -> inactive refusal","file":"fx-expired.dc.html","width":1440,"height":900,"settle":1200,"steps":[
+   {"fill":["#xs-signin-email","sneha.reddy@godavari.edu.in"]},{"fill":["#xs-signin-pw","x"]},
+   {"click":"#xs-signin-go","wait":1500,"focus":true,"label":"focus"},
+   {"text":"#xs-main","label":"inactive refusal"},
+   {"clickText":"Back to Home","wait":500,"text":"#xs-main","label":"home"},
+   {"shot":"j4-01-inactive-home","full":false},
+   {"click":"#xs-acct-btn","wait":300,"text":".xs-menu","label":"sneha menu (no device)"}
+ ]},
+ {"name":"J5 sso, forgot, first, public","file":"Main.dc.html","width":1440,"height":900,"settle":1200,"steps":[
+   {"click":"#xs-signin-sso","wait":300,"focus":true,"label":"sso -> notice"},
+   {"count":"#xs-signin-sso","label":"sso button gone"},
+   {"clickText":"Forgot your password?","wait":200,"attr":[".xs-linkbtn","aria-expanded"],"label":"forgot expanded"},
+   {"clickText":"First time signing in?","wait":200,"text":".xs-trouble","label":"first time text"},
+   {"shot":"j5-01-sso-help","full":true},
+   {"clickText":"Back to experiments","wait":500,"focus":true,"label":"public"},
+   {"text":".xs-pub","label":"public text"},
+   {"clickText":"Sign in","exact":true,"wait":600,"focus":true,"label":"back to sign in"},
+   {"clickText":"Request institutional access","wait":500,"text":"#xs-pub-title","label":"request"}
+ ]},
+ {"name":"J6 SA help no ids","file":"fx-arjun.dc.html","width":1024,"height":900,"settle":1200,"steps":[
+   {"role":"link","name":"Help & support","exact":true,"wait":600,"text":"#xs-main","label":"SA help empty"},
+   {"clickText":"Report a problem","wait":500},
+   {"fill":["#xs-help-what","The Requests list kept loading. I left it for a minute."]},
+   {"click":"#xs-help-send","wait":1400,"text":"#xs-main","label":"SA sent"},
+   {"clickText":"View my reports","wait":500,"text":".xs-reports","label":"SA rows"},
+   {"eval":"/SUP-|REQ-|ACC-|UPD-|DTR-|SUB-/.test(document.body.innerText + [...document.querySelectorAll('[aria-label]')].map(e=>e.getAttribute('aria-label')).join(' ')) ? 'ID FOUND' : 'no internal IDs in text or aria-labels'","label":"SA id scan"},
+   {"click":".xs-report","wait":500,"text":"#xs-main","label":"SA detail"},
+   {"eval":"/SUP-|REQ-|ACC-|UPD-|DTR-|SUB-/.test(document.body.innerText + [...document.querySelectorAll('[aria-label]')].map(e=>e.getAttribute('aria-label')).join(' ')) ? 'ID FOUND' : 'no internal IDs in text or aria-labels'","label":"SA id scan detail"},
+   {"shot":"j6-01-sa-detail","full":false}
+ ]},
+ {"name":"J7 drawer 375","file":"fx-meera.dc.html","width":375,"height":800,"settle":1200,"steps":[
+   {"click":"#xs-menu-btn","wait":400,"focus":true,"label":"open drawer"},
+   {"shot":"j7-01-drawer","full":false},
+   {"press":"Shift+Tab","focus":true,"label":"shift-tab wraps"},
+   {"press":"Tab","focus":true,"label":"tab wraps"},
+   {"press":"Escape","wait":300,"focus":true,"label":"escape returns"},
+   {"click":"#xs-menu-btn","wait":400},
+   {"role":"link","name":"Usage","exact":true,"wait":500,"focus":true,"label":"pick destination"},
+   {"count":".rb-drawer","label":"drawer closed"},
+   {"click":"#xs-menu-btn","wait":400},
+   {"mouse":[350,400],"wait":400,"focus":true,"label":"scrim click"},
+   {"shot":"j7-02-usage","full":false}
+ ]},
+ {"name":"J8 Meera paused","file":"fx-meera-paused.dc.html","width":1440,"height":900,"settle":1200,"steps":[
+   {"text":"#xs-main","label":"IA paused home"},
+   {"shot":"j8-01-ia-paused","full":false},
+   {"click":".rk-banner a","wait":500,"focus":true,"label":"banner help"}
+ ]}
+]

@@ -89,6 +89,22 @@ export const DEVELOPER_SURFACE_TERMS = [
   },
 ];
 
+/**
+ * Recorded exceptions to the rendered-DOM half of the owner-constraint scans (each one an exact
+ * sentence, for one term, where it is drawn). The DOM check removes the sentence before it tests
+ * the term; the sentence must still be on the page, word for word.
+ */
+export const RECORDED_DOM_TERM_EXCEPTIONS = [
+  {
+    term: 'sample-accounts',
+    text: 'Sample accounts open with any password.',
+    where: '/sign-in — the XS-01 prototype line under the card (`p.xs-proto`)',
+    evidence:
+      'design/v3-refined-b/roles/XS-v6/project/XsSignIn.dc.html `p.xs-proto`; XS HANDOFF.md §1.1 "Prototype line" (names and lists no account); owner approval of the XS export, 19 Oct 2026',
+    removal: 'real sign-in exists (XS `prototypeNote = false`), or the owner rewords the line',
+  },
+];
+
 /** Canvas-only controls, captions and runtime (START-HERE exceptions 2–4, 6; Appendix E §10). */
 export const CANVAS_TERMS = [
   {
@@ -156,6 +172,13 @@ export const CANVAS_CLASS_PATTERNS = [
   /^xa-dlg-end$/,
   /^xa-dlg-auto$/,
   /^xg-dlg$/,
+  // The XS export's preview-only scaffolding (design/v3-refined-b/roles/XS-v6/COMPONENT-EXTENSIONS.md
+  // §2 "Preview only … Never product UI"): dashed slots for other workstreams' pages, the public
+  // slot pages, specimen notes and the galleries.
+  /^xs-slot[\w-]*$/,
+  /^xs-pub[\w-]*$/,
+  /^xs-spec$/,
+  /^xs-kit[\w-]*$/,
 ];
 
 /**
@@ -194,14 +217,19 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
  * ADR-0010; `packages/ui/src/styles/v3/patch.css`, `packages/ui/src/v3/COMPONENT-EXTENSIONS.md`).
  * Every other class the V3 layer emits is a Refined Direction B class of the frozen sources.
  * - V3P-02: the narrow-width sort bar follows the table's own breakpoint.
- * - V3P-06: the shell keeps the product's "Skip to main content".
- * - V3P-07: the account chrome's wrapper (the menu panel stays the v46 one until XS-05).
+ * - V3P-09: a V3 region (an Entry & shared surface) inside the v46 workspace shell.
+ * - V3P-10: the XS account menu panel under the v46 account button.
+ * - V3P-11: the XS "Report sent" breadcrumb, 12 px above its card.
+ * (V3P-06 `rk-x-skip` and V3P-07 `rk-x-acct` were retired with the XS export: the shell now draws
+ * its skip link and account wrapper with the XS classes `xs-skip`, `xs-acct-slot`, `xs-acct`.)
  */
 export const V3_PRODUCT_CLASS_ALLOW_LIST = [
   'rk-x-sort-shown',
   'rk-x-sort-hidden',
-  'rk-x-skip',
-  'rk-x-acct',
+  'rk-x-region',
+  'rk-x-region--banner',
+  'rk-x-popover',
+  'rk-x-crumbs-tight',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

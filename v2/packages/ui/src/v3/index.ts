@@ -2,8 +2,9 @@
  * @xr/ui/v3 — the V3 Refined Direction B presentation layer (foundation XR-V3-RB-1.0;
  * docs/decisions/ADR-0010; reference design/v3-refined-b/).
  *
- * Stylesheet: `@xr/ui/styles-v3.css` (the frozen Refined B sheets, every selector confined to a V3
- * root, in `xr.v3`; plus the central V3P patches). Components emit the Refined B class names and
+ * Stylesheet: `@xr/ui/styles-v3.css` (the frozen Refined B sheets and the XS extension sheet of the
+ * owner-approved Entry & shared export, every selector confined to a V3 root, in `xr.v3`; plus the
+ * central V3P patches). Components emit the Refined B class names and
  * ARIA; behaviour is shared with the v46 components where it exists (the drawer, the modal dialog,
  * the account disclosure, the error-summary links). Nothing here holds application data, a sample
  * record or a business rule: every word, figure, date and destination comes from the caller.
@@ -155,15 +156,53 @@ export {
 export { ConfirmDialog, type ConfirmDialogGroup, type ConfirmDialogProps } from './dialog.js';
 export {
   WorkspaceShell,
-  AccountMenu,
   TopLineSeparator,
   PRODUCT_NAME,
   V3_LOGO_SLOT_TEXT,
   type ShellDestination,
   type ShellHelp,
   type WorkspaceShellProps,
-  type AccountMenuProps,
 } from './shell.js';
+export {
+  AccountMenu,
+  AccountMenuInV46Shell,
+  accountMenuName,
+  type AccountMenuLink,
+  type AccountMenuProps,
+} from './account.js';
+export { V3Region } from './region.js';
+export {
+  EntryPage,
+  EntryCard,
+  EntryHeading,
+  EntryForm,
+  OrRule,
+  RefusalSummary,
+  PasswordInput,
+  FieldRow,
+  TroubleLinks,
+  Disclosure,
+  LiveStatus,
+  PrototypeNote,
+  type EntryPageProps,
+  type EntryCardProps,
+  type PasswordInputProps,
+  type DisclosureProps,
+} from './entry.js';
+export { MessagePage, type MessageKind, type MessagePageProps } from './message.js';
+export {
+  HelpColumn,
+  ReportListSurface,
+  ReportRows,
+  ReportFormSurface,
+  OptionalMark,
+  FileInput,
+  FormActions,
+  ReportSection,
+  HelpFoot,
+  type ReportListSurfaceProps,
+  type ReportRow,
+} from './help.js';
 export { TermTrack, type TermTrackProps } from './term-track.js';
 export {
   PlanBand,

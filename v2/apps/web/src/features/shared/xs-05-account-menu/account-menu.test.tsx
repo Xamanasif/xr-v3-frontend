@@ -1,9 +1,10 @@
 /**
- * XS-05, the account menu of each workspace (Appendix F WP-0.8 acceptance 2–3; Appendix E §4.4):
- * board 06 "Account menu · same pattern in every workspace" — name, role line, the institution
- * or organisation line where the role has one, "My device" only for a Student with AR / VR / MR
- * and only once ST-18 is built, Help, Sign out — and board 05's people (names and initials are
- * sample data: test fixtures only, never product defaults).
+ * XS-05, the account menu of each workspace, in the owner-approved Entry & shared design
+ * (design/v3-refined-b/roles/XS-v6, `XsAccountMenu`; SHARED-CONTRACT `items_by_role`): name, role
+ * line, the institution or organisation line where the role has one (board 06's lines), "My
+ * device" only for a Student with AR / VR / MR and only once ST-18 is built, Help & support, then
+ * Sign out in the panel's foot — and board 05's people (names and initials are sample data: test
+ * fixtures only, never product defaults).
  */
 import { act, render, screen, within } from '@testing-library/react';
 import { PLATFORM_ROLES, ROLE_LABEL, type Role } from '@xr/domain';
@@ -13,9 +14,9 @@ import { describe, expect, it, vi } from 'vitest';
 import { BUILT_SCREENS } from '@/nav/built-screens';
 import { WORKSPACE_NAV } from '@/nav/nav-config';
 import type { ScreenKey } from '@/nav/screens';
-import { BOARD_ACCOUNT_ROWS, boardPerson as person } from '@/test-support/boards';
+import { BOARD_ACCOUNT_ROWS, boardPerson as person, xsContract } from '@/test-support/boards';
 
-import { accountMenuItems, organisationLine, WorkspaceAccountMenu } from './account-menu';
+import { accountMenuLinks, organisationLine, WorkspaceAccountMenu } from './account-menu';
 
 const ST18_BUILT = new Set<ScreenKey>([...BUILT_SCREENS, 'ST-18']);
 
@@ -27,16 +28,23 @@ function openMenu(
   const { unmount } = render(
     <WorkspaceAccountMenu role={role} person={person(role)} onSignOut={onSignOut} {...options} />,
   );
-  const button = screen.getByRole('button', { name: /^Account menu: / });
+  const button = screen.getByRole('button', { name: /^Account menu, / });
   act(() => button.click());
   const panel = document.getElementById(button.getAttribute('aria-controls')!)!;
   return { button, panel, onSignOut, unmount };
 }
 
 const itemNames = (panel: HTMLElement) =>
-  [...panel.querySelectorAll('.xr-menu-item')].map((item) => item.textContent);
+  [...panel.querySelectorAll('.xs-menu-item')].map((item) => item.textContent);
 
-describe('board 06: the same pattern in every workspace', () => {
+/** The XS contract's items for a workspace (the Student with AR, VR or MR access). */
+const XS_ITEMS = (() => {
+  const menu = xsContract().components.find((component) => component.id === 'XsAccountMenu')!;
+  const byRole = menu.items_by_role!;
+  return (label: string) => byRole[label === 'Student' ? 'Student (with AR/VR/MR)' : label]!;
+})();
+
+describe('the same pattern in every workspace (XS-05; board 06 lines)', () => {
   it('board 06 lists the seven workspaces; board 05 gives every sample person initials', () => {
     expect([...BOARD_ACCOUNT_ROWS.keys()]).toEqual(PLATFORM_ROLES.map((role) => ROLE_LABEL[role]));
     for (const row of BOARD_ACCOUNT_ROWS.values())
@@ -50,16 +58,18 @@ describe('board 06: the same pattern in every workspace', () => {
       // The Student holds VR (board 05 `device: true`) and ST-18 is built: board 06's full list.
       const { button, panel } = openMenu(role, { deviceEligible: true, built: ST18_BUILT });
       expect(button).toHaveAccessibleName(
-        `Account menu: ${[row.name, row.role, row.line].filter(Boolean).join(', ')}`,
+        `Account menu, ${[row.name, row.role, row.line].filter(Boolean).join(', ')}`,
       );
       expect(button).toHaveAttribute('aria-expanded', 'true');
       expect(button.querySelector('.xr-avatar')).toHaveTextContent(row.initials);
+      expect(panel.querySelector('.xs-menu-head .xr-avatar')).toHaveTextContent(row.initials);
       expect(
-        [...panel.querySelectorAll('.xr-menu-head > span')].map((line) => line.textContent),
+        [...panel.querySelectorAll('.xs-menu-head > p')].map((line) => line.textContent),
       ).toEqual([row.name, row.role, ...(row.line ? [row.line] : [])]);
-      expect(itemNames(panel)).toEqual(row.items);
-      // Help is this workspace's own Help page.
-      expect(within(panel).getByRole('link', { name: 'Help' })).toHaveAttribute(
+      expect(itemNames(panel)).toEqual(XS_ITEMS(label));
+      // Focus is on the first item; Help & support is this workspace's own Help page.
+      expect(panel.querySelector('.xs-menu-item')).toHaveFocus();
+      expect(within(panel).getByRole('link', { name: 'Help & support' })).toHaveAttribute(
         'href',
         WORKSPACE_NAV[role].help.href,
       );
@@ -81,23 +91,23 @@ describe('"My device": a Student with AR / VR / MR, once ST-18 is built', () => 
   it('hidden while ST-18 is not built, even for a Student who holds VR', () => {
     const unbuilt = new Set<ScreenKey>([...BUILT_SCREENS].filter((screen) => screen !== 'ST-18'));
     const { panel } = openMenu('student', { deviceEligible: true, built: unbuilt });
-    expect(itemNames(panel)).toEqual(['Help', 'Sign out']);
+    expect(itemNames(panel)).toEqual(['Help & support', 'Sign out']);
   });
 
   it('ST-18 is built since Phase 3: the manifest offers it to a Student who holds VR (B3-07 f1)', () => {
     expect(BUILT_SCREENS.has('ST-18')).toBe(true);
     const { panel } = openMenu('student', { deviceEligible: true });
-    expect(itemNames(panel)).toEqual(['My device', 'Help', 'Sign out']);
+    expect(itemNames(panel)).toEqual(['My device', 'Help & support', 'Sign out']);
   });
 
   it('hidden for a Student without AR / VR / MR (B3-07 frame 2 "Entry hidden")', () => {
     const { panel } = openMenu('student', { deviceEligible: false, built: ST18_BUILT });
-    expect(itemNames(panel)).toEqual(['Help', 'Sign out']);
+    expect(itemNames(panel)).toEqual(XS_ITEMS('Student (WEB only or inactive)'));
   });
 
   it('shown first, to /student/device, when both hold', () => {
     const { panel } = openMenu('student', { deviceEligible: true, built: ST18_BUILT });
-    expect(itemNames(panel)).toEqual(['My device', 'Help', 'Sign out']);
+    expect(itemNames(panel)).toEqual(['My device', 'Help & support', 'Sign out']);
     expect(within(panel).getByRole('link', { name: 'My device' })).toHaveAttribute(
       'href',
       '/student/device',
@@ -106,16 +116,12 @@ describe('"My device": a Student with AR / VR / MR, once ST-18 is built', () => 
 
   it('never for another role, even when eligible and built', () => {
     for (const role of PLATFORM_ROLES.filter((candidate) => candidate !== 'student')) {
-      const items = accountMenuItems(role, {
+      const links = accountMenuLinks(role, {
         deviceEligible: true,
         built: ST18_BUILT,
         onSignOut: () => {},
       });
-      expect(items.map((item) => ('label' in item ? item.label : '—'))).toEqual([
-        'Help',
-        '—',
-        'Sign out',
-      ]);
+      expect(links.map((link) => link.label)).toEqual(['Help & support']);
     }
   });
 });
@@ -149,6 +155,7 @@ describe('Sign out and the absence of developer controls', () => {
     async (_label, role) => {
       const { panel } = openMenu(role, { deviceEligible: true, built: ST18_BUILT });
       await assertNoAxeViolations(panel.closest('.xr-acct')!.parentElement!);
+      expect(panel.closest('.rk-x-popover')).not.toBeNull();
     },
   );
 });

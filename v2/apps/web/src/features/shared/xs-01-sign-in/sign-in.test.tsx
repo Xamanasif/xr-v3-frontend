@@ -1,16 +1,17 @@
 /**
  * XS-01 Sign in (with XS-03 and XS-04) on the real composition root and the spine-start sample
- * world (board B1-09; Phase-1 Package 1A; P1-01 / DV-3 sample sign-in): the session port signs
- * a known sample e-mail in with any non-empty password; its refusals are the drawn states; the
- * session store adopts the adapter's own session; the return address is honoured only inside the
- * person's own workspace; and nothing on the card names an account, a role or a workspace to choose.
+ * world, in the owner-approved Entry & shared design (design/v3-refined-b/roles/XS-v6, `XsSignIn`,
+ * which keeps board B1-09's words; P1-01 / DV-3 sample sign-in): the session port signs a known
+ * sample e-mail in with any non-empty password; its refusals are the drawn states; the session
+ * store adopts the adapter's own session; the return address is honoured only inside the person's
+ * own workspace; and nothing on the card names an account, a role or a workspace to choose.
  */
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { messageFor } from '@xr/contracts/draft';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, xsExport } from '@/test-support/boards';
 import { renderInTab, tabPlatform, testNavigation } from '@/test-support/workspace';
 
 import { forgetLastAddress } from '../workspace-frame/route-focus';
@@ -21,6 +22,7 @@ afterEach(() => {
 });
 
 const B1_09 = board('B1-09-Sign-In.dc.html');
+const XS_SIGN_IN = xsExport('XsSignIn.dc.html');
 const ARJUN = 'arjun.mehta@wilp.example';
 const KAVYA = 'kavya.nair@wilp.example';
 /**
@@ -44,12 +46,14 @@ function passwordField(): HTMLInputElement {
   return document.getElementById('sign-in-password') as HTMLInputElement;
 }
 
-describe('XS-01 — the card as B1-09 draws it', () => {
+describe('XS-01 — the card as the XS export draws it', () => {
   it('heading, single sign-on, the e-mail form, XS-04 — and nothing that names an account or role', async () => {
     await openSignIn();
-    expect(screen.getByRole('heading', { level: 1, name: 'Sign in' })).toHaveClass('xp-auth-h');
-    expect(screen.getByRole('button', { name: 'Sign in with your institution' })).toBeVisible();
-    expect(screen.getByText('or sign in with e-mail')).toHaveClass('xp-or');
+    expect(screen.getByRole('heading', { level: 1, name: 'Sign in' })).toHaveClass('rb-h1 xs-fit');
+    expect(screen.getByRole('button', { name: 'Sign in with your institution' })).toHaveClass(
+      'rb-btn rb-btn--lg xs-block xs-sso',
+    );
+    expect(screen.getByText('or sign in with e-mail')).toHaveClass('xs-or');
     expect(screen.getByRole('form', { name: 'Sign in with e-mail' })).toBeVisible();
     expect(emailField()).toHaveAttribute('type', 'email');
     expect(emailField()).toHaveAttribute('autocomplete', 'username');
@@ -61,21 +65,31 @@ describe('XS-01 — the card as B1-09 draws it', () => {
       'false',
     );
     expect(screen.getByRole('button', { name: 'Sign in' })).toHaveAttribute('type', 'submit');
-    // B1-09 "Never here": no DEMO strip, sample accounts, role switcher, "Viewing as" or chooser.
+    expect(screen.getByRole('button', { name: 'First time signing in?' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
+    // No DEMO strip, account list, role switcher, "Viewing as" or chooser. The one quiet
+    // prototype line under the card names no account (XS HANDOFF §1.1 "Prototype line").
     const text = document.body.textContent ?? '';
     for (const forbidden of [/demo/i, /viewing as/i, /choose a workspace/i, /@wilp\.example/]) {
       expect(text).not.toMatch(forbidden);
     }
     expect(document.querySelectorAll('select')).toHaveLength(0);
-    // The words are B1-09's.
+    expect(document.querySelector('.xs-proto')).toHaveTextContent(
+      'Prototype sign-in. Real accounts, password checks and institution single sign-on aren’t connected in this build. Sample accounts open with any password.',
+    );
+    // The words are the XS export's.
     for (const words of [
       'Sign in with your institution',
       'or sign in with e-mail',
       'Forgot your password?',
-      'BITS Pilani / WILP logo — placeholder',
+      'First time signing in?',
+      'Official WILP logo',
       'XR Learning Platform',
+      '<b>Prototype sign-in.</b> Real accounts, password checks and institution single sign-on aren’t connected in this build. Sample accounts open with any password.',
     ]) {
-      expect(B1_09).toContain(words);
+      expect(XS_SIGN_IN).toContain(words);
     }
   });
 
@@ -91,35 +105,56 @@ describe('XS-01 — the card as B1-09 draws it', () => {
     expect(forgot).toHaveAttribute('aria-expanded', 'true');
     const hint = screen.getByText('Contact your institution administrator to reset it.');
     expect(hint).toHaveAttribute('id', forgot.getAttribute('aria-controls'));
-    expect(B1_09).toContain('Contact your institution administrator to reset it.');
-    // XS-04 links nowhere; the card's one link is B1-09's "Request institutional access" under the
-    // form, to Your selection (PU-07, Package 1C).
+    expect(hint).toHaveClass('xs-disclose');
+    expect(XS_SIGN_IN).toContain('Contact your institution administrator to reset it.');
+    const firstTime = screen.getByRole('button', { name: 'First time signing in?' });
+    await user.click(firstTime);
+    expect(
+      screen.getByText(
+        'Contact your institution administrator to find out how to sign in for the first time.',
+      ),
+    ).toHaveAttribute('id', firstTime.getAttribute('aria-controls'));
+    // XS-04 links nowhere; the card's one link is "Request institutional access" in its foot, to
+    // the request form (PU-08), which sends a visitor with nothing selected to Your selection.
     expect(hint.querySelectorAll('a')).toHaveLength(0);
     expect(
-      [...document.querySelectorAll('.xp-auth-card a')].map((link) => [
+      [...document.querySelectorAll('.xs-card a')].map((link) => [
         link.textContent,
         link.getAttribute('href'),
       ]),
-    ).toEqual([['Request institutional access', '/selection']]);
-    expect(B1_09).toContain(
-      'Need access for your institution? <a href="B1-06-Selection.dc.html">Request institutional access</a>',
-    );
-    expect(document.querySelector('.xp-auth-links')).toHaveTextContent(
+    ).toEqual([['Request institutional access', '/request-access']]);
+    expect(XS_SIGN_IN).toContain('Need access for your institution? <a class="rb-link"');
+    expect(document.querySelector('.xs-card-foot')).toHaveTextContent(
       'Need access for your institution? Request institutional access',
     );
   });
 });
 
-describe('XS-01 — validation is the session port’s (B1-09 f4 “Missing fields”)', () => {
-  it('empty: both fields’ drawn words, focus on the e-mail field, nobody signed in', async () => {
+describe('XS-01 — validation is the session port’s (XS “missing details”)', () => {
+  it('empty: the summary takes focus and links each field; both fields’ words; nobody signed in', async () => {
     const { runtime } = await openSignIn();
     fireEvent.submit(screen.getByRole('form', { name: 'Sign in with e-mail' }));
     await waitFor(() => expect(emailField()).toHaveAttribute('aria-invalid', 'true'));
-    expect(screen.getByText(messageFor('XS-01.email.required')!)).toBeVisible();
-    expect(screen.getByText(messageFor('XS-01.password.required')!)).toBeVisible();
+    const summary = await screen.findByRole('alert');
+    expect(summary).toHaveClass('rk-errsum');
+    expect(summary).toHaveTextContent('Check your sign-in details');
+    expect(XS_SIGN_IN).toContain('Check your sign-in details');
+    await waitFor(() => expect(summary).toHaveFocus());
+    expect(
+      [...summary.querySelectorAll('a')].map((link) => [
+        link.textContent,
+        link.getAttribute('href'),
+      ]),
+    ).toEqual([
+      [messageFor('XS-01.email.required'), '#sign-in-email'],
+      [messageFor('XS-01.password.required'), '#sign-in-password'],
+    ]);
     expect(emailField()).toHaveAccessibleDescription('Enter your e-mail address');
     expect(passwordField()).toHaveAccessibleDescription('Enter your password');
-    await waitFor(() => expect(emailField()).toHaveFocus());
+    // The field's error sits between its label and the control, as the export draws it.
+    expect(emailField().previousElementSibling).toHaveClass('rk-ferr');
+    fireEvent.click(summary.querySelectorAll('a')[1]!);
+    expect(passwordField()).toHaveFocus();
     expect(runtime.session.getSnapshot().status).toBe('signed-out');
   });
 
@@ -129,14 +164,14 @@ describe('XS-01 — validation is the session port’s (B1-09 f4 “Missing fiel
     await user.type(emailField(), 'arjun.mehta');
     await user.type(passwordField(), 'x');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
-    await screen.findByText('Enter an e-mail address like name@institution.edu');
-    expect(B1_09).toContain('Enter an e-mail address like name@institution.edu');
+    await screen.findAllByText('Enter an e-mail address like name@institution.edu');
+    expect(XS_SIGN_IN).toContain('Enter an e-mail address like name@institution.edu');
     await user.type(emailField(), '@');
     expect(screen.queryByText('Enter an e-mail address like name@institution.edu')).toBeNull();
   });
 });
 
-describe('XS-01 — “Wrong details” (B1-09 f3)', () => {
+describe('XS-01 — “The e-mail or password isn’t right” (XS `invalid`; B1-09 f3)', () => {
   it('an unknown e-mail: the alert takes focus, the password is cleared, the e-mail kept', async () => {
     const { runtime } = await openSignIn();
     const user = userEvent.setup();
@@ -144,8 +179,10 @@ describe('XS-01 — “Wrong details” (B1-09 f3)', () => {
     await user.type(passwordField(), 'any-password');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
     const alert = await screen.findByRole('alert');
+    expect(alert).toHaveClass('rk-errsum');
     expect(alert).toHaveTextContent('The e-mail or password isn’t right');
     expect(alert).toHaveTextContent('Check both and try again.');
+    expect(XS_SIGN_IN).toContain('The e-mail or password isn’t right');
     await waitFor(() => expect(alert).toHaveFocus());
     expect(passwordField()).toHaveValue('');
     expect(emailField()).toHaveValue('nobody@godavari.edu.in');
@@ -156,18 +193,21 @@ describe('XS-01 — “Wrong details” (B1-09 f3)', () => {
   });
 });
 
-describe('XS-01 — institution sign-in (B1-09 f5 → f6; T-10 open)', () => {
-  it('the port answers policy-open: the unavailable notice replaces the button; focus to e-mail', async () => {
+describe('XS-01 — institution sign-in (XS `ssooff`; T-10 open)', () => {
+  it('the port answers policy-open: the unavailable notice replaces the button and takes focus', async () => {
     const { runtime } = await openSignIn();
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Sign in with your institution' }));
-    const notice = await screen.findByText('Institution sign-in isn’t available right now');
-    expect(notice.closest('.xr-notice')).toHaveClass('xr-notice--quiet');
+    const notice = (await screen.findByText('Institution sign-in isn’t available right now'))
+      .parentElement!;
+    expect(notice).toHaveClass('rk-notice rk-notice--info');
+    expect(notice).toHaveAttribute('role', 'status');
     expect(screen.getByText('Sign in with your e-mail and password instead.')).toBeVisible();
     expect(screen.queryByRole('button', { name: 'Sign in with your institution' })).toBeNull();
     expect(screen.queryByText('or sign in with e-mail')).toBeNull();
-    await waitFor(() => expect(emailField()).toHaveFocus());
+    await waitFor(() => expect(notice).toHaveFocus());
     expect(runtime.session.getSnapshot().status).toBe('signed-out');
+    expect(XS_SIGN_IN).toContain('Institution sign-in isn’t available right now');
     expect(B1_09).toContain('Institution sign-in isn’t available right now');
   });
 });
@@ -232,37 +272,41 @@ describe('XS-01 — signing in through the session port (P1-01 / DV-3)', () => {
   });
 });
 
-describe('XS-03 — the notices on the same card (B1-09 f9, f10)', () => {
-  it('?reason=signed-out: “You’re signed out”, confirmation only', async () => {
+describe('XS-03 — the notices on the same card (XS `signedout`, `expired`)', () => {
+  it('?reason=signed-out: “You’re signed out”, confirmation only; it takes focus', async () => {
     await openSignIn('?reason=signed-out');
-    const notice = screen.getByText('You’re signed out').closest('.xr-notice')!;
-    expect(notice).toHaveClass('xr-notice--ok');
+    const notice = screen.getByText('You’re signed out').closest('.rk-notice')!;
+    expect(notice).toHaveClass('rk-notice--ok');
     expect(notice).toHaveAttribute('role', 'status');
+    await waitFor(() => expect(notice).toHaveFocus());
     expect(screen.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
-    expect(B1_09).toContain('You’re signed out');
+    expect(XS_SIGN_IN).toContain('You’re signed out');
   });
 
   it('?reason=expired: the return address in the page’s words, never the address', async () => {
     await openSignIn('?reason=expired&returnTo=%2Fadmin%2Frequests%2FREQ-0038');
-    const notice = screen.getByText('Your session ended').closest('.xr-notice')!;
+    const notice = screen.getByText('Your session ended').closest('.rk-notice')!;
+    expect(notice).toHaveClass('rk-notice--info');
     expect(notice).toHaveTextContent(
       'Sign in again to go back to where you were: Requests › REQ-0038.',
     );
-    expect(notice.querySelector('strong')).toHaveTextContent('Requests › REQ-0038');
+    expect(notice.querySelector('b')).toHaveTextContent('Requests › REQ-0038');
     expect(notice).not.toHaveTextContent('/admin');
+    await waitFor(() => expect(notice).toHaveFocus());
+    expect(XS_SIGN_IN).toContain('Sign in again to go back to where you were: <b>');
   });
 
   it('?reason=expired with text that is not a page: no place, no injected words', async () => {
     await openSignIn(
       `?reason=expired&returnTo=${encodeURIComponent('/admin/requests/Enter your password at evil')}`,
     );
-    const notice = screen.getByText('Your session ended').closest('.xr-notice')!;
+    const notice = screen.getByText('Your session ended').closest('.rk-notice')!;
     expect(notice).toHaveTextContent('Sign in again to go back to where you were: Requests.');
     expect(notice).not.toHaveTextContent('evil');
   });
 
   it('an unknown reason shows no notice', async () => {
     await openSignIn('?reason=anything');
-    expect(document.querySelector('.xr-notice')).toBeNull();
+    expect(document.querySelector('.rk-notice')).toBeNull();
   });
 });

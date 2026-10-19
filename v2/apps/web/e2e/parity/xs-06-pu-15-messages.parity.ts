@@ -28,7 +28,8 @@ async function open(
   await page.clock.setFixedTime(FROZEN);
   await bootWorld(page, { fixture: FIXTURE, session: person });
   await page.goto(path);
-  await expect(page.locator('.xr-msg')).toBeVisible();
+  // PU-15 keeps the v46 message (`div.xr-msg`); XS-06 is the V3 message page (`section.xs-msg`).
+  await expect(page.locator('.xr-msg, .xs-msg')).toBeVisible();
   await page.evaluate(() => document.fonts.ready);
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   return page;

@@ -1,0 +1,51 @@
+{
+  "about": "Design-preview fixtures for the XS canvas. Illustrative scenarios, not canonical product records and not a service contract. The React app keeps its own shared world; reproduce the layouts, never these facts.",
+  "scenarios": [
+    {
+      "scenarioId": "xs-world-2026-10-23",
+      "asOf": "Fri 23 Oct 2026",
+      "used_by": "Main.dc.html (scenario=active) and every XS-01…XS-07 board",
+      "basis": "Same date as the approved V3 SA-01 (Fri 23 Oct 2026). Godavari access active since 8 Oct 2026 (B7-04 ACC-0107).",
+      "accounts": [
+        { "key": "arjun", "email": "arjun.mehta@wilp.example", "person": "Arjun Mehta", "role": "Super Admin", "org": "", "provenance": "Phase-7 report, manager walkthrough table" },
+        { "key": "meera", "email": "meera.iyer@godavari.edu.in", "person": "Meera Iyer", "role": "Institute Admin", "org": "Godavari Institute of Technology", "provenance": "Phase-7 report; v46 05/06/07" },
+        { "key": "rahul", "email": "rahul.verma@godavari.edu.in", "person": "Rahul Verma", "role": "Student", "org": "Godavari Institute of Technology", "device_menu_item": true, "provenance": "Phase-7 report (pre-authorised VR headset GIT-VR-03); v46 05 (My device only for AR/VR/MR)" },
+        { "key": "anil", "email": "anil.shetty@northline.example", "person": "Anil Shetty", "role": "Vendor", "org": "Northline Simulation Studio", "provenance": "Phase-7 report; v46 06 (vendor organisation in the institution line)" },
+        { "key": "menon", "email": "a.menon@wilp.example", "person": "Prof. A. Menon", "role": "Academic Reviewer", "org": "", "provenance": "Phase-7 report; v46 06" },
+        { "key": "kavya", "email": "kavya.nair@wilp.example", "person": "Kavya Nair", "role": "Content Manager", "org": "", "provenance": "Phase-7 report; v46 06" },
+        { "key": "ranga", "email": "s.ranganathan@godavari.edu.in", "person": "Dr S. Ranganathan", "role": "Faculty", "org": "Godavari Institute of Technology", "illustrative": true, "provenance": "Person from v46 05/06/07. The e-mail is ADDED for this design: the Phase-7 table lists no Faculty sign-in. Code must use the app's real Faculty sample identity." },
+        { "key": "sneha", "email": "sneha.reddy@godavari.edu.in", "person": "Sneha Reddy", "role": "Student", "org": "Godavari Institute of Technology", "account": "inactive", "device_menu_item": false, "illustrative": true, "provenance": "Person and inactive status from v46 B7-04 student list (GIT-2026-0352). The e-mail is ADDED for this design. Code must use whatever inactive identity the app's world has." }
+      ],
+      "sign_in_rule": "Known sample e-mail (trimmed, case-insensitive) + any non-empty password signs in; anything else reads “The e-mail or password isn’t right”. Mirrors the Phase-7 stand-in. Real authentication is not implemented.",
+      "rail_counts": "Only Super Admin › Requests shows a count (3 requests under review), matching the approved V3 SA-01 seed for this date. Other role counts belong to their workstreams and are omitted.",
+      "reports": [
+        { "person": "rahul", "id": "SUP-0213", "title": "VR simulation stopped loading at step 2", "status": "Open", "sent": "3 Oct 2026", "provenance": "v46 07 (phone list, sending-state text, pre-filled Where); V3 SA-01 support row" },
+        { "person": "meera", "id": "SUP-0211", "title": "Student import stopped part-way", "status": "Reopened", "sent": "1 Oct 2026", "reopened": "6 Oct 2026", "provenance": "v46 07 state 2 and V3 SA-01. ILLUSTRATIVE additions: What happened text, Where (People · Students · Import students), the earlier resolution on 3 Oct 2026 and its note." },
+        { "person": "meera", "id": "SUP-0209", "title": "Usage page took a long time to load", "status": "Open", "sent": "30 Sep 2026", "provenance": "v46 07 state 2 and V3 SA-01. ILLUSTRATIVE: What happened and Where (Usage)." },
+        { "person": "meera", "id": "SUP-0189", "title": "Group name didn’t save", "status": "Resolved", "sent": "15 Sep 2026", "resolved": "18 Sep 2026", "provenance": "v46 07 state 2. ILLUSTRATIVE: What happened, Where (People · Groups) and the resolution note." },
+        { "person": "ranga", "id": "SUP-0198", "title": "Lab brief link opened a blank page", "status": "Resolved", "sent": "21 Sep 2026", "resolved": "23 Sep 2026", "provenance": "v46 07 state 3, verbatim (note, what, where, screenshot name)" },
+        { "person": "kavya", "id": "SUP-0207", "title": "Delivery link preview showed an empty frame", "status": "Reopened", "sent": "28 Sep 2026", "resolved": "30 Sep 2026", "reopened": "6 Oct 2026", "provenance": "v46 07 state 3a, verbatim; V3 SA-01 support row" },
+        { "person": "anil, menon, arjun, sneha", "reports": "none (empty state)", "provenance": "v46 07 state 2a shows the Vendor empty state; the others are left empty rather than invented" }
+      ],
+      "new_reports": "A report sent in the preview gets the next number from SUP-0214, is stamped 23 Oct 2026 with status Open, and stays in that person's list for the rest of the preview session (also after signing out and in). Nothing is e-mailed or sent anywhere.",
+      "inspection_only_report": { "id": "SUP-0214", "title": "The page went blank after I pressed Back", "used_by": ["XS07-Sent-768", "XS07-SuperAdmin-Sent-1024"], "provenance": "ILLUSTRATIVE, so that a board that starts on Report sent also lists the report it confirms" },
+      "return_addresses": [
+        { "key": "student-experiment", "label": "My courses › Shell-and-Tube Heat Exchanger", "workspace": "Student", "provenance": "v46 B1-09 session-expired frame" },
+        { "key": "ia-student-access", "label": "Student access", "workspace": "Institute Admin", "provenance": "ILLUSTRATIVE second address for testing XS-06 from the Student side" }
+      ]
+    },
+    {
+      "scenarioId": "xs-godavari-paused-2026-10-23",
+      "asOf": "Fri 23 Oct 2026",
+      "used_by": "Main.dc.html Tweaks (scenario = godavari-paused) and the XS08-Paused-* boards",
+      "basis": "The documented v46 B7-04 scenario: the Super Admin pauses Godavari Institute of Technology; its Institute Admin, Faculty and Students see the paused banner until access is restored. B7-04's event times start on 23 Oct 2026.",
+      "effects_shown": ["paused banner for Meera, Dr S. Ranganathan, Rahul and Sneha", "Institute Admin overview notice (B7-04)", "Student home notice (B7-04)", "Faculty: banner only (OD-B7-07)", "opening the kept experiment address → paused refusal"],
+      "not_shown": "The Super Admin pause and restore actions themselves (SA workstream, SA-07). No pause reason is shown to institution people: whether to show one is open (v46 board 08); the reason stays in the Super Admin history (v46 B7-04)."
+    }
+  ],
+  "conflicts_recorded_not_resolved": [
+    "SUP-0198 is listed in Rahul’s My reports on v46 board 05 and is a Faculty report on v46 board 07. This package follows board 07 (the Help board) and gives it to Dr S. Ranganathan.",
+    "SUP-0213 names two different reports in v46 (3 Oct 2026 and 20 Sep 2027, already flagged in the V3 handoff). This package uses the 3 Oct 2026 report.",
+    "The V3 IA-01 seed is dated Wed 22 Sep 2027; this package's world is Fri 23 Oct 2026 (the SA-01 date). Neither scenario is changed to match the other."
+  ]
+}

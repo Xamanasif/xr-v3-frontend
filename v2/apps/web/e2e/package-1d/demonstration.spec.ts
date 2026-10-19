@@ -18,7 +18,7 @@ import { openInTab, sendRequest, statusHead } from '../package-1c/flow';
  * address is reached by a link or through the app router, never typed into the bar.
  */
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 
 async function signIn(page: Page, email: string): Promise<void> {
   await card(page).getByLabel('E-mail', { exact: true }).fill(email);
@@ -28,7 +28,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
@@ -49,8 +49,8 @@ async function toSignIn(page: Page): Promise<void> {
   await page.waitForURL('**/sign-in');
 }
 
-const ARJUN = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
 const main = (page: Page) => page.locator('main');
 const flash = (page: Page) => page.locator('main p.xa-save[role="status"]');
 const godavariRow = (page: Page) =>

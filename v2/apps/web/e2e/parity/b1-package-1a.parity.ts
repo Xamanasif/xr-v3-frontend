@@ -45,7 +45,7 @@ async function rest(page: Page): Promise<void> {
 }
 
 const signInReady = async (page: Page) => {
-  await expect(page.locator('.xp-auth-card h1')).toHaveText('Sign in');
+  await expect(page.locator('.xs-card h1')).toHaveText('Sign in');
 };
 const requestsReady = async (page: Page) => {
   await expect(page.locator('table.xr-table tbody td.is-primary a').first()).toBeVisible();
@@ -95,8 +95,8 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
       },
       {
         name: 'b1-09-f0-single-sign-on',
-        reference: frame.locator('.xp-auth-card > button.xr-btn--secondary'),
-        product: ours.locator('.xp-auth-card > button.xr-btn--secondary'),
+        reference: frame.locator('.xs-card > button.xr-btn--secondary'),
+        product: ours.locator('.xs-card > button.xr-btn--secondary'),
       },
       {
         name: 'b1-09-f0-or',
@@ -111,8 +111,8 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
       {
         // Package 1C: the card foot's "Request institutional access" leads to the built Selection.
         name: 'b1-09-f0-card',
-        reference: frame.locator('.xp-auth-card'),
-        product: ours.locator('.xp-auth-card'),
+        reference: frame.locator('.xs-card'),
+        product: ours.locator('.xs-card'),
       },
       {
         // Package 1B: the top row's "Back to experiments" renders (the Landing is built), with
@@ -131,9 +131,9 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
   test('f3 · Wrong details · f4 · Missing fields (640)', async ({ context }, testInfo) => {
     const { run, failures } = collector(testInfo);
     const ours = await open(context, 640, null, '/sign-in', signInReady);
-    const card = ours.locator('.xp-auth-card');
+    const card = ours.locator('.xs-card');
     await card.getByRole('button', { name: 'Sign in', exact: true }).click();
-    await expect(card.getByText('Enter your password')).toBeVisible();
+    await expect(card.locator('.rk-ferr', { hasText: 'Enter your password' })).toBeVisible();
     await rest(ours);
     await run([
       {
@@ -167,9 +167,9 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
   }, testInfo) => {
     const { run, failures } = collector(testInfo);
     const ours = await open(context, 640, null, '/sign-in?reason=signed-out', signInReady);
-    const card = ours.locator('.xp-auth-card');
+    const card = ours.locator('.xs-card');
     await card.getByRole('button', { name: 'Sign in with your institution' }).click();
-    await expect(card.locator('.xr-notice--quiet')).toBeVisible();
+    await expect(card.getByText('Institution sign-in isn’t available right now')).toBeVisible();
     await rest(ours);
     await run([
       {
@@ -196,7 +196,7 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
         // B1-09 f9 names "My courses › Shell-and-Tube Heat Exchanger" (a Phase-2 page).
         name: 'b1-09-f9-expired-notice',
         reference: frames.nth(9).locator('.xr-notice').first(),
-        product: expired.locator('.xp-auth-card .xr-notice').first(),
+        product: expired.locator('.xs-card .xr-notice').first(),
         deviation: 'DEV-22',
       },
     ]);
@@ -216,8 +216,8 @@ test.describe('B1-09 · XS-01 Sign in, XS-03, XS-04 on the built card', () => {
       },
       {
         name: 'b1-09-f11-mobile-card',
-        reference: frame.locator('.xp-auth-card'),
-        product: ours.locator('.xp-auth-card'),
+        reference: frame.locator('.xs-card'),
+        product: ours.locator('.xs-card'),
       },
     ]);
     expect(failures).toEqual([]);

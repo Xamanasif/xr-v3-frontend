@@ -1,0 +1,73 @@
+### long acct 1440 @1440
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 460
+shot long/acct-1440
+console clean
+
+### long acct 375 @375
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 600
+shot long/acct-375
+console clean
+
+### long help list 1440 @1440
+axe wcag2a/aa/21aa/22aa: 0 violations
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot long/help-list-1440
+console clean
+
+### long help list 375 @375
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 812
+shot long/help-list-375
+console clean
+
+### long help detail 1024 @1024
+axe wcag2a/aa/21aa/22aa: 0 violations
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1141
+shot long/help-detail-1024
+console clean
+
+### long help detail 375 @375
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1633
+shot long/help-detail-375
+console clean
+
+### long help report 375 @375
+overflow: CLIP input.rk-input sw894 cw303
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 818
+shot long/help-report-375
+console clean
+
+### long signin 375 @375
+overflow: CLIP input.rk-input sw829 cw303
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1162
+shot long/signin-375
+console clean
+
+### long signin 320 @320
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1252
+shot long/signin-320
+console clean

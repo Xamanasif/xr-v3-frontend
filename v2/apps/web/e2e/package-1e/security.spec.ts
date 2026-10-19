@@ -100,7 +100,7 @@ test('the requester’s ticket reaches no Super Admin page or answer; sign-out l
   // Sign out: none of his answers stay cached (the cache's session keys say so), so Back — which
   // meets the session gate — has nothing of his to show.
   await page.getByRole('button', { name: ACCOUNT_LINES.super_admin, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
   expect((await inspectWorld(page)).cachedSessionKeys).not.toContain(arjunKey);
   await page.goBack();

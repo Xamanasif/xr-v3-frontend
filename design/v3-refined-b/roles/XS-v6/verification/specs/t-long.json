@@ -1,0 +1,11 @@
+[
+ {"name":"long acct 1440","file":"fx-long-acct.dc.html","width":1440,"height":460,"settle":1300,"shot":"long/acct-1440"},
+ {"name":"long acct 375","file":"fx-long-acct.dc.html","width":375,"height":600,"settle":1300,"shot":"long/acct-375"},
+ {"name":"long help list 1440","file":"fx-long-help.dc.html","width":1440,"height":900,"settle":1300,"axe":true,"shot":"long/help-list-1440"},
+ {"name":"long help list 375","file":"fx-long-help.dc.html","width":375,"height":812,"settle":1300,"shot":"long/help-list-375"},
+ {"name":"long help detail 1024","file":"fx-long-help-detail.dc.html","width":1024,"height":900,"settle":1300,"axe":true,"shot":"long/help-detail-1024"},
+ {"name":"long help detail 375","file":"fx-long-help-detail.dc.html","width":375,"height":812,"settle":1300,"shot":"long/help-detail-375"},
+ {"name":"long help report 375","file":"fx-long-help-report.dc.html","width":375,"height":812,"settle":1300,"shot":"long/help-report-375"},
+ {"name":"long signin 375","file":"fx-long-signin.dc.html","width":375,"height":900,"settle":1300,"steps":[{"fill":["#xs-signin-email","a.really.long.address.for.someone.at.a.department@mechanical-engineering.sri-venkateswara-college.edu.in"]}],"shot":"long/signin-375"},
+ {"name":"long signin 320","file":"fx-long-signin.dc.html","width":320,"height":900,"settle":1300,"shot":"long/signin-320"}
+]

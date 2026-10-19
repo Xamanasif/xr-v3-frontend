@@ -1,0 +1,196 @@
+{
+  "contract": "XR Learning Platform · V3 shared surfaces (XS)",
+  "version": "1.0.0",
+  "foundation": "XR-V3-RB-1.0",
+  "owner": "XS · Entry & shared",
+  "issued": "2026-10-18",
+  "status": "Internal dependency artifact. Components are authored and tested in the XS design canvas; owner visual acceptance pending; not integrated in the React app. Role packages place these components and must not redesign them.",
+  "styles": {
+    "base_immutable": ["core.css", "rb.css", "rb-kit.css"],
+    "base_hashes_sha256": {
+      "core.css": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+      "rb.css": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+      "rb-kit.css": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704"
+    },
+    "shared_extension": "xs-shared.css (every selector uses an xs- class; no global token changes)",
+    "load_order": ["core.css", "rb.css", "rb-kit.css", "xs-shared.css"],
+    "font": "Public Sans (Google Fonts css2 link in each artboard helmet; no font binaries shipped)"
+  },
+  "design_host_usage": {
+    "import": "Copy the component .dc.html beside your artboards together with the four stylesheets, then <dc-import name=\"XsAccountMenu\" embedded=\"{{ true }}\" ...>. Attribute names are kebab-case (person-name -> personName). Callbacks are passed as {{ fn }}.",
+    "embedded": "Always pass embedded=\"{{ true }}\" inside a workspace (.xr.rb). Without it the file renders as its own specimen artboard.",
+    "ids": "Pass a unique id-prefix per instance when a board shows more than one."
+  },
+  "components": [
+    {
+      "id": "XsAccountMenu",
+      "screen_ids": ["XS-05"],
+      "file": "XsAccountMenu.dc.html",
+      "placement": "Right end of .rb-top in every workspace page, wrapped in <div class=\"xs-acct-slot\"> so it keeps margin-left:auto.",
+      "props": {
+        "personName": "string, required",
+        "initials": "string, required",
+        "roleLabel": "Student | Faculty | Institute Admin | Vendor | Academic Reviewer | Content Manager | Super Admin",
+        "org": "string; institution for Student, Faculty and Institute Admin; the vendor's organisation for Vendor; empty for Academic Reviewer, Content Manager and Super Admin",
+        "device": "boolean; true only for a Student with AR, VR or MR access",
+        "onHelp": "callback -> XS-07 Help & support",
+        "onDevice": "callback -> ST-18 My device (Student workstream)",
+        "onSignOut": "callback -> end the tab's sign-in, then XS-03 signed out",
+        "embedded": "boolean",
+        "idPrefix": "string, default xs-acct",
+        "startOpen": "boolean, canvas-only inspection state",
+        "catcher": "boolean, default true; galleries pass false"
+      },
+      "accessible_names": {
+        "button": "Account menu, {personName}, {roleLabel}[, {org}]",
+        "list": "Account",
+        "outside_click_layer": "Close account menu (tabindex -1, not in the tab order)"
+      },
+      "pattern": "Disclosure (button + list of links and a button), not an ARIA menu.",
+      "keyboard": [
+        "Enter/Space or click opens and moves focus to the first item",
+        "ArrowDown on the closed button opens it",
+        "ArrowDown/ArrowUp/Home/End move between items",
+        "Escape closes and returns focus to the button",
+        "Outside click closes and returns focus to the button",
+        "Tab out of the last item closes without moving focus back",
+        "Choosing an item closes the menu; the destination moves focus to its H1"
+      ],
+      "items_by_role": {
+        "Student (with AR/VR/MR)": ["My device", "Help & support", "Sign out"],
+        "Student (WEB only or inactive)": ["Help & support", "Sign out"],
+        "Faculty": ["Help & support", "Sign out"],
+        "Institute Admin": ["Help & support", "Sign out"],
+        "Vendor": ["Help & support", "Sign out"],
+        "Academic Reviewer": ["Help & support", "Sign out"],
+        "Content Manager": ["Help & support", "Sign out"],
+        "Super Admin": ["Help & support", "Sign out"]
+      },
+      "never": ["workspace or role switcher (XS-02 excluded)", "View as", "sample-user chooser", "Settings or profile pages"],
+      "variant_ownership": "XS owns every variant; role workstreams only supply the person's data."
+    },
+    {
+      "id": "XsHelp",
+      "screen_ids": ["XS-07"],
+      "file": "XsHelp.dc.html",
+      "placement": "The page content of the Help & support destination at the foot of every rail; also reached from the account menu, banners and message pages.",
+      "views": ["list (My reports)", "report (Report a problem)", "sent (Report sent)", "detail (one report)"],
+      "list_states": ["populated", "empty (primary action moves into the empty state)", "loading", "failed (Nothing has changed. Try again.)"],
+      "props": {
+        "reports": "array of {id, title, status: open|reopened|resolved, sent, iso, what, where, shot, resolved?, note?, reopened?, history[{what, when, note?}]}; owned by the host",
+        "showRefs": "boolean, default true; false for Super Admin (no SUP numbers anywhere, including accessible names)",
+        "homeLabel": "Home (Student) | Overview (all other roles)",
+        "where": "string pre-filled from the page the person came from",
+        "dateLong": "string for the phone eyebrow date",
+        "today": "string date stamped on a new report",
+        "onSubmit": "callback(draft {title, what, where, shot}) -> returns the stored record {id, ...}",
+        "onHome": "callback -> role home",
+        "resetToken": "number; change it to bring the component back to the list",
+        "view, detail, preset, sentRef": "canvas-only start state",
+        "embedded": "boolean",
+        "idPrefix": "string, default xs-help"
+      },
+      "fields": ["What happened? (required)", "Where did it happen? (pre-filled, editable)", "Screenshot (optional, image)"],
+      "validation_copy": {"summary": "One thing needs fixing", "summary_link": "Say what happened", "field": "Say what happened, so it can be looked into"},
+      "status_words": ["Open", "Reopened", "Resolved"],
+      "rules": [
+        "No response times, service levels or promises about who answers (ND-14).",
+        "Resolving and reopening are Super Admin actions (SA-20, SA-21); the reporter reads the resolution note.",
+        "Nothing is sent by e-mail; status is read here only (T-34).",
+        "Title in lists = first sentence of What happened (prototype rule; keep the app's existing title rule if it differs)."
+      ],
+      "variant_ownership": "XS owns all views and states. The Super Admin variant is showRefs=false."
+    },
+    {
+      "id": "XsMessage",
+      "screen_ids": ["XS-06", "XS-08 refusal pages"],
+      "file": "XsMessage.dc.html",
+      "placement": "The page content inside the normal workspace shell; no rail item is current.",
+      "props": {
+        "kind": "notallowed | paused | inactive",
+        "workspace": "role label of the signed-in person (never the protected page's workspace)",
+        "homeLabel": "Home | Overview",
+        "onPrimary": "callback -> role home",
+        "onHelp": "callback -> XS-07",
+        "embedded": "boolean",
+        "idPrefix": "string, default xs-msg"
+      },
+      "copy": {
+        "notallowed": ["This page isn’t part of your workspace", "You’re signed in to the {workspace} workspace. This address belongs to a different workspace.", "Back to {homeLabel}"],
+        "paused": ["Your institution’s access is paused", "Your work is kept.", "Back to {homeLabel}"],
+        "inactive": ["Your account is inactive", "Nothing can be opened while the account is inactive. Contact your institution administrator.", "Back to {homeLabel}"]
+      },
+      "accessible_names": {"heading": "the page's only H1, focused on arrival", "primary": "named by its destination"},
+      "rules": ["Never show the protected page's title, records, route, role code or error code.", "Paused always adds that work is kept.", "Room for one admin-written reason line if the pause-reason decision allows it (open)."],
+      "variant_ownership": "XS owns the template. PU-15 Not found may reuse it; that copy belongs to Public."
+    },
+    {
+      "id": "XsAccessNotice",
+      "screen_ids": ["XS-08"],
+      "file": "XsAccessNotice.dc.html",
+      "placement": "banner: first child of <main class=\"rb-page\"> on every page of an affected person (as in the V3 IA-02 seed). page: the role workstream's home page, under the H1.",
+      "props": {
+        "kind": "paused | inactive",
+        "placement": "banner | page",
+        "audience": "student | faculty | ia (page placement only)",
+        "onHelp": "callback -> XS-07",
+        "embedded": "boolean"
+      },
+      "who_sees_it": {
+        "paused": "Institute Admin, Faculty and Students of a paused institution",
+        "inactive": "Students and Faculty whose account is inactive"
+      },
+      "copy": {
+        "banner_paused": "Your institution’s access is paused — your work is kept. · Help",
+        "banner_inactive": "Your account is inactive. Contact your institution administrator. · Help",
+        "page_paused_student": ["You can’t open experiments right now", "Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted."],
+        "page_paused_ia": ["BITS has paused your institution’s access", "Students can’t open experiments. Pages are read-only until BITS lifts the pause."],
+        "page_paused_faculty": "none: banner only (v46 OD-B7-07)",
+        "page_inactive": ["Nothing can be opened right now", "Your account is inactive. Contact your institution administrator."]
+      },
+      "rules": ["Display only: it never grants, hides or restores access.", "Signing out and in again does not remove it.", "role=status on banners."],
+      "variant_ownership": "XS owns the copy and look; role workstreams own where the page notice sits and which of their own actions are hidden."
+    },
+    {
+      "id": "XsSignIn",
+      "screen_ids": ["XS-01", "XS-03", "XS-04"],
+      "file": "XsSignIn.dc.html",
+      "placement": "Whole page, outside the workspace shell. /sign-in and /signed-out are v46 route proposals; keep the app's routes.",
+      "props": {
+        "mode": "normal | signedout | expired",
+        "returnLabel": "string shown in the session-ended notice",
+        "onSignIn": "callback(email) -> true when the host accepts the account (the host then navigates), false to show the wrong-details message",
+        "onPublic": "callback('catalogue' | 'request') -> PU-04 / PU-08",
+        "autofocus": "boolean; move focus to the notice or H1 after an in-app arrival (sign out, return from public)",
+        "prototypeNote": "boolean, default true; local prototype builds only",
+        "preset": "canvas-only start state",
+        "bare": "boolean; card only, for galleries",
+        "embedded": "boolean",
+        "idPrefix": "string, default xs-signin"
+      },
+      "states": ["default", "missing details (summary + field errors)", "wrong details (password cleared, e-mail kept)", "signing in (busy, cannot be sent twice)", "institution sign-in unavailable", "institution sign-in starting (only with an identity provider; T-10)", "forgot password open (XS-04)", "first time open (XS-04)", "signed out (XS-03)", "session ended with return address (XS-03)"],
+      "validation_copy": {"summary": "Check your sign-in details", "email_empty": "Enter your e-mail address", "email_format": "Enter an e-mail address like name@institution.edu", "password_empty": "Enter your password", "wrong": ["The e-mail or password isn’t right", "Check both and try again."]},
+      "xs04_copy": {"forgot": "Contact your institution administrator to reset it.", "first_time": "Contact your institution administrator to find out how to sign in for the first time."},
+      "never": ["sign-up", "sample-user chooser", "role or workspace chooser", "reset links, tokens or invitation e-mail", "a success message for an e-mail that was never sent"],
+      "variant_ownership": "XS owns all states."
+    }
+  ],
+  "shell_patches_proposed": [
+    {"id": "XS-P1", "what": "Skip to main content link (xs-skip) as the first focusable element of the workspace shell; focuses <main tabindex=-1>.", "why": "WCAG 2.4.1: up to 8 rail links precede the content; the V3 seeds have no bypass.", "aesthetics": "Hidden until focused; no visual change otherwise.", "owner": "central integration"},
+    {"id": "XS-P2", "what": "After choosing a rail or drawer destination, close the drawer and move focus to the new page's H1 (tabindex -1).", "why": "V3 seeds leave focus on the old link or the Menu button.", "owner": "central integration"},
+    {"id": "XS-P3", "what": "The account button opens XsAccountMenu.", "why": "In the V3 seeds the button is labelled Account menu but opens nothing.", "owner": "central integration"}
+  ],
+  "nav_targets": {
+    "XS-07 Help & support": "/[workspace]/help (v46 proposal)",
+    "XS-03 Signed out": "/signed-out (v46 proposal)",
+    "XS-01 Sign in": "/sign-in (v46 proposal)",
+    "XS-06 Not your workspace": "/[workspace]/not-allowed (v46 proposal)",
+    "ST-18 My device": "/student/device",
+    "role homes": {"Student": "ST-01 /student", "Faculty": "FA-01 /faculty", "Institute Admin": "IA-01 /institute", "Vendor": "VE-01 /vendor", "Academic Reviewer": "RV-01 /reviewer", "Content Manager": "CM-01 /content-manager", "Super Admin": "SA-01 /admin"},
+    "PU-04 Catalogue": "/experiments",
+    "PU-08 Request institutional access": "/request-access",
+    "note": "Route strings are historical v46 proposals for identification. Claude Code keeps the application's actual routes."
+  },
+  "consumers": ["SA", "IA", "ST", "FA", "VE", "RV", "CM", "PU"],
+  "internal_ids": "Super Admin interfaces hide REQ/ACC/UPD/DTR/SUP/SUB numbers, including accessible labels (XsHelp showRefs=false). All other roles keep their documented references; academic course codes stay everywhere."
+}

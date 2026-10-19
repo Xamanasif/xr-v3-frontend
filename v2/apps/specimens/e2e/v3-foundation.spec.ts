@@ -168,15 +168,20 @@ test.describe('V3 workspace shell', () => {
     await expectNoInvisibleFocusTargets(page);
   });
 
-  test('the account chrome opens the existing menu; Esc closes it and returns focus', async ({
+  test('the account chrome opens the XS menu (XS-P3) on its first item; Esc returns focus', async ({
     page,
   }) => {
     await openSpecimen(page, 'v3-ia-01');
     const trigger = page.getByRole('button', {
-      name: 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology',
+      name: 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology',
     });
     await trigger.click();
-    await expect(page.getByRole('link', { name: 'Help' }).last()).toBeVisible();
+    const help = page.getByRole('list', { name: 'Account' }).getByRole('link', {
+      name: 'Help & support',
+    });
+    await expect(help).toBeFocused();
+    await page.keyboard.press('ArrowDown');
+    await expect(page.getByRole('button', { name: 'Sign out' })).toBeFocused();
     await page.keyboard.press('Escape');
     await expect(trigger).toBeFocused();
     await expect(trigger).toHaveAttribute('aria-expanded', 'false');

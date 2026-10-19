@@ -1,0 +1,93 @@
+### K1 sign-in tab order @1440
+tab1: a.xs-back "Back to experiments" [focus-visible]
+tab2: button#xs-signin-sso.rb-btn.rb-btn--lg "Sign in with your institution" [focus-visible]
+tab3: input#xs-signin-email.rk-input "" [focus-visible]
+tab4: input#xs-signin-pw.rk-input "" [focus-visible]
+tab5: button.xs-pw-toggle "Show password" [focus-visible]
+tab6: button.xs-linkbtn "Forgot your password?" [focus-visible]
+tab7: button#xs-signin-go.rb-btn.rb-btn--primary "Sign in" [focus-visible]
+tab8: button.xs-linkbtn "First time signing in?" [focus-visible]
+tab9: a.rb-link "Request institutional access" [focus-visible]
+back to First time: button.xs-linkbtn "First time signing in?" [focus-visible]
+back to Sign in: button#xs-signin-go.rb-btn.rb-btn--primary "Sign in" [focus-visible]
+Enter on Sign in (empty): div#xs-signin-errs.rk-errsum "Check your sign-in detailsEnter your e-mail addressEnter your password" [focus-visible]
+tab into summary link: a "Enter your e-mail address" [focus-visible]
+Enter on summary link: input#xs-signin-email.rk-input "" [focus-visible]
+tab to password: input#xs-signin-pw.rk-input "" [focus-visible]
+tab to Show: button.xs-pw-toggle "Show password" [focus-visible]
+password type after Show: text
+toggle text: Hide password
+focus after Show: button.xs-pw-toggle "Hide password" [focus-visible]
+Enter in password field submits -> lands: h1#xs-page-title.rb-h1.xs-fit "Overview" [focus-visible]
+top: OverviewFriday 23 October 2026 KN Kavya Nair Content Manager
+console clean
+
+### K3 skip link + account menu keys @1440
+first tab: a.xs-skip "Skip to main content" [focus-visible]
+skip transform when focused: none
+after skip: main#xs-main.rb-page.xs-nofocus "Friday 23 October 2026Overview IA-01 · Institute Admin workstream Over" [focus-visible]
+focus account button: true
+Enter opens -> first item: a#xs-acct-help.xs-menu-item "Help & support" [focus-visible]
+ArrowUp wraps to last: button#xs-acct-out.xs-menu-item "Sign out" [focus-visible]
+Home: a#xs-acct-help.xs-menu-item "Help & support" [focus-visible]
+End: button#xs-acct-out.xs-menu-item "Sign out" [focus-visible]
+Escape -> button: button#xs-acct-btn.rb-acct "Account menu, Meera Iyer, Institute Admin, Godavari Institute of Techn" [focus-visible]
+expanded: false
+ArrowDown on closed button opens: a#xs-acct-help.xs-menu-item "Help & support" [focus-visible]
+Tab: button#xs-acct-out.xs-menu-item "Sign out" [focus-visible]
+Tab out of menu: BODY
+expanded after tabbing out: false
+eval: ok
+Space opens: a#xs-acct-help.xs-menu-item "Help & support" [focus-visible]
+ArrowDown -> Sign out: button#xs-acct-out.xs-menu-item "Sign out" [focus-visible]
+Enter on Sign out -> signed out: div#xs-signin-note.rk-notice.rk-notice--ok "You’re signed out" [focus-visible]
+console clean
+
+### K5 drawer keys 768 @768
+eval: menu focused
+open -> close btn: button#xs-drawer-close.rb-close "Close menu" [focus-visible]
+Menu aria-expanded: true
+tab1: a "Overview" [focus-visible]
+tab2: a "Content access" [focus-visible]
+shift-tab: a "Overview" [focus-visible]
+shift-tab wraps: button#xs-drawer-close.rb-close "Close menu" [focus-visible]
+Escape -> Menu: button#xs-menu-btn.rb-menu "Menu" [focus-visible]
+focus: a "Overview" [focus-visible]
+focus: a "Content access" [focus-visible]
+focus: a "Student access" [focus-visible]
+on People: a "People" [focus-visible]
+Enter on People -> H1: h1#xs-page-title.rb-h1.xs-fit "People" [focus-visible]
+drawer open count: 0
+console clean
+
+### K6 help form by keyboard 1024 @1024
+eval: h1
+tab from H1: a.rb-btn.rb-btn--primary "Report a problem" [focus-visible]
+Enter -> form: h1#xs-help-form-title.rb-h1.xs-fit "Report a problem" [focus-visible]
+tab1: textarea#xs-help-what.rk-textarea "" [focus-visible]
+tab2: input#xs-help-where.rk-input "Overview" [focus-visible]
+tab3: input#xs-help-shot.xs-file "" [focus-visible]
+tab4: button#xs-help-send.rb-btn.rb-btn--primary "Send report" [focus-visible]
+tab5: a.rb-btn.rb-btn--ghost "Cancel" [focus-visible]
+tab6: BODY
+Shift+Tab from outside -> Cancel: a.rb-btn.rb-btn--ghost "Cancel" [focus-visible]
+Shift+Tab -> Send: button#xs-help-send.rb-btn.rb-btn--primary "Send report" [focus-visible]
+Enter on Send (empty) -> summary: div#xs-help-errs.rk-errsum "One thing needs fixingSay what happened" [focus-visible]
+tab to summary link: a "Say what happened" [focus-visible]
+summary link -> textarea: textarea#xs-help-what.rk-textarea "" [focus-visible]
+textarea describedby (with error): xs-help-what-hint xs-help-what-err
+on Send: button#xs-help-send.rb-btn.rb-btn--primary "Send report" [focus-visible]
+sent heading: h1#xs-help-sent-title.rb-h1.xs-fit "Report sent" [focus-visible]
+View my reports: a.rb-btn.rb-btn--primary "View my reports" [focus-visible]
+list H1: h1#xs-help-title.rb-h1.xs-fit "Help & support" [focus-visible]
+focus: a.rb-btn.rb-btn--primary "Report a problem" [focus-visible]
+first row: a.xs-report "Typing by keyboard onlySUP-0214 · Sent 23 Oct 2026Open" [focus-visible]
+detail H1: h1#xs-help-detail-title.rk-title.xs-fit "Typing by keyboard only" [focus-visible]
+title: Typing by keyboard only
+next after detail H1: a.rb-link "Report a problem" [focus-visible]
+console clean
+
+### K7 reduced motion @1440
+menu: menu animation: none 1e-05s
+rail position: sticky
+console clean

@@ -26,7 +26,7 @@ export async function signInAs(page: Page, person: SampleCredential): Promise<vo
   if (new URL(page.url(), 'http://x.invalid').pathname !== '/sign-in') {
     await page.goto('/sign-in');
   }
-  const card = page.locator('.xp-auth-card');
+  const card = page.locator('.xs-card');
   await expect(card.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
   await card.getByLabel('E-mail', { exact: true }).fill(person.email);
   await card.locator('#sign-in-password').fill(SAMPLE_PASSWORD);

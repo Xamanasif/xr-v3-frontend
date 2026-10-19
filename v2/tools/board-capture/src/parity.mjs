@@ -8,7 +8,7 @@ import { dirname, join } from 'node:path';
 import { openBoard } from './boards.mjs';
 import { DEVIATION_BY_ID } from './deviations.mjs';
 import { installCaptureNetwork } from './network.mjs';
-import { TOOL_ROOT } from './paths.mjs';
+import { TOOL_ROOT, V3_COMPARISON_MAP } from './paths.mjs';
 import { VENDORED_FONTS, verifiedVendor } from './vendor.mjs';
 
 /**
@@ -791,6 +791,22 @@ function pinProblem(name, ids, record) {
 export async function compareAll({ expect, testInfo, kind, items }) {
   const failures = [];
   for (const item of items) {
+    // A v46 comparison superseded by an owner-approved V3 screen (docs/v3/V3-COMPARISON-MAP.json
+    // `productScreens[].supersedes`) is retired by name: not made, not counted as passed, and
+    // recorded with the V3 entry that replaced it. The map is the only way to retire one.
+    const retiredBy = retiredComparisons().get(item.name);
+    if (retiredBy) {
+      testInfo.annotations.push({
+        type: 'parity-outcome',
+        description: JSON.stringify({
+          name: item.name,
+          outcome: 'retired-by-v3',
+          deviations: [],
+          message: `superseded by ${retiredBy} (docs/v3/V3-COMPARISON-MAP.json)`,
+        }),
+      });
+      continue;
+    }
     const ids = [item.deviation ?? []].flat();
     const unknown = ids.filter((id) => !DEVIATION_BY_ID.has(id));
     if (unknown.length > 0) {
@@ -852,6 +868,22 @@ export async function compareAll({ expect, testInfo, kind, items }) {
     if (outcome === 'failed') failures.push(`${item.name}: ${message}`);
   }
   expect(failures, `${failures.length} of ${items.length} comparisons failed`).toEqual([]);
+}
+
+let retired;
+/** v46 comparison name → the V3 screen state that supersedes it (the comparison map). */
+export function retiredComparisons() {
+  if (retired) return retired;
+  retired = new Map();
+  const map = JSON.parse(readFileSync(V3_COMPARISON_MAP, 'utf8'));
+  for (const screen of map.productScreens ?? []) {
+    for (const name of screen.supersedes ?? []) {
+      if (retired.has(name))
+        throw new Error(`${name} is superseded twice in the V3 comparison map`);
+      retired.set(name, `${screen.id} ${screen.state}`);
+    }
+  }
+  return retired;
 }
 
 /** Moves the pointer off every element (after a hover state). */

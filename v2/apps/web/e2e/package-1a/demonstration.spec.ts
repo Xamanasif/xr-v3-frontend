@@ -17,7 +17,7 @@ import { ACCOUNT_LINES, expectSameDocument, markDocument } from '../support/work
 test.skip(({ viewport }) => viewport?.width !== 1440, 'One journey, at the board width.');
 
 const rows = (page: Page) => page.locator('table.xr-table tbody td.is-primary a');
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 
 async function signIn(page: Page, email: string): Promise<void> {
   await card(page).getByLabel('E-mail', { exact: true }).fill(email);
@@ -27,7 +27,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
   await expect(card(page).getByText('You’re signed out')).toBeVisible();
 }
@@ -43,13 +43,17 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
 
   // 3. Required fields, then an e-mail that is not one.
   await reachAndClick(page, card(page).getByRole('button', { name: 'Sign in', exact: true }));
-  await expect(card(page).getByText('Enter your e-mail address')).toBeVisible();
-  await expect(card(page).getByText('Enter your password')).toBeVisible();
+  await expect(
+    card(page).locator('.rk-ferr', { hasText: 'Enter your e-mail address' }),
+  ).toBeVisible();
+  await expect(card(page).locator('.rk-ferr', { hasText: 'Enter your password' })).toBeVisible();
   await card(page).getByLabel('E-mail', { exact: true }).fill('arjun.mehta');
   await card(page).locator('#sign-in-password').fill('x');
   await reachAndClick(page, card(page).getByRole('button', { name: 'Sign in', exact: true }));
   await expect(
-    card(page).getByText('Enter an e-mail address like name@institution.edu'),
+    card(page).locator('.rk-ferr', {
+      hasText: 'Enter an e-mail address like name@institution.edu',
+    }),
   ).toBeVisible();
 
   // 4. Institution sign-in: the documented unavailable state (T-10 open).

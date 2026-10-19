@@ -1,0 +1,245 @@
+[
+ {
+  "name": "K1b institution sign-in by keyboard after tabbing back",
+  "file": "Main.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1300,
+  "checks": false,
+  "steps": [
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab1"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab2"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab3"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab4"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab5"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab6"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab7"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab8"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "tab9"
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 60
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 60
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 60
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 60
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 60
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 60
+   },
+   {
+    "press": "Shift+Tab",
+    "wait": 60,
+    "focus": true,
+    "label": "back on institution button (7 x Shift+Tab)"
+   },
+   {
+    "press": "Enter",
+    "wait": 300,
+    "focus": true,
+    "label": "Enter on institution sign-in -> notice"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "next after notice"
+   }
+  ]
+ },
+ {
+  "name": "K3b menu tab-out and click inside",
+  "file": "fx-k-meera.dc.html",
+  "width": 1440,
+  "height": 900,
+  "settle": 1400,
+  "checks": false,
+  "steps": [
+   {
+    "eval": "(() => { document.getElementById('xs-acct-btn').focus(); return 'ok'; })()"
+   },
+   {
+    "press": "Enter",
+    "wait": 300,
+    "focus": true,
+    "label": "open"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "Tab"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "Tab out of menu"
+   },
+   {
+    "attr": [
+     "#xs-acct-btn",
+     "aria-expanded"
+    ],
+    "label": "expanded after tabbing out"
+   },
+   {
+    "click": "#xs-acct-btn",
+    "wait": 300
+   },
+   {
+    "click": ".xs-menu-name",
+    "wait": 250,
+    "attr": [
+     "#xs-acct-btn",
+     "aria-expanded"
+    ],
+    "label": "expanded after clicking the name in the panel"
+   },
+   {
+    "mouse": [
+     600,
+     600
+    ],
+    "wait": 250,
+    "attr": [
+     "#xs-acct-btn",
+     "aria-expanded"
+    ],
+    "label": "expanded after outside click"
+   },
+   {
+    "focus": true,
+    "label": "focus after outside click"
+   }
+  ]
+ },
+ {
+  "name": "K6b help form errors by keyboard",
+  "file": "fx-k-meera-help.dc.html",
+  "width": 1024,
+  "height": 900,
+  "settle": 1500,
+  "checks": false,
+  "steps": [
+   {
+    "eval": "(() => { document.getElementById('xs-help-title').focus(); return 'h1'; })()"
+   },
+   {
+    "press": "Tab",
+    "wait": 80
+   },
+   {
+    "press": "Enter",
+    "wait": 500,
+    "focus": true,
+    "label": "form H1"
+   },
+   {
+    "press": "Tab"
+   },
+   {
+    "press": "Tab"
+   },
+   {
+    "press": "Tab"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "on Send"
+   },
+   {
+    "press": "Enter",
+    "wait": 400,
+    "focus": true,
+    "label": "Enter on Send (empty) -> summary"
+   },
+   {
+    "attr": [
+     "#xs-help-what",
+     "aria-invalid"
+    ],
+    "label": "aria-invalid"
+   },
+   {
+    "attr": [
+     "#xs-help-what",
+     "aria-describedby"
+    ],
+    "label": "describedby with error"
+   },
+   {
+    "press": "Tab",
+    "focus": true,
+    "label": "summary link"
+   },
+   {
+    "press": "Enter",
+    "wait": 200,
+    "focus": true,
+    "label": "link -> textarea"
+   },
+   {
+    "type": [
+     "#xs-help-what",
+     "x"
+    ]
+   },
+   {
+    "count": "#xs-help-errs",
+    "label": "summary still shown after typing"
+   },
+   {
+    "count": "#xs-help-what-err",
+    "label": "field error after typing"
+   }
+  ]
+ }
+]

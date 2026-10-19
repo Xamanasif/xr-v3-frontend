@@ -1,5 +1,10 @@
 'use client';
 
+// The V3 layer (ADR-0010) for the Entry & shared surfaces every workspace shows — the account menu
+// panel, Help & support, "Not your workspace", the access banner (XS; design/v3-refined-b/roles/
+// XS-v6). It applies only inside a V3 root, so each role's own v46 pages render as before.
+import '@xr/ui/styles-v3.css';
+
 import { notFound, usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { type ReactNode, Suspense, useMemo } from 'react';
 
@@ -9,6 +14,7 @@ import {
   NavigationProvider,
   SessionLoading,
   type WorkspaceBase,
+  V3Fonts,
   WorkspaceLayout,
 } from '@/features/shared/workspace-frame/workspace-frame';
 
@@ -33,6 +39,8 @@ export function WorkspaceRoute({
   return (
     <>
       <BootTitle />
+      {/* The XS surfaces' font range, in the server-rendered head: no later render waits for it. */}
+      <V3Fonts />
       <Suspense fallback={<SessionLoading titled={false} />}>
         <WithNavigation workspace={workspace}>{children}</WithNavigation>
       </Suspense>

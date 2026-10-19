@@ -19,7 +19,7 @@ const MEERA = { personId: 'per-0001' };
 const ARJUN = { personId: 'sa-arjun-mehta' };
 const GIT_VR_03 = 'ME lab VR headset, asset tag GIT-VR-03';
 const GIT_VR_07 = 'ME lab VR headset, asset tag GIT-VR-07';
-const ACCOUNT = /^Account menu: Rahul Verma, Student/;
+const ACCOUNT = /^Account menu, Rahul Verma, Student/;
 
 async function open(
   page: Page,
@@ -68,12 +68,12 @@ test('f1 → f0: “My device” in the account menu opens the page; nothing in 
   await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
   const account = page.getByRole('button', { name: ACCOUNT });
   await account.click();
-  const menu = page.locator('.xr-menu');
-  await expect(menu.locator('a, button')).toHaveText(['My device', 'Help', 'Sign out']);
+  const menu = page.locator('.xs-menu');
+  await expect(menu.locator('a, button')).toHaveText(['My device', 'Help & support', 'Sign out']);
   await menu.getByRole('link', { name: 'My device' }).click();
   await page.waitForURL('**/student/device');
   await expect(page.getByRole('heading', { level: 1, name: 'My device' })).toBeVisible();
-  await expect(page.locator('.xr-menu')).toHaveCount(0);
+  await expect(page.locator('.xs-menu')).toHaveCount(0);
   await expect(currentSidebarItem(page)).toHaveCount(0);
   const device = region(page, 'Authorised device');
   await expect(device.locator('.xl-dev-name')).toHaveText(GIT_VR_03);
@@ -90,7 +90,10 @@ test('f2: no headset format — no entry; the address is the in-shell not-found 
   await open(page, 'after-setup', RAHUL, '/student/help');
   await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
   await page.getByRole('button', { name: ACCOUNT }).click();
-  await expect(page.locator('.xr-menu').locator('a, button')).toHaveText(['Help', 'Sign out']);
+  await expect(page.locator('.xs-menu').locator('a, button')).toHaveText([
+    'Help & support',
+    'Sign out',
+  ]);
   await page.goto('/student/device');
   await expect(
     page.getByRole('heading', { level: 1, name: 'We can’t find that page' }),
@@ -177,7 +180,9 @@ test('f8: paused — no new request, the drawn words under the banner', async ({
   await expect(main(page).getByRole('button', { name: 'Request a device transfer' })).toHaveCount(
     0,
   );
-  await expect(page.locator('.xr-banner--paused')).toBeVisible();
+  await expect(
+    page.locator('.rk-x-region--banner > .rk-banner:not(.xs-banner--inactive)'),
+  ).toBeVisible();
   await checkState(page, 'My device');
 });
 

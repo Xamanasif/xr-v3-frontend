@@ -12,6 +12,7 @@ packages/database/prisma/migrations
 docs/v46
 packages/ui/src/styles/v46/
 packages/ui/src/styles/v3/rb-scoped.css
+packages/ui/src/styles/v3/xs-scoped.css
 tools/board-capture/vendor/
 tools/board-capture/.runs/
 tools/v3-reference/.runs/

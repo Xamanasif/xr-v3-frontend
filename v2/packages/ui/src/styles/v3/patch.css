@@ -96,40 +96,17 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 }
 
 /*
- * V3P-06 · "Skip to main content", the first Tab stop of every workspace today (WCAG 2.4.1). The
- * Refined B boards draw none; the shell keeps the product's skip link, out of the rail grid
- * (absolutely positioned on the V3 root) and shown only while it has focus, in the shell's own
- * navy and white.
+ * V3P-06 · retired. The workspace shell's "Skip to main content" is now the link the XS export
+ * draws for its shell patch XS-P1 (`a.xs-skip`, xs-scoped.css; design/v3-refined-b/roles/XS-v6),
+ * the owner-approved look of the same WCAG 2.4.1 fix. The product-only `rk-x-skip` is gone.
  */
-:where(.xr) .rk-x-skip:not(:where([data-xr-v46], [data-xr-v46] *)) {
-  position: absolute;
-  left: 16px;
-  top: -80px;
-  z-index: 70;
-  display: inline-flex;
-  align-items: center;
-  min-height: 44px;
-  padding: 0 16px;
-  border-radius: 10px;
-  background: var(--navy);
-  color: #ffffff;
-  font: 600 15px/20px var(--sans);
-  text-decoration: none;
-}
-
-:where(.xr) .rk-x-skip:focus:not(:where([data-xr-v46], [data-xr-v46] *)) {
-  top: 12px;
-}
 
 /*
- * V3P-07 · The account chrome: the drawn trigger (`button.rb-acct`) sits in a wrapper that keeps it
- * at the end of the top row and anchors the menu panel under it. The panel itself is the existing
- * account menu, a v46 island until the XS-05 design is delivered.
+ * V3P-07 · retired. The account chrome's wrapper is now the one the XS export draws for its shell
+ * patch XS-P3 (`div.xs-acct-slot` > `div.xs-acct`, xs-scoped.css): it keeps the V3 account button
+ * at the end of the top row and anchors the XS account menu panel under it. The product-only
+ * `rk-x-acct` is gone.
  */
-:where(.xr) .rk-x-acct:not(:where([data-xr-v46], [data-xr-v46] *)) {
-  position: relative;
-  margin-left: auto;
-}
 
 /*
  * V3P-08 · Isolation from the v46 foundation sheet on the class names both systems define. The v46
@@ -140,4 +117,50 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
  */
 :where(.xr) .xr-avatar:not(:where([data-xr-v46], [data-xr-v46] *)) {
   letter-spacing: normal;
+}
+
+/*
+ * V3P-09 · A V3 region inside a v46 page (`div.xr.rb.rk-x-region`): an Entry & shared surface (XS)
+ * shown in the workspace shell of a role whose own V3 design is still pending — the Help pages,
+ * "Not your workspace", the access banner. The region is a V3 root, so every V3 and XS rule
+ * applies inside it, but it is not a shell: it drops the shell grid, the viewport min-height and
+ * the canvas behind it (the v46 page around it keeps its own), and it is no query container, so
+ * the V3 `@container rb` breakpoints keep measuring the app's width as they do in the V3 shell —
+ * the v46 app root that holds a region names that container too (no box, layout or colour of the
+ * v46 root changes; only a container name is added). The banner's region (`rk-x-region--banner`)
+ * keeps the V3 page gap under the banner, as `main.rb-page` spaces it in the export.
+ */
+.rb.rk-x-region:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: block;
+  min-height: 0;
+  background: none;
+  container: none;
+}
+
+.rb.rk-x-region--banner:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 28px;
+}
+
+.xr-app:has(.rk-x-region) {
+  container-name: xr-app rb;
+}
+
+/*
+ * V3P-10 · The XS account menu panel under the v46 account button (`div.xr.rb.rk-x-popover`), in
+ * the top bar of a role whose own V3 design is still pending. The V3 root generates no box of its
+ * own: the panel (`div.xs-menu`) and its outside-click layer (`button.xs-catch`) are placed by the
+ * v46 account wrapper (`div.xr-acct`, `position: relative`) exactly as the XS export places them
+ * under the V3 account button, while the V3 tokens and type still reach them.
+ */
+.rb.rk-x-popover:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: contents;
+}
+
+/*
+ * V3P-11 · The XS "Report sent" confirmation keeps its breadcrumb 12 px above the message card
+ * (`nav.rk-crumbs.rk-x-crumbs-tight`): the export draws the trail with an inline
+ * `margin-bottom: -12px` inside its 24 px reading column, and product code takes no inline style.
+ */
+:where(.xr) .rk-crumbs.rk-x-crumbs-tight:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: -12px;
 }

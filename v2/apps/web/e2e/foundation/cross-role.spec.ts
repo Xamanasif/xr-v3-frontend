@@ -92,12 +92,12 @@ async function switchTo(page: Page, entry: RoleEntry, from: RoleEntry): Promise<
     );
   await expectShellOf(page, entry);
   if (from.base !== entry.base) {
-    const message = page.locator('main .xr-msg');
+    const message = page.locator('main .xs-msg');
     await expect(
       page.getByRole('heading', { level: 1, name: 'This page isn’t part of your workspace' }),
     ).toBeVisible();
     await expect(message).toContainText(`You’re signed in to the ${entry.label} workspace.`);
-    await message.getByRole('link', { name: 'Back to Home' }).click();
+    await message.getByRole('link', { name: /^Back to (Home|Overview)$/ }).click();
     // Built homes: the Super Admin's since Package 1D (SA-01 Overview), the Institute Admin's and
     // the Student's since Package 2A (IA-01 Overview, ST-01 Home), the Faculty member's since Phase
     // 4A (FA-01 Overview), the three platform roles' since Phase 5 (VE-01, RV-01, CM-01 Overview);
@@ -148,7 +148,7 @@ async function sendReport(page: Page, whatHappened: string): Promise<string> {
   await page.getByLabel('What happened?').fill(whatHappened);
   await reachAndClick(page, page.getByRole('button', { name: 'Send report' }));
   await expect(page.getByRole('heading', { level: 1, name: 'Report sent' })).toBeVisible();
-  return (await page.locator('main .xr-msg .xr-id').textContent())!;
+  return (await page.locator('main .xs-msg .xs-msg-d b').textContent())!;
 }
 
 async function godavari(page: Page, paused: boolean): Promise<void> {
@@ -173,7 +173,7 @@ async function godavari(page: Page, paused: boolean): Promise<void> {
 }
 
 async function expectBanner(page: Page, words: string | null): Promise<void> {
-  const banner = page.locator('.xr-banner');
+  const banner = page.locator('.rk-banner');
   if (words === null) {
     await expect(banner).toHaveCount(0);
     return;
@@ -231,15 +231,19 @@ test('A · support across roles: Student reports on XS-07, the Super Admin resol
   expect(back.cachedSessionKeys.every((key) => !key.includes(ADMIN.person.personId))).toBe(true);
 
   // 7–8. The report detail: Resolved, with the exact note.
-  const row = page.locator('main.xr-page ul.xr-rows a.xr-row-link', { hasText: reference });
+  const row = page.locator('main.xr-page ul.xs-reports a.xs-report', { hasText: reference });
   await expect(row).toContainText('Resolved');
   await row.click();
   await page.waitForURL(`**/student/help/reports/${reference}`);
-  await expect(page.locator('.xr-phead .xr-id')).toHaveText(reference);
-  await expect(page.locator('.xr-notice--ok')).toContainText(`“${note}”`);
-  await expect(
-    page.getByRole('region', { name: 'History' }).getByRole('listitem').first(),
-  ).toHaveText(/Resolved\s*.* · resolution note added/);
+  await expect(page.locator('.rk-head .rk-eyebrow')).toHaveText(reference);
+  await expect(page.locator('.rk-notice--ok')).toContainText(`“${note}”`);
+  // The history, newest first: the resolution with its note on its own line (XS).
+  const latest = page
+    .locator('.rk-sec', { has: page.getByRole('heading', { name: 'History', exact: true }) })
+    .getByRole('listitem')
+    .first();
+  await expect(latest.locator('.rk-tl-w')).toHaveText('Resolved');
+  await expect(latest.locator('.rk-tl-n')).toHaveText(`“${note}”`);
   await expect(page.getByRole('button', { name: /reopen/i })).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText('Super Admin');
   await checkScreen(page);
@@ -269,7 +273,7 @@ test('B · institution pause and restoration reach the Student, Faculty and Inst
     if (entry !== current) await switchTo(page, entry, current);
     current = entry;
     await expectBanner(page, PAUSED);
-    await expect(page.locator('.xr-banner').getByRole('link', { name: 'Help' })).toHaveAttribute(
+    await expect(page.locator('.rk-banner').getByRole('link', { name: 'Help' })).toHaveAttribute(
       'href',
       `${entry.base}/help`,
     );
@@ -338,7 +342,7 @@ test('C · Student deactivation: the Institute Admin deactivates Rahul; his next
   // Rahul's next (test-only) session: the inactive banner, in his own shell.
   await switchTo(page, STUDENT, INSTITUTE_ADMIN);
   await expectBanner(page, INACTIVE);
-  await expect(page.locator('.xr-banner')).toHaveClass(/xr-dark/);
+  await expect(page.locator('.rk-banner')).toHaveClass(/xs-banner--inactive/);
   await checkScreen(page);
 
   // Unrelated records are untouched: Priya as she was; the Faculty member's session unbannered.
@@ -412,7 +416,7 @@ test('D · identity continuity: a change made as one role is there for the next,
   // And back: the Student's report is still in the one world.
   await switchTo(page, STUDENT, ADMIN);
   await expect(
-    page.locator('main.xr-page ul.xr-rows a.xr-row-link', { hasText: reference }),
+    page.locator('main.xr-page ul.xs-reports a.xs-report', { hasText: reference }),
   ).toContainText('Open');
   await expectSameTab(page, tab);
 });

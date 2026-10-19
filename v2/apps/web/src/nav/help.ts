@@ -1,20 +1,21 @@
 import type { Role } from '@xr/domain';
-import type { BreadcrumbLevel, PageWrap } from '@xr/ui';
+import type { BreadcrumbLevel } from '@xr/ui';
 
 import { WORKSPACE_NAV } from './nav-config';
 
 /**
- * The Help & support template's place in every workspace shell (GL-03, XS-07; board 07 "One
- * template, one location … in all seven workspaces"; Appendix A XS-07 and §4.2 "Help
- * sub-pages"). The same four views at the same addresses under each workspace base, with Help
- * current in the sidebar foot. The views' content (reports, the form and its sending, the detail)
- * comes from the HelpSupport components and the XS-07 screen (WP-0.13).
+ * The Help & support template's place in every workspace shell (XS-07; the owner-approved Entry &
+ * shared export, `XsHelp`, keeps board 07's "One template, one location … in all seven
+ * workspaces"). The same four views at the same addresses under each workspace base, with Help
+ * current in the sidebar foot. The views draw their own breadcrumb ("Help & support › Report a
+ * problem"), so the shell's top bar names only the view.
  */
 export type HelpView =
   | { readonly kind: 'reports' }
   | { readonly kind: 'report' }
   | { readonly kind: 'sent' }
-  | { readonly kind: 'detail'; readonly reportId: string; readonly reference: string };
+  /** A report's detail, named by its title (never its reference: owner decision 6, XS). */
+  | { readonly kind: 'detail'; readonly reportId: string; readonly title: string | null };
 
 export interface HelpAddresses {
   /** My reports, the Help landing (`/<base>/help`). */
@@ -34,30 +35,27 @@ export function helpAddresses(role: Role): HelpAddresses {
   };
 }
 
-/** Where a Help view sits in the shell: the top-bar words and the page width board 07 draws. */
+/** Where a Help view sits in the shell: the top-bar words. */
 export interface HelpPlacement {
   readonly screen: 'XS-07';
   /** The top-bar title below 1024 px and the current crumb from 1024 px. */
   readonly title: string;
-  /** The crumbs above it: "Help & support" on the deep views (board 07). */
+  /** No crumbs in the top bar: the view draws its own breadcrumb (XS). */
   readonly trail: readonly BreadcrumbLevel[];
-  /** `read` (1040) for the list and the detail, `form` (720) for the form, `none` when sent. */
-  readonly wrap: PageWrap;
 }
 
-/** The title of the Help landing and the first crumb of its deep views (board 07). */
+/** The title of the Help landing and the first crumb of its deep views. */
 export const HELP_TITLE = 'Help & support';
 
-export function helpPlacement(role: Role, view: HelpView): HelpPlacement {
-  const trail = [{ label: HELP_TITLE, href: helpAddresses(role).reports }];
+export function helpPlacement(_role: Role, view: HelpView): HelpPlacement {
   switch (view.kind) {
     case 'reports':
-      return { screen: 'XS-07', title: HELP_TITLE, trail: [], wrap: 'read' };
+      return { screen: 'XS-07', title: HELP_TITLE, trail: [] };
     case 'report':
-      return { screen: 'XS-07', title: 'Report a problem', trail, wrap: 'form' };
+      return { screen: 'XS-07', title: 'Report a problem', trail: [] };
     case 'sent':
-      return { screen: 'XS-07', title: 'Report sent', trail, wrap: 'none' };
+      return { screen: 'XS-07', title: 'Report sent', trail: [] };
     case 'detail':
-      return { screen: 'XS-07', title: view.reference, trail, wrap: 'read' };
+      return { screen: 'XS-07', title: view.title ?? HELP_TITLE, trail: [] };
   }
 }

@@ -2,7 +2,8 @@
  * One role's workspace shell, composed (Appendix F WP-0.8; Appendix A §3.1 "StudentShell" …
  * "SuperAdminShell"; boards 05, 06, 08, 12): landmarks, workspace label and line, built-screen
  * gating (Phase 0: Help only), the current item from the explicit map and none on message pages,
- * Help last, the top bar with XS-05, the XS-08 banner slot, the skip link to `main#main`, and the
+ * Help last, the top bar with XS-05 (the owner-approved XS panel under the v46 account button), the
+ * XS-08 banner at the top of the page column, the skip link to `main#main`, and the
  * rail choice kept per person in memory. Layout and the responsive drawer / rail / full sidebar
  * are proved in a real browser on the specimen harness (apps/specimens/e2e/role-shells.spec.ts);
  * jsdom has no layout.
@@ -35,7 +36,7 @@ function renderShell(role: Role, overrides: Partial<RoleWorkspaceShellProps> = {
       screen="XS-07"
       title={help.title}
       trail={help.trail}
-      wrap={help.wrap}
+      wrap="read"
       onSignOut={onSignOut}
       {...overrides}
     >
@@ -219,47 +220,53 @@ describe('the top bar, the account menu (XS-05), the skip link and main', () => 
     expect(header).toHaveClass('xr-top');
     expect(header.querySelector('.xr-top-title')).toHaveTextContent('Help & support');
     const row = BOARD_ACCOUNT_ROWS.get(label)!;
-    const account = within(header).getByRole('button', { name: /^Account menu: / });
+    const account = within(header).getByRole('button', { name: /^Account menu, / });
     expect(account).toHaveAccessibleName(
-      `Account menu: ${[row.name, row.role, row.line].filter(Boolean).join(', ')}`,
+      `Account menu, ${[row.name, row.role, row.line].filter(Boolean).join(', ')}`,
     );
+    // The v46 account button, the owner-approved XS panel (in a V3 root without a box).
+    expect(account).toHaveClass('xr-acct-btn');
     act(() => account.click());
-    act(() => within(header).getByRole('button', { name: 'Sign out' }).click());
+    const panel = header.querySelector('.rk-x-popover > .xs-menu') as HTMLElement;
+    expect(panel).not.toBeNull();
+    expect(within(panel).getByRole('link', { name: 'Help & support' })).toHaveAttribute(
+      'href',
+      WORKSPACE_NAV[role].help.href,
+    );
+    act(() => within(panel).getByRole('button', { name: 'Sign out' }).click());
     expect(onSignOut).toHaveBeenCalledTimes(1);
   });
 
-  it('the Help views put their crumbs and widths in place (board 07)', () => {
+  it('a Help view names itself in the top bar; its own breadcrumb is in the page (XS)', () => {
     const report = helpPlacement('faculty', { kind: 'report' });
-    const { container } = renderShell('faculty', {
-      title: report.title,
-      trail: report.trail,
-      wrap: report.wrap,
-    });
+    const { container } = renderShell('faculty', { title: report.title, trail: report.trail });
     expect(container.querySelector('.xr-top-title')).toHaveTextContent('Report a problem');
-    const crumbs = within(container.querySelector('.xr-crumbs')! as HTMLElement);
-    expect(crumbs.getByRole('link', { name: 'Help & support' })).toHaveAttribute(
-      'href',
-      '/faculty/help',
-    );
-    expect(container.querySelector('main > .xr-wrap--form.xr-content')).not.toBeNull();
+    expect(report.trail).toEqual([]);
   });
 });
 
-describe('the XS-08 banner slot', () => {
+describe('the XS-08 banner', () => {
   it.each([
-    ['paused', 'Your institution’s access is paused — your work is kept.'],
-    ['inactive', 'Your account is inactive. Contact your institution administrator.'],
+    ['paused', 'Your institution’s access is paused — your work is kept.', 'rk-banner'],
+    [
+      'inactive',
+      'Your account is inactive. Contact your institution administrator.',
+      'rk-banner xs-banner--inactive',
+    ],
   ] as const)(
-    '%s: the drawn words with this workspace’s Help, below the top bar',
-    (kind, words) => {
+    '%s: the XS words with this workspace’s Help, first in the page column',
+    (kind, words, classes) => {
       const { container } = renderShell('student', { banner: kind });
       const banner = screen.getByRole('status');
       expect(banner).toHaveTextContent(words);
+      expect(banner.className).toBe(classes);
       expect(within(banner).getByRole('link', { name: 'Help' })).toHaveAttribute(
         'href',
         '/student/help',
       );
-      expect(container.querySelector('.xr-top + .xr-banner')).toBe(banner);
+      const region = container.querySelector('main .rk-x-region--banner');
+      expect(region?.firstElementChild).toBe(banner);
+      expect(region?.parentElement?.firstElementChild).toBe(region);
     },
   );
 
@@ -297,7 +304,7 @@ describe('no developer surfaces and no unapproved controls (owner constraint; AD
     '%s: no DEMO, "Viewing as", switcher, selector or sample-account list',
     (_label, role) => {
       const { container } = renderShell(role, { built: ALL_BUILT(role), screen: 'XS-07' });
-      act(() => screen.getByRole('button', { name: /^Account menu: / }).click());
+      act(() => screen.getByRole('button', { name: /^Account menu, / }).click());
       const text = [
         container.textContent ?? '',
         ...[...container.querySelectorAll('[aria-label]')].map((element) =>
@@ -309,9 +316,10 @@ describe('no developer surfaces and no unapproved controls (owner constraint; AD
       )) {
         expect(text, term.id).not.toMatch(term.pattern);
       }
-      // The shell's only controls (boards 05, 06, 12): the skip link, the sidebar's links (the
-      // built destinations, then Help), Close menu, Menu, the rail toggle, the account button and
-      // its items (Help, Sign out). Nothing else takes focus.
+      // The shell's only controls (boards 05, 06, 12; XS-05): the skip link, the sidebar's links
+      // (the built destinations, then Help), Close menu, Menu, the rail toggle, the account button,
+      // its outside-click layer (not a Tab stop) and its items (Help & support, Sign out). Nothing
+      // else takes focus.
       const config = WORKSPACE_NAV[role];
       expect(
         within(container)
@@ -331,7 +339,8 @@ describe('no developer surfaces and no unapproved controls (owner constraint; AD
         'Close menu',
         'Open menu',
         'Collapse menu',
-        expect.stringMatching(/^Account menu: /),
+        expect.stringMatching(/^Account menu, /),
+        'Close account menu',
         'Sign out',
       ]);
       expect(

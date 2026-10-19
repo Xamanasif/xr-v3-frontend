@@ -65,7 +65,7 @@ test.describe('Institute Admin', () => {
     );
     await expect(main(page).getByRole('link', { name: 'Give students access' })).toHaveCount(0);
     await checkState(page, 'Overview');
-    await reachAndClick(page, page.locator('.xr-banner').getByRole('link', { name: 'Help' }));
+    await reachAndClick(page, page.locator('.rk-banner').getByRole('link', { name: 'Help' }));
     await page.waitForURL('**/institute/help');
   });
 

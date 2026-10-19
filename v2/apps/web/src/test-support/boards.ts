@@ -20,6 +20,33 @@ export function board(file: string): string {
   return readFileSync(join(BOARDS_DIRECTORY, file), 'utf8');
 }
 
+/** The owner-approved Entry & shared export (XS-v6), read only: its component files. */
+export const XS_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'XS-v6',
+  'project',
+);
+
+/** An XS export file's source (`XsMessage.dc.html`, …), by file name. */
+export function xsExport(file: string): string {
+  return readFileSync(join(XS_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
+export function xsContract(): {
+  readonly components: readonly {
+    readonly id: string;
+    readonly copy?: Record<string, unknown>;
+    readonly validation_copy?: Record<string, unknown>;
+    readonly items_by_role?: Record<string, readonly string[]>;
+  }[];
+} {
+  return JSON.parse(readFileSync(join(XS_EXPORT_DIRECTORY, '..', 'SHARED-CONTRACT.json'), 'utf8'));
+}
+
 /** One row of board 06's account-menu table, with board 05's initials for that person. */
 export interface BoardAccountRow {
   readonly name: string;

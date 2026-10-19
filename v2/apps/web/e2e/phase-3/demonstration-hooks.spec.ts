@@ -34,11 +34,11 @@ const RAHUL = { personId: 'per-0002' };
 const SHELL = 'Shell-and-Tube Heat Exchanger';
 const SHELL_ID = 'shell-and-tube-heat-exchanger';
 const GIT_VR_07 = 'ME lab VR headset, asset tag GIT-VR-07';
-const ARJUN_LINE = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA_LINE = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
-const RAHUL_LINE = 'Account menu: Rahul Verma, Student, Godavari Institute of Technology';
+const ARJUN_LINE = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA_LINE = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const RAHUL_LINE = 'Account menu, Rahul Verma, Student, Godavari Institute of Technology';
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 const main = (page: Page) => page.locator('main');
 
 async function signIn(page: Page, email: string): Promise<void> {
@@ -49,7 +49,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
@@ -83,7 +83,7 @@ async function newTab(page: Page, open: () => Promise<void>): Promise<void> {
 
 async function myDevice(page: Page): Promise<void> {
   await page.getByRole('button', { name: RAHUL_LINE, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('link', { name: 'My device' }).click();
+  await page.locator('.xs-menu').getByRole('link', { name: 'My device' }).click();
   await page.waitForURL('**/student/device');
 }
 

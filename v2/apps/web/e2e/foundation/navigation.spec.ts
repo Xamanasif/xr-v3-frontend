@@ -50,6 +50,7 @@ const SIDEBAR = [
   ['ProgressProgress', '/student/progress'],
   SIDEBAR_HELP,
 ];
+// The Help views' own breadcrumb, in the page (XS `XsHelp`): the shell's top bar names the view.
 const CRUMB = ['Help & support', '/student/help'];
 
 test.describe('every rendered link is in the link-target ledger', () => {
@@ -57,13 +58,13 @@ test.describe('every rendered link is in the link-target ledger', () => {
 
   test('Help — My reports (with reports)', async ({ page }) => {
     await openAs(page, RAHUL.person, '/student/help');
-    await expect(page.locator('main.xr-page ul.xr-rows > li')).toHaveCount(1);
+    await expect(page.locator('main.xr-page ul.xs-reports > li')).toHaveCount(1);
     expect(await links(page)).toEqual([
       SKIP,
       ...SIDEBAR,
       ['Report a problem', '/student/help/report'],
       [
-        'The VR simulation stopped loading at the second stepSUP-0213 · sent 16 OctOpen',
+        'The VR simulation stopped loading at the second stepSUP-0213 · Sent 16 Oct 2026Open',
         '/student/help/reports/SUP-0213',
       ],
     ]);
@@ -71,7 +72,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
 
   test('Help — My reports (empty)', async ({ page }) => {
     await openAs(page, roleEntry('vendor').person, '/vendor/help');
-    await expect(page.getByRole('heading', { name: 'No reports yet' })).toBeVisible();
+    await expect(page.getByText('No reports yet')).toBeVisible();
     // Phase 5: the Vendor sidebar lists Overview and My experiments.
     expect(await links(page)).toEqual([
       SKIP,
@@ -85,13 +86,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
   test('Report a problem — form, with the error summary, then Report sent', async ({ page }) => {
     await openAs(page, RAHUL.person, '/student/help/report');
     await expect(page.getByRole('heading', { level: 1, name: 'Report a problem' })).toBeVisible();
-    const form = [
-      SKIP,
-      ...SIDEBAR,
-      CRUMB,
-      ['Help & support', '/student/help'],
-      ['Cancel', '/student/help'],
-    ];
+    const form = [SKIP, ...SIDEBAR, CRUMB, ['Cancel', '/student/help']];
     expect(await links(page)).toEqual(form);
     await page.getByRole('button', { name: 'Send report' }).click();
     await expect(page.locator('main').getByRole('alert')).toBeVisible();
@@ -111,12 +106,15 @@ test.describe('every rendered link is in the link-target ledger', () => {
 
   test('Report detail', async ({ page }) => {
     await openAs(page, RAHUL.person, '/student/help/reports/SUP-0213');
-    await expect(page.getByRole('region', { name: 'History' })).toBeVisible();
+    await expect(
+      page.locator('.rk-sec', {
+        has: page.getByRole('heading', { name: 'History', exact: true }),
+      }),
+    ).toBeVisible();
     expect(await links(page)).toEqual([
       SKIP,
       ...SIDEBAR,
       CRUMB,
-      ['Help & support', '/student/help'],
       ['Report a problem', '/student/help/report'],
     ]);
   });
@@ -164,19 +162,19 @@ test.describe('every rendered link is in the link-target ledger', () => {
         expectedRev: found.value.institution.rev,
       },
     });
-    await expect(page.locator('.xr-banner')).toBeVisible();
+    await expect(page.locator('.rk-banner')).toBeVisible();
     await page.getByRole('button', { name: ACCOUNT_LINES.student, exact: true }).click();
     expect(await links(page)).toEqual([
       SKIP,
       ...SIDEBAR,
       // Phase 3: Rahul holds VR, so the account menu offers My device (kept while paused, B3-07 f8).
       ['My device', '/student/device'],
-      ['Help', '/student/help'], // the account menu
+      ['Help & support', '/student/help'], // the account menu
       ['Help', '/student/help'], // the banner
       ['Back to Home', '/student'],
       ['Help', '/student/help'],
     ]);
-    await expect(page.locator('.xr-menu').getByRole('button')).toHaveText(['Sign out']);
+    await expect(page.locator('.xs-menu').getByRole('button')).toHaveText(['Sign out']);
   });
 });
 
@@ -269,12 +267,16 @@ test('following every ledger link is client-side: one document, one world, one s
   await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
   const mark = await markDocument(page);
   const start = await inspectWorld(page);
+  // After a client-side move focus is in the new page: `main` on a v46 page; the page's own H1 on
+  // an Entry & shared page drawn in V3 (Help: the XS export's shell patch XS-P2).
   const step = async (click: () => Promise<void>, url: string, heading: string) => {
     await click();
     await page.waitForURL(`${TEST_HOOKS_URL}${url}`);
-    await expect(page.getByRole('heading', { level: 1, name: heading })).toBeVisible();
+    const title = page.getByRole('heading', { level: 1, name: heading });
+    await expect(title).toBeVisible();
     await expectSameDocument(page, mark);
-    await expect(page.locator('main.xr-page#main')).toBeFocused();
+    if (url.includes('/help')) await expect(title).toBeFocused();
+    else await expect(page.locator('main.xr-page#main')).toBeFocused();
   };
   const main = page.locator('main');
   // PU-15 → Back to Home (the Student's Home, ST-01, since Package 2A); PU-15 → Help.
@@ -290,7 +292,7 @@ test('following every ledger link is client-side: one document, one world, one s
     '/student/help',
     'Help & support',
   );
-  // My reports → Report a problem → back link / Cancel / crumb.
+  // My reports → Report a problem → its breadcrumb / Cancel.
   await step(
     () => main.getByRole('link', { name: 'Report a problem' }).click(),
     '/student/help/report',
@@ -311,23 +313,15 @@ test('following every ledger link is client-side: one document, one world, one s
     '/student/help',
     'Help & support',
   );
-  // My reports → row → detail → crumb / back / Report a problem.
+  // My reports → row → detail → its breadcrumb / Report a problem.
   await step(
-    () => main.locator('a.xr-row-link').first().click(),
+    () => main.locator('a.xs-report').first().click(),
     '/student/help/reports/SUP-0213',
     'The VR simulation stopped loading at the second step',
   );
-  if (await page.locator('ol.xr-crumbs a').isVisible()) {
-    await step(() => page.locator('ol.xr-crumbs a').click(), '/student/help', 'Help & support');
-    await step(
-      () => main.locator('a.xr-row-link').first().click(),
-      '/student/help/reports/SUP-0213',
-      'The VR simulation stopped loading at the second step',
-    );
-  }
-  await step(() => main.locator('a.xr-back').click(), '/student/help', 'Help & support');
+  await step(() => main.locator('nav.rk-crumbs a').click(), '/student/help', 'Help & support');
   await step(
-    () => main.locator('a.xr-row-link').first().click(),
+    () => main.locator('a.xs-report').first().click(),
     '/student/help/reports/SUP-0213',
     'The VR simulation stopped loading at the second step',
   );
@@ -348,13 +342,13 @@ test('following every ledger link is client-side: one document, one world, one s
   // The account menu's Help and the sidebar's Help.
   await page.getByRole('button', { name: ACCOUNT_LINES.student, exact: true }).click();
   await step(
-    () => page.locator('.xr-menu').getByRole('link', { name: 'Help' }).click(),
+    () => page.locator('.xs-menu').getByRole('link', { name: 'Help & support' }).click(),
     '/student/help',
     'Help & support',
   );
   await revealSidebar(page);
   await sidebarHelp(page).click();
-  await expect(page.locator('main.xr-page#main')).toBeFocused();
+  await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeFocused();
   await expectSameDocument(page, mark);
 
   const end = await inspectWorld(page);
@@ -376,12 +370,14 @@ test('choosing a destination in the drawer moves focus to the new page, never to
   await sidebarHelp(page).focus();
   await page.keyboard.press('Enter');
   await page.waitForURL('**/student/help');
-  await expect(page.locator('main.xr-page#main')).toBeFocused();
+  // Help is an Entry & shared page drawn in V3: focus lands on its H1 (XS-P2).
+  const title = page.getByRole('heading', { level: 1, name: 'Help & support' });
+  await expect(title).toBeFocused();
   // The same destination again: the page does not change, focus still leaves the hidden drawer.
   await page.getByRole('button', { name: 'Open menu' }).click();
   await sidebarHelp(page).focus();
   await page.keyboard.press('Enter');
-  await expect(page.locator('main.xr-page#main')).toBeFocused();
+  await expect(title).toBeFocused();
   await expect(page.getByRole('button', { name: 'Open menu' })).toHaveAttribute(
     'aria-expanded',
     'false',

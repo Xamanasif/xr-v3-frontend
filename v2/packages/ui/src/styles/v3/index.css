@@ -7,6 +7,9 @@
  * - `rb-scoped.css` is GENERATED from the frozen core.css, rb.css and rb-kit.css in
  *   design/v3-refined-b/ (scripts/generate-v3-scoped-css.mjs): the sources' own declarations and
  *   rule order, each selector confined to a V3 root with zero added specificity. Never edit it.
+ * - `xs-scoped.css` is GENERATED the same way from the XS extension sheet (`xs-shared.css`) of
+ *   the owner-approved Entry & shared export (design/v3-refined-b/roles/XS-v6/): sign-in, the
+ *   account menu, Help & support, message pages and access notices. Never edit it.
  * - `patch.css` holds the central, versioned corrections (V3P-nn): accessibility and correctness
  *   fixes and the isolation from the v46 product layer. No aesthetic change goes there.
  * - The layer statement repeats the product statement of `@xr/ui/styles.css` and apps/web
@@ -14,7 +17,8 @@
  *   whichever chunk loads first: v46 < product deltas < V3 < composition utilities.
  */
 @layer properties, theme, xr.v46, xr.product, xr.v3, utilities;
-@layer xr.v3.rb, xr.v3.patch;
+@layer xr.v3.rb, xr.v3.xs, xr.v3.patch;
 
 @import './rb-scoped.css' layer(xr.v3.rb);
+@import './xs-scoped.css' layer(xr.v3.xs);
 @import './patch.css' layer(xr.v3.patch);

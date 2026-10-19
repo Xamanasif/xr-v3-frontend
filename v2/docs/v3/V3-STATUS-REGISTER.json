@@ -17,7 +17,7 @@
     "v3SeedSource": 5,
     "lockedLanding": 2,
     "pendingDesign": 116,
-    "migrated": 0
+    "migrated": 7
   },
   "designedByType": {
     "action": 1,
@@ -328,14 +328,17 @@
       "designed": true,
       "v46ProposedRoute": "/sign-in",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
-        "paths": ["apps/web/src/features/shared/xs-01-sign-in"]
+        "status": "V3 presentation (XS export XS-v6), implemented",
+        "paths": [
+          "apps/web/src/app/(auth)/layout.tsx",
+          "apps/web/src/features/shared/xs-01-sign-in"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export XS-v6 (design/v3-refined-b/roles/XS-v6; canvas Version 6, shared contract 1.0.0, archive SHA-256 1da3c72b…9d20)",
+      "ownerApproved": "approved by the owner (integration conversation, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — /sign-in renders the XS sign-in page (default, missing details, wrong details, institution sign-in unavailable, busy)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Real sign-in and SSO are not connected (prototype line shown, scan exception sample-accounts). The SES-09 inactive refusal (service policy-open) is kept as the card’s refusal; the export draws no such state."
     },
     {
       "id": "XS-02",
@@ -363,16 +366,16 @@
       "designed": true,
       "v46ProposedRoute": "/signed-out",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
+        "status": "V3 presentation (XS export XS-v6), implemented",
         "paths": [
           "apps/web/src/features/shared/session-gate/session-gate.tsx",
           "apps/web/src/features/shared/xs-01-sign-in/sign-in.tsx"
         ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export XS-v6 (design/v3-refined-b/roles/XS-v6; canvas Version 6, shared contract 1.0.0, archive SHA-256 1da3c72b…9d20)",
+      "ownerApproved": "approved by the owner (integration conversation, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the signed-out and session-ended notices on the XS sign-in page, focused on arrival",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -384,14 +387,14 @@
       "designed": true,
       "v46ProposedRoute": "/sign-in (links only — flows OPEN)",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
+        "status": "V3 presentation (XS export XS-v6), implemented",
         "paths": ["apps/web/src/features/shared/xs-01-sign-in/sign-in.tsx"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export XS-v6 (design/v3-refined-b/roles/XS-v6; canvas Version 6, shared contract 1.0.0, archive SHA-256 1da3c72b…9d20)",
+      "ownerApproved": "approved by the owner (integration conversation, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the two contact disclosures (Forgot your password?, First time signing in?)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Recovery and activation flows stay OPEN (T-11 / R02): contact routes only."
     },
     {
       "id": "XS-05",
@@ -402,14 +405,17 @@
       "designed": true,
       "v46ProposedRoute": "(top bar) account menu",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P0)",
-        "paths": ["apps/web/src/features/shared/xs-05-account-menu"]
+        "status": "V3 presentation (XS export XS-v6), implemented",
+        "paths": [
+          "apps/web/src/features/shared/xs-05-account-menu",
+          "packages/ui/src/v3/account.tsx"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export XS-v6 (design/v3-refined-b/roles/XS-v6; canvas Version 6, shared contract 1.0.0, archive SHA-256 1da3c72b…9d20)",
+      "ownerApproved": "approved by the owner (integration conversation, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the XS account panel (items, keyboard contract, accessible name) opened from the v46 top-bar trigger in every workspace",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The trigger stays the v46 one until the role shells migrate with their roles."
     },
     {
       "id": "XS-06",
@@ -420,13 +426,13 @@
       "designed": true,
       "v46ProposedRoute": "/[workspace]/not-allowed",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P0)",
+        "status": "V3 presentation (XS export XS-v6), implemented",
         "paths": ["apps/web/src/features/shared/xs-06-not-your-workspace"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export XS-v6 (design/v3-refined-b/roles/XS-v6; canvas Version 6, shared contract 1.0.0, archive SHA-256 1da3c72b…9d20)",
+      "ownerApproved": "approved by the owner (integration conversation, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — the XS message page inside the person’s own (v46) shell; “Back to Home” / “Back to Overview” names the home",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -438,14 +444,18 @@
       "designed": true,
       "v46ProposedRoute": "/[workspace]/help",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P0)",
-        "paths": ["apps/web/src/features/shared/xs-07-help"]
+        "status": "V3 presentation (XS export XS-v6), implemented",
+        "paths": [
+          "apps/web/src/features/shared/xs-07-help",
+          "apps/web/src/copy/help.ts",
+          "apps/web/src/nav/help.ts"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export XS-v6 (design/v3-refined-b/roles/XS-v6; canvas Version 6, shared contract 1.0.0, archive SHA-256 1da3c72b…9d20)",
+      "ownerApproved": "approved by the owner (integration conversation, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated — My reports, Report a problem and report detail in every workspace, in the v46 shells; a Super Admin sees no reference (owner decision 6)",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The Super Admin’s other screens still show SUP references in place words and return labels; they move with the Super Admin migration."
     },
     {
       "id": "XS-08",
@@ -456,18 +466,14 @@
       "designed": true,
       "v46ProposedRoute": "(shell) paused / inactive banner",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P0)",
-        "paths": [
-          "apps/web/src/features/faculty/fa-01-overview/overview.tsx",
-          "apps/web/src/features/institute/ia-06-people/paused.tsx",
-          "apps/web/src/features/institute/ia-19-device-request/device-request.tsx"
-        ]
+        "status": "V3 presentation (XS export XS-v6), implemented",
+        "paths": ["apps/web/src/features/shared/workspace-shell/role-workspace-shell.tsx"]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export XS-v6 (design/v3-refined-b/roles/XS-v6; canvas Version 6, shared contract 1.0.0, archive SHA-256 1da3c72b…9d20)",
+      "ownerApproved": "approved by the owner (integration conversation, 19 Oct 2026); the export’s own files still read “OWNER APPROVAL PENDING”",
+      "implementationComplete": "migrated in part — the paused and inactive banners, first in the page of every workspace route; the role-home notice and the refusal pages are not",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "ASSEMBLY PENDING: the page-level notice on each role home is assembled with that role. The export’s paused / inactive refusal pages are not routed (their address rule is a design proposal with no approved route)."
     },
     {
       "id": "ST-01",

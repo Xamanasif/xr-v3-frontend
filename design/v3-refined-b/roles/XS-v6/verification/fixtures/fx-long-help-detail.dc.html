@@ -1,0 +1,15 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>long text fixture</title><script src="./support.js"></script><link rel="stylesheet" href="./core.css"><link rel="stylesheet" href="./rb.css"><link rel="stylesheet" href="./rb-kit.css"><link rel="stylesheet" href="./xs-shared.css"></head><body><x-dc><helmet><link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet"><style>body{margin:0;background:#F3F4F9}</style></helmet>
+<div class="xr rb"><div class="rb-main"><main class="rb-page"><dc-import name="XsHelp" embedded="{{ true }}" reports="{{ reps }}" view="{{ view }}" detail="SUP-0301" on-submit="{{ submit }}" home-label="Overview" where="Content access › Course codes › Mechanical Engineering Department › Thermodynamics &amp; Heat Transfer (ME ZG523)" hint-size="100%,600px"></dc-import></main></div></div>
+</x-dc><script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["list","detail","report"],"default":"detail"},"$preview":{"width":1024,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const long = 'Experiment launch from the Content access page for Shell-and-Tube Heat Exchanger counter-flow two-pass configuration kept spinning';
+    const reps = [
+      { id: 'SUP-0301', title: long, status: 'reopened', sent: '22 Oct 2026', iso: '2026-10-22', reopened: '23 Oct 2026', what: long + '. Pressing Launch again opened a second tab with the same spinner, and the first tab never finished. ' + 'ThisIsAnUnbrokenStringWithoutSpacesToCheckWrappingBehaviourInDetailDefinitionLists1234567890', where: 'Content access › Course codes › Mechanical Engineering Department › Thermodynamics & Heat Transfer (ME ZG523) › Shell-and-Tube Heat Exchanger › WEB', shot: 'a-very-long-screenshot-file-name-captured-on-the-lab-computer-2026-10-22-at-17-45-03.png',
+        history: [{ what: 'Reopened', when: '23 Oct 2026' }, { what: 'Resolved', when: '22 Oct 2026', note: '“We cleared a stuck session on the delivery service. If it happens again, note the time and the format, and reopen this report so we can match it with the service logs.”' }, { what: 'Sent', when: '22 Oct 2026' }] },
+      { id: 'SUP-0298', title: 'Short one', status: 'resolved', sent: '20 Oct 2026', iso: '2026-10-20', resolved: '21 Oct 2026', note: '“Fixed.”', what: 'Short.', where: 'Usage', shot: 'No screenshot added', history: [{ what: 'Resolved', when: '21 Oct 2026', note: '“Fixed.”' }, { what: 'Sent', when: '20 Oct 2026' }] }
+    ];
+    return { reps, view: this.props.view || 'list', submit: (d) => Object.assign({ id: 'SUP-0302', status: 'open', sent: '23 Oct 2026', iso: '2026-10-23', history: [{ what: 'Sent', when: '23 Oct 2026' }] }, d) };
+  }
+}
+</script></body></html>

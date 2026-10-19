@@ -1,0 +1,287 @@
+### Main.dc.html @1440
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 932
+shot final-Main
+console clean
+
+### Shell-Drawer-768.dc.html @768
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x2
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-Shell-Drawer-768
+console clean
+
+### XS01-SignIn-768.dc.html @768
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 940
+shot final-XS01-SignIn-768
+console clean
+
+### XS01-SignIn-Errors-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1120
+shot final-XS01-SignIn-Errors-375
+console clean
+
+### XS01-SignIn-States.dc.html @1760
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x9
+Public Sans loaded: true (loaded,unloaded)
+doc height: 3058
+shot final-XS01-SignIn-States
+console clean
+
+### XS03-SessionExpired-1024.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1060
+shot final-XS03-SessionExpired-1024
+console clean
+
+### XS03-SignedOut-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1030
+shot final-XS03-SignedOut-375
+console clean
+
+### XS05-InstituteAdmin-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 812
+shot final-XS05-InstituteAdmin-375
+console clean
+
+### XS05-Menus.dc.html @1640
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1300
+shot final-XS05-Menus
+console clean
+
+### XS05-Student-1440.dc.html @1440
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS05-Student-1440
+console clean
+
+### XS05-SuperAdmin-1024.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1 | 13px span.sc-interp x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS05-SuperAdmin-1024
+console clean
+
+### XS06-InstituteAdmin-1440.dc.html @1440
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS06-InstituteAdmin-1440
+console clean
+
+### XS06-Student-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 812
+shot final-XS06-Student-375
+console clean
+
+### XS07-Empty-Vendor-768.dc.html @768
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS07-Empty-Vendor-768
+console clean
+
+### XS07-Failed-768.dc.html @768
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS07-Failed-768
+console clean
+
+### XS07-Help-InstituteAdmin-1440.dc.html @1440
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS07-Help-InstituteAdmin-1440
+console clean
+
+### XS07-Help-Student-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 812
+shot final-XS07-Help-Student-375
+console clean
+
+### XS07-Loading-1024.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS07-Loading-1024
+console clean
+
+### XS07-Reopened-ContentManager-1024.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 960
+shot final-XS07-Reopened-ContentManager-1024
+console clean
+
+### XS07-Report-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 890
+shot final-XS07-Report-375
+console clean
+
+### XS07-Report-Errors-1024.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 950
+shot final-XS07-Report-Errors-1024
+console clean
+
+### XS07-Resolved-Faculty-1440.dc.html @1440
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS07-Resolved-Faculty-1440
+console clean
+
+### XS07-Sent-768.dc.html @768
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS07-Sent-768
+console clean
+
+### XS07-SuperAdmin-Sent-1024.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1 | 13px span.sc-interp x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS07-SuperAdmin-Sent-1024
+console clean
+
+### XS08-Inactive-Refusal-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 812
+shot final-XS08-Inactive-Refusal-375
+console clean
+
+### XS08-Inactive-Student-1440.dc.html @1440
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS08-Inactive-Student-1440
+console clean
+
+### XS08-Notices.dc.html @1440
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1714
+shot final-XS08-Notices
+console clean
+
+### XS08-Paused-Faculty-1024.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS08-Paused-Faculty-1024
+console clean
+
+### XS08-Paused-InstituteAdmin-1440.dc.html @1440
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS08-Paused-InstituteAdmin-1440
+console clean
+
+### XS08-Paused-Refusal-375.dc.html @375
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 812
+shot final-XS08-Paused-Refusal-375
+console clean
+
+### XS08-Paused-Student-768.dc.html @768
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XS08-Paused-Student-768
+console clean
+
+### XsAccessNotice.dc.html @1024
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 220
+shot final-XsAccessNotice
+console clean
+
+### XsAccountMenu.dc.html @760
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 460
+shot final-XsAccountMenu
+console clean
+
+### XsHelp.dc.html @1024
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 900
+shot final-XsHelp
+console clean
+
+### XsMessage.dc.html @1024
+overflow: no horizontal overflow
+small text: no text under 14px
+Public Sans loaded: true (loaded,unloaded)
+doc height: 520
+shot final-XsMessage
+console clean
+
+### XsSignIn.dc.html @1024
+overflow: no horizontal overflow
+small text: 13px div.rb-logo x1
+Public Sans loaded: true (loaded,unloaded)
+doc height: 1080
+shot final-XsSignIn
+console clean

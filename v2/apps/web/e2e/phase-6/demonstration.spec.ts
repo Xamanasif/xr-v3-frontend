@@ -44,13 +44,13 @@ const RELEASED_NAME = 'Shell-and-Tube Heat Exchanger Performance';
 const RELEASED_SUMMARY =
   'Run counter-flow and parallel-flow tests and find the overall heat-transfer coefficient from your own readings.';
 const HELD_SUMMARY = 'A held summary that must never reach the catalogue.';
-const ARJUN = 'Account menu: Arjun Mehta, Super Admin';
-const MEERA = 'Account menu: Meera Iyer, Institute Admin, Godavari Institute of Technology';
-const RAHUL = 'Account menu: Rahul Verma, Student, Godavari Institute of Technology';
-const MENON = 'Account menu: Prof. A. Menon, Academic Reviewer';
-const KAVYA = 'Account menu: Kavya Nair, Content Manager';
+const ARJUN = 'Account menu, Arjun Mehta, Super Admin';
+const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of Technology';
+const RAHUL = 'Account menu, Rahul Verma, Student, Godavari Institute of Technology';
+const MENON = 'Account menu, Prof. A. Menon, Academic Reviewer';
+const KAVYA = 'Account menu, Kavya Nair, Content Manager';
 
-const card = (page: Page) => page.locator('.xp-auth-card');
+const card = (page: Page) => page.locator('.xs-card');
 const main = (page: Page) => page.locator('main');
 const h1 = (page: Page) => page.getByRole('heading', { level: 1 });
 const button = (page: Page, name: string) => main(page).getByRole('button', { name, exact: true });
@@ -66,7 +66,7 @@ async function signIn(page: Page, email: string): Promise<void> {
 
 async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.getByRole('button', { name: accountLine, exact: true }).click();
-  await page.locator('.xr-menu').getByRole('button', { name: 'Sign out' }).click();
+  await page.locator('.xs-menu').getByRole('button', { name: 'Sign out' }).click();
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
@@ -110,11 +110,6 @@ async function retype(page: Page, input: Locator, value: string): Promise<void> 
 /** From the signed-out card to a public experiment page, through the catalogue (PU-04 → PU-06). */
 async function publicExperiment(page: Page, name: string): Promise<void> {
   await page.getByRole('link', { name: 'Back to experiments' }).click();
-  await page.waitForURL((url) => url.pathname === '/');
-  await reachAndClick(
-    page,
-    page.locator('footer').getByRole('link', { name: 'Browse experiments' }),
-  );
   await page.waitForURL((url) => url.pathname === '/experiments');
   await reachAndClick(page, main(page).getByRole('link', { name, exact: true }));
   await page.waitForURL(`**/experiments/${SHELL_ID}`);
@@ -433,11 +428,7 @@ test('one tab, the product build: governance — a renamed course reaches the pu
 
   // The rename reaches the public course page and the Content Manager's course codes.
   await page.getByRole('link', { name: 'Back to experiments' }).click();
-  await page.waitForURL((url) => url.pathname === '/');
-  await reachAndClick(
-    page,
-    page.locator('footer').getByRole('link', { name: 'Browse experiments' }),
-  );
+  await page.waitForURL((url) => url.pathname === '/experiments');
   await reachAndClick(
     page,
     main(page).getByRole('link', { name: 'Distillation Column', exact: true }),
@@ -505,7 +496,7 @@ test('one tab, the product build: operations — a report resolved with a note t
   await page.getByLabel('What happened?').fill(what);
   await reachAndClick(page, page.getByRole('button', { name: 'Send report' }));
   await expect(h1(page)).toHaveText('Report sent');
-  const reference = (await main(page).locator('.xr-msg .xr-id').textContent())!;
+  const reference = (await main(page).locator('.xs-msg .xs-msg-d b').textContent())!;
   expect(reference).toMatch(/^SUP-\d{4}$/);
   await signOut(page, KAVYA);
 
@@ -554,7 +545,7 @@ test('one tab, the product build: operations — a report resolved with a note t
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await revealSidebar(page);
   await reachAndClick(page, page.locator('aside.xr-side .xr-side-foot a'));
-  const row = main(page).locator('ul.xr-rows a.xr-row-link', { hasText: reference });
+  const row = main(page).locator('ul.xs-reports a.xs-report', { hasText: reference });
   await expect(row).toContainText('Resolved');
   await reachAndClick(page, row);
   await expect(main(page)).toContainText(`“${note}”`);
@@ -583,7 +574,7 @@ test('one tab, the product build: operations — a report resolved with a note t
   await revealSidebar(page);
   await reachAndClick(page, page.locator('aside.xr-side .xr-side-foot a'));
   await expect(
-    main(page).locator('ul.xr-rows a.xr-row-link', { hasText: reference }),
+    main(page).locator('ul.xs-reports a.xs-report', { hasText: reference }),
   ).toContainText('Reopened');
   await signOut(page, KAVYA);
 
