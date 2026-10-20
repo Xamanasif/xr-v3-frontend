@@ -147,6 +147,7 @@ the export was imported.
 13. **Superseded v46 comparisons** are retired by name (148 for SA; 208 with XS), each under the
     V3 entry that replaced it (`V3-COMPARISON-MAP.json` `productScreens[].supersedes`), reported
     as `retired-by-v3` — never counted as passed, never masked.
+14. **Role-layer cascade check (20 Oct 2026): no `sa-` difference, no patch.** The V3P-13 method (each element and longhand, the product's layered winner against the export's unlayered one — specificity, then order —, at 1440, 1024, 768 and 375, at rest and with hover / focus forced) over every reachable Super Admin state (85 `/admin` pages on three fixtures with each button's dialog, inline form, validation and outcome; about 3,580 states) finds no `sa-` rule that wins where a Refined B rule wins in the export: 87 of the 90 `sa-` rule parts matched an element and the other three cannot (`.sa-term-only` is not drawn; every read-only row opens with `<th scope="row">`, so `.sa-table--rows td:first-child` never matches). One XS-layer difference shows in the shell and is recorded, not patched (a shared XS surface, left for a separate XS check): the account-menu panel (`div.xs-menu.xs-nofocus`, `tabindex=-1`) once it matches `:focus-visible` (a press on the panel, then any key) keeps its 16 px corners, where the XS export's core `.xr :where(…, [tabindex]):focus-visible` (0,2,0) gives 6 px over `.xs-menu` (0,1,0).
 
 ## 6. What did not change
 
