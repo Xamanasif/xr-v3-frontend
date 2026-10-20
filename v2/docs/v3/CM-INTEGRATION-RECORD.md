@@ -262,3 +262,13 @@ A short route through every Content Manager screen (one tab, about fifteen minut
 7. **Course codes**: give Fluid Mechanics “ME ZG523” → **Save codes** (refused: duplicate, focus
    to the summary) → **Undo changes**; give it a unique code → **Save codes** (saved).
 8. **Help & support** in the rail foot; the account menu (top right) → Sign out.
+
+## 10. Owner acceptance
+
+Accepted by the owner on 21 Oct 2026 after the browser review: “I approve the Content Manager V3
+implementation, including the user-facing technical-ID cleanup.” Accepted commit **`ff58c5c`**
+(on `35587af`). Acknowledged with it: all nine Content Manager screens are implemented; internal
+SUB-/UPD-/REQ-/ACC-style references are removed from ordinary user-facing labels and kept
+internally; the seven Public Landing artwork parity differences (§7) are known baseline
+exceptions; the seeded sample correction text (“Correction UPD-000n.”, §5, 11) may stay as
+written. Recording the acceptance changed no Content Manager code.
