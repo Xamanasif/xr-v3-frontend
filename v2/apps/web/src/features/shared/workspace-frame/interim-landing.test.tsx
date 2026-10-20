@@ -2,7 +2,7 @@
  * The interim landing (ADR-0005 §8): `/<base>` replaces itself with `/<base>/help` — after the
  * workspace guard, so another role's base keeps its address and shows XS-06.
  */
-import { screen, waitFor } from '@testing-library/react';
+import { screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { PERSON_OF_ROLE, renderInTab, tabPlatform, testNavigation } from '@/test-support/workspace';
@@ -25,9 +25,16 @@ describe('InterimLanding', () => {
     );
     await waitFor(() => expect(navigation.replace).toHaveBeenCalledWith('/content-manager/help'));
     expect(navigation.replace).toHaveBeenCalledTimes(1);
-    // The shell already shows Help's place while the address changes.
+    // The shell already shows Help's place while the address changes (the Content Manager's V3
+    // shell: Help & support in the rail foot).
     await waitFor(() =>
-      expect(document.querySelector('.xr-side-foot a')).toHaveAttribute('aria-current', 'page'),
+      expect(
+        within(
+          within(
+            screen.getByRole('complementary', { name: 'Content Manager workspace' }),
+          ).getByRole('navigation', { name: 'Help' }),
+        ).getByRole('link', { name: 'Help & support' }),
+      ).toHaveAttribute('aria-current', 'page'),
     );
   });
 

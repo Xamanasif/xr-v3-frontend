@@ -14,6 +14,9 @@
  * - the committed `v3/ve-scoped.css` is the same for the Vendor role sheet of the owner-approved
  *   Vendor export (design/v3-refined-b/roles/VE-v1), less its page canvas, reviewer bar and the
  *   borrowed XS surfaces the delivered XS export replaces;
+ * - the committed `v3/cm-scoped.css` is the same for the Content Manager role sheet of the
+ *   owner-approved Content Manager export (design/v3-refined-b/roles/CM-v1), less its scenario
+ *   handoff box and public-page handoff frame (its borrowed XS sheet is not generated);
  * - the central patches (`v3/patch.css`) are confined the same way and use only allow-listed
  *   product classes — except V3P-09's container name on the v46 app root that holds a V3 region;
  * - the entry puts both in `xr.v3`, nothing reaches `:root`, `html` or `body`, nothing loads a URL,
@@ -104,6 +107,9 @@ const saDerived = readFileSync(saRole.output, 'utf8');
 const veRole = ROLE_SHEETS.find((role) => role.role === 'VE')!;
 const veSource = readFileSync(join(veRole.directory, veRole.sheet), 'utf8');
 const veDerived = readFileSync(veRole.output, 'utf8');
+const cmRole = ROLE_SHEETS.find((role) => role.role === 'CM')!;
+const cmSource = readFileSync(join(cmRole.directory, cmRole.sheet), 'utf8');
+const cmDerived = readFileSync(cmRole.output, 'utf8');
 
 /** The top-level grouping at-rules of `css`, each with the style rules directly inside it. */
 function groupsOf(css: string): { readonly prelude: string; readonly rules: Rule[] }[] {
@@ -224,7 +230,7 @@ describe('generated rb-scoped.css', () => {
 
 describe('generated xs-scoped.css (the XS export, design/v3-refined-b/roles/XS-v6)', () => {
   it('is exactly what the generator writes from the locked extension sheet', () => {
-    expect(ROLE_SHEETS.map((role) => role.role)).toEqual(['XS', 'SA', 'VE']);
+    expect(ROLE_SHEETS.map((role) => role.role)).toEqual(['XS', 'SA', 'VE', 'CM']);
     expect(xsDerived).toBe(renderRoleCss(readRoleInput(xsRole)));
   });
 
@@ -496,7 +502,7 @@ describe('patch.css (V3P-nn)', () => {
     expect([...product].sort()).toEqual([...V3_PRODUCT_CLASS_ALLOW_LIST].sort());
   });
 
-  it('numbers its patches V3P-01 … V3P-13 in order; V3P-06 and V3P-07 are retired, not reused', () => {
+  it('numbers its patches V3P-01 … V3P-14 in order; V3P-06 and V3P-07 are retired, not reused', () => {
     expect([...patch.matchAll(/V3P-(\d\d) ·/g)].map((match) => match[1])).toEqual([
       '01',
       '02',
@@ -511,6 +517,7 @@ describe('patch.css (V3P-nn)', () => {
       '11',
       '12',
       '13',
+      '14',
     ]);
     for (const retired of ['06', '07']) {
       expect(patch).toMatch(new RegExp(`V3P-${retired} · retired`));
@@ -791,6 +798,182 @@ describe('patch.css (V3P-nn)', () => {
     }
   });
 
+  it("V3P-14: the Content Manager export's inline spacings, on the element it styles, as it writes them", () => {
+    const main = readFileSync(join(cmRole.directory, 'project', 'Main.dc.html'), 'utf8');
+    /** The export's template: the markup before its logic script. */
+    const template = main.slice(0, main.indexOf('<script type="text/x-dc"'));
+    /** Patched element (its export class + the product class) → the declarations, as written. */
+    const SPACINGS: Record<string, { readonly css: string; readonly exported: readonly string[] }> =
+      {
+        '.cm-grp-head.rk-x-grp-head-side': {
+          css: 'margin-bottom: 8px;',
+          exported: ['<div class="cm-grp-head" style="margin-bottom: 8px">'],
+        },
+        '.cm-sidecard-t.rk-x-sidecard-t-flush': {
+          css: 'margin-bottom: 0;',
+          exported: ['<h2 class="cm-sidecard-t" id="cm-others-h" style="margin-bottom: 0">'],
+        },
+        'p.rk-x-calm-foot': {
+          css: 'padding: 0 0 18px;',
+          exported: [
+            '<p style="padding: 0 0 18px"><a class="rb-link" href="#cm-main" data-to="CM-04" onClick="{{ goLibrary }}">Open the Content library</a></p>',
+          ],
+        },
+        '.rk-fmts.rk-x-fmts-flush': {
+          css: 'margin-top: 0;',
+          exported: [
+            '<p class="cm-cat-avail">Available in <span class="rk-fmts" style="margin-top: 0" aria-label="{{ D.fmtAria }}">',
+            '<p class="cm-cat-avail">Available in <span class="rk-fmts" style="margin-top: 0" aria-label="{{ P.fmtAria }}">',
+            '<td class="rk-c-exp"><span class="rk-fmts" style="margin-top: 0" aria-label="{{ r.fmtAria }}">',
+          ],
+        },
+        'th.rk-c-inst.rk-x-lib-col': {
+          css: 'width: 34%;',
+          exported: ['<th scope="col" class="rk-c-inst" style="width: 34%">Experiment</th>'],
+        },
+        'th.rk-c-exp.rk-x-lib-col': {
+          css: 'width: 17%;',
+          exported: ['<th scope="col" class="rk-c-exp" style="width: 17%">Formats</th>'],
+        },
+        'th.rk-c-type.rk-x-lib-col': {
+          css: 'width: 16%;',
+          exported: ['<th scope="col" class="rk-c-type" style="width: 16%">{{ L.h3 }}</th>'],
+        },
+        'th.rk-c-date.rk-x-lib-col': {
+          css: 'width: 13%;',
+          exported: ['<th scope="col" class="rk-c-date" style="width: 13%">{{ L.h4 }}</th>'],
+        },
+        'th.rk-c-st.rk-x-lib-col': {
+          css: 'width: 20%;',
+          exported: ['<th scope="col" class="rk-c-st" style="width: 20%">Where it is</th>'],
+        },
+        '.rk-h3.rk-x-h3-sub': {
+          css: 'margin: 24px 0 10px;',
+          exported: ['<h3 class="rk-h3" style="margin: 24px 0 10px">Delivery by format</h3>'],
+        },
+        'ul.rk-x-pending-list': {
+          css: 'margin-top: 4px; padding-left: 18px; list-style: disc;',
+          exported: [
+            '<div><p>{{ D.blockText }}</p><ul style="margin-top: 4px; padding-left: 18px; list-style: disc">',
+          ],
+        },
+        'li.rk-x-pending-item': {
+          css: 'font-weight: 500;',
+          exported: ['<li style="font-weight: 500">{{ b }}</li>'],
+        },
+        '.rk-textarea.rk-x-textarea-short': {
+          css: 'min-height: 80px;',
+          exported: ['<textarea id="cm-u-summary" class="rk-textarea" style="min-height: 80px"'],
+        },
+        '.rk-textarea.rk-x-textarea-long': {
+          css: 'min-height: 150px;',
+          exported: ['<textarea id="cm-u-desc" class="rk-textarea" style="min-height: 150px"'],
+        },
+        '.rk-ferr.rk-x-ferr-below': {
+          css: 'margin-bottom: 10px;',
+          exported: ['<p class="rk-ferr" id="cm-u-chg-err" style="margin-bottom: 10px">'],
+        },
+        '.rk-notice-d.rk-x-notice-more': {
+          css: 'grid-column: 2; margin-top: 6px;',
+          exported: [
+            '<p class="rk-notice-d" style="grid-column: 2; margin-top: 6px"><b>Reason:</b> {{ E.nQuote }}</p>',
+            '<p class="rk-notice-d" style="grid-column: 2; margin-top: 6px">{{ E.nExtra }}</p>',
+          ],
+        },
+        'p.rk-x-errsum-line': {
+          css: 'margin-top: 4px; font: 500 15px/22px var(--sans);',
+          exported: [
+            '<p style="margin-top: 4px; font: 500 15px/22px var(--sans)">Your changes are still on this page.',
+            '<p style="margin-top: 4px; font: 500 15px/22px var(--sans)">Nothing has changed. Your edits are still in the table.',
+          ],
+        },
+        '.rb-btn.rk-x-errsum-retry': {
+          css: 'margin-top: 10px;',
+          exported: [
+            '<button type="button" class="rb-btn" style="margin-top: 10px" onClick="{{ E.save }}">Try again</button>',
+            '<button type="button" class="rb-btn" style="margin-top: 10px" onClick="{{ K.save }}">Try again</button>',
+          ],
+        },
+        '.cm-hold-d.rk-x-hold-d-flush': {
+          css: 'margin-top: 0;',
+          exported: [
+            '<p class="cm-hold-d" style="margin-top: 0">Institute Admins keep their own code',
+          ],
+        },
+        '.rk-dlg-body.rk-x-dlg-body-tight': {
+          css: 'padding-bottom: 12px;',
+          exported: ['<div class="rk-dlg-body" style="padding-bottom: 12px">'],
+        },
+      };
+    const rules = rulesOf(patch);
+    for (const [element, spacing] of Object.entries(SPACINGS)) {
+      const found = rules.filter(
+        (rule) => rule.prelude === `${SCOPE_PREFIX}${element}${ISLAND_EXCLUSION}`,
+      );
+      expect(found, element).toHaveLength(1);
+      expect(found[0]!.block.replace(/\s+/g, ' ').trim(), element).toBe(spacing.css);
+      for (const markup of spacing.exported) expect(template, element).toContain(markup);
+    }
+    expect([...patchClasses('14')].sort()).toEqual(
+      [...new Set(Object.keys(SPACINGS).map((element) => element.split('.').at(-1)!))].sort(),
+    );
+    // V3P-14 holds these rules and no other: comparing the export's unlayered cascade with the
+    // product's layered one on every Content Manager state found no `cm-` rule that wins only by
+    // its layer, so nothing is restored (a restoration would be listed and checked as V3P-13's).
+    const start = patch.indexOf('V3P-14 ·');
+    expect(start).toBeGreaterThan(0);
+    expect(
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+        .map((rule) => rule.prelude)
+        .sort(),
+    ).toEqual(
+      Object.keys(SPACINGS)
+        .map((element) => `${SCOPE_PREFIX}${element}${ISLAND_EXCLUSION}`)
+        .sort(),
+    );
+    expect(patch.slice(start)).toContain('finds no element where they differ');
+    /*
+     * One spacing is an earlier patch's: the note under CM-03's delivery rows is 12 px under the
+     * rows as V3P-12's note under a list (`Hint under="list"`, `rk-x-hint-list`).
+     */
+    const REUSED = {
+      element: '.rk-hint.rk-x-hint-list',
+      css: 'margin-top: 12px;',
+      exported:
+        '<p class="rk-hint" style="margin-top: 12px">The experiment is published with all of its formats.',
+    };
+    const reused = rules.filter(
+      (rule) => rule.prelude === `${SCOPE_PREFIX}${REUSED.element}${ISLAND_EXCLUSION}`,
+    );
+    expect(reused).toHaveLength(1);
+    expect(reused[0]!.block.replace(/\s+/g, ' ').trim()).toBe(REUSED.css);
+    /*
+     * Every other `style=` of the export is accounted for: the hidden icon sprite (the product
+     * draws each icon inline), the drawer brand's `padding-top: 0` (the shell's; `.rb-brand` has
+     * no top padding) and the public-page handoff frame (`cm-pub`, preview-only: "View the public
+     * page" opens the product's PU-06 route).
+     */
+    const NOT_PATCHED = [
+      '<svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">',
+      '<div class="rb-brand" style="padding-top: 0">',
+      '<p class="cm-cat-sum" style="margin-top: 0">{{ B.summary }}</p>',
+      '<span class="rk-fmts" style="margin-top: 0" aria-label="{{ B.fmtAria }}">',
+    ];
+    const accounted = [
+      ...Object.values(SPACINGS).flatMap((spacing) => spacing.exported),
+      REUSED.exported,
+      ...NOT_PATCHED,
+    ];
+    const styled = [...template.matchAll(/style="[^"]*"/g)].length;
+    for (const markup of accounted) expect(template, markup).toContain(markup);
+    const stylesIn = (markup: string) => (markup.match(/style="/g) ?? []).length;
+    const occurrences = accounted.reduce(
+      (count, markup) => count + (template.split(markup).length - 1) * stylesIn(markup),
+      0,
+    );
+    expect(occurrences, 'each export style= is patched or recorded as not patched').toBe(styled);
+  });
+
   it('leaves no v46 declaration on a shared class name inside a V3 root (V3P-08)', () => {
     const v46 = readFileSync(join(import.meta.dirname, 'v46', 'xr-foundation.css'), 'utf8');
     const core = sources[0] ?? '';
@@ -954,6 +1137,104 @@ describe('generated ve-scoped.css (the Vendor export, design/v3-refined-b/roles/
   });
 });
 
+describe('generated cm-scoped.css (the Content Manager export, design/v3-refined-b/roles/CM-v1)', () => {
+  /** What the export says is preview-only, never product UI (its COMPONENT-EXTENSIONS.md). */
+  const LEFT_OUT = /\.cm-(?:dock(?:-[\w-]+)?|pub(?:bar|body|logo|prod)?)(?![\w-])/;
+
+  it('is exactly what the generator writes from the locked role sheet', () => {
+    expect(cmDerived).toBe(renderRoleCss(readRoleInput(cmRole)));
+  });
+
+  it("is built on this foundation: the export's three base sheets are the locked bytes", () => {
+    const exportLock = JSON.parse(
+      readFileSync(join(cmRole.directory, 'FOUNDATION-LOCK.json'), 'utf8'),
+    ) as {
+      foundationId: string;
+      baseFilesShipped: Record<string, { sha256: string; byteIdentical: boolean }>;
+      localAdditions: Record<string, { sha256: string }>;
+    };
+    expect(exportLock.foundationId).toBe(FOUNDATION_ID);
+    for (const sheet of SHEETS) {
+      expect(exportLock.baseFilesShipped[`project/${sheet}`]?.sha256, sheet).toBe(
+        lock.baseFiles[`references/v3/project/${sheet}`],
+      );
+      expect(exportLock.baseFilesShipped[`project/${sheet}`]?.byteIdentical, sheet).toBe(true);
+      expect(sha256(readFileSync(join(cmRole.directory, 'project', sheet))), sheet).toBe(
+        lock.baseFiles[`references/v3/project/${sheet}`],
+      );
+    }
+    expect(exportLock.localAdditions['project/cm.css']?.sha256).toBe(sha256(cmSource));
+  });
+
+  it('leaves out only the scenario handoff box and the public-page handoff frame', () => {
+    const left = rulesOf(cmSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && previewOnlyRule(cmRole, rule.prelude),
+    );
+    expect(left.length).toBeGreaterThan(0);
+    for (const rule of left) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector.trim(), rule.prelude).toMatch(LEFT_OUT);
+      }
+    }
+    expect(cmDerived).not.toMatch(LEFT_OUT);
+    // The role's own components stay.
+    for (const kept of ['.cm-pipe', '.cm-qcard', '.cm-trk', '.cm-cat', '.cm-devs', '.cm-codes']) {
+      expect(cmDerived, kept).toContain(kept);
+      expect(previewOnlyRule(cmRole, kept)).toBe(false);
+    }
+    expect(previewOnlyRule(cmRole, '.cm-dock,.cm-pipe')).toBe(false);
+  });
+
+  it('keeps every other declaration block and at-rule in order and changes only selectors', () => {
+    // A grouping at-rule whose every rule is left out goes with them: the public frame's narrow
+    // layout.
+    const groups = groupsOf(cmSource);
+    const dropped = groups.filter(
+      (group) =>
+        group.rules.length > 0 &&
+        group.rules.every((rule) => previewOnlyRule(cmRole, rule.prelude)),
+    );
+    expect(dropped.length).toBe(1);
+    for (const group of dropped) {
+      for (const rule of group.rules) expect(rule.prelude, group.prelude).toMatch(LEFT_OUT);
+    }
+    expect(groupsOf(cmDerived).map((group) => group.prelude)).toEqual(
+      groups.filter((group) => !dropped.includes(group)).map((group) => group.prelude),
+    );
+    const expected = rulesOf(cmSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && !previewOnlyRule(cmRole, rule.prelude),
+    );
+    const scoped = rulesOf(cmDerived).filter((rule) => !rule.prelude.startsWith('@'));
+    expect(scoped.length).toBe(expected.length);
+    scoped.forEach((rule, index) => {
+      const source = expected[index]!;
+      expect(rule.block, source.prelude).toBe(source.block);
+      const before = splitTopLevel(source.prelude, ',').map((part) => part.trim());
+      const after = splitTopLevel(rule.prelude, ',').map((part) => part.trim());
+      after.forEach((selector, position) => {
+        expect(selector).toContain(ISLAND_EXCLUSION);
+        expect(selector.replace(SCOPE_PREFIX, '').replace(ISLAND_EXCLUSION, '')).toBe(
+          before[position],
+        );
+      });
+    });
+  });
+
+  it('selects only cm- classes (shared classes only under a role parent), no root, URL, keyframes or token', () => {
+    for (const rule of rulesOf(cmSource).filter(
+      (candidate) => !candidate.prelude.startsWith('@'),
+    )) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector, selector).toMatch(/\.cm-/);
+      }
+    }
+    expect(cmDerived).not.toMatch(/url\(|@import|@keyframes|[{;]\s*--[\w-]+\s*:/);
+    expect(
+      rulesOf(cmDerived).filter((rule) => /(^|[\s,])(:root|html|body)\b/.test(rule.prelude)),
+    ).toEqual([]);
+  });
+});
+
 describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
   it('reserves xr.v3 after xr.product and imports the derivatives, then the patches', () => {
     const statements = entry
@@ -961,13 +1242,14 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
       .trim()
       .split(';')
       .map((part) => part.trim());
-    expect(statements.slice(0, 7)).toEqual([
+    expect(statements.slice(0, 8)).toEqual([
       '@layer properties, theme, xr.v46, xr.product, xr.v3, utilities',
-      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.patch',
+      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.patch',
       "@import './rb-scoped.css' layer(xr.v3.rb)",
       "@import './xs-scoped.css' layer(xr.v3.xs)",
       "@import './sa-scoped.css' layer(xr.v3.sa)",
       "@import './ve-scoped.css' layer(xr.v3.ve)",
+      "@import './cm-scoped.css' layer(xr.v3.cm)",
       "@import './patch.css' layer(xr.v3.patch)",
     ]);
   });
@@ -987,5 +1269,6 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/xs-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/sa-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/ve-scoped.css');
+    expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/cm-scoped.css');
   });
 });

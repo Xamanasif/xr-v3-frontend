@@ -3,44 +3,73 @@ import { pageRows } from '../link-targets-p3/rows';
 
 const READY = '/content-manager/ready';
 const LIBRARY = '/content-manager/library';
-/** CM-03, by submission id: the sample’s SUB-0074 (with the Content Manager) stands for any. */
+/** CM-03, by submission id: the sample's SUB-0074 (with the Content Manager) stands for any. */
 const DECISION = '/content-manager/decisions/SUB-0074';
+/** CM-03 read-only: SUB-0086 in academic review, SUB-0081 with the vendor. */
+const DECISION_IN_REVIEW = '/content-manager/decisions/SUB-0086';
+const DECISION_WITH_VENDOR = '/content-manager/decisions/SUB-0081';
 /** CM-05, by experiment id: Distillation Column stands for any published experiment. */
 const PUBLISHED = '/content-manager/published/distillation-column';
-/** PU-06, the public page of the experiment just published (SUB-0074 → transient-cooling). */
-const PUBLIC_EXPERIMENT = '/experiments/transient-cooling';
-/** CM-08 an update (Phase 6): the draft CM-06 / CM-07 open, by update id — UPD-0005 stands for any. */
+/** CM-05 with an open update: Induction Motor Loading (UPD-0006 returned), Boiler Drum Level (on hold). */
+const PUBLISHED_RETURNED = '/content-manager/published/induction-motor-loading';
+const PUBLISHED_ON_HOLD = '/content-manager/published/boiler-drum-level';
+/** CM-05 after SUB-0074 is published (transient-cooling). */
+const PUBLISHED_NEW = '/content-manager/published/transient-cooling';
+/** PU-06, the public page of an experiment. */
+const PUBLIC_NEW = '/experiments/transient-cooling';
+const PUBLIC_EXPERIMENT = '/experiments/distillation-column';
+/** CM-08 an update: the draft CM-06 / CM-07 open, by update id — UPD-0005 stands for any. */
 const UPDATE = '/content-manager/updates/UPD-0005';
+const UPDATE_RETURNED = '/content-manager/updates/UPD-0006';
+const UPDATE_ON_HOLD = '/content-manager/updates/UPD-0004';
 
 /**
- * Phase 5 link targets: CM-03 Publication decision and CM-05 Published experiment (B6-07, B6-08,
- * B6-11). CM-03’s one primary is the panel’s “Publish” / “Send back” (a command, through DL-1 or
- * DL-2); the result links to the public page (state-copy `CM-03.published.view`), the Content
- * library or Ready to publish. CM-05’s correction entry — “Start a correction” (its primary),
- * “Edit catalogue details” (CM-06) and “Edit delivery link” (CM-07) — opens or joins the one
- * correction draft (a command) and lands on its update page (CM-08, built in Phase 6) with the
- * named field focused; “Open update” (the primary while an update is in progress) only opens it
- * (state-copy `CM-05.correction-entry`, `CM-05.entry-opens`).
+ * CM-03 Publication decision and CM-05 Published experiment, as the owner-approved Content Manager
+ * export links them (V3 Refined B, design/v3-refined-b/roles/CM-v1, LINK-MAP.json “CM-03 Decision
+ * …” and “CM-05 Published …”; commands). CM-03's one primary is the panel's “Publish” / “Send
+ * back” (a command: Publish through its confirmation, Send back at once); the published result
+ * links to the published experiment, the public page (PU-06) and Ready to publish; read-only, the
+ * panel goes back to the Content library on the view that lists the record (state-copy
+ * `CM-03.crumb`). CM-05's Corrections panel — “Start a correction” (its primary), “Edit catalogue
+ * details” (CM-06) and “Edit delivery link” (CM-07) — opens or joins the one correction draft (a
+ * command) and lands on its update page (CM-08) with the named field focused; “Continue the
+ * update” (a draft or returned update) and “Open update” (in review, awaiting, on hold) only open
+ * it (state-copy `CM-05.correction-entry`).
  */
 export const P5_CM_DECISION_LINK_TARGETS: readonly LedgerEntry[] = [
-  // CM-03 Publication decision (B6-07 f0 … f5; B6-11 f4 … f8).
+  // CM-03 Publication decision.
   ...pageRows('CM-03', DECISION, [
-    ['Back link', 'Ready to publish', 'secondary', READY, 'built', 'B6-07 f0 … f5 `a.xr-back`'],
     [
-      'Go to decision',
+      'Breadcrumb',
+      'Ready to publish',
+      'secondary',
+      READY,
+      'built',
+      'CM-v1 LINK-MAP “CM-03 Decision (open) · Ready to publish” (`nav.rk-crumbs`)',
+    ],
+    [
+      'Identity band',
       'Go to decision',
       'secondary',
       null,
       'in-page',
-      'B6-07 f2 … f5 `a.xr-jump` (below 860 px of content; focus to the panel)',
+      'CM-v1 `a.rb-btn.rk-goto` (below 860 px of page width; focus to the panel’s heading)',
+    ],
+    [
+      'Stale notice',
+      'Show where it is now',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 LINK-MAP commands “Show where it is now (stale notice)” — re-reads the record (state-copy `CM-03.stale.changed`)',
     ],
     [
       'Your decision panel (choice)',
-      'Publish / Send back',
+      'Publish / Send back · Academic Reviewer / Vendor · What it refers to',
       'secondary',
       null,
       'in-page',
-      'B6-07 f0, f2 `label.xr-choice` (Publish unavailable while a check fails: `is-off`, f2)',
+      'CM-v1 `fieldset.rk-fieldset` > `label.rk-choice` (Publish unavailable while a check fails: `is-off`); `label.rk-check` toward the vendor only',
     ],
     [
       'Your decision panel',
@@ -48,85 +77,148 @@ export const P5_CM_DECISION_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       null,
       'in-page',
-      'B6-07 f0, f2, f5 `button.xr-btn--primary.xr-btn--block` (`Dm-cgo`) → DL-1 “Publish” (B6-11 f6) or DL-2 “Send back” (B6-11 f7) → the result (f4, B6-11 f8)',
+      'CM-v1 LINK-MAP commands “Publish (decision panel) → confirmation dialog → Publish”, “Send back (to the Academic Reviewer or the vendor)” (`button.rb-btn--primary.rk-go#cm-d-go`) → the result',
     ],
     [
-      'DL-1 Publish',
+      'Error summary',
+      'Choose a decision · Choose who it goes back to · Add a reason so they know what to change',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 `div.rk-errsum#cm-d-errs` links (focus the field)',
+    ],
+    [
+      'Publish confirmation',
       'Cancel',
       'secondary',
       null,
       'in-page',
-      'B6-11 f6 `div.xr-dialog-foot` (nothing is published)',
-    ],
-    [
-      'DL-2 Send back',
-      'Cancel',
-      'secondary',
-      null,
-      'in-page',
-      'B6-11 f7 `div.xr-dialog-foot` (nothing is sent)',
+      'CM-v1 DL-1 `#cm-dlg-pub-cancel` (nothing is published; waits while publishing); its Publish (`#cm-dlg-pub-ok`, “Publishing…” while it runs) confirms the panel’s primary',
     ],
     [
       'Published result',
-      'View in the catalogue',
+      'Open the published experiment',
       'secondary',
-      PUBLIC_EXPERIMENT,
+      PUBLISHED_NEW,
       'built',
-      'Undrawn: state-copy `CM-03.published.view` (→ PU-06, B1-05; B6-12 f5, f6)',
+      'CM-v1 LINK-MAP “CM-03 Decision (published result) · Open the published experiment” → CM-05',
     ],
     [
       'Published result',
-      'Open the Content library',
+      'View the public page',
       'secondary',
-      LIBRARY,
+      PUBLIC_NEW,
       'built',
-      'B6-07 f4; B6-11 f8 `a.xr-btn--secondary.xr-btn--block`',
+      'CM-v1 LINK-MAP “CM-03 Decision (published result) · View the public page” → PU-06 (the product’s public page; the export’s handoff frame is preview-only)',
     ],
     [
-      'Sent-back result',
+      'Published or sent-back result',
       'Back to Ready to publish',
       'secondary',
       READY,
       'built',
-      'B6-07 script `cmSent` `a.xr-btn--secondary.xr-btn--block`',
+      'CM-v1 LINK-MAP “CM-03 Decision (published result) · Back to Ready to publish”',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `CM-03.failed`'],
   ]),
-  // CM-05 Published experiment (B6-08 f0 … f4; B6-11 f9).
-  ...pageRows('CM-05', PUBLISHED, [
-    ['Back link', 'Content library', 'secondary', LIBRARY, 'built', 'B6-08 f0 … f4 `a.xr-back`'],
+  ...pageRows('CM-03', DECISION_IN_REVIEW, [
     [
-      'Correction entry (no update in progress)',
+      'Breadcrumb (read-only: in academic review)',
+      'Content library',
+      'secondary',
+      `${LIBRARY}?tab=in-review`,
+      'built',
+      'CM-v1 LINK-MAP “CM-03 Decision (read-only, from library)” breadcrumb (state-copy `CM-03.crumb`: the view that lists it)',
+    ],
+    [
+      'Your decision panel (read-only: in academic review)',
+      'Back to the Content library',
+      'secondary',
+      `${LIBRARY}?tab=in-review`,
+      'built',
+      'CM-v1 LINK-MAP “CM-03 Decision (read-only, from library) · Back to the Content library”',
+    ],
+  ]),
+  ...pageRows('CM-03', DECISION_WITH_VENDOR, [
+    [
+      'Your decision panel (read-only: with the vendor)',
+      'Back to the Content library',
+      'secondary',
+      `${LIBRARY}?tab=with-vendor`,
+      'built',
+      'CM-v1 LINK-MAP “CM-03 Decision (read-only, from library) · Back to the Content library”',
+    ],
+  ]),
+  // CM-05 Published experiment.
+  ...pageRows('CM-05', PUBLISHED, [
+    [
+      'Breadcrumb',
+      'Content library',
+      'secondary',
+      LIBRARY,
+      'built',
+      'CM-v1 LINK-MAP “CM-05 Published · no open update · Content library” (`nav.rk-crumbs`)',
+    ],
+    [
+      'Identity band',
+      'View the public page',
+      'secondary',
+      PUBLIC_EXPERIMENT,
+      'built',
+      'CM-v1 LINK-MAP “CM-05 Published · no open update · View the public page” → PU-06 (`div.rb-id-act > a.rb-btn`)',
+    ],
+    [
+      'Identity band',
+      'Go to corrections',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 `a.rb-btn.rk-goto` (below 860 px of page width; focus to the panel’s heading)',
+    ],
+    [
+      'Corrections panel (no update open)',
       'Start a correction',
       'primary',
       UPDATE,
       'built',
-      'B6-08 f0, f4; B6-13 f1 `div.xw-actions > button.xr-btn--primary` (opens the one draft — `openCorrection` — then its update page)',
+      'CM-v1 LINK-MAP “CM-05 Published · no open update · Start a correction” → CM-08 (`button.rb-btn--primary.rk-go#cm-p-start`: opens the one draft — `openCorrection` — then its update page)',
     ],
     [
-      'Correction entry',
+      'Corrections panel',
       'Edit catalogue details',
       'secondary',
       `${UPDATE}?focus=summary`,
       'built',
-      'B6-08 f0, f2, f4 `div.xw-actions > button.xr-btn--secondary` (CM-06: opens or joins the draft, the summary focused)',
+      'CM-v1 LINK-MAP “CM-05 Published · no open update · Edit catalogue details” → CM-06 (`button.rb-btn.cm-wide`: opens or joins the draft, the summary focused)',
     ],
     [
-      'Correction entry',
+      'Corrections panel',
       'Edit delivery link',
       'secondary',
       `${UPDATE}?focus=web-link`,
       'built',
-      'B6-08 f0, f2, f4 `div.xw-actions > button.xr-btn--secondary` (CM-07: opens or joins the draft, the web link focused)',
-    ],
-    [
-      'An update is in progress (notice f1; draft actions f2)',
-      'Open update',
-      'primary',
-      UPDATE,
-      'built',
-      'B6-08 f1 `div.xr-notice-actions > button.xr-btn--primary.xr-btn--sm`, f2 `div.xw-actions > button.xr-btn--primary`; B6-11 f9; B7-11 f4 (a link drawn as the button)',
+      'CM-v1 LINK-MAP “CM-05 Published · no open update · Edit delivery link” → CM-07 (`button.rb-btn.cm-wide`: opens or joins the draft, the web link focused)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `CM-05.failed`'],
+  ]),
+  ...pageRows('CM-05', PUBLISHED_RETURNED, [
+    [
+      'Corrections panel (a draft or returned update)',
+      'Continue the update',
+      'primary',
+      UPDATE_RETURNED,
+      'built',
+      'CM-v1 LINK-MAP “CM-05 Published · open draft/returned · Continue the update” → CM-08 (a link drawn as `button.rb-btn--primary.rk-go#cm-p-open`)',
+    ],
+  ]),
+  ...pageRows('CM-05', PUBLISHED_ON_HOLD, [
+    [
+      'Corrections panel (in review, awaiting or on hold)',
+      'Open update',
+      'primary',
+      UPDATE_ON_HOLD,
+      'built',
+      'CM-v1 LINK-MAP “CM-05 Published · awaiting release · Open update” → CM-08 (a link drawn as `button.rb-btn--primary.rk-go#cm-p-open`)',
+    ],
   ]),
 ];

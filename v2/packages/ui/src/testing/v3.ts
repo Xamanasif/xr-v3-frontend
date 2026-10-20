@@ -87,11 +87,31 @@ export const VE_EXPORT_DIRECTORY = join(
   'project',
 );
 
-/** Every class a selector of the V3, XS, SA and VE derivatives or the V3 patches names. */
+/**
+ * The owner-approved Content Manager export (CM-v1): its live role root (`Main.dc.html`), read as
+ * the reference for the Content Manager pages' markup, words and icons.
+ */
+export const CM_EXPORT_DIRECTORY = join(
+  V3_BOARDS_DIRECTORY,
+  '..',
+  '..',
+  '..',
+  '..',
+  'roles',
+  'CM-v1',
+  'project',
+);
+
+/** Every class a selector of the V3, XS, SA, VE and CM derivatives or the V3 patches names. */
 export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
-  ['rb-scoped.css', 'xs-scoped.css', 'sa-scoped.css', 've-scoped.css', 'patch.css'].flatMap(
-    (sheet) => [...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8'))],
-  ),
+  [
+    'rb-scoped.css',
+    'xs-scoped.css',
+    'sa-scoped.css',
+    've-scoped.css',
+    'cm-scoped.css',
+    'patch.css',
+  ].flatMap((sheet) => [...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8'))]),
 );
 
 /** The raw text of an XS export file (`XsSignIn.dc.html`, …), for markup and icon checks. */
@@ -107,6 +127,11 @@ export function saExportText(file: string): string {
 /** The raw text of a VE export file (`Main.dc.html`, …), for markup, words and icon checks. */
 export function veExportText(file: string): string {
   return readFileSync(join(VE_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The raw text of a CM export file (`Main.dc.html`, …), for markup, words and icon checks. */
+export function cmExportText(file: string): string {
+  return readFileSync(join(CM_EXPORT_DIRECTORY, file), 'utf8');
 }
 
 /**

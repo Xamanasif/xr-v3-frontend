@@ -259,6 +259,12 @@ export {
 export * from './ve-workspace.js';
 export * from './ve-editor.js';
 export * from './ve-record.js';
+// The Content Manager role's patterns (CM-v1): what more than one Content Manager screen group
+// draws, then what one screen group alone draws, one module per group.
+export * from './cm.js';
+export * from './cm-lists.js';
+export * from './cm-decision.js';
+export * from './cm-correction.js';
 export {
   PlanBand,
   CourseGroup,

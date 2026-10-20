@@ -4,6 +4,12 @@ import { pageRows } from '../link-targets-p3/rows';
 const OVERVIEW = '/content-manager';
 const READY = '/content-manager/ready';
 const LIBRARY = '/content-manager/library';
+const LIBRARY_REVIEW = '/content-manager/library?tab=in-review';
+const LIBRARY_VENDOR = '/content-manager/library?tab=with-vendor';
+const LIBRARY_PUBLISHED = '/content-manager/library?tab=published';
+/** The library's Published view filtered to a course (the sample's Thermodynamics stands for any). */
+const LIBRARY_COURSE = '/content-manager/library?tab=published&course=thermodynamics-heat-transfer';
+const UPDATES = '/content-manager/updates';
 const COURSE_CODES = '/content-manager/course-codes';
 /** CM-03, by submission id: the sample’s ready, re-check and returned records stand for any. */
 const DECISION_READY = '/content-manager/decisions/SUB-0074';
@@ -12,35 +18,77 @@ const DECISION_RECHECK = '/content-manager/decisions/SUB-0071';
 const DECISION_RETURNED = '/content-manager/decisions/SUB-0081';
 /** CM-05, by experiment id. */
 const PUBLISHED = '/content-manager/published/distillation-column';
-/** CM-08, a correction’s page (Phase 6): the sample’s returned UPD-0006 and on-hold UPD-0004. */
+/** CM-08, a correction’s page: the sample’s returned UPD-0006 and on-hold UPD-0004. */
 const UPDATE = '/content-manager/updates/UPD-0006';
 const UPDATE_WITH_OTHERS = '/content-manager/updates/UPD-0004';
 
 /**
- * Phase 5 link targets: CM-01 Overview, CM-02 Ready to publish, CM-04 Content library and CM-09
- * Course codes (B6-05, B6-06, B6-10; B6-11 f12; B6-12 f2). CM-01’s one primary is “Open the next
- * ready item” (the oldest approval); CM-02 draws its “Open decision” as each row’s primary; CM-09’s
- * is “Save codes” (a command). The correction rows’ actions open the correction’s page (CM-08,
- * built in Phase 6; state-copy `CM-01.row-actions`).
+ * Link targets of CM-01 Overview, CM-02 Ready to publish, CM-04 Content library and CM-09 Platform
+ * course codes in the owner-approved V3 Refined B export (design/v3-refined-b/roles/CM-v1
+ * `LINK-MAP.json`, “CM-01 Overview”, “CM-02 Ready to publish”, “CM-04 Library · …”; the CM-09
+ * controls in `Main.dc.html` `codesVM`). CM-01’s one primary is the first desk row’s gold “Open
+ * decision” (the oldest ready item; with nothing ready, the first correction’s “Continue”); CM-02’s
+ * is the longest wait’s “Open decision”; CM-04 draws none (each row is a link); CM-09’s is “Save
+ * codes” (a command). State-copy `CM-01.row-actions`, `CM-04.address`.
  */
 export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
-  // CM-01 Overview (B6-05 f0 … f2).
+  // CM-01 Overview.
   ...pageRows('CM-01', OVERVIEW, [
     [
-      'Header',
-      'Content library',
+      'Publishing pipeline · First publication',
+      'With the vendor',
       'secondary',
-      LIBRARY,
+      LIBRARY_VENDOR,
       'built',
-      'B6-05 f0, f1, f2 `div.xr-phead-actions > a.xr-btn--secondary` (with the Content library icon)',
+      'CM-v1 LINK-MAP CM-01 “1 With the vendor. Vendor revising. Open the Content library, With vendor” (`a.cm-tile-a`)',
     ],
     [
-      'Needs your decision (the oldest ready item)',
-      'Open the next ready item',
+      'Publishing pipeline · First publication',
+      'In academic review',
+      'secondary',
+      LIBRARY_REVIEW,
+      'built',
+      'CM-v1 LINK-MAP CM-01 “2 In academic review. Academic Reviewer. Open the Content library, In review”',
+    ],
+    [
+      'Publishing pipeline · First publication (your step)',
+      'Ready to publish',
+      'secondary',
+      READY,
+      'built',
+      'CM-v1 LINK-MAP CM-01 “3 Ready to publish. Oldest approved 14 Aug. Your step. Open Ready to publish”',
+    ],
+    [
+      'Publishing pipeline · First publication',
+      'In the catalogue',
+      'secondary',
+      LIBRARY_PUBLISHED,
+      'built',
+      'CM-v1 LINK-MAP CM-01 “12 In the catalogue. Live today. Open the Content library, Published”',
+    ],
+    [
+      'Publishing pipeline · Corrections (each stage)',
+      'Draft or returned · In academic review · Release decision · Released',
+      'secondary',
+      UPDATES,
+      'built',
+      'CM-v1 LINK-MAP CM-01 “1 Draft or returned. With you. Your step. Open Updates” … “1 Released. Live for everyone. Open Updates”',
+    ],
+    [
+      'Needs your decision · Ready to publish (group)',
+      'Open Ready to publish',
+      'secondary',
+      READY,
+      'built',
+      'CM-v1 LINK-MAP CM-01 “Open Ready to publish” (`div.rb-g-head > a.rb-link`)',
+    ],
+    [
+      'Needs your decision (the first row: the oldest ready item, “Publish next”)',
+      'Open decision',
       'primary',
       DECISION_READY,
       'built',
-      'B6-05 f0, f2 `a.xr-btn--primary.xr-btn--sm` (“… · oldest of 2”; `D.links.cdec`)',
+      'CM-v1 LINK-MAP CM-01 “Open the publication decision for Transient Cooling” (`a.rb-btn.rb-btn--primary`, the desk’s first row)',
     ],
     [
       'Needs your decision (every other ready item)',
@@ -48,23 +96,39 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       DECISION_NEXT,
       'built',
-      'B6-05 f0, f2 `a.xr-btn--secondary.xr-btn--sm` (named “Open decision for <name>”)',
+      'CM-v1 LINK-MAP CM-01 “Open the publication decision for Packed Bed Pressure Drop” (`a.rb-btn`)',
     ],
     [
-      'Needs your decision (a returned correction)',
-      'Open update',
+      'Needs your decision · Corrections that need you (group)',
+      'Open Updates',
+      'secondary',
+      UPDATES,
+      'built',
+      'CM-v1 LINK-MAP CM-01 “Open Updates” (`div.rb-g-head > a.rb-link`)',
+    ],
+    [
+      'Needs your decision (a returned correction or an unsent draft)',
+      'Continue',
       'secondary',
       UPDATE,
       'built',
-      'B6-05 f0, f2 `a.xr-btn--secondary.xr-btn--sm` (`D.links.cupd`; the returned correction, CM-08)',
+      'CM-v1 LINK-MAP CM-01 “Continue UPD-0006, correction to Induction Motor Loading” (`a.rb-btn`; the gold primary only when nothing is ready)',
     ],
     [
-      'With others (a re-check with the Academic Reviewer)',
+      'Nothing waiting (calm)',
+      'Open the Content library',
+      'secondary',
+      LIBRARY,
+      'built',
+      'CM-v1 Main.dc.html CM-01 calm (`a.rb-link`, `goLibrary`)',
+    ],
+    [
+      'With others (a re-check, or a submission she sent back to its vendor)',
       'Open',
       'secondary',
       DECISION_RECHECK,
       'built',
-      'B6-05 f0, f2 `a.xr-btn--text.xr-btn--sm` (the script’s re-check row: `D.links.cdec`; CM-03 read-only, B6-07 f3; named “Open <name>”)',
+      'CM-v1 LINK-MAP CM-01 “Open Venturi Meter Calibration” (`ul.cm-hold a.rb-link`; CM-03 read-only)',
     ],
     [
       'With others (a correction in academic review, awaiting release or on hold)',
@@ -72,27 +136,51 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       UPDATE_WITH_OTHERS,
       'built',
-      'B6-05 f0, f2 `a.xr-btn--text.xr-btn--sm` (`D.links.cupd`; named “Open <name>”; the correction, CM-08)',
+      'CM-v1 LINK-MAP CM-01 “Open UPD-0004, Boiler Drum Level” (`ul.cm-hold a.rb-link`)',
     ],
     [
-      'Nothing waiting',
+      'In the catalogue (each course)',
+      '<course>',
+      'secondary',
+      LIBRARY_COURSE,
+      'built',
+      'CM-v1 LINK-MAP CM-01 “Thermodynamics & Heat Transfer, 3 published experiments. Open in the Content library” (`a.cm-catlist-t`; state-copy `CM-04.address`)',
+    ],
+    [
+      'In the catalogue',
       'Open the Content library',
       'secondary',
-      LIBRARY,
+      LIBRARY_PUBLISHED,
       'built',
-      'B6-05 f1 `div.xr-empty a.xr-btn--secondary`',
+      'CM-v1 LINK-MAP CM-01 “Open the Content library” (`p.cm-sidefoot > a.rb-link`, `goLibraryPublished`)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `CM-01.failed`'],
   ]),
-  // CM-02 Ready to publish (B6-06 f0, f2, f3; B6-12 f2).
+  // CM-02 Ready to publish.
   ...pageRows('CM-02', READY, [
     [
-      'Approved row',
+      'Toolbar',
+      'Sort: approved, oldest first · newest first',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 Main.dc.html CM-02 `button.rk-sortbtn` (`Q.toggleSort`; state-copy `CM-02.order`)',
+    ],
+    [
+      'Decision card (the longest wait, “Waiting longest”)',
       'Open decision',
       'primary',
       DECISION_READY,
       'built',
-      'B6-06 f0, f2; B6-12 f2 `a.xr-btn--primary.xr-btn--sm` (each row’s; named “Open decision for <name>”)',
+      'CM-v1 LINK-MAP CM-02 “Open the publication decision for Transient Cooling” (`div.cm-qact > a.rb-btn.rb-btn--primary`)',
+    ],
+    [
+      'Decision card (every other)',
+      'Open decision',
+      'secondary',
+      DECISION_NEXT,
+      'built',
+      'CM-v1 LINK-MAP CM-02 “Open the publication decision for Packed Bed Pressure Drop” (`a.rb-btn`)',
     ],
     [
       'Empty',
@@ -100,87 +188,117 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       LIBRARY,
       'built',
-      'B6-06 f3 `div.xr-empty a.xr-btn--secondary`',
+      'CM-v1 Main.dc.html CM-02 empty `div.rk-state a.rb-btn` (`goLibrary`)',
     ],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `CM-02.failed`'],
+    [
+      'Latest in the catalogue',
+      'Open the Content library',
+      'secondary',
+      LIBRARY_PUBLISHED,
+      'built',
+      'CM-v1 LINK-MAP CM-02 “Open the Content library” (`p.cm-sidefoot > a.rb-link`, `goLibraryPublished`)',
+    ],
+    [
+      'Couldn’t load',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 Main.dc.html CM-02 `button#cm-q-retry` (re-reads; focus on the title)',
+    ],
   ]),
-  // CM-04 Content library (B6-06 f1, f4).
+  // CM-04 Content library.
   ...pageRows('CM-04', LIBRARY, [
     [
-      'Status tabs',
+      'View switch',
       'Ready · In review · With vendor · Published',
       'secondary',
       null,
       'in-page',
-      'B6-06 f1, f4 `div.xr-tabs[role=tablist] > button.xr-tab` (the address mirrors `?tab=`; state-copy `CM-04.address`)',
+      'CM-v1 Main.dc.html CM-04 `div.rb-switch[role=group] > button[aria-pressed]` (the address follows; state-copy `CM-04.address`)',
     ],
     [
       'Toolbar',
-      'Search the library',
+      'Search · Course',
       'secondary',
       null,
       'in-page',
-      'B6-06 f1, f4 `input#Kl-lq[type=search]` (“Name, ID or course”)',
+      'CM-v1 Main.dc.html CM-04 `input#cm-lib-q[type=search]`, `select#cm-lib-course` (the course in the address)',
     ],
     [
       'Toolbar status',
-      'Clear search',
+      'Remove filter … · Clear filters',
       'secondary',
       null,
       'in-page',
-      'B6-06 script `lClear` `button.xr-btn--text` (while a search is applied)',
+      'CM-v1 Main.dc.html CM-04 `span.rk-chip > button`, `button.rk-clear`',
     ],
     [
       'Ready row',
-      'Open decision',
+      '<experiment>',
       'secondary',
       DECISION_READY,
       'built',
-      'B6-06 f1 `a.xr-btn--secondary.xr-btn--sm` (named “Open decision for <name>”)',
+      'CM-v1 LINK-MAP CM-04 Library · Ready “Transient Cooling, SUB-0074, ready to publish. Open the decision” (`a.rk-rowlink`, the whole row)',
     ],
     [
       'In review row',
-      'Open',
+      '<experiment>',
       'secondary',
       DECISION_RECHECK,
       'built',
-      'B6-06 script `D.links.cdec` (CM-03 read-only while in academic review, B6-07 f3; named “Open <name>”)',
+      'CM-v1 LINK-MAP CM-04 Library · In review “Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open” (CM-03 read-only)',
     ],
     [
       'With vendor row',
-      'Open',
+      '<experiment>',
       'secondary',
       DECISION_RETURNED,
       'built',
-      'B6-06 script `D.links.cdec` (CM-03 read-only; named “Open <name>”)',
+      'CM-v1 Main.dc.html CM-04 With vendor row (`a.rk-rowlink`, CM-03 read-only)',
     ],
     [
       'Published row',
-      'Open',
+      '<experiment>',
       'secondary',
       PUBLISHED,
       'built',
-      'B6-06 f4 `a.xr-btn--secondary.xr-btn--sm` (`D.links.cpub`; named “Open <name>”)',
+      'CM-v1 LINK-MAP CM-04 Library · Published “Distillation Column, CHE ZG513, version 1.2, published, update awaiting release. Open the published experiment”',
     ],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `CM-04.failed`'],
+    [
+      'No match',
+      'Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 Main.dc.html CM-04 no match `div.rk-state button.rb-btn` (`L.clear`)',
+    ],
+    [
+      'Couldn’t load',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 Main.dc.html CM-04 `button#cm-lib-retry` (re-reads; focus on the title)',
+    ],
   ]),
-  // CM-09 Course codes (B6-10 f0 … f2; B6-11 f12).
+  // CM-09 Platform course codes.
   ...pageRows('CM-09', COURSE_CODES, [
     [
-      'Footer',
+      'Foot',
       'Save codes',
       'primary',
       null,
       'in-page',
-      'B6-10 f0 … f2 `div.xw-flow-foot button.xr-btn--primary` (“Codes saved · …”, or B6-11 f12 “Check the codes”)',
+      'CM-v1 Main.dc.html CM-09 `div.cm-codes-foot button#cm-k-save.rb-btn--primary` (“Codes saved”, or “Check the codes”)',
     ],
     [
-      'Footer',
+      'Foot',
       'Undo changes',
       'secondary',
       null,
       'in-page',
-      'B6-10 f1; B6-11 f12 `button.xr-btn--text` (while a code is changed)',
+      'CM-v1 Main.dc.html CM-09 `button#cm-k-undo` (while a code is changed; waits while the codes save)',
     ],
     [
       'Check the codes',
@@ -188,8 +306,23 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '#cc-code-5',
       'in-page',
-      'B6-11 f12 `div.xw-errsum li > a` (moves focus to the row’s field)',
+      'CM-v1 Main.dc.html CM-09 `div.rk-errsum li > a` (moves focus to the row’s field)',
     ],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `CM-09.failed`'],
+    [
+      'We couldn’t save the codes',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 Main.dc.html CM-09 `div#cm-k-fail button.rb-btn` (`K.save`; the edits kept)',
+    ],
+    [
+      'Couldn’t load',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'CM-v1 Main.dc.html CM-09 `button#cm-k-retry` (re-reads; focus on the title)',
+    ],
   ]),
 ];

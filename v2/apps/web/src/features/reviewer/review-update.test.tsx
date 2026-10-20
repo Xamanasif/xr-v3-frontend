@@ -1,9 +1,10 @@
 /**
  * RV-04 Review an update (boards B6-04 f0 … f4, B6-13 f4, B7-11 f6) as Prof. A. Menon and CM-08
- * Updates (B6-09 f0, B6-13 f2, B7-11 f2) as Kavya Nair, on the real composition root and the
- * sample world (spine-start). The board’s correction is prepared through the ports (set-up only):
- * Kavya Nair opens the Distillation Column correction, changes the reflux sentence and the web
- * link, labels it 1.3 with her reason and sends it for academic review at the board’s times (UPD-0005).
+ * Updates (V3: the CM-v1 correction tracker; was B6-09 f0, B6-13 f2, B7-11 f2) as Kavya Nair, on
+ * the real composition root and the sample world (spine-start). The board’s correction is
+ * prepared through the ports (set-up only): Kavya Nair opens the Distillation Column correction,
+ * changes the reflux sentence and the web link, labels it 1.3 with her reason and sends it for
+ * academic review at the board’s times (UPD-0005).
  * Everything the pages do — Approve update through DL-1, Return to the Content Manager through
  * DL-2 with its required reason — is done by clicks and typing; approval releases nothing (the
  * public catalogue still lists the live 1.2); the Content Manager’s list follows in the same
@@ -607,62 +608,118 @@ describe('RV-04 — refusals, not found, loading and failed', () => {
 
 // ---- CM-08 Updates (the list) --------------------------------------------------------------------
 
-describe('CM-08 Updates — the list (B6-09 f0; B6-13 f2; B7-11 f2)', () => {
-  async function tableRows(): Promise<string[][]> {
-    const table = await screen.findByRole('table', {}, { timeout: 5000 });
-    return [...table.querySelectorAll('tbody tr')].map((row) =>
-      [...row.querySelectorAll('td')].map((cell) => text(cell)),
+/**
+ * CM-08 Updates in V3 (the owner-approved export CM-v1 “CM-08 Updates list”, boards CM08-Updates,
+ * L07, L13, L14): the v46 table (B6-09 f0, B6-13 f2, B7-11 f2) became the correction tracker — the
+ * cards grouped by who must act (Need you · With others · Closed), each with its name, ID, course
+ * and last change, its version change, its status, its action and the mini four-stage track (whose
+ * current step names who has it) or, once closed, its outcome line. The tracker's own run is in
+ * `content-manager/cm-correction.test.tsx`; these keep the chain's view from the Content Manager's
+ * side, in the same world as RV-04 above.
+ */
+describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, B7-11 f2)', () => {
+  /** Every card in page order: the groups, then each group's cards (the service's order). */
+  const cards = () => [...main().querySelectorAll('section.cm-trksec li.cm-trk')] as HTMLElement[];
+  /** A card's facts: name, meta (ID · course · last change), version change, status, action. */
+  const card = (entry: Element) => [
+    text(entry.querySelector('.cm-qname')),
+    text(entry.querySelector('.cm-trk-meta > span')),
+    text(entry.querySelector('.cm-ver')),
+    text(entry.querySelector('.cm-trk-st')),
+    text(entry.querySelector('.cm-trk-act a')),
+  ];
+  /** Who has it now: the mini track's current step, or nothing once closed. */
+  const holder = (entry: Element) => text(entry.querySelector('[aria-current="step"]'));
+  const groupOf = (name: string) =>
+    screen.getByRole('heading', { level: 2, name: new RegExp(`^${name}`) }).closest('section')!;
+  const countLine = (corrections: number) =>
+    screen.findByText(
+      `${corrections} corrections you raised, most recent change first`,
+      {},
+      { timeout: 5000 },
     );
-  }
 
-  it('spine-start (B6-13 f2): her corrections, newest change first, who has each, its action', async () => {
+  it('spine-start: her corrections, newest change first within who has each, its action', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     showUpdates(runtime);
     await heading('Updates');
-    expect(text(main().querySelector('.xr-phead-meta .xl-meta'))).toBe(
-      'The only way to change published content: you → Academic Reviewer → Super Admin release',
+    // The chain, said under the title (v46: the head's meta line).
+    expect(text(main().querySelector('.rb-head .rk-sub'))).toBe(
+      'Corrections you raised to published experiments. Live content changes only this way: you, then the Academic Reviewer, then the Super Admin’s release.',
     );
-    const section = region('Corrections you raised');
-    await waitFor(() =>
-      expect(text(section.querySelector('.xr-section-head .xr-meta'))).toBe('5 updates'),
-    );
-    const table = within(section).getByRole('table');
-    expect([...table.querySelectorAll('thead th')].map(text)).toEqual([
-      'Update',
-      'Status · last change',
-      'With',
-      'Action',
+    // The count (v46: “5 updates”).
+    expect(await countLine(5)).toHaveAttribute('role', 'status');
+    // Who has each (v46: the With column): the groups, then each card's current step.
+    expect(
+      [...main().querySelectorAll('section.cm-trksec')].map((group) =>
+        text(group.querySelector('h2')),
+      ),
+    ).toEqual(['Need you 1', 'With others 1', 'Closed 3']);
+    expect(cards().map(card)).toEqual([
+      [
+        'Induction Motor Loading',
+        'UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug',
+        '1.0 live 1.1 proposed',
+        'Returned',
+        'Continue',
+      ],
+      [
+        'Boiler Drum Level',
+        'UPD-0004 · CHE ZG513 · Process Instrumentation & Control · last change 20 Aug',
+        '2.0 live 2.1 proposed',
+        'On hold',
+        'Open',
+      ],
+      [
+        'Orifice Plate Metering',
+        'UPD-0003 · CHE ZG513 · Process Instrumentation & Control · last change 5 Aug',
+        '1.0 1.1 live',
+        'Released',
+        'Open',
+      ],
+      [
+        'Distillation Column',
+        'UPD-0002 · CHE ZG513 · Process Instrumentation & Control · last change 3 Jul',
+        '1.1 1.2 live',
+        'Released',
+        'Open',
+      ],
+      [
+        'Distillation Column',
+        'UPD-0001 · CHE ZG513 · Process Instrumentation & Control · last change 19 Jun',
+        '1.0 1.1 live',
+        'Released',
+        'Open',
+      ],
     ]);
-    expect(await tableRows()).toEqual([
-      ['Induction Motor Loading · 1.1 UPD-0006', 'Returned 26 Aug 2026', 'You', 'Continue'],
-      ['Boiler Drum Level · 2.1 UPD-0004', 'On hold 20 Aug 2026', 'Super Admin', 'Open'],
-      ['Orifice Plate Metering · 1.1 UPD-0003', 'Released 5 Aug 2026', '—', 'Open'],
-      ['Distillation Column · 1.2 UPD-0002', 'Released 3 Jul 2026', '—', 'Open'],
-      ['Distillation Column · 1.1 UPD-0001', 'Released 19 Jun 2026', '—', 'Open'],
+    expect(cards().map(holder)).toEqual([
+      'Your step, now: You Returned to you Change it and send it again',
+      'On hold: Super Admin On hold Since 20 Aug',
+      '',
+      '',
+      '',
     ]);
-    const first = table.querySelector('tbody tr')!;
-    expect(first.querySelector('.xr-status')).toHaveClass('xr-status--err');
-    expect(first.querySelector('td[data-label="Status"] .xr-meta.xw-nowrap')).toHaveTextContent(
-      '26 Aug 2026',
+    const [returned, held, released] = cards();
+    expect(returned).toHaveClass('is-you');
+    expect(returned!.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--err');
+    expect(held!.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--paused');
+    expect(released!.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--ok');
+    expect(text(released!.querySelector('p.cm-trk-res'))).toBe(
+      'Released by Arjun Mehta, Super Admin, on 5 Aug 2026. Version 1.1 is live for everyone.',
     );
-    expect(first.querySelector('td[data-label="With"]')).toHaveTextContent('You');
-    const cont = within(first as HTMLElement).getByRole('link', {
-      name: 'Continue UPD-0006 Induction Motor Loading',
+    const cont = within(returned!).getByRole('link', {
+      name: 'Continue UPD-0006, Induction Motor Loading, returned',
     });
-    expect(cont).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(cont).toHaveClass('rb-btn', 'rb-btn--primary');
     expect(cont).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
     expect(
-      within(table).getByRole('link', { name: 'Open UPD-0004 Boiler Drum Level' }),
+      within(held!).getByRole('link', { name: 'Open UPD-0004, Boiler Drum Level, on hold' }),
     ).toHaveAttribute('href', '/content-manager/updates/UPD-0004');
-    expect(table.querySelectorAll('tbody tr')[1]!.querySelector('.xr-status')).toHaveClass(
-      'xr-status--paused',
-    );
-    expect(table.querySelectorAll('tbody tr')[2]!.querySelector('.xr-status')).toHaveClass(
-      'xr-status--ok',
-    );
-    expect(main().querySelectorAll('a.xr-btn--primary')).toHaveLength(0);
-    // The shell: Updates current, the top bar “Updates”, no crumbs.
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Updates');
+    // The one primary is the Need-you card's Continue (v46 drew none: every row's was secondary).
+    expect([...main().querySelectorAll('a.rb-btn--primary')]).toEqual([cont]);
+    // The shell: Updates current; the title is the page's own H1 (V3), no crumbs.
+    expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(main().querySelector('nav[aria-label="Breadcrumb"]')).toBeNull();
     expect(
       screen
         .getByRole('navigation', { name: 'Content Manager navigation' })
@@ -670,7 +727,7 @@ describe('CM-08 Updates — the list (B6-09 f0; B6-13 f2; B7-11 f2)', () => {
     ).toHaveAttribute('href', '/content-manager/updates');
   });
 
-  it('follows the chain in the same world: in review, then approved — awaiting release (B6-09 f0; B7-11 f2)', async () => {
+  it('follows the chain in the same world: in review, then approved — awaiting release (was B6-09 f0; B7-11 f2)', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     moveClock(sample, SENT);
     const sent = await propose(
@@ -681,21 +738,28 @@ describe('CM-08 Updates — the list (B6-09 f0; B6-13 f2; B7-11 f2)', () => {
     );
     showUpdates(runtime);
     await heading('Updates');
-    // Newest change first: UPD-0006 was returned on 26 Aug, after UPD-0005 was sent (25 Aug).
-    await waitFor(async () =>
-      expect((await tableRows()).slice(0, 2)).toEqual([
-        ['Induction Motor Loading · 1.1 UPD-0006', 'Returned 26 Aug 2026', 'You', 'Continue'],
-        [
-          'Distillation Column · 1.3 UPD-0005',
-          'In academic review 25 Aug 2026',
-          'Academic Reviewer',
-          'Open',
-        ],
-      ]),
-    );
-    expect(main().querySelectorAll('tbody tr')[1]!.querySelector('.xr-status')).toHaveClass(
-      'xr-status--wait',
-    );
+    await countLine(6);
+    // Sent: with the Academic Reviewer, the newest change of the With-others group (25 Aug, before
+    // UPD-0004's hold of 20 Aug); UPD-0006, returned on 26 Aug, stays hers.
+    const withOthers = () => [...groupOf('With others').querySelectorAll('li.cm-trk')];
+    expect(withOthers().map(card)[0]).toEqual([
+      'Distillation Column',
+      'UPD-0005 · CHE ZG513 · Process Instrumentation & Control · last change 25 Aug',
+      '1.2 live 1.3 proposed',
+      'In academic review',
+      'Open',
+    ]);
+    expect(holder(withOthers()[0]!)).toBe('Now: Academic Reviewer Academic review Since 25 Aug');
+    expect(withOthers()[0]!.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--info');
+    expect(withOthers().map((entry) => text(entry.querySelector('.cm-qname')))).toEqual([
+      'Distillation Column',
+      'Boiler Drum Level',
+    ]);
+    expect(
+      [...groupOf('Need you').querySelectorAll('li.cm-trk')].map((entry) =>
+        text(entry.querySelector('.cm-trk-meta > span')),
+      ),
+    ).toEqual(['UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug']);
     // The Academic Reviewer approves it (set-up through the port; RV-04’s own run is above).
     moveClock(sample, DECIDED);
     const reviewer = asPersonId(sample, MENON);
@@ -709,20 +773,26 @@ describe('CM-08 Updates — the list (B6-09 f0; B6-13 f2; B7-11 f2)', () => {
     await act(async () => {
       await runtime.invalidate([{ kind: 'UPD', id: sent.id }]);
     });
-    await waitFor(async () =>
-      expect((await tableRows())[0]).toEqual([
-        'Distillation Column · 1.3 UPD-0005',
-        'Awaiting release decision 27 Aug 2026',
-        'Super Admin',
+    await waitFor(() =>
+      expect(withOthers().map(card)[0]).toEqual([
+        'Distillation Column',
+        'UPD-0005 · CHE ZG513 · Process Instrumentation & Control · last change 27 Aug',
+        '1.2 live 1.3 proposed',
+        'Awaiting release decision',
         'Open',
       ]),
     );
-    expect(text(region('Corrections you raised').querySelector('.xr-section-head .xr-meta'))).toBe(
-      '6 updates',
-    );
+    // Now with the Super Admin; nothing is released: 1.2 stays live.
+    expect(holder(withOthers()[0]!)).toBe('Now: Super Admin Release decision Waiting since 27 Aug');
+    expect(
+      within(groupOf('With others')).getByRole('link', {
+        name: 'Open UPD-0005, Distillation Column, awaiting release decision',
+      }),
+    ).toHaveAttribute('href', `/content-manager/updates/${sent.id}`);
+    expect(await countLine(6)).toBeVisible();
   });
 
-  it('a draft is hers to continue; the version is “—” until set', async () => {
+  it('a draft is hers to continue; the version reads “No version label yet” until set', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     const cm = asPersonId(sample, KAVYA);
     ok(
@@ -733,18 +803,25 @@ describe('CM-08 Updates — the list (B6-09 f0; B6-13 f2; B7-11 f2)', () => {
     );
     showUpdates(runtime);
     await heading('Updates');
-    await waitFor(async () =>
-      expect((await tableRows())[0]).toEqual([
-        'Orifice Plate Metering · — UPD-0005',
-        'Draft 2 Oct 2026',
-        'You',
-        'Continue',
-      ]),
-    );
-    expect(main().querySelector('tbody tr .xr-status')).toHaveClass('xr-status--off');
+    await countLine(6);
+    const draft = cards()[0]!;
+    expect(draft.closest('section')).toBe(groupOf('Need you'));
+    expect(card(draft)).toEqual([
+      'Orifice Plate Metering',
+      'UPD-0005 · CHE ZG513 · Process Instrumentation & Control · last change 2 Oct',
+      '1.1 live No version label yet',
+      'Draft',
+      'Continue',
+    ]);
+    expect(holder(draft)).toBe('Your step, now: You Draft Saved 2 Oct');
+    // Draft is neutral (no tone).
+    expect(draft.querySelector('.cm-trk-st .xr-st')!.className).toBe('xr-st');
+    expect(
+      within(draft).getByRole('link', { name: 'Continue UPD-0005, Orifice Plate Metering, draft' }),
+    ).toHaveAttribute('href', '/content-manager/updates/UPD-0005');
   });
 
-  it('empty (`uNoRows`): “You haven’t raised any corrections” with the Content library', async () => {
+  it('empty: “You haven’t raised any corrections” with the Content library', async () => {
     const world = await fixtureWorld('spine-start');
     const { runtime } = await worldPlatform(KAVYA, {
       ...world,
@@ -752,20 +829,21 @@ describe('CM-08 Updates — the list (B6-09 f0; B6-13 f2; B7-11 f2)', () => {
     });
     showUpdates(runtime);
     await heading('Updates');
-    const empty = await screen.findByRole('heading', {
-      level: 3,
-      name: 'You haven’t raised any corrections',
-    });
-    const box = empty.closest('.xr-empty')!;
+    const empty = await screen.findByRole(
+      'heading',
+      { level: 2, name: 'You haven’t raised any corrections' },
+      { timeout: 5000 },
+    );
+    const box = empty.closest('section.rk-surface')!;
     expect(box).toHaveTextContent('Start one from a published experiment in the Content library.');
-    expect(box.querySelector('.xr-empty-icon svg')).not.toBeNull();
+    expect(box.querySelector('svg')).not.toBeNull();
     expect(
       within(box as HTMLElement).getByRole('link', { name: 'Open the Content library' }),
-    ).toHaveAttribute('href', '/content-manager/library');
-    expect(text(region('Corrections you raised').querySelector('.xr-section-head .xr-meta'))).toBe(
-      '0 updates',
-    );
-    expect(screen.queryByRole('table')).toBeNull();
+    ).toHaveAttribute('href', '/content-manager/library?tab=published');
+    // No count, no figures, no card (v46: “0 updates” and no table).
+    expect(main().querySelector('.cm-trkcount')).toBeNull();
+    expect(main().querySelector('dl.rb-figs')).toBeNull();
+    expect(cards()).toHaveLength(0);
   });
 
   it('loading, then failed + Try again (a test fault plan)', async () => {
@@ -775,12 +853,13 @@ describe('CM-08 Updates — the list (B6-09 f0; B6-13 f2; B7-11 f2)', () => {
     showUpdates(runtime);
     await waitFor(() =>
       expect(document.querySelector('[aria-busy="true"] [role="status"]')).toHaveTextContent(
-        'Loading your updates',
+        'Loading your corrections…',
       ),
     );
-    expect(await screen.findByText('We couldn’t load your updates')).toBeVisible();
-    expect(document.body).toHaveTextContent('Nothing has changed. Try again.');
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
-    await waitFor(async () => expect(await tableRows()).toHaveLength(5));
+    const failed = await screen.findByRole('alert', {}, { timeout: 5000 });
+    expect(failed).toHaveTextContent('We couldn’t load your corrections');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    await waitFor(() => expect(cards()).toHaveLength(5));
   });
 });

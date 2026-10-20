@@ -50,8 +50,11 @@ test('Arjun signs in, out, then Kavya: own namespaces, cache cleared, one world'
   // destinations (Updates, CM-08).
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
-  await expect(page.locator('aside.xr-side .xr-ws-label')).toHaveText('Content Manager');
-  await expect(page.locator('aside.xr-side nav a')).toHaveCount(5);
+  // The Content Manager's V3 rail (CM-v1): her workspace and her five destinations.
+  await expect(page.locator('aside.rb-rail .rb-ws-role')).toHaveText('Content Manager');
+  await expect(
+    page.locator('aside.rb-rail nav[aria-label="Content Manager navigation"] a'),
+  ).toHaveCount(5);
   const kavya = await inspectWorld(page);
   const kavyaKey = (kavya.session as { sessionKey: string }).sessionKey;
   expect(kavya.session).toMatchObject({ status: 'signed-in', personId: 'per-kavya-nair' });

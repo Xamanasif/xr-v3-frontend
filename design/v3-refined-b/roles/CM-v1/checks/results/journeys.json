@@ -1,0 +1,1460 @@
+[
+ {
+  "journey": "J1 publish",
+  "step": "Overview is the live role entry",
+  "pass": true,
+  "detail": "Overview"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Rail badge shows 3 ready to publish",
+  "pass": true,
+  "detail": "3 , 3 experiments ready to publish"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Rail → Ready to publish, current marker moves",
+  "pass": true,
+  "detail": "CM-02"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Three approved submissions listed",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "The longest wait is first and marked",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Open decision opens the publication decision (CM-03)",
+  "pass": true,
+  "detail": "#cm-h-decision Conduction Through a Composite Wall"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "All four publication checks pass",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Decision keeps Ready to publish as the current section",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Publish without choosing → error summary",
+  "pass": true,
+  "detail": "Check your decision Choose a decision"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Focus moves to the error summary",
+  "pass": true,
+  "detail": "#cm-d-errs Check your decision Choose a decision"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Choosing Publish clears the error",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Publish opens the confirmation dialog",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Confirmation explains publishing gives nobody access",
+  "pass": true,
+  "detail": "Publish “Conduction Through a Composite Wall”? Check what publishing does now, and what happens only after later events. What happens now It appears in the public catalogue under ME ZG523 · Thermodynamics & Heat Transfer with WEB and VR. The vendor and the Aca"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Focus starts inside the dialog",
+  "pass": true,
+  "detail": "#cm-dlg-pub-t Publish “Conduction Through a Composite Wall”?"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Tab and Shift+Tab stay inside the dialog",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Escape closes and returns focus to Publish",
+  "pass": true,
+  "detail": "#cm-d-go Publish"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Confirming publishes and shows the result",
+  "pass": true,
+  "detail": "Published Published by you on 27 Aug 2026, 16:05 Catalogue Listed under ME ZG523 with WEB and VR Institution access Unchanged — no institution was given access "
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Focus moves to the result",
+  "pass": true,
+  "detail": "#cm-d-done Published Published by you on 27 Aug 2026, 16:05 CatalogueLi"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Rail badge drops to 2",
+  "pass": true,
+  "detail": "2 , 2 experiments ready to publish"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Rail → Content library",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Published count is now 13",
+  "pass": true,
+  "detail": "Published 13"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Published view is pressed",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "New experiment is in the Published view",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Search filters the view with a count",
+  "pass": true,
+  "detail": "2 of 13 published"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Search shows a removable chip",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Opens the published record (CM-05)",
+  "pass": true,
+  "detail": "ME ZG523 · Published experiment"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "History records that no one was given access",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Live version (1.0 live) and course code shown",
+  "pass": true,
+  "detail": "1.0 live"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "View the public page → public handoff destination",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Public destination repeats that listing gives no access",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Public destination is outside the workspace (no rail)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Back returns to the published record",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "Overview figures follow the change",
+  "pass": true,
+  "detail": "2 Ready to publish Oldest approved 14 Aug Your step 13 In the catalogue Live today Corrections to live experiments 1 Draft or returned With you Your step 0 In academic review Academic Reviewer 2 Release decision Super Admin · 1 on hold 1 Released Live for everyone Needs your decision Oldest first Ready to publish Open Ready to publish 13 days approved 14 Aug Publish next Transient Cooling SUB-0074 · ME ZG523 · Northline Simulation Studio 4 of 4 checks met WEB Open decision 6 days approved 21 Aug Packed Bed Pressure Drop SUB-0070 · CHE ZG513 · Meridian Virtual Labs 4 of 4 checks met WEB AR Open decision Corrections that need you Open Updates 1 day returned 26 Aug Induction Motor Loading Returned to you 1"
+ },
+ {
+  "journey": "J1 publish",
+  "step": "J1: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Published record without an open update",
+  "pass": true,
+  "detail": "Fin-Tube Bundle"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Start a correction, Edit catalogue details, Edit delivery link offered",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Edit catalogue details opens the correction draft (CM-06)",
+  "pass": true,
+  "detail": "Update to Fin-Tube Bundle"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Focus lands on the summary",
+  "pass": true,
+  "detail": "#cm-u-summary Introduce progressive fouling on the tube side and measure i"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Entry is confirmed on the page",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "A new update UPD-0007 was created",
+  "pass": true,
+  "detail": "Updates UPD-0007"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Updates is the current section",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Summary is pre-filled with the live text",
+  "pass": true,
+  "detail": "Introduce progressive fouling on the tube side and measure its effect on the ove"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Edited field is tagged Changed",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Send with missing reason and version → error summary",
+  "pass": true,
+  "detail": "Check the update Say what changes and why Enter the version label, for example 1.1"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Focus moves to the error summary",
+  "pass": true,
+  "detail": "#cm-u-errs Check the update Say what changes and whyEnter the version l"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Version label equal to live is refused",
+  "pass": true,
+  "detail": "Check the update Use a new version label — 1.0 is live"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Save draft → Draft saved",
+  "pass": true,
+  "detail": "Draft saved 27 Aug 2026, 16:20 · the live version is unchanged"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Focus moves to the saved message",
+  "pass": true,
+  "detail": "#cm-u-saved Draft saved27 Aug 2026, 16:20 · the live version is unchange"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Leave and come back via Updates",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Draft is listed in Updates, under Need you",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Saved edits are still there on revisit",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Version label kept",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Live record still shows the live summary (private edits do not leak)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Published page shows the open correction",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Edit delivery link joins the same update (no second update)",
+  "pass": true,
+  "detail": "Updates UPD-0007"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Join is explained",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Focus lands on the web link (CM-07)",
+  "pass": true,
+  "detail": "#cm-u-web https://labs.northline.example/fin-tube-bundle"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Send for academic review asks to confirm",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Focus is inside the send dialog",
+  "pass": true,
+  "detail": "#cm-dlg-send-t Send UPD-0007 for academic review?"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Sent → In academic review",
+  "pass": true,
+  "detail": "In academic review With Prof. A. Menon since 27 Aug 2026. Read-only while it is reviewed. The live version 1.0 is unchanged."
+ },
+ {
+  "journey": "J2 correction",
+  "step": "The stage track moves to the Academic Reviewer and the band reads In academic review",
+  "pass": true,
+  "detail": "Now: Academic Reviewer Academic review Since 27 Aug"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Fields are read-only while in review",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Withdraw is still offered in review (OD-B6-06)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Current-and-proposed shows both changes in one update",
+  "pass": true,
+  "detail": "Current and proposed, changed fields only Field Live now Proposed Summary Introduce progressive fouling on the tube side"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Handoff: approved → Awaiting release decision",
+  "pass": true,
+  "detail": "Awaiting release decision Approved by Prof. A. Menon on 27 Aug 2026. The Super Admin decides whether to release it or put it on hold. Version 1.0 stays live until it is released."
+ },
+ {
+  "journey": "J2 correction",
+  "step": "The stage track moves to the Super Admin’s release decision",
+  "pass": true,
+  "detail": "Now: Super Admin Release decision Waiting since 27 Aug"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Withdraw is gone after approval",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "No Release action anywhere in the Content Manager product UI",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "While awaiting release: live 1.0 unchanged, only Open update offered",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "The published record shows where the open correction is",
+  "pass": true,
+  "detail": "Correction in progress UPD-0007 · Awaiting release decision 1.0 live 1.1 proposed"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Handoff: released",
+  "pass": true,
+  "detail": "Released Version 1.1 is live for everyone since 27 Aug 2026. The history keeps version 1.0 and every decision."
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Released: all four stages done and the band reads 1.1 live",
+  "pass": true,
+  "detail": "Released 1.0 1.1 live ME ZG523 Thermodynamics & Heat Transfer"
+ },
+ {
+  "journey": "J2 correction",
+  "step": "After release the live record shows version 1.1 with both changes",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "Release is in the history / notice",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "A new correction can be started again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "J2: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J3 returned",
+  "step": "Overview → Continue opens the returned correction",
+  "pass": true,
+  "detail": "Update to Induction Motor Loading"
+ },
+ {
+  "journey": "J3 returned",
+  "step": "Return reason is shown first",
+  "pass": true,
+  "detail": "Returned by the Academic Reviewer 26 Aug 2026 · Prof. A. Menon The proposed description says slip falls as the load rises. It rises. Please correct it before I approve. Prof. A. Menon, Academic Reviewer Change what’s needed below, then send it for academic review again."
+ },
+ {
+  "journey": "J3 returned",
+  "step": "Revised and resent → In academic review",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J3 returned",
+  "step": "History keeps the return and the resend",
+  "pass": true,
+  "detail": "Sent again for academic review 27 Aug 2026, 16:05 To Prof. A. Menon. The live version 1.0 is unchanged. Returned by Prof. A. Menon 26 Aug 2026 “The proposed des"
+ },
+ {
+  "journey": "J3 returned",
+  "step": "Handoff: Super Admin holds it",
+  "pass": true,
+  "detail": "On hold The Super Admin put this update on hold on 27 Aug 2026. Version 1.0 stays live. Reason: “Hold until the 1.1 web build passes the lab network check.” — Arjun Mehta, Super Admin"
+ },
+ {
+  "journey": "J3 returned",
+  "step": "The stage track shows the hold at the Super Admin",
+  "pass": true,
+  "detail": "On hold: Super Admin On hold Since 27 Aug"
+ },
+ {
+  "journey": "J3 returned",
+  "step": "Hold reason is visible to the Content Manager (OD-B7-01)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J3 returned",
+  "step": "On hold: live version 1.0 still shown, the held change is not live",
+  "pass": true,
+  "detail": "0 live View the public page Course EEE ZC341 · Electrical Machines Live since 9 Jun 2026 Formats WEB · VR · MR Corrections UPD-0006 · On hold Correction in progress UPD-0006 · On hold 1."
+ },
+ {
+  "journey": "J3 returned",
+  "step": "Lifted → awaiting release again, lift noted",
+  "pass": true,
+  "detail": "Awaiting release decision Approved by Prof. A. Menon on 27 Aug 2026. The Super Admin decides whether to release it or put it on hold. Version 1.0 stays live until it is released. The hold was lifted on 27 Aug 2026. Nothing went live; it is waiting for the Super Admin’s decision again."
+ },
+ {
+  "journey": "J3 returned",
+  "step": "Released: live shows 1.1 with the corrected description",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J3 returned",
+  "step": "J3: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Rail → Course codes",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Six courses listed, in three engineering areas",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Edit marks 1 unsaved change and offers Undo",
+  "pass": true,
+  "detail": "1 change not saved"
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Duplicate code refused with a clear message",
+  "pass": true,
+  "detail": "Check the codes ME ZG523 is already the code for Thermodynamics & Heat Transfer. Each course needs its own code."
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Focus moves to the error summary",
+  "pass": true,
+  "detail": "#cm-k-errs Check the codes ME ZG523 is already the code for Thermodynam"
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Error link moves focus to the field",
+  "pass": true,
+  "detail": "#cm-k-code-4 Platform course code for Process Instrumentation & Control"
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Valid code saves",
+  "pass": true,
+  "detail": "Codes saved 27 Aug 2026, 16:05 · the catalogue shows them from now on"
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Library course band uses the new code",
+  "pass": true,
+  "detail": "CHE ZG514 Process Instrumentation & Control 3 published"
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Published record uses the new code",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Public destination uses the new code",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Ready to publish rows use the new code",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "J4: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Failed save is explained and edits are kept",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "The unsaved edit is still in the field",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "Try again saves",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "At 768 the rail is replaced by Menu",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Menu opens the drawer",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Focus moves into the drawer",
+  "pass": true,
+  "detail": "#cm-menu-close Close menu"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Tab stays inside the drawer",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Escape closes the drawer and returns focus to Menu",
+  "pass": true,
+  "detail": "#cm-menu Menu"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Drawer link navigates and closes the drawer",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Focus moves to the new page heading",
+  "pass": true,
+  "detail": "#cm-h-library Content library"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Switch works from the keyboard",
+  "pass": true,
+  "detail": "2 in academic review"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Course filter with no match → no-match state",
+  "pass": true,
+  "detail": "0 of 2 in academic review"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Clear filters restores the list",
+  "pass": true,
+  "detail": "2 in academic review"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Account menu opens",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Escape closes the account menu and returns focus",
+  "pass": true,
+  "detail": "#cm-acct Account menu, Kavya Nair, Content Manager"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Account menu → Help & support",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Report a problem form",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Where it happened is pre-filled from the last page",
+  "pass": true,
+  "detail": "Content library"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Empty report → error summary",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Report sent with a reference",
+  "pass": true,
+  "detail": "SUP-0186"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Sign out → signed-out page outside the workspace",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Sign in returns to the Overview",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "J5: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Out-of-role address → refusal page",
+  "pass": true,
+  "detail": "This page isn’t part of your workspace"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Refusal offers one way back to the Overview",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Stale decision is refused with an explanation",
+  "pass": true,
+  "detail": "This page is out of date Conduction Through a Composite Wall was published from another tab or window at 16:05. Nothing was changed by your decision. Show where it is now"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Show where it is now re-reads: it is Published",
+  "pass": true,
+  "detail": "Published From Northline Simulation Studio ME ZG523 Thermodynamics & Heat Transfer"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Failed save is explained",
+  "pass": true,
+  "detail": "We couldn’t save your draft Your changes are still on this page. The live version is unchanged. Try again. Try again"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Try again saves the draft",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Missing prerequisite is listed with its fix",
+  "pass": true,
+  "detail": "Not met: Learning outcomes None Send it back to the Academic Reviewer to add them."
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Publish is not offered: Publish disabled, Send back preselected, the button says Send back",
+  "pass": true,
+  "detail": "Send back"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Who it goes back to and the reason are asked for at once",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Sending back without recipient and reason is refused (no “choose a decision” error)",
+  "pass": true,
+  "detail": "Check your decision Choose who it goes back to Add a reason so they know what to change"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Blocked submission sent back to the Academic Reviewer",
+  "pass": true,
+  "detail": "Back with the Academic Reviewer Sent back by you on 27 Aug 2026, 16:05 “Please add the learning outc"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Withdraw asks for a reason in a dialog",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Withdraw without a reason is refused",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Withdraw after an unseen approval is refused (stale)",
+  "pass": true,
+  "detail": "This update changed while you were on the page The Academic Reviewer approved it at 16:20, so it can’t be withdrawn or changed now. Release or hold is the Super Admin’s decision. Nothing was changed by your action. Show where it is now"
+ },
+ {
+  "journey": "J5 shell",
+  "step": "Re-read shows it is awaiting release",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Sort switches between oldest and newest first",
+  "pass": true,
+  "detail": "Transient Cooling → Conduction Through a Composite Wall"
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "The longest wait stays marked after sorting",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Choosing Send back changes the action",
+  "pass": true,
+  "detail": "Send back"
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Send back without recipient and reason is refused",
+  "pass": true,
+  "detail": "Check your decision Choose who it goes back to Add a reason so they know what to change"
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "No field references before the vendor is chosen",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Field references are offered when sending to the vendor",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Sent back to the vendor → result",
+  "pass": true,
+  "detail": "With the vendor Sent back by you on 27 Aug 2026, 16:05 “Say which cylinder sizes the WEB build supports.” Catalogue Not published Ready to p"
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "It leaves Ready to publish (badge 2)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Library · With vendor lists it (“You sent it back”)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Its decision page is now read-only with the reason in its history",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Search adds a removable chip",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Removing the chip clears it and returns focus to the search",
+  "pass": true,
+  "detail": "12 published"
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Undo changes restores the saved codes",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "J6: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "“Go to the web link” moves focus to the field",
+  "pass": true,
+  "detail": "#cm-u-web https://labs.northline.example/fin-tube-bundle"
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Handoff: returned again — the new reason is shown first",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Withdraw dialog takes focus",
+  "pass": true,
+  "detail": "#cm-dlg-wd-r "
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Withdrawn from returned → read-only",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Withdrawal reason is kept in the update history",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "After withdrawal a new correction can start; live 1.0 unchanged; no correction shown in progress",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "Help → Open report shows the report in full",
+  "pass": true,
+  "detail": "The delivery link preview showed an empty frame on Distillation Column."
+ },
+ {
+  "journey": "J7 list details",
+  "step": "Start a correction opens the draft",
+  "pass": true,
+  "detail": "Update to Fin-Tube Bundle"
+ },
+ {
+  "journey": "J7 list details",
+  "step": "Unlabelled draft reads “1.0 live → No version label yet”",
+  "pass": true,
+  "detail": "Fin-Tube Bundle UPD-0007 · ME ZG523 · Thermodynamics & Heat Transfer · last change 27 Aug 1.0 live No version label yet Draft Continue Your step, now: You Draft Saved 27 Aug 2 Next: Academic Reviewer Academic review After you send it 3 Next: Super Admin Release decision After approval 4 Next: Everyone Live When released"
+ },
+ {
+  "journey": "J7 list details",
+  "step": "J7: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "No field references for the Academic Reviewer",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "Send back without a reason is refused; focus on the summary",
+  "pass": true,
+  "detail": "Check your decision Add a reason so they know what to change"
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "Sent back → result, focus on it",
+  "pass": true,
+  "detail": "Back with the Academic Reviewer Sent back by you on 27 Aug 2026, 16:05 “Please check the third learning outcome against the description.” Ca"
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "It leaves Ready to publish (badge 2)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "Library · In review lists it as “Re-check you asked for”",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "Overview · With others shows the re-check",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "Its decision page is read-only and keeps the reason",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "J8: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Send dialog: focus starts inside",
+  "pass": true,
+  "detail": "#cm-dlg-send-t Send UPD-0006 for academic review?"
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Send dialog: Tab and Shift+Tab stay inside",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Send dialog: Escape closes it and returns focus to Send for academic review",
+  "pass": true,
+  "detail": "#cm-u-send Send for academic review"
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Closing the send dialog sends nothing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Withdraw dialog: focus starts inside",
+  "pass": true,
+  "detail": "#cm-dlg-wd-r "
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Withdraw dialog: Tab and Shift+Tab stay inside",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Withdraw dialog: Escape closes it and returns focus to Withdraw",
+  "pass": true,
+  "detail": "#cm-u-wd Withdraw update"
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "Closing the withdraw dialog withdraws nothing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "J9: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "At 1440: the first Tab shows “Skip to main content” (hidden until then)",
+  "pass": true,
+  "detail": "a Skip to main content"
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "At 1440: Enter moves focus to the main content",
+  "pass": true,
+  "detail": "#cm-main Thursday 27 August 2026 Overview What is ready for you to pu"
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "J9 skip 1440: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "At 375: the first Tab shows “Skip to main content” (hidden until then)",
+  "pass": true,
+  "detail": "a Skip to main content"
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "At 375: Enter moves focus to the main content",
+  "pass": true,
+  "detail": "#cm-main Thursday 27 August 2026 Overview What is ready for you to pu"
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "J9 skip 375: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Publish: while it runs the confirm button reads “Publishing…” and is disabled",
+  "pass": true,
+  "detail": "Publishing… · disabled"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Publish: Cancel is disabled while it runs — a sent command is not taken back",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Publish: Escape does not close the dialog while it runs, and focus stays inside it",
+  "pass": true,
+  "detail": "#cm-dlg-pub-t Publish “Conduction Through a Composite Wall”?"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Publish: then the result replaces the decision",
+  "pass": true,
+  "detail": "Published Published by you on 27 Aug 2026, 16:05 Catalogue Listed under ME ZG523"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "J10 publish: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Send back: the button reads “Sending…” and is disabled",
+  "pass": true,
+  "detail": "Sending… · disabled"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Send back: then the result",
+  "pass": true,
+  "detail": "Back with the Academic Reviewer Sent back by you on 27 Aug 2026, 16:05 “Please a"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "J10 send back: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Save draft: the button reads “Saving…” and is disabled",
+  "pass": true,
+  "detail": "Saving… · disabled"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Save draft: then “Draft saved” and the button is back",
+  "pass": true,
+  "detail": "Draft saved 27 Aug 2026, 16:05 · the live version is unchanged"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Send for academic review: the confirm button reads “Sending…” and is disabled",
+  "pass": true,
+  "detail": "Sending… · disabled"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Send: Cancel is disabled and Escape does nothing while it runs; focus stays inside",
+  "pass": true,
+  "detail": "#cm-dlg-send-t Send UPD-0006 for academic review?"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Send: then the update is in academic review",
+  "pass": true,
+  "detail": "In academic review With Prof. A. Menon since 27 Aug 2026. Read-only while it is reviewed. The live version 1.0 is unchanged."
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Withdraw: the confirm button reads “Withdrawing…” and is disabled",
+  "pass": true,
+  "detail": "Withdrawing… · disabled"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Withdraw: Cancel is disabled while it runs",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Withdraw: then the update is withdrawn",
+  "pass": true,
+  "detail": "Withdrawn Withdrawn on 27 Aug 2026. The live version is unchanged. You can start a new correction from the published experiment. Reason: “Raised by mistake.”"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "J10 correction: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Save codes: the button reads “Saving…” and is disabled",
+  "pass": true,
+  "detail": "Saving… · disabled"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Save codes: the footer says “Saving…” and Undo changes waits",
+  "pass": true,
+  "detail": "Saving…"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Save codes: then “Codes saved” and the button is back",
+  "pass": true,
+  "detail": "Codes saved 27 Aug 2026, 16:05 · the catalogue shows them from now on"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "J10 codes: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Send report: the button reads “Sending…” and is disabled",
+  "pass": true,
+  "detail": "Sending… · disabled"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "Send report: then Report sent",
+  "pass": true,
+  "detail": "Report sent"
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "J10 report: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Content library loading: an announced status and a skeleton; no rows, no figures",
+  "pass": true,
+  "detail": "Loading the content library…"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 library loading: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Content library failed: says nothing has changed and offers Try again; no rows, no figures",
+  "pass": true,
+  "detail": "We couldn’t load the content library Nothing has changed. Try again. Try again"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Content library failed → Try again: the list is back (12) and focus is on the page title",
+  "pass": true,
+  "detail": "12 · #cm-h-library Content library"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Content library failed → leave and come back: it loads again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 library failed: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Ready to publish loading: an announced status and a skeleton; no rows, no figures",
+  "pass": true,
+  "detail": "Loading the experiments ready to publish…"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 ready loading: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Ready to publish failed: says nothing has changed and offers Try again; no rows, no figures",
+  "pass": true,
+  "detail": "We couldn’t load the experiments ready to publish Nothing has changed. Try again. Try again"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Ready to publish failed → Try again: the list is back (3) and focus is on the page title",
+  "pass": true,
+  "detail": "3 · #cm-h-ready Ready to publish"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Ready to publish failed → leave and come back: it loads again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 ready failed: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Updates loading: an announced status and a skeleton; no rows, no figures",
+  "pass": true,
+  "detail": "Loading your corrections…"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 updates loading: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Updates failed: says nothing has changed and offers Try again; no rows, no figures",
+  "pass": true,
+  "detail": "We couldn’t load your corrections Nothing has changed. Try again. Try again"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Updates failed → Try again: the list is back (4) and focus is on the page title",
+  "pass": true,
+  "detail": "4 · #cm-h-updates Updates"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Updates failed → leave and come back: it loads again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 updates failed: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Course codes loading: an announced status and a skeleton; no rows, no figures",
+  "pass": true,
+  "detail": "Loading the course codes…"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 codes loading: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Course codes failed: says nothing has changed and offers Try again; no rows, no figures",
+  "pass": true,
+  "detail": "We couldn’t load the course codes Nothing has changed. Try again. Try again"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Course codes failed → Try again: the list is back (6) and focus is on the page title",
+  "pass": true,
+  "detail": "6 · #cm-h-codes Course codes"
+ },
+ {
+  "journey": "J11 list states",
+  "step": "Course codes failed → leave and come back: it loads again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "J11 codes failed: no console errors",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J1 publish",
+  "step": "No console error or warning of any kind on any of the 1 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J2 correction",
+  "step": "No console error or warning of any kind on any of the 1 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J3 returned",
+  "step": "No console error or warning of any kind on any of the 1 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J4 course codes",
+  "step": "No console error or warning of any kind on any of the 2 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J5 shell",
+  "step": "No console error or warning of any kind on any of the 7 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J6 more controls",
+  "step": "No console error or warning of any kind on any of the 4 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J7 list details",
+  "step": "No console error or warning of any kind on any of the 1 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J8 re-check",
+  "step": "No console error or warning of any kind on any of the 1 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J9 dialog keys",
+  "step": "No console error or warning of any kind on any of the 3 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J10 busy states",
+  "step": "No console error or warning of any kind on any of the 5 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "journey": "J11 list states",
+  "step": "No console error or warning of any kind on any of the 12 page(s) this journey opened",
+  "pass": true,
+  "detail": ""
+ }
+]

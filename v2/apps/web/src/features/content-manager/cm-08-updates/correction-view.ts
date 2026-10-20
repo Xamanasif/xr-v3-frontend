@@ -6,7 +6,7 @@ import type {
   UpdateReviewDecision,
   UpdateState,
 } from '@xr/domain';
-import type { StatusTone, TimelineEvent } from '@xr/ui';
+import type { TimelineEvent } from '@xr/ui/v3';
 
 import {
   approvedNote,
@@ -19,6 +19,7 @@ import {
   releasedNote,
   releasedWhat,
   returnedWhat,
+  SENT_AGAIN_WHAT,
   SENT_WHAT,
   sentNote,
   startedNote,
@@ -31,32 +32,46 @@ import type { CorrectionFocus } from '@/nav/content-manager';
 import { deliveryFormatsOf, type PackageFormat } from '@/queries/cm-correction-forms';
 
 /**
- * CM-08's read of one update (B6-09 f1 … f8; B6-11 f10, f11; B7-11 f3): what the page shows for
- * its state, from the record the service answered — the chip's tone, whether the draft is
- * editable and withdrawable (the drawn transitions; the service decides when pressed), the
- * reviewer's last decision and the update history in the Content Manager's words.
+ * CM-08's read of one update (the CM-v1 correction detail in every state): what the page shows for
+ * its state, from the record the service answered — whether the draft is editable and
+ * withdrawable (the drawn transitions; the service decides when pressed), the reviewer's last
+ * decision and the update history in the Content Manager's words.
  */
 
-/** The board's ids, with the product prefix (`Wd-uh`, `Wd-u-why`, `Wd-err`, `Wd-u-saved`; B6-09). */
+/** The export's ids (CM-v1 `Main.dc.html`, the correction detail and its dialogs). */
 export const CORRECTION_FIELD_IDS = {
-  title: 'cm-uh',
-  summary: 'cm-err',
+  title: 'cm-h-update',
+  summary: 'cm-u-errs',
   saved: 'cm-u-saved',
+  saveFailed: 'cm-u-savefail',
+  state: 'cm-u-state',
+  stale: 'cm-u-stale',
+  entry: 'cm-u-entry',
+  panel: 'cm-u-panel',
+  panelTitle: 'cm-u-panel-h',
+  returned: 'cm-u-ret',
+  aboutTitle: 'cm-u-why-h',
+  catalogueTitle: 'cm-u-cat-h',
+  deliveryTitle: 'cm-u-del-h',
+  readOnlyWhyTitle: 'cm-u-rwhy',
+  comparisonTitle: 'cm-u-cmp-h',
+  historyTitle: 'cm-u-hist-h',
   why: 'cm-u-why',
   name: 'cm-u-name',
   summaryField: 'cm-u-summary',
   description: 'cm-u-desc',
   web: 'cm-u-web',
   version: 'cm-u-ver',
-  change: 'cm-u-chg-e',
-  reason: 'cm-u-wr',
-  withdraw: 'cm-u-wbtn',
-  send: 'cm-u-sbtn',
+  change: 'cm-u-chg-err',
+  reason: 'cm-dlg-wd-r',
+  withdraw: 'cm-u-wd',
+  send: 'cm-u-send',
+  save: 'cm-u-save',
 } as const;
 
-/** A package reference field's id (`Wd-u-vrref` on the board; one per app-package format). */
+/** A package reference field's id (`cm-u-pk-VR`; one per app format the experiment has). */
 export function packageFieldId(format: PackageFormat): string {
-  return `cm-u-pkg-${format}`;
+  return `cm-u-pk-${format.toUpperCase()}`;
 }
 
 /**
@@ -76,30 +91,12 @@ export function correctionFocusTarget(
   return null;
 }
 
-/** The chip's tone by state (B6-09 `uChip_*`: draft and withdrawn off, review and awaiting wait …). */
-export function updateChipTone(state: UpdateState): StatusTone {
-  switch (state) {
-    case 'draft':
-    case 'withdrawn':
-      return 'off';
-    case 'in-academic-review':
-    case 'awaiting-release-decision':
-      return 'wait';
-    case 'returned':
-      return 'err';
-    case 'released':
-      return 'ok';
-    case 'on-hold':
-      return 'paused';
-  }
-}
-
-/** The draft is hers to edit: a draft, or returned to her (B6-09 `editable`). */
+/** The draft is hers to edit: a draft, or returned to her (the export's `edit`). */
 export function isEditable(state: UpdateState): boolean {
   return state === 'draft' || state === 'returned';
 }
 
-/** Withdraw is offered while a draft, returned or in academic review (B6-09 `canWithdraw`). */
+/** Withdraw is offered while a draft, returned or in academic review (OD-B6-06). */
 export function canWithdraw(state: UpdateState): boolean {
   return state === 'draft' || state === 'returned' || state === 'in-academic-review';
 }
@@ -132,12 +129,13 @@ function isEntry(note: string | null): note is CorrectionEntry {
   );
 }
 
-/** One history entry in the Content Manager's words (B6-09 `uh`; B7-11 `histAdd`). */
+/** One history entry in the Content Manager's words (the export's `uh` entries). */
 function eventWords(
   update: CorrectionUpdate,
   event: UpdateEvent,
   by: string,
   note: string | null,
+  again: boolean,
 ): { readonly what: string; readonly note: string | null } | null {
   const base = update.baseVersionLabel;
   switch (event) {
@@ -146,7 +144,7 @@ function eventWords(
     case 'saved':
       return null;
     case 'sent-for-academic-review':
-      return { what: SENT_WHAT, note: sentNote(base) };
+      return { what: again ? SENT_AGAIN_WHAT : SENT_WHAT, note: sentNote(base) };
     case 'returned-by-reviewer':
       return { what: returnedWhat(by), note: note ? quotedReason(note) : null };
     case 'approved-by-reviewer':
@@ -162,14 +160,26 @@ function eventWords(
   }
 }
 
-/** The update history, newest first, as the Content Manager may read it (state-copy `CM-08.history`). */
-export function updateHistory(update: CorrectionUpdate): TimelineEvent[] {
-  const events: TimelineEvent[] = [];
+/**
+ * The update history, newest first, as the Content Manager may read it (state-copy
+ * `CM-08.history`): a send after a return is “Sent again for academic review”.
+ */
+export function updateHistory(
+  update: CorrectionUpdate,
+): (TimelineEvent & { readonly id: string })[] {
+  const events: (TimelineEvent & { readonly id: string })[] = [];
+  let returned = false;
   for (const entry of update.history) {
+    if (entry.event === 'returned-by-reviewer') returned = true;
     if (!entry.visibleTo.includes('content_manager')) continue;
-    const words = eventWords(update, entry.event, actorName(entry.actor), entry.note);
+    const words = eventWords(update, entry.event, actorName(entry.actor), entry.note, returned);
     if (!words) continue;
-    events.push({ id: entry.id, what: words.what, when: dateTime(entry.at), note: words.note });
+    events.push({
+      id: entry.id,
+      what: words.what,
+      when: dateTime(entry.at),
+      ...(words.note ? { note: words.note } : {}),
+    });
   }
   return events.reverse();
 }

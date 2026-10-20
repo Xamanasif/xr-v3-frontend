@@ -1,0 +1,675 @@
+{
+ "role": "Content Manager",
+ "workstream": "CM",
+ "foundation": "XR-V3-RB-1.0",
+ "designLanguage": "Design V3 · Refined Direction B",
+ "pack": "XR-V3-Content-Manager-Reference-Pack.zip",
+ "canvas": {
+  "title": "XR V3 · Content Manager · Refined B",
+  "artifact": "https://claude.ai/artifact/2rwpkY5FQ4covnJQ1JRVMr",
+  "publishedVersion": "20 (1792491048-0c95)",
+  "visibility": "private to the owner until shared",
+  "liveRoleEntry": {
+   "file": "project/Main.dc.html",
+   "board": "Content Manager · live role preview",
+   "canvasPage": "Live role preview",
+   "opensOn": "CM-01 Overview",
+   "how": "Press Play on the board. One role-preview root, one store; changes carry across every screen until reload."
+  },
+  "inspectionBoards": 85
+ },
+ "sampleWorld": {
+  "id": "SC-CM-MAIN",
+  "asOf": "2026-08-27 (Thursday)",
+  "scenarios": [
+   "main",
+   "empty",
+   "blockers"
+  ],
+  "provenance": "SCENARIOS.json, record by record (v46 fixture or illustrative)"
+ },
+ "status": {
+  "design": "DESIGN COMPLETE",
+  "designScope": "All nine owned IDs and every subview and state in one Refined B publishing-desk design; COVERAGE.md classifies each as REDESIGNED or REVIEWED AND UNCHANGED.",
+  "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+  "connectedPreviewScope": "Every in-role journey. Cross-role effects are scenario handoffs, by contract.",
+  "sharedSurfaces": "ASSEMBLY PENDING XS",
+  "sharedSurfacesNote": "Contract dependency status (common/04), not a design checkpoint: the borrowed XS surfaces are replaced one-for-one when the Shared Surfaces delivery arrives.",
+  "ownerAcceptance": "OWNER VISUAL ACCEPTANCE PENDING",
+  "directionConfirmed": "Owner, 20 Oct 2026: satisfied with the refined Content Manager direction; the six anchor designs are the baseline for completing the role. This is not an acceptance of version 20.",
+  "redesign": {
+   "complete": true,
+   "statusesUsed": [
+    "REDESIGNED",
+    "REVIEWED AND UNCHANGED"
+   ],
+   "anchorsRedesignedIn": "canvas version 16: CM-01, CM-02, CM-03, CM-04, CM-08 list, CM-09",
+   "restRedesignedIn": "canvas version 20: CM-05, CM-06, CM-07, CM-08 correction detail; list loading and couldn’t-load states",
+   "reviewedAndUnchanged": [
+    "PU-06 handoff frame",
+    "kit dialogs (behaviour while busy corrected)",
+    "shell and drawer",
+    "borrowed XS surfaces"
+   ],
+   "pendingPropagation": [],
+   "register": "COVERAGE.md"
+  }
+ },
+ "ownedIds": {
+  "registered": 9,
+  "designed": 9,
+  "connectedInPreview": 9,
+  "ids": [
+   "CM-01",
+   "CM-02",
+   "CM-03",
+   "CM-04",
+   "CM-05",
+   "CM-06",
+   "CM-07",
+   "CM-08",
+   "CM-09"
+  ],
+  "excluded": [
+   "CM-10"
+  ]
+ },
+ "screens": [
+  {
+   "id": "CM-01",
+   "name": "Overview",
+   "kind": "page",
+   "registerNavigation": "Sidebar Overview",
+   "v46RouteProposal": "/content-manager",
+   "v46Boards": [
+    "B6-05"
+   ],
+   "inventoryDisposition": "REFINE",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "screen=overview",
+    "heading": "Overview"
+   },
+   "entries": [
+    "role entry (the preview opens here)",
+    "rail: Overview",
+    "Sign in on the signed-out page (XS-01 handoff returns here)",
+    "XS-06 refusal and Report sent: Back to Overview"
+   ],
+   "states": [
+    "Publishing pipeline: first publication (with the vendor → in academic review → ready to publish → in the catalogue) and corrections (draft or returned → in academic review → release decision → released), counted from the records; each stage opens its list; your stages in gold",
+    "Needs your decision: Ready to publish (3, oldest first, “Publish next” on the first, checks and formats on each) and Corrections that need you (returned UPD-0006, the reviewer’s words quoted)",
+    "With others, for information: on hold, re-check with the Academic Reviewer, awaiting the release decision",
+    "In the catalogue: live experiments by course, each opening the library filtered to that course",
+    "Calm: nothing waiting (scenario empty)"
+   ],
+   "inspectionBoards": [
+    "CM01-Overview-1440",
+    "R-Overview-1024",
+    "R-Overview-768",
+    "R-Overview-375",
+    "L01-OverviewCalm-1440"
+   ],
+   "evidence": {
+    "RENDERED": "5 boards at frame size (CM01-Overview-1440, R-Overview-1024, R-Overview-768, R-Overview-375, L01-OverviewCalm-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J1: live role entry; the pipeline count follows the publication",
+     "J3: Continue opens the returned correction",
+     "J5: Sign in returns to the Overview; refusal page offers one way back",
+     "J8: With others shows the re-check",
+     "link crawl: 29 controls from 1 starting state, all landed as intended"
+    ],
+    "SOURCE CHECKED": [
+     "every count is computed from the sample records; no decorative figures"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 16 (anchor), reviewed again in version 20"
+  },
+  {
+   "id": "CM-02",
+   "name": "Ready to publish",
+   "kind": "page",
+   "registerNavigation": "Sidebar Ready to publish",
+   "v46RouteProposal": "/content-manager/ready",
+   "v46Boards": [
+    "B6-03",
+    "B6-06",
+    "B6-12"
+   ],
+   "inventoryDisposition": "NEW",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "screen=ready",
+    "heading": "Ready to publish"
+   },
+   "entries": [
+    "rail: Ready to publish (count badge)",
+    "Overview: Open Ready to publish",
+    "CM-03 breadcrumb; Back to Ready to publish on the decision results"
+   ],
+   "states": [
+    "decision cards, oldest first: days waiting, identity, the four publication checks and the next action; the longest wait marked and given the primary button",
+    "newest first (visible sort; the longest wait stays marked)",
+    "something to resolve: the failing check and “1 thing to resolve” on the card (scenario blockers)",
+    "empty (scenario empty)",
+    "a card leaves the list after Publish or Send back; badge follows",
+    "loading: announced status and card skeleton; no figures",
+    "couldn’t load: “Nothing has changed. Try again.”; Try again reloads and focuses the page title"
+   ],
+   "inspectionBoards": [
+    "CM02-Ready-1440",
+    "R-Ready-1024",
+    "R-Ready-768",
+    "R-Ready-375",
+    "L02-ReadyEmpty-1440",
+    "L03-ReadyNewest-1440",
+    "L08-ReadyToResolve-1440",
+    "L11-ReadyLoading-1440",
+    "L12-ReadyNotLoaded-1440"
+   ],
+   "evidence": {
+    "RENDERED": "9 boards at frame size (CM02-Ready-1440, R-Ready-1024, R-Ready-768, R-Ready-375, L02-ReadyEmpty-1440, L03-ReadyNewest-1440, L08-ReadyToResolve-1440, L11-ReadyLoading-1440, L12-ReadyNotLoaded-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J1: three cards, the longest wait first and marked; Open decision opens CM-03; rail badge 3 → 2 after Publish",
+     "J6: sort oldest/newest, the longest wait stays marked; Send back removes it (badge 2)",
+     "J4: cards show a changed platform code",
+     "link crawl: 10 controls from 1 starting state, all landed as intended",
+     "J11: loading and couldn’t load; Try again brings back the 3 cards with focus on the title; leaving and coming back reloads"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 16 (anchor), reviewed again in version 20; list loading and couldn’t-load states added"
+  },
+  {
+   "id": "CM-03",
+   "name": "Publication decision",
+   "kind": "page",
+   "registerNavigation": "Detail",
+   "v46RouteProposal": "/content-manager/decisions/[submissionId]",
+   "v46Boards": [
+    "B6-07",
+    "B6-11",
+    "B6-12"
+   ],
+   "inventoryDisposition": "REFINE (heavy)",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "screen=decision + record SUB-xxxx",
+    "heading": "the submission name"
+   },
+   "entries": [
+    "CM-02 rows",
+    "Overview rows",
+    "CM-04 rows (Ready, In review, With vendor)"
+   ],
+   "states": [
+    "open: identity band with the facts and the stage track (vendor → Academic Reviewer → you → catalogue); the publication check as a gate at the top with its verdict; catalogue preview, review summary, delivery per format, history",
+    "no choice made → error summary with focus",
+    "Send back to the Academic Reviewer (re-check) or to the vendor (revise and resubmit): recipient and reason required; field references offered only for the vendor",
+    "Publish confirmation dialog: what happens now and later; publishing gives no one access",
+    "published result with focus, View the public page",
+    "sent-back results (reviewer, vendor)",
+    "stale: published from another tab or window → refused, nothing changed, Show where it is now",
+    "missing prerequisite (learning outcomes): Publish not offered, the fix named, Send back preselected and the button reads Send back (scenario blockers; v46 B6-11 state 5)",
+    "read-only: in academic review, back with the Academic Reviewer, with the vendor",
+    "publishing: Publishing… on the confirm button, disabled; Cancel and Escape wait; focus held in the dialog"
+   ],
+   "inspectionBoards": [
+    "CM03-Decision-1440",
+    "R-Decision-1024",
+    "R-Decision-768",
+    "R-Decision-375",
+    "P01-Confirm-1440",
+    "P02-Prerequisite-1440",
+    "P03-DecisionErrors-1440",
+    "P04-SendVendor-1440",
+    "P05-SentReviewer-1440",
+    "P06-Published-1440",
+    "P07-Stale-1440",
+    "P08-InReview-1440",
+    "P09-WithVendor-1440"
+   ],
+   "evidence": {
+    "RENDERED": "13 boards at frame size (CM03-Decision-1440, R-Decision-1024, R-Decision-768, R-Decision-375, P01-Confirm-1440, P02-Prerequisite-1440, P03-DecisionErrors-1440, P04-SendVendor-1440, P05-SentReviewer-1440, P06-Published-1440, P07-Stale-1440, P08-InReview-1440, P09-WithVendor-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J1: error summary and focus; dialog focus trap, Escape returns focus; confirm → result with focus",
+     "J5: stale refusal and re-read; missing prerequisite: Publish not offered, Send back preselected, sent back to the Academic Reviewer",
+     "J6: send back to the vendor with references → read-only page with the reason in history",
+     "J8: send back to the Academic Reviewer for a re-check → In review view, Overview, read-only page",
+     "link crawl: 25 controls from 3 starting states, all landed as intended",
+     "J10: Publishing… and Sending… while the command runs, buttons disabled; the dialog’s Cancel is disabled and Escape does nothing; focus stays in the dialog"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 16 (anchor), reviewed again in version 20; busy dialog behaviour corrected"
+  },
+  {
+   "id": "CM-04",
+   "name": "Content library (all statuses incl. published)",
+   "kind": "page",
+   "registerNavigation": "Sidebar Content library",
+   "v46RouteProposal": "/content-manager/library",
+   "v46Boards": [
+    "B6-06"
+   ],
+   "inventoryDisposition": "REFINE",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "screen=library (views: ready, review, vendor, published)",
+    "heading": "Content library"
+   },
+   "entries": [
+    "rail: Content library (drawer below 1024 px)",
+    "Open the Content library from the calm Overview, the empty Ready to publish and the empty Updates list",
+    "CM-05 breadcrumb",
+    "CM-03 read-only pages opened from the library: breadcrumb and back button"
+   ],
+   "states": [
+    "figures: in the catalogue (across courses) and on the way (ready · in review · with a vendor)",
+    "views Ready · In review · With vendor · Published with counts (V3 switch, aria-pressed); a line under the switch says who holds the items in that view",
+    "rows grouped by course with the course code band and a count",
+    "search, course filter, removable chips, Clear filters",
+    "no match",
+    "empty (scenario empty)",
+    "an open correction on a published row shown as its own status chip",
+    "loading: announced status and table skeleton; count, view counts and figures hidden",
+    "couldn’t load: “Nothing has changed. Try again.”; Try again reloads and focuses the page title"
+   ],
+   "inspectionBoards": [
+    "CM04-Library-1440",
+    "R-Library-1024",
+    "R-Library-768",
+    "R-Library-375",
+    "L04-LibraryReview-1440",
+    "L05-LibraryNoMatch-1440",
+    "L06-LibraryEmpty-1440",
+    "X02-Drawer-375",
+    "L09-LibraryLoading-1440",
+    "L10-LibraryNotLoaded-1440"
+   ],
+   "evidence": {
+    "RENDERED": "10 boards at frame size (CM04-Library-1440, R-Library-1024, R-Library-768, R-Library-375, L04-LibraryReview-1440, L05-LibraryNoMatch-1440, L06-LibraryEmpty-1440, X02-Drawer-375, L09-LibraryLoading-1440, L10-LibraryNotLoaded-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J1: Published count 13 after publishing; search count and chip",
+     "J4: the course band shows a changed platform code",
+     "J5: switch from the keyboard; course filter no-match; Clear filters",
+     "J6: With vendor view; chip removal returns focus to search",
+     "link crawl: 35 controls from 3 starting states, all landed as intended",
+     "J11: loading and couldn’t load; Try again brings back the 12 published rows with focus on the title"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 16 (anchor), reviewed again in version 20; list loading and couldn’t-load states added"
+  },
+  {
+   "id": "CM-05",
+   "name": "Published experiment",
+   "kind": "page",
+   "registerNavigation": "Detail",
+   "v46RouteProposal": "/content-manager/published/[experimentId]",
+   "v46Boards": [
+    "B6-08",
+    "B6-13",
+    "B7-11"
+   ],
+   "inventoryDisposition": "REFINE",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "screen=published + record e…",
+    "heading": "the experiment name"
+   },
+   "entries": [
+    "CM-04 Published rows",
+    "published result: Open the published experiment",
+    "correction pages: Back to the published experiment",
+    "PU-06 handoff frame: Back to the published experiment"
+   ],
+   "states": [
+    "identity band: Published, the live version, the vendor; facts — course, live since, formats, corrections; when a correction is open, its status, version change and four stages (mini track)",
+    "live catalogue entry read-only: summary, Available in, learning outcomes (set by the Academic Reviewer), formats and device needs; description and live version",
+    "delivery: one card per format (web link and browser, or package, reference, device and install notes)",
+    "history: versions and updates, newest first",
+    "no open update: Start a correction · Edit catalogue details · Edit delivery link",
+    "open draft or returned: the entries join it",
+    "in review, awaiting release or on hold: only Open update (one open update)",
+    "released today notice; back-from-correction notice",
+    "View the public page (PU-06 handoff)"
+   ],
+   "inspectionBoards": [
+    "CM05-Published-1440",
+    "R-Published-1024",
+    "R-Published-768",
+    "R-Published-375",
+    "C14-PubAwaiting-1440",
+    "C15-PubOnHold-1440",
+    "C16-PubReleased-1440"
+   ],
+   "evidence": {
+    "RENDERED": "7 boards at frame size (CM05-Published-1440, R-Published-1024, R-Published-768, R-Published-375, C14-PubAwaiting-1440, C15-PubOnHold-1440, C16-PubReleased-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J1: opens from the library; history says no one was given access; public handoff and back",
+     "J2: private edits do not leak into the live record; release shows 1.1 with both changes",
+     "J3: on hold keeps 1.0 live; release shows the corrected description",
+     "link crawl: 31 controls from 3 starting states, all landed as intended"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 20"
+  },
+  {
+   "id": "CM-06",
+   "name": "Edit catalogue details → correction (UPD) draft pre-filled with the live fields",
+   "kind": "step",
+   "registerNavigation": "Flow (into a correction draft)",
+   "v46RouteProposal": "→ /content-manager/updates/[updateId] (draft, catalogue fields)",
+   "v46Boards": [
+    "B6-08",
+    "B6-13"
+   ],
+   "inventoryDisposition": "NEW",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "CM-05 action Edit catalogue details → screen=update (new or joined draft)",
+    "heading": "Update to <experiment>"
+   },
+   "entries": [
+    "CM-05 Corrections panel: Edit catalogue details"
+   ],
+   "states": [
+    "new draft pre-filled from live, focus on the summary, arrival notice",
+    "joins an open draft or returned update, explained on arrival",
+    "Changed tags on edited fields",
+    "validation and save as CM-08 detail"
+   ],
+   "inspectionBoards": [
+    "CM06-EditCatalogue-1440",
+    "C02-DraftErrors-1440",
+    "C03-DraftSaved-1440"
+   ],
+   "evidence": {
+    "RENDERED": "3 boards at frame size (CM06-EditCatalogue-1440, C02-DraftErrors-1440, C03-DraftSaved-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J2: creates UPD-0007; focus on the summary; entry confirmed; pre-filled; Changed tag; errors; save; revisit keeps edits",
+     "link crawl: the entry lands on the correction draft (CM-08 detail view, by design)"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 20"
+  },
+  {
+   "id": "CM-07",
+   "name": "Edit a delivery link (with reason) → correction (UPD) draft pre-filled with the live delivery details",
+   "kind": "step",
+   "registerNavigation": "Flow (into a correction draft)",
+   "v46RouteProposal": "→ /content-manager/updates/[updateId] (draft, delivery)",
+   "v46Boards": [
+    "B6-08",
+    "B6-13"
+   ],
+   "inventoryDisposition": "NEW",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "CM-05 action Edit delivery link → screen=update (new or joined draft)",
+    "heading": "Update to <experiment>"
+   },
+   "entries": [
+    "CM-05 Corrections panel: Edit delivery link"
+   ],
+   "states": [
+    "new draft pre-filled with live delivery (web link and the package reference of each app format the experiment has), focus on the web link",
+    "joins the open draft (“Your edit joins UPD-…”)",
+    "reason required before sending"
+   ],
+   "inspectionBoards": [
+    "CM07-EditDelivery-1440",
+    "C01-Joined-1440"
+   ],
+   "evidence": {
+    "RENDERED": "2 boards at frame size (CM07-EditDelivery-1440, C01-Joined-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J2: joins the same update (no second update), join explained, focus on the web link",
+     "J6: Go to the web link moves focus to the field",
+     "link crawl: the entry lands on the correction draft (CM-08 detail view, by design)"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 20"
+  },
+  {
+   "id": "CM-08",
+   "name": "Corrections / updates I raised",
+   "kind": "page",
+   "views": "list + detail",
+   "registerNavigation": "Sidebar Updates",
+   "v46RouteProposal": "/content-manager/updates · /content-manager/updates/[updateId]",
+   "v46Boards": [
+    "B6-09",
+    "B6-11",
+    "B6-13",
+    "B7-11"
+   ],
+   "inventoryDisposition": "NEW",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "screen=updates · screen=update + record UPD-xxxx",
+    "heading": "Updates · Update to <experiment>"
+   },
+   "entries": [
+    "rail: Updates",
+    "Overview: Continue / Open",
+    "CM-05: Open update",
+    "CM-06 / CM-07"
+   ],
+   "states": [
+    "list: correction tracker grouped by who must act (Need you · With others · Closed), each with its version change, status and four-stage track; closed corrections show their outcome; an unlabelled draft reads “1.0 live → No version label yet”; empty",
+    "detail: identity band with the version change, the facts (live version, proposed, fields changed, started / sent / released / withdrawn) and the four stages with “Your step”; About this correction (reason and version label in one row), catalogue details, delivery (package references side by side), current and proposed, history; the side panel keeps the state and the actions",
+    "detail: draft · returned (reason first) · validation errors with focus · saved · save failed (edits kept, Try again)",
+    "send dialog · in academic review (read-only, Withdraw offered) · awaiting release decision · on hold (reason shown) · hold lifted · released (what changed)",
+    "withdraw dialog (reason required) · withdrawn · stale withdraw (approved meanwhile → refused, re-read)",
+    "list loading and couldn’t load (Try again)",
+    "saving, sending and withdrawing: working label on the button, disabled; in the dialogs Cancel and Escape wait"
+   ],
+   "inspectionBoards": [
+    "CM08-Updates-1440",
+    "CM08-UpdateDetail-1440",
+    "R-UpdateDetail-1024",
+    "R-UpdateDetail-768",
+    "R-UpdateDetail-375",
+    "C04-SaveFailed-1440",
+    "C05-SendDialog-1440",
+    "C06-InReview-1440",
+    "C07-Awaiting-1440",
+    "C08-OnHold-1440",
+    "C09-Lifted-1440",
+    "C10-Released-1440",
+    "C11-WithdrawDialog-1440",
+    "C12-Withdrawn-1440",
+    "C13-StaleWithdraw-1440",
+    "L07-UpdatesEmpty-1440",
+    "L13-UpdatesLoading-1440",
+    "L14-UpdatesNotLoaded-1440"
+   ],
+   "evidence": {
+    "RENDERED": "18 boards at frame size (CM08-Updates-1440, CM08-UpdateDetail-1440, R-UpdateDetail-1024, R-UpdateDetail-768, R-UpdateDetail-375, C04-SaveFailed-1440, C05-SendDialog-1440, C06-InReview-1440, C07-Awaiting-1440, C08-OnHold-1440, C09-Lifted-1440, C10-Released-1440, C11-WithdrawDialog-1440, C12-Withdrawn-1440, C13-StaleWithdraw-1440, L07-UpdatesEmpty-1440, L13-UpdatesLoading-1440, L14-UpdatesNotLoaded-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J2: send dialog focus; in review read-only; approved → awaiting; no Release in product UI; released",
+     "J3: returned reason first; resend; hold with reason; lift; release",
+     "J5: save failure keeps edits; withdraw needs a reason; stale withdraw refused and re-read",
+     "J6: returned again shows the new reason first; withdraw from returned; history keeps the reason",
+     "J7: unlabelled draft in the list",
+     "J9: send and withdraw dialogs — focus inside, Tab and Shift+Tab stay inside, Escape closes and returns focus, closing changes nothing",
+     "J2: a saved draft is listed under Need you and Continue opens it",
+     "J7: the unlabelled draft shows the live version and “No version label yet”",
+     "link crawl: 27 controls from 3 starting states, all landed as intended",
+     "J10: Saving…, Sending… and Withdrawing… while each runs; Cancel and Escape wait in the dialogs",
+     "J11: list loading and couldn’t load; Try again brings back the 4 corrections"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — list in version 16 (anchor), detail in version 20"
+  },
+  {
+   "id": "CM-09",
+   "name": "Platform course codes",
+   "kind": "page",
+   "registerNavigation": "Sidebar Course codes",
+   "v46RouteProposal": "/content-manager/course-codes",
+   "v46Boards": [
+    "B6-10",
+    "B6-11"
+   ],
+   "inventoryDisposition": "NEW",
+   "source": {
+    "file": "project/Main.dc.html",
+    "view": "screen=codes",
+    "heading": "Course codes"
+   },
+   "entries": [
+    "rail: Course codes"
+   ],
+   "states": [
+    "clean: courses grouped by engineering area, with the live experiments under each code; where a code appears; platform versus institution codes",
+    "edited: Changed tags, unsaved count, Undo changes",
+    "duplicate refused: summary and inline error, focus, error link to the field",
+    "save failed: edits kept, Try again",
+    "saved: applies wherever the code is shown",
+    "saving: Saving… on the button and in the footer; Undo changes waits",
+    "loading: announced status and table skeleton; no figures",
+    "couldn’t load: “Nothing has changed. Try again.”; Try again reloads and focuses the page title"
+   ],
+   "inspectionBoards": [
+    "CM09-CourseCodes-1440",
+    "R-CourseCodes-1024",
+    "R-CourseCodes-768",
+    "R-CourseCodes-375",
+    "K01-CodesEdited-1440",
+    "K02-CodesDuplicate-1440",
+    "K03-CodesFailed-1440",
+    "K04-CodesSaved-1440",
+    "K05-CodesLoading-1440",
+    "K06-CodesNotLoaded-1440"
+   ],
+   "evidence": {
+    "RENDERED": "10 boards at frame size (CM09-CourseCodes-1440, R-CourseCodes-1024, R-CourseCodes-768, R-CourseCodes-375, K01-CodesEdited-1440, K02-CodesDuplicate-1440, K03-CodesFailed-1440, K04-CodesSaved-1440, K05-CodesLoading-1440, K06-CodesNotLoaded-1440); its states in the 4-width sweep (1440 / 1024 / 768 / 375)",
+    "LOGIC TESTED": [
+     "J4: six courses in three engineering areas; duplicate refused with focus; valid code saves and appears in the library course band, published record, public frame and Ready cards; failed save keeps edits",
+     "J6: Undo changes restores the saved codes",
+     "link crawl: 6 controls from 1 starting state, all landed as intended",
+     "J10: Saving… on the button and in the footer; Undo changes waits",
+     "J11: loading and couldn’t load; Try again brings back the 6 courses"
+    ]
+   },
+   "status": "CONNECTED · REDESIGNED",
+   "redesign": "REDESIGNED — version 16 (anchor), reviewed again in version 20; list loading and couldn’t-load states added"
+  }
+ ],
+ "excluded": [
+  {
+   "id": "CM-10",
+   "name": "Academic groupings · Governance settings",
+   "disposition": "REMOVE — the structure belongs to the Super Admin (SA-14); settings undefined",
+   "inThisDelivery": "not designed, not linked, no placeholder (source-checked: no CM-10, “Academic groupings” or “Governance settings” text)"
+  }
+ ],
+ "borrowedShared": {
+  "owner": "XS",
+  "status": "ASSEMBLY PENDING XS",
+  "note": "Faithful implementations of the frozen v46 shared contract in V3 tokens (xs-borrowed.css, commented blocks in Main.dc.html). Replace one-for-one with the XS delivery.",
+  "surfaces": [
+   {
+    "id": "v46 shell (board 05)",
+    "name": "Skip to main content link",
+    "boards": [],
+    "tested": "J9: first Tab shows it at 1440 and 375; Enter moves focus to the main content"
+   },
+   {
+    "id": "XS-05",
+    "name": "Account menu: name, role, Help & support, Sign out",
+    "boards": [
+     "X01-AccountMenu-1440"
+    ],
+    "tested": "J5: opens, Escape closes and returns focus, Help & support, Sign out"
+   },
+   {
+    "id": "XS-07",
+    "name": "Help & support: my reports, report a problem, report sent, report detail",
+    "boards": [
+     "X03-Help-1440",
+     "X04-ReportErrors-1440",
+     "X05-ReportSent-1440",
+     "X06-ReportDetail-1440"
+    ],
+    "tested": "J5: where it happened pre-filled, empty report refused, SUP-0186 sent; J6: Open report shows it in full"
+   },
+   {
+    "id": "XS-06",
+    "name": "Not your workspace (v46 AR-10 message-page template)",
+    "boards": [
+     "X07-NotYourWorkspace-1440"
+    ],
+    "tested": "J5: out-of-role address → refusal with one way back"
+   },
+   {
+    "id": "XS-03",
+    "name": "Signed out",
+    "boards": [
+     "X08-SignedOut-1440"
+    ],
+    "tested": "J5: Sign out → signed-out page outside the workspace; Sign in returns to the Overview"
+   }
+  ],
+  "designStatus": "REVIEWED AND UNCHANGED (borrowed XS contract)"
+ },
+ "outOfRoleHandoffs": [
+  {
+   "to": "PU-06",
+   "owner": "PU",
+   "from": "CM-03 result and CM-05: View the public page",
+   "inPreview": "dashed handoff frame showing what the public page reads from the record; not a design of PU-06",
+   "boards": [
+    "P10-PublicPage-1440"
+   ],
+   "designStatus": "REVIEWED AND UNCHANGED — labelled handoff frame in the role’s catalogue-entry card"
+  },
+  {
+   "to": "XS-01",
+   "owner": "XS",
+   "from": "XS-03 signed out: Sign in",
+   "inPreview": "returns to CM-01 Overview"
+  },
+  {
+   "to": "RV-03",
+   "owner": "RV",
+   "from": "CM-03 Send back to the Academic Reviewer",
+   "inPreview": "result panel; the submission shows Back with the Academic Reviewer, read-only"
+  },
+  {
+   "to": "VE-07 / VE-08",
+   "owner": "VE",
+   "from": "CM-03 Send back to the vendor",
+   "inPreview": "result panel; the submission shows With the vendor, read-only, reason and references kept"
+  },
+  {
+   "to": "RV-04",
+   "owner": "RV",
+   "from": "CM-08 Send for academic review",
+   "inPreview": "Scenario handoff box: Academic Reviewer approves / returns it"
+  },
+  {
+   "to": "SA-11",
+   "owner": "SA",
+   "from": "CM-08 awaiting release decision",
+   "inPreview": "Scenario handoff box: Super Admin releases it / puts it on hold / lifts the hold",
+   "note": "The Super Admin reaches SA-11 Release or hold from the SA-10 queue of updates awaiting release"
+  }
+ ],
+ "evidenceSummary": {
+  "RENDERED": "85 inspection boards at frame size from the canvas wrapper files: 80 page boards fit their frame exactly; 5 overlay boards (P01, C05, C11, X01, X02) are window-sized frames by design, with the page continuing under the overlay; on all 85: no horizontal overflow, no console error or warning, no failed request. Width sweep: 69 states × 1440/1024/768/375, full page (276 renders), and 5 overlays at 1440 and 375 (10 renders): no horizontal overflow, no console output, no failed request",
+  "LOGIC TESTED": "11 journeys, 243 scripted steps, 0 failed, and no console error or warning on any page they opened; link crawl 265 clicks from 24 starting states — 208 landed on the declared destination, 5 on the intended page under another ID (Edit catalogue details and Edit delivery link open the correction draft in CM-08; Sign in returns to CM-01), 52 correctly blocked by an open account menu or drawer, 0 failed",
+  "SOURCE CHECKED": "base CSS byte-identical; no href=\"#\"; every button has a handler; no tokens added; sample world identical to version 15 (record by record); cm.css selectors all match markup on a board or, where noted in CHECKS.md, in the live preview only; CM-10 absent; no Release or Hold in product UI; no checkpoint or propagation wording in the shipped files",
+  "NOT TESTED": "the Claude Design host’s Play mode and board chrome; real screen readers; browsers other than Chromium; touch; 200 % zoom and forced colours",
+  "details": "CHECKS.md"
+ },
+ "generatedAt": "2026-10-20"
+}

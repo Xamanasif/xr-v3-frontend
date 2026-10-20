@@ -1,0 +1,1177 @@
+{
+ "scenario": "SC-CM-MAIN",
+ "purpose": "Sample world for the Content Manager role preview. Fixture data for design review only — not the data model and not application data.",
+ "asOf": "Thursday 27 August 2026, 16:05 (fixed clock; each action in the preview advances 15 minutes)",
+ "actors": {
+  "contentManager": "Kavya Nair (v46)",
+  "academicReviewer": "Prof. A. Menon (v46)",
+  "superAdmin": "Arjun Mehta (v46)",
+  "vendors": {
+   "nss": "Northline Simulation Studio · Anil Shetty (v46)",
+   "mvl": "Meridian Virtual Labs · Ritu Sharma (v46 sample, OD-B6-11)"
+  }
+ },
+ "variants": {
+  "main": "default",
+  "blockers": "SUB-0070 without learning outcomes (missing prerequisite)",
+  "empty": "no experiments, submissions or corrections (empty states)"
+ },
+ "createdDuringPreview": {
+  "experiment": "e13 when SUB-0077 is published",
+  "correction": "UPD-0007 for the first new correction, then UPD-0008…",
+  "report": "SUP-0186 for the first help report",
+  "note": "Created only inside the preview store; reload resets everything."
+ },
+ "provenance": {
+  "courses": "v46 B6-10 fixture (KC.rows): codes, names, areas, published counts",
+  "vendorsAndPeople": "v46 B6 fixtures",
+  "experiments": {
+   "e1": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)",
+    "summary": "v46 B6-12 public catalogue frame"
+   },
+   "e2": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)",
+    "summary": "v46 B6-12 public catalogue frame",
+    "source": "published from SUB-0052 (v46 B6-07 reviewed list: approved 24 Jul 2026)"
+   },
+   "e3": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e4": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e5": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e6": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e7": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e8": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e9": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e10": {
+    "all": "v46 B6-04 / B6-08 / B7-11 fixtures (UX.udef.live, UX.dist): catalogue details, delivery, outcomes, history"
+   },
+   "e11": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   },
+   "e12": {
+    "listFields": "v46 B6 fixture GX.libPub (name, course, formats, version, live since)",
+    "catalogueAndDelivery": "illustrative — written for this preview so every published row opens a complete CM-05",
+    "outcomes": "illustrative",
+    "history": "illustrative (first publication entry)"
+   }
+  },
+  "submissions": {
+   "SUB-0077": {
+    "all": "v46 B6-03 / B6-07 fixtures: catalogue, delivery, outcomes, preview label, documents, history; approval 27 Aug 2026 15:20 from B6-07"
+   },
+   "SUB-0074": {
+    "all": "v46 B6-03 fixture (GXI.d): catalogue, delivery, outcomes, history, approval 14 Aug 2026 15:10"
+   },
+   "SUB-0070": {
+    "catalogueDeliveryHistory": "v46 B6-07 fixture (GXI.b)",
+    "outcomes": "count 3 from the v46 CM queue (GX.cq nlo 3); outcome texts illustrative",
+    "blockersScenario": "v46 B6-07 / B6-11: outcomes empty, note “Sent to the Content Manager.”"
+   },
+   "SUB-0086": {
+    "all": "v46 B6-03 fixture (GXI.n): catalogue, delivery, document, history; no outcomes yet"
+   },
+   "SUB-0071": {
+    "all": "v46 B6-03 fixture (GXI.k): catalogue, delivery, outcomes, re-check reason and time, history"
+   },
+   "SUB-0081": {
+    "listFields": "v46 (GX.libVendor, returned list): name, course, vendor, formats, returned by the Academic Reviewer 24 Aug 2026",
+    "returnReason": "v46 verbatim (“The AR install notes don’t say which phones and tablets it runs on…”)",
+    "catalogueAndPackage": "illustrative (summary, description; AR package left without device and install notes, as the reason says)"
+   }
+  },
+  "drafts": {
+   "SUB-0079": "v46 (Pin Fin Efficiency, still a draft with its vendor — refusal sample)"
+  },
+  "corrections": {
+   "UPD-0005": {
+    "all": "v46 B6-04 / B6-09 / B7-11 fixtures: proposed fields, reason, version 1.2 → 1.3, started 25 Aug 15:40, sent 25 Aug 16:00, approved 27 Aug 11:20",
+    "snapshotNote": "This preview is set after the 11:20 approval, so UPD-0005 is awaiting the release decision (B6-09 drew the earlier moment, in academic review)."
+   },
+   "UPD-0006": {
+    "listFields": "v46 (UX.others, GX.updNeeds): version 1.1, returned 26 Aug 2026, reason text verbatim",
+    "fieldsAndHistory": "illustrative (proposed description with the slip error the reviewer names, web link 1.1, reason for the change, sent 24 Aug)"
+   },
+   "UPD-0004": {
+    "listFields": "v46 (UX.others, GX.withOthers, GX.rb): version 2.1, approved 14 Aug 2026, on hold since 20 Aug 2026, version 2.0 stays live",
+    "holdReasonAndFields": "illustrative"
+   },
+   "UPD-0003": {
+    "listFields": "v46 (UX.others, GX.rb): version 1.1, approved 30 Jul 2026, released 5 Aug 2026",
+    "fieldsAndComparison": "illustrative (corner → flange tappings)"
+   }
+  },
+  "rules": [
+   "No v46 fact was changed to fill a visual gap; where v46 defines a field, the preview uses it verbatim.",
+   "Illustrative values exist only where v46 defines the record but not the field, and are marked above.",
+   "Open sample-data decisions OD-B5-09, OD-B6-11 and OD-B6-12 are unchanged."
+  ]
+ },
+ "world": {
+  "courses": [
+   {
+    "id": "c-thermo",
+    "code": "ME ZG523",
+    "name": "Thermodynamics & Heat Transfer",
+    "area": "Mechanical & Manufacturing"
+   },
+   {
+    "id": "c-mfg",
+    "code": "MEL ZG512",
+    "name": "Manufacturing Processes",
+    "area": "Mechanical & Manufacturing"
+   },
+   {
+    "id": "c-mach",
+    "code": "EEE ZC341",
+    "name": "Electrical Machines",
+    "area": "Electrical & Electronics"
+   },
+   {
+    "id": "c-power",
+    "code": "EEE ZG512",
+    "name": "Power Electronics",
+    "area": "Electrical & Electronics"
+   },
+   {
+    "id": "c-proc",
+    "code": "CHE ZG513",
+    "name": "Process Instrumentation & Control",
+    "area": "Chemical & Process"
+   },
+   {
+    "id": "c-fluid",
+    "code": "",
+    "name": "Fluid Mechanics",
+    "area": "Mechanical & Manufacturing"
+   }
+  ],
+  "vendors": {
+   "nss": {
+    "name": "Northline Simulation Studio",
+    "person": "Anil Shetty"
+   },
+   "mvl": {
+    "name": "Meridian Virtual Labs",
+    "person": "Ritu Sharma"
+   }
+  },
+  "exps": {
+   "e1": {
+    "id": "e1",
+    "name": "Shell-and-Tube Heat Exchanger",
+    "course": "c-thermo",
+    "fmts": [
+     "WEB",
+     "AR",
+     "VR"
+    ],
+    "ver": "1.0",
+    "since": "2 Jun 2026",
+    "vendor": "",
+    "summary": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+    "desc": "Learners set the hot and cold flow rates and inlet temperatures on a two-pass shell-and-tube exchanger, read the four terminal temperatures and work out the heat duty. From several runs they derive effectiveness against NTU and compare it with the textbook curve.",
+    "web": "https://labs.example/shell-and-tube-heat-exchanger",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "Shell-and-Tube — AR build 1.0",
+      "ref": "STHE-AR-1.0",
+      "device": "A supported phone or tablet with a rear camera",
+      "install": "Install the build named above and open “Heat Exchanger Lab”."
+     },
+     "VR": {
+      "label": "Shell-and-Tube — VR build 1.0",
+      "ref": "STHE-VR-1.0",
+      "device": "Standalone VR headset and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Heat Exchanger Lab”."
+     }
+    },
+    "outcomes": [
+     "Calculate heat duty and effectiveness from measured terminal temperatures.",
+     "Relate effectiveness to NTU for a two-pass exchanger.",
+     "Explain how the flow rates change the overall heat transfer coefficient."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e2": {
+    "id": "e2",
+    "name": "Fin-Tube Bundle",
+    "course": "c-thermo",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "ver": "1.0",
+    "since": "30 Jul 2026",
+    "vendor": "nss",
+    "fromSub": "SUB-0052",
+    "summary": "Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.",
+    "desc": "Learners blow air across a finned tube bundle, add fouling to the tube side in steps and record the inlet and outlet temperatures at each step. They work out the overall heat transfer coefficient and the fouling resistance, and explain the trend.",
+    "web": "https://labs.northline.example/fin-tube-bundle",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "VR": {
+      "label": "Fin-Tube Bundle — VR build 1.0",
+      "ref": "NSS-FTB-VR-1.0",
+      "device": "Standalone VR headset and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Fin-Tube Lab”."
+     }
+    },
+    "outcomes": [
+     "Work out the overall heat transfer coefficient from measured temperatures.",
+     "Estimate the fouling resistance from the drop in performance."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "30 Jul 2026",
+      "note": "First publication by the Content Manager, from SUB-0052."
+     }
+    ]
+   },
+   "e3": {
+    "id": "e3",
+    "name": "Composite Wall Conduction",
+    "course": "c-thermo",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "ver": "1.0",
+    "since": "2 Jun 2026",
+    "vendor": "",
+    "summary": "Build a layered wall, measure the temperature profile and separate the contribution of each material.",
+    "desc": "Learners assemble a wall from layers of different materials, hold a fixed temperature difference across it and read the temperature at each interface. From the measured profile they work out the thermal resistance of each layer.",
+    "web": "https://labs.example/composite-wall-conduction",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "Composite Wall Conduction — AR build 1.0",
+      "ref": "CWC-AR-1.0",
+      "device": "A supported phone or tablet with a rear camera",
+      "install": "Install the build named above and open “Wall Lab”."
+     }
+    },
+    "outcomes": [
+     "Work out the thermal resistance of each layer from a measured temperature profile.",
+     "Explain why the largest temperature drop falls across the most resistive layer."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e4": {
+    "id": "e4",
+    "name": "CNC Turning Centre",
+    "course": "c-mfg",
+    "fmts": [
+     "WEB",
+     "AR",
+     "VR",
+     "MR"
+    ],
+    "ver": "1.0",
+    "since": "2 Jun 2026",
+    "vendor": "",
+    "summary": "Set up a turning operation, choose speeds and feeds, and see how they change cutting force and surface finish.",
+    "desc": "Learners load a part program on a CNC turning centre, choose the cutting speed, feed and depth of cut, and run the cycle. They read the cutting force and the surface finish for each setting and choose the setting that meets the drawing.",
+    "web": "https://labs.example/cnc-turning-centre",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "CNC Turning Centre — AR build 1.0",
+      "ref": "CNC-AR-1.0",
+      "device": "A supported phone or tablet with a rear camera",
+      "install": "Install the build named above and open “Turning Lab”."
+     },
+     "VR": {
+      "label": "CNC Turning Centre — VR build 1.0",
+      "ref": "CNC-VR-1.0",
+      "device": "Standalone VR headset and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Turning Lab”."
+     },
+     "MR": {
+      "label": "CNC Turning Centre — MR build 1.0",
+      "ref": "CNC-MR-1.0",
+      "device": "A supported mixed-reality headset and a clear table or floor area",
+      "install": "Install the build named above on the headset and open “Turning Lab”."
+     }
+    },
+    "outcomes": [
+     "Choose cutting speed, feed and depth of cut for a given material.",
+     "Relate the chosen settings to cutting force and surface finish."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e5": {
+    "id": "e5",
+    "name": "Investment Casting",
+    "course": "c-mfg",
+    "fmts": [
+     "WEB"
+    ],
+    "ver": "1.0",
+    "since": "2 Jun 2026",
+    "vendor": "",
+    "summary": "Follow a part from wax pattern to finished casting and find where its defects come from.",
+    "desc": "Learners make the wax pattern, build the ceramic shell, choose the pouring temperature and inspect the cast part. They trace each defect they find back to the step that caused it.",
+    "web": "https://labs.example/investment-casting",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {},
+    "outcomes": [
+     "Put the investment casting steps in order and say what each one does.",
+     "Trace a casting defect back to the step that caused it."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e6": {
+    "id": "e6",
+    "name": "Induction Motor Loading",
+    "course": "c-mach",
+    "fmts": [
+     "WEB",
+     "VR",
+     "MR"
+    ],
+    "ver": "1.0",
+    "since": "9 Jun 2026",
+    "vendor": "",
+    "summary": "Load a three-phase induction motor step by step and see how its speed, current and efficiency change.",
+    "desc": "Learners load a three-phase induction motor on a brake dynamometer in steps from no load to full load. At each step they record the speed, line current, input power and torque, then plot efficiency and power factor against load.",
+    "web": "https://labs.example/induction-motor-loading",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "VR": {
+      "label": "Induction Motor Loading — VR build 1.0",
+      "ref": "IML-VR-1.0",
+      "device": "Standalone VR headset and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Motor Lab”."
+     },
+     "MR": {
+      "label": "Induction Motor Loading — MR build 1.0",
+      "ref": "IML-MR-1.0",
+      "device": "A supported mixed-reality headset and a clear table or floor area",
+      "install": "Install the build named above on the headset and open “Motor Lab”."
+     }
+    },
+    "outcomes": [
+     "Measure speed, current, input power and torque across the load range.",
+     "Plot efficiency and power factor against load and explain their shape."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "9 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e7": {
+    "id": "e7",
+    "name": "Synchronous Generator",
+    "course": "c-mach",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "ver": "1.0",
+    "since": "2 Jun 2026",
+    "vendor": "",
+    "summary": "Bring a synchronous generator onto the grid and see how its excitation changes the reactive power.",
+    "desc": "Learners run a synchronous generator up to speed, match its voltage, frequency and phase to the grid, and close the breaker. They then change the excitation and watch the reactive power and the power factor change.",
+    "web": "https://labs.example/synchronous-generator",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "VR": {
+      "label": "Synchronous Generator — VR build 1.0",
+      "ref": "SG-VR-1.0",
+      "device": "Standalone VR headset and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Generator Lab”."
+     }
+    },
+    "outcomes": [
+     "Synchronise a generator with the grid in the right order.",
+     "Explain how excitation controls the reactive power."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e8": {
+    "id": "e8",
+    "name": "Transformer Tests",
+    "course": "c-mach",
+    "fmts": [
+     "WEB"
+    ],
+    "ver": "1.0",
+    "since": "2 Jun 2026",
+    "vendor": "",
+    "summary": "Run the open-circuit and short-circuit tests and build the equivalent circuit of a transformer.",
+    "desc": "Learners run the open-circuit and short-circuit tests on a single-phase transformer, record voltage, current and power, and work out the equivalent-circuit parameters. They use them to predict efficiency and voltage regulation at a chosen load.",
+    "web": "https://labs.example/transformer-tests",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {},
+    "outcomes": [
+     "Work out equivalent-circuit parameters from open- and short-circuit test readings.",
+     "Predict efficiency and voltage regulation at a given load."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e9": {
+    "id": "e9",
+    "name": "Buck Converter Ripple",
+    "course": "c-power",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "ver": "1.0",
+    "since": "2 Jun 2026",
+    "vendor": "",
+    "summary": "Change the inductor, capacitor and switching frequency of a buck converter and measure the output ripple.",
+    "desc": "Learners run a buck converter at a fixed duty cycle, then change the inductor, the output capacitor and the switching frequency one at a time. They measure the output voltage ripple and compare it with the predicted value.",
+    "web": "https://labs.example/buck-converter-ripple",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "Buck Converter Ripple — AR build 1.0",
+      "ref": "BCR-AR-1.0",
+      "device": "A supported phone or tablet with a rear camera",
+      "install": "Install the build named above and open “Converter Lab”."
+     }
+    },
+    "outcomes": [
+     "Predict the output voltage ripple from the inductor, capacitor and switching frequency.",
+     "Explain the trade-off between ripple and component size."
+    ],
+    "hist": [
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e10": {
+    "id": "e10",
+    "name": "Distillation Column",
+    "course": "c-proc",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "ver": "1.2",
+    "since": "3 Jul 2026",
+    "vendor": "mvl",
+    "summary": "Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.",
+    "desc": "Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. Lowering the reflux ratio raises the overhead purity, at the cost of more reboiler heat.",
+    "web": "https://labs.meridian.example/distillation-column",
+    "browser": "A current browser on a laptop or desktop",
+    "pk": {
+     "VR": {
+      "label": "Distillation Column — VR build 1.2",
+      "ref": "MVL-DC-VR-1.2",
+      "device": "Standalone VR headset and about 2 × 2 m of clear floor",
+      "install": "Install the build named above and open “Column Lab”."
+     }
+    },
+    "outcomes": [
+     "Bring a column to steady state from cold start",
+     "Tune reflux ratio against an overhead purity target"
+    ],
+    "hist": [
+     {
+      "what": "Version 1.2 released",
+      "when": "3 Jul 2026",
+      "note": "Correction UPD-0002 — released by the Super Admin."
+     },
+     {
+      "what": "Version 1.1 released",
+      "when": "19 Jun 2026",
+      "note": "Correction UPD-0001."
+     },
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   },
+   "e11": {
+    "id": "e11",
+    "name": "Boiler Drum Level",
+    "course": "c-proc",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "ver": "2.0",
+    "since": "18 Jun 2026",
+    "vendor": "",
+    "summary": "Hold a boiler drum level steady through load changes and see why single-element control struggles.",
+    "desc": "Learners control the water level in a boiler drum while the steam demand changes. They compare single-element and three-element control and see how swell and shrink mislead a simple level controller.",
+    "web": "https://labs.example/boiler-drum-level",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "VR": {
+      "label": "Boiler Drum Level — VR build 2.0",
+      "ref": "BDL-VR-2.0",
+      "device": "Standalone VR headset and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Boiler Lab”."
+     }
+    },
+    "outcomes": [
+     "Explain swell and shrink and how they mislead a level controller.",
+     "Compare single-element and three-element drum level control."
+    ],
+    "hist": [
+     {
+      "what": "Version 2.0 released",
+      "when": "18 Jun 2026",
+      "note": "Released by the Super Admin."
+     }
+    ]
+   },
+   "e12": {
+    "id": "e12",
+    "name": "Orifice Plate Metering",
+    "course": "c-proc",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "ver": "1.1",
+    "since": "5 Aug 2026",
+    "vendor": "",
+    "summary": "Measure flow with an orifice plate and find its discharge coefficient from your own readings.",
+    "desc": "Learners read the pressure drop across an orifice plate, taken at flange tappings, at several flow rates and work out the flow from it. Comparing with a reference meter, they find the discharge coefficient of the plate and where it stops being constant.",
+    "web": "https://labs.example/orifice-plate-metering",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "Orifice Plate Metering — AR build 1.0",
+      "ref": "OPM-AR-1.0",
+      "device": "A supported phone or tablet with a rear camera",
+      "install": "Install the build named above and open “Flow Lab”."
+     }
+    },
+    "outcomes": [
+     "Work out the flow from the pressure drop across an orifice plate.",
+     "Find the discharge coefficient and the range where it holds."
+    ],
+    "hist": [
+     {
+      "what": "Version 1.1 released",
+      "when": "5 Aug 2026",
+      "note": "Correction UPD-0003 — released by the Super Admin."
+     },
+     {
+      "what": "Published · version 1.0",
+      "when": "2 Jun 2026",
+      "note": "First publication by the Content Manager."
+     }
+    ]
+   }
+  },
+  "subs": {
+   "SUB-0077": {
+    "id": "SUB-0077",
+    "name": "Conduction Through a Composite Wall",
+    "course": "c-thermo",
+    "vendor": "nss",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "ver": "1.0",
+    "st": "with_cm",
+    "appr": "27 Aug 2026",
+    "apprAt": "27 Aug 2026, 15:20",
+    "submitted": "12 Aug 2026",
+    "resubmitted": "26 Aug 2026",
+    "rev": 2,
+    "retCount": 1,
+    "since": "27 Aug 2026",
+    "summary": "Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.",
+    "desc": "Learners build a wall from three layers — brick, insulation and plaster — set the hot-side and cold-side temperatures, and read the temperature at each interface. They compare the measured profile and heat flux with the series thermal-resistance model and explain where the two differ.",
+    "web": "https://labs.northline.example/composite-wall",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop, with a keyboard and mouse",
+    "pk": {
+     "VR": {
+      "label": "Composite Wall — VR build 1.0",
+      "ref": "NSS-CW-VR-1.0",
+      "device": "Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Composite Wall Lab”. On first launch, set the play-area boundary."
+     }
+    },
+    "plabel": "Two-minute walkthrough",
+    "docs": [
+     "Lab handout — Composite Wall.pdf",
+     "Thermocouple positions.pdf"
+    ],
+    "outcomes": [
+     "Explain conduction through layers in series using thermal resistance.",
+     "Predict interface temperatures from layer properties.",
+     "Compare measured and predicted heat flux and explain the difference."
+    ],
+    "sh": [
+     {
+      "what": "Approved by Prof. A. Menon",
+      "when": "27 Aug 2026, 15:20",
+      "note": "Sent to the Content Manager with 3 learning outcomes. Nothing is published."
+     },
+     {
+      "what": "Resubmitted · revision 2",
+      "when": "26 Aug 2026, 11:30",
+      "note": "Northline Simulation Studio changed the VR device need."
+     },
+     {
+      "what": "Returned to vendor by Prof. A. Menon",
+      "when": "19 Aug 2026, 16:05",
+      "note": "“Please clarify the VR device requirements.”"
+     },
+     {
+      "what": "Submitted for academic review",
+      "when": "12 Aug 2026, 10:52",
+      "note": "Revision 1 · from Northline Simulation Studio"
+     }
+    ]
+   },
+   "SUB-0074": {
+    "id": "SUB-0074",
+    "name": "Transient Cooling",
+    "course": "c-thermo",
+    "vendor": "nss",
+    "fmts": [
+     "WEB"
+    ],
+    "ver": "1.0",
+    "st": "with_cm",
+    "appr": "14 Aug 2026",
+    "apprAt": "14 Aug 2026, 15:10",
+    "submitted": "6 Aug 2026",
+    "rev": 1,
+    "retCount": 0,
+    "since": "14 Aug 2026",
+    "summary": "Cool a heated cylinder in still air and water, and test when the lumped-capacitance model holds.",
+    "desc": "Learners heat aluminium and steel cylinders, log their cooling in air and in water, and compare the curves with the lumped model using the Biot number.",
+    "web": "https://labs.northline.example/transient-cooling",
+    "browser": "A current browser on a laptop or desktop",
+    "pk": {},
+    "outcomes": [
+     "Decide when the lumped-capacitance model applies, using the Biot number.",
+     "Estimate a heat transfer coefficient from a measured cooling curve."
+    ],
+    "sh": [
+     {
+      "what": "Approved by Prof. A. Menon",
+      "when": "14 Aug 2026, 15:10",
+      "note": "Sent to the Content Manager with 2 learning outcomes. Nothing is published."
+     },
+     {
+      "what": "Submitted for academic review",
+      "when": "6 Aug 2026, 12:02",
+      "note": "Revision 1 · from Northline Simulation Studio"
+     }
+    ]
+   },
+   "SUB-0070": {
+    "id": "SUB-0070",
+    "name": "Packed Bed Pressure Drop",
+    "course": "c-proc",
+    "vendor": "mvl",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "ver": "1.0",
+    "st": "with_cm",
+    "appr": "21 Aug 2026",
+    "apprAt": "21 Aug 2026, 10:15",
+    "submitted": "12 Aug 2026",
+    "rev": 1,
+    "retCount": 0,
+    "since": "21 Aug 2026",
+    "summary": "Push air through a packed bed and compare the pressure drop you measure with the Ergun equation.",
+    "desc": "Learners change the air flow through beds of glass beads and Raschig rings, read the pressure drop, and fit the Ergun constants from their own data.",
+    "web": "https://labs.meridian.example/packed-bed",
+    "browser": "A current browser on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "Packed Bed — AR build 1.0",
+      "ref": "MVL-PB-AR-1.0",
+      "device": "Phone or tablet with a rear camera",
+      "install": "Install “Packed Bed AR” and point the camera at a table."
+     }
+    },
+    "outcomes": [
+     "Measure the pressure drop across a packed bed over a range of air flows.",
+     "Fit the Ergun constants from your own readings.",
+     "Explain how the packing changes the pressure drop."
+    ],
+    "sh": [
+     {
+      "what": "Approved by Prof. A. Menon",
+      "when": "21 Aug 2026, 10:15",
+      "note": "Sent to the Content Manager with 3 learning outcomes. Nothing is published."
+     },
+     {
+      "what": "Submitted for academic review",
+      "when": "12 Aug 2026, 13:00",
+      "note": "Revision 1 · from Meridian Virtual Labs"
+     }
+    ]
+   },
+   "SUB-0086": {
+    "id": "SUB-0086",
+    "name": "Flash Distillation",
+    "course": "c-proc",
+    "vendor": "mvl",
+    "fmts": [
+     "WEB"
+    ],
+    "ver": "1.0",
+    "st": "with_rv",
+    "appr": "",
+    "submitted": "24 Aug 2026",
+    "rev": 1,
+    "retCount": 0,
+    "since": "24 Aug 2026",
+    "tag": "New submission",
+    "summary": "Flash a hot binary feed across a valve into a drum and find the vapour fraction from your own readings.",
+    "desc": "Learners set the feed temperature and the drum pressure, read the vapour and liquid flows, and compare the vapour fraction with an equilibrium calculation.",
+    "web": "https://labs.meridian.example/flash-distillation",
+    "browser": "A current browser on a laptop or desktop",
+    "pk": {},
+    "outcomes": [],
+    "docs": [
+     "Flash drum handout.pdf"
+    ],
+    "sh": [
+     {
+      "what": "Submitted for academic review",
+      "when": "24 Aug 2026, 14:10",
+      "note": "Revision 1 · from Meridian Virtual Labs"
+     }
+    ]
+   },
+   "SUB-0071": {
+    "id": "SUB-0071",
+    "name": "Venturi Meter Calibration",
+    "course": "c-proc",
+    "vendor": "mvl",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "ver": "1.0",
+    "st": "recheck",
+    "appr": "",
+    "apprOld": "18 Aug 2026",
+    "submitted": "10 Aug 2026",
+    "rev": 1,
+    "retCount": 0,
+    "since": "25 Aug 2026",
+    "tag": "Re-check you asked for",
+    "recheck": {
+     "when": "25 Aug 2026, 10:42",
+     "reason": "The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes."
+    },
+    "summary": "Calibrate a Venturi meter against a weigh tank and find its discharge coefficient.",
+    "desc": "Learners vary the flow, read the throat and inlet pressures and the collected mass, and plot the discharge coefficient against the Reynolds number.",
+    "web": "https://labs.meridian.example/venturi",
+    "browser": "A current browser on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "Venturi — AR build 1.0",
+      "ref": "MVL-VM-AR-1.0",
+      "device": "Phone or tablet with a rear camera, Android 12 / iOS 16 or later",
+      "install": "Install “Venturi AR” from the link in the package notes and point the camera at a table."
+     }
+    },
+    "outcomes": [
+     "Calibrate a Venturi meter against a weigh tank.",
+     "Compare the discharge coefficient with a Pitot tube reading.",
+     "Explain where the pressure is recovered downstream of the throat."
+    ],
+    "sh": [
+     {
+      "what": "Sent back to the Academic Reviewer by Kavya Nair",
+      "when": "25 Aug 2026, 10:42",
+      "note": "“The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes.”"
+     },
+     {
+      "what": "Approved by Prof. A. Menon",
+      "when": "18 Aug 2026, 11:30",
+      "note": "Sent to the Content Manager with 3 learning outcomes."
+     },
+     {
+      "what": "Submitted for academic review",
+      "when": "10 Aug 2026, 09:20",
+      "note": "Revision 1 · from Meridian Virtual Labs"
+     }
+    ]
+   },
+   "SUB-0081": {
+    "id": "SUB-0081",
+    "name": "Forced Convection",
+    "course": "c-thermo",
+    "vendor": "nss",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "ver": "1.0",
+    "st": "returned",
+    "appr": "",
+    "submitted": "17 Aug 2026",
+    "rev": 1,
+    "retCount": 1,
+    "since": "24 Aug 2026",
+    "tag": "Returned by the Academic Reviewer",
+    "ret": {
+     "by": "rv",
+     "when": "24 Aug 2026"
+    },
+    "summary": "Blow air over a heated plate and see how the heat transfer coefficient rises with air speed.",
+    "desc": "Learners set the air speed over a heated flat plate, read the plate and air temperatures and the heater power, and work out the heat transfer coefficient. They compare it with a forced-convection correlation.",
+    "web": "https://labs.northline.example/forced-convection",
+    "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop",
+    "pk": {
+     "AR": {
+      "label": "Forced Convection — AR build 1.0",
+      "ref": "",
+      "file": "forced-convection-ar-1.0.zip",
+      "device": "",
+      "install": ""
+     }
+    },
+    "outcomes": [],
+    "sh": [
+     {
+      "what": "Returned to vendor by Prof. A. Menon",
+      "when": "24 Aug 2026",
+      "note": "“The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.”"
+     },
+     {
+      "what": "Submitted for academic review",
+      "when": "17 Aug 2026",
+      "note": "Revision 1 · from Northline Simulation Studio"
+     }
+    ]
+   }
+  },
+  "drafts": {
+   "SUB-0079": {
+    "name": "Pin Fin Efficiency",
+    "vendor": "nss"
+   }
+  },
+  "upds": {
+   "UPD-0005": {
+    "id": "UPD-0005",
+    "exp": "e10",
+    "st": "awaiting",
+    "ver": "1.3",
+    "from": "1.2",
+    "why": "Corrects the reflux statement in the description: raising the reflux ratio raises overhead purity — v1.2 says the opposite. The web link moves to build 1.3, which carries the same correction in its on-screen notes.",
+    "f": {
+     "name": "Distillation Column",
+     "summary": "Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.",
+     "desc": "Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. Raising the reflux ratio raises the overhead purity, at the cost of more reboiler heat.",
+     "web": "https://labs.meridian.example/distillation-column-1-3",
+     "pk": {
+      "VR": "MVL-DC-VR-1.2"
+     }
+    },
+    "started": "25 Aug 2026, 15:40",
+    "entry": "the published experiment",
+    "sent": "25 Aug 2026, 16:00",
+    "ret": null,
+    "appr": "27 Aug 2026, 11:20",
+    "hold": null,
+    "lifted": "",
+    "lastHold": null,
+    "rel": null,
+    "wd": null,
+    "saved": "25 Aug 2026, 16:00",
+    "dirty": false,
+    "last": "27 Aug 2026, 11:20",
+    "uh": [
+     {
+      "what": "Approved by Prof. A. Menon",
+      "when": "27 Aug 2026, 11:20",
+      "note": "With the Super Admin for a release decision. The live version stays 1.2 until then."
+     },
+     {
+      "what": "Sent for academic review",
+      "when": "25 Aug 2026, 16:00",
+      "note": "To Prof. A. Menon. The live version 1.2 is unchanged."
+     },
+     {
+      "what": "Correction started from the published experiment",
+      "when": "25 Aug 2026, 15:40",
+      "note": "Pre-filled with the live version 1.2."
+     }
+    ]
+   },
+   "UPD-0006": {
+    "id": "UPD-0006",
+    "exp": "e6",
+    "st": "returned",
+    "ver": "1.1",
+    "from": "1.0",
+    "why": "Adds slip to the readings learners take, as build 1.1 shows it on screen, and says how it changes with load. The web link moves to build 1.1.",
+    "f": {
+     "name": "Induction Motor Loading",
+     "summary": "Load a three-phase induction motor step by step and see how its speed, current and efficiency change.",
+     "desc": "Learners load a three-phase induction motor on a brake dynamometer in steps from no load to full load. At each step they record the speed, slip, line current, input power and torque. The slip falls as the load rises, while the current climbs. They then plot efficiency and power factor against load.",
+     "web": "https://labs.example/induction-motor-loading-1-1",
+     "pk": {
+      "VR": "IML-VR-1.0",
+      "MR": "IML-MR-1.0"
+     }
+    },
+    "started": "24 Aug 2026",
+    "entry": "Edit catalogue details",
+    "sent": "24 Aug 2026",
+    "ret": {
+     "who": "Prof. A. Menon",
+     "when": "26 Aug 2026",
+     "reason": "The proposed description says slip falls as the load rises. It rises. Please correct it before I approve."
+    },
+    "appr": "",
+    "hold": null,
+    "lifted": "",
+    "lastHold": null,
+    "rel": null,
+    "wd": null,
+    "saved": "24 Aug 2026",
+    "dirty": false,
+    "last": "26 Aug 2026",
+    "uh": [
+     {
+      "what": "Returned by Prof. A. Menon",
+      "when": "26 Aug 2026",
+      "note": "“The proposed description says slip falls as the load rises. It rises. Please correct it before I approve.”"
+     },
+     {
+      "what": "Sent for academic review",
+      "when": "24 Aug 2026",
+      "note": "To Prof. A. Menon. The live version 1.0 is unchanged."
+     },
+     {
+      "what": "Correction started from Edit catalogue details",
+      "when": "24 Aug 2026",
+      "note": "Pre-filled with the live version 1.0."
+     }
+    ]
+   },
+   "UPD-0004": {
+    "id": "UPD-0004",
+    "exp": "e11",
+    "st": "hold",
+    "ver": "2.1",
+    "from": "2.0",
+    "why": "Adds why three-element control copes with swell and shrink, and moves the web link to build 2.1, which shows the steam-flow signal.",
+    "f": {
+     "name": "Boiler Drum Level",
+     "summary": "Hold a boiler drum level steady through load changes and see why single-element control struggles.",
+     "desc": "Learners control the water level in a boiler drum while the steam demand changes. They compare single-element and three-element control, see how swell and shrink mislead a simple level controller, and see why adding the steam and feedwater flow signals keeps the level steady.",
+     "web": "https://labs.example/boiler-drum-level-2-1",
+     "pk": {
+      "VR": "BDL-VR-2.0"
+     }
+    },
+    "started": "12 Aug 2026",
+    "entry": "the published experiment",
+    "sent": "12 Aug 2026",
+    "ret": null,
+    "appr": "14 Aug 2026",
+    "lifted": "",
+    "lastHold": null,
+    "rel": null,
+    "wd": null,
+    "hold": {
+     "when": "20 Aug 2026",
+     "by": "Arjun Mehta",
+     "reason": "The 2.1 web build still shows the old control diagram on its first screen. Hold until the vendor fixes it."
+    },
+    "saved": "12 Aug 2026",
+    "dirty": false,
+    "last": "20 Aug 2026",
+    "uh": [
+     {
+      "what": "Put on hold by Arjun Mehta",
+      "when": "20 Aug 2026",
+      "note": "“The 2.1 web build still shows the old control diagram on its first screen. Hold until the vendor fixes it.” Version 2.0 stays live."
+     },
+     {
+      "what": "Approved by Prof. A. Menon",
+      "when": "14 Aug 2026",
+      "note": "With the Super Admin for a release decision. The live version stays 2.0 until then."
+     },
+     {
+      "what": "Sent for academic review",
+      "when": "12 Aug 2026",
+      "note": "To Prof. A. Menon. The live version 2.0 is unchanged."
+     },
+     {
+      "what": "Correction started from the published experiment",
+      "when": "12 Aug 2026",
+      "note": "Pre-filled with the live version 2.0."
+     }
+    ]
+   },
+   "UPD-0003": {
+    "id": "UPD-0003",
+    "exp": "e12",
+    "st": "released",
+    "ver": "1.1",
+    "from": "1.0",
+    "why": "The description named corner tappings; the experiment uses flange tappings.",
+    "f": {
+     "name": "Orifice Plate Metering",
+     "summary": "Measure flow with an orifice plate and find its discharge coefficient from your own readings.",
+     "desc": "Learners read the pressure drop across an orifice plate, taken at flange tappings, at several flow rates and work out the flow from it. Comparing with a reference meter, they find the discharge coefficient of the plate and where it stops being constant.",
+     "web": "https://labs.example/orifice-plate-metering",
+     "pk": {
+      "AR": "OPM-AR-1.0"
+     }
+    },
+    "started": "28 Jul 2026",
+    "entry": "the published experiment",
+    "sent": "28 Jul 2026",
+    "ret": null,
+    "appr": "30 Jul 2026",
+    "hold": null,
+    "lifted": "",
+    "lastHold": null,
+    "wd": null,
+    "rel": {
+     "when": "5 Aug 2026",
+     "by": "Arjun Mehta"
+    },
+    "relCmp": [
+     {
+      "f": "Description",
+      "cur": "Learners read the pressure drop across an orifice plate, taken at corner tappings, at several flow rates and work out the flow from it. Comparing with a reference meter, they find the discharge coefficient of the plate and where it stops being constant.",
+      "pro": "Learners read the pressure drop across an orifice plate, taken at flange tappings, at several flow rates and work out the flow from it. Comparing with a reference meter, they find the discharge coefficient of the plate and where it stops being constant."
+     },
+     {
+      "f": "Version",
+      "cur": "1.0",
+      "pro": "1.1"
+     }
+    ],
+    "saved": "28 Jul 2026",
+    "dirty": false,
+    "last": "5 Aug 2026",
+    "uh": [
+     {
+      "what": "Released by Arjun Mehta",
+      "when": "5 Aug 2026",
+      "note": "Version 1.1 is live for everyone."
+     },
+     {
+      "what": "Approved by Prof. A. Menon",
+      "when": "30 Jul 2026",
+      "note": "With the Super Admin for a release decision. The live version stays 1.0 until then."
+     },
+     {
+      "what": "Sent for academic review",
+      "when": "28 Jul 2026",
+      "note": "To Prof. A. Menon. The live version 1.0 is unchanged."
+     },
+     {
+      "what": "Correction started from the published experiment",
+      "when": "28 Jul 2026",
+      "note": "Pre-filled with the live version 1.0."
+     }
+    ]
+   }
+  },
+  "reports": [],
+  "ext": [],
+  "nextUpd": 7,
+  "nextExp": 13,
+  "nextSup": 186
+ }
+}

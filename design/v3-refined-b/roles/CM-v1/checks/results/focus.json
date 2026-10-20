@@ -1,0 +1,44 @@
+[
+ {
+  "n": "focus-skip-1440",
+  "tabs": 1,
+  "el": "a Skip to main content",
+  "outline": "solid 2px rgb(31, 79, 216)",
+  "focusVisible": true
+ },
+ {
+  "n": "focus-skip-375",
+  "tabs": 1,
+  "el": "a Skip to main content",
+  "outline": "solid 2px rgb(31, 79, 216)",
+  "focusVisible": true
+ },
+ {
+  "n": "focus-rail-1440",
+  "tabs": 4,
+  "el": "a Content library",
+  "outline": "solid 2px rgb(255, 255, 255)",
+  "focusVisible": true
+ },
+ {
+  "n": "focus-decision-1440",
+  "tabs": 10,
+  "el": "#cm-d-c0 ",
+  "outline": "solid 2px rgb(31, 79, 216)",
+  "focusVisible": true
+ },
+ {
+  "n": "focus-library-switch-375",
+  "tabs": 5,
+  "el": "#cm-lib-tab-review In review2",
+  "outline": "solid 2px rgb(31, 79, 216)",
+  "focusVisible": true
+ },
+ {
+  "n": "focus-codes-1440",
+  "tabs": 10,
+  "el": "#cm-k-code-1 Platform course code for Manufacturing Processes",
+  "outline": "solid 2px rgb(31, 79, 216)",
+  "focusVisible": true
+ }
+]

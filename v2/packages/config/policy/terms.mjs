@@ -188,6 +188,12 @@ export const CANVAS_CLASS_PATTERNS = [
   /^ve-pv(?:-[\w-]*)?$/,
   /^ve-preview(?:-t)?$/,
   /^ve-app$/,
+  // The Content Manager export's preview-only scenario handoff box and public-page handoff frame,
+  // and its borrowed XS surfaces (design/v3-refined-b/roles/CM-v1/COMPONENT-EXTENSIONS.md
+  // "Preview-only — never product UI"; "Borrowed shared surfaces": replaced by the XS delivery).
+  /^cm-dock(?:-[\w-]*)?$/,
+  /^cm-pub(?:bar|body|logo|prod)?$/,
+  /^xsb-[\w-]+$/,
 ];
 
 /**
@@ -256,6 +262,23 @@ export const V3_PRODUCT_CLASS_ALLOW_LIST = [
   'rk-x-ferr-above',
   'rk-x-intro-below',
   'rk-x-eyebrow-flush',
+  // V3P-14: the Content Manager export's (CM-v1) inline spacings, each on the element it styles.
+  'rk-x-grp-head-side',
+  'rk-x-sidecard-t-flush',
+  'rk-x-calm-foot',
+  'rk-x-fmts-flush',
+  'rk-x-lib-col',
+  'rk-x-h3-sub',
+  'rk-x-pending-list',
+  'rk-x-pending-item',
+  'rk-x-textarea-short',
+  'rk-x-textarea-long',
+  'rk-x-ferr-below',
+  'rk-x-notice-more',
+  'rk-x-errsum-line',
+  'rk-x-errsum-retry',
+  'rk-x-hold-d-flush',
+  'rk-x-dlg-body-tight',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

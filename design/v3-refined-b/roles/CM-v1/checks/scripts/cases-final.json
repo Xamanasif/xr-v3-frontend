@@ -1,0 +1,360 @@
+[
+ {
+  "n": "01-overview",
+  "screen": "overview"
+ },
+ {
+  "n": "02-ready",
+  "screen": "ready"
+ },
+ {
+  "n": "03-decision",
+  "screen": "decision",
+  "record": "SUB-0077"
+ },
+ {
+  "n": "03b-confirm",
+  "screen": "decision",
+  "record": "SUB-0077",
+  "preset": "confirm"
+ },
+ {
+  "n": "03c-blocked",
+  "screen": "decision",
+  "record": "SUB-0070",
+  "scenario": "blockers"
+ },
+ {
+  "n": "03d-sendback",
+  "screen": "decision",
+  "record": "SUB-0077",
+  "preset": "send-vendor"
+ },
+ {
+  "n": "03e-done",
+  "screen": "decision",
+  "record": "SUB-0077",
+  "preset": "published-here"
+ },
+ {
+  "n": "03f-stale",
+  "screen": "decision",
+  "record": "SUB-0077",
+  "preset": "stale"
+ },
+ {
+  "n": "04-library",
+  "screen": "library"
+ },
+ {
+  "n": "04b-lib-pub",
+  "screen": "library",
+  "preset": "tab:published"
+ },
+ {
+  "n": "04c-lib-nomatch",
+  "screen": "library",
+  "preset": "tab:published,q:zzz"
+ },
+ {
+  "n": "05-pub-e10",
+  "screen": "published",
+  "record": "e10"
+ },
+ {
+  "n": "05b-pub-e2",
+  "screen": "published",
+  "record": "e2"
+ },
+ {
+  "n": "05c-pub-e6",
+  "screen": "published",
+  "record": "e6"
+ },
+ {
+  "n": "06-new-cat",
+  "screen": "published",
+  "record": "e2",
+  "preset": "start-cat:e2"
+ },
+ {
+  "n": "07-new-del",
+  "screen": "published",
+  "record": "e2",
+  "preset": "start-del:e2"
+ },
+ {
+  "n": "07b-join-del",
+  "screen": "published",
+  "record": "e6",
+  "preset": "start-del:e6"
+ },
+ {
+  "n": "08-updates",
+  "screen": "updates"
+ },
+ {
+  "n": "08b-upd-returned",
+  "screen": "update",
+  "record": "UPD-0006"
+ },
+ {
+  "n": "08c-upd-awaiting",
+  "screen": "update",
+  "record": "UPD-0005"
+ },
+ {
+  "n": "08d-upd-hold",
+  "screen": "update",
+  "record": "UPD-0004"
+ },
+ {
+  "n": "08e-upd-released",
+  "screen": "update",
+  "record": "UPD-0003"
+ },
+ {
+  "n": "09-codes",
+  "screen": "codes"
+ },
+ {
+  "n": "09b-codes-dup",
+  "screen": "codes",
+  "preset": "codes-dup"
+ },
+ {
+  "n": "10-help",
+  "screen": "help"
+ },
+ {
+  "n": "10b-report",
+  "screen": "report"
+ },
+ {
+  "n": "11-public",
+  "screen": "public",
+  "record": "e10"
+ },
+ {
+  "n": "12-refusal",
+  "screen": "workspace"
+ },
+ {
+  "n": "13-signedout",
+  "screen": "signedout"
+ },
+ {
+  "n": "14-empty-overview",
+  "screen": "overview",
+  "scenario": "empty"
+ },
+ {
+  "n": "14b-empty-ready",
+  "screen": "ready",
+  "scenario": "empty"
+ },
+ {
+  "n": "14c-empty-library",
+  "screen": "library",
+  "scenario": "empty"
+ },
+ {
+  "n": "14d-empty-updates",
+  "screen": "updates",
+  "scenario": "empty"
+ },
+ {
+  "n": "02b-ready-blocked",
+  "screen": "ready",
+  "scenario": "blockers"
+ },
+ {
+  "n": "02c-overview-blocked",
+  "screen": "overview",
+  "scenario": "blockers"
+ },
+ {
+  "n": "04d-lib-review",
+  "screen": "library",
+  "preset": "tab:review"
+ },
+ {
+  "n": "04e-lib-vendor",
+  "screen": "library",
+  "preset": "tab:vendor"
+ },
+ {
+  "n": "08f-upd-withdrawn",
+  "screen": "update",
+  "record": "UPD-0006",
+  "preset": "withdraw,goto:updates"
+ },
+ {
+  "n": "03g-send-errors",
+  "screen": "decision",
+  "record": "SUB-0077",
+  "preset": "send-errors"
+ },
+ {
+  "n": "03h-sent-rv",
+  "screen": "decision",
+  "record": "SUB-0077",
+  "preset": "sent-rv"
+ },
+ {
+  "n": "03i-ro-review",
+  "screen": "decision",
+  "record": "SUB-0086",
+  "preset": "library"
+ },
+ {
+  "n": "03j-ro-vendor",
+  "screen": "decision",
+  "record": "SUB-0081",
+  "preset": "library"
+ },
+ {
+  "n": "02d-ready-newest",
+  "screen": "ready",
+  "preset": "newest"
+ },
+ {
+  "n": "05d-pub-e11",
+  "screen": "published",
+  "record": "e11"
+ },
+ {
+  "n": "05e-pub-released",
+  "screen": "update",
+  "record": "UPD-0005",
+  "preset": "sa-release,goto:published:e10"
+ },
+ {
+  "n": "06b-draft-errors",
+  "screen": "published",
+  "record": "e2",
+  "preset": "start:e2,validate"
+ },
+ {
+  "n": "06c-draft-saved",
+  "screen": "published",
+  "record": "e2",
+  "preset": "start-cat:e2,fill,save"
+ },
+ {
+  "n": "08g-upd-savefail",
+  "screen": "update",
+  "record": "UPD-0006",
+  "preset": "savefail"
+ },
+ {
+  "n": "08h-upd-inreview",
+  "screen": "update",
+  "record": "UPD-0006",
+  "preset": "send"
+ },
+ {
+  "n": "08i-upd-lifted",
+  "screen": "update",
+  "record": "UPD-0004",
+  "preset": "sa-lift"
+ },
+ {
+  "n": "08j-upd-stale-wd",
+  "screen": "update",
+  "record": "UPD-0006",
+  "preset": "send,stale-wd"
+ },
+ {
+  "n": "08k-upd-withdrawn-detail",
+  "screen": "update",
+  "record": "UPD-0006",
+  "preset": "withdraw"
+ },
+ {
+  "n": "09c-codes-edit",
+  "screen": "codes",
+  "preset": "codes-edit:ME ZG541"
+ },
+ {
+  "n": "09d-codes-fail",
+  "screen": "codes",
+  "preset": "codes-edit:ME ZG541,codes-fail"
+ },
+ {
+  "n": "09e-codes-saved",
+  "screen": "codes",
+  "preset": "codes-edit:ME ZG541,codes-save"
+ },
+ {
+  "n": "10c-report-errors",
+  "screen": "report",
+  "preset": "report-errors"
+ },
+ {
+  "n": "10d-report-sent",
+  "screen": "report",
+  "preset": "report-sent"
+ },
+ {
+  "n": "10e-report-detail",
+  "screen": "help",
+  "preset": "report-sent,goto:reportDetail:SUP-0186"
+ },
+ {
+  "n": "14e-empty-codes",
+  "screen": "codes",
+  "scenario": "empty"
+ },
+ {
+  "n": "14f-empty-help",
+  "screen": "help",
+  "scenario": "empty"
+ },
+ {
+  "n": "ls-lib-loading",
+  "screen": "library",
+  "preset": "tab:published,load:library"
+ },
+ {
+  "n": "ls-lib-failed",
+  "screen": "library",
+  "preset": "tab:published,fail:library"
+ },
+ {
+  "n": "ls-ready-loading",
+  "screen": "ready",
+  "preset": "load:ready"
+ },
+ {
+  "n": "ls-ready-failed",
+  "screen": "ready",
+  "preset": "fail:ready"
+ },
+ {
+  "n": "ls-upd-loading",
+  "screen": "updates",
+  "preset": "load:updates"
+ },
+ {
+  "n": "ls-upd-failed",
+  "screen": "updates",
+  "preset": "fail:updates"
+ },
+ {
+  "n": "ls-codes-loading",
+  "screen": "codes",
+  "preset": "load:codes"
+ },
+ {
+  "n": "ls-codes-failed",
+  "screen": "codes",
+  "preset": "fail:codes"
+ },
+ {
+  "n": "05f-pub-back",
+  "screen": "published",
+  "record": "e6",
+  "preset": "back"
+ }
+]

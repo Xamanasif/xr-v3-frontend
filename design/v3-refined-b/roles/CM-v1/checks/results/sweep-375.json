@@ -1,0 +1,1158 @@
+[
+ {
+  "n": "01-overview",
+  "w": 375,
+  "h1": "Overview",
+  "sw": 375,
+  "vw": 375,
+  "h": 3197,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open Ready to publish 159x20",
+   "Open Updates 100x20",
+   "Open 37x20",
+   "Open 37x20",
+   "Open 37x20",
+   "Open the Content library 174x17"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "02-ready",
+  "w": 375,
+  "h1": "Ready to publish",
+  "sw": 375,
+  "vw": 375,
+  "h": 2485,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open the Content library 174x17"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03-decision",
+  "w": 375,
+  "h1": "Conduction Through a Composite Wall",
+  "sw": 375,
+  "vw": 375,
+  "h": 5176,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03b-confirm",
+  "w": 375,
+  "h1": "Conduction Through a Composite Wall",
+  "sw": 375,
+  "vw": 375,
+  "h": 5115,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03c-blocked",
+  "w": 375,
+  "h1": "Packed Bed Pressure Drop",
+  "sw": 375,
+  "vw": 375,
+  "h": 5013,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03d-sendback",
+  "w": 375,
+  "h1": "Conduction Through a Composite Wall",
+  "sw": 375,
+  "vw": 375,
+  "h": 6082,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03e-done",
+  "w": 375,
+  "h1": "Conduction Through a Composite Wall",
+  "sw": 375,
+  "vw": 375,
+  "h": 5596,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03f-stale",
+  "w": 375,
+  "h1": "Conduction Through a Composite Wall",
+  "sw": 375,
+  "vw": 375,
+  "h": 5342,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "04-library",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 1740,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Transient Cooling 138x20",
+   "Conduction Through a Composite Wall 298x20",
+   "Packed Bed Pressure Drop 207x20"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "04b-lib-pub",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 3363,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Composite Wall Conduction 216x20",
+   "Fin-Tube Bundle 126x20",
+   "Shell-and-Tube Heat Exchanger 247x20",
+   "CNC Turning Centre 157x20",
+   "Investment Casting 152x20",
+   "Induction Motor Loading 190x20",
+   "Synchronous Generator 186x20",
+   "Transformer Tests 143x20"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "04c-lib-nomatch",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 1251,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13,
+  "minTxt": "3",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "05-pub-e10",
+  "w": 375,
+  "h1": "Distillation Column",
+  "sw": 375,
+  "vw": 375,
+  "h": 4094,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "05b-pub-e2",
+  "w": 375,
+  "h1": "Fin-Tube Bundle",
+  "sw": 375,
+  "vw": 375,
+  "h": 3428,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "05c-pub-e6",
+  "w": 375,
+  "h1": "Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 4594,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "06-new-cat",
+  "w": 375,
+  "h1": "Update to Fin-Tube Bundle",
+  "sw": 375,
+  "vw": 375,
+  "h": 4165,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "07-new-del",
+  "w": 375,
+  "h1": "Update to Fin-Tube Bundle",
+  "sw": 375,
+  "vw": 375,
+  "h": 4142,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "07b-join-del",
+  "w": 375,
+  "h1": "Update to Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 5582,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08-updates",
+  "w": 375,
+  "h1": "Updates",
+  "sw": 375,
+  "vw": 375,
+  "h": 3022,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13.5,
+  "minTxt": "1",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08b-upd-returned",
+  "w": 375,
+  "h1": "Update to Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 5355,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08c-upd-awaiting",
+  "w": 375,
+  "h1": "Update to Distillation Column",
+  "sw": 375,
+  "vw": 375,
+  "h": 3713,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13.5,
+  "minTxt": "CHE ZG513",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08d-upd-hold",
+  "w": 375,
+  "h1": "Update to Boiler Drum Level",
+  "sw": 375,
+  "vw": 375,
+  "h": 3766,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13.5,
+  "minTxt": "CHE ZG513",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08e-upd-released",
+  "w": 375,
+  "h1": "Update to Orifice Plate Metering",
+  "sw": 375,
+  "vw": 375,
+  "h": 3346,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13.5,
+  "minTxt": "CHE ZG513",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "09-codes",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 2382,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "09b-codes-dup",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 2609,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13.5,
+  "minTxt": "Changed — not saved yet",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "10-help",
+  "w": 375,
+  "h1": "Help & support",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "10b-report",
+  "w": 375,
+  "h1": "Report a problem",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Help & support 107x22"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "11-public",
+  "w": 375,
+  "h1": "Distillation Column",
+  "sw": 375,
+  "vw": 375,
+  "h": 1536,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "12-refusal",
+  "w": 375,
+  "h1": "This page isn’t part of your workspace",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Overview 65x22",
+   "Help 34x20"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "13-signedout",
+  "w": 375,
+  "h1": "You’re signed out",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13,
+  "minTxt": "Official WILP logo",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "14-empty-overview",
+  "w": 375,
+  "h1": "Overview",
+  "sw": 375,
+  "vw": 375,
+  "h": 1629,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open the Content library 174x17",
+   "Open the Content library 174x17"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "14b-empty-ready",
+  "w": 375,
+  "h1": "Ready to publish",
+  "sw": 375,
+  "vw": 375,
+  "h": 1116,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open the Content library 174x17"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "14c-empty-library",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 1119,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13,
+  "minTxt": "0",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "14d-empty-updates",
+  "w": 375,
+  "h1": "Updates",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "02b-ready-blocked",
+  "w": 375,
+  "h1": "Ready to publish",
+  "sw": 375,
+  "vw": 375,
+  "h": 2528,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open the Content library 174x17"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "02c-overview-blocked",
+  "w": 375,
+  "h1": "Overview",
+  "sw": 375,
+  "vw": 375,
+  "h": 3197,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open Ready to publish 159x20",
+   "Open Updates 100x20",
+   "Open 37x20",
+   "Open 37x20",
+   "Open 37x20",
+   "Open the Content library 174x17"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "04d-lib-review",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 1433,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Flash Distillation 132x20",
+   "Venturi Meter Calibration 198x20"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "04e-lib-vendor",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 1201,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Forced Convection 146x20"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08f-upd-withdrawn",
+  "w": 375,
+  "h1": "Updates",
+  "sw": 375,
+  "vw": 375,
+  "h": 2720,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13.5,
+  "minTxt": "2",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03g-send-errors",
+  "w": 375,
+  "h1": "Conduction Through a Composite Wall",
+  "sw": 375,
+  "vw": 375,
+  "h": 5873,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22",
+   "Choose who it goes back to 191x17"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03h-sent-rv",
+  "w": 375,
+  "h1": "Conduction Through a Composite Wall",
+  "sw": 375,
+  "vw": 375,
+  "h": 5504,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Ready to publish 118x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03i-ro-review",
+  "w": 375,
+  "h1": "Flash Distillation",
+  "sw": 375,
+  "vw": 375,
+  "h": 3747,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "03j-ro-vendor",
+  "w": 375,
+  "h1": "Forced Convection",
+  "sw": 375,
+  "vw": 375,
+  "h": 4353,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "02d-ready-newest",
+  "w": 375,
+  "h1": "Ready to publish",
+  "sw": 375,
+  "vw": 375,
+  "h": 2485,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open the Content library 174x17"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "05d-pub-e11",
+  "w": 375,
+  "h1": "Boiler Drum Level",
+  "sw": 375,
+  "vw": 375,
+  "h": 3793,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "05e-pub-released",
+  "w": 375,
+  "h1": "Distillation Column",
+  "sw": 375,
+  "vw": 375,
+  "h": 3892,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "06b-draft-errors",
+  "w": 375,
+  "h1": "Update to Fin-Tube Bundle",
+  "sw": 375,
+  "vw": 375,
+  "h": 4405,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22",
+   "Say what changes and why 188x17"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "06c-draft-saved",
+  "w": 375,
+  "h1": "Update to Fin-Tube Bundle",
+  "sw": 375,
+  "vw": 375,
+  "h": 4546,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08g-upd-savefail",
+  "w": 375,
+  "h1": "Update to Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 5523,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13,
+  "minTxt": "Your step",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08h-upd-inreview",
+  "w": 375,
+  "h1": "Update to Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 3846,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13.5,
+  "minTxt": "EEE ZC341",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08i-upd-lifted",
+  "w": 375,
+  "h1": "Update to Boiler Drum Level",
+  "sw": 375,
+  "vw": 375,
+  "h": 4031,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13.5,
+  "minTxt": "CHE ZG513",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08j-upd-stale-wd",
+  "w": 375,
+  "h1": "Update to Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 4119,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13.5,
+  "minTxt": "EEE ZC341",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "08k-upd-withdrawn-detail",
+  "w": 375,
+  "h1": "Update to Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 3738,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Updates 59x22"
+  ],
+  "minFs": 13.5,
+  "minTxt": "EEE ZC341",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "09c-codes-edit",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 2402,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13.5,
+  "minTxt": "Changed — not saved yet",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "09d-codes-fail",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 2564,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13.5,
+  "minTxt": "Changed — not saved yet",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "09e-codes-saved",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 2474,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "10c-report-errors",
+  "w": 375,
+  "h1": "Report a problem",
+  "sw": 375,
+  "vw": 375,
+  "h": 1009,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Help & support 107x22",
+   "Say what happened 137x17"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "10d-report-sent",
+  "w": 375,
+  "h1": "Report sent",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Back to Overview 122x20"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "10e-report-detail",
+  "w": 375,
+  "h1": "The delivery link preview showed an empty frame on Distillation Column.",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Help & support 107x22"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "14e-empty-codes",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 2382,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "14f-empty-help",
+  "w": 375,
+  "h1": "Help & support",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-lib-loading",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 1085,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13.5,
+  "minTxt": "In the public catalogue",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-lib-failed",
+  "w": 375,
+  "h1": "Content library",
+  "sw": 375,
+  "vw": 375,
+  "h": 1058,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 13.5,
+  "minTxt": "In the public catalogue",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-ready-loading",
+  "w": 375,
+  "h1": "Ready to publish",
+  "sw": 375,
+  "vw": 375,
+  "h": 1518,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open the Content library 174x17"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-ready-failed",
+  "w": 375,
+  "h1": "Ready to publish",
+  "sw": 375,
+  "vw": 375,
+  "h": 1284,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Open the Content library 174x17"
+  ],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-upd-loading",
+  "w": 375,
+  "h1": "Updates",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-upd-failed",
+  "w": 375,
+  "h1": "Updates",
+  "sw": 375,
+  "vw": 375,
+  "h": 900,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-codes-loading",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 1362,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "ls-codes-failed",
+  "w": 375,
+  "h1": "Course codes",
+  "sw": 375,
+  "vw": 375,
+  "h": 1335,
+  "over": [],
+  "cut": [],
+  "small": [],
+  "minFs": 14,
+  "minTxt": "KN",
+  "errs": [],
+  "bad": []
+ },
+ {
+  "n": "05f-pub-back",
+  "w": 375,
+  "h1": "Induction Motor Loading",
+  "sw": 375,
+  "vw": 375,
+  "h": 4746,
+  "over": [],
+  "cut": [],
+  "small": [
+   "Content library 106x22"
+  ],
+  "minFs": 12,
+  "minTxt": "WEB",
+  "errs": [],
+  "bad": []
+ }
+]

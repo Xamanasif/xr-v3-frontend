@@ -27,5 +27,7 @@ export {
   SA_EXPORT_DIRECTORY,
   veExportText,
   VE_EXPORT_DIRECTORY,
+  cmExportText,
+  CM_EXPORT_DIRECTORY,
   v3Canonical,
 } from './v3.js';

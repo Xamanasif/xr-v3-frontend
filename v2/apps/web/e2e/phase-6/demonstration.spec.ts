@@ -3,7 +3,13 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 import { openInTab, sendRequest, statusHead } from '../package-1c/flow';
 import { reachAndClick } from '../support';
 import { checkState } from '../support/screen-checks';
-import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
+import {
+  expectSameDocument,
+  markDocument,
+  revealSidebar,
+  sidebarHelp,
+  sidebarLink,
+} from '../support/workspace';
 
 /**
  * Phase 6 on the PRODUCT build — one browser tab each, no test hooks, nothing but the screens, at
@@ -57,6 +63,13 @@ const button = (page: Page, name: string) => main(page).getByRole('button', { na
 const field = (page: Page, label: string) =>
   main(page).getByRole('textbox', { name: label, exact: true });
 const decision = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
+/** The Content Manager's V3 correction page (CM-08, CM-v1): its status pill in the identity band. */
+const cmChip = (page: Page) => main(page).locator('section.cm-idband .rb-id-status .xr-st');
+/** CM-08's labels (CM-v1): what changes and why, and the version label, both required to send. */
+const WHY_FIELD = 'Reason for the change (required to send)';
+const VERSION_FIELD = 'New version label (required to send)';
+/** A name as a pattern, its characters literal. */
+const literally = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 async function signIn(page: Page, email: string): Promise<void> {
   await card(page).getByLabel('E-mail', { exact: true }).fill(email);
@@ -86,7 +99,10 @@ async function toSignIn(page: Page): Promise<void> {
   await page.waitForURL('**/sign-in');
 }
 
-/** A tab or tab link: below 1024 px its strip scrolls sideways, so it is brought into view first. */
+/**
+ * A tab, a tab link or a view button (CM-04's views, CM-v1): below 1024 px its strip scrolls
+ * sideways, so it is brought into view first.
+ */
 async function pressTab(page: Page, tab: Locator): Promise<void> {
   await tab.scrollIntoViewIfNeeded();
   await reachAndClick(page, tab);
@@ -190,24 +206,40 @@ async function accessBeforeCorrections(page: Page): Promise<void> {
   await signOut(page, MEERA);
 }
 
-/** The Content Manager's published experiment (CM-04 Published tab → CM-05). */
+/**
+ * The Content Manager's published experiment (CM-04 Published view → CM-05). CM-04 (V3, CM-v1):
+ * the views are buttons in “Show experiments that are”, and a row's link is named by the
+ * experiment, its course, version and status (“<name>, <code>, version 1.0, published. Open the
+ * published experiment”).
+ */
 async function openPublished(page: Page, name: string): Promise<void> {
   await sidebar(page, '/content-manager/library');
-  await pressTab(page, page.getByRole('tab', { name: /^Published/ }));
+  await pressTab(
+    page,
+    page
+      .getByRole('group', { name: 'Show experiments that are' })
+      .getByRole('button', { name: /^Published/ }),
+  );
   await page.waitForURL(/\/content-manager\/library\?tab=published$/);
-  await reachAndClick(page, main(page).getByRole('link', { name: `Open ${name}` }));
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', {
+      name: new RegExp(`^${literally(name)}, .*Open the published experiment$`),
+    }),
+  );
   await page.waitForURL(`**/content-manager/published/${SHELL_ID}`);
   await expect(h1(page)).toHaveText(name);
 }
 
-/** CM-08: send the draft for academic review through DL-1. */
+/** CM-08: send the draft for academic review through DL-1 (V3: “Send UPD-… for academic review?”). */
 async function sendForReview(page: Page): Promise<void> {
+  const id = /UPD-\d{4}/.exec(page.url())![0];
   await reachAndClick(page, button(page, 'Send for academic review'));
-  const send = page.getByRole('dialog', { name: 'Send for academic review?' });
+  const send = page.getByRole('dialog', { name: `Send ${id} for academic review?` });
   await expect(send).toBeVisible();
   await reachAndClick(page, send.getByRole('button', { name: 'Send for academic review' }));
   await expect(send).toBeHidden();
-  await expect(main(page).locator('.xr-phead-meta .xr-status')).toHaveText('In academic review');
+  await expect(cmChip(page)).toHaveText('In academic review');
 }
 
 /** RV-02 → RV-04 → Approve update (DL-1): approval releases nothing. */
@@ -255,25 +287,24 @@ test('one tab, the product build: Flow F — a correction released, then another
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await openPublished(page, SHELL);
-  await expect(main(page).locator('.xw-actions').first().getByRole('button')).toHaveText([
-    'Start a correction',
-    'Edit catalogue details',
-    'Edit delivery link',
-  ]);
+  await expect(
+    page.getByRole('complementary', { name: 'Corrections' }).getByRole('button'),
+  ).toHaveText(['Start a correction', 'Edit catalogue details', 'Edit delivery link']);
   await reachAndClick(page, button(page, 'Edit catalogue details'));
   await page.waitForURL(/\/content-manager\/updates\/UPD-\d{4}\?focus=summary$/);
-  await expect(h1(page)).toHaveText('Update to version …');
+  // CM-08 (V3, CM-v1): the H1 names the live experiment (“Update to …”) whatever is typed.
+  await expect(h1(page)).toHaveText(`Update to ${SHELL}`);
   await expect(field(page, 'Summary')).toBeFocused();
   await retype(page, field(page, 'Name'), RELEASED_NAME);
   await retype(page, field(page, 'Summary'), RELEASED_SUMMARY);
-  await field(page, 'What changes and why').fill(
+  await field(page, WHY_FIELD).fill(
     'The name and summary now say what the Student measures: the overall heat-transfer coefficient.',
   );
-  await field(page, 'Version label').fill('1.1');
+  await field(page, VERSION_FIELD).fill('1.1');
   await reachAndClick(page, button(page, 'Save draft'));
   await expect(main(page).locator('#cm-u-saved')).toContainText('the live version is unchanged');
   await sendForReview(page);
-  await checkState(page, 'Update to version 1.1');
+  await checkState(page, `Update to ${SHELL}`);
   await signOut(page, KAVYA);
 
   // The draft and the review are private: the public page shows the live version.
@@ -340,10 +371,10 @@ test('one tab, the product build: Flow F — a correction released, then another
   await openPublished(page, RELEASED_NAME);
   await reachAndClick(page, button(page, 'Start a correction'));
   await page.waitForURL(/\/content-manager\/updates\/UPD-\d{4}$/);
-  await expect(h1(page)).toHaveText('Update to version …');
+  await expect(h1(page)).toHaveText(`Update to ${RELEASED_NAME}`);
   await retype(page, field(page, 'Summary'), HELD_SUMMARY);
-  await field(page, 'What changes and why').fill('A second summary correction, to be checked.');
-  await field(page, 'Version label').fill('1.2');
+  await field(page, WHY_FIELD).fill('A second summary correction, to be checked.');
+  await field(page, VERSION_FIELD).fill('1.2');
   await sendForReview(page);
   await signOut(page, KAVYA);
   await approveAsReviewer(page, RELEASED_NAME);
@@ -384,16 +415,21 @@ test('one tab, the product build: Flow F — a correction released, then another
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await sidebar(page, '/content-manager/updates');
+  // CM-08 (V3, CM-v1): the tracker's card for RELEASED_NAME's 1.2 (its version change “1.1 live
+  // → 1.2 proposed”), with the others.
   const held = main(page)
-    .locator('table.xr-table tbody tr')
-    .filter({ hasText: `${RELEASED_NAME} · 1.2` });
+    .locator('li.cm-trk')
+    .filter({
+      has: page.locator('.cm-qname', { hasText: new RegExp(`^${literally(RELEASED_NAME)}$`) }),
+    })
+    .filter({ has: page.locator('.cm-ver', { hasText: /1\.2 proposed/ }) });
   await expect(held).toContainText('On hold');
   await reachAndClick(page, held.getByRole('link').first());
   await page.waitForURL(/\/content-manager\/updates\/UPD-\d{4}$/);
   await expect(main(page)).toContainText(
     'Version 1.1 stays live while the new summary is checked.',
   );
-  await checkState(page, 'Update to version 1.2');
+  await checkState(page, `Update to ${RELEASED_NAME}`);
   await signOut(page, KAVYA);
 
   await expectSameDocument(page, mark);
@@ -531,7 +567,8 @@ test('one tab, the product build: operations — a report resolved with a note t
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await revealSidebar(page);
-  await reachAndClick(page, page.locator('aside.xr-side .xr-side-foot a'));
+  // The rail's (or, below 1024 px, the drawer's) Help & support: the V3 shell (CM-v1).
+  await reachAndClick(page, sidebarHelp(page));
   await page.waitForURL('**/content-manager/help');
   await reachAndClick(page, main(page).getByRole('link', { name: 'Report a problem' }));
   await page.getByLabel('What happened?').fill(what);
@@ -589,7 +626,8 @@ test('one tab, the product build: operations — a report resolved with a note t
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await revealSidebar(page);
-  await reachAndClick(page, page.locator('aside.xr-side .xr-side-foot a'));
+  // The rail's (or, below 1024 px, the drawer's) Help & support: the V3 shell (CM-v1).
+  await reachAndClick(page, sidebarHelp(page));
   const row = main(page).locator('ul.xs-reports a.xs-report', { hasText: reference });
   await expect(row).toContainText('Resolved');
   await reachAndClick(page, row);
@@ -624,7 +662,8 @@ test('one tab, the product build: operations — a report resolved with a note t
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await revealSidebar(page);
-  await reachAndClick(page, page.locator('aside.xr-side .xr-side-foot a'));
+  // The rail's (or, below 1024 px, the drawer's) Help & support: the V3 shell (CM-v1).
+  await reachAndClick(page, sidebarHelp(page));
   await expect(
     main(page).locator('ul.xs-reports a.xs-report', { hasText: reference }),
   ).toContainText('Reopened');

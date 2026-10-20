@@ -1,13 +1,13 @@
 /**
- * CM-01 Overview (board B6-05 f0 … f2), CM-02 Ready to publish (B6-06 f0, f2, f3; B6-12 f2), CM-04
- * Content library (B6-06 f1, f4) and CM-09 Course codes (B6-10 f0 … f2; B6-11 f12) on the real
- * composition root and the sample world, as Kavya Nair. At spine-start the world holds B6-05’s
- * and B6-06’s records (SUB-0074 and SUB-0070 approved, SUB-0071 back for a re-check, UPD-0006
- * returned, UPD-0004 on hold, twelve published experiments); Anil Shetty creates and submits
- * “Conduction Through a Composite Wall” and Prof. A. Menon approves it (Flow E’s E1 and E3, through
- * the ports) for B6-06 f0. The one world moves the pages: publishing empties Ready to publish
- * (f3); a code saved on CM-09 is the platform’s code. The drawn validation (a duplicate code); the
- * undrawn loading, failed, stale and policy-open states.
+ * CM-01 Overview, CM-02 Ready to publish, CM-04 Content library and CM-09 Platform course codes in
+ * the V3 Refined B design (the owner-approved export design/v3-refined-b/roles/CM-v1) on the real
+ * composition root and the sample world, as Kavya Nair. At spine-start the world holds her desk
+ * (SUB-0074 and SUB-0070 approved, SUB-0071 back for a re-check, UPD-0006 returned, UPD-0004 on
+ * hold, twelve published experiments); Anil Shetty creates and submits “Conduction Through a
+ * Composite Wall” and Prof. A. Menon approves it (Flow E’s E1 and E3, through the ports). The one
+ * world moves the pages: publishing empties Ready to publish; a code saved on CM-09 is the
+ * platform’s code. The drawn validation (a duplicate code), the busy save and the failed save; the
+ * list states (empty, no match, loading, couldn’t load); the undrawn stale and policy-open refusals.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -29,8 +29,9 @@ import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
 import { CmOverview } from './cm-01-overview/overview';
+import { libraryViewAddress } from './cm-02-ready/list-facts';
 import { openChecks, ReadyToPublish } from './cm-02-ready/ready-to-publish';
-import { ContentLibrary, submissionWhere } from './cm-04-library/content-library';
+import { ContentLibrary, submissionTag } from './cm-04-library/content-library';
 import { clearCodeEdits } from './cm-09-course-codes/code-edits';
 import { CourseCodes } from './cm-09-course-codes/course-codes';
 
@@ -78,7 +79,7 @@ const OUTCOMES = [
   'Explain conduction through layers in series using thermal resistance.',
   'Predict interface temperatures from layer properties.',
 ];
-/** B6-06 f0’s approval: 27 Aug 2026, 15:20 in Indian time. */
+/** E3’s approval: 27 Aug 2026, 15:20 in Indian time. */
 const E3_APPROVED = '2026-08-27T09:50:00.000Z';
 
 type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
@@ -159,107 +160,208 @@ const sidebarCurrent = () =>
   screen
     .getByRole('navigation', { name: 'Content Manager navigation' })
     .querySelector('[aria-current="page"]')!;
+const region = (name: string) => screen.getByRole('region', { name });
+const figures = () =>
+  [...main().querySelectorAll('dl.rb-figs > .rb-fig')].map((figure) =>
+    [...figure.children].map(text),
+  );
 
-async function tableRows(): Promise<string[][]> {
+/** A table’s course bands and its rows (cells as text), in order. */
+async function tableLines(): Promise<string[][]> {
   const found = await screen.findByRole('table', {}, { timeout: 5000 });
   return [...found.querySelectorAll('tbody tr')].map((row) =>
-    [...row.querySelectorAll('td')].map((cell) => text(cell)),
+    row.matches('.cm-grp-h, .cm-area')
+      ? ['band', text(row)]
+      : [...row.querySelectorAll('td')].map((cell) => text(cell)),
   );
 }
 
-function section(name: string): HTMLElement {
-  return screen.getByRole('region', { name });
-}
-
-function rowTexts(region: HTMLElement): string[] {
-  return [...region.querySelectorAll('li.xr-row')].map((row) => text(row));
+async function tableRows(): Promise<string[][]> {
+  return (await tableLines()).filter((line) => line[0] !== 'band');
 }
 
 // ---- CM-01 Overview ---------------------------------------------------------------------------
 
-describe('CM-01 Overview at spine-start (B6-05 f0, f2)', () => {
-  it('the overline, the status line, “Needs your decision” and “With others”, with their actions', async () => {
+describe('CM-01 Overview at spine-start', () => {
+  it('the head, the pipeline, the decision desk, with others and the catalogue, with their links', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     show(runtime, <CmOverview />, '/content-manager');
-    await h1('Overview');
+    const title = await h1('Overview');
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(main().querySelector('.xr-overline')).toHaveTextContent('Kavya Nair');
-    const line = main().querySelector('p.xv-statusline[role="status"]');
-    // UPD-0005 is Flow F’s, not spine-start’s: two with others here (B6-05 f0 draws three).
-    await waitFor(() =>
-      expect([...line!.querySelectorAll('span')].map(text)).toEqual([
-        '2 ready to publish',
-        '1 correction needs you',
-        '2 with others',
-      ]),
+    expect(title).toHaveAttribute('tabindex', '-1');
+    expect(title.closest('header')).toHaveClass('rb-head');
+    expect(main().querySelector('.rb-head .rk-sub')).toHaveTextContent(
+      'What is ready for you to publish, the corrections you raised, and what is live in the catalogue.',
     );
-    expect(line!.querySelector('strong')).toHaveTextContent('2');
-    const library = within(main()).getByRole('link', { name: 'Content library' });
-    expect(library).toHaveClass('xr-btn', 'xr-btn--secondary');
-    expect(library).toHaveAttribute('href', '/content-manager/library');
-    expect(library.closest('.xr-phead-actions')).not.toBeNull();
 
-    const needs = section('Needs your decision');
-    expect(rowTexts(needs)).toEqual([
-      'Ready to publish: Transient CoolingSUB-0074 · ME ZG523 · approved 14 Aug 2026 · oldest of 2Open the next ready item',
-      'Ready to publish: Packed Bed Pressure DropSUB-0070 · CHE ZG513 · approved 21 Aug 2026Open decision',
-      'Update returned: Induction Motor Loading 1.1UPD-0006 · returned by the Academic Reviewer on 26 Aug 2026 · “The proposed description says slip falls as the load rises…”Open update',
+    // The pipeline: both lifecycles, counted from the records, each stage a link to its list.
+    const pipeline = await screen.findByRole('region', { name: 'Publishing pipeline' });
+    const tiles = within(pipeline)
+      .getAllByRole('link')
+      .map((link) => [link.getAttribute('aria-label'), link.getAttribute('href')]);
+    expect(tiles).toEqual([
+      [
+        '1 With the vendor. Vendor revising. Open the Content library, With vendor',
+        '/content-manager/library?tab=with-vendor',
+      ],
+      [
+        '3 In academic review. Academic Reviewer. Open the Content library, In review',
+        '/content-manager/library?tab=in-review',
+      ],
+      [
+        '2 Ready to publish. Oldest approved 14 Aug. Your step. Open Ready to publish',
+        '/content-manager/ready',
+      ],
+      [
+        '12 In the catalogue. Live today. Open the Content library, Published',
+        '/content-manager/library?tab=published',
+      ],
+      ['1 Draft or returned. With you. Your step. Open Updates', '/content-manager/updates'],
+      ['0 In academic review. Academic Reviewer. Open Updates', '/content-manager/updates'],
+      ['1 Release decision. Super Admin · 1 on hold. Open Updates', '/content-manager/updates'],
+      [
+        expect.stringMatching(/^\d+ Released\. Live for everyone\. Open Updates$/),
+        '/content-manager/updates',
+      ],
     ]);
-    const next = within(needs).getByRole('link', { name: 'Open the next ready item' });
-    expect(next).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
-    expect(next).toHaveAttribute('href', '/content-manager/decisions/SUB-0074');
-    const other = within(needs).getByRole('link', {
-      name: 'Open decision for Packed Bed Pressure Drop',
+    expect(
+      [...pipeline.querySelectorAll('li.cm-tile')].map((tile) => tile.classList.contains('is-you')),
+    ).toEqual([false, false, true, false, true, false, false, false]);
+    expect(pipeline.querySelectorAll('li.cm-tile.is-quiet')).toHaveLength(1);
+
+    // Needs your decision: the ready items, oldest first, then the returned correction.
+    const desk = region('Needs your decision');
+    expect(desk.querySelector('.cm-queue-top .rb-note')).toHaveTextContent('Oldest first');
+    const ready = within(desk).getByRole('region', { name: 'Ready to publish' });
+    expect(within(ready).getByRole('link', { name: 'Open Ready to publish' })).toHaveAttribute(
+      'href',
+      '/content-manager/ready',
+    );
+    const readyRows = [...ready.querySelectorAll('li.cm-orow')];
+    expect(readyRows.map((row) => row.querySelector('.rb-row-t')!.textContent)).toEqual([
+      'Transient Cooling',
+      'Packed Bed Pressure Drop',
+    ]);
+    expect(readyRows[0]).toHaveClass('is-first');
+    expect(readyRows[0]!.querySelector('.cm-next')).toHaveTextContent('Publish next');
+    expect(readyRows[1]!.querySelector('.cm-next')).toBeNull();
+    expect(text(readyRows[0]!.querySelector('.rb-row-d'))).toBe(
+      'SUB-0074 · ME ZG523 · Northline Simulation Studio',
+    );
+    expect(text(readyRows[0]!.querySelector('.rb-row-when span'))).toBe('approved 14 Aug');
+    expect(readyRows[0]!.querySelector('.rb-row-when b')!.textContent).toMatch(/^\d+ days$/);
+    expect(text(readyRows[0]!.querySelector('.cm-orow-x .cm-qcheck'))).toBe('4 of 4 checks met');
+    expect(text(readyRows[1]!.querySelector('.cm-orow-x .rk-fmts .xr-sr'))).toBe(
+      'Formats: WEB, AR',
+    );
+    const next = within(ready).getByRole('link', {
+      name: 'Open the publication decision for Transient Cooling',
     });
-    expect(other).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(next).toHaveTextContent('Open decision');
+    expect(next).toHaveClass('rb-btn', 'rb-btn--primary');
+    expect(next).toHaveAttribute('href', '/content-manager/decisions/SUB-0074');
+    const other = within(ready).getByRole('link', {
+      name: 'Open the publication decision for Packed Bed Pressure Drop',
+    });
+    expect(other).not.toHaveClass('rb-btn--primary');
     expect(other).toHaveAttribute('href', '/content-manager/decisions/SUB-0070');
-    // The returned correction’s “Open update” opens it (CM-08, Phase 6).
-    const openUpdate = within(needs).getByRole('link', { name: 'Open update' });
-    expect(openUpdate).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
-    expect(openUpdate).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
-    const icons = [...needs.querySelectorAll('.xr-row-icon')].map((icon) => icon.className);
-    expect(icons).toEqual([
-      'xr-row-icon xr-row-icon--info',
-      'xr-row-icon xr-row-icon--info',
-      'xr-row-icon xr-row-icon--err',
-    ]);
 
-    const others = section('With others');
-    expect(others.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
-      'For information — nothing to do',
+    const corrections = within(desk).getByRole('region', { name: 'Corrections that need you' });
+    expect(within(corrections).getByRole('link', { name: 'Open Updates' })).toHaveAttribute(
+      'href',
+      '/content-manager/updates',
     );
-    expect(rowTexts(others)).toEqual([
-      'Venturi Meter Calibration — with the Academic Reviewer for a re-checkSUB-0071 · you sent it back on 25 Aug 2026Open',
-      'Boiler Drum Level 2.1 — on holdUPD-0004 · the Super Admin put it on hold on 20 Aug 2026 · version 2.0 stays liveOpen',
-    ]);
-    const open = within(others).getByRole('link', { name: 'Open Venturi Meter Calibration' });
-    expect(open).toHaveClass('xr-btn', 'xr-btn--text', 'xr-btn--sm');
-    expect(open).toHaveAttribute('href', '/content-manager/decisions/SUB-0071');
-    // A correction’s “Open” opens it (CM-08, Phase 6).
-    const held = within(others).getByRole('link', { name: 'Open Boiler Drum Level' });
-    expect(held).toHaveClass('xr-btn', 'xr-btn--text', 'xr-btn--sm');
-    expect(held).toHaveAttribute('href', '/content-manager/updates/UPD-0004');
-    expect(within(others).getAllByRole('link')).toHaveLength(2);
+    const returned = corrections.querySelector('li.cm-orow')!;
+    expect(text(returned.querySelector('.rb-row-t'))).toBe('Induction Motor Loading');
+    expect(text(returned.querySelector('.rb-row-when span'))).toBe('returned 26 Aug');
+    expect(text(returned.querySelector('.cm-orow-x'))).toBe('Returned to you1.0 live1.1 proposed');
+    expect(returned.querySelector('.cm-orow-x .xr-st')).toHaveClass('xr-st--err');
+    expect(text(returned.querySelector('blockquote p'))).toBe(
+      '“The proposed description says slip falls as the load rises. It rises. Please correct it before…”',
+    );
+    expect(text(returned.querySelector('blockquote footer'))).toBe(
+      'Prof. A. Menon, Academic Reviewer · 26 Aug',
+    );
+    const resume = within(corrections).getByRole('link', {
+      name: 'Continue UPD-0006, correction to Induction Motor Loading',
+    });
+    expect(resume).toHaveTextContent('Continue');
+    expect(resume).not.toHaveClass('rb-btn--primary');
+    expect(resume).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
+    expect(
+      within(desk)
+        .getAllByRole('link', { name: /^(Open the publication|Continue)/ })
+        .filter((link) => link.classList.contains('rb-btn--primary')),
+    ).toHaveLength(1);
 
-    // The shell: Overview current, Ready to publish counted from the same records.
+    // With others: what she sent on, oldest first.
+    const others = region('With others');
+    expect(others.querySelector('.cm-grp-head .rb-note')).toHaveTextContent(
+      'Nothing for you to do',
+    );
+    expect([...others.querySelectorAll('ul.cm-hold > li')].map((row) => text(row))).toEqual([
+      'Boiler Drum Level 2.1Super Admin · held 20 Aug · 2.0 stays liveOn holdOpen',
+      'Venturi Meter CalibrationAcademic Reviewer · re-check you asked for on 25 AugBack with the Academic ReviewerOpen',
+    ]);
+    expect(
+      within(others)
+        .getAllByRole('link')
+        .map((link) => [link.getAttribute('aria-label'), link.getAttribute('href')]),
+    ).toEqual([
+      ['Open UPD-0004, Boiler Drum Level', '/content-manager/updates/UPD-0004'],
+      ['Open Venturi Meter Calibration', '/content-manager/decisions/SUB-0071'],
+    ]);
+
+    // In the catalogue, by course; each course opens the library's Published view filtered to it.
+    const catalogue = region('In the catalogue');
+    expect(text(catalogue.querySelector('.cm-cattotal'))).toBe('12experiments live, in 5 courses');
+    const courses = within(catalogue).getByRole('list', { name: 'Live experiments by course' });
+    expect(
+      within(courses)
+        .getAllByRole('link')
+        .map((link) => link.getAttribute('aria-label')),
+    ).toEqual([
+      'Thermodynamics & Heat Transfer, 3 published experiments. Open in the Content library',
+      'Manufacturing Processes, 2 published experiments. Open in the Content library',
+      'Electrical Machines, 3 published experiments. Open in the Content library',
+      'Power Electronics, 1 published experiment. Open in the Content library',
+      'Process Instrumentation & Control, 3 published experiments. Open in the Content library',
+    ]);
+    expect(within(courses).getAllByRole('link')[0]).toHaveAttribute(
+      'href',
+      '/content-manager/library?tab=published&course=thermodynamics-heat-transfer',
+    );
+    expect(
+      within(catalogue).getByRole('link', { name: 'Open the Content library' }),
+    ).toHaveAttribute('href', '/content-manager/library?tab=published');
+
+    // The shell: Overview current.
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager');
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Overview');
   });
 
-  it('after SUB-0077 is approved: three ready, the oldest still first', async () => {
+  it('after SUB-0077 is approved: three ready, the oldest still first and still “Publish next”', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await approveCompositeWall(sample);
     show(runtime, <CmOverview />, '/content-manager');
     await h1('Overview');
-    const needs = await screen.findByRole('region', { name: 'Needs your decision' });
-    await waitFor(() => expect(rowTexts(needs)[0]).toContain('approved 14 Aug 2026 · oldest of 3'));
-    expect(rowTexts(needs)[2]).toBe(
-      'Ready to publish: Conduction Through a Composite WallSUB-0077 · ME ZG523 · approved 27 Aug 2026Open decision',
+    const ready = await screen.findByRole('region', { name: 'Ready to publish' });
+    await waitFor(() => expect(ready.querySelectorAll('li.cm-orow')).toHaveLength(3));
+    const rows = [...ready.querySelectorAll('li.cm-orow')];
+    expect(rows[0]).toHaveClass('is-first');
+    expect(text(rows[0]!.querySelector('.rb-row-t'))).toBe('Transient Cooling');
+    expect(text(rows[2]!.querySelector('.rb-row-t'))).toBe('Conduction Through a Composite Wall');
+    expect(text(rows[2]!.querySelector('.rb-row-d'))).toBe(
+      'SUB-0077 · ME ZG523 · Northline Simulation Studio',
     );
-    expect(text(main().querySelector('.xv-statusline'))).toContain('3 ready to publish');
+    expect(text(rows[2]!.querySelector('.rb-row-when span'))).toBe('approved 27 Aug');
+    expect(
+      within(region('Publishing pipeline')).getByRole('link', {
+        name: '3 Ready to publish. Oldest approved 14 Aug. Your step. Open Ready to publish',
+      }),
+    ).toBeVisible();
   });
 
-  it('nothing waiting (f1): the calm state and the Content library one click away', async () => {
+  it('nothing waiting: the calm state, the Content library one click away', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     vi.spyOn(runtime.ports.production, 'getContentManagerOverview').mockResolvedValue({
       ok: true,
@@ -267,31 +369,27 @@ describe('CM-01 Overview at spine-start (B6-05 f0, f2)', () => {
       changed: [],
     });
     show(runtime, <CmOverview />, '/content-manager');
-    const calm = await screen.findByRole('heading', {
-      level: 2,
-      name: 'Nothing is waiting for your publication decision',
+    const calm = await screen.findByRole('region', {
+      name: 'Nothing is waiting for your decision',
     });
-    expect(calm).toHaveClass('xr-h3');
-    const empty = calm.closest('.xr-empty')!;
-    expect(empty.parentElement).toHaveClass('xr-section');
-    expect(empty.querySelector('.xr-empty-icon')).toHaveClass('xr-x-empty-icon--ok');
-    expect(empty).toHaveTextContent(
-      'Approved experiments and corrections that need you appear here.',
+    expect(calm).toHaveClass('rb-panel', 'rb-att', 'rb-att--calm');
+    expect(within(calm).getByRole('heading', { level: 2 })).toHaveTextContent(
+      'Needs your decision',
     );
-    const open = within(empty as HTMLElement).getByRole('link', {
-      name: 'Open the Content library',
-    });
-    expect(open).toHaveClass('xr-btn', 'xr-btn--secondary');
-    expect(open).toHaveAttribute('href', '/content-manager/library');
-    expect([...main().querySelectorAll('.xv-statusline span')].map(text)).toEqual([
-      '0 ready to publish',
-      '0 corrections need you',
-      '0 with others',
-    ]);
-    expect(screen.queryByRole('region', { name: 'With others' })).toBeNull();
+    expect(calm).toHaveTextContent(
+      'Approved experiments and corrections returned to you appear here.',
+    );
+    expect(within(calm).getByRole('link', { name: 'Open the Content library' })).toHaveAttribute(
+      'href',
+      '/content-manager/library',
+    );
+    expect(screen.queryByRole('region', { name: 'Needs your decision' })).toBeNull();
+    expect(region('With others')).toHaveTextContent(
+      'Nothing is waiting on the Academic Reviewer, the vendors or the Super Admin.',
+    );
   });
 
-  it('nothing needs her but others have work: the calm state, then “With others”', async () => {
+  it('nothing needs her but others have work: the calm state, then “With others”, oldest first', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     vi.spyOn(runtime.ports.production, 'getContentManagerOverview').mockResolvedValue({
       ok: true,
@@ -317,113 +415,178 @@ describe('CM-01 Overview at spine-start (B6-05 f0, f2)', () => {
       changed: [],
     });
     show(runtime, <CmOverview />, '/content-manager');
-    await screen.findByText('Nothing is waiting for your publication decision');
-    expect(rowTexts(section('With others'))).toEqual([
-      'Distillation Column 1.3 — awaiting release decisionUPD-0005 · the Academic Reviewer approved it on 26 Aug 2026Open',
-      'Transformer Tests 1.1 — in academic reviewUPD-0007 · sent on 25 Aug 2026Open',
+    await screen.findByRole('region', { name: 'Nothing is waiting for your decision' });
+    const others = region('With others');
+    expect([...others.querySelectorAll('ul.cm-hold > li')].map((row) => text(row))).toEqual([
+      'Transformer Tests 1.1Academic Reviewer · sent 25 AugIn academic reviewOpen',
+      'Distillation Column 1.3Super Admin · approved 26 AugAwaiting release decisionOpen',
     ]);
     expect(
-      within(section('With others'))
+      within(others)
         .getAllByRole('link')
         .map((link) => [link.getAttribute('aria-label'), link.getAttribute('href')]),
     ).toEqual([
-      ['Open Distillation Column', '/content-manager/updates/UPD-0005'],
-      ['Open Transformer Tests', '/content-manager/updates/UPD-0007'],
+      ['Open UPD-0007, Transformer Tests', '/content-manager/updates/UPD-0007'],
+      ['Open UPD-0005, Distillation Column', '/content-manager/updates/UPD-0005'],
     ]);
   });
 
-  it('announces loading; a failed read has Try again, which reads again', async () => {
+  it('announces loading; a failed read has Try again, which reads again and focuses the title', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     faults(sample).failNext('ProductionService.getContentManagerOverview');
     bare(runtime, <CmOverview />, '/content-manager');
-    expect(document.querySelector('[aria-busy="true"] .xr-sr[role="status"]')).toHaveTextContent(
-      'Loading what needs your decision',
-    );
+    expect(
+      document.querySelector('[aria-busy="true"] .rk-loading-msg[role="status"]'),
+    ).toHaveTextContent('Loading what needs your decision');
+    expect(screen.queryByRole('region', { name: 'Publishing pipeline' })).toBeNull();
     expect(await screen.findByText('We couldn’t load your overview')).toBeVisible();
-    expect(document.body).toHaveTextContent('Nothing has changed. Try again.');
+    expect(screen.getByRole('alert')).toHaveTextContent('Nothing has changed. Try again.');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Overview' })).toHaveFocus();
     expect(await screen.findByRole('region', { name: 'Needs your decision' })).toBeVisible();
   });
 });
 
 // ---- CM-02 Ready to publish -------------------------------------------------------------------
 
-describe('CM-02 Ready to publish (B6-06 f0, f2, f3; B6-12 f2)', () => {
-  it('spine-start (B6-12 f2): two approved, oldest first, each with its check and Open decision', async () => {
+const cards = () => [...main().querySelectorAll('ul.cm-qlist > li.cm-qcard')];
+
+describe('CM-02 Ready to publish', () => {
+  it('spine-start: the figures, the count, two decision cards oldest first, the side cards', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     show(runtime, <ReadyToPublish />, '/content-manager/ready');
     await h1('Ready to publish');
-    expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
-      'Approved experiments waiting for your publication decision',
+    expect(main().querySelector('.rb-head .rk-sub')).toHaveTextContent(
+      'Experiments the Academic Reviewer has approved, waiting for your publication decision.',
     );
-    const region = section('Approved by the Academic Reviewer');
-    await waitFor(() =>
-      expect(region.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
-        '2 experiments approved and waiting · oldest first',
-      ),
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    expect(main().querySelector('dl.rb-figs')).toHaveAttribute(
+      'aria-label',
+      'The queue at a glance',
     );
-    const found = await screen.findByRole('table');
-    expect([...found.querySelectorAll('th')].map(text)).toEqual([
-      'Experiment',
-      'Formats',
-      'Approved',
-      'Publication check',
-      'Action',
+    expect(figures()).toEqual([
+      ['Waiting for you', '2', 'All checks met'],
+      ['days, the longest wait', expect.stringMatching(/^\d+$/), 'Transient Cooling'],
     ]);
-    await waitFor(async () =>
-      expect(await tableRows()).toEqual([
-        [
-          'Transient CoolingSUB-0074 · ME ZG523 · Northline Simulation Studio',
-          'WEB',
-          '14 Aug 2026Prof. A. Menon',
-          'Ready',
-          'Open decision',
-        ],
-        [
-          'Packed Bed Pressure DropSUB-0070 · CHE ZG513 · Meridian Virtual Labs',
-          'WEBAR',
-          '21 Aug 2026Prof. A. Menon',
-          'Ready',
-          'Open decision',
-        ],
-      ]),
+    const surface = region('Approved experiments waiting for your decision');
+    expect(within(surface).getByRole('status')).toHaveTextContent(
+      '2 experiments approved and waiting',
     );
-    const first = found.querySelector('tbody tr')!;
-    expect(first.querySelector('td.is-primary .xr-id')).toHaveTextContent('SUB-0074');
-    expect(first.querySelector('.xr-status')).toHaveClass('xr-status--ok');
-    expect(first.querySelectorAll('.xv-chips .xr-fmt.xr-fmt--compact')).toHaveLength(1);
     expect(
-      [...first.querySelectorAll('td[data-label]')].map((cell) => cell.getAttribute('data-label')),
-    ).toEqual(['Formats', 'Approved', 'Publication check']);
+      within(surface).getByRole('button', { name: /^Sort: approved, oldest first/ }),
+    ).toBeVisible();
+    expect(
+      within(surface).getByRole('list', { name: 'Approved experiments, oldest first' }),
+    ).toBeVisible();
+    const [first, second] = cards();
+    expect(first).toHaveClass('is-first');
+    expect(first!.querySelector('.cm-next')).toHaveTextContent('Waiting longest');
+    expect(within(first as HTMLElement).getByRole('heading', { level: 2 })).toHaveTextContent(
+      'Transient Cooling',
+    );
+    expect([...first!.querySelectorAll('.cm-qline')].map(text)).toEqual([
+      'SUB-0074 · Northline Simulation Studio',
+      'Approved by Prof. A. Menon · 2 learning outcomes',
+    ]);
+    expect(text(first!.querySelector('.cm-qmeta .cm-fmtname'))).toBe(
+      'ME ZG523Thermodynamics & Heat Transfer',
+    );
+    expect(text(first!.querySelector('.cm-qmeta .rk-fmts .xr-sr'))).toBe('Formats: WEB');
+    expect(text(first!.querySelector('.cm-age .cm-age-t'))).toBe('days waiting');
+    expect(text(first!.querySelector('.cm-age .cm-age-d'))).toBe('since 14 Aug');
+    expect(
+      within(first as HTMLElement)
+        .getAllByRole('listitem')
+        .map((item) => text(item)),
+    ).toEqual([
+      'Met: Approved',
+      'Met: Learning outcomes',
+      'Met: Catalogue details',
+      'Met: Delivery for each format',
+    ]);
+    expect(text(first!.querySelector('.cm-qsum'))).toBe('All 4 checks met');
     const open = within(first as HTMLElement).getByRole('link', {
-      name: 'Open decision for Transient Cooling',
+      name: 'Open the publication decision for Transient Cooling',
     });
-    expect(open).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
+    expect(open).toHaveTextContent('Open decision');
+    expect(open).toHaveClass('rb-btn--primary');
     expect(open).toHaveAttribute('href', '/content-manager/decisions/SUB-0074');
+    expect(second).not.toHaveClass('is-first');
+    expect(
+      within(second as HTMLElement).getByRole('link', {
+        name: 'Open the publication decision for Packed Bed Pressure Drop',
+      }),
+    ).not.toHaveClass('rb-btn--primary');
+    expect(text(second!.querySelector('.cm-qmeta .cm-fmtname'))).toBe(
+      'CHE ZG513Process Instrumentation & Control',
+    );
+
+    const aside = screen.getByRole('complementary', { name: 'Before you publish' });
+    expect(within(aside).getByRole('region', { name: 'What publishing does' })).toHaveTextContent(
+      'Gives no one access',
+    );
+    const latest = within(aside).getByRole('region', { name: 'Latest in the catalogue' });
+    await waitFor(() => expect(latest.querySelectorAll('ul.cm-feed > li')).toHaveLength(3));
+    expect(text(latest.querySelector('.cm-feed-d'))).toMatch(
+      /^(Published · version \S+|Version \S+ released) · \d{1,2} [A-Z][a-z]{2} 2026$/,
+    );
+    expect(within(latest).getByRole('link', { name: 'Open the Content library' })).toHaveAttribute(
+      'href',
+      '/content-manager/library?tab=published',
+    );
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager/ready');
     await waitFor(() => expect(sidebarCurrent()).toHaveTextContent('2'));
   });
 
-  it('f0: once the Academic Reviewer approves SUB-0077 it is listed third, WEB and VR', async () => {
+  it('once the Academic Reviewer approves SUB-0077 it is listed third, WEB and VR, just approved', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     const id = await approveCompositeWall(sample);
     expect(id).toBe('SUB-0077');
     show(runtime, <ReadyToPublish />, '/content-manager/ready');
-    await waitFor(async () => expect(await tableRows()).toHaveLength(3));
-    expect((await tableRows())[2]).toEqual([
-      'Conduction Through a Composite WallSUB-0077 · ME ZG523 · Northline Simulation Studio',
-      'WEBVR',
-      '27 Aug 2026Prof. A. Menon',
-      'Ready',
-      'Open decision',
-    ]);
-    expect(
-      section('Approved by the Academic Reviewer').querySelector('.xr-section-head .xr-meta'),
-    ).toHaveTextContent('3 experiments approved and waiting · oldest first');
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    const third = cards()[2]!;
+    expect(text(third.querySelector('.cm-qname'))).toBe('Conduction Through a Composite Wall');
+    expect(text(third.querySelector('.cm-qline'))).toBe('SUB-0077 · Northline Simulation Studio');
+    expect([...third.querySelectorAll('.cm-qmeta .xr-fmt')].map(text)).toEqual(['WEB', 'VR']);
+    expect(text(third.querySelector('.cm-qline:last-of-type'))).toBe(
+      'Approved by Prof. A. Menon · 2 learning outcomes',
+    );
+    expect(region('Approved experiments waiting for your decision')).toHaveTextContent(
+      '3 experiments approved and waiting',
+    );
   });
 
-  it('f2 (state sample): a check not met reads “1 to resolve: learning outcomes”', async () => {
+  it('newest first by the sort button; the longest wait stays marked and gold', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    await approveCompositeWall(sample);
+    show(runtime, <ReadyToPublish />, '/content-manager/ready');
+    await waitFor(() => expect(cards()).toHaveLength(3));
+    const names = () => cards().map((card) => text(card.querySelector('.cm-qname')));
+    expect(names()).toEqual([
+      'Transient Cooling',
+      'Packed Bed Pressure Drop',
+      'Conduction Through a Composite Wall',
+    ]);
+    await user.click(screen.getByRole('button', { name: /^Sort: approved, oldest first/ }));
+    expect(names()).toEqual([
+      'Conduction Through a Composite Wall',
+      'Packed Bed Pressure Drop',
+      'Transient Cooling',
+    ]);
+    expect(screen.getByRole('list', { name: 'Approved experiments, newest first' })).toBeVisible();
+    expect(screen.getByRole('button', { name: /^Sort: approved, newest first/ })).toBeVisible();
+    const marked = cards().filter((card) => card.classList.contains('is-first'));
+    expect(marked.map((card) => text(card.querySelector('.cm-qname')))).toEqual([
+      'Transient Cooling',
+    ]);
+    expect(marked[0]!.querySelector('.cm-qact a')).toHaveClass('rb-btn--primary');
+    await user.click(screen.getByRole('button', { name: /^Sort: approved, newest first/ }));
+    expect(names()[0]).toBe('Transient Cooling');
+  });
+
+  it('something to resolve (state sample): the check not met, the summary and the figure say so', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     const real = runtime.ports.production.listReadyToPublish.bind(runtime.ports.production);
     vi.spyOn(runtime.ports.production, 'listReadyToPublish').mockImplementation(async () => {
@@ -446,14 +609,22 @@ describe('CM-02 Ready to publish (B6-06 f0, f2, f3; B6-12 f2)', () => {
       };
     });
     show(runtime, <ReadyToPublish />, '/content-manager/ready');
-    await waitFor(async () =>
-      expect((await tableRows())[1]![3]).toBe('1 to resolve: learning outcomes'),
-    );
-    const blocked = screen.getAllByRole('row')[2]!.querySelector('.xr-status');
-    expect(blocked).toHaveClass('xr-status--err');
+    await waitFor(() => expect(cards()).toHaveLength(2));
+    const blocked = cards()[1]!;
+    const failing = blocked.querySelector('.cm-qcheck.is-no')!;
+    expect(text(failing)).toBe('Not met: Learning outcomes');
+    expect(blocked.querySelector('.cm-qsum')).toHaveClass('is-no');
+    expect(text(blocked.querySelector('.cm-qsum'))).toBe('1 thing to resolve');
+    expect(figures()[0]).toEqual([
+      'Waiting for you',
+      '2',
+      '1 experiment with something to resolve',
+    ]);
     // Open decision stays: the decision page lists the blockers.
     expect(
-      screen.getByRole('link', { name: 'Open decision for Packed Bed Pressure Drop' }),
+      screen.getByRole('link', {
+        name: 'Open the publication decision for Packed Bed Pressure Drop',
+      }),
     ).toBeVisible();
     expect(
       openChecks([
@@ -463,202 +634,363 @@ describe('CM-02 Ready to publish (B6-06 f0, f2, f3; B6-12 f2)', () => {
     ).toEqual(['learning-outcomes', 'catalogue-details']);
   });
 
-  it('f3: once both are published, nothing is ready — with the Content library', async () => {
+  it('empty: once both are published, nothing is ready — no figures, the Content library one click away', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     show(runtime, <ReadyToPublish />, '/content-manager/ready');
-    await waitFor(async () => expect(await tableRows()).toHaveLength(2));
+    await waitFor(() => expect(cards()).toHaveLength(2));
     await publishThrough(runtime, sample, 'SUB-0074');
     await publishThrough(runtime, sample, 'SUB-0070');
     const empty = await screen.findByRole('heading', {
-      level: 3,
+      level: 2,
       name: 'Nothing is ready to publish',
     });
-    expect(empty.closest('.xr-section-body')).not.toBeNull();
+    expect(empty.closest('.rk-state')).toHaveClass('rk-state--roomy');
     expect(main()).toHaveTextContent(
       'Experiments appear here once the Academic Reviewer approves them.',
     );
-    expect(screen.getByRole('link', { name: 'Open the Content library' })).toHaveAttribute(
-      'href',
-      '/content-manager/library',
-    );
     expect(
-      section('Approved by the Academic Reviewer').querySelector('.xr-section-head .xr-meta'),
-    ).toHaveTextContent('0 experiments approved and waiting · oldest first');
-    expect(screen.queryByRole('table')).toBeNull();
+      within(empty.closest('.rk-state') as HTMLElement).getByRole('link', {
+        name: 'Open the Content library',
+      }),
+    ).toHaveAttribute('href', '/content-manager/library');
+    expect(main().querySelector('dl.rb-figs')).toBeNull();
+    expect(screen.queryByRole('list', { name: /^Approved experiments/ })).toBeNull();
+    expect(
+      within(region('Approved experiments waiting for your decision')).queryByRole('status'),
+    ).toBeNull();
   });
 
-  it('announces loading; a failed read has Try again', async () => {
+  it('loading: the card skeleton, no figures or count; couldn’t load: Try again reads again and focuses the title', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     faults(sample).failNext('ProductionService.listReadyToPublish');
     bare(runtime, <ReadyToPublish />, '/content-manager/ready');
-    expect(document.querySelector('[aria-busy="true"] .xr-sr[role="status"]')).toHaveTextContent(
-      'Loading the approved experiments',
+    const busy = document.querySelector('[aria-busy="true"]')!;
+    expect(busy.querySelector('.rk-loading-msg[role="status"]')).toHaveTextContent(
+      'Loading the experiments ready to publish…',
     );
-    expect(await screen.findByText('We couldn’t load the approved experiments')).toBeVisible();
+    expect(busy.querySelectorAll('.rk-skel-card')).toHaveLength(3);
+    expect(document.querySelector('dl.rb-figs')).toBeNull();
+    const failed = await screen.findByRole('alert');
+    expect(failed).toHaveTextContent('We couldn’t load the experiments ready to publish');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    expect(document.querySelector('dl.rb-figs')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
-    await waitFor(async () => expect(await tableRows()).toHaveLength(2));
+    expect(screen.getByRole('heading', { level: 1, name: 'Ready to publish' })).toHaveFocus();
+    await waitFor(() => expect(document.querySelectorAll('li.cm-qcard')).toHaveLength(2));
   });
 });
 
 // ---- CM-04 Content library ----------------------------------------------------------------------
 
-describe('CM-04 Content library (B6-06 f1, f4)', () => {
-  it('Ready (f1): the tabs with their counts, the search, the count and the rows', async () => {
+const viewButton = (name: RegExp) => screen.getByRole('button', { name });
+const libraryCount = () => main().querySelector('.rk-statusline [role="status"]');
+
+describe('CM-04 Content library', () => {
+  it('Ready: the figures, the views with their counts, who holds them, the toolbar and the rows by course', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     show(runtime, <ContentLibrary />, '/content-manager/library');
     await h1('Content library');
-    expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
-      'Ready · in review · with the vendor · published',
+    expect(main().querySelector('.rb-head .rk-sub')).toHaveTextContent(
+      'Every experiment you look after, from approval to the live catalogue.',
     );
-    const region = section('Every experiment you look after');
-    expect(region.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
-      'Drafts stay with the vendor and are not listed',
-    );
-    const tabs = within(region).getByRole('tablist', { name: 'Content library' });
-    expect(tabs).toHaveClass('xr-tabs', 'xr-tabs--on-white');
     await waitFor(() =>
-      expect(within(tabs).getAllByRole('tab').map(text)).toEqual([
-        'Ready 2',
-        'In review 3',
-        'With vendor 1',
-        'Published 12',
+      expect(figures()).toEqual([
+        ['In the catalogue', '12', 'Across 5 courses'],
+        ['On the way', '6', '2 ready · 3 in review · 1 with a vendor'],
       ]),
     );
-    expect(within(tabs).getByRole('tab', { name: /^Ready/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
+    const views = screen.getByRole('group', { name: 'Show experiments that are' });
+    expect(
+      within(views)
+        .getAllByRole('button')
+        .map((button) => button.textContent),
+    ).toEqual(['Ready 2', 'In review 3', 'With vendor 1', 'Published 12']);
+    expect(viewButton(/^Ready/)).toHaveAttribute('aria-pressed', 'true');
+    expect(viewButton(/^Published/)).toHaveAttribute('aria-pressed', 'false');
+    expect(text(main().querySelector('.cm-stageline'))).toBe(
+      'With youApproved by the Academic Reviewer, waiting for your publication decision.',
     );
-    const search = within(region).getByRole('searchbox', { name: 'Search the library' });
-    expect(search).toHaveAttribute('placeholder', 'Name, ID or course');
-    await waitFor(() =>
-      expect(region.querySelector('.xr-toolbar-status [role="status"]')).toHaveTextContent(
-        'Ready · 2 of 2',
-      ),
-    );
-    expect(await tableRows()).toEqual([
-      ['Transient CoolingSUB-0074 · ME ZG523', 'WEB', 'Approved 14 Aug 2026', 'Open decision'],
+    const surface = region('Experiments ready to publish');
+    const search = within(surface).getByRole('searchbox', { name: 'Search' });
+    // The export's words without "vendor": the search is the service's (state-copy
+    // `CM-04.search.placeholder`).
+    expect(search).toHaveAttribute('placeholder', 'Experiment, ID or course');
+    const course = within(surface).getByRole('combobox', { name: 'Course' });
+    expect(
+      within(course)
+        .getAllByRole('option')
+        .map((option) => option.textContent),
+    ).toEqual([
+      'All courses',
+      'ME ZG523 · Thermodynamics & Heat Transfer',
+      'MEL ZG512 · Manufacturing Processes',
+      'EEE ZC341 · Electrical Machines',
+      'EEE ZG512 · Power Electronics',
+      'CHE ZG513 · Process Instrumentation & Control',
+      'Fluid Mechanics',
+    ]);
+    await waitFor(() => expect(libraryCount()).toHaveTextContent('2 ready to publish'));
+    const table = screen.getByRole('table', { name: 'Ready — 2' });
+    expect([...table.querySelectorAll('thead th')].map(text)).toEqual([
+      'Experiment',
+      'Formats',
+      'Approved by',
+      'Approved',
+      'Where it is',
+    ]);
+    expect(await tableLines()).toEqual([
+      ['band', 'ME ZG523Thermodynamics & Heat Transfer1 ready to publish'],
       [
-        'Packed Bed Pressure DropSUB-0070 · CHE ZG513',
-        'WEBAR',
+        'Transient CoolingSUB-0074',
+        'Formats: WEBWEB',
+        'Prof. A. MenonAcademic Reviewer',
+        'Approved 14 Aug 2026',
+        'Ready to publish',
+      ],
+      ['band', 'CHE ZG513Process Instrumentation & Control1 ready to publish'],
+      [
+        'Packed Bed Pressure DropSUB-0070',
+        'Formats: WEB, ARWEBAR',
+        'Prof. A. MenonAcademic Reviewer',
         'Approved 21 Aug 2026',
-        'Open decision',
+        'Ready to publish',
       ],
     ]);
-    const open = within(region).getByRole('link', { name: 'Open decision for Transient Cooling' });
-    expect(open).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    const open = screen.getByRole('link', {
+      name: 'Transient Cooling, SUB-0074, ready to publish. Open the decision',
+    });
+    expect(open).toHaveClass('rk-rowlink');
     expect(open).toHaveAttribute('href', '/content-manager/decisions/SUB-0074');
+    expect(surface.querySelector('.rk-ca-foot')).toHaveTextContent(
+      'Drafts stay with the vendor and aren’t listed. Published rows open the live experiment.',
+    );
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager/library');
   });
 
-  it('the tabs by click and arrow keys: In review, With vendor, Published; the address follows', async () => {
+  it('the views by click: In review, With vendor, Published; the address follows', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     const { navigation } = show(runtime, <ContentLibrary />, '/content-manager/library');
     await waitFor(async () => expect(await tableRows()).toHaveLength(2));
-    await user.click(screen.getByRole('tab', { name: /^In review/ }));
+    await user.click(viewButton(/^In review/));
     expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library?tab=in-review');
+    expect(viewButton(/^In review/)).toHaveAttribute('aria-pressed', 'true');
     await waitFor(async () =>
-      expect(await tableRows()).toEqual([
+      expect(await tableLines()).toEqual([
+        ['band', 'EEE ZC341Electrical Machines1 in academic review'],
         [
-          'Flash DistillationSUB-0086 · CHE ZG513',
-          'WEB',
-          'New submission · since 24 Aug 2026',
-          'Open',
+          'DC Motor Speed ControlSUB-0085',
+          'Formats: WEBWEB',
+          expect.stringMatching(/Revision 1$/),
+          'Since 2 Oct 2026',
+          'In academic reviewNew submission',
+        ],
+        ['band', 'CHE ZG513Process Instrumentation & Control2 in academic review'],
+        [
+          'Flash DistillationSUB-0086',
+          'Formats: WEBWEB',
+          'Meridian Virtual LabsRevision 1',
+          'Since 24 Aug 2026',
+          'In academic reviewNew submission',
         ],
         [
-          'Venturi Meter CalibrationSUB-0071 · CHE ZG513',
-          'WEBAR',
-          'Re-check you asked for · since 25 Aug 2026',
-          'Open',
-        ],
-        [
-          'DC Motor Speed ControlSUB-0085 · EEE ZC341',
-          'WEB',
-          'New submission · since 2 Oct 2026',
-          'Open',
+          'Venturi Meter CalibrationSUB-0071',
+          'Formats: WEB, ARWEBAR',
+          'Meridian Virtual LabsRevision 1',
+          'Since 25 Aug 2026',
+          'Back with the Academic ReviewerRe-check you asked for',
         ],
       ]),
     );
-    expect(screen.getByRole('link', { name: 'Open Venturi Meter Calibration' })).toHaveAttribute(
-      'href',
-      '/content-manager/decisions/SUB-0071',
-    );
-    await user.keyboard('{ArrowRight}');
+    expect(text(main().querySelector('.cm-stageline .cm-own'))).toBe('With the Academic Reviewer');
+    expect(
+      screen.getByRole('link', {
+        name: 'Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open',
+      }),
+    ).toHaveAttribute('href', '/content-manager/decisions/SUB-0071');
+    await user.click(viewButton(/^With vendor/));
     expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library?tab=with-vendor');
     await waitFor(async () =>
       expect(await tableRows()).toEqual([
         [
-          'Forced ConvectionSUB-0081 · ME ZG523',
-          'WEBAR',
-          'Returned by the Academic Reviewer · 24 Aug 2026',
-          'Open',
+          'Forced ConvectionSUB-0081',
+          'Formats: WEB, ARWEBAR',
+          expect.stringMatching(/Revision \d+$/),
+          'Since 24 Aug 2026',
+          'With the vendorReturned by the Academic Reviewer',
         ],
       ]),
     );
-    await user.click(screen.getByRole('tab', { name: /^Published/ }));
+    expect(main().querySelector('.cm-stageline .cm-own')).toHaveClass('is-vendor');
+    await user.click(viewButton(/^Published/));
     expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library?tab=published');
     await waitFor(async () => expect(await tableRows()).toHaveLength(12));
+    await waitFor(() => expect(libraryCount()).toHaveTextContent('12 published'));
+    expect([...screen.getByRole('table').querySelectorAll('thead th')].map(text)).toEqual([
+      'Experiment',
+      'Formats',
+      'Version',
+      'Live since',
+      'Where it is',
+    ]);
     const rows = await tableRows();
     expect(rows).toContainEqual([
-      'Distillation ColumnCHE ZG513',
-      'WEBVR',
-      'Version 1.2 · live since 3 Jul 2026',
-      'Open',
+      'Distillation Column',
+      'Formats: WEB, VRWEBVR',
+      expect.stringMatching(/^Version 1\.2/),
+      'Live since 3 Jul 2026',
+      'Published',
     ]);
     expect(rows).toContainEqual([
-      'Induction Motor LoadingEEE ZC341',
-      'WEBVRMR',
-      'Version 1.0 · live since 9 Jun 2026 · Update returned to you',
-      'Open',
+      'Induction Motor Loading',
+      'Formats: WEB, VR, MRWEBVRMR',
+      expect.stringMatching(/^Version 1\.0/),
+      'Live since 9 Jun 2026',
+      'PublishedUpdate returned to you',
     ]);
     expect(rows).toContainEqual([
-      'Boiler Drum LevelCHE ZG513',
-      'WEBVR',
-      'Version 2.0 · live since 18 Jun 2026 · Update on hold',
-      'Open',
+      'Boiler Drum Level',
+      'Formats: WEB, VRWEBVR',
+      expect.stringMatching(/^Version 2\.0/),
+      'Live since 18 Jun 2026',
+      'PublishedUpdate on hold',
     ]);
-    expect(screen.getByRole('link', { name: 'Open Distillation Column' })).toHaveAttribute(
-      'href',
-      '/content-manager/published/distillation-column',
+    const held = screen
+      .getByRole('link', {
+        name: /^Boiler Drum Level, CHE ZG513, version 2\.0, published, update on hold/,
+      })
+      .closest('tr')!;
+    expect([...held.querySelectorAll('.cm-stcell > .xr-st')].map((chip) => chip.className)).toEqual(
+      ['xr-st xr-st--ok', 'xr-st xr-st--paused'],
     );
     expect(
-      section('Every experiment you look after').querySelector(
-        '.xr-toolbar-status [role="status"]',
-      ),
-    ).toHaveTextContent('Published · 12 of 12');
-    await user.click(screen.getByRole('tab', { name: /^Ready/ }));
+      screen.getByRole('link', {
+        name: 'Distillation Column, CHE ZG513, version 1.2, published. Open the published experiment',
+      }),
+    ).toHaveAttribute('href', '/content-manager/published/distillation-column');
+    await user.click(viewButton(/^Ready/));
     expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library');
   });
 
-  it('reads its tab from the address; the search narrows, stays across tabs and clears', async () => {
+  it('reads its view from the address; the search narrows, stays across views and clears', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     show(runtime, <ContentLibrary />, '/content-manager/library', '?tab=in-review');
     await waitFor(async () => expect(await tableRows()).toHaveLength(3));
-    expect(screen.getByRole('tab', { name: /^In review/ })).toHaveAttribute(
-      'aria-selected',
-      'true',
-    );
-    await user.type(screen.getByRole('searchbox', { name: 'Search the library' }), 'venturi');
+    expect(viewButton(/^In review/)).toHaveAttribute('aria-pressed', 'true');
+    await user.type(screen.getByRole('searchbox', { name: 'Search' }), 'venturi');
     await waitFor(async () => expect(await tableRows()).toHaveLength(1));
-    const status = () =>
-      section('Every experiment you look after').querySelector(
-        '.xr-toolbar-status [role="status"]',
-      );
-    await waitFor(() => expect(status()).toHaveTextContent('In review · 1 of 3'));
-    // The tab figures are the whole tabs’.
-    expect(screen.getByRole('tab', { name: /^In review/ })).toHaveTextContent('In review 3');
-    await user.click(screen.getByRole('tab', { name: /^Ready/ }));
-    expect(await screen.findByRole('heading', { level: 3, name: 'Nothing here' })).toBeVisible();
-    expect(main()).toHaveTextContent('Try another tab or clear the search.');
-    await waitFor(() => expect(status()).toHaveTextContent('Ready · 0 of 2'));
-    await user.click(screen.getByRole('button', { name: 'Clear search' }));
+    await waitFor(() => expect(libraryCount()).toHaveTextContent('1 of 3 in academic review'));
+    expect(screen.getByRole('table', { name: 'In review — 1 of 3' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Remove filter Search: “venturi”' })).toBeVisible();
+    // The view figures are the whole views'.
+    expect(viewButton(/^In review/)).toHaveTextContent('In review 3');
+    await user.click(viewButton(/^Ready/));
+    const none = await screen.findByRole('heading', { level: 2, name: 'Nothing in Ready matches' });
+    expect(none.closest('.rk-state')).toHaveTextContent(
+      'Try fewer filters, another view or a different spelling of the experiment, ID or course.',
+    );
+    await waitFor(() => expect(libraryCount()).toHaveTextContent('0 of 2 ready to publish'));
+    await user.click(
+      within(none.closest('.rk-state') as HTMLElement).getByRole('button', {
+        name: 'Clear filters',
+      }),
+    );
     await waitFor(async () => expect(await tableRows()).toHaveLength(2));
-    expect(screen.queryByRole('button', { name: 'Clear search' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Remove filter/ })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
   });
 
-  it('the Ready tab names a publication check not met (“· 1 to resolve”)', async () => {
+  it('the search is the service’s: the name, the ID or the course code — not the vendor', async () => {
+    const user = userEvent.setup();
+    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
+    const getLibrary = vi.spyOn(runtime.ports.production, 'getLibrary');
+    show(runtime, <ContentLibrary />, '/content-manager/library');
+    await waitFor(async () => expect(await tableRows()).toHaveLength(2));
+    const search = screen.getByRole('searchbox', { name: 'Search' });
+    await user.type(search, 'SUB-0070');
+    await waitFor(async () =>
+      expect((await tableRows()).map((row) => row[0])).toEqual([
+        'Packed Bed Pressure DropSUB-0070',
+      ]),
+    );
+    expect(getLibrary).toHaveBeenLastCalledWith({ tab: 'ready', search: 'SUB-0070' });
+    await user.clear(search);
+    await user.type(search, 'ME ZG523');
+    await waitFor(async () =>
+      expect((await tableRows()).map((row) => row[0])).toEqual(['Transient CoolingSUB-0074']),
+    );
+    await user.clear(search);
+    await user.type(search, 'transient');
+    await waitFor(async () =>
+      expect((await tableRows()).map((row) => row[0])).toEqual(['Transient CoolingSUB-0074']),
+    );
+    // The vendor is not searched (the service matches name, ID and course code only).
+    await user.clear(search);
+    await user.type(search, 'meridian');
+    expect(
+      await screen.findByRole('heading', { level: 2, name: 'Nothing in Ready matches' }),
+    ).toBeVisible();
+  });
+
+  it('the course filter: its chip, the address, and the Overview’s course link read back', async () => {
+    const user = userEvent.setup();
+    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
+    const { navigation } = show(runtime, <ContentLibrary />, '/content-manager/library');
+    await waitFor(async () => expect(await tableRows()).toHaveLength(2));
+    await user.selectOptions(
+      screen.getByRole('combobox', { name: 'Course' }),
+      'process-instrumentation-control',
+    );
+    expect(navigation.replace).toHaveBeenLastCalledWith(
+      '/content-manager/library?course=process-instrumentation-control',
+    );
+    await waitFor(async () =>
+      expect((await tableRows()).map((row) => row[0])).toEqual([
+        'Packed Bed Pressure DropSUB-0070',
+      ]),
+    );
+    await waitFor(() => expect(libraryCount()).toHaveTextContent('1 of 2 ready to publish'));
+    await user.click(
+      screen.getByRole('button', {
+        name: 'Remove filter Course: CHE ZG513 · Process Instrumentation & Control',
+      }),
+    );
+    expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library');
+    await waitFor(async () => expect(await tableRows()).toHaveLength(2));
+
+    expect(libraryViewAddress('published', 'thermodynamics-heat-transfer')).toBe(
+      '/content-manager/library?tab=published&course=thermodynamics-heat-transfer',
+    );
+  });
+
+  it('an address with a view and a course (from the Overview’s catalogue) shows that course only', async () => {
+    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
+    show(
+      runtime,
+      <ContentLibrary />,
+      '/content-manager/library',
+      '?tab=published&course=thermodynamics-heat-transfer',
+    );
+    await waitFor(async () => expect(await tableRows()).toHaveLength(3));
+    expect(viewButton(/^Published/)).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('combobox', { name: 'Course' })).toHaveValue(
+      'thermodynamics-heat-transfer',
+    );
+    expect(
+      screen.getByRole('button', {
+        name: 'Remove filter Course: ME ZG523 · Thermodynamics & Heat Transfer',
+      }),
+    ).toBeVisible();
+    await waitFor(() => expect(libraryCount()).toHaveTextContent('3 of 12 published'));
+    expect((await tableLines())[0]).toEqual([
+      'band',
+      'ME ZG523Thermodynamics & Heat Transfer3 published',
+    ]);
+  });
+
+  it('the Ready view names a publication check not met (“1 to resolve”, in error)', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     const real = runtime.ports.production.listReadyToPublish.bind(runtime.ports.production);
     vi.spyOn(runtime.ports.production, 'listReadyToPublish').mockImplementation(async () => {
@@ -677,93 +1009,119 @@ describe('CM-04 Content library (B6-06 f1, f4)', () => {
       };
     });
     show(runtime, <ContentLibrary />, '/content-manager/library');
-    await waitFor(async () =>
-      expect((await tableRows())[1]![2]).toBe('Approved 21 Aug 2026 · 1 to resolve'),
-    );
+    await waitFor(async () => expect((await tableRows())[1]![4]).toBe('1 to resolve'));
+    const row = screen.getByRole('link', { name: /^Packed Bed Pressure Drop/ }).closest('tr')!;
+    expect(row.querySelector('.cm-stcell .xr-st')).toHaveClass('xr-st--err');
   });
 
-  it('“Where it is” for every state the service lists', () => {
-    const base = {
-      kind: 'submission' as const,
-      courseCode: 'ME ZG523',
-      approvedAt: null,
-    };
-    const of = (status: unknown, revision = 1) =>
-      submissionWhere({ ...base, submission: { status, revision } } as never, 0);
-    expect(
-      of(
-        {
-          state: 'with-academic-reviewer',
-          since: '2026-08-26T04:30:00.000Z',
-          reason: 'resubmission',
-        },
-        2,
-      ),
-    ).toBe('Revision 2 · with the Academic Reviewer');
-    expect(of({ state: 'resubmitted', since: '2026-08-26T04:30:00.000Z' }, 3)).toBe(
-      'Revision 3 · with the Academic Reviewer',
+  it('the line under a submission’s status for every state the service lists', () => {
+    const of = (status: unknown) =>
+      submissionTag({
+        kind: 'submission',
+        courseCode: null,
+        approvedAt: null,
+        submission: { status },
+      } as never);
+    const since = '2026-08-26T04:30:00.000Z';
+    expect(of({ state: 'with-academic-reviewer', since, reason: 'new' })).toBe('New submission');
+    expect(of({ state: 'with-academic-reviewer', since, reason: 'recheck' })).toBe(
+      'Re-check you asked for',
     );
-    expect(
-      of({ state: 'returned', since: '2026-08-26T04:30:00.000Z', by: 'content-manager' }),
-    ).toBe('You sent it back · 26 Aug 2026');
-    expect(
-      of({ state: 'returned', since: '2026-08-26T04:30:00.000Z', by: 'super-admin-override' }),
-    ).toBe('Returned to the vendor by the Super Admin · 26 Aug 2026');
-    expect(
-      submissionWhere(
-        {
-          ...base,
-          approvedAt: '2026-08-14T09:40:00.000Z',
-          submission: {
-            status: { state: 'with-content-manager', since: '2026-08-14T09:40:00.000Z' },
-            revision: 1,
-          },
-        } as never,
-        2,
-      ),
-    ).toBe('Approved 14 Aug 2026 · 2 to resolve');
+    expect(of({ state: 'with-academic-reviewer', since, reason: 'resubmission' })).toBeNull();
+    expect(of({ state: 'resubmitted', since })).toBeNull();
+    expect(of({ state: 'returned', since, by: 'academic-reviewer' })).toBe(
+      'Returned by the Academic Reviewer',
+    );
+    expect(of({ state: 'returned', since, by: 'content-manager' })).toBe('You sent it back');
+    expect(of({ state: 'returned', since, by: 'super-admin-override' })).toBe(
+      'Returned to the vendor by the Super Admin',
+    );
+    expect(of({ state: 'with-content-manager', since })).toBeNull();
   });
 
-  it('announces loading; a failed read has Try again', async () => {
+  it('an empty view: once both are published, nothing is ready to publish', async () => {
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    show(runtime, <ContentLibrary />, '/content-manager/library');
+    await waitFor(async () => expect(await tableRows()).toHaveLength(2));
+    await publishThrough(runtime, sample, 'SUB-0074');
+    await publishThrough(runtime, sample, 'SUB-0070');
+    const empty = await screen.findByRole('heading', {
+      level: 2,
+      name: 'Nothing is ready to publish',
+    });
+    expect(empty.closest('.rk-state')).toHaveTextContent(
+      'Experiments appear here once the Academic Reviewer approves them.',
+    );
+    expect(viewButton(/^Ready/)).toHaveTextContent('Ready 0');
+    expect(viewButton(/^Published/)).toHaveTextContent('Published 14');
+    await waitFor(() => expect(libraryCount()).toHaveTextContent('0 ready to publish'));
+  });
+
+  it('loading hides the count, the view counts and the figures; couldn’t load: Try again reads again and focuses the title', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     faults(sample).failNext('ProductionService.getLibrary');
     bare(runtime, <ContentLibrary />, '/content-manager/library');
-    expect(document.querySelector('[aria-busy="true"] .xr-sr[role="status"]')).toHaveTextContent(
-      'Loading the library',
-    );
-    expect(await screen.findByText('We couldn’t load the library')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(
+      document.querySelector('[aria-busy="true"] .rk-loading-msg[role="status"]'),
+    ).toHaveTextContent('Loading the content library…');
+    expect(document.querySelectorAll('[aria-busy="true"] .rk-skel-row')).toHaveLength(4);
+    expect(document.querySelector('dl.rb-figs')).toBeNull();
+    expect(document.querySelector('.rk-statusline')).toBeNull();
+    expect(screen.getByRole('button', { name: 'Ready' }).querySelector('b')).toBeNull();
+    const failed = await screen.findByRole('alert');
+    expect(failed).toHaveTextContent('We couldn’t load the content library');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Content library' })).toHaveFocus();
     await waitFor(async () => expect(await tableRows()).toHaveLength(2));
+    expect(screen.getByRole('button', { name: 'Ready 2' })).toBeVisible();
   });
 });
 
-// ---- CM-09 Course codes ---------------------------------------------------------------------------
+// ---- CM-09 Platform course codes --------------------------------------------------------------------
 
 const codeField = (course: string) =>
   screen.getByRole('textbox', { name: `Platform course code for ${course}` });
-const footerStatus = () => main().querySelector('.xw-flow-foot [role="status"]');
+const footerStatus = () => main().querySelector('.cm-codes-foot [role="status"]');
 
-describe('CM-09 Course codes (B6-10 f0 … f2; B6-11 f12)', () => {
-  it('f0: every course with its area, published count and code; blank says so', async () => {
+describe('CM-09 Platform course codes', () => {
+  it('clean: the courses by engineering area, live experiments per code, codes; blank says so', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     show(runtime, <CourseCodes />, '/content-manager/course-codes');
     await h1('Course codes');
-    expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
-      'The official platform code of each course — shown in the public catalogue',
-    );
-    const region = section('Courses');
-    expect(region.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
-      'From Academic structure (Super Admin)',
+    expect(main().querySelector('.rb-head .rk-sub')).toHaveTextContent(
+      'The official platform code of each course, shown in the public catalogue. You’re the only person who edits these codes.',
     );
     await waitFor(async () => expect(await tableRows()).toHaveLength(6));
-    expect((await tableRows()).map((cells) => cells[0])).toEqual([
-      'Thermodynamics & Heat TransferMechanical & Manufacturing · 3 published experiments',
-      'Manufacturing ProcessesMechanical & Manufacturing · 2 published experiments',
-      'Electrical MachinesElectrical & Electronics · 3 published experiments',
-      'Power ElectronicsElectrical & Electronics · 1 published experiment',
-      'Process Instrumentation & ControlChemical & Process · 3 published experiments',
-      'Fluid MechanicsMechanical & Manufacturing · 0 published experiments',
+    expect(figures()).toEqual([
+      ['Courses with a code', '5', 'of 6 · 1 without a code'],
+      ['Live experiments', '12', 'Listed under these codes'],
+    ]);
+    const surface = region('Courses');
+    expect(surface.querySelector('.rk-sec-h .rb-note')).toHaveTextContent(
+      'From Academic structure, kept by the Super Admin',
+    );
+    expect((await tableLines()).map((line) => (line[0] === 'band' ? line[1] : line[0]))).toEqual([
+      'Mechanical & Manufacturing3 courses',
+      'Thermodynamics & Heat Transfer3 experiments live under this course',
+      'Manufacturing Processes2 experiments live under this course',
+      'Fluid MechanicsNothing live yet',
+      'Electrical & Electronics2 courses',
+      'Electrical Machines3 experiments live under this course',
+      'Power Electronics1 experiment live under this course',
+      'Chemical & Process1 course',
+      'Process Instrumentation & Control3 experiments live under this course',
+    ]);
+    expect(
+      [...surface.querySelectorAll('.cm-livecount')].map((chip) => [text(chip), chip.className]),
+    ).toEqual([
+      ['3', 'cm-livecount'],
+      ['2', 'cm-livecount'],
+      ['0', 'cm-livecount is-zero'],
+      ['3', 'cm-livecount'],
+      ['1', 'cm-livecount'],
+      ['3', 'cm-livecount'],
     ]);
     expect(
       [
@@ -775,45 +1133,55 @@ describe('CM-09 Course codes (B6-10 f0 … f2; B6-11 f12)', () => {
         'Fluid Mechanics',
       ].map((course) => (codeField(course) as HTMLInputElement).value),
     ).toEqual(['ME ZG523', 'MEL ZG512', 'EEE ZC341', 'EEE ZG512', 'CHE ZG513', '']);
-    expect(codeField('Fluid Mechanics')).toHaveAttribute('aria-describedby', 'cc-hint');
+    expect(codeField('Fluid Mechanics')).toHaveAttribute('id', 'cc-code-5');
+    expect(codeField('Fluid Mechanics')).toHaveAttribute('aria-describedby', 'cc-hint cc-code-5-b');
+    expect(codeField('Power Electronics')).toHaveAttribute('aria-describedby', 'cc-hint');
     expect(document.getElementById('cc-hint')).toHaveTextContent(
       'Each code must be unique. Leave it blank if the course has no platform code yet.',
     );
-    expect(codeField('Fluid Mechanics').closest('td')).toHaveTextContent(
+    expect(document.getElementById('cc-code-5-b')).toHaveTextContent(
       'No code yet — the catalogue shows the course name only.',
     );
-    expect(main().querySelectorAll('.xg-changed-mark')).toHaveLength(0);
+    expect(main().querySelectorAll('.cm-tag')).toHaveLength(0);
     expect(footerStatus()).toHaveTextContent('No unsaved changes');
     expect(screen.queryByRole('button', { name: 'Undo changes' })).toBeNull();
-    expect(screen.getByRole('button', { name: 'Save codes' })).toHaveClass('xr-btn--primary');
-    expect(main().querySelector('p.xl-open')).toHaveTextContent(
-      'You are the only person who edits these codes.',
+    expect(screen.getByRole('button', { name: 'Save codes' })).toHaveClass('rb-btn--primary');
+    const aside = screen.getByRole('complementary', { name: 'About platform codes' });
+    expect(within(aside).getByRole('region', { name: 'Where a code appears' })).toHaveTextContent(
+      'The public catalogue',
     );
+    expect(
+      within(aside).getByRole('region', { name: 'Platform codes, not institution codes' }),
+    ).toHaveTextContent('Institute Admins keep their own code for a course (for example MEC-523)');
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager/course-codes');
   });
 
-  it('B6-11 f12: a duplicate is refused on Save codes — the words under the row and in “Check the codes”', async () => {
+  it('a duplicate is refused on Save codes — the words under the row and in “Check the codes”, which takes focus', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     show(runtime, <CourseCodes />, '/content-manager/course-codes');
     await waitFor(async () => expect(await tableRows()).toHaveLength(6));
     await user.type(codeField('Fluid Mechanics'), 'ME ZG523');
     const cell = codeField('Fluid Mechanics').closest('td')!;
-    expect(cell.querySelector('.xg-changed-mark')).toHaveTextContent('Changed — not saved yet');
+    expect(cell.querySelector('.cm-tag')).toHaveTextContent('Changed — not saved yet');
     expect(cell).not.toHaveTextContent('No code yet');
     expect(footerStatus()).toHaveTextContent('1 change not saved');
+    expect(screen.getByRole('button', { name: 'Undo changes' })).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Save codes' }));
     const summary = await screen.findByRole('alert');
-    expect(summary).toHaveClass('xw-errsum');
-    expect(summary).toHaveTextContent('Check the codes');
+    expect(summary).toHaveClass('rk-errsum');
+    expect(summary.querySelector('.rk-errsum-t')).toHaveTextContent('Check the codes');
     const words =
       'ME ZG523 is already the code for Thermodynamics & Heat Transfer. Each course needs its own code.';
     await waitFor(() => expect(summary).toHaveFocus());
     const link = within(summary).getByRole('link', { name: words });
     expect(link).toHaveAttribute('href', '#cc-code-5');
-    expect(cell.querySelector('.xr-error')).toHaveTextContent(words);
+    expect(cell.querySelector('.rk-ferr')).toHaveTextContent(words);
     expect(codeField('Fluid Mechanics')).toHaveAttribute('aria-invalid', 'true');
-    expect(codeField('Fluid Mechanics')).toHaveAttribute('aria-describedby', 'cc-hint cc-code-5-e');
+    expect(codeField('Fluid Mechanics')).toHaveAttribute(
+      'aria-describedby',
+      'cc-hint cc-code-5-c cc-code-5-e',
+    );
     await user.click(link);
     expect(codeField('Fluid Mechanics')).toHaveFocus();
     // Nothing was saved.
@@ -823,10 +1191,10 @@ describe('CM-09 Course codes (B6-10 f0 … f2; B6-11 f12)', () => {
     ).toBeNull();
     // Typing again clears the row’s error.
     await user.type(codeField('Fluid Mechanics'), '1');
-    expect(cell.querySelector('.xr-error')).toBeNull();
+    expect(cell.querySelector('.rk-ferr')).toBeNull();
   });
 
-  it('a unique code saves: “Codes saved · …” takes focus and the platform has the code', async () => {
+  it('a unique code saves: “Codes saved” with the time takes focus and the platform has the code', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     standinsOf(sample).clock.setSampleNow('2026-08-27T11:10:00.000Z' as IsoInstant);
@@ -834,20 +1202,25 @@ describe('CM-09 Course codes (B6-10 f0 … f2; B6-11 f12)', () => {
     await waitFor(async () => expect(await tableRows()).toHaveLength(6));
     await user.type(codeField('Fluid Mechanics'), '  ME ZG541 ');
     await user.click(screen.getByRole('button', { name: 'Save codes' }));
-    const saved = await screen.findByText(
-      'Codes saved · 27 Aug 2026, 16:40 · the catalogue shows them from now on',
+    const notice = await waitFor(() => {
+      const element = main().querySelector('.rk-notice--ok[role="status"]');
+      expect(element).not.toBeNull();
+      return element as HTMLElement;
+    });
+    expect(notice.querySelector('.rk-notice-t')).toHaveTextContent('Codes saved');
+    expect(notice.querySelector('.rk-notice-d')).toHaveTextContent(
+      '27 Aug 2026, 16:40 · the catalogue shows them from now on',
     );
-    expect(saved).toHaveClass('xa-save', 'is-ok');
-    await waitFor(() => expect(saved).toHaveFocus());
+    await waitFor(() => expect(notice).toHaveFocus());
     expect(codeField('Fluid Mechanics')).toHaveValue('ME ZG541');
     expect(footerStatus()).toHaveTextContent('No unsaved changes');
     const codes = ok(await asPersonId(sample, KAVYA).platformCourseCodes.list());
     expect(codes.find((row) => row.course.id === 'fluid-mechanics')?.course.platformCode).toBe(
       'ME ZG541',
     );
-    // A change clears the saved line.
+    // A change clears the saved notice.
     await user.type(codeField('Fluid Mechanics'), 'X');
-    expect(screen.queryByText(/^Codes saved/)).toBeNull();
+    expect(main().querySelector('.rk-notice--ok')).toBeNull();
   });
 
   it('blank is allowed; Undo changes puts every code back; Save with no change sends nothing', async () => {
@@ -863,7 +1236,7 @@ describe('CM-09 Course codes (B6-10 f0 … f2; B6-11 f12)', () => {
     expect(codeField('Power Electronics').closest('td')).toHaveTextContent(
       'No code yet — the catalogue shows the course name only.',
     );
-    expect(main().querySelectorAll('.xg-changed-mark')).toHaveLength(2);
+    expect(main().querySelectorAll('.cm-tag')).toHaveLength(2);
     expect(footerStatus()).toHaveTextContent('2 changes not saved');
     await user.click(screen.getByRole('button', { name: 'Undo changes' }));
     expect(codeField('Power Electronics')).toHaveValue('EEE ZG512');
@@ -884,7 +1257,10 @@ describe('CM-09 Course codes (B6-10 f0 … f2; B6-11 f12)', () => {
     expect(footerStatus()).toHaveTextContent('1 change not saved');
   });
 
-  function answerSaveWith(runtime: PlatformRuntime, error: ServiceError): void {
+  function answerSaveWith(
+    runtime: PlatformRuntime,
+    answer: (real: () => Promise<unknown>) => Promise<unknown>,
+  ): void {
     const real = runtime.withCommandId.bind(runtime);
     vi.spyOn(runtime, 'withCommandId').mockImplementation((commandId) => {
       const ports = real(commandId);
@@ -892,56 +1268,129 @@ describe('CM-09 Course codes (B6-10 f0 … f2; B6-11 f12)', () => {
         ...ports,
         platformCourseCodes: {
           ...ports.platformCourseCodes,
-          save: async () => ({ ok: false as const, error }),
+          save: (input: never) => answer(() => ports.platformCourseCodes.save(input)),
         },
       } as typeof ports;
     });
   }
+
+  it('saving: Saving… on the button and in the foot, Undo changes waits; then the result', async () => {
+    const user = userEvent.setup();
+    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
+    let release: () => void = () => undefined;
+    answerSaveWith(runtime, async (real) => {
+      await new Promise<void>((resolve) => {
+        release = resolve;
+      });
+      return real();
+    });
+    show(runtime, <CourseCodes />, '/content-manager/course-codes');
+    await waitFor(async () => expect(await tableRows()).toHaveLength(6));
+    await user.type(codeField('Fluid Mechanics'), 'ME ZG541');
+    await user.click(screen.getByRole('button', { name: 'Save codes' }));
+    const busy = await screen.findByRole('button', { name: 'Saving…' });
+    expect(busy).toHaveAttribute('aria-disabled', 'true');
+    expect(footerStatus()).toHaveTextContent('Saving…');
+    const undo = screen.getByRole('button', { name: 'Undo changes' });
+    expect(undo).toHaveAttribute('aria-disabled', 'true');
+    await user.click(undo);
+    expect(codeField('Fluid Mechanics')).toHaveValue('ME ZG541');
+    await act(async () => release());
+    await waitFor(() => expect(main().querySelector('.rk-notice--ok')).not.toBeNull());
+    expect(footerStatus()).toHaveTextContent('No unsaved changes');
+  });
+
+  it('a failed save keeps every edit and says so; Try again saves them', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    let failures = 1;
+    answerSaveWith(runtime, async (real) => {
+      if (failures > 0) {
+        failures -= 1;
+        return { ok: false, error: { kind: 'unavailable' } };
+      }
+      return real();
+    });
+    show(runtime, <CourseCodes />, '/content-manager/course-codes');
+    await waitFor(async () => expect(await tableRows()).toHaveLength(6));
+    await user.type(codeField('Fluid Mechanics'), 'ME ZG541');
+    await user.click(screen.getByRole('button', { name: 'Save codes' }));
+    const failed = await screen.findByRole('alert');
+    expect(failed).toHaveClass('rk-errsum');
+    expect(failed.querySelector('.rk-errsum-t')).toHaveTextContent('We couldn’t save the codes');
+    expect(failed).toHaveTextContent(
+      'Nothing has changed. Your edits are still in the table. Try again.',
+    );
+    await waitFor(() => expect(failed).toHaveFocus());
+    expect(codeField('Fluid Mechanics')).toHaveValue('ME ZG541');
+    expect(footerStatus()).toHaveTextContent('1 change not saved');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    await waitFor(() => expect(main().querySelector('.rk-notice--ok')).not.toBeNull());
+    expect(screen.queryByRole('alert')).toBeNull();
+    const codes = ok(await asPersonId(sample, KAVYA).platformCourseCodes.list());
+    expect(codes.find((row) => row.course.id === 'fluid-mechanics')?.course.platformCode).toBe(
+      'ME ZG541',
+    );
+  });
 
   it.each([
     [
       { kind: 'stale-version', currentRev: 9 } as ServiceError,
       'These codes were changed elsewhere',
       'Nothing was saved and your codes are still here. Check them and save again.',
+      false,
     ],
     [
       { kind: 'policy-open', decision: 'CC-06' } as ServiceError,
       'These codes can’t be saved yet',
       'Whether you can change platform codes for these courses hasn’t been decided yet. Nothing was saved.',
+      false,
     ],
     [
       { kind: 'not-permitted', why: 'wrong-workspace' } as unknown as ServiceError,
-      'Your codes didn’t save',
-      'Nothing was saved and your codes are still here. Try again.',
+      'We couldn’t save the codes',
+      'Nothing has changed. Your edits are still in the table. Try again.',
+      true,
     ],
-  ])('a save refused (%o) says so calmly and keeps the typed code', async (error, title, line) => {
-    const user = userEvent.setup();
-    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
-    answerSaveWith(runtime, error);
-    show(runtime, <CourseCodes />, '/content-manager/course-codes');
-    await waitFor(async () => expect(await tableRows()).toHaveLength(6));
-    await user.type(codeField('Fluid Mechanics'), 'ME ZG541');
-    await user.click(screen.getByRole('button', { name: 'Save codes' }));
-    const notice = await screen.findByRole('alert');
-    expect(notice).toHaveClass('xr-notice', 'xr-notice--err');
-    expect(notice).toHaveTextContent(title);
-    expect(notice).toHaveTextContent(line);
-    expect(notice.textContent).not.toMatch(/CC-06/);
-    await waitFor(() => expect(notice).toHaveFocus());
-    expect(codeField('Fluid Mechanics')).toHaveValue('ME ZG541');
-    expect(footerStatus()).toHaveTextContent('1 change not saved');
-  });
+  ])(
+    'a save refused (%o) says so calmly and keeps the typed code',
+    async (error, title, line, retry) => {
+      const user = userEvent.setup();
+      const { runtime } = await tabPlatform(KAVYA, 'spine-start');
+      answerSaveWith(runtime, async () => ({ ok: false as const, error }));
+      show(runtime, <CourseCodes />, '/content-manager/course-codes');
+      await waitFor(async () => expect(await tableRows()).toHaveLength(6));
+      await user.type(codeField('Fluid Mechanics'), 'ME ZG541');
+      await user.click(screen.getByRole('button', { name: 'Save codes' }));
+      const notice = await screen.findByRole('alert');
+      expect(notice).toHaveClass('rk-errsum');
+      expect(notice).toHaveTextContent(title);
+      expect(notice).toHaveTextContent(line);
+      expect(notice.textContent).not.toMatch(/CC-06/);
+      expect(within(notice).queryByRole('button', { name: 'Try again' }) !== null).toBe(retry);
+      await waitFor(() => expect(notice).toHaveFocus());
+      expect(codeField('Fluid Mechanics')).toHaveValue('ME ZG541');
+      expect(footerStatus()).toHaveTextContent('1 change not saved');
+    },
+  );
 
-  it('announces loading; a failed read has Try again', async () => {
+  it('loading: no figures; couldn’t load: Try again reads again and focuses the title', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     faults(sample).failNext('PlatformCourseCodeService.list');
     bare(runtime, <CourseCodes />, '/content-manager/course-codes');
-    expect(document.querySelector('[aria-busy="true"] .xr-sr[role="status"]')).toHaveTextContent(
-      'Loading the course codes',
+    expect(
+      document.querySelector('[aria-busy="true"] .rk-loading-msg[role="status"]'),
+    ).toHaveTextContent('Loading the course codes…');
+    expect(document.querySelector('dl.rb-figs')).toBeNull();
+    expect(screen.getByRole('region', { name: 'Courses' })).toHaveTextContent(
+      'Each code must be unique.',
     );
-    expect(await screen.findByText('We couldn’t load the course codes')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    const failed = await screen.findByRole('alert');
+    expect(failed).toHaveTextContent('We couldn’t load the course codes');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Course codes' })).toHaveFocus();
     await waitFor(async () => expect(await tableRows()).toHaveLength(6));
   });
 });

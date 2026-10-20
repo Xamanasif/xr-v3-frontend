@@ -1,0 +1,298 @@
+{
+ "01-overview": {
+  "unresolved": [],
+  "other": []
+ },
+ "02-ready": {
+  "unresolved": [],
+  "other": []
+ },
+ "03-decision": {
+  "unresolved": [],
+  "other": []
+ },
+ "03b-confirm": {
+  "unresolved": [],
+  "other": []
+ },
+ "03c-blocked": {
+  "unresolved": [],
+  "other": []
+ },
+ "03d-sendback": {
+  "unresolved": [],
+  "other": []
+ },
+ "03e-done": {
+  "unresolved": [],
+  "other": []
+ },
+ "03f-stale": {
+  "unresolved": [],
+  "other": []
+ },
+ "04-library": {
+  "unresolved": [],
+  "other": []
+ },
+ "04b-lib-pub": {
+  "unresolved": [],
+  "other": []
+ },
+ "04c-lib-nomatch": {
+  "unresolved": [],
+  "other": []
+ },
+ "05-pub-e10": {
+  "unresolved": [],
+  "other": []
+ },
+ "05b-pub-e2": {
+  "unresolved": [],
+  "other": []
+ },
+ "05c-pub-e6": {
+  "unresolved": [],
+  "other": []
+ },
+ "06-new-cat": {
+  "unresolved": [],
+  "other": []
+ },
+ "07-new-del": {
+  "unresolved": [],
+  "other": []
+ },
+ "07b-join-del": {
+  "unresolved": [],
+  "other": []
+ },
+ "08-updates": {
+  "unresolved": [],
+  "other": []
+ },
+ "08b-upd-returned": {
+  "unresolved": [],
+  "other": []
+ },
+ "08c-upd-awaiting": {
+  "unresolved": [],
+  "other": []
+ },
+ "08d-upd-hold": {
+  "unresolved": [],
+  "other": []
+ },
+ "08e-upd-released": {
+  "unresolved": [],
+  "other": []
+ },
+ "09-codes": {
+  "unresolved": [],
+  "other": []
+ },
+ "09b-codes-dup": {
+  "unresolved": [],
+  "other": []
+ },
+ "10-help": {
+  "unresolved": [],
+  "other": []
+ },
+ "10b-report": {
+  "unresolved": [],
+  "other": []
+ },
+ "11-public": {
+  "unresolved": [],
+  "other": []
+ },
+ "12-refusal": {
+  "unresolved": [],
+  "other": []
+ },
+ "13-signedout": {
+  "unresolved": [],
+  "other": []
+ },
+ "14-empty-overview": {
+  "unresolved": [],
+  "other": []
+ },
+ "14b-empty-ready": {
+  "unresolved": [],
+  "other": []
+ },
+ "14c-empty-library": {
+  "unresolved": [],
+  "other": []
+ },
+ "14d-empty-updates": {
+  "unresolved": [],
+  "other": []
+ },
+ "02b-ready-blocked": {
+  "unresolved": [],
+  "other": []
+ },
+ "02c-overview-blocked": {
+  "unresolved": [],
+  "other": []
+ },
+ "04d-lib-review": {
+  "unresolved": [],
+  "other": []
+ },
+ "04e-lib-vendor": {
+  "unresolved": [],
+  "other": []
+ },
+ "08f-upd-withdrawn": {
+  "unresolved": [],
+  "other": []
+ },
+ "03g-send-errors": {
+  "unresolved": [],
+  "other": []
+ },
+ "03h-sent-rv": {
+  "unresolved": [],
+  "other": []
+ },
+ "03i-ro-review": {
+  "unresolved": [],
+  "other": []
+ },
+ "03j-ro-vendor": {
+  "unresolved": [],
+  "other": []
+ },
+ "02d-ready-newest": {
+  "unresolved": [],
+  "other": []
+ },
+ "05d-pub-e11": {
+  "unresolved": [],
+  "other": []
+ },
+ "05e-pub-released": {
+  "unresolved": [],
+  "other": []
+ },
+ "06b-draft-errors": {
+  "unresolved": [],
+  "other": []
+ },
+ "06c-draft-saved": {
+  "unresolved": [],
+  "other": []
+ },
+ "08g-upd-savefail": {
+  "unresolved": [],
+  "other": []
+ },
+ "08h-upd-inreview": {
+  "unresolved": [],
+  "other": []
+ },
+ "08i-upd-lifted": {
+  "unresolved": [],
+  "other": []
+ },
+ "08j-upd-stale-wd": {
+  "unresolved": [],
+  "other": []
+ },
+ "08k-upd-withdrawn-detail": {
+  "unresolved": [],
+  "other": []
+ },
+ "09c-codes-edit": {
+  "unresolved": [],
+  "other": []
+ },
+ "09d-codes-fail": {
+  "unresolved": [],
+  "other": []
+ },
+ "09e-codes-saved": {
+  "unresolved": [],
+  "other": []
+ },
+ "10c-report-errors": {
+  "unresolved": [],
+  "other": []
+ },
+ "10d-report-sent": {
+  "unresolved": [],
+  "other": []
+ },
+ "10e-report-detail": {
+  "unresolved": [],
+  "other": []
+ },
+ "14e-empty-codes": {
+  "unresolved": [],
+  "other": []
+ },
+ "14f-empty-help": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-lib-loading": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-lib-failed": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-ready-loading": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-ready-failed": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-upd-loading": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-upd-failed": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-codes-loading": {
+  "unresolved": [],
+  "other": []
+ },
+ "ls-codes-failed": {
+  "unresolved": [],
+  "other": []
+ },
+ "05f-pub-back": {
+  "unresolved": [],
+  "other": []
+ },
+ "d-confirm": {
+  "unresolved": [],
+  "other": []
+ },
+ "d-send": {
+  "unresolved": [],
+  "other": []
+ },
+ "d-withdraw": {
+  "unresolved": [],
+  "other": []
+ },
+ "d-menu": {
+  "unresolved": [],
+  "other": []
+ },
+ "d-acct": {
+  "unresolved": [],
+  "other": []
+ }
+}

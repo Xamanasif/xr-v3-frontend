@@ -201,8 +201,14 @@ test.describe('SA-14 Academic structure', () => {
     await switchIdentity(page, KAVYA);
     await push(page, '/content-manager/course-codes');
     await expect(heading(page, 'Course codes')).toBeVisible({ timeout: 60_000 });
-    const row = main(page).locator('tbody tr', { hasText: 'Mass Transfer' });
-    await expect(row).toContainText('Chemical & Process · 0 published experiments');
+    // CM-09 (V3, CM-v1): the courses grouped under their area's band; a course with nothing live.
+    const codesArea = main(page).locator('tbody', {
+      has: page.locator('tr.cm-area .cm-grp-name', { hasText: 'Chemical & Process' }),
+    });
+    const row = codesArea.locator('tr', { hasText: 'Mass Transfer' });
+    await expect(row.locator('.cm-course-t')).toHaveText('Mass Transfer');
+    await expect(row.locator('.cm-course-s')).toHaveText('Nothing live yet');
+    await expect(row.locator('.cm-livecount')).toHaveText('0');
     await expect(row.getByRole('textbox')).toHaveValue('');
     // The public explorer is unchanged: no published experiments (OD-B7-13).
     await push(page, '/areas/chemical-process');
@@ -335,13 +341,19 @@ test.describe('SA-15 Course record', () => {
     await expect(heading(page, 'Course codes')).toBeVisible({ timeout: 60_000 });
     const row = main(page).locator('tbody tr', { hasText: 'Power Electronics & Drives' });
     await expect(row.getByRole('textbox')).toHaveValue('EEE ZG512');
-    await expect(main(page).locator('tbody strong')).toHaveText([
+    // CM-09 (V3, CM-v1): the courses under their areas' bands, in the areas' order.
+    await expect(main(page).locator('tbody tr.cm-area .cm-grp-name')).toHaveText([
+      'Mechanical & Manufacturing',
+      'Electrical & Electronics',
+      'Chemical & Process',
+    ]);
+    await expect(main(page).locator('tbody .cm-course-t')).toHaveText([
       'Thermodynamics & Heat Transfer',
       'Manufacturing Processes',
+      'Fluid Mechanics',
       'Electrical Machines',
       'Power Electronics & Drives',
       'Process Instrumentation & Control',
-      'Fluid Mechanics',
     ]);
     await expectSameDocument(page, mark);
   });

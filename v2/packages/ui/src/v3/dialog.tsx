@@ -1,8 +1,9 @@
 'use client';
 
-import { useId, type ReactNode, type RefObject } from 'react';
+import { type FocusEvent, useEffect, useId, type ReactNode, type RefObject } from 'react';
 
 import { type ModalInitialFocus, useModalDialog } from '../overlays/modal-dialog.js';
+import { joinClasses } from '../internal/classes.js';
 import { Button, type ButtonVariant } from './actions.js';
 import { Glyph } from './icons.js';
 
@@ -33,6 +34,11 @@ export interface ConfirmDialogProps {
    */
   readonly children?: ReactNode;
   /**
+   * The body's bottom padding 12 px, as the Content Manager export (CM-v1) sets it inline on its
+   * Withdraw dialog, whose body is one field (`rk-x-dlg-body-tight`, V3P-14). Off by default.
+   */
+  readonly tightBody?: boolean;
+  /**
    * Where focus goes on opening: the title (default, SA-03), the first field of the body (a form
    * dialog: SA-07 Assign, SA-14 Add course, SA-16 Register) or the confirm button (SA-11, SA-13:
    * the export's `dlg-ok`). After a refused confirm, focus goes to the first invalid field.
@@ -50,6 +56,15 @@ export interface ConfirmDialogProps {
   /** While the command runs: presses are ignored and `busyLabel` replaces the confirm words. */
   readonly busy?: boolean;
   readonly busyLabel?: ReactNode;
+  /**
+   * While busy, the dialog waits for the result (the Content Manager export's Publish, Send for
+   * academic review and Withdraw; CM-v1 COMPONENT-EXTENSIONS "Behaviour notes"): Cancel is
+   * disabled, Esc and every other close request are ignored, and focus is held on the dialog's
+   * title (moved there when the command starts, and back there when a press would leave it
+   * nowhere). Off by default: elsewhere Cancel stays enabled and the caller decides what a cancel
+   * while busy does.
+   */
+  readonly holdWhileBusy?: boolean;
   readonly onConfirm: () => void;
   /** Cancel, Esc or a browser close request; the caller closes the dialog. */
   readonly onCancel: () => void;
@@ -68,7 +83,8 @@ export interface ConfirmDialogProps {
  * bodies): its form dialogs — fields under the head, the first field focused, Enter confirming, a
  * refused confirm sending focus to the first invalid field — and its confirmations with a quoted
  * reason or a refusal notice in the body. The Vendor export (VE-v1) adds the navy confirm and a
- * dialog without a body ("Leave without saving?"). A native dialog opened with showModal(), so the page
+ * dialog without a body ("Leave without saving?"); the Content Manager export (CM-v1) the hold
+ * while its command runs (`holdWhileBusy`) and the Withdraw dialog's tight body (`tightBody`). A native dialog opened with showModal(), so the page
  * behind is inert — the board's `div` over an `aria-hidden` scrim left it reachable (V3P-01). The
  * behaviour is the shared `useModalDialog` of the v46 dialogs.
  */
@@ -78,6 +94,7 @@ export function ConfirmDialog({
   description,
   groups = [],
   children,
+  tightBody = false,
   initialFocus = 'title',
   submitOnEnter = false,
   confirmLabel,
@@ -85,6 +102,7 @@ export function ConfirmDialog({
   cancelLabel = 'Cancel',
   busy = false,
   busyLabel,
+  holdWhileBusy = false,
   onConfirm,
   onCancel,
   returnFocusFallback,
@@ -94,16 +112,39 @@ export function ConfirmDialog({
   const prefix = idPrefix ?? generated;
   const titleId = `${prefix}-t`;
   const descriptionId = `${prefix}-d`;
+  const held = holdWhileBusy && busy;
   const modal = useModalDialog({
     open,
     busy,
     onConfirm,
-    onCancel,
+    // Held: Cancel, Esc and the browser's close requests wait for the result.
+    onCancel: () => {
+      if (!held) onCancel();
+    },
     returnFocusFallback,
     initialFocus,
     submitOnEnter,
     bodySelector: '.rk-dlg-body',
   });
+  const { dialogRef, titleRef } = modal;
+  // Held: focus moves to the title when the command starts (the export's `focus('…-t')` as it
+  // sets busy), so it is never left on the disabled Cancel; and it stays in the open dialog — a
+  // press on the disabled Cancel, which would leave focus nowhere, puts it back on the title.
+  useEffect(() => {
+    if (!held || !dialogRef.current?.open) return;
+    titleRef.current?.focus();
+  }, [held, dialogRef, titleRef]);
+  const holdFocus = (event: FocusEvent<HTMLDialogElement>) => {
+    const dialog = event.currentTarget;
+    const next = event.relatedTarget;
+    if (!held || !dialog.open || (next instanceof Node && dialog.contains(next))) return;
+    // After the focus change that is under way: where it left the dialog, back to the title.
+    queueMicrotask(() => {
+      const active = dialog.ownerDocument.activeElement;
+      if (!dialog.open || (active && active !== dialog && dialog.contains(active))) return;
+      titleRef.current?.focus();
+    });
+  };
   return (
     <dialog
       ref={modal.dialogRef}
@@ -111,6 +152,7 @@ export function ConfirmDialog({
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       onKeyDown={modal.onKeyDown}
+      onBlur={holdFocus}
       onCancel={modal.onCancel}
       onClose={modal.onClose}
     >
@@ -121,7 +163,7 @@ export function ConfirmDialog({
         <p id={descriptionId}>{description}</p>
       </div>
       {groups.length > 0 || children !== undefined ? (
-        <div className="rk-dlg-body">
+        <div className={joinClasses('rk-dlg-body', tightBody && 'rk-x-dlg-body-tight')}>
           {groups.map((group, index) => (
             <div
               key={index}
@@ -142,7 +184,7 @@ export function ConfirmDialog({
         </div>
       ) : null}
       <div className="rk-dlg-foot">
-        <Button ref={modal.cancelRef} size="lg" onClick={() => onCancel()}>
+        <Button ref={modal.cancelRef} size="lg" disabled={held} onClick={() => onCancel()}>
           {cancelLabel}
         </Button>
         <Button

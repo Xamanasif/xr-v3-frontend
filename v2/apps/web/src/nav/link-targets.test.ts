@@ -498,8 +498,9 @@ describe('the link-target ledger', () => {
       // Phase 5: one primary per drawn state — VE-01's top attention item or Create (first visit),
       // VE-02's Create / the returned row's Revise, the editor's Continue per step and its DL-1
       // submit (VE-06 create, VE-08 resubmit) and result; the record's Edit draft / Revise; RV-01's
-      // oldest, RV-02's first row (a submission or an update), RV-03's decision; CM-01's next ready
-      // item, CM-02's decision, CM-09's Save codes, CM-03's decision and CM-05's correction entry.
+      // oldest, RV-02's first row (a submission or an update), RV-03's decision; CM-01's first desk
+      // row (V3 CM-v1: its gold "Open decision"), CM-02's decision, CM-09's Save codes, CM-03's
+      // decision and CM-05's correction entry.
       'VE-01: Revise “<name>”',
       'VE-01: Create experiment',
       'VE-02: Create experiment',
@@ -520,17 +521,20 @@ describe('the link-target ledger', () => {
       'RV-02: Review',
       'RV-02: Review',
       'RV-03: Approve · Return to vendor',
-      'CM-01: Open the next ready item',
+      'CM-01: Open decision',
       'CM-02: Open decision',
       'CM-09: Save codes',
       'CM-03: Publish · Send back',
       'CM-05: Start a correction',
-      // Phase 6: one primary per drawn state — CM-05's "Open update" while an update is open,
-      // CM-08's Send, RV-04's and SA-11's decisions, SA-13's override (a stuck record; SA-v1
+      // Phase 6: one primary per drawn state — CM-05's "Continue the update" (a draft or returned
+      // update) and "Open update" (awaiting release), CM-08's Send and the CM-08 list's Need-you
+      // "Continue" (V3 CM-v1), RV-04's and SA-11's decisions, SA-13's override (a stuck record; SA-v1
       // `V.record`), SA-14's Add course, SA-16's Register, SA-17's Assign scope and
       // SA-21's Resolve. SA-10, SA-12, SA-15, SA-20 and SA-22 draw no primary.
+      'CM-05: Continue the update',
       'CM-05: Open update',
       'CM-08: Send for academic review',
+      'CM-08: Continue',
       'RV-04: Approve update · Return to the Content Manager',
       'SA-11: Release update · Hold update',
       'SA-13: Move status',

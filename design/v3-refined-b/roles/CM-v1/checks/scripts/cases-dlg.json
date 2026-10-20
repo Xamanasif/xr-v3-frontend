@@ -1,0 +1,7 @@
+[
+ {"n":"d-confirm","screen":"decision","record":"SUB-0077","preset":"confirm","fixed":true},
+ {"n":"d-send","screen":"update","record":"UPD-0006","preset":"send-dialog","fixed":true},
+ {"n":"d-withdraw","screen":"update","record":"UPD-0006","preset":"wd-dialog:empty","fixed":true},
+ {"n":"d-menu","screen":"library","preset":"menu","fixed":true},
+ {"n":"d-acct","screen":"overview","preset":"acct","fixed":true}
+]

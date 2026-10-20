@@ -13,10 +13,10 @@ import {
 import type { ReactNode } from 'react';
 
 import { weekdayDate } from '@/copy/dates';
-import { ACCESS_BANNER, SHELL_HELP } from '@/copy/xs';
+import { ACCESS_BANNER, SHELL_HELP, V3_RAIL_COUNT_WORDS } from '@/copy/xs';
 import { type BoardIconKey, WORKSPACE_NAV } from '@/nav/nav-config';
 import type { ScreenKey } from '@/nav/screens';
-import { sidebarModel } from '@/nav/sidebar-model';
+import { countLabel, sidebarModel } from '@/nav/sidebar-model';
 
 import {
   organisationLine,
@@ -26,21 +26,27 @@ import {
 
 /**
  * The roles whose workspace has moved to the V3 Refined B shell with their owner-approved complete
- * role export (pack prompt 11): the Super Admin (design/v3-refined-b/roles/SA-v1) and the Vendor
- * (roles/VE-v1). Every other role keeps its v46 shell until its own export is integrated.
+ * role export (pack prompt 11): the Super Admin (design/v3-refined-b/roles/SA-v1), the Vendor
+ * (roles/VE-v1) and the Content Manager (roles/CM-v1). Every other role keeps its v46 shell until
+ * its own export is integrated.
  */
-export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>(['super_admin', 'vendor']);
+export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>([
+  'super_admin',
+  'vendor',
+  'content_manager',
+]);
 
 /**
  * The roles whose export names the home page before the date in the top line on that page ("Overview
  * · Thursday 27 August 2026": VE-v1 `Main.dc.html` `rb-top-date`, as IA-01 draws it); the Super Admin
- * export draws the date alone.
+ * and Content Manager exports draw the date alone.
  */
 const HOME_IN_TOP_LINE: ReadonlySet<Role> = new Set<Role>(['vendor']);
 
 /**
  * The rail glyph of each destination, as the role exports draw it (SA-v1 `sa-core.js` nav; VE-v1
- * `Main.dc.html` rail: the Overview grid and My experiments' flask).
+ * `Main.dc.html` rail: the Overview grid and My experiments' flask; CM-v1 `Main.dc.html` rail: the
+ * grid, upload, books, refresh and hash glyphs).
  */
 const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   overview: 'overview',
@@ -51,6 +57,10 @@ const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   roles: 'platformRoles',
   ops: 'operations',
   exps: 'myExperiments',
+  publish: 'readyToPublish',
+  library: 'contentLibrary',
+  updates: 'updates',
+  codes: 'courseCodes',
 };
 
 export interface V3RoleShellProps {
@@ -106,12 +116,18 @@ export function V3RoleShell({
     const entry = config.destinations.find((candidate) => candidate.href === destination.href);
     const icon = entry ? RAIL_ICON[entry.boardIcon] : undefined;
     if (!icon) throw new Error(`No V3 rail icon for ${destination.label}.`);
+    // The figure the sidebar model counted, worded as the role export words it where it does.
+    const words = V3_RAIL_COUNT_WORDS[`${role}:${destination.href}`];
+    const value = entry ? counts?.[entry.key] : undefined;
     return {
       label: destination.label,
       href: destination.href,
       icon,
       current: destination.current,
-      count: destination.count,
+      count:
+        destination.count && words && value !== undefined
+          ? { value, label: countLabel(words, value) }
+          : destination.count,
     };
   });
   return (

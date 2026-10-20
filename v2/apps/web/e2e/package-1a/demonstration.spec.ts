@@ -170,10 +170,11 @@ test('one tab, the product build: sign-in, requests, a decision, sign-out, anoth
   await signIn(page, 'kavya.nair@wilp.example');
   await page.waitForURL((url) => url.pathname === '/content-manager');
   await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
-  await expect(page.locator('aside.xr-side .xr-ws-label')).toHaveText('Content Manager');
+  // The Content Manager's V3 rail (CM-v1).
+  await expect(page.locator('aside.rb-rail .rb-ws-role')).toHaveText('Content Manager');
   expect(
     await page
-      .locator('aside.xr-side nav a[href]')
+      .locator('aside.rb-rail nav[aria-label="Content Manager navigation"] a[href]')
       .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
   ).toEqual([
     '/content-manager',

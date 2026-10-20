@@ -102,6 +102,15 @@ async function tick(page: Page, box: Locator): Promise<void> {
   await expect(box).toBeChecked();
 }
 
+/**
+ * A press inside a V3 decision panel (CM-03, CM-v1): on wide screens the panel is sticky and, when
+ * taller than the window, scrolls on its own; the person brings the control into view first.
+ */
+async function inPanel(page: Page, target: Locator): Promise<void> {
+  await target.scrollIntoViewIfNeeded();
+  await reachAndClick(page, target);
+}
+
 /** Types into a field as a person would (key by key). */
 async function type(field: Locator, value: string): Promise<void> {
   await field.click();
@@ -360,22 +369,25 @@ test('one tab, the product build: Flow E — create → return with a reason →
   await sidebar(page, '/content-manager/ready');
   await reachAndClick(
     page,
-    main(page).getByRole('link', { name: `Open decision for ${COMPOSITE}` }),
+    main(page).getByRole('link', { name: `Open the publication decision for ${COMPOSITE}` }),
   );
   await page.waitForURL('**/content-manager/decisions/SUB-0077');
   await expect(h1(page)).toHaveText(COMPOSITE);
-  await reachAndClick(page, decision(page).getByRole('button', { name: 'Publish' }));
+  // CM-03 (V3, CM-v1): nothing is chosen first — choose Publish, then press it. The panel is
+  // sticky and scrolls on its own, so it is brought to the control first.
+  await inPanel(page, decision(page).getByRole('radio', { name: 'Publish' }));
+  await inPanel(page, decision(page).getByRole('button', { name: 'Publish' }));
   const publish = page.getByRole('dialog', { name: `Publish “${COMPOSITE}”?` });
   await expect(publish).toContainText('Publishing gives no one access');
   await reachAndClick(page, publish.getByRole('button', { name: 'Publish' }));
   await expect(publish).toBeHidden({ timeout: 30_000 });
-  const published = page.locator('#cm-cdec');
-  await expect(published.locator('.xr-status--ok')).toHaveText('Published');
+  const published = page.locator('#cm-d-done');
+  await expect(published.locator('.xr-st--ok')).toHaveText('Published');
   await expect(published).toContainText('Publishing gave no one access.');
   await checkState(page, COMPOSITE);
 
   // 10. The public pages list it, with the reviewer's outcomes (PU-06, PU-05, PU-04).
-  await reachAndClick(page, published.getByRole('link', { name: 'View in the catalogue' }));
+  await inPanel(page, published.getByRole('link', { name: 'View the public page' }));
   await expect(h1(page)).toHaveText(COMPOSITE);
   await expect(page).toHaveURL(/\/experiments\/conduction-through-a-composite-wall$/);
   for (const outcome of OUTCOMES) await expect(main(page)).toContainText(outcome);

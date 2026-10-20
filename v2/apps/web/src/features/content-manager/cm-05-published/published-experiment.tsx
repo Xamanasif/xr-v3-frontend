@@ -8,37 +8,60 @@ import {
   type Technology,
 } from '@xr/domain';
 import {
-  BackLink,
-  Button,
-  FormatBadge,
-  Icon,
-  Link,
+  Breadcrumbs,
+  ButtonLink,
+  CmCatalogueEntry,
+  type CmDeliveryCard,
+  CmDeliveryCards,
+  CmFormatRows,
+  CmGoLink,
+  CmIdentityBand,
+  CmIdentityTrack,
+  CmLiveFacts,
+  CmSheetSection,
+  CmStageTrack,
+  CmVersionChange,
+  CmWideButton,
+  DecisionPanel,
+  DetailLayout,
+  GoButton,
+  Hint,
   Notice,
-  PageContent,
-  PageHeader,
-  Section,
-  SectionBody,
+  RecordLine,
   StatusPill,
   Timeline,
   type TimelineEvent,
-} from '@xr/ui';
-import { useEffect, useState } from 'react';
+  V46Island,
+} from '@xr/ui/v3';
+import { type ReactNode, useEffect, useState } from 'react';
 
 import {
+  correctionNamed,
+  CORRECTIONS_PANEL,
+  correctionsReleased,
+  courseLabel,
+  firstPublishedNote,
   firstPublishedWhat,
-  liveSinceLine,
+  formatsLabel,
+  formatsList,
+  fromVendor,
+  liveVersionLine,
   PUBLISHED_PAGE,
   publishedOverline,
-  updateInProgressLine,
-  updateInProgressTitle,
+  releasedLine,
+  releasedTitle,
+  updateHeldNote,
+  updateHeldWhat,
+  updateProgressLine,
   updateStartedNote,
   updateStartedWhat,
+  versionAfterFormats,
   versionReleasedNote,
   versionReleasedWhat,
 } from '@/copy/cm-decision';
 import { BACK_FROM_CORRECTION, CORRECTION_ENTRY } from '@/copy/cm-correction';
+import { CM_SUBMISSION_STATUS, CM_UPDATE_STATUS, STAGE_TRACK_LABEL } from '@/copy/cm-shared';
 import { dayMonthYear } from '@/copy/dates';
-import { experimentStatusWords, updateWords, wordsOf } from '@/copy/flow-state-words';
 import { stateWords } from '@/copy/state-copy';
 import {
   CONTENT_LIBRARY_ADDRESS,
@@ -50,6 +73,7 @@ import {
 import { useAppNavigation } from '@/nav/navigation';
 import { usePlatformCourseCodes, usePublishedExperiment } from '@/queries/production';
 import type { PublishedExperimentView } from '@/queries/production-cm-decision';
+import { useSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
 
 import { RecordGuard } from '../../shared/record-guard/record-guard';
@@ -58,11 +82,16 @@ import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import {
   backFromCorrectionFor,
   forgetBackFromCorrection,
+  noteCorrectionArrival,
   useCorrectionSessionKey,
 } from '../cm-08-updates/correction-draft';
 import { correctionFocusTarget } from '../cm-08-updates/correction-view';
+import { CM_STAGE_STATE_WORDS, correctionStages } from '../shared/stages';
+import { cmUpdatePill } from '../shared/status';
+import { useCmTodayLine } from '../shared/today-line';
+import { correctionVersionChange, liveVersionOnly } from '../shared/version-change';
 
-/** The open update states CM-05 names (B6-08 script `open`: draft, returned, review, awaiting, hold). */
+/** The open update states CM-05 names (CM-v1 `pubVM` `openUpd`: draft, returned, review, awaiting, hold). */
 const OPEN_STATES = [
   'draft',
   'returned',
@@ -76,111 +105,159 @@ function isOpenState(state: string): state is OpenState {
   return (OPEN_STATES as readonly string[]).includes(state);
 }
 
+/** The export's ids (CM-v1 `Main.dc.html` CM-05). */
+const TITLE_ID = 'cm-h-published';
+const PANEL_ID = 'cm-pub-panel';
+const PANEL_TITLE_ID = 'cm-p-panel-h';
+const PUBLIC_EXPERIMENT = (experimentId: string) =>
+  `/experiments/${encodeURIComponent(experimentId)}`;
+
 /**
- * CM-05 Published experiment — board B6-08 f0 … f4, B6-11 f9, B6-13 f1 and B7-11 f4, at
- * `/content-manager/published/[experimentId]`.
+ * CM-05 Published experiment — the owner-approved Content Manager export (V3 Refined B,
+ * design/v3-refined-b/roles/CM-v1, `Main.dc.html` `v.published`; boards CM05-Published,
+ * C14-PubAwaiting, C15-PubOnHold, C16-PubReleased), at `/content-manager/published/[experimentId]`.
  *
  * - **Read**: `CorrectionService.getPublishedExperiment` — the live experiment (its live version,
- *   versions, outcomes), its one open correction if any; the course’s code and name from the
- *   platform course codes (`PlatformCourseCodeService.list`, CM-09’s read).
- * - **As B6-08 draws it** (`xr-wrap--read`): the back link “Content library”, “<code> ·
- *   Published · version <live>”, the name, “Published” and “Live since … · <organisation>”; the
- *   live catalogue details, the learning outcomes (the Academic Reviewer’s, read-only), the live
- *   delivery per format and the versions-and-updates history, newest first. Everything is
- *   read-only: “Every change opens a correction draft.”
- * - **The correction entry** (f0, f4; B6-13 f1): “Start a correction” (the primary), “Edit
- *   catalogue details” (CM-06) and “Edit delivery link” (CM-07) each ask the service to open the
- *   one correction draft — or to join it — and open the update’s page with the field they name
- *   focused (state-copy `CM-05.entry-opens`). Never a second update: the service decides.
- * - **An update in progress** (f1, f2; B6-11 f9; B7-11 f4): the warn notice names it and its
- *   state; while it is a draft or returned the entries join it — “Open update” and the two edit
- *   entries (f2) — and while it is with the Academic Reviewer or the Super Admin only “Open update”
- *   is offered, in the notice (f1). The history leads with it.
- * - **Back from the correction** (f3): the info notice once, after “Back to the published
- *   experiment” on an open update (state-copy `CM-05.back-from-correction`; memory only).
+ *   versions, outcomes) and its one open correction, if any; the course's code and name from the
+ *   platform course codes (`PlatformCourseCodeService.list`, CM-09's read). Loading and a failed
+ *   read are the application's existing page states (CM-v1 HANDOFF §4).
+ * - **As the export draws it**: the breadcrumb "Content library", the identity band (the course,
+ *   the name, Published with the live version and the vendor; course, live since, formats,
+ *   corrections; while a correction is open, its status, version change and four stages) with
+ *   "View the public page" (PU-06); the live catalogue entry, read-only (summary, formats, the
+ *   Academic Reviewer's learning outcomes, formats and device needs, description, live version);
+ *   delivery, one card per format; the versions-and-updates history, newest first.
+ * - **The Corrections panel** (state-copy `CM-05.correction-entry`): with no update open, "Start a
+ *   correction" (the primary), "Edit catalogue details" (CM-06) and "Edit delivery link" (CM-07)
+ *   ask the service to open the one correction draft — or to join it — and open the update's page
+ *   with the field they name focused. While the update is a draft or returned the entries join it
+ *   and "Continue the update" opens it; while it is with the Academic Reviewer or the Super Admin
+ *   only "Open update" is offered. Never a second update: the service decides.
+ * - **Notices**: "Back from the correction" once, after "Back to the published experiment" on an
+ *   open update (memory only); the live version released today (state-copy `CM-05.released-today`).
  */
 export function PublishedExperiment({ experimentId }: { readonly experimentId: string }) {
   const read = usePublishedExperiment(experimentId);
   const codes = usePlatformCourseCodes();
   const view = read.data?.ok ? read.data.value : null;
-  // The top bar names the destination below 1024 px (f1 … f4); the crumbs name the experiment.
   useShellPage({
     ...publishedExperimentPlacement(view ? view.experiment.live.catalogue.name : null),
     title: CONTENT_LIBRARY_TITLE,
   });
   const courses = codes.data?.ok ? codes.data.value : null;
-  return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={{
-          data: codes.isPending ? undefined : read.data,
-          isPending: read.isPending || codes.isPending,
-          isError: read.isError || codes.isError,
-          refetch: () => {
-            void read.refetch();
-            void codes.refetch();
-          },
-        }}
-        loadingLabel={stateWords('CM-05.loading')}
-        failed={{ title: stateWords('CM-05.failed'), line: stateWords('CM-05.failed.line') }}
-      >
-        {(page) => {
-          const course = courses?.find((row) => row.course.id === page.experiment.courseId);
-          return (
-            <Published
-              key={page.experiment.id}
-              view={page}
-              courseCode={course?.course.platformCode ?? null}
-              courseName={course?.course.name ?? ''}
-              onReread={() => void read.refetch()}
-            />
-          );
-        }}
-      </RecordGuard>
-    </PageContent>
+  const guard = (
+    <RecordGuard
+      read={{
+        data: codes.isPending ? undefined : read.data,
+        isPending: read.isPending || codes.isPending,
+        isError: read.isError || codes.isError,
+        refetch: () => {
+          void read.refetch();
+          void codes.refetch();
+        },
+      }}
+      loadingLabel={stateWords('CM-05.loading')}
+      failed={{ title: stateWords('CM-05.failed'), line: stateWords('CM-05.failed.line') }}
+    >
+      {(page) => {
+        const course = courses?.find((row) => row.course.id === page.experiment.courseId);
+        return (
+          <Published
+            key={page.experiment.id}
+            view={page}
+            courseCode={course?.course.platformCode ?? null}
+            courseName={course?.course.name ?? ''}
+            onReread={() => void read.refetch()}
+          />
+        );
+      }}
+    </RecordGuard>
   );
+  // The application's existing loading and failed states keep their v46 look (CM-v1 HANDOFF §4).
+  return view && !codes.isPending ? guard : <V46Island>{guard}</V46Island>;
 }
 
-/** A live value, or the register’s “—” where the record leaves it blank (`CM-05.empty-value`). */
+/** A live value, or the register's "—" where the record leaves it blank (`CM-05.empty-value`). */
 function valueOf(text: string | null | undefined): string {
   return text && text.trim() !== '' ? text : stateWords('CM-05.empty-value');
 }
 
 /** The versions-and-updates history, newest first (state-copy `CM-05.history`). */
-function historyOf(view: PublishedExperimentView, openWords: string | null): TimelineEvent[] {
+function historyOf(view: PublishedExperimentView, open: OpenUpdate | null): TimelineEvent[] {
   const { experiment, openUpdate } = view;
   const events: TimelineEvent[] = [];
-  if (openUpdate && openWords) {
-    events.push({
-      id: openUpdate.id,
-      what: updateStartedWhat(openUpdate.id, openWords),
-      when: dayMonthYear(openUpdate.startedAt),
-      note: updateStartedNote(openUpdate.versionLabel),
-    });
+  if (openUpdate && open) {
+    events.push(
+      open.state === 'on-hold' && openUpdate.hold
+        ? {
+            what: updateHeldWhat(openUpdate.id),
+            when: dayMonthYear(openUpdate.hold.at),
+            note: updateHeldNote(experiment.live.label, openUpdate.hold.reason),
+          }
+        : {
+            what: updateStartedWhat(openUpdate.id, CM_UPDATE_STATUS[open.state]),
+            when: dayMonthYear(openUpdate.startedAt),
+            note: updateStartedNote(openUpdate.versionLabel),
+          },
+    );
   }
-  const versions = [...experiment.versions].reverse();
-  for (const version of versions) {
-    const isLive = version.label === experiment.live.label;
-    if (version.source.kind === 'correction-release') {
-      events.push({
-        id: `v-${version.label}`,
-        what: versionReleasedWhat(version.label),
-        when: dayMonthYear(version.liveFrom),
-        note: versionReleasedNote(version.source.updateId, isLive),
-      });
-    } else {
-      events.push({
-        id: `v-${version.label}`,
-        what: firstPublishedWhat(version.label),
-        when: dayMonthYear(version.liveFrom),
-        note: PUBLISHED_PAGE.firstPublicationNote,
-      });
-    }
+  for (const version of [...experiment.versions].reverse()) {
+    events.push(
+      version.source.kind === 'correction-release'
+        ? {
+            what: versionReleasedWhat(version.label),
+            when: dayMonthYear(version.liveFrom),
+            note: versionReleasedNote(
+              version.source.updateId,
+              version.label === experiment.live.label,
+            ),
+          }
+        : {
+            what: firstPublishedWhat(version.label),
+            when: dayMonthYear(version.liveFrom),
+            note: firstPublishedNote(version.source.submissionId),
+          },
+    );
   }
   return events;
 }
 
-/** A refused or failed entry, as the page says it (state-copy `CM-05.entry-*`). */
+/** The live delivery of one format, as its card lists it (`deliv`). */
+function deliveryCard(format: Technology, delivery: FormatDelivery): CmDeliveryCard {
+  const code = FORMAT_META[format].code;
+  if (delivery.format === 'web') {
+    return {
+      key: format,
+      code,
+      title: PUBLISHED_PAGE.webTitle,
+      rows: [
+        { term: PUBLISHED_PAGE.webLink, value: valueOf(delivery.webLink) },
+        { term: PUBLISHED_PAGE.browser, value: valueOf(delivery.browserAndComputer) },
+      ],
+    };
+  }
+  return {
+    key: format,
+    code,
+    title: PUBLISHED_PAGE.packageTitle,
+    rows: [
+      { term: PUBLISHED_PAGE.package, value: valueOf(delivery.packageLabel) },
+      {
+        term: PUBLISHED_PAGE.packageReference,
+        value: valueOf(delivery.packageReference ?? delivery.packageFileName),
+      },
+      { term: PUBLISHED_PAGE.deviceNeeded, value: valueOf(delivery.deviceNeeded) },
+      { term: PUBLISHED_PAGE.installNotes, value: valueOf(delivery.installNotes) },
+    ],
+  };
+}
+
+interface OpenUpdate {
+  readonly id: string;
+  readonly state: OpenState;
+}
+
+/** A refused or failed entry, as the panel says it (state-copy `CM-05.entry-*`). */
 type EntryNotice = 'refused' | 'unavailable';
 
 function Published({
@@ -196,20 +273,21 @@ function Published({
 }) {
   const { experiment, openUpdate } = view;
   const live = experiment.live;
-  const course = courseCode ?? courseName;
   const openState: OpenState | null =
     openUpdate && isOpenState(openUpdate.state) ? openUpdate.state : null;
-  const open = openUpdate && openState ? { id: openUpdate.id, state: openState } : null;
-  const openWords = open ? wordsOf(updateWords(open.state, 'content_manager')) : null;
-  const status = wordsOf(experimentStatusWords(experiment)) ?? '';
+  const open: OpenUpdate | null =
+    openUpdate && openState ? { id: openUpdate.id, state: openState } : null;
   const formats = inDisplayOrder(live.formats.map((entry) => entry.format));
-  // B6-08 `canJoin`: a draft or returned update is joined by the edit entries; any other open
-  // update offers only “Open update” (`lockProg`).
+  const codes = formats.map((format) => FORMAT_META[format].code);
+  // A draft or returned update is joined by the edit entries; any other open update offers only
+  // "Open update" (CM-v1 `pubVM` `joinable`, `locked`; OD-B6-07).
   const joinable = open !== null && (open.state === 'draft' || open.state === 'returned');
+  const today = useCmTodayLine();
+  const session = useSession();
 
   const navigation = useAppNavigation();
   const sessionKey = useCorrectionSessionKey();
-  // f3: once, after “Back to the published experiment” (read while the page first renders).
+  // Once, after "Back to the published experiment" (read while the page first renders).
   const [back] = useState(() => backFromCorrectionFor(sessionKey, experiment.id));
   useEffect(() => forgetBackFromCorrection(sessionKey, experiment.id), [sessionKey, experiment.id]);
 
@@ -235,6 +313,8 @@ function Published({
         const id = answer.value.update.id;
         const target = correctionFocusTarget(focus, experiment);
         if (target) noteRouteFocus(correctionAddress(id), target);
+        // The update's page explains the arrival once (state-copy `CM-08.arrival`).
+        noteCorrectionArrival(sessionKey, id, { entry, joined: answer.value.joined });
         navigation.navigate(correctionAddress(id, focus));
       },
       () => {
@@ -244,199 +324,274 @@ function Published({
     );
   };
 
-  const entryButton = (
-    entry: CorrectionEntry,
-    focus: CorrectionFocus | null,
-    variant: 'primary' | 'secondary',
-    label: string,
-  ) => (
-    <Button
-      variant={variant}
-      busy={pending === entry}
-      busyLabel={stateWords('CM-05.entry-busy')}
-      onClick={() => enter(entry, focus)}
-    >
-      {label}
-    </Button>
-  );
   const editEntries = (
     <>
-      {entryButton(
-        'edit-catalogue-details',
-        'summary',
-        'secondary',
-        CORRECTION_ENTRY.editCatalogue,
-      )}
-      {entryButton('edit-delivery-link', 'web-link', 'secondary', CORRECTION_ENTRY.editDelivery)}
+      <CmWideButton
+        icon="edit"
+        busy={pending === 'edit-catalogue-details'}
+        busyLabel={stateWords('CM-05.entry-busy')}
+        onClick={() => enter('edit-catalogue-details', 'summary')}
+      >
+        {CORRECTION_ENTRY.editCatalogue}
+      </CmWideButton>
+      <CmWideButton
+        icon="edit"
+        busy={pending === 'edit-delivery-link'}
+        busyLabel={stateWords('CM-05.entry-busy')}
+        onClick={() => enter('edit-delivery-link', 'web-link')}
+      >
+        {CORRECTION_ENTRY.editDelivery}
+      </CmWideButton>
     </>
   );
+
+  // The live version came from a correction released today (state-copy `CM-05.released-today`).
+  const liveIndex = experiment.versions.findIndex((version) => version.label === live.label);
+  const releasedToday =
+    live.source.kind === 'correction-release' &&
+    session.status === 'signed-in' &&
+    dayMonthYear(live.liveFrom) === dayMonthYear(session.signedInAt)
+      ? {
+          updateId: live.source.updateId,
+          from: liveIndex > 0 ? (experiment.versions[liveIndex - 1]?.label ?? '') : '',
+        }
+      : null;
+  const released = experiment.versions.filter(
+    (version) => version.source.kind === 'correction-release',
+  ).length;
+  const openPill = open ? cmUpdatePill(open.state) : null;
+
+  let actions: ReactNode;
+  if (open === null) {
+    actions = (
+      <>
+        <RecordLine>{CORRECTIONS_PANEL.intro}</RecordLine>
+        <GoButton
+          id="cm-p-start"
+          busy={pending === 'start-a-correction'}
+          busyLabel={stateWords('CM-05.entry-busy')}
+          onClick={() => enter('start-a-correction', null)}
+        >
+          {CORRECTION_ENTRY.start}
+        </GoButton>
+        {editEntries}
+      </>
+    );
+  } else {
+    const line = updateProgressLine(open.id, CM_UPDATE_STATUS[open.state], open.state, live.label);
+    actions = joinable ? (
+      <>
+        <Notice tone="info" icon="edit" role="status" title={CORRECTIONS_PANEL.correctionOpen}>
+          {line}
+        </Notice>
+        <CmGoLink href={correctionAddress(open.id)}>{CORRECTIONS_PANEL.continueUpdate}</CmGoLink>
+        {editEntries}
+      </>
+    ) : (
+      <>
+        <Notice
+          tone={open.state === 'on-hold' ? 'paused' : 'info'}
+          icon={open.state === 'on-hold' ? 'pauseCircle' : 'clock'}
+          role="status"
+          title={CORRECTIONS_PANEL.updateInProgress}
+        >
+          {line}
+        </Notice>
+        <CmGoLink href={correctionAddress(open.id)}>{CORRECTION_ENTRY.openUpdate}</CmGoLink>
+      </>
+    );
+  }
 
   return (
     <>
-      <PageHeader
-        className="[margin:8px_0_16px]"
-        back={<BackLink href={CONTENT_LIBRARY_ADDRESS}>{CONTENT_LIBRARY_TITLE}</BackLink>}
-        overline={publishedOverline(course, live.label)}
+      <CmIdentityBand
+        variant="record"
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: CONTENT_LIBRARY_TITLE, href: CONTENT_LIBRARY_ADDRESS }]}
+            current={live.catalogue.name}
+          />
+        }
+        date={today}
+        eyebrow={publishedOverline(courseCode ?? courseName)}
         title={live.catalogue.name}
-        meta={
+        titleId={TITLE_ID}
+        status={
           <>
-            <StatusPill tone="ok">{status}</StatusPill>
-            <span>{liveSinceLine(dayMonthYear(live.liveFrom), experiment.vendorOrganisation)}</span>
+            <StatusPill tone="ok" size="lg">
+              {CM_SUBMISSION_STATUS.published}
+            </StatusPill>
+            <CmVersionChange {...liveVersionOnly(live.label)} />
+            {experiment.vendorOrganisation ? (
+              <span>{fromVendor(experiment.vendorOrganisation)}</span>
+            ) : null}
           </>
         }
+        actions={
+          <ButtonLink icon="externalLink" href={PUBLIC_EXPERIMENT(experiment.id)}>
+            {PUBLISHED_PAGE.viewPublic}
+          </ButtonLink>
+        }
+        goTo={{ label: PUBLISHED_PAGE.goTo, targetId: PANEL_ID, focusId: PANEL_TITLE_ID }}
+        facts={[
+          {
+            key: 'course',
+            term: PUBLISHED_PAGE.factCourse,
+            value: courseLabel(courseCode, courseName),
+          },
+          { key: 'since', term: PUBLISHED_PAGE.factLiveSince, value: dayMonthYear(live.liveFrom) },
+          { key: 'formats', term: PUBLISHED_PAGE.factFormats, value: formatsList(codes) },
+          open && openPill
+            ? {
+                key: 'corrections',
+                term: PUBLISHED_PAGE.factCorrections,
+                value: correctionNamed(open.id, openPill.words),
+              }
+            : released > 0
+              ? {
+                  key: 'corrections',
+                  term: PUBLISHED_PAGE.factCorrections,
+                  value: correctionsReleased(released),
+                }
+              : {
+                  key: 'corrections',
+                  term: PUBLISHED_PAGE.factCorrections,
+                  value: PUBLISHED_PAGE.noCorrections,
+                  quiet: true,
+                },
+        ]}
+        track={
+          openUpdate && open && openPill ? (
+            <CmIdentityTrack
+              title={PUBLISHED_PAGE.trackTitle}
+              status={
+                <>
+                  <StatusPill tone={openPill.tone}>
+                    {correctionNamed(open.id, openPill.words)}
+                  </StatusPill>
+                  <CmVersionChange {...correctionVersionChange(openUpdate, live.label)} />
+                </>
+              }
+            >
+              <CmStageTrack
+                mini
+                label={STAGE_TRACK_LABEL.openCorrection}
+                steps={correctionStages(openUpdate, live.label)}
+                stateWords={CM_STAGE_STATE_WORDS}
+              />
+            </CmIdentityTrack>
+          ) : null
+        }
       />
-      <div className="flex flex-col gap-5">
-        {back ? (
-          <Notice tone="info" role="status" title={BACK_FROM_CORRECTION.title}>
-            {BACK_FROM_CORRECTION.line}
-          </Notice>
-        ) : null}
-        {open && openWords ? (
-          <Notice
-            tone="warn"
-            role="status"
-            title={updateInProgressTitle(open.id, openWords)}
-            actions={
-              joinable ? undefined : (
-                <Link
-                  className="xr-btn xr-btn--primary xr-btn--sm"
-                  href={correctionAddress(open.id)}
-                >
-                  {CORRECTION_ENTRY.openUpdate}
-                </Link>
-              )
-            }
-          >
-            {updateInProgressLine(open.state, live.label)}
-          </Notice>
-        ) : null}
-        {entryNotice ? (
-          <Notice tone={entryNotice === 'refused' ? 'warn' : 'err'} role="alert">
-            {stateWords(
-              entryNotice === 'refused' ? 'CM-05.entry-refused' : 'CM-05.entry-unavailable',
-            )}
-          </Notice>
-        ) : null}
-        {open === null ? (
-          <div className="xw-actions">
-            {entryButton('start-a-correction', null, 'primary', CORRECTION_ENTRY.start)}
-            {editEntries}
-          </div>
-        ) : joinable ? (
-          <div className="xw-actions">
-            <Link className="xr-btn xr-btn--primary" href={correctionAddress(open.id)}>
-              {CORRECTION_ENTRY.openUpdate}
-            </Link>
-            {editEntries}
-          </div>
-        ) : null}
-        <p className="xl-meta m-0">{PUBLISHED_PAGE.changeLine}</p>
-        <Section
-          title={PUBLISHED_PAGE.catalogueTitle}
-          meta={
-            <>
-              <Icon name="readOnly" size={16} />
-              {PUBLISHED_PAGE.liveReadOnly}
-            </>
-          }
-        >
-          <SectionBody>
-            <dl className="xl-kv xv-kv">
-              <dt>{PUBLISHED_PAGE.name}</dt>
-              <dd>{live.catalogue.name}</dd>
-              <dt>{PUBLISHED_PAGE.course}</dt>
-              <dd>{courseCode ? `${courseCode} · ${courseName}` : courseName}</dd>
-              <dt>{PUBLISHED_PAGE.summary}</dt>
-              <dd>{live.catalogue.summary}</dd>
-              <dt>{PUBLISHED_PAGE.description}</dt>
-              <dd>{live.catalogue.description}</dd>
-              <dt>{PUBLISHED_PAGE.version}</dt>
-              <dd>{live.label}</dd>
-              <dt>{PUBLISHED_PAGE.formats}</dt>
-              <dd>
-                <span className="xv-chips">
-                  {formats.map((format) => (
-                    <FormatBadge key={format} format={FORMAT_META[format].code} compact />
-                  ))}
-                </span>
-              </dd>
-            </dl>
-          </SectionBody>
-        </Section>
-        <Section title={PUBLISHED_PAGE.outcomesTitle} meta={PUBLISHED_PAGE.outcomesMeta}>
-          <SectionBody>
-            <ul className="xv-los">
-              {experiment.learningOutcomes.map((outcome) => (
-                <li key={outcome.id}>{outcome.text}</li>
-              ))}
-            </ul>
-          </SectionBody>
-        </Section>
-        <Section
-          title={PUBLISHED_PAGE.deliveryTitle}
-          meta={
-            <>
-              <Icon name="readOnly" size={16} />
-              {PUBLISHED_PAGE.liveReadOnly}
-            </>
-          }
-        >
-          <SectionBody className="flex flex-col gap-3">
-            {formats.map((format) => {
-              const delivery = live.formats.find((entry) => entry.format === format)?.delivery;
-              return delivery ? (
-                <Delivery key={format} format={format} delivery={delivery} />
-              ) : null;
-            })}
-          </SectionBody>
-        </Section>
-        <Section title={PUBLISHED_PAGE.historyTitle} meta={PUBLISHED_PAGE.historyMeta}>
-          <SectionBody>
-            <Timeline events={historyOf(view, openWords)} markLatest={false} />
-          </SectionBody>
-        </Section>
-      </div>
+      {back ? (
+        <Notice tone="info" icon="lock" role="status" title={BACK_FROM_CORRECTION.title}>
+          {BACK_FROM_CORRECTION.line}
+        </Notice>
+      ) : null}
+      {releasedToday ? (
+        <Notice tone="ok" icon="check" role="status" title={releasedTitle(live.label)}>
+          {releasedLine(releasedToday.updateId, dayMonthYear(live.liveFrom), releasedToday.from)}
+        </Notice>
+      ) : null}
+      <DetailLayout
+        asideId={PANEL_ID}
+        asideLabelledBy={PANEL_TITLE_ID}
+        main={
+          <>
+            <CmSheetSection
+              title={PUBLISHED_PAGE.catalogueTitle}
+              titleId="cm-p-cat"
+              note={PUBLISHED_PAGE.catalogueMeta}
+            >
+              <CmCatalogueEntry
+                nameId="cm-p-cat-name"
+                tag={{ words: PUBLISHED_PAGE.inCatalogueTag, tone: 'ok' }}
+                course={{ code: courseCode, name: courseName }}
+                name={live.catalogue.name}
+                summary={live.catalogue.summary}
+                availableIn={PUBLISHED_PAGE.availableIn}
+                formats={codes}
+                formatsLabel={formatsLabel(codes)}
+                version={versionAfterFormats(live.label)}
+                outcomesTitle={PUBLISHED_PAGE.outcomesTitle}
+                outcomesBy={PUBLISHED_PAGE.outcomesBy}
+                outcomes={experiment.learningOutcomes.map((outcome) => outcome.text)}
+                formatsTitle={PUBLISHED_PAGE.formatsTitle}
+              >
+                <CmFormatRows
+                  head={[
+                    PUBLISHED_PAGE.columnFormat,
+                    PUBLISHED_PAGE.columnHow,
+                    PUBLISHED_PAGE.columnDevice,
+                  ]}
+                  rows={formats.map((format) => {
+                    const delivery = live.formats.find(
+                      (entry) => entry.format === format,
+                    )?.delivery;
+                    const device =
+                      delivery?.format === 'web'
+                        ? delivery.browserAndComputer
+                        : delivery?.deviceNeeded;
+                    return {
+                      key: format,
+                      code: FORMAT_META[format].code,
+                      name: FORMAT_META[format].name,
+                      cells: [
+                        { label: PUBLISHED_PAGE.columnHow, lines: [FORMAT_META[format].howItRuns] },
+                        { label: PUBLISHED_PAGE.columnDevice, lines: [valueOf(device)] },
+                      ],
+                    };
+                  })}
+                />
+              </CmCatalogueEntry>
+              <CmLiveFacts
+                items={[
+                  { term: PUBLISHED_PAGE.description, value: live.catalogue.description },
+                  {
+                    term: PUBLISHED_PAGE.liveVersion,
+                    value: liveVersionLine(live.label, dayMonthYear(live.liveFrom)),
+                  },
+                ]}
+              />
+            </CmSheetSection>
+            <CmSheetSection
+              title={PUBLISHED_PAGE.deliveryTitle}
+              titleId="cm-p-del"
+              note={PUBLISHED_PAGE.deliveryMeta}
+            >
+              <CmDeliveryCards
+                cards={formats.flatMap((format) => {
+                  const delivery = live.formats.find((entry) => entry.format === format)?.delivery;
+                  return delivery ? [deliveryCard(format, delivery)] : [];
+                })}
+              />
+            </CmSheetSection>
+            <CmSheetSection
+              title={PUBLISHED_PAGE.historyTitle}
+              titleId="cm-p-hist"
+              note={PUBLISHED_PAGE.historyMeta}
+            >
+              <Timeline events={historyOf(view, open)} />
+            </CmSheetSection>
+          </>
+        }
+        aside={
+          <DecisionPanel title={CORRECTIONS_PANEL.title} titleId={PANEL_TITLE_ID}>
+            {entryNotice ? (
+              <Notice
+                tone="warn"
+                icon="alertCircle"
+                role="alert"
+                title={stateWords(
+                  entryNotice === 'refused' ? 'CM-05.entry-refused' : 'CM-05.entry-unavailable',
+                )}
+              />
+            ) : null}
+            {actions}
+            <Hint>{CORRECTIONS_PANEL.foot}</Hint>
+          </DecisionPanel>
+        }
+      />
     </>
-  );
-}
-
-/** One live format’s delivery (`div.xv-deliv`, B6-08 f0). */
-function Delivery({
-  format,
-  delivery,
-}: {
-  readonly format: Technology;
-  readonly delivery: FormatDelivery;
-}) {
-  return (
-    <div className="xv-deliv">
-      <div className="xv-deliv-head">
-        <FormatBadge format={FORMAT_META[format].code} compact />
-        <span className="font-[700]">
-          {delivery.format === 'web' ? PUBLISHED_PAGE.webTitle : PUBLISHED_PAGE.packageTitle}
-        </span>
-      </div>
-      <dl className="xl-kv xv-kv">
-        {delivery.format === 'web' ? (
-          <>
-            <dt>{PUBLISHED_PAGE.webLink}</dt>
-            <dd className="[overflow-wrap:anywhere]">{valueOf(delivery.webLink)}</dd>
-            <dt>{PUBLISHED_PAGE.browser}</dt>
-            <dd>{valueOf(delivery.browserAndComputer)}</dd>
-          </>
-        ) : (
-          <>
-            <dt>{PUBLISHED_PAGE.package}</dt>
-            <dd>{valueOf(delivery.packageLabel)}</dd>
-            <dt>{PUBLISHED_PAGE.packageReference}</dt>
-            <dd>{valueOf(delivery.packageReference ?? delivery.packageFileName)}</dd>
-            <dt>{PUBLISHED_PAGE.deviceNeeded}</dt>
-            <dd>{valueOf(delivery.deviceNeeded)}</dd>
-            <dt>{PUBLISHED_PAGE.installNotes}</dt>
-            <dd>{valueOf(delivery.installNotes)}</dd>
-          </>
-        )}
-      </dl>
-    </div>
   );
 }

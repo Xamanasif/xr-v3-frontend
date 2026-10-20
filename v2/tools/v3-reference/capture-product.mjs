@@ -570,6 +570,203 @@ const CASES = [
   },
 ];
 
+const KAVYA = 'kavya.nair@wilp.example';
+
+/** Kavya Nair (Content Manager) at a page of her workspace, reached client-side after sign-in. */
+async function contentManager(page, path) {
+  await signIn(page, KAVYA);
+  if (path !== '/content-manager') await go(page, path);
+  await settledPage(page);
+}
+
+/** One Content Manager page in its first state (the fresh sample world). */
+const cmPage = (name, id, state, path) => ({
+  name,
+  id,
+  state,
+  tall: true,
+  reach: async (page) => contentManager(page, path),
+});
+
+/** The Content Manager cases (CM-v1): every screen and the states the walk reaches. */
+const CM_CASES = [
+  cmPage(
+    'cm01-overview',
+    'CM-01',
+    'Overview: publishing pipeline, decision desk, with others, the catalogue by course',
+    '/content-manager',
+  ),
+  cmPage(
+    'cm02-ready',
+    'CM-02',
+    'Ready to publish: decision cards, oldest first',
+    '/content-manager/ready',
+  ),
+  cmPage(
+    'cm03-decision',
+    'CM-03',
+    'Publication decision: open, all four checks met',
+    '/content-manager/decisions/SUB-0074',
+  ),
+  cmPage(
+    'cm03-read-only',
+    'CM-03',
+    'Publication decision: read-only, back with the Academic Reviewer',
+    '/content-manager/decisions/SUB-0071',
+  ),
+  cmPage('cm04-library', 'CM-04', 'Content library: the Ready view', '/content-manager/library'),
+  cmPage(
+    'cm05-published',
+    'CM-05',
+    'Published experiment: identity band, live catalogue entry, delivery, corrections',
+    '/content-manager/published/distillation-column',
+  ),
+  cmPage(
+    'cm08-updates',
+    'CM-08',
+    'Updates: Need you, With others, Closed',
+    '/content-manager/updates',
+  ),
+  cmPage(
+    'cm08-returned',
+    'CM-08',
+    'Correction detail: returned, the reason first',
+    '/content-manager/updates/UPD-0006',
+  ),
+  cmPage(
+    'cm08-on-hold',
+    'CM-08',
+    'Correction detail: on hold, the reason shown',
+    '/content-manager/updates/UPD-0004',
+  ),
+  cmPage(
+    'cm08-released',
+    'CM-08',
+    'Correction detail: released, what changed (Live before against Released)',
+    '/content-manager/updates/UPD-0003',
+  ),
+  cmPage('cm09-codes', 'CM-09', 'Platform course codes: clean', '/content-manager/course-codes'),
+  {
+    name: 'cm03-confirm',
+    id: 'CM-03',
+    state: 'Publication decision: Publish chosen, its confirmation dialog',
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/decisions/SUB-0074');
+      const panel = page.getByRole('complementary', { name: 'Your decision' });
+      await panel.getByRole('radio', { name: 'Publish' }).check();
+      await panel.getByRole('button', { name: 'Publish' }).click();
+      await page.getByRole('dialog', { name: /^Publish / }).waitFor();
+    },
+  },
+  {
+    name: 'cm03-published',
+    id: 'CM-03',
+    state: 'Publication decision: published, the result in the panel',
+    tall: true,
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/decisions/SUB-0074');
+      const panel = page.getByRole('complementary', { name: 'Your decision' });
+      await panel.getByRole('radio', { name: 'Publish' }).check();
+      await panel.getByRole('button', { name: 'Publish' }).click();
+      const dialog = page.getByRole('dialog', { name: /^Publish / });
+      await dialog.getByRole('button', { name: 'Publish' }).click();
+      await page.locator('#cm-d-done').waitFor();
+    },
+  },
+  {
+    name: 'cm03-send-back-errors',
+    id: 'CM-03',
+    state: 'Publication decision: Send back with nothing filled (error summary)',
+    tall: true,
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/decisions/SUB-0074');
+      const panel = page.getByRole('complementary', { name: 'Your decision' });
+      await panel.getByRole('radio', { name: 'Send back' }).check();
+      await panel.getByRole('button', { name: 'Send back' }).click();
+      await page.locator('main .rk-errsum').waitFor();
+    },
+  },
+  {
+    name: 'cm04-published',
+    id: 'CM-04',
+    state: 'Content library: the Published view, grouped by course',
+    tall: true,
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/library');
+      await page
+        .locator('main')
+        .getByRole('button', { name: /^Published/ })
+        .click();
+      await settledPage(page);
+    },
+  },
+  {
+    name: 'cm04-no-match',
+    id: 'CM-04',
+    state: 'Content library: a search with no match',
+    tall: true,
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/library');
+      await page.locator('main').getByRole('searchbox', { name: 'Search' }).fill('zzqx');
+      await page.locator('main .rk-state').first().waitFor();
+    },
+  },
+  {
+    name: 'cm08-send-errors',
+    id: 'CM-08',
+    state: 'Correction detail: Send for academic review with nothing changed (error summary)',
+    tall: true,
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/updates/UPD-0006');
+      await page
+        .getByRole('complementary', { name: 'Your update' })
+        .getByRole('button', { name: 'Send for academic review', exact: true })
+        .click();
+      await page.locator('main .rk-errsum').waitFor();
+    },
+  },
+  {
+    name: 'cm08-withdraw',
+    id: 'CM-08',
+    state: 'Correction detail: the Withdraw dialog',
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/updates/UPD-0006');
+      await page
+        .getByRole('complementary', { name: 'Your update' })
+        .getByRole('button', { name: 'Withdraw update', exact: true })
+        .click();
+      await page.getByRole('dialog', { name: 'Withdraw UPD-0006?' }).waitFor();
+    },
+  },
+  {
+    name: 'cm09-duplicate',
+    id: 'CM-09',
+    state: 'Platform course codes: a duplicate code refused (summary and inline)',
+    tall: true,
+    reach: async (page) => {
+      await contentManager(page, '/content-manager/course-codes');
+      await page
+        .getByRole('textbox', { name: 'Platform course code for Fluid Mechanics' })
+        .fill('ME ZG523');
+      await page.locator('main').getByRole('button', { name: 'Save codes' }).click();
+      await page.locator('main div.rk-errsum[role="alert"]').waitFor();
+    },
+  },
+  {
+    name: 'cm-drawer',
+    id: 'CM-shell',
+    state: 'The Menu drawer below 1024 px (at 1440 and 1024 the rail is shown)',
+    reach: async (page) => {
+      await contentManager(page, '/content-manager');
+      const menu = page.getByRole('button', { name: /^(Open menu|Menu)$/ });
+      if (await menu.isVisible()) {
+        await menu.click();
+        await page.getByRole('dialog', { name: 'Menu' }).waitFor();
+      }
+    },
+  },
+];
+
 async function measure(page) {
   return page.evaluate(async () => {
     // No internal reference in the words or the accessible names (SA-v1 rule).
@@ -605,7 +802,7 @@ async function measure(page) {
 
 const browser = await chromium.launch();
 const results = [];
-for (const testCase of [...CASES, ...SA_CASES, ...VE_CASES].filter(
+for (const testCase of [...CASES, ...SA_CASES, ...VE_CASES, ...CM_CASES].filter(
   (c) =>
     !values.only ||
     values.only
@@ -633,8 +830,8 @@ for (const testCase of [...CASES, ...SA_CASES, ...VE_CASES].filter(
       const file = `${testCase.name}${suffix ? `-${suffix}` : ''}-${width}.png`;
       // The pointer rests where the last click was (a row's hover tint); move it off the page.
       await page.mouse.move(0, 899);
-      // The Vendor export's renders are taken with the window as tall as the page (its sticky
-      // action bars and the rail then sit where the page ends): the same here.
+      // The Vendor and Content Manager exports' renders are taken with the window as tall as the
+      // page (their sticky action bars and the rail then sit where the page ends): the same here.
       const measured = testCase.tall ? await measure(page) : null;
       if (testCase.tall) {
         const height = await page.evaluate(() => document.documentElement.scrollHeight);

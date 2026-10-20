@@ -1,0 +1,120 @@
+# FOUNDATION-LOCK — Content Manager · XR-V3-RB-1.0
+
+Readable summary of `FOUNDATION-LOCK.json` (the machine file is the source of truth). Canvas version 20 (1792491048-0c95), generated 2026-10-20.
+
+## Base files — byte-identical to the owner pack: **yes**
+
+| File | sha256 | Owner pack sha256 | Identical |
+| --- | --- | --- | --- |
+| `project/core.css` | `6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b` | `6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b` | yes |
+| `project/rb.css` | `d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2` | `d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2` | yes |
+| `project/rb-kit.css` | `812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704` | `812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704` | yes |
+
+Not shipped (read-only references in the pack): `references/v3/HANDOFF-original.md`, `references/v3/design-tokens.json`, `references/v3/project/IA01.dc.html`, `references/v3/project/IA02.dc.html`, `references/v3/project/SA01.dc.html`, `references/v3/project/SA02.dc.html`, `references/v3/project/canvas.json`.
+
+## Local additions
+
+| File | Kind | Bytes | sha256 |
+| --- | --- | --- | --- |
+| `project/cm.css` | role stylesheet (cm- prefix), additive, tokens only from core.css/rb.css | 32509 | `7dbbebfe06185c2c70fc1aa10bd56799bb1984f67f04d2f096e19f9ec42e2951` |
+| `project/xs-borrowed.css` | borrowed shared-surface stylesheet (xsb- prefix) implementing the v46 XS contract in V3 tokens; replace with the XS delivery | 4386 | `5001720fc255e016f17e48dbe9836018e728b130f412eaeb5c170c604e8ea736` |
+| `project/Main.dc.html` | role preview root: markup + inline DCLogic (one store, connected subviews) | 241647 | `48a63ee7dd6958041c715f3fc6a23cca967e1b4b6aba43c49c8a40c8b7ea3b0e` |
+| `project/canvas.json` | canvas index: pages, 86 boards (Main + 85 inspection wrappers), notes | 18703 | `57ef3b7ebc9fdea7a44c1f9a1a7b51b88c071ae497150689f6c579d133e08dc0` |
+
+## Inspection wrappers
+
+85 newly authored wrappers; each imports Main.dc.html with screen/record/scenario/preset props and sets its frame to the measured content height. Not recovered originals.
+
+| Wrapper | sha256 |
+| --- | --- |
+| `project/C01-Joined-1440.dc.html` | `02275bf2725ab73405d5a0f689b68bcbd06cc575a9d8a065f239846d01b8e318` |
+| `project/C02-DraftErrors-1440.dc.html` | `2889c8410f023b503a82ce0dd1aef6eda06339570cd12eb713e449ec7601d0e4` |
+| `project/C03-DraftSaved-1440.dc.html` | `3531eaca707a3d6932fee1922c30569cf75630958002f6a1f9c744644e3a7b3b` |
+| `project/C04-SaveFailed-1440.dc.html` | `2d2f4fda0207851ff6209b3755ba605c418f5825a17b6a3776041cc51cd489d5` |
+| `project/C05-SendDialog-1440.dc.html` | `05163a751a7100349db44676e777cf80e67ab145bda4885fd0f6ad9549e22239` |
+| `project/C06-InReview-1440.dc.html` | `8e7297b7da1d0789e67586a6db4187114abf29bc16a72f685b1cfeb400f545ae` |
+| `project/C07-Awaiting-1440.dc.html` | `0cd96d2362a9afa932a1c3e3700c686cdd2bdfc561fb002404f660c34a433ce5` |
+| `project/C08-OnHold-1440.dc.html` | `aaf915dec84ad6a3281f1a5fa7e70da3eb4f6e339ba05f24ffaf92a56b94f043` |
+| `project/C09-Lifted-1440.dc.html` | `326534b95bd0691cce27449af1d4754e1a0dfbc2567d02b4cb8313e360621fc9` |
+| `project/C10-Released-1440.dc.html` | `c2881188a77764ee055c7a28a3d109f997f423553a7fd22eb7db6402106d1326` |
+| `project/C11-WithdrawDialog-1440.dc.html` | `d474db0a15e6cf71199390b202878a65b13ccc1ae8f68f977da6711e97e8e409` |
+| `project/C12-Withdrawn-1440.dc.html` | `22f70596f17d4fb4bb5a88859911c4e9618a08b6db21eb8e83270c5f0190fc24` |
+| `project/C13-StaleWithdraw-1440.dc.html` | `da06a766187427d3c2e7466b522bfcec28a441e3dec0d41f8d81fdb8906b807c` |
+| `project/C14-PubAwaiting-1440.dc.html` | `48450c1eab78b8a7c9dce608011e8dd229f89eb17a5400e491184fd3704d744d` |
+| `project/C15-PubOnHold-1440.dc.html` | `48a20e00a6084ca2a7e1b144ba589153b37429790eab3e592c93a0593234402d` |
+| `project/C16-PubReleased-1440.dc.html` | `7a8a40893505e8e5b1ac9cbe82e124990ff279d444088b0e8f7087b08fa02092` |
+| `project/CM01-Overview-1440.dc.html` | `a3c668872bdf5aef80eda1e8d09080b4a93377cfa9beeb0a6c8e9471f914cfd7` |
+| `project/CM02-Ready-1440.dc.html` | `37670ea0298b3de374c9a81b26ca73bfad86408ce411248f20ea0c7ab22ff260` |
+| `project/CM03-Decision-1440.dc.html` | `3cfb50e3e243a70dc06d810fdd181bf18f0407f491aa4947c36590f4bdce9100` |
+| `project/CM04-Library-1440.dc.html` | `76ee6b261787c18fa06dcb1d560f3b02f83e1e4f29c46c478401fff48694a147` |
+| `project/CM05-Published-1440.dc.html` | `a18d584cf600cb0068b381655ca364dbd4363ef68323599159ae4e3b2045ba4e` |
+| `project/CM06-EditCatalogue-1440.dc.html` | `ed7f2672fafac9a28800b9222d2330aba7771afcf270f8f76db35eb0b043276e` |
+| `project/CM07-EditDelivery-1440.dc.html` | `a1cb8f0a5995054c9afb713e4b8507a574208e59caacaec0667e4b8a8a5eba9d` |
+| `project/CM08-UpdateDetail-1440.dc.html` | `7f5697e349f533a4289d4c8340f8daa13ba4871d25b64966a259d7d5db2a53c7` |
+| `project/CM08-Updates-1440.dc.html` | `d4c80fdbe71eeaccfa491c6022c4f4f5a98464603433588adec07c3df492d760` |
+| `project/CM09-CourseCodes-1440.dc.html` | `bbf4b5d04f2d4a6c3f3fdb5c499698b338b71b59fbed23c825347d73f3cd228b` |
+| `project/K01-CodesEdited-1440.dc.html` | `897257e1c86582e6983270a751daf96f43b3d2ce9aacf4d2ae2d3e7ec918f8d8` |
+| `project/K02-CodesDuplicate-1440.dc.html` | `543e4989b8ad5d3d26939cb0a2ca4ec259b6814d5a3b006b968249fc22aa5e78` |
+| `project/K03-CodesFailed-1440.dc.html` | `c39bc2cf1434f03706f68db8e948bfce1cb5f478c76cc5dfdc4509b486dc2cd0` |
+| `project/K04-CodesSaved-1440.dc.html` | `b4e71ad99b8aac8ce144fc7ecadcc18244cdb8001cb935b93261ff29170dc753` |
+| `project/K05-CodesLoading-1440.dc.html` | `9e5c904cc6ef5d9d44561693a25dc58b59f043cf8b461d6a9f3565d0a54b3137` |
+| `project/K06-CodesNotLoaded-1440.dc.html` | `c43cc9ea06b5275d48bb05bf73d69108f9fa3bdaec021b84497f151928875153` |
+| `project/L01-OverviewCalm-1440.dc.html` | `54243e317c06fb057ee5b8a6a3e2f747e4a928b512351a9c11b6c0f58f40e63c` |
+| `project/L02-ReadyEmpty-1440.dc.html` | `3a3154ebd15735b73c5810f22d92c910c25ccbd0917db4ef8d05698b831474fb` |
+| `project/L03-ReadyNewest-1440.dc.html` | `70e15cd9eb80e66cf53a182895031b9eb962c25c4673e4a881a152c319cf48e1` |
+| `project/L04-LibraryReview-1440.dc.html` | `5b3dbf84ed624611a0ed8f76d81ec3ce5ade033ce90d733a3071dd38c5262fd5` |
+| `project/L05-LibraryNoMatch-1440.dc.html` | `336acd4cf8b7c6282a474fc80aea9ec295580c380240923c60e38cff19ab5869` |
+| `project/L06-LibraryEmpty-1440.dc.html` | `707e7df74dd77f10341571c4dcb31195f5725100ca5c80bb2060642cbb57847c` |
+| `project/L07-UpdatesEmpty-1440.dc.html` | `dbe185edb472dbc80f63fecdb571ac24f5417233b40b743aa8c298a6988e7c57` |
+| `project/L08-ReadyToResolve-1440.dc.html` | `274a65ddaac44657bcc68b7418e4873dee5122fe0a9777445099d1901d692b61` |
+| `project/L09-LibraryLoading-1440.dc.html` | `97dd327976376a8f5675a4e24998dd40a35522846ee243aeec41768f827e34d7` |
+| `project/L10-LibraryNotLoaded-1440.dc.html` | `502efa072c2711e54e49d9df625a18fe0ef9e5962dc032a35946c53d574d9755` |
+| `project/L11-ReadyLoading-1440.dc.html` | `d238d0f11b89fda7c1fc2c5ce9514d0426517a75a09c623abfd878ff51914cfd` |
+| `project/L12-ReadyNotLoaded-1440.dc.html` | `e9e55d40c8741fd674cb726566b8dc24d4f3213a9b639f5dd84095a06e2e3efe` |
+| `project/L13-UpdatesLoading-1440.dc.html` | `82407b845245d4f67ef7d661857754e5115b2c6dc72c874f1b127527c3a35f25` |
+| `project/L14-UpdatesNotLoaded-1440.dc.html` | `1dc05fc474774bd49cabfa7f62964d8b48676a11a515b8803e060068ba255a30` |
+| `project/P01-Confirm-1440.dc.html` | `ba7e398bc898a6cc0bba6bc6846e7843e08de25a217168f23f27b970409aad99` |
+| `project/P02-Prerequisite-1440.dc.html` | `5b5b61d96df29e02cc062c3352f85f2126f1c1e90b8d76fa49f897ba81ae7f29` |
+| `project/P03-DecisionErrors-1440.dc.html` | `1911a7fa07b5455fadd0fa083d0495b2cabe22d9a76aa27284b4709d2f4ef273` |
+| `project/P04-SendVendor-1440.dc.html` | `acf1ce94eee547ab587b2efb386ee787da58148054a1e97333bdadb99ef6a0c4` |
+| `project/P05-SentReviewer-1440.dc.html` | `59073e989d80ddb6a4a27ff6abd0ae8821d4f7c94e4607e6229797fa89b6b1b1` |
+| `project/P06-Published-1440.dc.html` | `277766054f717af3d6fa50ea69f0728f7f69f8d16f8b2e1f8bb8d3649ac94acf` |
+| `project/P07-Stale-1440.dc.html` | `7b5d376e42b6e9865f598e0bf9050dbb42fd67d3f247002ec2611e95751997d9` |
+| `project/P08-InReview-1440.dc.html` | `66a54e85a45a2b2f29898f89289873d22bc678724b5f3961b8339b75798aabc6` |
+| `project/P09-WithVendor-1440.dc.html` | `5de994e3377249bb87f8eac2713483ce5d696b3339c9475424087d7f348ff836` |
+| `project/P10-PublicPage-1440.dc.html` | `a06c0202e2ee1527fa6032872d63aeeaac698719b330b92257792b3353316513` |
+| `project/R-CourseCodes-1024.dc.html` | `0bc5667fd359905e112109685145ca95eb9d74b6a6588972b95fd1b230f85fbb` |
+| `project/R-CourseCodes-375.dc.html` | `687a045ce30320867c4a3b8d0e794928b5a6c360b94f9684c58a6d3848e98191` |
+| `project/R-CourseCodes-768.dc.html` | `a1d6076b1793789aa3f641ad535875b297882ae79489f5c4e5dcdbb72499fb43` |
+| `project/R-Decision-1024.dc.html` | `6c67884a2a51f22125471d94956662d13c7ed06195a10e3557fdeb249c2e10df` |
+| `project/R-Decision-375.dc.html` | `2d9801f8afb322dd5dd197826218aebc5206a498f7bf395e775ecb06ddf4131a` |
+| `project/R-Decision-768.dc.html` | `652a92dc10bcefd6e6ef1b5045c5dcc2f841308a670265e72dd5283d77b45a2a` |
+| `project/R-Library-1024.dc.html` | `6035a4e6a9254d53ad9992d591fc77bea5a6bfd4d47ff1351d52f93c018f1ad8` |
+| `project/R-Library-375.dc.html` | `4e8895dbcb84807b575bd4648cc6f8509531d240293fd2d90f519a4fb0126053` |
+| `project/R-Library-768.dc.html` | `95315787df5d2aabb4c4eaf97c2b91d5f55248033bcbfc576397b84c2ddf018c` |
+| `project/R-Overview-1024.dc.html` | `a0b89fbab338218f9fda8a83f3884ea2bab93c172f8302743d07cbb25433ae1a` |
+| `project/R-Overview-375.dc.html` | `b6a81615ae4b55586a4c57dcfd52126e4937a24854458dc36a458ce02a8c3b12` |
+| `project/R-Overview-768.dc.html` | `94887d9297b3b3a4111ee60ca2be4e7901ca7e2e2f8f3c3028c4921653c26171` |
+| `project/R-Published-1024.dc.html` | `e2b1c8302e3dbb34362eb95862013ba046f14abf737cfe9c49d438175b2b6627` |
+| `project/R-Published-375.dc.html` | `7bb8ec4895a3cc519a0ac4533a6abc929498b9c3379f82cc0efc6c6bc06adb16` |
+| `project/R-Published-768.dc.html` | `e1e741c8421e691772a82bdd5b764048889d741f83b14da2e9c595222a3e0901` |
+| `project/R-Ready-1024.dc.html` | `ff6b1855143210b81bb7d82a59ff407f19dda4a3a28fb5f20a205a7822e4a1ff` |
+| `project/R-Ready-375.dc.html` | `c36a8da1cafe19c53fb8795846ed51423d6a52e023996893513e454f0118c5b7` |
+| `project/R-Ready-768.dc.html` | `78966358739feec2e42b0f97512c109c8c1429fac925f8fa872665faf4535680` |
+| `project/R-UpdateDetail-1024.dc.html` | `39db7a2e361b7c4cccaa14048494098a70534627d2010281894d576630c4d2c0` |
+| `project/R-UpdateDetail-375.dc.html` | `11dba3a32957a4b5b4d5d17312ad2e4d9d21f8a59aa1f0ce64fdfe74ca2c0504` |
+| `project/R-UpdateDetail-768.dc.html` | `022b54a38f19122ef7bb365ab0b97a7feba3dbc762a4d9217dacba4ac30bf3bf` |
+| `project/X01-AccountMenu-1440.dc.html` | `2d660ee1bba25fd8b5d033408582169741ecf268f5fd1c077aa16d9297df5a2f` |
+| `project/X02-Drawer-375.dc.html` | `a8576be26632b6a5737b0a3aa0388c9e354974059b7fc9aedcd8f125d83a2e2c` |
+| `project/X03-Help-1440.dc.html` | `4dc07254b1a14bea8d97821ed9cedf3c8938d64f298241db4db5136d073d2828` |
+| `project/X04-ReportErrors-1440.dc.html` | `b4ac5953d577a4c53be7ed4f3cd30d4dbca1c4cbdfe9d8c4d37cd25f0a9df87d` |
+| `project/X05-ReportSent-1440.dc.html` | `5c20a814d744ecdac3785c52b63907c6eb531f991f9a5054cacc800b07dc58d2` |
+| `project/X06-ReportDetail-1440.dc.html` | `a9113e603633c83e3a829bfa81aa9e8d0951302cb15434a00d09164a6f46157b` |
+| `project/X07-NotYourWorkspace-1440.dc.html` | `dcb7d252c98c1c4e2f954175ac5c8ffe68c1b7b3d79898c34f1a309751ee26f3` |
+| `project/X08-SignedOut-1440.dc.html` | `d0d667271ccf084662492fc3f7b31d0e859a01aeedeffd6520d83e992634f4e8` |
+
+## Not shipped
+
+- Design host runtime `support.js` (contract 0.2.47, sha256 `3f160299989dc595cf434dac7b7f3e6fd20ed015a2d99e075c3eac09dffe0f10`): Design runtime only. Never ship it in the React app. The historical v46/V1 support.js copies in the pack were not used.
+- Fonts: Public Sans — Google Fonts css2 link in each artboard helmet (same arrangement as the V3 references); no font binaries shipped.
+- Tokens changed: no.

@@ -6,7 +6,9 @@
  * confirmations (SA-11 Release / Hold / Lift hold, SA-13 Move status, SA-17 Restore scope) open on
  * their confirm button; a refusal or failure shows as a notice in the body (SA-11, SA-13, SA-14,
  * SA-15, SA-17, SA-21 Reopen). The SA-03 confirmation (focus on the title) is in
- * `structure.test.tsx`. jsdom's stand-ins for the native dialog; the browser behaviour (top layer,
+ * `structure.test.tsx`. The Vendor export's dialogs (VE-v1) add the navy confirm and a dialog
+ * without a body; the Content Manager export's (CM-v1) the hold while busy and the tight body.
+ * jsdom's stand-ins for the native dialog; the browser behaviour (top layer,
  * inert page) is proven in apps/specimens/e2e/v3-foundation.spec.ts.
  */
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
@@ -15,6 +17,7 @@ import { describe, expect, it, vi } from 'vitest';
 
 import {
   assertNoAxeViolations,
+  cmExportText,
   expectNoInternalReferences,
   expectV3ClassesOnly,
   saExportText,
@@ -432,5 +435,127 @@ describe('the Vendor export’s dialogs (VE-v1 `Main.dc.html` `dlgView`)', () =>
     expect(
       within(dialog).getByRole('button', { name: 'Submit for academic review', hidden: true }),
     ).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
+  });
+});
+
+describe('the Content Manager export’s dialogs (CM-v1 `Main.dc.html` DL-1 Publish, Send, DL-2 Withdraw)', () => {
+  const MAIN = cmExportText('Main.dc.html');
+
+  /** CM-03 Publish, CM-08 Send for academic review and Withdraw: the caller holds `busy`. */
+  function Publish({
+    busy = false,
+    hold = true,
+    tightBody = false,
+    onCancel = vi.fn(),
+  }: {
+    readonly busy?: boolean;
+    readonly hold?: boolean;
+    readonly tightBody?: boolean;
+    readonly onCancel?: () => void;
+  }) {
+    const [open, setOpen] = useState(false);
+    return (
+      <>
+        <Button onClick={() => setOpen(true)}>Publish</Button>
+        <ConfirmDialog
+          open={open}
+          idPrefix="cm-dlg-pub"
+          title="Publish Transient Cooling?"
+          description="Check what publishing does now, and what happens only after later events."
+          groups={[
+            { kind: 'now', title: 'What happens now', items: ['It is listed.'] },
+            { kind: 'later', title: 'Only after later events', items: ['Institutions ask.'] },
+          ]}
+          tightBody={tightBody}
+          confirmLabel="Publish"
+          busy={busy}
+          busyLabel="Publishing…"
+          holdWhileBusy={hold}
+          onConfirm={vi.fn()}
+          onCancel={() => {
+            onCancel();
+            setOpen(false);
+          }}
+        />
+      </>
+    );
+  }
+
+  it('while the command runs: Cancel disabled, Esc ignored, focus held on the title (Behaviour notes)', async () => {
+    for (const piece of [
+      '<button type="button" class="rb-btn rb-btn--lg" id="cm-dlg-pub-cancel" disabled="{{ D.busy }}" onClick="{{ D.cancel }}">Cancel</button>',
+      '<button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="cm-dlg-pub-ok" disabled="{{ D.busy }}" onClick="{{ D.doPublish }}">{{ D.pubLabel }}</button>',
+      'id="cm-dlg-send-cancel" disabled="{{ E.busy }}"',
+      'id="cm-dlg-wd-cancel" disabled="{{ E.busy }}"',
+      // The export moves focus to the dialog's title as the command starts.
+      "set(dd => { dd.busy = 'publish'; }); this.focus('cm-dlg-pub-t');",
+      "set(x => { x.busy = 'send'; }); this.focus('cm-dlg-send-t');",
+      "set(x => { x.busy = 'withdraw'; }); this.focus('cm-dlg-wd-t');",
+    ]) {
+      expect(MAIN).toContain(piece);
+    }
+    const onCancel = vi.fn();
+    const { container, rerender } = render(<Publish onCancel={onCancel} />);
+    const { dialog, trigger } = openWith('Publish');
+    const [cancel, confirm] = within(dialog).getAllByRole('button', { hidden: true });
+    confirm!.focus();
+    rerender(<Publish onCancel={onCancel} busy />);
+    expect(cancel).toBeDisabled();
+    expect(confirm).toHaveTextContent('Publishing…');
+    expect(confirm).toHaveAttribute('aria-disabled', 'true');
+    expect(document.activeElement).toBe(dialog.querySelector('h2#cm-dlg-pub-t'));
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    fireEvent(dialog, new Event('cancel', { cancelable: true }));
+    act(() => cancel!.click());
+    expect(onCancel).not.toHaveBeenCalled();
+    expect(dialog.open).toBe(true);
+    // A press that takes focus out of the dialog (on the disabled Cancel) puts it back on the
+    // title.
+    await act(async () => {
+      (document.activeElement as HTMLElement).blur();
+      await Promise.resolve();
+    });
+    expect(document.activeElement).toBe(dialog.querySelector('h2#cm-dlg-pub-t'));
+    expectV3ClassesOnly(container);
+    await assertNoAxeViolations(dialog);
+    // The result: Cancel and Esc work again.
+    rerender(<Publish onCancel={onCancel} />);
+    expect(cancel).toBeEnabled();
+    expect(confirm).toHaveTextContent('Publish');
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(onCancel).toHaveBeenCalledOnce();
+    expect(dialog.open).toBe(false);
+    expect(document.activeElement).toBe(trigger);
+  });
+
+  it('without `holdWhileBusy` (every other role) Cancel stays enabled while busy and Esc is Cancel', async () => {
+    const onCancel = vi.fn();
+    const { rerender } = render(<Publish hold={false} onCancel={onCancel} />);
+    const { dialog } = openWith('Publish');
+    const [cancel, confirm] = within(dialog).getAllByRole('button', { hidden: true });
+    confirm!.focus();
+    rerender(<Publish hold={false} onCancel={onCancel} busy />);
+    expect(cancel).toBeEnabled();
+    expect(document.activeElement).toBe(confirm);
+    await act(async () => {
+      confirm!.blur();
+      await Promise.resolve();
+    });
+    expect(document.activeElement).toBe(document.body);
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(onCancel).toHaveBeenCalledOnce();
+  });
+
+  it('Withdraw: the body’s bottom padding as the export sets it inline (`tightBody`, V3P-14)', () => {
+    expect(MAIN).toContain(
+      '<div class="rk-dlg-body" style="padding-bottom: 12px">\n      <div class="rk-field">\n        <label class="rk-label" for="cm-dlg-wd-r">Reason (required)</label>',
+    );
+    const { rerender } = render(<Publish tightBody />);
+    const { dialog } = openWith('Publish');
+    expect(dialog.querySelector('div.rk-dlg-body')!.className).toBe(
+      'rk-dlg-body rk-x-dlg-body-tight',
+    );
+    rerender(<Publish />);
+    expect(dialog.querySelector('div.rk-dlg-body')!.className).toBe('rk-dlg-body');
   });
 });

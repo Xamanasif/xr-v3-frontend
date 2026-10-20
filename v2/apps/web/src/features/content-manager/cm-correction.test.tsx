@@ -1,17 +1,20 @@
 /**
- * Phase 6's correction entry on CM-05 Published experiment (board B6-08 f0 … f4; B6-11 f9; B7-11
- * f4) and the CM-08 update page it opens — the draft of CM-06 / CM-07 and every later state (B6-09
- * f1 … f8; B6-11 f10, f11; B6-13 f0; B7-11 f3) — on the real composition root and the sample
- * world, as Kavya Nair. The entries open or join the one draft (never a second update) and land on
- * its page with the named field focused; the draft is pre-filled with the live version and
- * compared with it as typed; Send checks its three rules at once, then saves and sends through
- * DL-1; Withdraw needs a reason (DL-2); typed work survives leaving the page; a stale save is
- * refused and said calmly. Nothing here changes the live version.
+ * The correction group on the real composition root and the sample world, as Kavya Nair: CM-05's
+ * correction entry (it opens or joins the one draft, never a second update, and lands on its page
+ * with the named field focused and the arrival explained), CM-08 Updates (the correction tracker,
+ * grouped by who must act; empty, loading, couldn't load) and the correction page in V3 (the
+ * owner-approved export CM-v1) in every state — the draft pre-filled with the live version and
+ * compared with it as typed; the check (all three errors at once); Save draft, its failure and
+ * Last saved; Send for academic review through its dialog (it saves, then sends; Cancel and Esc
+ * wait while it runs); Withdraw through its dialog (a reason is required); typed work kept in the
+ * tab; a stale or approved-meanwhile refusal said calmly and read again; the read-only states with
+ * the hold reason and the released comparison. Nothing here changes the live version.
  */
-import { screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ServiceError } from '@xr/contracts/draft';
-import { asPersonId, faults } from '@xr/sample-platform/testing';
+import type { IsoInstant } from '@xr/domain';
+import { asPersonId, faults, fixtureWorld, standinsOf } from '@xr/sample-platform/testing';
 import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -21,6 +24,7 @@ import {
   TestNotFoundBoundary,
   tabPlatform,
   testNavigation,
+  worldPlatform,
 } from '@/test-support/workspace';
 
 import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
@@ -28,8 +32,13 @@ import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
 import { PublishedExperiment } from './cm-05-published/published-experiment';
 import { Correction } from './cm-08-updates/correction';
-import { forgetCorrectionDrafts, noteBackFromCorrection } from './cm-08-updates/correction-draft';
+import {
+  forgetCorrectionDrafts,
+  noteBackFromCorrection,
+  noteCorrectionArrival,
+} from './cm-08-updates/correction-draft';
 import { updateHistory } from './cm-08-updates/correction-view';
+import { Updates } from './cm-08-updates/updates';
 
 afterEach(() => {
   forgetLastAddress();
@@ -69,6 +78,11 @@ function showUpdate(runtime: PlatformRuntime, updateId: string, search = '') {
   return { navigation, view };
 }
 
+function showUpdates(runtime: PlatformRuntime) {
+  const navigation = testNavigation('/content-manager/updates');
+  return renderInTab(inShell(<Updates />), { runtime, navigation });
+}
+
 const main = () => screen.getByRole('main');
 /** An element’s words, its text nodes joined by spaces (as a screen reader reads them). */
 function text(element: Element | null): string {
@@ -82,16 +96,28 @@ function text(element: Element | null): string {
 }
 const heading = (name: string | RegExp) =>
   screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
-const chip = () => text(main().querySelector('.xr-phead-meta .xr-status'));
-const field = (label: string) =>
+/** The band's status pill. */
+const chip = () => text(main().querySelector('.rb-id-status .xr-st'));
+const band = () => main().querySelector('section.rb-id.cm-idband') as HTMLElement;
+const panel = () => screen.getByRole('complementary', { name: 'Your update' });
+const stateNotice = () => document.getElementById('cm-u-state');
+const field = (label: string | RegExp) =>
   within(main()).getByLabelText(label, { selector: 'input, textarea' }) as
     HTMLInputElement | HTMLTextAreaElement;
-const historyWhat = () => [...main().querySelectorAll('.xr-tl-what')].map((node) => text(node));
+const historyWhat = () => [...main().querySelectorAll('.rk-tl-w')].map((node) => text(node));
+/** The band's facts, “term: value”. */
+const facts = () =>
+  [...band().querySelectorAll('dl.cm-idfacts > div')].map(
+    (fact) => `${text(fact.querySelector('dt'))}: ${text(fact.querySelector('dd'))}`,
+  );
+/** The comparison's rows: the field names. */
+const comparisonFields = () =>
+  [...main().querySelectorAll('table.cm-cmp tbody td.cm-cmp-f')].map((cell) => text(cell));
 
 /** One port's command answered with a refusal (the screen's handling of it, not the service). */
 function answerWith(
   runtime: PlatformRuntime,
-  method: 'saveCorrection' | 'sendForAcademicReview' | 'openCorrection',
+  method: 'saveCorrection' | 'sendForAcademicReview' | 'openCorrection' | 'withdrawUpdate',
   error: ServiceError,
 ): void {
   const real = runtime.withCommandId.bind(runtime);
@@ -104,9 +130,44 @@ function answerWith(
   });
 }
 
+/** One port's command held until released (the dialogs' busy states). */
+function holdCommand(
+  runtime: PlatformRuntime,
+  method: 'sendForAcademicReview' | 'withdrawUpdate',
+): () => void {
+  let release: () => void = () => {};
+  const gate = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const real = runtime.withCommandId.bind(runtime);
+  vi.spyOn(runtime, 'withCommandId').mockImplementation((commandId) => {
+    const ports = real(commandId);
+    const original = ports.corrections[method].bind(ports.corrections) as (
+      input: unknown,
+    ) => Promise<unknown>;
+    return {
+      ...ports,
+      corrections: {
+        ...ports.corrections,
+        [method]: async (input: unknown) => {
+          await gate;
+          return original(input);
+        },
+      },
+    } as typeof ports;
+  });
+  return release;
+}
+
 type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
 
-async function openDraft(sample: Sample, entry = 'edit-catalogue-details' as const) {
+async function openDraft(
+  sample: Sample,
+  entry:
+    | 'edit-catalogue-details'
+    | 'edit-delivery-link'
+    | 'start-a-correction' = 'edit-catalogue-details',
+) {
   const opened = await asPersonId(sample, KAVYA).corrections.openCorrection({
     experimentId: DISTILLATION as never,
     entry,
@@ -151,29 +212,32 @@ async function liveOf(sample: Sample) {
   return read.value.experiment.live;
 }
 
-describe('CM-05 the correction entry (B6-08 f0, f4; B6-13 f1)', () => {
-  it('no update in progress: Start a correction (primary) · Edit catalogue details · Edit delivery link', async () => {
+function sessionKeyOf(runtime: PlatformRuntime): string | null {
+  const session = runtime.session.getSnapshot();
+  return session.status === 'signed-in' ? session.sessionKey : null;
+}
+
+// ---- CM-05 the correction entry -------------------------------------------------------------------
+
+describe('CM-05 the correction entry (CM-06, CM-07 open or join the one draft)', () => {
+  it('no update in progress: Start a correction (the primary), Edit catalogue details, Edit delivery link', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     showPublished(runtime);
     await heading('Distillation Column');
-    const actions = main().querySelector('.xw-actions')!;
-    expect(
-      within(actions as HTMLElement)
-        .getAllByRole('button')
-        .map((button) => [text(button), button.className]),
-    ).toEqual([
-      ['Start a correction', 'xr-btn xr-btn--primary'],
-      ['Edit catalogue details', 'xr-btn xr-btn--secondary'],
-      ['Edit delivery link', 'xr-btn xr-btn--secondary'],
-    ]);
-    expect(main().querySelector('.xr-notice')).toBeNull();
-    // The actions sit between the header and the change line (B6-08 f0).
-    expect(actions.nextElementSibling).toHaveTextContent(
-      'Every change opens a correction draft. The live experiment changes only when the Super Admin releases it.',
+    const start = within(main()).getByRole('button', { name: 'Start a correction' });
+    expect(start).toHaveClass('rb-btn--primary');
+    expect(within(main()).getByRole('button', { name: 'Edit catalogue details' })).not.toHaveClass(
+      'rb-btn--primary',
     );
+    expect(within(main()).getByRole('button', { name: 'Edit delivery link' })).not.toHaveClass(
+      'rb-btn--primary',
+    );
+    expect(
+      within(main()).queryByRole('link', { name: /Open update|Continue the update/ }),
+    ).toBeNull();
   });
 
-  it('Edit catalogue details opens the one draft and its page, the summary focused (CM-06)', async () => {
+  it('Edit catalogue details opens the one draft and its page, the summary named (CM-06)', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     const { navigation } = showPublished(runtime);
@@ -194,7 +258,7 @@ describe('CM-05 the correction entry (B6-08 f0, f4; B6-13 f1)', () => {
     expect((await liveOf(sample)).label).toBe('1.2');
   });
 
-  it('Start a correction lands with nothing focused; a refusal is said calmly', async () => {
+  it('Start a correction lands with nothing named', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     const { navigation } = showPublished(runtime);
@@ -236,30 +300,19 @@ describe('CM-05 the correction entry (B6-08 f0, f4; B6-13 f1)', () => {
       ),
     ).toBeVisible();
   });
-});
 
-describe('CM-05 an update in progress (B6-08 f1, f2, f3; B6-11 f9; B7-11 f4)', () => {
-  it('a draft: Open update and the edit entries join it — never a second update (f2)', async () => {
+  it('a draft: the update’s link and the edit entries, which join it — never a second update', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
     const { navigation } = showPublished(runtime);
     await heading('Distillation Column');
-    const notice = main().querySelector('.xr-notice--warn')!;
-    expect(text(notice)).toBe(
-      'An update is in progress — UPD-0005 · Draft Edits to this experiment join that update. Open it to continue.',
-    );
-    expect(notice.querySelector('a, button')).toBeNull();
-    const actions = main().querySelector('.xw-actions') as HTMLElement;
-    const open = within(actions).getByRole('link', { name: 'Open update' });
-    expect(open).toHaveAttribute('href', '/content-manager/updates/UPD-0005');
-    expect(open).toHaveClass('xr-btn', 'xr-btn--primary');
-    expect(
-      within(actions)
-        .getAllByRole('button')
-        .map((button) => text(button)),
-    ).toEqual(['Edit catalogue details', 'Edit delivery link']);
-    await user.click(within(actions).getByRole('button', { name: 'Edit delivery link' }));
+    const links = within(main())
+      .getAllByRole('link')
+      .filter((link) => link.getAttribute('href') === '/content-manager/updates/UPD-0005');
+    expect(links.length).toBeGreaterThan(0);
+    expect(within(main()).queryByRole('button', { name: 'Start a correction' })).toBeNull();
+    await user.click(within(main()).getByRole('button', { name: 'Edit delivery link' }));
     await waitFor(() =>
       expect(navigation.navigate).toHaveBeenCalledWith(
         '/content-manager/updates/UPD-0005?focus=web-link',
@@ -275,55 +328,46 @@ describe('CM-05 an update in progress (B6-08 f1, f2, f3; B6-11 f9; B7-11 f4)', (
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     showPublished(runtime, 'induction-motor-loading');
     await heading('Induction Motor Loading');
-    const actions = main().querySelector('.xw-actions') as HTMLElement;
-    expect(within(actions).getByRole('link', { name: 'Open update' })).toHaveAttribute(
-      'href',
-      '/content-manager/updates/UPD-0006',
-    );
-    expect(within(actions).getAllByRole('button')).toHaveLength(2);
+    expect(
+      within(main())
+        .getAllByRole('link')
+        .some((link) => link.getAttribute('href') === '/content-manager/updates/UPD-0006'),
+    ).toBe(true);
+    expect(within(main()).getByRole('button', { name: 'Edit catalogue details' })).toBeVisible();
+    expect(within(main()).getByRole('button', { name: 'Edit delivery link' })).toBeVisible();
   });
 
-  it('in academic review: only “Open update”, in the notice (f1; B6-11 f9)', async () => {
+  it('in academic review, awaiting the release decision: only “Open update”', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await savedDraft(sample, true);
     showPublished(runtime);
     await heading('Distillation Column');
-    const notice = main().querySelector('.xr-notice--warn') as HTMLElement;
-    expect(text(notice)).toBe(
-      'An update is in progress — UPD-0005 · In academic review It is with the Academic Reviewer. You can’t start another update until it is decided. Open update',
+    expect(within(main()).getByRole('link', { name: 'Open update' })).toHaveAttribute(
+      'href',
+      '/content-manager/updates/UPD-0005',
     );
-    const open = within(notice).getByRole('link', { name: 'Open update' });
-    expect(open).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
-    expect(open.parentElement).toHaveClass('xr-notice-actions');
-    expect(within(main()).queryAllByRole('button')).toHaveLength(0);
-    expect(main().querySelector('.xw-actions')).toBeNull();
+    for (const name of ['Start a correction', 'Edit catalogue details', 'Edit delivery link']) {
+      expect(within(main()).queryByRole('button', { name })).toBeNull();
+    }
+    const after = await tabPlatform(KAVYA, 'after-flow-e');
+    showPublished(after.runtime);
+    await waitFor(() =>
+      expect(screen.getAllByRole('link', { name: 'Open update' })).toHaveLength(2),
+    );
   });
 
-  it('awaiting release decision (after Flow E; B7-11 f4) and on hold (UPD-0004): only “Open update”', async () => {
-    const { runtime } = await tabPlatform(KAVYA, 'after-flow-e');
-    showPublished(runtime);
-    await heading('Distillation Column');
-    expect(text(main().querySelector('.xr-notice--warn'))).toBe(
-      'An update is in progress — UPD-0005 · Awaiting release decision The Academic Reviewer approved it. The Super Admin decides when to release it. Open update',
-    );
-    expect(within(main()).queryAllByRole('button')).toHaveLength(0);
-  });
-
-  it('back from the correction: the notice once, then not again (f3)', async () => {
+  it('back from the correction: the notice once, then not again', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
-    const session = runtime.session.getSnapshot();
-    noteBackFromCorrection(
-      session.status === 'signed-in' ? session.sessionKey : null,
-      DISTILLATION,
-    );
+    noteBackFromCorrection(sessionKeyOf(runtime), DISTILLATION);
     const first = showPublished(runtime);
     await heading('Distillation Column');
-    const notices = [...main().querySelectorAll('.xr-notice')].map((node) => text(node));
-    expect(notices).toEqual([
-      'Back from the correction The live version is unchanged until the Super Admin releases the update.',
-      'An update is in progress — UPD-0005 · Draft Edits to this experiment join that update. Open it to continue.',
-    ]);
+    expect(within(main()).getByText('Back from the correction')).toBeVisible();
+    expect(
+      within(main()).getByText(
+        'The live version is unchanged until the Super Admin releases the update.',
+      ),
+    ).toBeVisible();
     first.view.unmount();
     showPublished(runtime);
     await heading('Distillation Column');
@@ -331,119 +375,411 @@ describe('CM-05 an update in progress (B6-08 f1, f2, f3; B6-11 f9; B7-11 f4)', (
   });
 });
 
-describe('CM-08 the correction draft (B6-09 f1, f4; B6-11 f11)', () => {
-  it('pre-filled with the live version; nothing changed yet; started from Edit catalogue details', async () => {
+// ---- CM-08 Updates --------------------------------------------------------------------------------
+
+describe('CM-08 Updates — the correction tracker', () => {
+  it('spine-start: grouped by who must act, each card’s facts, track, reason and action', async () => {
+    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
+    showUpdates(runtime);
+    await heading('Updates');
+    const count = await screen.findByText(
+      '5 corrections you raised, most recent change first',
+      {},
+      { timeout: 5000 },
+    );
+    expect(count).toHaveAttribute('role', 'status');
+    expect(text(main().querySelector('.rb-head .rk-sub'))).toBe(
+      'Corrections you raised to published experiments. Live content changes only this way: you, then the Academic Reviewer, then the Super Admin’s release.',
+    );
+    const figures = main().querySelector('dl.rb-figs')!;
+    expect(figures).toHaveAttribute('aria-label', 'Your corrections at a glance');
+    expect(text(figures)).toBe(
+      'Need you 1 Returned to you or not sent yet With others 1 With the Academic Reviewer or the Super Admin',
+    );
+    const groups = [...main().querySelectorAll('section.cm-trksec')];
+    expect(groups.map((group) => text(group.querySelector('.cm-grp-head')))).toEqual([
+      'Need you 1 Change it and send it, or withdraw it',
+      'With others 1 Nothing for you to do · the live version stays until release',
+      'Closed 3 Kept with their history',
+    ]);
+    expect(groups[0]!.querySelector('.cm-grp-n')).toHaveClass('is-you');
+    // Need you: UPD-0006, returned — the ivory card, Continue in gold, the reason quoted.
+    const returned = groups[0]!.querySelector('li.cm-trk')!;
+    expect(returned).toHaveClass('is-you');
+    expect(text(returned.querySelector('.cm-qname'))).toBe('Induction Motor Loading');
+    expect(text(returned.querySelector('.cm-trk-meta > span'))).toBe(
+      'UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug',
+    );
+    expect(text(returned.querySelector('.cm-ver'))).toBe('1.0 live 1.1 proposed');
+    expect(returned.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--err');
+    const cont = within(returned as HTMLElement).getByRole('link', {
+      name: 'Continue UPD-0006, Induction Motor Loading, returned',
+    });
+    expect(cont).toHaveClass('rb-btn', 'rb-btn--primary');
+    expect(cont).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
+    const track = within(returned as HTMLElement).getByRole('list', {
+      name: 'Where this correction is',
+    });
+    expect(track).toHaveClass('cm-flow--mini');
+    expect(track.querySelector('[aria-current="step"]')).toHaveClass('is-you');
+    expect(text(returned.querySelector('blockquote.cm-trk-note'))).toBe(
+      '“The proposed description says slip falls as the load rises. It rises. Please correct it before I approve.” Prof. A. Menon, Academic Reviewer · 26 Aug',
+    );
+    // With others: UPD-0004 on hold, the Super Admin's reason.
+    const held = groups[1]!.querySelector('li.cm-trk')!;
+    expect(held).not.toHaveClass('is-you');
+    expect(held.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--paused');
+    expect(
+      within(held as HTMLElement).getByRole('link', {
+        name: 'Open UPD-0004, Boiler Drum Level, on hold',
+      }),
+    ).not.toHaveClass('rb-btn--primary');
+    expect(text(held.querySelector('blockquote.cm-trk-note footer'))).toBe(
+      'Arjun Mehta, Super Admin · 20 Aug',
+    );
+    expect(held.querySelector('[aria-current="step"]')).toHaveClass('is-held');
+    // Closed: the outcome line instead of the track.
+    const closed = [...groups[2]!.querySelectorAll('li.cm-trk')];
+    expect(closed.map((card) => text(card.querySelector('.cm-trk-meta > span')))).toEqual([
+      'UPD-0003 · CHE ZG513 · Process Instrumentation & Control · last change 5 Aug',
+      'UPD-0002 · CHE ZG513 · Process Instrumentation & Control · last change 3 Jul',
+      'UPD-0001 · CHE ZG513 · Process Instrumentation & Control · last change 19 Jun',
+    ]);
+    expect(closed[0]).toHaveClass('is-closed');
+    expect(closed[0]!.querySelector('.cm-flowwrap')).toBeNull();
+    expect(text(closed[0]!.querySelector('.cm-ver'))).toBe('1.0 1.1 live');
+    expect(closed[0]!.querySelector('.cm-ver-old')).toHaveTextContent('1.0');
+    expect(text(closed[0]!.querySelector('p.cm-trk-res.is-ok'))).toBe(
+      'Released by Arjun Mehta, Super Admin, on 5 Aug 2026. Version 1.1 is live for everyone.',
+    );
+    expect(text(main().querySelector('p.cm-trkfoot'))).toBe(
+      'Start a correction from a published experiment in the Content library. Each experiment has at most one open update.',
+    );
+    // The shell: Updates current, no crumbs.
+    expect(
+      screen
+        .getByRole('navigation', { name: 'Content Manager navigation' })
+        .querySelector('[aria-current="page"]'),
+    ).toHaveAttribute('href', '/content-manager/updates');
+    expect(screen.getByRole('heading', { level: 1, name: 'Updates' })).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
+  });
+
+  it('follows the chain in the same world: a draft is hers, then sent it is with others', async () => {
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    const draft = await openDraft(sample, 'start-a-correction');
+    showUpdates(runtime);
+    await heading('Updates');
+    await screen.findByText(
+      '6 corrections you raised, most recent change first',
+      {},
+      {
+        timeout: 5000,
+      },
+    );
+    const mine = main().querySelectorAll('section.cm-trksec')[0]!;
+    const card = within(mine as HTMLElement)
+      .getByRole('link', { name: 'Continue UPD-0005, Distillation Column, draft' })
+      .closest('li')!;
+    expect(text(card.querySelector('.cm-ver'))).toBe('1.2 live No version label yet');
+    expect(card.querySelector('.cm-trk-st .xr-st')).not.toHaveClass('xr-st--err');
+    expect(card.querySelector('blockquote')).toBeNull();
+    // Sent for academic review: with the Academic Reviewer.
+    const cm = asPersonId(sample, KAVYA).corrections;
+    const saved = await cm.saveCorrection({
+      id: draft.id,
+      proposed: { ...draft.proposed, description: NEW_DESCRIPTION },
+      whatChangesAndWhy: WHY,
+      versionLabel: '1.3',
+      expectedRev: draft.rev,
+    });
+    if (!saved.ok) throw new Error('save');
+    await cm.sendForAcademicReview({ id: draft.id, expectedRev: saved.value.rev });
+    await act(async () => {
+      await runtime.invalidate([{ kind: 'UPD', id: draft.id }]);
+    });
+    await waitFor(() =>
+      expect(
+        within(main()).getByRole('link', {
+          name: 'Open UPD-0005, Distillation Column, in academic review',
+        }),
+      ).toBeVisible(),
+    );
+    expect(text(main().querySelector('dl.rb-figs'))).toContain('With others 2');
+  });
+
+  it('empty: “You haven’t raised any corrections” with the Content library', async () => {
+    const world = await fixtureWorld('spine-start');
+    const { runtime } = await worldPlatform(KAVYA, {
+      ...world,
+      records: { ...world.records, updates: {} },
+    });
+    showUpdates(runtime);
+    await heading('Updates');
+    const empty = await screen.findByRole(
+      'heading',
+      { level: 2, name: 'You haven’t raised any corrections' },
+      { timeout: 5000 },
+    );
+    const surface = empty.closest('section.rk-surface')!;
+    expect(surface).toHaveAttribute('aria-label', 'Corrections you raised');
+    expect(surface).toHaveTextContent(
+      'Start one from a published experiment in the Content library.',
+    );
+    expect(
+      within(surface as HTMLElement).getByRole('link', { name: 'Open the Content library' }),
+    ).toHaveAttribute('href', '/content-manager/library?tab=published');
+    expect(main().querySelector('dl.rb-figs')).toBeNull();
+    expect(main().querySelector('.cm-trkcount')).toBeNull();
+  });
+
+  it('loading (no count, no figures), then couldn’t load + Try again (focus to the title)', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    faults(sample).failNext('CorrectionService.listUpdates' as never);
+    showUpdates(runtime);
+    await waitFor(() =>
+      expect(document.querySelector('section[aria-busy="true"] [role="status"]')).toHaveTextContent(
+        'Loading your corrections…',
+      ),
+    );
+    expect(main().querySelector('dl.rb-figs')).toBeNull();
+    expect(main().querySelector('.cm-trkcount')).toBeNull();
+    const failed = await screen.findByRole('alert', {}, { timeout: 5000 });
+    expect(text(failed)).toBe(
+      'We couldn’t load your corrections Nothing has changed. Try again. Try again',
+    );
+    expect(main().querySelector('dl.rb-figs')).toBeNull();
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    expect(screen.getByRole('heading', { level: 1, name: 'Updates' })).toHaveFocus();
+    await screen.findByText(
+      '5 corrections you raised, most recent change first',
+      {},
+      {
+        timeout: 5000,
+      },
+    );
+  });
+});
+
+// ---- CM-08 the correction: the draft --------------------------------------------------------------
+
+describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
+  it('the band, the sheet and the panel: pre-filled with the live version, nothing changed yet', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
     showUpdate(runtime, 'UPD-0005', '?focus=summary');
-    await heading('Update to version …');
-    expect(text(main().querySelector('a.xr-back'))).toBe('Back to the published experiment');
-    expect(main().querySelector('a.xr-back')).toHaveAttribute(
-      'href',
-      '/content-manager/published/distillation-column',
-    );
-    expect(text(main().querySelector('.xr-overline'))).toBe(
-      'UPD-0005 · correction to Distillation Column (live version 1.2)',
+    const title = await heading('Update to Distillation Column');
+    expect(title).toHaveAttribute('tabindex', '-1');
+    expect(text(band().querySelector('.rk-eyebrow'))).toBe(
+      'UPD-0005 · Correction to a published experiment',
     );
     expect(chip()).toBe('Draft');
-    expect(main().querySelector('.xr-status--off')).not.toBeNull();
-    expect(text(main().querySelector('.xg-live'))).toBe('Live version 1.2 unchanged');
-    // The shell: the top bar names the destination; the crumbs the update.
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Updates');
-    expect(text(screen.getByRole('list', { name: 'You are here' }))).toMatch(
-      /Updates\s*\/\s*UPD-0005/,
+    expect(band().querySelector('.rb-id-status .xr-st')).toHaveClass('rk-st-lg');
+    expect(text(band().querySelector('.cm-ver'))).toBe('1.2 live No version label yet');
+    expect(text(band().querySelector('.cm-fmtname'))).toBe(
+      'CHE ZG513 Process Instrumentation & Control',
     );
-    expect(field('What changes and why').value).toBe('');
+    expect(
+      within(band()).getByRole('link', { name: 'Back to the published experiment' }),
+    ).toHaveAttribute('href', '/content-manager/published/distillation-column');
+    expect(within(band()).getByRole('link', { name: 'Go to actions' })).toHaveAttribute(
+      'href',
+      '#cm-u-panel',
+    );
+    expect(facts()).toEqual([
+      'Live version: 1.2, unchanged until released',
+      'Proposed: Not set yet',
+      'Fields changed: None yet',
+      expect.stringMatching(/^Started: \d+ \w+ 2026 · from Edit catalogue details$/),
+    ]);
+    expect(band().querySelectorAll('dd.is-quiet')).toHaveLength(2);
+    const track = within(band()).getByRole('list', { name: 'Where this correction is' });
+    expect(track.querySelector('li.is-you .cm-you')).toHaveTextContent('Your step');
+    // The crumbs: Updates › UPD-0005; the top bar names the destination.
+    expect(text(screen.getByRole('navigation', { name: 'Breadcrumb' }))).toBe('Updates UPD-0005');
+    // The sheet.
+    expect(field('Reason for the change (required to send)').value).toBe('');
     expect(field('Name').value).toBe('Distillation Column');
     expect(field('Summary').value).toMatch(/^Bring a binary column from cold start/);
     expect(field('Description').value).toBe(LIVE_DESCRIPTION);
     expect(field('WEB · web link').value).toBe('https://labs.meridian.example/distillation-column');
+    expect(field('WEB · web link')).toHaveAttribute('type', 'url');
     expect(field('VR · package reference').value).toBe('MVL-DC-VR-1.2');
-    // No decision id in what the page shows or announces (P1-14 / VD-10): the package hint is
-    // B6-09's sentence without its "(T-14)".
-    expect(text(field('VR · package reference').closest('.xr-field'))).toContain(
-      'App package fields are provisional.',
+    expect(text(field('VR · package reference').closest('.rk-field'))).toContain(
+      'App package fields are provisional. The live reference is MVL-DC-VR-1.2.',
     );
     expect(text(main())).not.toMatch(/\((?:T|OD|ND|D|SUP|UPD|ROLE)-[\w-]+\)/);
-    expect(field('Version label').value).toBe('');
-    expect(text(field('Version label').closest('.xr-field'))).toContain(
+    expect(field('New version label (required to send)').value).toBe('');
+    expect(text(field('New version label (required to send)').closest('.rk-field'))).toContain(
       'For example 1.3. The live version is 1.2.',
     );
+    expect(main().querySelectorAll('.cm-tag')).toHaveLength(0);
     const comparison = screen.getByRole('region', { name: 'Current and proposed' });
-    expect(text(comparison)).toBe('Current and proposed Nothing changed yet.');
+    expect(text(comparison)).toBe('Current and proposed Changed fields only Nothing changed yet.');
     expect(historyWhat()).toEqual(['Correction started from Edit catalogue details']);
-    expect(text(main().querySelector('.xr-tl-note'))).toBe('Pre-filled with the live version 1.2.');
+    expect(text(main().querySelector('.rk-tl-n'))).toBe('Pre-filled with the live version 1.2.');
+    // The panel.
+    expect(text(stateNotice())).toBe(
+      'Draft — only you can see it Version 1.2 stays live. Send it for academic review when it’s ready.',
+    );
+    expect(stateNotice()).toHaveClass('rk-notice--info');
+    expect(text(panel().querySelector('dl.rk-stand'))).toMatch(
+      /^Changes None yet Last saved \d+ \w+ 2026, \d\d:\d\d$/,
+    );
+    expect(text(panel().querySelector('.rk-pending'))).toBe(
+      'Before you send it: say what changes and why, add a new version label, change at least one field.',
+    );
     expect(
-      within(main().querySelector('.xw-flow-foot') as HTMLElement)
+      within(panel())
         .getAllByRole('button')
-        .map((button) => text(button)),
-    ).toEqual(['Withdraw update', 'Save draft', 'Send for academic review']);
+        .map((button) => [text(button), button.className]),
+    ).toEqual([
+      ['Send for academic review', 'rb-btn rb-btn--primary rk-go'],
+      ['Save draft', 'rb-btn cm-wide'],
+      ['Withdraw update', 'rb-btn rb-btn--ghost cm-wide'],
+    ]);
     // CM-06: the summary is focused.
     await waitFor(() => expect(field('Summary')).toHaveFocus());
   });
 
-  it('CM-07: ?focus=web-link focuses the web link', async () => {
-    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
-    await openDraft(sample, 'edit-delivery-link' as never);
-    showUpdate(runtime, 'UPD-0005', '?focus=web-link');
-    await heading('Update to version …');
-    await waitFor(() => expect(field('WEB · web link')).toHaveFocus());
-    expect(historyWhat()).toEqual(['Correction started from Edit delivery link']);
-  });
-
-  it('Send with nothing changed: all three drawn errors at once under “Check the update” (B6-11 f11)', async () => {
+  it('CM-06 arrival (CM-05’s note): “New correction draft, from Edit catalogue details”; Go to the catalogue details', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
-    await openDraft(sample, 'start-a-correction' as never);
+    await openDraft(sample);
+    noteCorrectionArrival(sessionKeyOf(runtime), 'UPD-0005', {
+      entry: 'edit-catalogue-details',
+      joined: false,
+    });
+    showUpdate(runtime, 'UPD-0005', '?focus=summary');
+    await heading('Update to Distillation Column');
+    const arrival = document.getElementById('cm-u-entry')!;
+    expect(arrival).toHaveAttribute('role', 'status');
+    expect(text(arrival)).toBe(
+      'New correction draft, from Edit catalogue details Every field is pre-filled with live version 1.2. Change only what needs correcting and say why. Nothing changes in the catalogue until the Super Admin releases it. Go to the catalogue details',
+    );
+    field('Name').focus();
+    await user.click(within(arrival).getByRole('button', { name: 'Go to the catalogue details' }));
+    expect(field('Summary')).toHaveFocus();
+  });
+
+  it('CM-07 joins the open draft: “Your edit joins UPD-0005”, the web link focused; Go to the web link', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    await openDraft(sample);
+    noteCorrectionArrival(sessionKeyOf(runtime), 'UPD-0005', {
+      entry: 'edit-delivery-link',
+      joined: true,
+    });
+    showUpdate(runtime, 'UPD-0005', '?focus=web-link');
+    await heading('Update to Distillation Column');
+    await waitFor(() => expect(field('WEB · web link')).toHaveFocus());
+    const arrival = document.getElementById('cm-u-entry')!;
+    expect(text(arrival)).toBe(
+      'Your edit joins UPD-0005 This experiment already has an open correction, so your delivery change goes into it. One correction at a time per experiment. Go to the web link',
+    );
+    field('Name').focus();
+    await user.click(within(arrival).getByRole('button', { name: 'Go to the web link' }));
+    expect(field('WEB · web link')).toHaveFocus();
+  });
+
+  it('CM-07 without CM-05’s note: the address names the entry (a new draft from Edit a delivery link)', async () => {
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    await openDraft(sample, 'edit-delivery-link');
+    const first = showUpdate(runtime, 'UPD-0005', '?focus=web-link');
+    await heading('Update to Distillation Column');
+    await waitFor(() => expect(field('WEB · web link')).toHaveFocus());
+    expect(text(document.getElementById('cm-u-entry'))).toMatch(
+      /^New correction draft, from Edit a delivery link The delivery details are pre-filled with live version 1\.2\./,
+    );
+    expect(historyWhat()).toEqual(['Correction started from Edit delivery link']);
+    first.view.unmount();
+    // Opened from the list, nothing explains an arrival.
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version …');
+    await heading('Update to Distillation Column');
+    expect(document.getElementById('cm-u-entry')).toBeNull();
+  });
+
+  it('Send with nothing changed: all three errors at once under “Check the update”', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    await openDraft(sample, 'start-a-correction');
+    showUpdate(runtime, 'UPD-0005');
+    await heading('Update to Distillation Column');
     expect(historyWhat()).toEqual(['Correction started from the published experiment']);
-    await user.click(within(main()).getByRole('button', { name: 'Send for academic review' }));
+    expect(facts()[3]).toMatch(/· from the published experiment$/);
+    await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
     const summary = await screen.findByRole('alert');
-    expect(summary).toHaveClass('xw-errsum');
+    expect(summary).toHaveClass('rk-errsum');
+    expect(summary).toHaveAttribute('id', 'cm-u-errs');
     expect(text(summary)).toBe(
       'Check the update Say what changes and why Enter the version label, for example 1.3 Change at least one catalogue detail or delivery link',
     );
     await waitFor(() => expect(summary).toHaveFocus());
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(field('What changes and why')).toHaveAttribute('aria-invalid', 'true');
-    expect(field('Version label')).toHaveAttribute('aria-invalid', 'true');
-    expect(text(document.getElementById('cm-u-chg-e'))).toBe(
-      'Change at least one catalogue detail or delivery link',
+    expect(field('Reason for the change (required to send)')).toHaveAttribute(
+      'aria-invalid',
+      'true',
     );
-    expect(field('Summary').getAttribute('aria-describedby')).toContain('cm-u-chg-e');
+    expect(field('New version label (required to send)')).toHaveAttribute('aria-invalid', 'true');
+    const change = document.getElementById('cm-u-chg-err')!;
+    expect(change).toHaveClass('rk-ferr');
+    expect(text(change)).toBe('Change at least one catalogue detail or delivery link');
+    expect(change.closest('section')).toBe(
+      screen.getByRole('region', { name: 'Current and proposed' }),
+    );
+    expect(field('Summary').getAttribute('aria-describedby')).toContain('cm-u-chg-err');
     // The change link lands on the summary.
     await user.click(within(summary).getByRole('link', { name: /Change at least one/ }));
     expect(field('Summary')).toHaveFocus();
     // The live label is not a new one.
-    await user.type(field('Version label'), '1.2');
-    await user.click(within(main()).getByRole('button', { name: 'Send for academic review' }));
+    await user.type(field('New version label (required to send)'), '1.2');
+    await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
     expect(text(await screen.findByRole('alert'))).toContain(
       'Use a new version label — 1.2 is live',
     );
     expect((await updateOf(sample)).state).toBe('draft');
   });
 
-  it('typing shows the comparison live; Save draft keeps it and the live version is unchanged', async () => {
+  it('typing: the comparison, the Changed tags, the band and Last saved follow it; Save draft keeps it — live unchanged', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version …');
+    await heading('Update to Distillation Column');
     await user.clear(field('Description'));
     await user.type(field('Description'), NEW_DESCRIPTION);
-    await user.type(field('Version label'), '1.3');
-    await heading('Update to version 1.3');
-    const comparison = screen.getByRole('region', { name: 'Current and proposed' });
-    const rows = within(comparison).getAllByRole('row').slice(1);
-    expect(rows.map((row) => text(row.querySelector('[role="rowheader"]')))).toEqual([
-      'Description',
-      'Version',
-    ]);
-    expect(text(rows[1]!)).toBe('Version Live now 1.2 Proposed 1.3');
-    await user.click(within(main()).getByRole('button', { name: 'Save draft' }));
-    const saved = await screen.findByText(/^Draft saved · .* · the live version is unchanged$/);
-    await waitFor(() => expect(saved.closest('p')).toHaveFocus());
+    await user.type(field('New version label (required to send)'), '1.3');
+    expect(comparisonFields()).toEqual(['Description', 'Version']);
+    const version = main().querySelectorAll('table.cm-cmp tbody tr')[1]!;
+    expect(text(version)).toBe('Version Live now 1.2 Proposed 1.3');
+    expect(screen.getByRole('table', { name: 'Current and proposed, changed fields only' })).toBe(
+      main().querySelector('table.cm-cmp'),
+    );
+    expect(text(field('Description').closest('.rk-field')!.querySelector('.cm-tag'))).toBe(
+      'Changed',
+    );
+    expect(field('Name').closest('.rk-field')!.querySelector('.cm-tag')).toBeNull();
+    expect(text(band().querySelector('.cm-ver'))).toBe('1.2 live 1.3 proposed');
+    expect(facts().slice(1, 3)).toEqual(['Proposed: 1.3', 'Fields changed: 1 field']);
+    expect(text(panel().querySelector('dl.rk-stand'))).toMatch(
+      /^Changes 1 field changed Last saved .* · you have unsaved changes$/,
+    );
+    expect(text(panel().querySelector('.rk-pending'))).toBe(
+      'Before you send it: say what changes and why.',
+    );
+    await user.click(within(panel()).getByRole('button', { name: 'Save draft' }));
+    const saved = await screen.findByText(
+      /^\d+ \w+ 2026, \d\d:\d\d · the live version is unchanged$/,
+    );
+    const notice = saved.closest('.rk-notice')!;
+    expect(notice).toHaveClass('rk-notice--ok');
+    expect(notice).toHaveAttribute('id', 'cm-u-saved');
+    expect(notice.querySelector('.rk-notice-t')).toHaveTextContent('Draft saved');
+    await waitFor(() => expect(notice).toHaveFocus());
+    expect(text(panel().querySelector('dl.rk-stand'))).not.toContain('unsaved');
     const update = await updateOf(sample);
     expect([update.state, update.proposed.description, update.versionLabel]).toEqual([
       'draft',
@@ -460,84 +796,126 @@ describe('CM-08 the correction draft (B6-09 f1, f4; B6-11 f11)', () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
     const first = showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version …');
-    await user.type(field('What changes and why'), 'Typed, not saved.');
+    await heading('Update to Distillation Column');
+    await user.type(field('Reason for the change (required to send)'), 'Typed, not saved.');
     first.view.unmount();
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version …');
-    expect(field('What changes and why').value).toBe('Typed, not saved.');
+    await heading('Update to Distillation Column');
+    expect(field('Reason for the change (required to send)').value).toBe('Typed, not saved.');
+    expect(text(panel().querySelector('dl.rk-stand'))).toContain('you have unsaved changes');
     expect((await updateOf(sample)).whatChangesAndWhy).toBeNull();
   });
 
-  it('a stale save is refused and said calmly; what was typed stays', async () => {
+  it('a stale save is refused calmly and focused; what was typed stays; Show where it is now', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
     answerWith(runtime, 'saveCorrection', { kind: 'stale-version', currentRev: 9 });
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version …');
-    await user.type(field('What changes and why'), 'Mine.');
-    await user.click(within(main()).getByRole('button', { name: 'Save draft' }));
-    expect(
-      await within(main()).findByText(
-        'This update changed since you opened it. Nothing was saved — check what you entered and try again.',
-      ),
-    ).toBeVisible();
-    expect(field('What changes and why').value).toBe('Mine.');
+    await heading('Update to Distillation Column');
+    await user.type(field('Reason for the change (required to send)'), 'Mine.');
+    await user.click(within(panel()).getByRole('button', { name: 'Save draft' }));
+    const stale = await screen.findByRole('alert');
+    expect(stale).toHaveAttribute('id', 'cm-u-stale');
+    expect(stale).toHaveClass('rk-notice', 'rk-notice--warn');
+    expect(text(stale)).toBe(
+      'This update changed while you were on the page This update changed since you opened it. Nothing was saved — check what you entered and try again. Show where it is now',
+    );
+    await waitFor(() => expect(stale).toHaveFocus());
+    expect(field('Reason for the change (required to send)').value).toBe('Mine.');
     expect((await updateOf(sample)).whatChangesAndWhy).toBeNull();
+    await user.click(within(stale).getByRole('button', { name: 'Show where it is now' }));
+    await waitFor(() => expect(stateNotice()).toHaveFocus());
+    expect(document.getElementById('cm-u-stale')).toBeNull();
   });
 
-  it('a save failed for now: nothing was lost', async () => {
+  it('a save failed for now: “We couldn’t save your draft”, edits kept, Try again saves', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version …');
-    await user.type(field('What changes and why'), 'Kept.');
+    await heading('Update to Distillation Column');
+    await user.type(field('Reason for the change (required to send)'), 'Kept.');
     faults(sample).failNext('CorrectionService.saveCorrection' as never);
-    await user.click(within(main()).getByRole('button', { name: 'Save draft' }));
-    expect(
-      await within(main()).findByText('It wasn’t saved. Nothing was lost — try again.'),
-    ).toBeVisible();
-    expect(field('What changes and why').value).toBe('Kept.');
+    await user.click(within(panel()).getByRole('button', { name: 'Save draft' }));
+    const failed = await within(panel()).findByRole('alert');
+    expect(failed).toHaveAttribute('id', 'cm-u-savefail');
+    expect(text(failed)).toBe(
+      'We couldn’t save your draft Your changes are still on this page. The live version is unchanged. Try again. Try again',
+    );
+    await waitFor(() => expect(failed).toHaveFocus());
+    expect(field('Reason for the change (required to send)').value).toBe('Kept.');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    await screen.findByText(/· the live version is unchanged$/);
+    expect(document.getElementById('cm-u-savefail')).toBeNull();
+    expect((await updateOf(sample)).whatChangesAndWhy).toBe('Kept.');
   });
 
-  it('Send for academic review (DL-1): saves what is typed, sends it — read-only, In academic review (f3)', async () => {
+  it('Save draft while it runs: Saving…, presses ignored', async () => {
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    await openDraft(sample);
+    showUpdate(runtime, 'UPD-0005');
+    await heading('Update to Distillation Column');
+    const save = within(panel()).getByRole('button', { name: 'Save draft' });
+    fireEvent.click(save);
+    expect(save).toHaveTextContent('Saving…');
+    expect(save).toHaveAttribute('aria-disabled', 'true');
+    fireEvent.click(save);
+    await screen.findByText(/· the live version is unchanged$/);
+    expect(within(panel()).getByRole('button', { name: 'Save draft' })).not.toHaveAttribute(
+      'aria-disabled',
+    );
+  });
+
+  it('Send for academic review (its dialog): saves what is typed, sends it — read-only, In academic review', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version …');
-    await user.type(field('What changes and why'), WHY);
+    await heading('Update to Distillation Column');
+    await user.type(field('Reason for the change (required to send)'), WHY);
     await user.clear(field('Description'));
     await user.type(field('Description'), NEW_DESCRIPTION);
-    await user.type(field('Version label'), '1.3');
-    await user.click(within(main()).getByRole('button', { name: 'Send for academic review' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Send for academic review?' });
-    expect(text(dialog.querySelector('.xr-dialog-body'))).toBe(
-      'It goes to the Academic Reviewer, then to the Super Admin, who decides when to release it. The live version 1.2 doesn’t change until it is released.',
+    await user.type(field('New version label (required to send)'), '1.3');
+    await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Send UPD-0005 for academic review?',
+    });
+    expect(dialog).toHaveClass('rk-dialog');
+    await waitFor(() => expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus());
+    expect(text(dialog.querySelector('.rk-dlg-head p'))).toBe(
+      'It goes to the Academic Reviewer, then to the Super Admin, who decides when to release it.',
+    );
+    expect(text(dialog.querySelector('.rk-dlg-now'))).toBe(
+      'What happens now The Academic Reviewer can review it. It becomes read-only for you while it is reviewed. Version 1.2 stays live — nothing changes for the public or for students.',
+    );
+    expect(text(dialog.querySelector('.rk-dlg-later'))).toBe(
+      'Only after later events If it is approved, the Super Admin decides whether to release it or put it on hold. Releasing changes it for everyone who can already open it. It gives no one new access.',
     );
     await user.click(within(dialog).getByRole('button', { name: 'Send for academic review' }));
-    await heading('Update to version 1.3');
     await waitFor(() => expect(chip()).toBe('In academic review'));
-    await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toHaveFocus());
-    expect(text(main().querySelector('.xr-notice'))).toMatch(
+    await waitFor(() => expect(stateNotice()).toHaveFocus());
+    expect(text(stateNotice())).toMatch(
       /^In academic review With the Academic Reviewer since \d+ \w+ 2026\. Read-only while it is reviewed\. The live version 1\.2 is unchanged\.$/,
     );
     expect(within(main()).queryAllByRole('textbox')).toHaveLength(0);
     const why = screen.getByRole('region', { name: 'What changes and why' });
-    expect(text(why.querySelector('.xr-section-head'))).toBe('What changes and why Version 1.3');
-    expect(text(why.querySelector('p.xr-body'))).toBe(WHY);
+    expect(text(why.querySelector('.rk-sec-h'))).toBe('What changes and why Version 1.3');
+    expect(text(why.querySelector('blockquote.rk-quote'))).toBe(WHY);
     expect(historyWhat()).toEqual([
       'Sent for academic review',
       'Correction started from Edit catalogue details',
     ]);
-    // Withdraw is still offered while it is reviewed.
+    expect(facts()[3]).toMatch(/^Sent: \d+ \w+ 2026$/);
+    // Withdraw is still offered while it is reviewed, with the published experiment.
     expect(
-      within(main())
+      within(panel())
         .getAllByRole('button')
         .map((button) => text(button)),
     ).toEqual(['Withdraw update']);
+    expect(
+      within(panel()).getByRole('link', { name: 'Open the published experiment' }),
+    ).toHaveAttribute('href', '/content-manager/published/distillation-column');
     const update = await updateOf(sample);
     expect([update.state, update.whatChangesAndWhy, update.versionLabel]).toEqual([
       'in-academic-review',
@@ -547,112 +925,278 @@ describe('CM-08 the correction draft (B6-09 f1, f4; B6-11 f11)', () => {
     expect((await liveOf(sample)).label).toBe('1.2');
   });
 
-  it('Withdraw (DL-2): a reason is required; then Withdrawn (f8) and nothing changed in the live version', async () => {
+  it('the send dialog while it runs: Sending…, Cancel and Esc wait; closing changes nothing before it', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    await savedDraft(sample);
+    showUpdate(runtime, 'UPD-0005');
+    await heading('Update to Distillation Column');
+    // Esc closes the dialog before anything is sent, focus back to the opener.
+    const send = within(panel()).getByRole('button', { name: 'Send for academic review' });
+    await user.click(send);
+    let dialog = await screen.findByRole('dialog', { name: 'Send UPD-0005 for academic review?' });
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(send).toHaveFocus();
+    expect((await updateOf(sample)).state).toBe('draft');
+    // Confirmed: it runs; Cancel and Esc wait for the answer.
+    const release = holdCommand(runtime, 'sendForAcademicReview');
+    await user.click(send);
+    dialog = await screen.findByRole('dialog', { name: 'Send UPD-0005 for academic review?' });
+    const confirm = within(dialog).getByRole('button', { name: 'Send for academic review' });
+    fireEvent.click(confirm);
+    await waitFor(() => expect(confirm).toHaveTextContent('Sending…'));
+    expect(confirm).toHaveAttribute('aria-disabled', 'true');
+    // Cancel is disabled and focus is held on the dialog's title (CM-v1 "Behaviour notes").
+    expect(within(dialog).getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(
+      screen.getByRole('dialog', { name: 'Send UPD-0005 for academic review?' }),
+    ).toBeVisible();
+    release();
+    await waitFor(() => expect(chip()).toBe('In academic review'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+  });
+
+  it('Withdraw (its dialog): a reason is required; then Withdrawn — closed stages dashed, live unchanged', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await savedDraft(sample, true);
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version 1.3');
-    await user.click(within(main()).getByRole('button', { name: 'Withdraw update' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Withdraw this update?' });
-    expect(text(dialog.querySelector('.xr-dialog-body > p'))).toBe(
-      'Nothing changes in the live version.',
+    await heading('Update to Distillation Column');
+    await user.click(within(panel()).getByRole('button', { name: 'Withdraw update' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Withdraw UPD-0005?' });
+    expect(text(dialog.querySelector('.rk-dlg-head p'))).toBe(
+      'Nothing changes in the live version. The update closes and can’t be sent again; you can start a new correction later.',
     );
-    await user.click(within(dialog).getByRole('button', { name: 'Withdraw update' }));
+    const reason = within(dialog).getByLabelText('Reason (required)');
+    await waitFor(() => expect(reason).toHaveFocus());
+    expect(text(reason.closest('.rk-field'))).toContain('Kept in this update’s history.');
+    const confirm = within(dialog).getByRole('button', { name: 'Withdraw update' });
+    expect(confirm).toHaveClass('rb-btn--navy');
+    await user.click(confirm);
     expect(
       await within(dialog).findByText('Add a reason for withdrawing this update'),
     ).toBeVisible();
-    await user.type(within(dialog).getByLabelText('Reason'), 'Raised by mistake.');
-    await user.click(within(dialog).getByRole('button', { name: 'Withdraw update' }));
+    expect(reason).toHaveAttribute('aria-invalid', 'true');
+    await waitFor(() => expect(reason).toHaveFocus());
+    await user.type(reason, 'Raised by mistake.');
+    await user.click(confirm);
     await waitFor(() => expect(chip()).toBe('Withdrawn'));
-    expect(text(main().querySelector('.xr-notice--quiet'))).toMatch(
-      /^Withdrawn Withdrawn on \d+ \w+ 2026: “Raised by mistake\.” The live version is unchanged\. You can start a new correction from the published experiment\.$/,
+    await waitFor(() => expect(stateNotice()).toHaveFocus());
+    expect(stateNotice()).toHaveClass('rk-notice--off');
+    expect(text(stateNotice())).toMatch(
+      /^Withdrawn Withdrawn on \d+ \w+ 2026\. The live version is unchanged\. You can start a new correction from the published experiment\. Reason: “Raised by mistake\.”$/,
     );
+    expect(text(band().querySelector('.cm-ver'))).toBe('1.2 live 1.3 withdrawn');
+    expect(facts()[0]).toBe('Live version: 1.2, unchanged');
+    expect(band().querySelectorAll('li.cm-step.is-off')).toHaveLength(4);
     expect(historyWhat()[0]).toBe('Withdrawn');
-    expect(text(main().querySelector('.xr-tl-note'))).toBe(
+    expect(text(main().querySelector('.rk-tl-n'))).toBe(
       '“Raised by mistake.” Nothing changed in the live version.',
     );
-    expect(within(main()).queryAllByRole('button')).toHaveLength(0);
+    expect(within(panel()).queryAllByRole('button')).toHaveLength(0);
     expect((await liveOf(sample)).label).toBe('1.2');
+  });
+
+  it('the withdraw dialog while it runs: Withdrawing…, Cancel and Esc wait', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    await openDraft(sample);
+    showUpdate(runtime, 'UPD-0005');
+    await heading('Update to Distillation Column');
+    const release = holdCommand(runtime, 'withdrawUpdate');
+    await user.click(within(panel()).getByRole('button', { name: 'Withdraw update' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Withdraw UPD-0005?' });
+    await user.type(within(dialog).getByLabelText('Reason (required)'), 'Not needed.');
+    const confirm = within(dialog).getByRole('button', { name: 'Withdraw update' });
+    fireEvent.click(confirm);
+    await waitFor(() => expect(confirm).toHaveTextContent('Withdrawing…'));
+    expect(within(dialog).getByRole('button', { name: 'Cancel' })).toBeDisabled();
+    expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus();
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    expect(screen.getByRole('dialog', { name: 'Withdraw UPD-0005?' })).toBeVisible();
+    release();
+    await waitFor(() => expect(chip()).toBe('Withdrawn'));
+  });
+
+  it('withdraw after an unseen approval: refused, the approval said, read again (stale)', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    const sent = await savedDraft(sample, true);
+    showUpdate(runtime, 'UPD-0005');
+    await heading('Update to Distillation Column');
+    // The Academic Reviewer approves it meanwhile (through the port; the page has not read it).
+    const reviewer = asPersonId(sample, MENON).corrections;
+    const approved = await reviewer.approveUpdate({ id: sent.id, expectedRev: sent.rev });
+    expect(approved.ok).toBe(true);
+    await user.click(within(panel()).getByRole('button', { name: 'Withdraw update' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Withdraw UPD-0005?' });
+    await user.type(within(dialog).getByLabelText('Reason (required)'), 'No longer needed.');
+    await user.click(within(dialog).getByRole('button', { name: 'Withdraw update' }));
+    const stale = await screen.findByRole('alert');
+    expect(stale).toHaveAttribute('id', 'cm-u-stale');
+    await waitFor(() =>
+      expect(text(stale)).toMatch(
+        /^This update changed while you were on the page The Academic Reviewer approved it at \d\d:\d\d, so it can’t be withdrawn or changed now\. Release or hold is the Super Admin’s decision\. Nothing was changed by your action\. Show where it is now$/,
+      ),
+    );
+    await waitFor(() => expect(chip()).toBe('Awaiting release decision'));
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect((await updateOf(sample)).state).toBe('awaiting-release-decision');
   });
 });
 
-describe('CM-08 the later states (B6-09 f2, f5 … f7; B6-11 f10; B7-11 f3; B6-13 f0)', () => {
-  it('returned (UPD-0006): the reviewer’s reason first, editable again (f2)', async () => {
+// ---- CM-08 the correction: the later states -------------------------------------------------------
+
+describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, released; no update', () => {
+  it('returned (UPD-0006): the reviewer’s reason first, editable again', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     showUpdate(runtime, 'UPD-0006');
-    await heading('Update to version 1.1');
+    await heading('Update to Induction Motor Loading');
     expect(chip()).toBe('Returned');
-    expect(main().querySelector('.xr-status--err')).not.toBeNull();
+    expect(band().querySelector('.rb-id-status .xr-st')).toHaveClass('xr-st--err');
     const reason = screen.getByRole('region', { name: 'Returned by the Academic Reviewer' });
-    expect(reason).toHaveClass('xv-reason');
+    expect(reason.querySelector('.cm-retbox')).not.toBeNull();
     expect(text(reason)).toBe(
-      'Returned by the Academic Reviewer 26 Aug 2026, 10:00 · Prof. A. Menon The proposed description says slip falls as the load rises. It rises. Please correct it before I approve.',
+      'Returned by the Academic Reviewer 26 Aug 2026, 10:00 · Prof. A. Menon The proposed description says slip falls as the load rises. It rises. Please correct it before I approve. Prof. A. Menon, Academic Reviewer Change what’s needed below, then send it for academic review again.',
     );
-    expect(field('What changes and why').value).toBe('Correction UPD-0006.');
+    // The reason is first on the sheet.
+    expect(main().querySelector('.rk-mainsheet > section')).toBe(reason);
+    expect(field('Reason for the change (required to send)').value).toBe('Correction UPD-0006.');
+    expect(text(stateNotice())).toBe(
+      'Returned to you Prof. A. Menon returned it on 26 Aug 2026. Change it and send it for academic review again. Version 1.0 stays live.',
+    );
+    expect(text(panel().querySelector('dl.rk-stand'))).toBe(
+      'Changes None yet Last saved 24 Aug 2026, 11:00',
+    );
+    const track = within(band()).getByRole('list', { name: 'Where this correction is' });
+    expect([...track.querySelectorAll('li')].map((step) => step.className)).toEqual([
+      'cm-step is-you',
+      'cm-step is-back',
+      'cm-step',
+      'cm-step',
+    ]);
     expect(historyWhat()).toEqual([
       'Returned by Prof. A. Menon',
       'Sent for academic review',
       'Correction started from the published experiment',
     ]);
+    // An app package reference for each app format the experiment has.
+    expect(field('VR · package reference')).toBeVisible();
+    expect(field('MR · package reference')).toBeVisible();
   });
 
-  it('awaiting release decision (after Flow E; f5; B6-11 f10; B7-11 f3): read-only, the comparison', async () => {
+  it('sent again after a return: “Sent again for academic review” in the history', async () => {
+    const user = userEvent.setup();
+    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
+    showUpdate(runtime, 'UPD-0006');
+    await heading('Update to Induction Motor Loading');
+    await user.type(field('Name'), ' (corrected)');
+    await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Send UPD-0006 for academic review?',
+    });
+    await user.click(within(dialog).getByRole('button', { name: 'Send for academic review' }));
+    await waitFor(() => expect(chip()).toBe('In academic review'));
+    expect(historyWhat()[0]).toBe('Sent again for academic review');
+  });
+
+  it('awaiting the release decision (after Flow E): read-only, the comparison, no action but the experiment', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'after-flow-e');
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version 1.3');
+    await heading('Update to Distillation Column');
     expect(chip()).toBe('Awaiting release decision');
-    expect(text(main().querySelector('.xr-notice'))).toMatch(
+    expect(text(stateNotice())).toMatch(
       /^Awaiting release decision Approved by Prof\. A\. Menon on \d+ \w+ 2026\. The Super Admin decides whether to release it or put it on hold\. Version 1\.2 stays live until it is released\.$/,
     );
-    const rows = within(screen.getByRole('table', { name: 'Current and proposed' }))
-      .getAllByRole('row')
-      .slice(1)
-      .map((row) => text(row.querySelector('[role="rowheader"]')));
-    expect(rows).toEqual(['Description', 'WEB · web link', 'Version']);
+    expect(comparisonFields()).toEqual(['Description', 'WEB · web link', 'Version']);
+    expect(facts()[2]).toBe('Fields changed: 2 fields');
     expect(historyWhat()).toEqual([
       'Approved by Prof. A. Menon',
       'Sent for academic review',
       'Correction started from Edit catalogue details',
     ]);
-    expect(within(main()).queryAllByRole('button')).toHaveLength(0);
+    expect(within(main()).queryAllByRole('textbox')).toHaveLength(0);
+    expect(within(panel()).queryAllByRole('button')).toHaveLength(0);
+    expect(
+      within(panel()).getByRole('link', { name: 'Open the published experiment' }),
+    ).toBeVisible();
   });
 
-  it('on hold (UPD-0004; f6): the live version stays as it is; the reason in the history', async () => {
-    const { runtime } = await tabPlatform(KAVYA, 'spine-start');
-    showUpdate(runtime, 'UPD-0004');
-    await heading('Update to version 2.1');
+  it('on hold (UPD-0004): the reason shown; then the hold lifted (awaiting again)', async () => {
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    const first = showUpdate(runtime, 'UPD-0004');
+    await heading('Update to Boiler Drum Level');
     expect(chip()).toBe('On hold');
-    expect(main().querySelector('.xr-status--paused')).not.toBeNull();
-    expect(text(main().querySelector('.xr-notice--warn'))).toBe(
-      'On hold The Super Admin put this update on hold. The live version stays as it is.',
+    expect(band().querySelector('.rb-id-status .xr-st')).toHaveClass('xr-st--paused');
+    expect(stateNotice()).toHaveClass('rk-notice--paused');
+    expect(text(stateNotice())).toBe(
+      'On hold The Super Admin put this update on hold on 20 Aug 2026. Version 2.0 stays live. Reason: “Version 2.0 stays live while the 2.1 build is checked.” — Arjun Mehta, Super Admin',
     );
     expect(historyWhat()[0]).toBe('Put on hold by Arjun Mehta');
-    expect(text(main().querySelector('.xr-tl-note'))).toBe(
+    expect(text(main().querySelector('.rk-tl-n'))).toBe(
       '“Version 2.0 stays live while the 2.1 build is checked.” Version 2.0 stays live.',
     );
+    expect(band().querySelector('li.cm-step.is-held')).not.toBeNull();
+    first.view.unmount();
+    // The Super Admin lifts the hold (through the port): awaiting again, the lift said.
+    const admin = asPersonId(sample, 'sa-arjun-mehta').corrections;
+    const held = await asPersonId(sample, KAVYA).corrections.getUpdate('UPD-0004' as never);
+    if (!held.ok) throw new Error('read');
+    const lifted = await admin.liftHold({
+      id: 'UPD-0004',
+      expectedRev: held.value.update.rev,
+    } as never);
+    expect(lifted.ok).toBe(true);
+    await act(async () => {
+      await runtime.invalidate([{ kind: 'UPD', id: 'UPD-0004' }]);
+    });
+    showUpdate(runtime, 'UPD-0004');
+    await heading('Update to Boiler Drum Level');
+    await waitFor(() => expect(chip()).toBe('Awaiting release decision'));
+    expect(text(stateNotice())).toMatch(
+      / The hold was lifted on \d+ \w+ 2026\. Nothing went live; it is waiting for the Super Admin’s decision again\.$/,
+    );
+    expect(historyWhat()[0]).toBe('Hold lifted by Arjun Mehta');
   });
 
-  it('released (after Flow F; f7): live for everyone; the comparison with the version it corrected', async () => {
+  it('released (after Flow F): what changed — Live before against Released', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'after-flow-f');
     showUpdate(runtime, 'UPD-0005');
-    await heading('Update to version 1.3');
+    await heading('Update to Distillation Column');
     expect(chip()).toBe('Released');
-    expect(text(main().querySelector('.xr-overline'))).toBe(
-      'UPD-0005 · correction to Distillation Column (live version 1.2)',
+    expect(text(band().querySelector('.cm-ver'))).toBe('1.2 1.3 live');
+    expect(facts()).toEqual([
+      'Live before: 1.2',
+      'Released version: 1.3',
+      'Fields changed: 2 fields',
+      expect.stringMatching(/^Released: \d+ \w+ 2026 · Arjun Mehta$/),
+    ]);
+    expect(band().querySelectorAll('li.cm-step.is-done')).toHaveLength(4);
+    expect(stateNotice()).toHaveClass('rk-notice--ok');
+    expect(text(stateNotice())).toMatch(
+      /^Released Version 1\.3 is live for everyone since \d+ \w+ 2026\. The history keeps version 1\.2 and every decision\.$/,
     );
-    expect(main().querySelector('.xg-live')).toBeNull();
-    expect(text(main().querySelector('.xr-notice--ok'))).toBe(
-      'Released This version is live for everyone.',
+    const changed = screen.getByRole('region', { name: 'What changed' });
+    expect(text(changed.querySelector('.rk-sec-h'))).toBe(
+      'What changed Live before and released · changed fields only',
     );
-    const rows = within(screen.getByRole('table', { name: 'Current and proposed' }))
-      .getAllByRole('row')
-      .slice(1);
-    expect(text(rows.at(-1)!)).toBe('Version Live now 1.2 Proposed 1.3');
+    expect(
+      within(changed)
+        .getAllByRole('columnheader')
+        .map((cell) => text(cell)),
+    ).toEqual(['Field', 'Live before', 'Released']);
+    expect(text(main().querySelectorAll('table.cm-cmp tbody tr')[2]!)).toBe(
+      'Version Live before 1.2 Released 1.3',
+    );
     expect(historyWhat()[0]).toBe('Released by Arjun Mehta');
   });
 
-  it('no such update: “No update open” with the Content library (B6-13 f0)', async () => {
+  it('no such update: “No update open” with the Content library', async () => {
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     showUpdate(runtime, 'UPD-0099');
     await heading('No update open');
@@ -665,6 +1209,7 @@ describe('CM-08 the later states (B6-09 f2, f5 … f7; B6-11 f10; B7-11 f3; B6-1
 
   it('the history in her words, newest first (state-copy `CM-08.history`)', async () => {
     const { sample } = await tabPlatform(MENON, 'after-flow-e');
+    standinsOf(sample).clock.setSampleNow('2026-10-23T05:00:00.000Z' as IsoInstant);
     const update = await updateOf(sample);
     expect(
       updateHistory(update).map((event) => `${event.what as string} — ${event.note as string}`),

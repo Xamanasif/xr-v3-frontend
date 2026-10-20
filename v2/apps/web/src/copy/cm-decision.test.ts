@@ -1,13 +1,14 @@
 /**
- * The words of CM-03 Publication decision (B6-07, B6-11) and CM-05 Published experiment (B6-08)
- * are the frozen boards’: each drawn phrase is found verbatim in its board’s markup or script, the
- * composed ones with the boards’ own sample values or, where the board composes them in its
- * script, the script’s own pieces; the undrawn forms are provisional entries of the state-copy
- * register, each with its decision and no decision id in its words.
+ * The words of CM-03 Publication decision and CM-05 Published experiment are the owner-approved
+ * Content Manager export's (design/v3-refined-b/roles/CM-v1, `project/Main.dc.html`): each drawn
+ * phrase is found verbatim in its markup or script, the composed ones with the script's own pieces
+ * (`decVM`, `checksOf`, `pubVM`, the sample `sh` and `hist` entries); the undrawn forms are
+ * provisional entries of the state-copy register, each with its decision and no decision id in its
+ * words.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { cmExport } from '@/test-support/boards';
 
 import {
   approvedCheckLine,
@@ -17,59 +18,79 @@ import {
   blockersTitle,
   CHECK_FIXES,
   CHECK_LINES,
+  CHECK_STATE,
   CHECK_TITLES,
+  CORRECTIONS_PANEL,
+  correctionNamed,
+  correctionsReleased,
+  courseLabel,
   DECISION_PAGE,
   DECISION_PANEL,
-  decisionMetaLine,
+  DECISION_RESULT,
   decisionOverline,
   deliveryCheckLine,
+  firstPublishedNote,
   firstPublishedWhat,
+  formatsLabel,
+  formatsList,
   formatsSentence,
+  fromVendor,
+  gateVerdict,
   HISTORY,
-  liveSinceLine,
+  listedUnder,
+  liveVersionLine,
   outcomesCheckLine,
+  packageDetail,
   PUBLISH_DIALOG,
   PUBLISHED_PAGE,
-  publishedLine,
+  publishedByYou,
   publishedNote,
   publishedOverline,
   publishedWhat,
-  publishedWhen,
-  publishEffect,
   publishTitle,
+  publishWhere,
   quoted,
   READ_ONLY,
+  recheckLine,
+  recheckReviewLine,
   referenceWords,
+  releasedLine,
+  requiredLabel,
+  releasedTitle,
   resubmittedWhat,
+  returnedByReviewerLine,
   returnedByReviewerWhat,
+  returnedReviewLine,
+  revisionFact,
   reviewLine,
-  SEND_BACK_DIALOG,
-  sentBackMeta,
+  sentBackByYou,
   sentBackToReviewerWhat,
+  sentBackToVendorNote,
   sentBackToVendorWhat,
+  sentToVendorLine,
+  STALE_NOTICE,
+  staleLine,
   submissionsLine,
   submittedNote,
-  toResolveChip,
-  updateInProgressLine,
-  updateInProgressTitle,
+  updateHeldNote,
+  updateHeldWhat,
+  updateProgressLine,
   updateStartedNote,
   updateStartedWhat,
   vendorChoiceSub,
+  versionAfterFormats,
   versionReleasedNote,
   versionReleasedWhat,
-  WITH_THE_VENDOR,
+  withReviewer,
 } from './cm-decision';
 import { STATE_COPY } from './state-copy';
 import { STATE_COPY_CM_DECISION } from './state-copy-cm-decision';
 
-/** A board’s text with tags removed and `&amp;` read, then its raw markup (attributes, script). */
-function words(file: string): string {
-  const raw = board(file);
+/** The export's text with tags removed and `&amp;` read, then its raw markup (attributes, script). */
+const MAIN = (() => {
+  const raw = cmExport('Main.dc.html');
   return `${raw.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${raw}`;
-}
-
-const B6_07 = words('B6-07-Publication-Decision.dc.html');
-const B6_08 = words('B6-08-Published-and-Correction-Entry.dc.html');
+})();
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -78,94 +99,90 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-/**
- * Words shown without the decision id the board writes into them (P1-14 / VD-10: “Strip the
- * suffix through a copy table and keep the sentence”): checked against the board's own wording.
- */
-const DRAWN_WITH_ID: Readonly<Record<string, string>> = {
-  'App package (provisional)': 'App package (provisional — T-14)',
-  'App package fields are provisional.': 'App package fields are provisional (T-14).',
-};
-const asDrawn = (phrase: string) => DRAWN_WITH_ID[phrase] ?? phrase;
+/** [the product's words for a sample, the export's words for it, the script piece that forms them]. */
+type Composed = readonly (readonly [string, string, string])[];
 
-describe('CM-03 Publication decision (B6-07; B6-11 f4 … f8)', () => {
+function expectComposed(composed: Composed): void {
+  for (const [product, drawn, piece] of composed) {
+    expect(product).toBe(drawn);
+    expect(MAIN).toContain(piece);
+  }
+}
+
+describe('CM-03 Publication decision (CM-v1 `v.decision`, `decVM`)', () => {
   it.each(
     strings([
       DECISION_PAGE,
       DECISION_PANEL,
       READ_ONLY,
       PUBLISH_DIALOG,
-      SEND_BACK_DIALOG,
+      DECISION_RESULT,
+      STALE_NOTICE,
       CHECK_TITLES,
       CHECK_LINES,
       CHECK_FIXES,
+      CHECK_STATE,
       HISTORY,
-      WITH_THE_VENDOR,
     ]),
-  )('“%s” is on B6-07', (phrase) => {
-    expect(B6_07).toContain(asDrawn(phrase));
+  )('“%s” is drawn by the export', (phrase) => {
+    expect(MAIN).toContain(phrase);
   });
 
-  it('the composed words are B6-07’s: its frames’ words, from its script’s own pieces', () => {
-    // [the product’s words for the frame’s sample, the frame’s words, the script piece].
-    const composed: readonly (readonly [string, string, string])[] = [
+  it('the band: the record kind, the vendor, the facts, the gate’s verdict', () => {
+    expectComposed([
       [
         decisionOverline('SUB-0077'),
         'SUB-0077 · First publication',
-        "s.id + ' · First publication'",
+        "over: x.id + ' · First publication'",
       ],
       [
-        decisionMetaLine('Northline Simulation Studio', 'ME ZG523', {
-          by: 'Prof. A. Menon',
-          on: '27 Aug 2026',
-        }),
-        'Northline Simulation Studio · ME ZG523 · approved by Prof. A. Menon on 27 Aug 2026',
-        "s.ven + ' · ' + s.course + (s.approved ? ' · approved by ' + D.rv + ' on ' + s.approved : '')",
+        fromVendor('Northline Simulation Studio'),
+        'From Northline Simulation Studio',
+        '<span>From {{ D.vendor }}</span>',
+      ],
+      [formatsList(['WEB', 'VR']), 'WEB · VR', "v: x.fmts.join(' · ')"],
+      [revisionFact(2), 'Revision 2', "{ k: 'Submission', v: 'Revision ' + x.rev, cls: '' }"],
+      [formatsLabel(['WEB', 'VR']), 'Formats: WEB, VR', "fmtAria: 'Formats: ' + x.fmts.join(', ')"],
+      [
+        gateVerdict('open', 4, 0),
+        'All 4 met · ready to publish',
+        "(nb ? this.plural(nb, 'check') + ' not met · publishing is blocked' : 'All 4 met · ready to publish')",
       ],
       [
-        decisionMetaLine('Northline Simulation Studio', 'ME ZG523', null),
-        'Northline Simulation Studio · ME ZG523',
-        "s.ven + ' · ' + s.course",
+        gateVerdict('open', 4, 1),
+        '1 check not met · publishing is blocked',
+        "this.plural(nb, 'check') + ' not met · publishing is blocked'",
       ],
       [
-        toResolveChip('Ready to publish', 1),
-        'Ready to publish · 1 to resolve',
-        "'Ready to publish · ' + nBlock + ' to resolve'",
+        gateVerdict('published', 4, 0),
+        'All 4 were met when it was published',
+        "const gateLine = pub ? 'All 4 were met when it was published'",
       ],
+    ]);
+    expect(gateVerdict('open', 4, 2)).toBe('2 checks not met · publishing is blocked');
+  });
+
+  it('the check rows, the blockers and the summary lines', () => {
+    expectComposed([
       [
         approvedCheckLine('Prof. A. Menon', '27 Aug 2026'),
         'Prof. A. Menon · 27 Aug 2026',
-        "D.rv + ' · ' + s.approved",
+        "d: appr ? 'Prof. A. Menon · ' + x.appr",
       ],
       [
         outcomesCheckLine(3),
         '3 outcomes · one set for every format',
-        "plural(s.outcomes.length, 'outcome') + ' · one set for every format'",
+        "this.plural(x.outcomes.length, 'outcome') + ' · one set for every format'",
       ],
       [
         deliveryCheckLine(['WEB', 'VR'], true),
         'WEB · VR — complete',
-        "chosen.join(' · ') + (delivOk ? ' — complete' : ' — incomplete')",
-      ],
-      [
-        reviewLine('Prof. A. Menon', '27 Aug 2026', 1),
-        'Approved by Prof. A. Menon on 27 Aug 2026 — after 1 return with a reason',
-        "'Approved by ' + D.rv + ' on ' + s.approved + (s.retCount ? ' — after ' + s.retCount + ' return with a reason' : '')",
-      ],
-      [
-        submissionsLine('12 Aug 2026', '26 Aug 2026', 2),
-        'Submitted 12 Aug 2026 · resubmitted 26 Aug 2026 (revision 2)',
-        "'Submitted ' + s.submitted + ' · resubmitted ' + s.resubmitted + ' (revision ' + s.rev + ')' : 'Submitted ' + s.submitted",
-      ],
-      [
-        submissionsLine('12 Aug 2026', null, 1),
-        'Submitted 12 Aug 2026',
-        "'Submitted ' + s.submitted",
+        "fm.join(' · ') + (delivOk ? ' — complete' : ' — incomplete')",
       ],
       [
         blockersTitle(1),
         '1 thing to resolve before it can be published',
-        "plural(nBlock, 'thing') + ' to resolve before it can be published'",
+        "this.plural(nb, 'thing') + ' to resolve before it can be published'",
       ],
       [
         blockerLine(
@@ -174,64 +191,71 @@ describe('CM-03 Publication decision (B6-07; B6-11 f4 … f8)', () => {
           CHECK_FIXES['learning-outcomes'],
         ),
         'Learning outcomes: none. Send it back to the Academic Reviewer to add them.',
-        "c.t + ': ' + c.d.toLowerCase() + '. ' + c.fix",
+        "k.t + ': ' + k.d.toLowerCase() + '. ' + k.fix",
       ],
       [
-        publishedWhen('28 Aug 2026', '10:05', 'Kavya Nair'),
-        '28 Aug 2026 · 10:05 · Kavya Nair',
-        "s.pub + (cd && cd.when ? ' · ' + cd.when.split(', ')[1] : '') + ' · ' + D.cm",
+        submissionsLine('12 Aug 2026', '26 Aug 2026', 2),
+        'Submitted 12 Aug 2026 · resubmitted 26 Aug 2026 (revision 2)',
+        "'Submitted ' + x.submitted + ' · resubmitted ' + x.resubmitted + ' (revision ' + x.rev + ')' : 'Submitted ' + x.submitted",
       ],
       [
-        publishedLine('ME ZG523', ['WEB', 'VR']),
-        'In the public catalogue under ME ZG523 with WEB and VR. Publishing gave no one access.',
-        "'In the public catalogue under ' + s.course + ' with ' + chosen.join(' and ') + '. Publishing gave no one access.'",
+        submissionsLine('12 Aug 2026', null, 1),
+        'Submitted 12 Aug 2026',
+        "'Submitted ' + x.submitted",
       ],
       [
-        publishTitle('Conduction Through a Composite Wall'),
-        'Publish “Conduction Through a Composite Wall”?',
-        "'Publish “' + o.name + '”?'",
+        reviewLine('Prof. A. Menon', '27 Aug 2026', 1),
+        'Approved by Prof. A. Menon on 27 Aug 2026 — after 1 return with a reason',
+        "'Approved by Prof. A. Menon on ' + x.appr + (x.retCount ? ' — after ' + this.plural(x.retCount, 'return') + ' with a reason' : '')",
       ],
       [
-        publishEffect('ME ZG523', ['WEB', 'VR']),
-        'It will appear in the public catalogue under ME ZG523 with WEB and VR. Publishing gives no one access — institutions still need access before their students can open it.',
-        "'It will appear in the public catalogue under ' + s.course + ' with ' + chosen.join(' and ') + '. Publishing gives no one access — institutions still need access before their students can open it.'",
+        recheckReviewLine('Prof. A. Menon', '27 Aug 2026', '27 Aug 2026'),
+        'Approved by Prof. A. Menon on 27 Aug 2026; you sent it back for a re-check on 27 Aug 2026',
+        "'Approved by Prof. A. Menon on ' + x.apprOld + '; you sent it back for a re-check on ' + this.day(x.recheck.when)",
+      ],
+      [
+        returnedReviewLine('Prof. A. Menon', '24 Aug 2026'),
+        'Returned to the vendor by Prof. A. Menon on 24 Aug 2026',
+        "'Returned to the vendor by Prof. A. Menon on ' + this.day(x.ret.when)",
+      ],
+      [
+        packageDetail('Composite Wall — VR build 1.0', 'NSS-CW-VR-1.0'),
+        'Composite Wall — VR build 1.0 · NSS-CW-VR-1.0',
+        "x.pk[f].label + ' · ' + (x.pk[f].ref || x.pk[f].file)",
+      ],
+    ]);
+    expect(deliveryCheckLine(['WEB', 'AR'], false)).toBe('WEB · AR — incomplete');
+  });
+
+  it('the decision panel: the reason, the vendor choice, the references, the read-only notices', () => {
+    expectComposed([
+      [
+        requiredLabel(DECISION_PANEL.reasonForVendor),
+        'Reason the vendor will see (required)',
+        "+ ' (required)',",
       ],
       [
         vendorChoiceSub('Northline Simulation Studio'),
         'Northline Simulation Studio — to revise and resubmit',
-        "s.ven + ' — to revise and resubmit'",
+        "d: ven.name + ' — to revise and resubmit'",
       ],
       [
-        sentBackMeta('17 Nov 2026, 10:00', 'Kavya Nair', 'Please re-check.'),
-        '17 Nov 2026, 10:00 · Kavya Nair · “Please re-check.”',
-        "cd.when + ' · ' + D.cm + ' · “' + (cd.reason || '') + '”'",
+        recheckLine('25 Aug 2026', 'Please re-check.'),
+        'You sent it back on 25 Aug 2026: “Please re-check.” It comes back here if the Academic Reviewer approves it again.',
+        "'You sent it back on ' + this.day(x.recheck.when) + ': “' + x.recheck.reason + '” It comes back here if the Academic Reviewer approves it again.'",
       ],
       [
-        sentBackToReviewerWhat('Kavya Nair'),
-        'Sent back to the Academic Reviewer by Kavya Nair',
-        "'Sent back to the Academic Reviewer by ' + D.cm",
+        returnedByReviewerLine('24 Aug 2026'),
+        'The Academic Reviewer returned it with a reason on 24 Aug 2026. It comes back to the Academic Reviewer when the vendor resubmits.',
+        "'The Academic Reviewer returned it with a reason' + (x.ret ? ' on ' + this.day(x.ret.when) : '') + '. It comes back to the Academic Reviewer when the vendor resubmits.'",
       ],
       [
-        sentBackToVendorWhat('Kavya Nair'),
-        'Sent back to the vendor by Kavya Nair',
-        "'Sent back to the vendor by ' + D.cm",
+        sentToVendorLine('27 Aug 2026'),
+        'You sent it back on 27 Aug 2026. It comes back to the Academic Reviewer when the vendor resubmits.',
+        "'You sent it back' + (x.ret ? ' on ' + this.day(x.ret.when) : '') + '. It comes back to the Academic Reviewer when the vendor resubmits.'",
       ],
-    ];
-    for (const [product, frame, piece] of composed) {
-      expect(product).toBe(frame);
-      expect(B6_07).toContain(piece);
-    }
-    expect(deliveryCheckLine(['WEB', 'AR'], false)).toBe('WEB · AR — incomplete');
-    // The history’s seeded entries and the reference options are on the board as written.
-    for (const phrase of [
-      submittedNote(1, 'Northline Simulation Studio'),
-      returnedByReviewerWhat('Prof. A. Menon'),
-      approvedWhat('Prof. A. Menon'),
-      approvedNote(3),
-      resubmittedWhat(2),
-      publishedWhat('Kavya Nair'),
-      publishedNote('ME ZG523', ['WEB', 'VR']),
-      quoted('Please clarify the VR device requirements.'),
+    ]);
+    for (const reference of [
       referenceWords({ step: 'course-and-description', format: null, field: 'summary' }, null),
       referenceWords({ step: 'course-and-description', format: null, field: 'description' }, null),
       referenceWords({ step: 'formats-and-delivery', format: 'web', field: 'web-link' }, 'WEB'),
@@ -244,77 +268,236 @@ describe('CM-03 Publication decision (B6-07; B6-11 f4 … f8)', () => {
       referenceWords({ step: 'formats-and-delivery', format: 'ar', field: 'install-notes' }, 'AR'),
       referenceWords({ step: 'preview-and-documents', format: null, field: 'preview-link' }, null),
     ]) {
-      expect(B6_07).toContain(asDrawn(phrase));
+      expect(MAIN).toContain(`t: '${reference}'`);
     }
+    expect(returnedByReviewerLine(null)).toBe(
+      'The Academic Reviewer returned it with a reason. It comes back to the Academic Reviewer when the vendor resubmits.',
+    );
   });
 
-  it('the undrawn forms are the register’s', () => {
+  it('the Publish dialog, the result and the stale notice', () => {
+    expectComposed([
+      [
+        publishTitle('Conduction Through a Composite Wall'),
+        'Publish “Conduction Through a Composite Wall”?',
+        "pTitle: 'Publish “' + x.name + '”?'",
+      ],
+      [
+        publishWhere(courseLabel('ME ZG523', 'Thermodynamics & Heat Transfer'), ['WEB', 'VR']),
+        'It appears in the public catalogue under ME ZG523 · Thermodynamics & Heat Transfer with WEB and VR.',
+        "'It appears in the public catalogue under ' + this.cLabel(c) + ' with ' + this.fand(x.fmts) + '.'",
+      ],
+      [
+        publishedByYou('27 Aug 2026, 16:05'),
+        'Published by you on 27 Aug 2026, 16:05',
+        "'Published by you on ' + done.when",
+      ],
+      [
+        sentBackByYou('27 Aug 2026, 16:05'),
+        'Sent back by you on 27 Aug 2026, 16:05',
+        "'Sent back by you on ' + done.when",
+      ],
+      [
+        listedUnder('ME ZG523', ['WEB', 'VR']),
+        'Listed under ME ZG523 with WEB and VR',
+        "v: 'Listed under ' + this.cShort(c) + ' with ' + this.fand(x.fmts)",
+      ],
+      [
+        withReviewer('Prof. A. Menon'),
+        'Prof. A. Menon, Academic Reviewer',
+        "{ k: 'Now with', v: 'Prof. A. Menon, Academic Reviewer' }",
+      ],
+      [
+        quoted('Please re-check.'),
+        '“Please re-check.”',
+        "doneQuote: done && done.reason ? '“' + done.reason + '”' : ''",
+      ],
+      [
+        staleLine('Conduction Through a Composite Wall', '16:05'),
+        'Conduction Through a Composite Wall was published from another tab or window at 16:05. Nothing was changed by your decision.',
+        "x.name + ' was published from another tab or window' + (this.extOf(s, id) ? ' at ' + this.extOf(s, id).when.split(', ')[1] : '') + '.'",
+      ],
+    ]);
+    expect(MAIN).toContain('{{ D.staleText }} Nothing was changed by your decision.');
     expect(formatsSentence(['WEB'])).toBe('WEB');
-    expect(formatsSentence(['WEB', 'VR'])).toBe('WEB and VR');
     expect(formatsSentence(['WEB', 'AR', 'VR'])).toBe('WEB, AR and VR');
-    expect(reviewLine('Prof. A. Menon', '27 Aug 2026', 2)).toBe(
-      'Approved by Prof. A. Menon on 27 Aug 2026 — after 2 returns with a reason',
+    expect(MAIN).toContain(
+      "fand(a) { return a.length > 1 ? a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1] : (a[0] || ''); }",
     );
-    expect(B6_07).not.toContain('returns with a reason');
+    expect(courseLabel(null, 'Process Instrumentation & Control')).toBe(
+      'Process Instrumentation & Control',
+    );
+  });
+
+  it('the history’s entries', () => {
+    for (const phrase of [
+      submittedNote(1, 'Northline Simulation Studio'),
+      returnedByReviewerWhat('Prof. A. Menon'),
+      approvedWhat('Prof. A. Menon'),
+      approvedNote(3),
+      resubmittedWhat(2),
+      quoted('Please clarify the VR device requirements.'),
+    ]) {
+      expect(MAIN).toContain(phrase);
+    }
+    expectComposed([
+      [publishedWhat('Kavya Nair'), 'Published by Kavya Nair', "what: 'Published by Kavya Nair'"],
+      [
+        publishedNote(courseLabel('ME ZG523', 'Thermodynamics & Heat Transfer'), ['WEB', 'VR']),
+        'In the public catalogue under ME ZG523 · Thermodynamics & Heat Transfer with WEB and VR. No one was given access.',
+        "note: 'In the public catalogue under ' + this.cLabel(c) + ' with ' + this.fand(x.fmts) + '. No one was given access.'",
+      ],
+      [
+        sentBackToReviewerWhat('Kavya Nair'),
+        'Sent back to the Academic Reviewer by Kavya Nair',
+        "what: 'Sent back to the Academic Reviewer by Kavya Nair'",
+      ],
+      [
+        sentBackToVendorWhat('Kavya Nair'),
+        'Sent back to the vendor by Kavya Nair',
+        "what: 'Sent back to the vendor by Kavya Nair'",
+      ],
+      [
+        sentBackToVendorNote('Add the temperatures.', ['Course & description · Summary']),
+        '“Add the temperatures.” Refers to: Course & description · Summary.',
+        "note: '“' + reason + '”' + (refs.length ? ' Refers to: ' + refs.join('; ') + '.' : '')",
+      ],
+    ]);
+    expect(sentBackToVendorNote('Add the temperatures.', [])).toBe('“Add the temperatures.”');
   });
 });
 
-describe('CM-05 Published experiment (B6-08; B6-11 f9)', () => {
-  it.each(strings(PUBLISHED_PAGE))('“%s” is on B6-08', (phrase) => {
-    expect(B6_08).toContain(asDrawn(phrase));
+describe('CM-05 Published experiment (CM-v1 `v.published`, `pubVM`)', () => {
+  it.each(strings([PUBLISHED_PAGE, CORRECTIONS_PANEL]))('“%s” is drawn by the export', (phrase) => {
+    expect(MAIN).toContain(phrase);
   });
 
-  it('the composed words are B6-08’s: its frames’ words, from its script’s own pieces', () => {
-    for (const phrase of [
-      versionReleasedWhat('1.2'),
-      versionReleasedNote('UPD-0002', true),
-      versionReleasedNote('UPD-0001', false),
-      firstPublishedWhat('1.0'),
-      updateInProgressLine('draft', '1.2'),
-      updateInProgressLine('in-academic-review', '1.2'),
-      updateInProgressLine('awaiting-release-decision', '1.2'),
-    ]) {
-      expect(B6_08).toContain(asDrawn(phrase));
-    }
-    const composed: readonly (readonly [string, string, string])[] = [
+  it('the band, the live entry and the corrections fact', () => {
+    expectComposed([
       [
-        publishedOverline('CHE ZG513', '1.2'),
-        'CHE ZG513 · Published · version 1.2',
-        "D.dist.course + ' · Published · version ' + L.ver",
+        publishedOverline('CHE ZG513'),
+        'CHE ZG513 · Published experiment',
+        "over: this.cShort(c) + ' · Published experiment'",
+      ],
+      [versionAfterFormats('1.2'), '· version 1.2', '<span>· version {{ P.ver }}</span>'],
+      [
+        liveVersionLine('1.2', '3 Jul 2026'),
+        '1.2, since 3 Jul 2026',
+        '<dd>{{ P.ver }}, since {{ P.since }}</dd>',
       ],
       [
-        liveSinceLine('3 Jul 2026', 'Meridian Virtual Labs'),
-        'Live since 3 Jul 2026 · Meridian Virtual Labs',
-        'Live since {{ m.lSince }} · Meridian Virtual Labs',
+        correctionNamed('UPD-0004', 'On hold'),
+        'UPD-0004 · On hold',
+        "const corrFact = u ? u.id + ' · ' + label",
       ],
       [
-        updateInProgressTitle('UPD-0005', 'In academic review'),
-        'An update is in progress — UPD-0005 · In academic review',
-        "'An update is in progress — ' + (u ? u.id + ' · ' + D.stw[ust] : '')",
+        correctionsReleased(2),
+        '2 corrections released',
+        "this.plural(nRel, 'correction') + ' released'",
+      ],
+      [
+        courseLabel('CHE ZG513', 'Process Instrumentation & Control'),
+        'CHE ZG513 · Process Instrumentation & Control',
+        "v: c.code ? c.code + ' · ' + c.name : c.name",
+      ],
+    ]);
+    expect(correctionsReleased(1)).toBe('1 correction released');
+  });
+
+  it('the Corrections panel’s lines by the open update’s state', () => {
+    expect(MAIN).toContain("const lead = u ? u.id + ' · ' + label + '. ' : '';");
+    expectComposed([
+      [
+        updateProgressLine('UPD-0005', 'Draft', 'draft', '1.2'),
+        'UPD-0005 · Draft. Edits to this experiment join that update.',
+        "'Edits to this experiment join that update.'",
+      ],
+      [
+        updateProgressLine('UPD-0006', 'Returned', 'returned', '1.0'),
+        'UPD-0006 · Returned. It was returned to you with a reason. Edits to this experiment join that update.',
+        "'It was returned to you with a reason. Edits to this experiment join that update.'",
+      ],
+      [
+        updateProgressLine('UPD-0005', 'In academic review', 'in-academic-review', '1.2'),
+        'UPD-0005 · In academic review. It is with the Academic Reviewer. You can start another correction once it is decided.',
+        "'It is with the Academic Reviewer. You can start another correction once it is decided.'",
+      ],
+      [
+        updateProgressLine(
+          'UPD-0003',
+          'Awaiting release decision',
+          'awaiting-release-decision',
+          '1.0',
+        ),
+        'UPD-0003 · Awaiting release decision. The Academic Reviewer approved it. The Super Admin decides when to release it. Version 1.0 stays live.',
+        "'The Academic Reviewer approved it. The Super Admin decides when to release it. Version ' + e.ver + ' stays live.'",
+      ],
+      [
+        updateProgressLine('UPD-0004', 'On hold', 'on-hold', '2.0'),
+        'UPD-0004 · On hold. The Super Admin put it on hold. Version 2.0 stays live.',
+        "'The Super Admin put it on hold. Version ' + e.ver + ' stays live.'",
+      ],
+    ]);
+  });
+
+  it('the released notice and the history', () => {
+    expectComposed([
+      [
+        releasedTitle('1.1'),
+        'Version 1.1 is live',
+        "relTitle: rel ? 'Version ' + e.ver + ' is live' : ''",
+      ],
+      [
+        releasedLine('UPD-0003', '27 Aug 2026', '1.0'),
+        'The Super Admin released UPD-0003 on 27 Aug 2026. The history keeps version 1.0 and every decision. Nobody’s access changed.',
+        "'The Super Admin released ' + rel.id + ' on ' + this.day(rel.rel.when) + '. The history keeps version ' + rel.from + ' and every decision. Nobody’s access changed.'",
       ],
       [
         updateStartedWhat('UPD-0005', 'In academic review'),
         'UPD-0005 started — in academic review',
-        "u.id + ' started — ' + D.stw[ust].toLowerCase()",
+        "what: u.id + ' started — ' + label.toLowerCase()",
       ],
       [
         updateStartedNote('1.3'),
         'Version 1.3. The live version below is unchanged.',
-        "'Version ' + (T(u.ver) || 'not set') + '. The live version below is unchanged.'",
+        "note: 'Version ' + (this.T(u.ver) || 'not set yet') + '. The live version below is unchanged.'",
+      ],
+      [updateHeldWhat('UPD-0004'), 'UPD-0004 on hold', "what: u.id + ' on hold'"],
+      [
+        updateHeldNote('2.0', 'Hold until the vendor fixes it.'),
+        'Version 2.0 stays live. Reason: “Hold until the vendor fixes it.”',
+        "note: 'Version ' + e.ver + ' stays live. Reason: “' + u.hold.reason + '”'",
       ],
       [
-        updateInProgressLine('on-hold', '2.0'),
-        'The Super Admin put it on hold. Version 2.0 stays live.',
-        "'The Super Admin put it on hold. Version ' + L.ver + ' stays live.'",
+        versionReleasedWhat('1.1'),
+        'Version 1.1 released',
+        "what: 'Version ' + e.ver + ' released'",
       ],
-    ];
-    for (const [product, frame, piece] of composed) {
-      expect(product).toBe(frame);
-      expect(B6_08).toContain(piece);
-    }
-    expect(updateInProgressLine('returned', '1.0')).toBe(updateInProgressLine('draft', '1.0'));
-    expect(updateStartedNote(null)).toBe('Version not set. The live version below is unchanged.');
-    expect(liveSinceLine('18 Jun 2026', '')).toBe('Live since 18 Jun 2026');
+      [
+        versionReleasedNote('UPD-0003', true),
+        'Correction UPD-0003 — released by the Super Admin.',
+        "note: 'Correction ' + u.id + ' — released by the Super Admin.'",
+      ],
+      [
+        versionReleasedNote('UPD-0001', false),
+        'Correction UPD-0001.',
+        "note: 'Correction UPD-0001.'",
+      ],
+      [firstPublishedWhat('1.0'), 'Published · version 1.0', "what: 'Published · version 1.0'"],
+      [
+        firstPublishedNote('SUB-0052'),
+        'First publication by the Content Manager, from SUB-0052.',
+        "note: 'First publication by the Content Manager, from SUB-0052.'",
+      ],
+      [
+        firstPublishedNote(null),
+        'First publication by the Content Manager.',
+        "note: 'First publication by the Content Manager.'",
+      ],
+    ]);
+    expect(updateStartedNote(null)).toBe(
+      'Version not set yet. The live version below is unchanged.',
+    );
   });
 });
 
@@ -332,19 +515,28 @@ describe('the CM-03 / CM-05 state-copy entries', () => {
     }
   });
 
-  it('the undrawn words are not on the boards', () => {
+  it('the undrawn words are not the export’s', () => {
     for (const id of [
       'CM-03.loading',
       'CM-03.failed',
-      'CM-03.published.view',
-      'CM-03.stale.title',
+      'CM-03.published-by',
+      'CM-03.stale.changed',
       'CM-03.moved-on',
+      'CM-03.unavailable.publish',
+      'CM-03.unavailable.send',
       'CM-05.loading',
       'CM-05.failed',
     ] as const) {
-      const text = STATE_COPY_CM_DECISION[id].words;
-      expect(B6_07).not.toContain(text);
-      expect(B6_08).not.toContain(text);
+      const words = STATE_COPY_CM_DECISION[id].words;
+      expect(MAIN).not.toContain(
+        words
+          .replace(/\{\w+\}/g, '')
+          .trim()
+          .slice(0, 24),
+      );
     }
+    expect(staleLine('Transient Cooling', null)).toBe(
+      'Transient Cooling was changed from another tab or window. Nothing was changed by your decision.',
+    );
   });
 });

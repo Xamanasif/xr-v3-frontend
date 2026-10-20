@@ -6,6 +6,7 @@ import {
   ACCOUNT,
   allContent,
   button,
+  cmChip,
   COMPOSITE,
   decision,
   EMAIL,
@@ -85,6 +86,8 @@ const CORRECTED_SUMMARY =
 const WHY =
   'The summary now says what the Student measures: the overall heat-transfer coefficient.';
 const HOLD_REASON = 'Version 1.0 stays live while the new summary is checked.';
+/** CM-08's H1 for Shell-and-Tube's correction (V3, CM-v1: the live experiment's name). */
+const UPDATE_TITLE = `Update to ${SHELL}`;
 const RETURN_REASON = 'Please name the readings the coefficient is found from.';
 const WITHDRAW_REASON = 'Raised by mistake — the vendor is rewriting the summary first.';
 
@@ -93,6 +96,13 @@ const chip = (page: Page) => main(page).locator('.xr-phead-meta .xr-status');
 const vendorChip = (page: Page) => main(page).locator('.rk-head .rk-meta .xr-st');
 const field = (page: Page, label: string) =>
   main(page).getByRole('textbox', { name: label, exact: true });
+/** CM-08's labels (V3, CM-v1): what changes and why, and the version label, both required to send. */
+const WHY_FIELD = 'Reason for the change (required to send)';
+const VERSION_FIELD = 'New version label (required to send)';
+/** CM-03's result after a decision (V3, CM-v1: `#cm-d-done`, focused). */
+const cmDone = (page: Page) => page.locator('#cm-d-done');
+/** CM-08's state notice in the “Your update” panel (V3, CM-v1: `#cm-u-state`). */
+const cmState = (page: Page) => page.locator('#cm-u-state');
 const rows = (page: Page) => main(page).locator('table.xr-table tbody tr');
 
 // The Super Admin's V3 screens (SA-v1): the kit's page head, record table and status chips.
@@ -189,22 +199,34 @@ async function approveComposite(page: Page): Promise<void> {
   await signOut(page, ACCOUNT.menon);
 }
 
-/** E4's screens (CM-02 → CM-03): Kavya Nair opens SUB-0077's decision and chooses Send back. */
+/**
+ * A press inside a V3 decision panel (CM-03, CM-v1): on wide screens the panel is sticky and, when
+ * taller than the window, scrolls on its own; the person brings the control into view first.
+ */
+async function inPanel(page: Page, target: Locator): Promise<void> {
+  await target.scrollIntoViewIfNeeded();
+  await reachAndClick(page, target);
+}
+
+/**
+ * E4's screens (CM-02 → CM-03): Kavya Nair opens SUB-0077's decision and chooses Send back. CM-03
+ * (V3, CM-v1) sends back inline in its “Your decision” panel (no dialog): answers the panel.
+ */
 async function openSendBack(page: Page): Promise<Locator> {
   await startAs(page, 'kavya');
   await sidebar(page, '/content-manager/ready');
   await reachAndClick(
     page,
-    main(page).getByRole('link', { name: `Open decision for ${COMPOSITE}` }),
+    main(page).getByRole('link', { name: `Open the publication decision for ${COMPOSITE}` }),
   );
   await page.waitForURL(`**/content-manager/decisions/${SUB}`);
   await expect(h1(page)).toHaveText(COMPOSITE);
-  await expect(chip(page)).toHaveText('Ready to publish');
-  await reachAndClick(page, decision(page).getByRole('radio', { name: /^Send back/ }));
-  await reachAndClick(page, decision(page).getByRole('button', { name: 'Send back' }));
-  const dialog = page.getByRole('dialog', { name: 'Send it back?' });
-  await expect(dialog).toBeVisible();
-  return dialog;
+  await expect(cmChip(page)).toHaveText('Ready to publish');
+  const panel = decision(page);
+  await inPanel(page, panel.getByRole('radio', { name: 'Send back' }));
+  await expect(panel.getByRole('group', { name: /^Send it to/ })).toBeVisible();
+  await expect(panel.getByRole('button', { name: 'Send back' })).toBeVisible();
+  return panel;
 }
 
 /** VE-02 → VE-07: Anil Shetty signs in and opens his own record of SUB-0077. */
@@ -228,14 +250,15 @@ async function sendShellCorrection(page: Page): Promise<{ id: string; live: stri
   await reachAndClick(page, button(page, 'Edit catalogue details'));
   await page.waitForURL(/\/content-manager\/updates\/UPD-\d{4}\?focus=summary$/);
   const id = /UPD-\d{4}/.exec(page.url())![0];
-  await expect(h1(page)).toHaveText('Update to version …');
+  // CM-08 (V3, CM-v1): the H1 names the live experiment, “Update to …”.
+  await expect(h1(page)).toHaveText(UPDATE_TITLE);
   const summary = field(page, 'Summary');
   await expect(summary).toBeFocused();
   await expect(summary).not.toHaveValue('');
   const live = await summary.inputValue();
   await retype(summary, CORRECTED_SUMMARY);
-  await field(page, 'What changes and why').fill(WHY);
-  await field(page, 'Version label').fill('1.1');
+  await field(page, WHY_FIELD).fill(WHY);
+  await field(page, VERSION_FIELD).fill('1.1');
   await reachAndClick(page, button(page, 'Save draft'));
   await expect(main(page).locator('#cm-u-saved')).toContainText('the live version is unchanged');
   await sendForReview(page);
@@ -253,15 +276,18 @@ async function reviewShellCorrection(page: Page, id: string): Promise<void> {
   await expect(chip(page)).toHaveText('Waiting for your decision');
 }
 
-/** CM Updates → CM-08: the Content Manager (signed in) opens the update from her list. */
+/**
+ * CM Updates → CM-08: the Content Manager (signed in) opens the update from her list. CM-08 (V3,
+ * CM-v1): a card's action is named “Open|Continue <id>, <name>, <status>”.
+ */
 async function openUpdate(page: Page, id: string): Promise<void> {
   await sidebar(page, '/content-manager/updates');
   await reachAndClick(
     page,
-    main(page).getByRole('link', { name: new RegExp(`^(Open|Continue) ${id} ${SHELL}$`) }),
+    main(page).getByRole('link', { name: new RegExp(`^(Open|Continue) ${id}, ${SHELL}, `) }),
   );
   await page.waitForURL(`**/content-manager/updates/${id}`);
-  await expect(h1(page)).toHaveText('Update to version 1.1');
+  await expect(h1(page)).toHaveText(UPDATE_TITLE);
 }
 
 /** From the signed-out card to Shell-and-Tube's public page (PU-04 → PU-06). */
@@ -281,25 +307,25 @@ test('E-alt1 · the Content Manager sends an approved submission back to the Aca
   await submitComposite(page);
   await approveComposite(page);
 
-  // CM-03 → DL-2: nobody chosen and no reason — both errors at once, nothing is sent.
-  const dialog = await openSendBack(page);
-  await reachAndClick(page, dialog.getByRole('button', { name: 'Send back' }));
-  await expect(dialog.locator('.xr-error')).toHaveText([
+  // CM-03 Send back (inline in the panel, V3): nobody chosen and no reason — both errors at once,
+  // nothing is sent.
+  const panel = await openSendBack(page);
+  await inPanel(page, panel.getByRole('button', { name: 'Send back' }));
+  await expect(panel.locator('.rk-ferr')).toHaveText([
     'Choose who it goes back to',
     'Add a reason so they know what to change',
   ]);
-  await expect(chip(page)).toHaveText('Ready to publish');
-  await reachAndClick(page, dialog.getByRole('radio', { name: /^Academic Reviewer/ }));
+  await expect(cmChip(page)).toHaveText('Ready to publish');
+  await inPanel(page, panel.getByRole('radio', { name: 'Academic Reviewer' }));
   await type(
-    dialog.getByRole('textbox', { name: 'Reason the Academic Reviewer will see' }),
+    panel.getByRole('textbox', { name: 'Reason the Academic Reviewer will see (required)' }),
     RECHECK_REASON,
   );
-  await reachAndClick(page, dialog.getByRole('button', { name: 'Send back' }));
-  await expect(dialog).toBeHidden();
-  await expect(page.locator('#cm-cdec .xr-status--wait')).toHaveText(
-    'Sent back to the Academic Reviewer',
-  );
-  await expect(chip(page)).toHaveText('Back with the Academic Reviewer');
+  await inPanel(page, panel.getByRole('button', { name: 'Send back' }));
+  await expect(cmDone(page)).toBeFocused({ timeout: 30_000 });
+  await expect(cmDone(page).locator('.rk-done-meta')).toHaveText(/^Sent back by you on /);
+  await expect(cmDone(page).locator('.xr-st')).toHaveText('Back with the Academic Reviewer');
+  await expect(cmChip(page)).toHaveText('Back with the Academic Reviewer');
   await signOut(page, ACCOUNT.kavya);
 
   // VE-07: “With Academic Reviewer” — nothing is needed from Anil; the reason is not his to read.
@@ -337,25 +363,22 @@ test('E-alt2 · the Content Manager returns an approved submission to the Vendor
   await submitComposite(page);
   await approveComposite(page);
 
-  // CM-03 → DL-2 to the vendor: the reason is required (the references are optional).
-  const dialog = await openSendBack(page);
-  await reachAndClick(page, dialog.getByRole('radio', { name: /^Vendor/ }));
-  await reachAndClick(page, dialog.getByRole('button', { name: 'Send back' }));
-  await expect(dialog.locator('.xr-error')).toHaveText([
-    'Add a reason so they know what to change',
-  ]);
-  const reason = dialog.getByRole('textbox', { name: 'Reason the vendor will see' });
+  // CM-03 Send back to the vendor (inline in the panel, V3): the reason is required (the
+  // references are optional).
+  const panel = await openSendBack(page);
+  await inPanel(page, panel.getByRole('radio', { name: 'Vendor' }));
+  await inPanel(page, panel.getByRole('button', { name: 'Send back' }));
+  await expect(panel.locator('.rk-ferr')).toHaveText(['Add a reason so they know what to change']);
+  const reason = panel.getByRole('textbox', { name: 'Reason the vendor will see (required)' });
   await expect(reason).toHaveAttribute('aria-invalid', 'true');
-  await expect(chip(page)).toHaveText('Ready to publish');
+  await expect(cmChip(page)).toHaveText('Ready to publish');
   await type(reason, VENDOR_REASON);
-  await reachAndClick(
-    page,
-    dialog.getByRole('checkbox', { name: 'Course & description · Summary' }),
-  );
-  await reachAndClick(page, dialog.getByRole('button', { name: 'Send back' }));
-  await expect(dialog).toBeHidden();
-  await expect(page.locator('#cm-cdec .xr-status--wait')).toHaveText('Sent back to the vendor');
-  await expect(chip(page)).toHaveText('With the vendor');
+  await inPanel(page, panel.getByRole('checkbox', { name: 'Course & description · Summary' }));
+  await inPanel(page, panel.getByRole('button', { name: 'Send back' }));
+  await expect(cmDone(page)).toBeFocused({ timeout: 30_000 });
+  await expect(cmDone(page).locator('.rk-done-meta')).toHaveText(/^Sent back by you on /);
+  await expect(cmDone(page).locator('.xr-st')).toHaveText('With the vendor');
+  await expect(cmChip(page)).toHaveText('With the vendor');
   await signOut(page, ACCOUNT.kavya);
 
   // VE-07: “Returned”, with the Content Manager's reason and reference; VE-08 shows it too.
@@ -529,11 +552,14 @@ test('Hold and Lift hold · a held correction goes back to waiting for the Super
   // CM-08: Kavya reads “On hold” and the Super Admin's reason.
   await startAs(page, 'kavya');
   await openUpdate(page, id);
-  await expect(chip(page)).toHaveText('On hold');
-  await expect(main(page).locator('.xr-notice--warn')).toHaveText(
-    /On hold\s*The Super Admin put this update on hold\. The live version stays as it is\./,
+  await expect(cmChip(page)).toHaveText('On hold');
+  await expect(cmState(page)).toHaveClass(/rk-notice--paused/);
+  await expect(cmState(page).locator('.rk-notice-t')).toHaveText('On hold');
+  await expect(cmState(page)).toContainText(
+    /The Super Admin put this update on hold on \d{1,2} [A-Z][a-z]{2} 2026\. Version 1\.0 stays live\./,
   );
-  await expect(main(page).locator('.xr-tl-note').first()).toContainText(`“${HOLD_REASON}”`);
+  await expect(cmState(page)).toContainText(`Reason: “${HOLD_REASON}”`);
+  await expect(main(page).locator('.rk-tl-n').first()).toContainText(`“${HOLD_REASON}”`);
   await signOut(page, ACCOUNT.kavya);
 
   // SA-10 On hold → SA-11: Lift hold → waiting for his decision again; Release offered again.
@@ -613,16 +639,16 @@ test('F-alt return · the Academic Reviewer returns a correction to the Content 
   // CM-08: “Returned”, the reviewer's reason first, and the correction hers to change again.
   await startAs(page, 'kavya');
   await openUpdate(page, id);
-  await expect(chip(page)).toHaveText('Returned');
+  await expect(cmChip(page)).toHaveText('Returned');
   const returned = region(page, 'Returned by the Academic Reviewer');
   await expect(returned.getByRole('heading', { level: 2 })).toHaveText(
     'Returned by the Academic Reviewer',
   );
   await expect(returned).toContainText('Prof. A. Menon');
-  await expect(returned.locator('blockquote')).toHaveText(RETURN_REASON);
+  await expect(returned.locator('blockquote p').first()).toHaveText(RETURN_REASON);
   await expect(field(page, 'Summary')).toHaveValue(CORRECTED_SUMMARY);
   await expect(button(page, 'Send for academic review')).toBeVisible();
-  await checkState(page, 'Update to version 1.1');
+  await checkState(page, UPDATE_TITLE);
   await signOut(page, ACCOUNT.kavya);
 });
 
@@ -645,22 +671,23 @@ test('F-alt withdraw · the Content Manager withdraws a correction in academic r
   // CM-08 → DL-2: Withdraw needs a reason; withdrawn, “Withdrawn”, nothing left to do.
   await startAs(page, 'kavya');
   await openUpdate(page, id);
-  await expect(chip(page)).toHaveText('In academic review');
+  await expect(cmChip(page)).toHaveText('In academic review');
   await reachAndClick(page, button(page, 'Withdraw update'));
-  const dialog = page.getByRole('dialog', { name: 'Withdraw this update?' });
+  const dialog = page.getByRole('dialog', { name: `Withdraw ${id}?` });
   await expect(dialog).toContainText('Nothing changes in the live version.');
   await reachAndClick(page, dialog.getByRole('button', { name: 'Withdraw update' }));
   await expect(dialog).toContainText('Add a reason for withdrawing this update');
-  await expect(chip(page)).toHaveText('In academic review');
-  await type(dialog.getByLabel('Reason'), WITHDRAW_REASON);
+  await expect(cmChip(page)).toHaveText('In academic review');
+  await type(dialog.getByLabel('Reason (required)'), WITHDRAW_REASON);
   await reachAndClick(page, dialog.getByRole('button', { name: 'Withdraw update' }));
   await expect(dialog).toBeHidden();
-  await expect(chip(page)).toHaveText('Withdrawn');
-  await expect(main(page).locator('.xr-notice--quiet')).toContainText(
-    `“${WITHDRAW_REASON}” The live version is unchanged.`,
-  );
+  await expect(cmChip(page)).toHaveText('Withdrawn');
+  // The withdrawn notice (V3: `#cm-u-state`, quiet): the reason, and the live version unchanged.
+  await expect(cmState(page)).toHaveClass(/rk-notice--off/);
+  await expect(cmState(page)).toContainText(`Reason: “${WITHDRAW_REASON}”`);
+  await expect(cmState(page)).toContainText('The live version is unchanged.');
   await expect(main(page).getByRole('button')).toHaveCount(0);
-  await checkState(page, 'Update to version 1.1');
+  await checkState(page, UPDATE_TITLE);
   await signOut(page, ACCOUNT.kavya);
 
   // The public page keeps the live version.

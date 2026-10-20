@@ -11,6 +11,7 @@ import {
   assertNoAxeViolations,
   expectRenderedAsV3Drawn,
   expectV3ClassesOnly,
+  cmExportText,
   saExportText,
   v3BoardText,
   veExportText,
@@ -35,7 +36,7 @@ const XS_FILES = [
 ];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board, the XS export, the SA export or the VE export draws', () => {
+  it('every icon is a path a V3 board or the XS, SA, VE or CM export draws', () => {
     const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
       '\n',
     );
@@ -43,11 +44,14 @@ describe('V3 icons', () => {
     const saSprite = saExportText('sa-core.js');
     // The Vendor export (VE-v1) keeps its glyphs as `<symbol id="vei-…">` in its live root.
     const veSprite = veExportText('Main.dc.html');
+    // The Content Manager export (CM-v1) does the same with its `<symbol id="cmi-…">`.
+    const cmSprite = cmExportText('Main.dc.html');
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
       expect(
         drawn.includes(`d="${path}"`) ||
           saSprite.includes(`', '${path}']`) ||
-          veSprite.includes(`<path d="${path}"></path></symbol>`),
+          veSprite.includes(`<path d="${path}"></path></symbol>`) ||
+          cmSprite.includes(`<path d="${path}"></path></symbol>`),
         name,
       ).toBe(true);
     }
@@ -57,7 +61,7 @@ describe('V3 icons', () => {
     const shared = Object.entries(V3_ICON_PATHS).filter(([, path]) =>
       Object.values(ICON_PATHS).includes(path as never),
     );
-    expect(shared.length).toBe(29);
+    expect(shared.length).toBe(34);
   });
 
   it('renders the core.css icon, decorative', () => {

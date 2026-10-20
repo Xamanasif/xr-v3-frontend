@@ -43,6 +43,14 @@ export const button = (page: Page, name: string) =>
   main(page).getByRole('button', { name, exact: true });
 export const decision = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
 export const region = (page: Page, name: string) => page.getByRole('region', { name });
+/**
+ * The Content Manager's V3 pages (CM-v1): the status pill in the identity band of CM-03, CM-05 and
+ * CM-08 (`section.rb-id.cm-idband` > `div.rb-id-status` > `span.xr-st`).
+ */
+export const cmChip = (page: Page) =>
+  main(page).locator('section.cm-idband .rb-id-status > .xr-st');
+/** A name as a pattern, its characters literal. */
+export const literally = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /** Signs in on the sign-in card the page is on (the sample sign-in, P1-01). */
 export async function signIn(page: Page, email: string): Promise<void> {
@@ -224,25 +232,37 @@ export async function myDevice(page: Page): Promise<void> {
   await page.waitForURL('**/student/device');
 }
 
-/** CM-04 Published tab → CM-05, for the Content Manager (signed in). */
+/**
+ * CM-04 Published view → CM-05, for the Content Manager (signed in). CM-04 (V3, CM-v1): the views
+ * are buttons in “Show experiments that are”; a row's link is named by the experiment, its course,
+ * version and status (“<name>, <code>, version 1.0, published. Open the published experiment”).
+ */
 export async function openPublished(page: Page, name: string, id = SHELL_ID): Promise<void> {
   await sidebar(page, '/content-manager/library');
-  const tab = page.getByRole('tab', { name: /^Published/ });
-  await tab.scrollIntoViewIfNeeded();
-  await reachAndClick(page, tab);
+  const view = page
+    .getByRole('group', { name: 'Show experiments that are' })
+    .getByRole('button', { name: /^Published/ });
+  await view.scrollIntoViewIfNeeded();
+  await reachAndClick(page, view);
   await page.waitForURL(/\/content-manager\/library\?tab=published$/);
-  await reachAndClick(page, main(page).getByRole('link', { name: `Open ${name}` }));
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', {
+      name: new RegExp(`^${literally(name)}, .*Open the published experiment$`),
+    }),
+  );
   await page.waitForURL(`**/content-manager/published/${id}`);
   await expect(h1(page)).toHaveText(name);
 }
 
-/** CM-08: sends the draft correction for academic review (DL-1). */
+/** CM-08: sends the draft correction for academic review (DL-1; V3: “Send UPD-… for academic review?”). */
 export async function sendForReview(page: Page): Promise<void> {
+  const id = /UPD-\d{4}/.exec(page.url())![0];
   await reachAndClick(page, button(page, 'Send for academic review'));
-  const send = page.getByRole('dialog', { name: 'Send for academic review?' });
+  const send = page.getByRole('dialog', { name: `Send ${id} for academic review?` });
   await reachAndClick(page, send.getByRole('button', { name: 'Send for academic review' }));
   await expect(send).toBeHidden();
-  await expect(main(page).locator('.xr-phead-meta .xr-status')).toHaveText('In academic review');
+  await expect(cmChip(page)).toHaveText('In academic review');
 }
 
 /** SA-10 → SA-11 for the update whose row matches `title`, for the Super Admin (signed in). */

@@ -438,10 +438,13 @@ test.describe('SA-11 Release or hold an update', () => {
     // The Content Manager's published experiment (CM-05) reads version 1.3 and its description.
     await switchIdentity(page, KAVYA);
     await softNavigate(page, '/content-manager/published/distillation-column');
-    await expect(main(page).locator('.xr-overline')).toHaveText(
-      'CHE ZG513 · Published · version 1.3',
-      { timeout: 90_000 },
-    );
+    // CM-05 (V3, CM-v1): the identity band's eyebrow names the course and the page; its status
+    // names the live version.
+    const band = main(page).locator('section.rb-id.cm-idband');
+    await expect(band.locator('.rk-eyebrow')).toHaveText('CHE ZG513 · Published experiment', {
+      timeout: 90_000,
+    });
+    await expect(band.locator('.rb-id-status .cm-ver-live')).toHaveText('1.3 live');
     await expect(main(page)).toContainText(
       'Raising the reflux ratio raises the overhead purity, at the cost of more reboiler heat.',
     );

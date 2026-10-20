@@ -1,0 +1,24 @@
+[
+ {
+  "fs": 12,
+  "cls": "sc-interp",
+  "samples": [
+   "WEB",
+   "AR",
+   "VR",
+   "MR"
+  ],
+  "pages": 52
+ },
+ {
+  "fs": 12.5,
+  "cls": "sc-interp",
+  "samples": [
+   "WEB",
+   "VR",
+   "AR",
+   "MR"
+  ],
+  "pages": 34
+ }
+]

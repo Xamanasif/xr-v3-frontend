@@ -95,6 +95,21 @@ export function veLinkMap(): {
   return JSON.parse(readFileSync(join(VE_EXPORT_DIRECTORY, '..', 'LINK-MAP.json'), 'utf8'));
 }
 
+/** The owner-approved Content Manager export (CM-v1), read only: its live role root and sheet. */
+export const CM_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'CM-v1',
+  'project',
+);
+
+/** A CM export file's source (`Main.dc.html`, `cm.css`, …), by file name. */
+export function cmExport(file: string): string {
+  return readFileSync(join(CM_EXPORT_DIRECTORY, file), 'utf8');
+}
+
 /** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
 export function xsContract(): {
   readonly components: readonly {

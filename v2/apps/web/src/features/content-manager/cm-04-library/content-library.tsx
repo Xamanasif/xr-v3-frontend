@@ -1,123 +1,258 @@
 'use client';
 
-import type { libraryOutput, Out } from '@xr/contracts/draft';
-import { Icon, Link, ListToolbar, PageContent, PageHeader, StatusTabs } from '@xr/ui';
-import { useId, useState } from 'react';
+import type { libraryOutput, Out, platformCodesOutput } from '@xr/contracts/draft';
+import {
+  Button,
+  type CmCourseGroup,
+  CmFormatBadges,
+  CmLibraryLayout,
+  type CmLibraryRow,
+  CmLibraryTable,
+  CmPageHead,
+  CmStageLine,
+  CmStatusCell,
+  type CmOwnerTone,
+  CmViewSwitch,
+  type Figure,
+  FilterToolbar,
+  ListFoot,
+  ListState,
+  LoadingRows,
+  Surface,
+  type ToolbarChip,
+} from '@xr/ui/v3';
+import { useRef, useState } from 'react';
 
 import {
-  approvedWhere,
+  acrossCourses,
   CONTENT_LIBRARY,
+  courseBandCount,
+  courseChip,
+  courseLabel,
+  formatsLabel,
+  fromSubmission,
+  libraryCaption,
   libraryCountWords,
-  newSubmissionWhere,
-  openDecisionLabel,
-  openLabel,
-  openUpdateTag,
-  overrideWhere,
-  publishedWhere,
-  recheckWhere,
-  returnedByReviewerWhere,
-  revisionWhere,
-  sentBackWhere,
+  libraryPanelLabel,
+  LIST_FAILED,
+  noMatchTitle,
+  onTheWayDetail,
+  overrideTag,
+  publishedRowLabel,
+  revisionWords,
+  rowToResolve,
+  searchChip,
+  submissionRowLabel,
+  versionWords,
 } from '@/copy/cm-lists';
+import { CM_SUBMISSION_STATUS } from '@/copy/cm-shared';
+import { dayMonthYear } from '@/copy/dates';
 import { stateWords } from '@/copy/state-copy';
 import {
   CONTENT_LIBRARY_TITLE,
   contentLibraryPlacement,
   LIBRARY_TABS,
-  libraryAddress,
   type LibraryTab,
   libraryTabOf,
   publicationDecisionAddress,
   publishedExperimentAddress,
 } from '@/nav/content-manager';
 import { useAppNavigation } from '@/nav/navigation';
-import { useContentLibrary, useReadyToPublish } from '@/queries/production';
+import { useContentLibrary, usePlatformCourseCodes, useReadyToPublish } from '@/queries/production';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import {
+  formatCodes,
+  libraryCourseOf,
+  libraryViewAddress,
+  useToday,
+} from '../cm-02-ready/list-facts';
 import { openChecks } from '../cm-02-ready/ready-to-publish';
-import { FormatChips, LoadFailed, LoadingRows, useRetryFocus } from '../cm-02-ready/list-parts';
+import { lastApproval } from '../shared/records';
+import { cmSubmissionPill, cmUpdateTone } from '../shared/status';
 
 type Library = Out<typeof libraryOutput>;
 type LibraryRow = Library['rows'][number];
 type SubmissionRow = Extract<LibraryRow, { kind: 'submission' }>;
+type ExperimentRow = Extract<LibraryRow, { kind: 'experiment' }>;
+type Course = Out<typeof platformCodesOutput>[number]['course'];
 
-/** “Where it is” for a submission row (state-copy `CM-04.where-it-is`). */
-export function submissionWhere(row: SubmissionRow, blockers: number): string {
-  const { status, revision } = row.submission;
+const TITLE_ID = 'cm-h-library';
+const SEARCH_ID = 'cm-lib-q';
+const COURSE_ID = 'cm-lib-course';
+const ALL = 'all';
+
+const OWNER_TONE: Readonly<Record<LibraryTab, CmOwnerTone>> = {
+  ready: 'you',
+  'in-review': 'other',
+  'with-vendor': 'vendor',
+  published: 'live',
+};
+
+/**
+ * The line under a submission's status in "Where it is" (the export's `x.tag`): how it came to be
+ * with the Academic Reviewer or the vendor. A resubmission has none (state-copy `CM-04.resubmitted`).
+ */
+export function submissionTag(row: SubmissionRow): string | null {
+  const { status } = row.submission;
   switch (status.state) {
-    case 'with-content-manager':
-      return approvedWhere(row.approvedAt ?? status.since, blockers);
     case 'with-academic-reviewer':
-      if (status.reason === 'recheck') return recheckWhere(status.since);
-      if (status.reason === 'resubmission') return revisionWhere(revision);
-      return newSubmissionWhere(status.since);
-    case 'resubmitted':
-      return revisionWhere(revision);
+      if (status.reason === 'recheck') return CONTENT_LIBRARY.tags.recheck;
+      if (status.reason === 'resubmission') return null;
+      return CONTENT_LIBRARY.tags.newSubmission;
     case 'returned':
-      if (status.by === 'content-manager') return sentBackWhere(status.since);
-      if (status.by === 'super-admin-override') return overrideWhere(status.since);
-      return returnedByReviewerWhere(status.since);
+      if (status.by === 'content-manager') return CONTENT_LIBRARY.tags.sentBack;
+      if (status.by === 'super-admin-override') return overrideTag();
+      return CONTENT_LIBRARY.tags.returnedByReviewer;
+    case 'with-content-manager':
+    case 'resubmitted':
     case 'draft':
     case 'published':
-      // Not listed by the service (drafts are the Vendor’s; published rows are experiments).
-      return '';
+      return null;
   }
 }
 
+/** Since when a submission is where it is: its approval for a ready one, else its status' date. */
+function sinceOf(row: SubmissionRow): string | null {
+  const { status } = row.submission;
+  if (status.state === 'with-content-manager') return row.approvedAt ?? status.since;
+  if (status.state === 'draft') return null;
+  if (status.state === 'published') return status.at;
+  return status.since;
+}
+
+/** A submission's row (Ready, In review, With vendor). */
+export function submissionRow(row: SubmissionRow, blockers: number): CmLibraryRow {
+  const { submission } = row;
+  const name = submission.content.name;
+  const ready = submission.status.state === 'with-content-manager';
+  const pill = ready
+    ? blockers > 0
+      ? { tone: 'err' as const, words: rowToResolve(blockers) }
+      : { tone: 'info' as const, words: CM_SUBMISSION_STATUS.ready }
+    : cmSubmissionPill(submission.status);
+  const codes = formatCodes(submission.content.formats);
+  const since = sinceOf(row);
+  const tag = submissionTag(row);
+  return {
+    key: submission.id,
+    href: publicationDecisionAddress(submission.id),
+    title: name,
+    linkLabel: submissionRowLabel(name, submission.id, pill.words, ready),
+    titleDetail: submission.id,
+    formats: <CmFormatBadges formats={codes} label={formatsLabel(codes)} />,
+    kind: ready
+      ? { strong: lastApproval(submission)?.by ?? '', small: CONTENT_LIBRARY.reviewer }
+      : { strong: submission.vendorOrganisation, small: revisionWords(submission.revision) },
+    whenLabel: ready
+      ? CONTENT_LIBRARY.headers.when.ready
+      : CONTENT_LIBRARY.headers.when['in-review'],
+    when: since ? dayMonthYear(since) : '',
+    status: (
+      <CmStatusCell status={{ tone: pill.tone, label: pill.words }} {...(tag ? { tag } : {})} />
+    ),
+  };
+}
+
+/** A published experiment's row, its open correction as its own chip. */
+export function experimentRow(row: ExperimentRow, course: Course | null): CmLibraryRow {
+  const { experiment } = row;
+  const name = experiment.live.catalogue.name;
+  const codes = formatCodes(experiment.live.formats.map((entry) => entry.format));
+  const state = row.openUpdate?.state;
+  const tag =
+    state && state !== 'released' && state !== 'withdrawn'
+      ? CONTENT_LIBRARY.updateTags[state]
+      : null;
+  return {
+    key: experiment.id,
+    href: publishedExperimentAddress(experiment.id),
+    title: name,
+    linkLabel: publishedRowLabel(
+      name,
+      row.courseCode ?? course?.name ?? '',
+      experiment.live.label,
+      tag,
+    ),
+    ...(experiment.originSubmissionId
+      ? { titleDetail: fromSubmission(experiment.originSubmissionId) }
+      : {}),
+    formats: <CmFormatBadges formats={codes} label={formatsLabel(codes)} />,
+    kind: { strong: versionWords(experiment.live.label), small: experiment.vendorOrganisation },
+    whenLabel: CONTENT_LIBRARY.headers.when.published,
+    when: dayMonthYear(experiment.live.liveFrom),
+    status: (
+      <CmStatusCell
+        status={{ tone: 'ok', label: CM_SUBMISSION_STATUS.published }}
+        {...(tag && state ? { update: { tone: cmUpdateTone(state), label: tag } } : {})}
+      />
+    ),
+  };
+}
+
+/** The course a row is listed under. */
+function courseIdOf(row: LibraryRow): string | null {
+  return row.kind === 'submission' ? row.submission.content.courseId : row.experiment.courseId;
+}
+
 /**
- * CM-04 Content library — board B6-06 f1, f4, at `/content-manager/library` (`?tab=in-review |
- * with-vendor | published`; Ready has none): “Every experiment you look after”.
+ * CM-04 Content library — the V3 Refined B design (the owner-approved export
+ * design/v3-refined-b/roles/CM-v1, `Main.dc.html` CM-04 and `libVM`), at `/content-manager/library`
+ * (`?tab=in-review | with-vendor | published`, `&course=<id>`; state-copy `CM-04.address`).
  *
- * - **Read**: `ProductionService.getLibrary` — facts (PC-65): the four tabs’ counts and the chosen
- *   tab’s rows, a submission with its record (Ready: approved; In review: with the Academic
- *   Reviewer, a re-check included; With vendor: returned) or a published experiment with its live
- *   version and its open correction’s state. Drafts stay with the Vendor and are not listed. The
- *   service searches (name, ID or course code); the rows on show stay while a new tab or search
- *   loads. The Ready tab’s publication check comes from `listReadyToPublish` (“· 1 to resolve”).
- * - **As B6-06 draws it**: status tabs Ready · In review · With vendor · Published with their
- *   counts (`role="tablist"`, ← → between them; they scroll sideways with a fade at 375, f4), the
- *   search “Name, ID or course”, the count “Ready · 3 of 3” (announced) with “Clear search” while a
- *   search is applied, and the table Experiment (name, id · course) · Formats · Where it is
- *   (state-copy `CM-04.where-it-is`) · “Open decision” (Ready, to CM-03) or “Open” (In review and
- *   With vendor to CM-03 read-only; Published to CM-05). Below 760 px of content the rows become
- *   labelled blocks (f4). A tab or search with no rows: “Nothing here”.
- * - The tab lives here while the page is on show; the address mirrors it (replaced, no history
- *   entry); an address from outside (Back) is read again (state-copy `CM-04.address`).
- * - Undrawn: loading and failed + Try again (state-copy `CM-04.loading`, `CM-04.failed`).
- *   Nothing here changes a record.
+ * - **Read**: `ProductionService.getLibrary` — the four views' counts and the chosen view's rows,
+ *   searched by the service (the typed words: name, ID or course code): a submission with its
+ *   record (Ready: approved; In review: with the Academic Reviewer, a re-check included; With
+ *   vendor: returned) or a published experiment with its live version and its open correction's
+ *   state. Drafts stay with the Vendor and are not listed. The course filter narrows the rows on
+ *   the page. The platform course codes
+ *   name and order the courses; the Ready view's publication check is `listReadyToPublish`'s.
+ * - **As the export draws it**: the head with its figures (in the catalogue, on the way); the
+ *   view switch Ready · In review · With vendor · Published with counts (the pressed view kept in
+ *   sight on a phone); the line saying who holds the view's items; the list surface — search,
+ *   course, the count, chips and Clear filters — and the table grouped by course (a band with the
+ *   code, name and count), each row a link: a submission to its decision (CM-03; read-only unless
+ *   ready), a published experiment to CM-05, its open correction as its own chip.
+ * - **States**: no match (Clear filters), empty view, loading (no count, view counts or figures),
+ *   couldn't load (Try again reads again and moves focus to the title).
+ * - Nothing here changes a record.
  */
 export function ContentLibrary() {
   useShellPage(contentLibraryPlacement());
-  const headingId = useId();
+  const today = useToday();
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const navigation = useAppNavigation();
-  const addressed = libraryTabOf(navigation.search);
-  const [tab, setTab] = useState<LibraryTab>(addressed);
+  const addressedTab = libraryTabOf(navigation.search);
+  const addressedCourse = libraryCourseOf(navigation.search);
+  const [tab, setTab] = useState<LibraryTab>(addressedTab);
+  const [course, setCourse] = useState<string | null>(addressedCourse);
   const [seenSearch, setSeenSearch] = useState(navigation.search);
   if (navigation.search !== seenSearch) {
     setSeenSearch(navigation.search);
-    setTab(addressed);
+    setTab(addressedTab);
+    setCourse(addressedCourse);
   }
   const [search, setSearch] = useState('');
 
+  // The search is the service's (state-copy `CM-04.address`): name, ID or course code.
   const read = useContentLibrary({ tab, search });
   const ready = useReadyToPublish(tab === 'ready');
+  const courses = usePlatformCourseCodes();
   const library = read.data?.ok ? read.data.value : null;
-  const failed = read.isError || (read.data !== undefined && !read.data.ok);
-  const retried = useRetryFocus(library !== null);
-  const filtered = search.trim() !== '';
+  const courseRows = courses.data?.ok ? courses.data.value : null;
+  const failed =
+    read.isError ||
+    (read.data !== undefined && !read.data.ok) ||
+    courses.isError ||
+    (courses.data !== undefined && !courses.data.ok);
+  const loading = !failed && (library === null || courseRows === null);
 
-  // The count is announced (`role="status"`): while the next tab’s or search’s rows load, the
-  // rows on show are the previous answer’s, so the count keeps its last settled words.
-  const settled =
-    library === null || read.isPlaceholderData
-      ? null
-      : libraryCountWords(CONTENT_LIBRARY.tabs[tab], library.rows.length, library.counts[tab]);
-  const [countWords, setCountWords] = useState('');
-  if (settled !== null && settled !== countWords) setCountWords(settled);
-  // The tab the rows on show belong to (the previous tab’s while the next one loads).
+  // The view the rows on show belong to (the previous view's while the next one loads).
   const [rowsTab, setRowsTab] = useState<LibraryTab>(tab);
   if (library !== null && !read.isPlaceholderData && rowsTab !== tab) setRowsTab(tab);
 
+  const courseById = (id: string | null): Course | null =>
+    courseRows?.find((row) => row.course.id === id)?.course ?? null;
   const blockersOf = (submissionId: string): number => {
     const row = ready.data?.ok
       ? ready.data.value.find((entry) => entry.submission.id === submissionId)
@@ -125,203 +260,209 @@ export function ContentLibrary() {
     return row ? openChecks(row.check).length : 0;
   };
 
-  const choose = (next: LibraryTab) => {
-    setTab(next);
-    navigation.replace(libraryAddress(next));
+  const move = (nextTab: LibraryTab, nextCourse: string | null) => {
+    setTab(nextTab);
+    setCourse(nextCourse);
+    navigation.replace(libraryViewAddress(nextTab, nextCourse));
   };
 
   const retry = () => {
-    retried();
-    void read.refetch();
+    if (read.isError || (read.data !== undefined && !read.data.ok)) void read.refetch();
+    if (courses.isError || (courses.data !== undefined && !courses.data.ok)) void courses.refetch();
+    titleRef.current?.focus();
   };
 
+  const filtered = search.trim() !== '' || course !== null;
+  // The course filter narrows the service's rows on the page.
+  const shown = (library?.rows ?? []).filter(
+    (row) => course === null || courseIdOf(row) === course,
+  );
+  const total = library ? library.counts[rowsTab] : 0;
+
+  // The count is announced (`role="status"`): while the next view's rows load, the rows on show
+  // are the previous answer's, so the count keeps its last settled words.
+  const settled =
+    library === null || read.isPlaceholderData
+      ? null
+      : libraryCountWords(rowsTab, shown.length, total, filtered);
+  const [countWords, setCountWords] = useState('');
+  if (settled !== null && settled !== countWords) setCountWords(settled);
+
+  const groups: CmCourseGroup<CmLibraryRow>[] = [];
+  if (library && courseRows) {
+    const order = [...courseRows.map((row) => row.course.id), null];
+    const toRow = (row: LibraryRow) =>
+      row.kind === 'submission'
+        ? submissionRow(row, blockersOf(row.submission.id))
+        : experimentRow(row, courseById(row.experiment.courseId));
+    for (const id of order) {
+      const inGroup = shown.filter((row) =>
+        id === null
+          ? !courseRows.some((entry) => entry.course.id === courseIdOf(row))
+          : courseIdOf(row) === id,
+      );
+      if (inGroup.length === 0) continue;
+      const named = courseById(id);
+      groups.push({
+        key: id ?? 'other',
+        code: named?.platformCode ?? null,
+        name: named?.name ?? CONTENT_LIBRARY.otherCourses,
+        count: courseBandCount(rowsTab, inGroup.length),
+        rows: inGroup.map(toRow),
+      });
+    }
+  }
+
+  const chips: ToolbarChip[] = [];
+  if (search.trim() !== '') {
+    chips.push({ key: 'q', label: searchChip(search.trim()), onRemove: () => setSearch('') });
+  }
+  if (course !== null) {
+    const named = courseById(course);
+    chips.push({
+      key: 'course',
+      label: courseChip(named ? courseLabel(named.platformCode, named.name) : course),
+      onRemove: () => move(tab, null),
+    });
+  }
+
+  const nCourses = courseRows ? courseRows.filter((row) => row.publishedExperiments > 0).length : 0;
+  const figures: Figure[] =
+    library && courseRows
+      ? [
+          {
+            title: CONTENT_LIBRARY.inCatalogue,
+            value: library.counts.published,
+            details: [acrossCourses(library.counts.published, nCourses)],
+          },
+          {
+            title: CONTENT_LIBRARY.onTheWay,
+            value:
+              library.counts.ready + library.counts['in-review'] + library.counts['with-vendor'],
+            details: [
+              onTheWayDetail(
+                library.counts.ready,
+                library.counts['in-review'],
+                library.counts['with-vendor'],
+              ),
+            ],
+          },
+        ]
+      : [];
+
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-6"
+    <>
+      <CmPageHead
         title={CONTENT_LIBRARY_TITLE}
-        meta={<span className="xl-meta">{CONTENT_LIBRARY.meta}</span>}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        date={today.line}
+        lead={CONTENT_LIBRARY.lead}
+        figures={failed ? [] : figures}
+        figuresLabel={CONTENT_LIBRARY.figuresLabel}
       />
-      <section
-        className="xr-section"
-        aria-labelledby={headingId}
-        aria-busy={library === null && !failed ? true : undefined}
-      >
-        <div className="xr-section-head">
-          <h2 id={headingId} className="xr-h2">
-            {CONTENT_LIBRARY.sectionTitle}
-          </h2>
-          <span className="xr-meta">{CONTENT_LIBRARY.sectionMeta}</span>
-        </div>
-        <StatusTabs
-          label={CONTENT_LIBRARY.tabsLabel}
-          idPrefix="library"
-          className="px-4"
-          panelClassName="[&>.xr-toolbar]:px-6 [&>.xr-toolbar]:py-4 [&>.xr-toolbar-status]:px-6 [&>.xr-toolbar-status]:pb-3"
-          tabs={LIBRARY_TABS.map((id) => ({
-            id,
-            label: CONTENT_LIBRARY.tabs[id],
-            ...(library ? { count: library.counts[id] } : {}),
+      <CmLibraryLayout>
+        <CmViewSwitch
+          id="cm-lib-switch"
+          label={CONTENT_LIBRARY.switchLabel}
+          value={tab}
+          onChange={(next) => move(next, course)}
+          options={LIBRARY_TABS.map((key) => ({
+            key,
+            label: CONTENT_LIBRARY.views[key],
+            ...(library && !failed && !loading ? { count: library.counts[key] } : {}),
           }))}
-          selected={tab}
-          onSelect={(id) => choose(id as LibraryTab)}
-        >
-          <ListToolbar
+        />
+        <CmStageLine owner={CONTENT_LIBRARY.stage[tab].owner} tone={OWNER_TONE[tab]}>
+          {CONTENT_LIBRARY.stage[tab].note}
+        </CmStageLine>
+        <Surface label={libraryPanelLabel(tab)}>
+          <FilterToolbar
+            label={CONTENT_LIBRARY.filterLabel}
             search={{
-              id: 'library-search',
+              id: SEARCH_ID,
               label: CONTENT_LIBRARY.searchLabel,
-              placeholder: CONTENT_LIBRARY.searchPlaceholder,
+              placeholder: stateWords('CM-04.search.placeholder'),
               value: search,
               onChange: setSearch,
             }}
-            status={countWords}
-            clearLabel={CONTENT_LIBRARY.clearSearch}
-            onClearFilters={filtered ? () => setSearch('') : undefined}
+            filters={[
+              {
+                id: COURSE_ID,
+                label: CONTENT_LIBRARY.courseLabel,
+                size: 'status',
+                value: course ?? ALL,
+                onChange: (value) => move(tab, value === ALL ? null : value),
+                options: [
+                  { value: ALL, label: CONTENT_LIBRARY.allCourses },
+                  ...(courseRows ?? []).map((row) => ({
+                    value: row.course.id,
+                    label: courseLabel(row.course.platformCode, row.course.name),
+                  })),
+                ],
+              },
+            ]}
+            {...(loading || failed ? {} : { count: countWords })}
+            chips={chips}
+            onClearFilters={() => {
+              setSearch('');
+              if (course !== null) move(tab, null);
+            }}
           />
           {failed ? (
-            <LoadFailed title={stateWords('CM-04.failed')} onRetry={retry} />
-          ) : library === null ? (
-            <LoadingRows
-              label={stateWords('CM-04.loading')}
-              grid="grid-cols-[1.6fr_.9fr_1.2fr_140px]"
-              cells={4}
-            />
-          ) : library.rows.length === 0 ? (
-            <Nothing />
+            <ListState
+              kind="failed"
+              titleAs="h2"
+              title={CONTENT_LIBRARY.failed}
+              action={<Button onClick={retry}>{LIST_FAILED.retry}</Button>}
+            >
+              {LIST_FAILED.line}
+            </ListState>
+          ) : loading ? (
+            <LoadingRows message={CONTENT_LIBRARY.loading} cells={[2, 1, 2, 1, 1]} rows={4} />
+          ) : total === 0 ? (
+            <ListState
+              kind="empty"
+              icon="contentLibrary"
+              titleAs="h2"
+              title={CONTENT_LIBRARY.empty[rowsTab].title}
+            >
+              {CONTENT_LIBRARY.empty[rowsTab].line}
+            </ListState>
+          ) : groups.length === 0 ? (
+            <ListState
+              kind="nomatch"
+              titleAs="h2"
+              title={noMatchTitle(rowsTab)}
+              action={
+                <Button
+                  onClick={() => {
+                    setSearch('');
+                    if (course !== null) move(tab, null);
+                  }}
+                >
+                  {CONTENT_LIBRARY.clearFilters}
+                </Button>
+              }
+            >
+              {stateWords('CM-04.search.no-match')}
+            </ListState>
           ) : (
-            <LibraryTable rows={library.rows} tab={rowsTab} blockersOf={blockersOf} />
+            <CmLibraryTable
+              caption={libraryCaption(rowsTab, shown.length, total, filtered)}
+              headers={{
+                who: CONTENT_LIBRARY.headers.experiment,
+                what: CONTENT_LIBRARY.headers.formats,
+                kind: CONTENT_LIBRARY.headers.kind[rowsTab],
+                when: CONTENT_LIBRARY.headers.when[rowsTab],
+                status: CONTENT_LIBRARY.headers.whereItIs,
+              }}
+              groups={groups}
+            />
           )}
-        </StatusTabs>
-      </section>
-    </PageContent>
-  );
-}
-
-/** f1, f4: the table; stacked labelled blocks below 760 px of content. */
-function LibraryTable({
-  rows,
-  tab,
-  blockersOf,
-}: {
-  readonly rows: readonly LibraryRow[];
-  readonly tab: LibraryTab;
-  readonly blockersOf: (submissionId: string) => number;
-}) {
-  const { columns } = CONTENT_LIBRARY;
-  return (
-    <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.experiment}</th>
-            <th scope="col">{columns.formats}</th>
-            <th scope="col">{columns.whereItIs}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) =>
-            row.kind === 'submission' ? (
-              <SubmissionLine
-                key={row.submission.id}
-                row={row}
-                ready={tab === 'ready'}
-                blockers={blockersOf(row.submission.id)}
-              />
-            ) : (
-              <tr key={row.experiment.id}>
-                <td className="is-primary">
-                  <strong>{row.experiment.live.catalogue.name}</strong>
-                  {row.courseCode ? (
-                    <span className="xr-meta block">
-                      <span className="xw-nowrap">{row.courseCode}</span>
-                    </span>
-                  ) : null}
-                </td>
-                <td data-label={columns.formats}>
-                  <FormatChips formats={row.experiment.live.formats.map((entry) => entry.format)} />
-                </td>
-                <td data-label={columns.whereItIs}>
-                  {publishedWhere(
-                    row.experiment.live.label,
-                    row.experiment.live.liveFrom,
-                    row.openUpdate ? openUpdateTag(row.openUpdate.state) : null,
-                  )}
-                </td>
-                <td>
-                  <Link
-                    className="xr-btn xr-btn--secondary xr-btn--sm"
-                    href={publishedExperimentAddress(row.experiment.id)}
-                    aria-label={openLabel(row.experiment.live.catalogue.name)}
-                  >
-                    {CONTENT_LIBRARY.open}
-                  </Link>
-                </td>
-              </tr>
-            ),
-          )}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function SubmissionLine({
-  row,
-  ready,
-  blockers,
-}: {
-  readonly row: SubmissionRow;
-  readonly ready: boolean;
-  readonly blockers: number;
-}) {
-  const { columns } = CONTENT_LIBRARY;
-  const { submission } = row;
-  const name = submission.content.name;
-  return (
-    <tr>
-      <td className="is-primary">
-        <strong>{name}</strong>
-        <span className="xr-meta block">
-          <span className="xr-id">{submission.id}</span>
-          {row.courseCode ? (
-            <>
-              {' · '}
-              <span className="xw-nowrap">{row.courseCode}</span>
-            </>
-          ) : null}
-        </span>
-      </td>
-      <td data-label={columns.formats}>
-        <FormatChips formats={submission.content.formats} />
-      </td>
-      <td data-label={columns.whereItIs}>{submissionWhere(row, blockers)}</td>
-      <td>
-        <Link
-          className="xr-btn xr-btn--secondary xr-btn--sm"
-          href={publicationDecisionAddress(submission.id)}
-          aria-label={ready ? openDecisionLabel(name) : openLabel(name)}
-        >
-          {ready ? CONTENT_LIBRARY.openDecision : CONTENT_LIBRARY.open}
-        </Link>
-      </td>
-    </tr>
-  );
-}
-
-/** B6-06 `lNone`: “Nothing here · Try another tab or clear the search.” */
-function Nothing() {
-  return (
-    <div className="xr-section-body">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="search" />
-        </span>
-        <h3 className="xr-h3 m-0">{CONTENT_LIBRARY.nothingTitle}</h3>
-        <p className="xr-body m-0 text-ink-2">{CONTENT_LIBRARY.nothingLine}</p>
-      </div>
-    </div>
+          <ListFoot>{CONTENT_LIBRARY.foot}</ListFoot>
+        </Surface>
+      </CmLibraryLayout>
+    </>
   );
 }

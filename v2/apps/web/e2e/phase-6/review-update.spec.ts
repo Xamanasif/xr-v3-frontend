@@ -8,8 +8,9 @@ import { checkState } from '../support/screen-checks';
 import { currentSidebarItem, expectSameDocument, markDocument } from '../support/workspace';
 
 /**
- * RV-04 Review an update (board B6-04 f0 … f4; B6-13 f4; B7-11 f6) and CM-08 Updates (B6-09 f0;
- * B6-13 f2; B7-11 f2), with the update rows of RV-01, RV-02, RV-05 and CM-01 they open, on the
+ * RV-04 Review an update (board B6-04 f0 … f4; B6-13 f4; B7-11 f6) and CM-08 Updates (V3: the
+ * Content Manager's correction tracker, CM-v1; was B6-09 f0, B6-13 f2, B7-11 f2), with the update
+ * rows of RV-01, RV-02, RV-05 and CM-01 (V3: its desk's corrections) they open, on the
  * test-hook build at 1440, 1024, 768 and 375, on spine-start. Each drawn state passes
  * `checkState` (axe WCAG A/AA, one h1, visible focus targets, 24 × 24 targets, no developer
  * surface, no sideways scroll).
@@ -21,10 +22,11 @@ import { currentSidebarItem, expectSameDocument, markDocument } from '../support
  * - (a) Flow 6 step 2: Prof. A. Menon finds UPD-0005 in the Review queue → RV-04 (f0 … f2) →
  *   Approve update through DL-1 (f4) → the public experiment page still shows the live version
  *   1.2 (approval releases nothing) → Kavya Nair’s Updates list shows “Awaiting release decision
- *   · Super Admin” (B7-11 f2).
+ *   · Super Admin” (B7-11 f2; V3: With others, the Super Admin's step now).
  * - (b) A second correction returned with a reason (DL-2, the reason first required; f3), reached
  *   from the Overview’s “Review update” and again from Reviewed by me → Kavya Nair’s list shows
- *   it “Returned · You · Continue”, and her Overview’s “Open update” opens it.
+ *   it “Returned · You · Continue” (V3: Need you, her step now), and her Overview’s correction
+ *   (V3: its “Continue”) opens it.
  * - (c) The list at spine-start (B6-13 f2), a draft not shown to the reviewer (B6-13 f4), and an
  *   update withdrawn while the reviewer has it open.
  */
@@ -124,6 +126,20 @@ const panel = (page: Page) => page.getByRole('complementary', { name: 'Your deci
 const decided = (page: Page) => page.locator('#ru-dec');
 const chip = (page: Page) => main(page).locator('.xr-phead-meta .xr-status');
 const tableRows = (page: Page) => main(page).locator('table.xr-table tbody tr');
+/** CM-08's V3 tracker (CM-v1): every card in page order — Need you, With others, Closed. */
+const trackerCards = (page: Page) => main(page).locator('section.cm-trksec li.cm-trk');
+/** The tracker's card of one correction (its meta starts with the update's ID). */
+const trackerCard = (page: Page, id: string) =>
+  trackerCards(page).filter({
+    has: page.locator('.cm-trk-meta > span:first-child', { hasText: new RegExp(`^${id} · `) }),
+  });
+/** Who has a correction now: its card's mini track's current step (none once closed). */
+const holder = (card: Locator) => card.locator('[aria-current="step"]');
+/** The tracker group (`section.cm-trksec`) a card is in, by its heading. */
+const trackerGroup = (page: Page, name: string) =>
+  main(page)
+    .locator('section.cm-trksec')
+    .filter({ has: page.getByRole('heading', { level: 2, name: new RegExp(`^${name}`) }) });
 
 async function shot(page: Page, name: string): Promise<void> {
   mkdirSync(SHOTS, { recursive: true });
@@ -186,19 +202,26 @@ async function goToDecision(page: Page): Promise<void> {
   await expect(panel(page)).toBeFocused();
 }
 
-/** Below 760 px of content the table’s rows stack and its header row is hidden. */
-async function expectTableLayout(page: Page): Promise<void> {
-  const header = main(page).locator('table.xr-table thead');
-  const contentWidth = await main(page)
-    .locator('.xr-content')
-    .first()
-    .evaluate((element) => element.getBoundingClientRect().width);
-  if (contentWidth < 760) {
-    await expect
-      .poll(() => header.evaluate((element) => getComputedStyle(element).position))
-      .toBe('absolute');
+/**
+ * CM-08's tracker cards (V3, CM-v1 `cm.css`): below 700 px of the tracker (its container query) a
+ * card stacks — the status first, the action last at the card's full width; wider, the status and
+ * the action sit to the right of the card's name.
+ */
+async function expectTrackerLayout(page: Page): Promise<void> {
+  const list = main(page).locator('ul.cm-trklist').first();
+  const card = list.locator('li.cm-trk').first();
+  const name = await card.locator('.cm-trk-id').boundingBox();
+  const status = await card.locator('.cm-trk-st').boundingBox();
+  const action = await card.locator('.cm-trk-act a').boundingBox();
+  const listWidth = await list.evaluate((element) => element.getBoundingClientRect().width);
+  if (!name || !status || !action) throw new Error('not laid out');
+  if (listWidth < 700) {
+    expect(status.y + status.height).toBeLessThanOrEqual(name.y + 1);
+    expect(action.y).toBeGreaterThanOrEqual(name.y + name.height - 1);
+    expect(action.width).toBeGreaterThan(name.width - 2);
   } else {
-    await expect(header).toBeVisible();
+    expect(status.x).toBeGreaterThanOrEqual(name.x + name.width - 1);
+    expect(action.x).toBeGreaterThanOrEqual(name.x + name.width - 1);
   }
 }
 
@@ -324,23 +347,34 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     await expect(page.locator('main')).not.toContainText('Raising the reflux ratio raises');
     await expectSameDocument(page, mark);
 
-    // Kavya Nair’s Updates (same tab, same world): awaiting the Super Admin’s release decision.
+    // Kavya Nair’s Updates (same tab, same world): awaiting the Super Admin’s release decision —
+    // V3 (CM-v1): with others, the Super Admin's step now.
     await switchIdentity(page, KAVYA);
     await softNavigate(page, '/content-manager/updates');
     await expect(heading(page, 'Updates')).toBeVisible({ timeout: 90_000 });
-    const mine = tableRows(page).filter({ hasText: 'UPD-0005' });
-    await expect(mine.locator('td')).toHaveText([
-      'Distillation Column · 1.3UPD-0005',
-      /^Awaiting release decision\d{1,2} [A-Z][a-z]{2} 2026$/,
-      'Super Admin',
-      'Open',
-    ]);
-    await expect(mine.locator('.xr-status')).toHaveClass(/xr-status--wait/);
+    const mine = trackerCard(page, 'UPD-0005');
+    await expect(mine.locator('.cm-qname')).toHaveText('Distillation Column');
+    await expect(mine.locator('.cm-trk-meta > span:first-child')).toHaveText(
+      /^UPD-0005 · .* · last change \d{1,2} [A-Z][a-z]{2}$/,
+    );
+    await expect(mine.locator('.cm-ver')).toHaveText(/^1\.2 live\s*1\.3 proposed$/);
+    await expect(mine.locator('.cm-trk-st .xr-st')).toHaveText('Awaiting release decision');
+    await expect(mine.locator('.cm-trk-st .xr-st')).toHaveClass(/xr-st--info/);
+    await expect(holder(mine)).toHaveText(/^Now: Super Admin\s*Release decision/);
+    await expect(
+      trackerGroup(page, 'With others').locator('li.cm-trk').filter({ hasText: 'UPD-0005' }),
+    ).toHaveCount(1);
+    await expect(mine.locator('.cm-trk-act a')).toHaveText('Open');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/updates');
-    await expectTableLayout(page);
+    await expectTrackerLayout(page);
     await checkState(page, 'Updates');
     if (width(page) === 1440) await shot(page, 'b7-11-f2-updates');
-    await follow(page, mine.getByRole('link', { name: 'Open UPD-0005 Distillation Column' }));
+    await follow(
+      page,
+      mine.getByRole('link', {
+        name: 'Open UPD-0005, Distillation Column, awaiting release decision',
+      }),
+    );
     await expect(page).toHaveURL(/\/content-manager\/updates\/UPD-0005$/, { timeout: 60_000 });
     await expectSameDocument(page, mark);
   });
@@ -438,30 +472,47 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     );
     await expectSameDocument(page, mark);
 
-    // Kavya Nair: “Returned · You · Continue”; her Overview’s “Open update” opens it.
+    // Kavya Nair: “Returned · You · Continue” — V3 (CM-v1): Need you, her step now, Continue; her
+    // Overview's correction opens it.
     await switchIdentity(page, KAVYA);
     await softNavigate(page, '/content-manager/updates');
     await expect(heading(page, 'Updates')).toBeVisible({ timeout: 90_000 });
-    const mine = tableRows(page).filter({ hasText: sent.id });
-    await expect(mine.locator('td')).toHaveText([
-      `Orifice Plate Metering · 1.2${sent.id}`,
-      /^Returned\d{1,2} [A-Z][a-z]{2} 2026$/,
-      'You',
-      'Continue',
-    ]);
-    await expect(mine.locator('.xr-status')).toHaveClass(/xr-status--err/);
+    const mine = trackerCard(page, sent.id);
+    await expect(mine.locator('.cm-qname')).toHaveText('Orifice Plate Metering');
+    await expect(mine.locator('.cm-trk-meta > span:first-child')).toHaveText(
+      new RegExp(`^${sent.id} · .* · last change \\d{1,2} [A-Z][a-z]{2}$`),
+    );
+    await expect(mine.locator('.cm-ver')).toHaveText(/^1\.1 live\s*1\.2 proposed$/);
+    await expect(mine.locator('.cm-trk-st .xr-st')).toHaveText('Returned');
+    await expect(mine.locator('.cm-trk-st .xr-st')).toHaveClass(/xr-st--err/);
+    await expect(mine).toHaveClass(/\bis-you\b/);
     await expect(
-      mine.getByRole('link', { name: `Continue ${sent.id} Orifice Plate Metering` }),
+      trackerGroup(page, 'Need you').locator('li.cm-trk').filter({ hasText: sent.id }),
+    ).toHaveCount(1);
+    await expect(holder(mine)).toHaveText(/^Your step, now: You/);
+    await expect(mine.locator('blockquote.cm-trk-note')).toContainText(RETURN_REASON);
+    await expect(
+      mine.getByRole('link', { name: `Continue ${sent.id}, Orifice Plate Metering, returned` }),
     ).toHaveAttribute('href', `/content-manager/updates/${sent.id}`);
     await checkState(page, 'Updates');
     await softNavigate(page, '/content-manager');
     await expect(heading(page, 'Overview')).toBeVisible({ timeout: 90_000 });
     const needs = page.getByRole('region', { name: 'Needs your decision' });
-    const returned = needs.locator('li.xr-row').filter({ hasText: 'Orifice Plate Metering' });
-    await expect(returned.locator('.xr-row-title')).toHaveText(
-      'Update returned: Orifice Plate Metering 1.2',
+    // CM-01 (V3, CM-v1): the desk's “Corrections that need you” row.
+    const returned = needs
+      .getByRole('region', { name: 'Corrections that need you' })
+      .locator('li.cm-orow')
+      .filter({ hasText: 'Orifice Plate Metering' });
+    await expect(returned.locator('.rb-row-t')).toHaveText('Orifice Plate Metering');
+    await expect(returned.locator('.cm-orow-x')).toHaveText(
+      /^Returned to you\s*1\.1 live\s*1\.2 proposed$/,
     );
-    await follow(page, returned.getByRole('link', { name: 'Open update' }));
+    await follow(
+      page,
+      returned.getByRole('link', {
+        name: `Continue ${sent.id}, correction to Orifice Plate Metering`,
+      }),
+    );
     await expect(page).toHaveURL(new RegExp(`/content-manager/updates/${sent.id}$`), {
       timeout: 60_000,
     });
@@ -475,33 +526,53 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     await page.goto('/content-manager/updates');
     await expect(heading(page, 'Updates')).toBeVisible({ timeout: 90_000 });
     const mark = await markDocument(page);
-    await expect(main(page).locator('.xr-phead-meta .xl-meta')).toHaveText(
-      'The only way to change published content: you → Academic Reviewer → Super Admin release',
+    // V3 (CM-v1): the chain said under the title; the count; the cards grouped by who must act.
+    await expect(main(page).locator('.rb-head .rk-sub')).toHaveText(
+      'Corrections you raised to published experiments. Live content changes only this way: you, then the Academic Reviewer, then the Super Admin’s release.',
     );
-    const section = page.getByRole('region', { name: 'Corrections you raised' });
-    await expect(section.locator('.xr-section-head .xr-meta')).toHaveText('5 updates');
-    await expect(tableRows(page).locator('td.is-primary')).toHaveText([
-      'Induction Motor Loading · 1.1UPD-0006',
-      'Boiler Drum Level · 2.1UPD-0004',
-      'Orifice Plate Metering · 1.1UPD-0003',
-      'Distillation Column · 1.2UPD-0002',
-      'Distillation Column · 1.1UPD-0001',
+    await expect(main(page).locator('.cm-trkcount')).toHaveText(
+      '5 corrections you raised, most recent change first',
+    );
+    await expect(main(page).locator('section.cm-trksec h2')).toHaveText([
+      /^Need you\s*1$/,
+      /^With others\s*1$/,
+      /^Closed\s*3$/,
     ]);
-    await expect(tableRows(page).locator('.xr-status')).toHaveText([
+    await expect(trackerCards(page).locator('.cm-qname')).toHaveText([
+      'Induction Motor Loading',
+      'Boiler Drum Level',
+      'Orifice Plate Metering',
+      'Distillation Column',
+      'Distillation Column',
+    ]);
+    await expect(trackerCards(page).locator('.cm-trk-meta > span:first-child')).toHaveText([
+      /^UPD-0006 · /,
+      /^UPD-0004 · /,
+      /^UPD-0003 · /,
+      /^UPD-0002 · /,
+      /^UPD-0001 · /,
+    ]);
+    await expect(trackerCards(page).locator('.cm-ver')).toHaveText([
+      /^1\.0 live\s*1\.1 proposed$/,
+      /^2\.0 live\s*2\.1 proposed$/,
+      /^1\.0\s*1\.1 live$/,
+      /^1\.1\s*1\.2 live$/,
+      /^1\.0\s*1\.1 live$/,
+    ]);
+    await expect(trackerCards(page).locator('.cm-trk-st .xr-st')).toHaveText([
       'Returned',
       'On hold',
       'Released',
       'Released',
       'Released',
     ]);
-    await expect(tableRows(page).locator('td[data-label="With"]')).toHaveText([
-      'You',
-      'Super Admin',
-      '—',
-      '—',
-      '—',
+    // Who has each (v46: You, Super Admin, —): the open cards' current step; the closed have none.
+    await expect(trackerCards(page).locator('[aria-current="step"]')).toHaveText([
+      /^Your step, now: You/,
+      /^On hold: Super Admin/,
     ]);
-    await expect(tableRows(page).getByRole('link')).toHaveText([
+    await expect(main(page).locator('li.cm-trk.is-closed [aria-current="step"]')).toHaveCount(0);
+    await expect(trackerCards(page).locator('.cm-trk-act a')).toHaveText([
       'Continue',
       'Open',
       'Open',
@@ -509,7 +580,7 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
       'Open',
     ]);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/updates');
-    await expectTableLayout(page);
+    await expectTrackerLayout(page);
     await checkState(page, 'Updates');
     if (width(page) === 1440) await shot(page, 'b6-13-f2-updates');
     if (width(page) === 375) await shot(page, 'b6-09-updates-stacked');
@@ -517,9 +588,9 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     // “Continue” opens the returned correction.
     await follow(
       page,
-      tableRows(page)
+      trackerCards(page)
         .first()
-        .getByRole('link', { name: 'Continue UPD-0006 Induction Motor Loading' }),
+        .getByRole('link', { name: 'Continue UPD-0006, Induction Motor Loading, returned' }),
     );
     await expect(page).toHaveURL(/\/content-manager\/updates\/UPD-0006$/, { timeout: 60_000 });
     await expectSameDocument(page, mark);
@@ -528,12 +599,15 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
 
     // A draft (set-up): hers to continue, never shown to the Academic Reviewer.
     const draft = await proposeDistillation(page, false);
-    await expect(tableRows(page).first().locator('td')).toHaveText([
-      `Distillation Column · 1.3${draft.id}`,
-      /^Draft\d{1,2} [A-Z][a-z]{2} 2026$/,
-      'You',
-      'Continue',
-    ]);
+    const first = trackerCards(page).first();
+    await expect(first.locator('.cm-qname')).toHaveText('Distillation Column');
+    await expect(first.locator('.cm-trk-meta > span:first-child')).toHaveText(
+      new RegExp(`^${draft.id} · .* · last change \\d{1,2} [A-Z][a-z]{2}$`),
+    );
+    await expect(first.locator('.cm-ver')).toHaveText(/^1\.2 live\s*1\.3 proposed$/);
+    await expect(first.locator('.cm-trk-st .xr-st')).toHaveText('Draft');
+    await expect(holder(first)).toHaveText(/^Your step, now: You/);
+    await expect(first.getByRole('link')).toHaveText('Continue');
     await switchIdentity(page, MENON);
     await softNavigate(page, `/reviewer/updates/${draft.id}`);
     const none = main(page).getByRole('heading', {

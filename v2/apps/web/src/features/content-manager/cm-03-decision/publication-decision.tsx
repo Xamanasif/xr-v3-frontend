@@ -3,57 +3,75 @@
 import type { ServiceError } from '@xr/contracts/draft';
 import { FORMAT_META, type ReturnReference } from '@xr/domain';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
-  Checkbox,
-  CheckboxGroup,
-  ChoiceCard,
-  ChoiceList,
+  CheckGroup,
+  ChoiceGroup,
+  CmBlockers,
+  CmCatalogueEntry,
+  CmCourseName,
+  CmFormatRows,
+  CmIdentityBand,
+  CmPublicationChecks,
+  CmSheetSection,
+  CmStageTrack,
+  CmSubHeading,
+  CmWideLink,
   ConfirmDialog,
-  DecisionLayout,
+  DecisionOutcome,
+  DecisionPanel,
+  DefinitionList,
+  DetailLayout,
+  ErrorSummary,
+  type ErrorSummaryItem,
   Field,
-  FormatBadge,
-  Icon,
-  Link,
+  GoButton,
+  Hint,
   Notice,
-  PageContent,
-  PageHeader,
-  RadioGroup,
-  ReasonDialog,
-  Section,
-  SectionBody,
+  PendingHint,
+  Quote,
+  RecordLine,
+  StandList,
   StatusPill,
   Textarea,
   Timeline,
-} from '@xr/ui';
+  V46Island,
+} from '@xr/ui/v3';
 import { type ReactNode, type RefObject, useEffect, useRef, useState } from 'react';
 
 import {
   blockerLine,
   blockersTitle,
+  CHECK_STATE,
   DECISION_PAGE,
   DECISION_PANEL,
-  decisionMetaLine,
+  DECISION_RESULT,
   decisionOverline,
+  formatsLabel,
+  fromVendor,
+  listedUnder,
   PUBLISH_DIALOG,
-  publishedLine,
-  publishedWhen,
-  publishEffect,
+  publishedByYou,
   publishTitle,
+  publishWhere,
+  quoted,
   referenceWords,
-  reviewLine,
-  SEND_BACK_DIALOG,
-  sentBackMeta,
+  requiredLabel,
+  sentBackByYou,
+  STALE_NOTICE,
+  staleLine,
   submissionsLine,
   vendorChoiceSub,
+  withReviewer,
 } from '@/copy/cm-decision';
+import { STAGE_TRACK_LABEL, YOUR_STEP } from '@/copy/cm-shared';
 import { dateTime, dayMonthYear } from '@/copy/dates';
-import { courseLine } from '@/copy/public';
 import { stateWords } from '@/copy/state-copy';
-import { FormatChips } from '@/features/public/shared/blocks';
 import {
-  CONTENT_LIBRARY_ADDRESS,
+  CONTENT_LIBRARY_TITLE,
+  libraryAddress,
   publicationDecisionPlacement,
+  publishedExperimentAddress,
   READY_TO_PUBLISH_ADDRESS,
   READY_TO_PUBLISH_TITLE,
 } from '@/nav/content-manager';
@@ -62,14 +80,15 @@ import {
   checkSendBack,
   type PublicationDecisionView,
   type SendBackDraft,
-  type SendBackErrors,
   sendBackErrorsOf,
   type SendBackTo,
 } from '@/queries/production-cm-decision';
 import { useCommand } from '@/queries/use-command';
 
 import { RecordGuard } from '../../shared/record-guard/record-guard';
-import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { useShellPage, useWorkspaceIdentity } from '../../shared/workspace-frame/shell-page';
+import { CM_STAGE_STATE_WORDS, submissionStages } from '../shared/stages';
+import { useCmTodayLine } from '../shared/today-line';
 import {
   type DecisionFacts,
   decisionFacts,
@@ -77,61 +96,69 @@ import {
   sameReference,
 } from './decision-view';
 
-/** The board’s ids, with the product prefix (`Dm-decision`, `Dm-cdec`, `Dm-to-rv`; B6-07). */
-const PANEL_ID = 'cm-decision';
-const DECIDED_ID = 'cm-cdec';
+/** The export's ids (CM-v1 `Main.dc.html` CM-03). */
+const TITLE_ID = 'cm-h-decision';
+const PANEL_ID = 'cm-panel';
+const PANEL_TITLE_ID = 'cm-panel-h';
+const DONE_ID = 'cm-d-done';
+const STALE_ID = 'cm-d-stale';
 const PUBLIC_EXPERIMENT = (experimentId: string) =>
   `/experiments/${encodeURIComponent(experimentId)}`;
 
 /**
- * CM-03 Publication decision — boards B6-07 f0 … f5, B6-11 f4 … f8 and B6-12 f3, at
- * `/content-manager/decisions/[submissionId]`.
+ * CM-03 Publication decision — the owner-approved Content Manager export (V3 Refined B,
+ * design/v3-refined-b/roles/CM-v1, `Main.dc.html` `v.decision`; boards CM03-Decision,
+ * P01 … P09), at `/content-manager/decisions/[submissionId]`.
  *
  * - **Read**: `ProductionService.getPublicationDecision` — the submission, the publication check
- *   (the service’s verdict, the same for every role) and the catalogue preview as the public page
- *   would list it (only the formats that passed review).
- * - **As B6-07 draws it** (AR-4, ~72 / 28 from 860 px of content, the static panel under the
- *   content below with “Go to decision” first): the back link, “<SUB id> · First publication”,
- *   the name, the status chip and “<organisation> · <course> · approved by … on …”; then the
- *   catalogue preview (`div.xp.xg-preview`), the publication check, the submission and review
- *   summary with each format’s status, and the history, newest first.
- * - **Decide** (with the Content Manager only): Publish (DL-1, “Publishing gives no one access”)
- *   or Send back (DL-2: to the Academic Reviewer with a reason, or to the vendor with a reason and
- *   optional references, OD-B6-05). While a check fails, Publish is not offered and the panel
- *   lists only the record’s own failing checks (OD-B6-03). Both commands carry the revision from
- *   when their confirmation opened; publishing grants and changes no access (BC9).
- * - **After**: the result in the panel — “Published” with when and by whom, “Publishing gave no
- *   one access”, the public page (state-copy `CM-03.published.view`) and “Open the Content
- *   library”; or “Sent back to …” with its reason and “Back to Ready to publish”. Focus moves to
- *   the result. Still in academic review (or with the vendor): read-only, “Nothing to decide yet.”
+ *   (the service's verdict, the same for every role) and the catalogue preview as the public page
+ *   would list it (only the formats that passed review). Loading and a failed read are the
+ *   application's existing page states (CM-v1 HANDOFF §4).
+ * - **As the export draws it**: the breadcrumb, the identity band (the record kind, the name, the
+ *   status, the vendor and the course; formats, learning outcomes, version, submission; the stage
+ *   track vendor → Academic Reviewer → you → public catalogue), then the record's sheet — the
+ *   publication check as a gate with its verdict, the catalogue preview, the submission and review
+ *   summary with the delivery by format, the history — beside the "Your decision" panel.
+ * - **Decide** (with the Content Manager only): no choice is made at first (state-copy
+ *   `CM-03.choice`); Publish asks in DL-1 what publishing does now and later ("Publishing gives no
+ *   one access"); Send back takes who (the Academic Reviewer or the vendor), a reason and, toward
+ *   the vendor only, the fields it refers to (OD-B6-05), and sends at once. Errors show in the
+ *   summary, which takes focus. While a check fails, Publish is not offered, Send back is
+ *   preselected and the panel lists the failing checks (OD-B6-03). Both commands carry the
+ *   record's revision (state-copy `CM-03.decision-rev`) and are protected against a repeated
+ *   press; while one runs its button reads "Publishing…" / "Sending…", and the dialog's Cancel
+ *   and Escape wait. Publishing grants and changes no access (BC9).
+ * - **Refused**: changed meanwhile → "This page is out of date" under the band (the page keeps
+ *   what it showed, the choices typed included) with "Show where it is now" (state-copy
+ *   `CM-03.stale.changed`); moved on → the panel says so and shows the record as it is now.
+ * - **After**: the result in the panel, focused — "Published" with where it stands, "Open the
+ *   published experiment", "View the public page" (PU-06) and "Back to Ready to publish"; or the
+ *   send back with its reason. Read-only (in academic review, back with the Academic Reviewer,
+ *   with the vendor): the notice, "Nothing to decide yet." and "Back to the Content library".
  */
 export function PublicationDecision({ submissionId }: { readonly submissionId: string }) {
   const read = usePublicationDecision(submissionId);
   const view = read.data?.ok ? read.data.value : null;
-  // The top bar names the destination below 1024 px (f2 … f5); the crumbs name the record.
   useShellPage({
     ...publicationDecisionPlacement(
       view ? { id: view.submission.id, name: view.submission.content.name } : null,
     ),
     title: READY_TO_PUBLISH_TITLE,
   });
-  return (
-    <PageContent wrap="wide">
-      <RecordGuard
-        read={read}
-        loadingLabel={stateWords('CM-03.loading')}
-        failed={{ title: stateWords('CM-03.failed'), line: stateWords('CM-03.failed.line') }}
-      >
-        {(page) => (
-          <Decision key={page.submission.id} view={page} onReread={() => read.refetch()} />
-        )}
-      </RecordGuard>
-    </PageContent>
+  const guard = (
+    <RecordGuard
+      read={read}
+      loadingLabel={stateWords('CM-03.loading')}
+      failed={{ title: stateWords('CM-03.failed'), line: stateWords('CM-03.failed.line') }}
+    >
+      {(page) => <Decision key={page.submission.id} view={page} onReread={() => read.refetch()} />}
+    </RecordGuard>
   );
+  // The application's existing loading and failed states keep their v46 look (CM-v1 HANDOFF §4).
+  return view ? guard : <V46Island>{guard}</V46Island>;
 }
 
-/** A refused decision, as the panel says it (state-copy `CM-03.stale.*`, `CM-03.moved-on`). */
-type PanelNotice = 'stale' | 'moved-on';
+type FocusTarget = 'decided' | 'title' | 'stale';
 
 function Decision({
   view,
@@ -140,401 +167,455 @@ function Decision({
   readonly view: PublicationDecisionView;
   readonly onReread: () => Promise<unknown>;
 }) {
-  const facts = decisionFacts(view);
-  const { submission } = view;
-  const [notice, setNotice] = useState<PanelNotice | null>(null);
+  // After a refusal because the record changed meanwhile, the page keeps what it showed until
+  // "Show where it is now" (state-copy `CM-03.stale.changed`); the record is read again behind it.
+  const [frozen, setFrozen] = useState<PublicationDecisionView | null>(null);
+  const shown = frozen ?? view;
+  const facts = decisionFacts(shown);
+  const { submission } = shown;
+  const [movedOn, setMovedOn] = useState(false);
+  /** Decided on this page: the send back's result shows here, not the read-only notice. */
+  const [decidedHere, setDecidedHere] = useState(false);
+  const today = useCmTodayLine();
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const decidedRef = useRef<HTMLDivElement>(null);
-  // Focus to the result once the decision is read back (B6-07 `focus(pid + '-cdec')`), or to the
-  // panel’s heading after a refusal (the record moved on).
-  const [focusTo, setFocusTo] = useState<{
-    readonly target: 'decided' | 'title';
-    readonly n: number;
-  }>({ target: 'title', n: 0 });
+  const doneRef = useRef<HTMLDivElement>(null);
+  const staleRef = useRef<HTMLDivElement>(null);
+  const [focusTo, setFocusTo] = useState<{ readonly target: FocusTarget; readonly n: number }>({
+    target: 'title',
+    n: 0,
+  });
   useEffect(() => {
     if (focusTo.n === 0) return;
-    (focusTo.target === 'decided' ? decidedRef.current : titleRef.current)?.focus();
-  }, [focusTo, facts.kind]);
-  const focus = (target: 'decided' | 'title') =>
-    setFocusTo((current) => ({ target, n: current.n + 1 }));
+    const target =
+      focusTo.target === 'decided'
+        ? doneRef.current
+        : focusTo.target === 'stale'
+          ? staleRef.current
+          : titleRef.current;
+    target?.focus();
+  }, [focusTo, facts.kind, frozen]);
+  const focus = (target: FocusTarget) => setFocusTo((current) => ({ target, n: current.n + 1 }));
 
-  const metaApproval = facts.approval;
+  const fresh = view.submission.status;
+  const stale = frozen
+    ? staleLine(
+        submission.content.name,
+        fresh.state === 'published' ? (dateTime(fresh.at).split(', ')[1] ?? '') : null,
+      )
+    : null;
+
+  const toLibrary = !decidedHere && (facts.kind === 'read-only' || facts.kind === 'sent');
+  const crumb = toLibrary
+    ? { label: CONTENT_LIBRARY_TITLE, href: libraryAddress(facts.libraryTab) }
+    : { label: READY_TO_PUBLISH_TITLE, href: READY_TO_PUBLISH_ADDRESS };
+
   let panel: ReactNode;
   if (facts.kind === 'open') {
     panel = (
       <OpenPanel
-        view={view}
+        view={shown}
         facts={facts}
-        decidedRef={decidedRef}
+        doneRef={doneRef}
         onDecided={() => {
-          setNotice(null);
+          setMovedOn(false);
+          setDecidedHere(true);
           focus('decided');
         }}
-        onRefused={(kind) => {
-          setNotice(kind);
+        onMovedOn={() => {
+          setFrozen(null);
+          setMovedOn(true);
           void onReread();
           focus('title');
         }}
-        onStale={() => void onReread()}
+        onStale={() => {
+          setFrozen((current) => current ?? view);
+          void onReread();
+          focus('stale');
+        }}
       />
     );
   } else if (facts.kind === 'published' && facts.published) {
-    const when = dateTime(facts.published.at);
-    const experimentId =
-      submission.status.state === 'published' ? submission.status.experimentId : null;
-    panel = (
-      <div id={DECIDED_ID} ref={decidedRef} tabIndex={-1} className="flex flex-col gap-3">
-        {/* B6-07 f4 draws the pill across the panel (the board loads no xr-admin.css). */}
-        <StatusPill tone="ok" className="self-stretch">
-          {DECISION_PANEL.published}
-        </StatusPill>
-        <p className="xr-small m-0 text-ink-2">
-          {publishedWhen(
-            dayMonthYear(facts.published.at),
-            when.split(', ')[1] ?? '',
-            facts.published.by,
-          )}
-        </p>
-        <p className="xr-body m-0 text-ink">{publishedLine(facts.course, facts.codes)}</p>
-        {experimentId ? (
-          <p className="xr-body m-0">
-            <Link href={PUBLIC_EXPERIMENT(experimentId)}>{stateWords('CM-03.published.view')}</Link>
-          </p>
-        ) : null}
-        <Link className="xr-btn xr-btn--secondary xr-btn--block" href={CONTENT_LIBRARY_ADDRESS}>
-          {DECISION_PANEL.openLibrary}
-        </Link>
-      </div>
-    );
-  } else if (facts.kind === 'sent' && facts.sentBack) {
-    const sent = facts.sentBack;
-    panel = (
-      <div id={DECIDED_ID} ref={decidedRef} tabIndex={-1} className="flex flex-col gap-3">
-        <StatusPill tone="wait" className="self-stretch">
-          {sent.to === 'academic-reviewer'
-            ? DECISION_PANEL.sentToReviewer
-            : DECISION_PANEL.sentToVendor}
-        </StatusPill>
-        <p className="xr-small m-0 text-ink-2">
-          {sentBackMeta(dateTime(sent.at), sent.by, sent.reason)}
-        </p>
-        <p className="xr-body m-0 text-ink">{DECISION_PANEL.sentLine}</p>
-        <Link className="xr-btn xr-btn--secondary xr-btn--block" href={READY_TO_PUBLISH_ADDRESS}>
-          {DECISION_PANEL.backToReady}
-        </Link>
-      </div>
-    );
+    panel = <PublishedResult view={shown} facts={facts} doneRef={doneRef} />;
+  } else if (facts.kind === 'sent' && facts.sentBack && decidedHere) {
+    panel = <SentResult view={shown} facts={facts} doneRef={doneRef} />;
   } else {
-    panel = (
-      <div id={DECIDED_ID} ref={decidedRef} tabIndex={-1} className="flex flex-col gap-3">
-        <p className="xr-body m-0 text-ink-2">{DECISION_PANEL.nothingYet}</p>
-      </div>
-    );
+    panel = <ReadOnlyPanel facts={facts} />;
   }
 
   return (
     <>
-      <PageHeader
-        className="[margin:8px_0_16px]"
-        back={<BackLink href={READY_TO_PUBLISH_ADDRESS}>{READY_TO_PUBLISH_TITLE}</BackLink>}
-        overline={decisionOverline(submission.id)}
+      <CmIdentityBand
+        breadcrumbs={<Breadcrumbs levels={[crumb]} current={submission.content.name} />}
+        date={today}
+        eyebrow={decisionOverline(submission.id)}
         title={submission.content.name}
-        meta={
+        titleId={TITLE_ID}
+        status={
           <>
-            <StatusPill tone={facts.chip.tone}>{facts.chip.words}</StatusPill>
-            <span>
-              {decisionMetaLine(submission.vendorOrganisation, facts.course, metaApproval)}
-            </span>
+            <StatusPill tone={facts.pill.tone} size="lg">
+              {facts.pill.words}
+            </StatusPill>
+            <span>{fromVendor(submission.vendorOrganisation)}</span>
+            <CmCourseName code={facts.courseCode} name={facts.courseName} />
           </>
         }
+        goTo={{ label: DECISION_PAGE.goTo, targetId: PANEL_ID, focusId: PANEL_TITLE_ID }}
+        facts={facts.bandFacts}
+        track={
+          <CmStageTrack
+            placement="band"
+            label={STAGE_TRACK_LABEL.submission}
+            steps={submissionStages(submission, facts.blockers.length)}
+            stateWords={CM_STAGE_STATE_WORDS}
+            youLabel={YOUR_STEP}
+          />
+        }
       />
-      <DecisionLayout
-        panel={{
-          id: PANEL_ID,
-          title: DECISION_PANEL.title,
-          titleFocusTarget: true,
-          titleRef,
-          position: 'static',
-          children: (
-            <>
-              {notice ? <RefusedNotice notice={notice} /> : null}
-              {panel}
-            </>
-          ),
-        }}
-      >
-        {facts.readOnly ? (
-          <Notice tone="info" role="status" title={facts.readOnly.title}>
-            {facts.readOnly.line}
-          </Notice>
-        ) : null}
-        <CataloguePreview view={view} />
-        <PublicationCheck facts={facts} />
-        <Summary view={view} facts={facts} />
-        <Section title={DECISION_PAGE.historyTitle} meta={DECISION_PAGE.historyMeta}>
-          <SectionBody>
-            <Timeline events={facts.history} markLatest={false} />
-          </SectionBody>
-        </Section>
-      </DecisionLayout>
+      {stale ? (
+        <Notice
+          ref={staleRef}
+          id={STALE_ID}
+          tone="warn"
+          icon="alertCircle"
+          role="alert"
+          title={STALE_NOTICE.title}
+          actions={
+            <Button
+              onClick={() => {
+                setFrozen(null);
+                setMovedOn(false);
+                void onReread();
+                focus('title');
+              }}
+            >
+              {STALE_NOTICE.action}
+            </Button>
+          }
+        >
+          {stale}
+        </Notice>
+      ) : null}
+      <DetailLayout
+        main={<RecordSheet view={shown} facts={facts} />}
+        asideId={PANEL_ID}
+        asideLabelledBy={PANEL_TITLE_ID}
+        aside={
+          <DecisionPanel title={DECISION_PANEL.title} titleId={PANEL_TITLE_ID} titleRef={titleRef}>
+            {movedOn ? (
+              <Notice
+                tone="warn"
+                icon="alertCircle"
+                role="alert"
+                title={stateWords('CM-03.moved-on')}
+              />
+            ) : null}
+            {panel}
+          </DecisionPanel>
+        }
+      />
     </>
   );
 }
 
-function RefusedNotice({ notice }: { readonly notice: PanelNotice }) {
-  if (notice === 'stale') {
-    return (
-      <Notice tone="warn" role="alert" title={stateWords('CM-03.stale.title')}>
-        {stateWords('CM-03.stale.line')}
-      </Notice>
-    );
-  }
-  return (
-    <Notice tone="warn" role="alert">
-      {stateWords('CM-03.moved-on')}
-    </Notice>
-  );
-}
+// ---- the record's sheet ----------------------------------------------------------------------------
 
-// ---- the main column (B6-07 AR-4, ~72 %) ----
-
-/** The catalogue preview as the public will see it (`div.xp.xg-preview`, B6-07 f0, f2, f5). */
-function CataloguePreview({ view }: { readonly view: PublicationDecisionView }) {
-  const preview = view.cataloguePreview;
-  return (
-    <Section title={DECISION_PAGE.previewTitle} meta={DECISION_PAGE.previewMeta}>
-      <SectionBody>
-        <div className="xp xg-preview">
-          <span className="xg-preview-tag">{DECISION_PAGE.previewTag}</span>
-          <span className="xp-erow-course">
-            {courseLine(preview.platformCode, preview.courseName)}
-          </span>
-          <h3 className="xp-erow-title [margin:2px_0_6px]">{preview.name}</h3>
-          <p className="xp-erow-sum [margin:0_0_10px]">{preview.summary}</p>
-          <FormatChips formats={preview.availableIn} label={DECISION_PAGE.availableIn} />
-          <h4 className="xg-preview-h">{DECISION_PAGE.previewOutcomes}</h4>
-          {preview.learningOutcomes.length > 0 ? (
-            <ul className="xp-outcomes">
-              {preview.learningOutcomes.map((outcome, index) => (
-                <li key={index}>
-                  <Icon name="done" />
-                  <span>{outcome}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="xl-meta m-0">{DECISION_PAGE.noOutcomes}</p>
-          )}
-          <h4 className="xg-preview-h">{DECISION_PAGE.previewFormats}</h4>
-          <table className="xp-ftable">
-            <thead>
-              <tr>
-                <th>{DECISION_PAGE.columnFormat}</th>
-                <th>{DECISION_PAGE.columnHow}</th>
-                <th>{DECISION_PAGE.columnDevice}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {preview.formats.map((entry) => (
-                <tr key={entry.format}>
-                  <td data-label={DECISION_PAGE.columnFormat}>
-                    <FormatBadge format={FORMAT_META[entry.format].code} />
-                    <span className="xp-fname">{FORMAT_META[entry.format].name}</span>
-                  </td>
-                  <td data-label={DECISION_PAGE.columnHow}>{entry.howItRuns}</td>
-                  <td data-label={DECISION_PAGE.columnDevice}>{entry.deviceNeeds}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </SectionBody>
-    </Section>
-  );
-}
-
-/** “Publication check · Read from the record” (`ul.xa-check.xv-checklist`, B6-07 f0, f2, f3). */
-function PublicationCheck({ facts }: { readonly facts: DecisionFacts }) {
-  return (
-    <Section title={DECISION_PAGE.checkTitle} meta={DECISION_PAGE.checkMeta}>
-      <SectionBody>
-        <ul className="xa-check xv-checklist" aria-label={DECISION_PAGE.checkTitle}>
-          {facts.checks.map((row) => (
-            <li key={row.check} className="xv-check-row">
-              <span className={row.ok ? 'is-ok' : 'is-no'}>
-                <Icon name={row.ok ? 'done' : 'failed'} />
-              </span>
-              <span className="xv-check-t">
-                {row.title}
-                <span className="xr-meta block">{row.line}</span>
-                {row.fix ? <span className="xr-meta block text-err">{row.fix}</span> : null}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </SectionBody>
-    </Section>
-  );
-}
-
-/** “Submission and review summary” with each format’s status (B6-07 f0, f3, f4). */
-function Summary({
+function RecordSheet({
   view,
   facts,
 }: {
   readonly view: PublicationDecisionView;
   readonly facts: DecisionFacts;
 }) {
-  const { submission } = view;
+  const { submission, cataloguePreview: preview } = view;
   const content = submission.content;
+  const availableIn = preview.availableIn.map((format) => FORMAT_META[format].code);
+  const documents = content.documents.map((document) => document.fileName).join(' · ');
   return (
-    <Section title={DECISION_PAGE.summaryTitle}>
-      <SectionBody className="flex flex-col gap-4">
-        <dl className="xl-kv xv-kv">
-          <dt>{DECISION_PAGE.fromVendor}</dt>
-          <dd>{facts.fromVendor}</dd>
-          <dt>{DECISION_PAGE.submissions}</dt>
-          <dd>
-            {submissionsLine(
-              submission.firstSubmittedAt ? dayMonthYear(submission.firstSubmittedAt) : '',
-              submission.lastResubmittedAt ? dayMonthYear(submission.lastResubmittedAt) : null,
-              submission.revision,
-            )}
-          </dd>
-          <dt>{DECISION_PAGE.academicReview}</dt>
-          <dd>
-            {facts.approval
-              ? reviewLine(facts.approval.by, facts.approval.on, facts.returns)
-              : DECISION_PAGE.notDecided}
-          </dd>
-          <dt>{DECISION_PAGE.version}</dt>
-          <dd>{content.version ?? ''}</dd>
-          <dt>{DECISION_PAGE.description}</dt>
-          <dd>{content.description ?? ''}</dd>
-        </dl>
-        <div className="xr-table-wrap">
-          <table className="xr-table">
-            <thead>
-              <tr>
-                <th>{DECISION_PAGE.columnFormat}</th>
-                <th>{DECISION_PAGE.columnDelivery}</th>
-                <th>{DECISION_PAGE.columnStatus}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {facts.formats.map((row) => (
-                <tr key={row.format}>
-                  <td data-label={DECISION_PAGE.columnFormat}>
-                    <FormatBadge format={FORMAT_META[row.format].code} />
-                  </td>
-                  <td data-label={DECISION_PAGE.columnDelivery}>{row.delivery}</td>
-                  <td data-label={DECISION_PAGE.columnStatus}>{row.status}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <p className="xl-open m-0">
-          <Icon name="info" size={16} />
-          <span>{DECISION_PAGE.allFormats}</span>
-        </p>
-      </SectionBody>
-    </Section>
+    <>
+      <CmSheetSection title={DECISION_PAGE.checkTitle} titleId="cm-d-check" verdict={facts.verdict}>
+        <CmPublicationChecks
+          label={DECISION_PAGE.checkTitle}
+          stateWords={CHECK_STATE}
+          items={facts.checks.map((row) => ({
+            key: row.check,
+            title: row.title,
+            detail: row.line,
+            met: row.ok,
+            fix: row.fix,
+          }))}
+        />
+      </CmSheetSection>
+      <CmSheetSection
+        title={DECISION_PAGE.previewTitle}
+        titleId="cm-d-cat"
+        note={DECISION_PAGE.previewMeta}
+      >
+        <CmCatalogueEntry
+          nameId="cm-d-cat-name"
+          tag={
+            facts.kind === 'published'
+              ? { words: DECISION_PAGE.inCatalogueTag, tone: 'ok' }
+              : { words: DECISION_PAGE.previewTag, tone: 'neutral' }
+          }
+          course={{ code: preview.platformCode, name: preview.courseName }}
+          name={preview.name}
+          summary={preview.summary}
+          availableIn={DECISION_PAGE.availableIn}
+          formats={availableIn}
+          formatsLabel={formatsLabel(availableIn)}
+          outcomesTitle={DECISION_PAGE.outcomesTitle}
+          outcomes={preview.learningOutcomes}
+          noOutcomes={DECISION_PAGE.noOutcomes}
+          formatsTitle={DECISION_PAGE.formatsTitle}
+        >
+          <CmFormatRows
+            head={[DECISION_PAGE.columnFormat, DECISION_PAGE.columnHow, DECISION_PAGE.columnDevice]}
+            rows={preview.formats.map((entry) => ({
+              key: entry.format,
+              code: FORMAT_META[entry.format].code,
+              name: FORMAT_META[entry.format].name,
+              cells: [
+                { label: DECISION_PAGE.columnHow, lines: [entry.howItRuns] },
+                {
+                  label: DECISION_PAGE.columnDevice,
+                  lines: [entry.deviceNeeds.trim() || DECISION_PAGE.notGivenYet],
+                },
+              ],
+            }))}
+          />
+        </CmCatalogueEntry>
+      </CmSheetSection>
+      <CmSheetSection title={DECISION_PAGE.summaryTitle} titleId="cm-d-sum">
+        <DefinitionList
+          items={[
+            { term: DECISION_PAGE.fromVendor, value: facts.fromVendor },
+            {
+              term: DECISION_PAGE.submissions,
+              value: submissionsLine(
+                submission.firstSubmittedAt ? dayMonthYear(submission.firstSubmittedAt) : '',
+                submission.lastResubmittedAt ? dayMonthYear(submission.lastResubmittedAt) : null,
+                submission.revision,
+              ),
+            },
+            { term: DECISION_PAGE.academicReview, value: facts.reviewLine },
+            { term: DECISION_PAGE.version, value: content.version ?? '' },
+            { term: DECISION_PAGE.description, value: content.description ?? '' },
+            ...(content.preview.label
+              ? [{ term: DECISION_PAGE.preview, value: content.preview.label }]
+              : []),
+            ...(documents ? [{ term: DECISION_PAGE.documents, value: documents }] : []),
+          ]}
+        />
+        <CmSubHeading>{DECISION_PAGE.deliveryTitle}</CmSubHeading>
+        <CmFormatRows
+          head={[
+            DECISION_PAGE.columnFormat,
+            DECISION_PAGE.columnDelivery,
+            DECISION_PAGE.columnStatus,
+          ]}
+          rows={facts.delivery.map((row) => ({
+            key: row.format,
+            code: row.code,
+            name: row.name,
+            cells: [
+              { label: DECISION_PAGE.columnDelivery, lines: row.lines },
+              { label: DECISION_PAGE.columnStatus, lines: [row.status] },
+            ],
+          }))}
+        />
+        <Hint under="list">{DECISION_PAGE.allFormats}</Hint>
+      </CmSheetSection>
+      <CmSheetSection
+        title={DECISION_PAGE.historyTitle}
+        titleId="cm-d-hist"
+        note={DECISION_PAGE.historyMeta}
+      >
+        <Timeline events={facts.history} />
+      </CmSheetSection>
+    </>
   );
 }
 
-// ---- the decision panel (B6-07 AR-4, ~28 %) ----
+// ---- the decision panel: results and read-only -----------------------------------------------------
+
+function PublishedResult({
+  view,
+  facts,
+  doneRef,
+}: {
+  readonly view: PublicationDecisionView;
+  readonly facts: DecisionFacts;
+  readonly doneRef: RefObject<HTMLDivElement | null>;
+}) {
+  const identity = useWorkspaceIdentity();
+  const published = facts.published!;
+  const status = view.submission.status;
+  const experimentId = status.state === 'published' ? status.experimentId : null;
+  const when = dateTime(published.at);
+  const by = published.by;
+  const meta =
+    by && by.kind === 'person' && by.personId !== identity.personId
+      ? stateWords('CM-03.published-by').replace('{name}', by.displayName).replace('{when}', when)
+      : publishedByYou(when);
+  return (
+    <DecisionOutcome
+      id={DONE_ID}
+      outcomeRef={doneRef}
+      status={
+        <StatusPill tone="ok" size="lg">
+          {DECISION_RESULT.published}
+        </StatusPill>
+      }
+      meta={meta}
+    >
+      <StandList
+        items={[
+          { term: DECISION_RESULT.catalogue, value: listedUnder(facts.courseShort, facts.codes) },
+          {
+            term: DECISION_RESULT.institutionAccess,
+            value: DECISION_RESULT.institutionUnchanged,
+          },
+          { term: DECISION_RESULT.studentAccess, value: DECISION_RESULT.studentUnchanged },
+          { term: DECISION_RESULT.vendorAndReviewer, value: DECISION_RESULT.seePublished },
+        ]}
+      />
+      <RecordLine>{DECISION_RESULT.publishedNext}</RecordLine>
+      {experimentId ? (
+        <>
+          <CmWideLink variant="navy" href={publishedExperimentAddress(experimentId)}>
+            {DECISION_RESULT.openPublished}
+          </CmWideLink>
+          <CmWideLink icon="externalLink" href={PUBLIC_EXPERIMENT(experimentId)}>
+            {DECISION_RESULT.viewPublic}
+          </CmWideLink>
+        </>
+      ) : null}
+      <CmWideLink href={READY_TO_PUBLISH_ADDRESS}>{DECISION_PANEL.backToReady}</CmWideLink>
+    </DecisionOutcome>
+  );
+}
+
+function SentResult({
+  view,
+  facts,
+  doneRef,
+}: {
+  readonly view: PublicationDecisionView;
+  readonly facts: DecisionFacts;
+  readonly doneRef: RefObject<HTMLDivElement | null>;
+}) {
+  const sent = facts.sentBack!;
+  const toReviewer = sent.to === 'academic-reviewer';
+  return (
+    <DecisionOutcome
+      id={DONE_ID}
+      outcomeRef={doneRef}
+      status={
+        <StatusPill tone={toReviewer ? 'info' : 'neutral'} size="lg">
+          {toReviewer ? DECISION_RESULT.backWithReviewer : DECISION_RESULT.withVendor}
+        </StatusPill>
+      }
+      meta={sentBackByYou(dateTime(sent.at))}
+    >
+      <Quote>{quoted(sent.reason)}</Quote>
+      <StandList
+        items={[
+          { term: DECISION_RESULT.catalogue, value: DECISION_RESULT.notPublished },
+          { term: DECISION_RESULT.readyToPublish, value: DECISION_RESULT.removedUntilApproved },
+          {
+            term: DECISION_RESULT.nowWith,
+            value: toReviewer
+              ? withReviewer(facts.reviewerName)
+              : view.submission.vendorOrganisation,
+          },
+        ]}
+      />
+      <RecordLine>
+        {toReviewer ? DECISION_RESULT.sentReviewerNext : DECISION_RESULT.sentVendorNext}
+      </RecordLine>
+      <CmWideLink href={READY_TO_PUBLISH_ADDRESS}>{DECISION_PANEL.backToReady}</CmWideLink>
+    </DecisionOutcome>
+  );
+}
+
+function ReadOnlyPanel({ facts }: { readonly facts: DecisionFacts }) {
+  const notice = facts.readOnly;
+  return (
+    <>
+      {notice ? (
+        <Notice tone={notice.tone} icon={notice.icon} role="status" title={notice.title}>
+          {notice.line}
+        </Notice>
+      ) : null}
+      <Hint>{DECISION_PANEL.nothingYet}</Hint>
+      <CmWideLink href={libraryAddress(facts.libraryTab)}>
+        {DECISION_PANEL.backToLibrary}
+      </CmWideLink>
+    </>
+  );
+}
+
+// ---- the decision panel: open --------------------------------------------------------------------
 
 type Choice = 'publish' | 'send';
 
+interface DecisionErrors {
+  readonly choice?: string;
+  readonly to?: string;
+  readonly reason?: string;
+}
+
 const EMPTY_DRAFT: SendBackDraft = { to: null, reason: '', references: [] };
 
-/** The open decision: Publish or Send back (B6-07 f0, f2; B6-11 f4, f6, f7). */
+/** The ids the error summary's links focus (the choices, who, the reason). */
+const FIELD_IDS = { choice: 'cm-d-choice', to: 'cm-d-to', reason: 'cm-d-reason' } as const;
+
+/** The open decision: Publish or Send back (CM-v1 `decVM` `open`). */
 function OpenPanel({
   view,
   facts,
-  decidedRef,
+  doneRef,
   onDecided,
-  onRefused,
+  onMovedOn,
   onStale,
 }: {
   readonly view: PublicationDecisionView;
   readonly facts: DecisionFacts;
-  readonly decidedRef: RefObject<HTMLDivElement | null>;
+  readonly doneRef: RefObject<HTMLDivElement | null>;
   readonly onDecided: () => void;
-  readonly onRefused: (notice: PanelNotice) => void;
+  readonly onMovedOn: () => void;
   readonly onStale: () => void;
 }) {
   const { submission } = view;
   const blocked = facts.blockers.length > 0;
   const publishCmd = useCommand((ports) => ports.production.publish);
   const sendCmd = useCommand((ports) => ports.production.sendBack);
-  const [choice, setChoice] = useState<Choice>('publish');
-  const [dialog, setDialog] = useState<Choice | null>(null);
-  /** The record’s revision when the confirmation opened (state-copy `CM-03.decision-rev`). */
+  const [choice, setChoice] = useState<Choice | null>(null);
+  const [dialog, setDialog] = useState(false);
+  /** The record's revision when the confirmation opened (state-copy `CM-03.decision-rev`). */
   const [decisionRev, setDecisionRev] = useState(submission.rev);
   const [draft, setDraft] = useState<SendBackDraft>(EMPTY_DRAFT);
-  const [errors, setErrors] = useState<SendBackErrors>({});
-  const [dialogNotice, setDialogNotice] = useState<'stale' | 'unavailable' | null>(null);
-  const [focusWho, setFocusWho] = useState(0);
-  const whoRef = useRef<HTMLInputElement>(null);
-  const shown: Choice = blocked ? 'send' : choice;
-
-  // A failed Send back with no one chosen: focus to “Academic Reviewer” (B6-07 `doSend`), after
-  // the dialog’s own move to the first invalid field.
+  const [errors, setErrors] = useState<DecisionErrors>({});
+  const [dialogNotice, setDialogNotice] = useState(false);
+  const [sendNotice, setSendNotice] = useState(false);
+  const summaryRef = useRef<HTMLDivElement>(null);
+  const [summaryFocus, setSummaryFocus] = useState(0);
+  // A refused press while the summary is already shown: focus it again.
   useEffect(() => {
-    if (focusWho > 0) whoRef.current?.focus();
-  }, [focusWho]);
+    if (summaryFocus > 0) summaryRef.current?.focus();
+  }, [summaryFocus]);
 
-  const open = () => {
-    setDecisionRev(submission.rev);
-    setDialogNotice(null);
-    if (shown === 'send') {
-      setDraft(EMPTY_DRAFT);
-      setErrors({});
-      setDialog('send');
-    } else {
-      setDialog('publish');
-    }
+  const shown: Choice | null = blocked ? 'send' : choice;
+  const options = referenceOptions(submission, 'cm-d-ref');
+
+  const showErrors = (found: DecisionErrors) => {
+    setErrors(found);
+    setSummaryFocus((count) => count + 1);
   };
 
-  const close = () => {
-    setDialog(null);
-    setDialogNotice(null);
-  };
-
-  /** A refusal of either command (the dialog closes; the record is read again). */
-  const refused = (error: ServiceError) => {
-    setDialog(null);
-    onRefused(error.kind === 'stale-version' ? 'stale' : 'moved-on');
-  };
-
-  const doPublish = () => {
-    if (publishCmd.busy) return;
-    setDialogNotice(null);
-    publishCmd.run({ id: submission.id, expectedRev: decisionRev }).then(
-      (answer) => {
-        if (!answer.ok) {
-          refused(answer.error);
-          return;
-        }
-        setDialog(null);
-        onDecided();
-      },
-      () => setDialogNotice('unavailable'),
-    );
-  };
-
-  const doSend = () => {
-    if (sendCmd.busy) return;
-    const checked = checkSendBack(draft);
-    if (checked) {
-      setErrors(checked);
-      if (checked.to) setFocusWho((count) => count + 1);
-      return;
-    }
-    setErrors({});
-    setDialogNotice(null);
+  const send = () => {
+    if (sendCmd.busy || draft.to === null) return;
+    setSendNotice(false);
     const input =
       draft.to === 'vendor'
         ? {
@@ -542,40 +623,74 @@ function OpenPanel({
             to: 'vendor' as const,
             reason: draft.reason,
             references: draft.references,
-            expectedRev: decisionRev,
+            expectedRev: submission.rev,
           }
         : {
             id: submission.id,
             to: 'academic-reviewer' as const,
             reason: draft.reason,
-            expectedRev: decisionRev,
+            expectedRev: submission.rev,
           };
     sendCmd.run(input).then(
       (answer) => {
         if (answer.ok) {
-          setDialog(null);
           setDraft(EMPTY_DRAFT);
           onDecided();
           return;
         }
-        const error = answer.error;
+        const error: ServiceError = answer.error;
         if (error.kind === 'validation-failed') {
-          const fields = sendBackErrorsOf(error);
-          setErrors(fields);
-          if (fields.to) setFocusWho((count) => count + 1);
+          showErrors(sendBackErrorsOf(error));
           return;
         }
-        if (error.kind === 'stale-version') {
-          // What was chosen and typed stays; the record is read again and the next press sends
-          // with its current revision (state-copy `CM-03.stale.*`).
-          setDecisionRev(error.currentRev);
-          setDialogNotice('stale');
+        // The record changed meanwhile (another revision, or decided from another tab or window):
+        // what was chosen and typed stays (state-copy `CM-03.stale.changed`).
+        if (error.kind === 'stale-version' || error.kind === 'invalid-state') {
           onStale();
           return;
         }
-        refused(error);
+        onMovedOn();
       },
-      () => setDialogNotice('unavailable'),
+      () => setSendNotice(true),
+    );
+  };
+
+  const go = () => {
+    if (sendCmd.busy) return;
+    const found: { choice?: string; to?: string; reason?: string } = {};
+    if (shown === null) found.choice = DECISION_PANEL.chooseDecision;
+    if (shown === 'send') Object.assign(found, checkSendBack(draft) ?? {});
+    if (found.choice || found.to || found.reason) {
+      showErrors(found);
+      return;
+    }
+    setErrors({});
+    if (shown === 'publish') {
+      setDecisionRev(submission.rev);
+      setDialogNotice(false);
+      setDialog(true);
+      return;
+    }
+    send();
+  };
+
+  const doPublish = () => {
+    if (publishCmd.busy) return;
+    setDialogNotice(false);
+    publishCmd.run({ id: submission.id, expectedRev: decisionRev }).then(
+      (answer) => {
+        setDialog(false);
+        if (answer.ok) {
+          onDecided();
+          return;
+        }
+        // Changed meanwhile (another revision, or decided from another tab or window): the page is
+        // out of date (`CM-03.stale.changed`); any other refusal: it moved on (`CM-03.moved-on`).
+        const kind = answer.error.kind;
+        if (kind === 'stale-version' || kind === 'invalid-state') onStale();
+        else onMovedOn();
+      },
+      () => setDialogNotice(true),
     );
   };
 
@@ -584,177 +699,184 @@ function OpenPanel({
     setErrors((current) => ({ ...current, to: undefined }));
   };
 
-  const toggleReference = (reference: ReturnReference) =>
-    setDraft((current) => ({
-      ...current,
-      references: current.references.some((entry) => sameReference(entry, reference))
-        ? current.references.filter((entry) => !sameReference(entry, reference))
-        : [...current.references, reference],
-    }));
+  const summary: ErrorSummaryItem[] = (['choice', 'to', 'reason'] as const)
+    .filter((key) => errors[key])
+    .map((key) => ({ fieldId: FIELD_IDS[key], summaryText: errors[key]! }));
 
   const reasonLabel =
     draft.to === 'vendor'
-      ? SEND_BACK_DIALOG.reasonForVendor
+      ? DECISION_PANEL.reasonForVendor
       : draft.to === 'academic-reviewer'
-        ? SEND_BACK_DIALOG.reasonForReviewer
-        : SEND_BACK_DIALOG.reasonForEither;
+        ? DECISION_PANEL.reasonForReviewer
+        : DECISION_PANEL.reasonForEither;
+  const pending =
+    shown === null
+      ? DECISION_PANEL.pendingChoose
+      : shown === 'send' && (draft.to === null || draft.reason.trim() === '')
+        ? blocked
+          ? DECISION_PANEL.pendingBlocked
+          : DECISION_PANEL.pendingSend
+        : null;
 
   return (
     <>
       {blocked ? (
-        <div className="xr-notice xr-notice--err" role="status">
-          <Icon name="failed" />
-          <div className="xr-notice-body">
-            <span className="xr-notice-title">{blockersTitle(facts.blockers.length)}</span>
-            <ul className="[margin:2px_0_0] [padding-left:18px]">
-              {facts.blockers.map((row) => (
-                <li key={row.check}>{blockerLine(row.title, row.line, row.fix)}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        <CmBlockers
+          title={blockersTitle(facts.blockers.length)}
+          items={facts.blockers.map((row) => blockerLine(row.title, row.line, row.fix))}
+        />
       ) : null}
-      <RadioGroup
+      <ErrorSummary
+        ref={summaryRef}
+        id="cm-d-errs"
+        title={DECISION_PANEL.errorsTitle}
+        items={summary}
+      />
+      {sendNotice ? (
+        <Notice
+          tone="warn"
+          icon="alertCircle"
+          role="alert"
+          title={stateWords('CM-03.unavailable.send')}
+        />
+      ) : null}
+      <ChoiceGroup<Choice>
+        id={FIELD_IDS.choice}
+        name="cm-d-choice"
         legend={DECISION_PANEL.legend}
-        legendClass="xr-sr"
         value={shown}
-        onValueChange={(value) => setChoice(value as Choice)}
-      >
-        <ChoiceList>
-          {blocked ? (
-            <ChoiceCard
-              id="cm-cpx"
-              value="publish-off"
-              title={DECISION_PANEL.publish}
-              sub={DECISION_PANEL.publishOff}
-              unavailable
-            />
-          ) : (
-            <ChoiceCard
-              id="cm-cp"
-              value="publish"
-              title={DECISION_PANEL.publish}
-              sub={DECISION_PANEL.publishSub}
-            />
-          )}
-          <ChoiceCard
-            id="cm-cs"
-            value="send"
-            title={DECISION_PANEL.sendBack}
-            sub={DECISION_PANEL.sendBackSub}
+        error={errors.choice}
+        onChange={(value) => {
+          setChoice(value);
+          setErrors({});
+        }}
+        options={[
+          {
+            value: 'publish',
+            title: DECISION_PANEL.publish,
+            description: blocked ? DECISION_PANEL.publishOff : DECISION_PANEL.publishSub,
+            unavailable: blocked,
+          },
+          {
+            value: 'send',
+            title: DECISION_PANEL.sendBack,
+            description: DECISION_PANEL.sendBackSub,
+          },
+        ]}
+      />
+      {shown === 'send' ? (
+        <>
+          <ChoiceGroup<SendBackTo>
+            id={FIELD_IDS.to}
+            name="cm-d-to"
+            legend={DECISION_PANEL.to}
+            legendHint={DECISION_PANEL.toHint}
+            value={draft.to}
+            error={errors.to}
+            onChange={setTo}
+            options={[
+              {
+                value: 'academic-reviewer',
+                title: DECISION_PANEL.reviewer,
+                description: DECISION_PANEL.reviewerSub,
+              },
+              {
+                value: 'vendor',
+                title: DECISION_PANEL.vendor,
+                description: vendorChoiceSub(submission.vendorOrganisation),
+              },
+            ]}
           />
-        </ChoiceList>
-      </RadioGroup>
-      <Button id="cm-cgo" variant="primary" block onClick={open}>
+          <Field
+            id={FIELD_IDS.reason}
+            label={requiredLabel(reasonLabel)}
+            hint={DECISION_PANEL.reasonHint}
+            error={errors.reason}
+          >
+            <Textarea
+              value={draft.reason}
+              onChange={(event) => {
+                const reason = event.target.value;
+                setDraft((current) => ({ ...current, reason }));
+                setErrors((current) => ({ ...current, reason: undefined }));
+              }}
+            />
+          </Field>
+          {draft.to === 'vendor' ? (
+            <CheckGroup<string>
+              id="cm-d-refs"
+              legend={DECISION_PANEL.references}
+              legendHint={DECISION_PANEL.referencesHint}
+              options={options.map((option) => ({
+                value: option.id,
+                label: referenceWords(option.reference, option.formatCode),
+              }))}
+              values={options
+                .filter((option) =>
+                  draft.references.some((entry) => sameReference(entry, option.reference)),
+                )
+                .map((option) => option.id)}
+              onChange={(values) =>
+                setDraft((current) => ({
+                  ...current,
+                  references: options
+                    .filter((option) => values.includes(option.id))
+                    .map((option): ReturnReference => option.reference),
+                }))
+              }
+            />
+          ) : null}
+        </>
+      ) : null}
+      {pending ? <PendingHint>{pending}</PendingHint> : null}
+      <GoButton id="cm-d-go" busy={sendCmd.busy} busyLabel={DECISION_PANEL.sending} onClick={go}>
         {shown === 'send' ? DECISION_PANEL.sendBack : DECISION_PANEL.publish}
-      </Button>
+      </GoButton>
       <ConfirmDialog
-        open={dialog === 'publish'}
-        idPrefix="cm-p"
-        align="decision"
+        open={dialog}
+        idPrefix="cm-dlg-pub"
         title={publishTitle(submission.content.name)}
-        effect={<strong>{publishEffect(facts.course, facts.codes)}</strong>}
-        notice={
-          dialogNotice === 'unavailable' ? (
-            <Notice tone="err" role="alert">
-              {stateWords('CM-03.unavailable.publish')}
-            </Notice>
-          ) : undefined
-        }
+        description={PUBLISH_DIALOG.description}
+        groups={[
+          {
+            kind: 'now',
+            title: PUBLISH_DIALOG.now,
+            items: [
+              publishWhere(facts.courseFull, facts.codes),
+              PUBLISH_DIALOG.readOnly,
+              PUBLISH_DIALOG.corrections,
+            ],
+          },
+          {
+            kind: 'later',
+            title: PUBLISH_DIALOG.later,
+            items: [PUBLISH_DIALOG.institutions, PUBLISH_DIALOG.students],
+          },
+        ]}
         confirmLabel={PUBLISH_DIALOG.confirm}
         busy={publishCmd.busy}
         busyLabel={PUBLISH_DIALOG.busy}
+        // While it publishes, Cancel (disabled) and Escape wait for the result and focus is held
+        // on the title (CM-v1 COMPONENT-EXTENSIONS "Behaviour notes"): a command once sent is not
+        // taken back by closing its dialog.
+        holdWhileBusy
         onConfirm={doPublish}
-        onCancel={close}
-        returnFocusFallback={decidedRef}
-      />
-      <ReasonDialog
-        open={dialog === 'send'}
-        idPrefix="cm-s"
-        align="decision"
-        title={SEND_BACK_DIALOG.title}
-        effect={SEND_BACK_DIALOG.effect}
-        confirmLabel={SEND_BACK_DIALOG.confirm}
-        busy={sendCmd.busy}
-        busyLabel={SEND_BACK_DIALOG.busy}
-        onConfirm={doSend}
-        onCancel={close}
-        returnFocusFallback={decidedRef}
+        onCancel={() => {
+          if (publishCmd.busy) return;
+          setDialog(false);
+          setDialogNotice(false);
+        }}
+        returnFocusFallback={doneRef}
       >
-        {dialogNotice === 'stale' ? (
+        {dialogNotice ? (
           <Notice
             tone="warn"
+            icon="alertCircle"
             role="alert"
-            title={stateWords('CM-03.stale.title')}
-            className="mb-[14px]"
-          >
-            {stateWords('CM-03.stale.line')}
-          </Notice>
-        ) : dialogNotice === 'unavailable' ? (
-          <Notice tone="err" role="alert" className="mb-[14px]">
-            {stateWords('CM-03.unavailable.send')}
-          </Notice>
-        ) : null}
-        <RadioGroup
-          id="cm-to"
-          className="mb-[14px]"
-          legend={SEND_BACK_DIALOG.to}
-          legendClass="xr-label"
-          value={draft.to}
-          onValueChange={(value) => setTo(value as SendBackTo)}
-          error={errors.to}
-        >
-          <ChoiceList>
-            <ChoiceCard
-              ref={whoRef}
-              id="cm-to-rv"
-              value="academic-reviewer"
-              title={SEND_BACK_DIALOG.reviewer}
-              sub={SEND_BACK_DIALOG.reviewerSub}
-            />
-            <ChoiceCard
-              id="cm-to-ven"
-              value="vendor"
-              title={SEND_BACK_DIALOG.vendor}
-              sub={vendorChoiceSub(submission.vendorOrganisation)}
-            />
-          </ChoiceList>
-        </RadioGroup>
-        <Field id="cm-creason" label={reasonLabel} error={errors.reason}>
-          <Textarea
-            className="min-h-[104px]"
-            value={draft.reason}
-            onChange={(event) => {
-              const reason = event.target.value;
-              setDraft((current) => ({ ...current, reason }));
-              setErrors((current) => ({ ...current, reason: undefined }));
-            }}
+            title={stateWords('CM-03.unavailable.publish')}
           />
-        </Field>
-        {draft.to === 'vendor' ? (
-          <CheckboxGroup
-            className="mt-[14px]"
-            legend={SEND_BACK_DIALOG.references}
-            legendClass="xr-label"
-            marker={SEND_BACK_DIALOG.optional}
-            hint={SEND_BACK_DIALOG.referencesHint}
-            hintClassName="block mb-[6px]"
-          >
-            <div className="xg-refgrid">
-              {referenceOptions(submission, 'cm-ref').map((option) => (
-                <Checkbox
-                  key={option.id}
-                  id={option.id}
-                  checked={draft.references.some((entry) => sameReference(entry, option.reference))}
-                  onChange={() => toggleReference(option.reference)}
-                >
-                  <span>{referenceWords(option.reference, option.formatCode)}</span>
-                </Checkbox>
-              ))}
-            </div>
-          </CheckboxGroup>
         ) : null}
-      </ReasonDialog>
+      </ConfirmDialog>
     </>
   );
 }

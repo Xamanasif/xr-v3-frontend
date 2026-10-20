@@ -122,8 +122,10 @@ async function adminAt(admin: Page, href: string): Promise<void> {
 }
 
 /** A row of a table or list in `main` holding `text`. */
+// A row (v46 and the V3 tables) or, on the Content Manager's V3 Updates (CM-08, CM-v1), a card of
+// her correction tracker.
 const rowWith = (page: Page, text: string | RegExp): Locator =>
-  main(page).locator('tbody tr, li.xr-row').filter({ hasText: text });
+  main(page).locator('tbody tr, li.xr-row, li.cm-trk').filter({ hasText: text });
 // The Super Admin's V3 lists (SA-v1) never show a record's reference: a device transfer's row is
 // the one whose link opens its address, and a content record's link is named by its title.
 const transferRow = (page: Page, reference: string): Locator =>
@@ -785,20 +787,27 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await sidebar(desk, '/content-manager/ready');
     await reachAndClick(
       desk,
-      main(desk).getByRole('link', { name: `Open decision for ${COMPOSITE}` }),
+      main(desk).getByRole('link', { name: `Open the publication decision for ${COMPOSITE}` }),
     );
     await desk.waitForURL('**/content-manager/decisions/SUB-0077');
     await expect(main(desk)).toContainText('Ready to publish');
   });
 
   await test.step(stepTitle('E4'), async () => {
-    await reachAndClick(desk, decision(desk).getByRole('button', { name: 'Publish' }));
+    // CM-03 (V3, CM-v1): nothing is chosen first — choose Publish, then press it (the sticky panel
+    // brought to each control first).
+    const publishChoice = decision(desk).getByRole('radio', { name: 'Publish' });
+    await publishChoice.scrollIntoViewIfNeeded();
+    await reachAndClick(desk, publishChoice);
+    const publishGo = decision(desk).getByRole('button', { name: 'Publish' });
+    await publishGo.scrollIntoViewIfNeeded();
+    await reachAndClick(desk, publishGo);
     const publish = desk.getByRole('dialog', { name: `Publish “${COMPOSITE}”?` });
     await expect(publish).toContainText('Publishing gives no one access');
     await reachAndClick(desk, publish.getByRole('button', { name: 'Publish' }));
     await expect(publish).toBeHidden({ timeout: 30_000 });
-    await expect(desk.locator('#cm-cdec .xr-status--ok')).toHaveText('Published');
-    await expect(desk.locator('#cm-cdec')).toContainText('Publishing gave no one access.');
+    await expect(desk.locator('#cm-d-done .xr-st--ok')).toHaveText('Published');
+    await expect(desk.locator('#cm-d-done')).toContainText('Publishing gave no one access.');
     await signOut(desk, ACCOUNT.kavya);
     await as(desk, EMAIL.anil, '/vendor');
     await sidebar(desk, '/vendor/experiments');
@@ -845,10 +854,11 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     const field = (label: string) => main(desk).getByRole('textbox', { name: label, exact: true });
     await retype(field('Name'), RELEASED_NAME);
     await retype(field('Summary'), RELEASED_SUMMARY);
-    await field('What changes and why').fill(
+    // CM-08 (V3, CM-v1): both required to send.
+    await field('Reason for the change (required to send)').fill(
       'The name and summary now say what the Student measures: the overall heat-transfer coefficient.',
     );
-    await field('Version label').fill('1.1');
+    await field('New version label (required to send)').fill('1.1');
     await reachAndClick(desk, button(desk, 'Save draft'));
     await sendForReview(desk);
     await openPublished(desk, SHELL);

@@ -1,0 +1,5 @@
+Sample world check — Content Manager, canvas version 20
+Main.dc.html (shipped) sha256 48a63ee7dd6958041c715f3fc6a23cca967e1b4b6aba43c49c8a40c8b7ea3b0e
+World dumped from the shipped Main.dc.html (Component.WORLD): 35448 bytes, sha256 9c4a08dc7778f978d0e31c7b0139bf188dac469834e085fc46b44b501c6a6059
+Version-15 world (before the visual redesign):               35448 bytes, sha256 9c4a08dc7778f978d0e31c7b0139bf188dac469834e085fc46b44b501c6a6059
+Identical: yes

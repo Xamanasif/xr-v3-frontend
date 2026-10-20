@@ -189,8 +189,8 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
     const tab = await page.context().newPage();
     await openAs(tab, entry.person, `${entry.base}/help`);
     await waitForShell(tab);
-    // The v46 sidebar, or a V3 rail (the Super Admin's SA-v1, the Vendor's VE-v1), whose Help
-    // sits in a navigation of its own in the rail foot.
+    // The v46 sidebar, or a V3 rail (the Super Admin's SA-v1, the Vendor's VE-v1, the Content
+    // Manager's CM-v1), whose Help sits in a navigation of its own in the rail foot.
     const side = tab.locator('aside.xr-side, aside.rb-rail');
     if (entry.role === 'vendor') {
       // VE-01 Overview and VE-02 My experiments, then Help & support.
@@ -201,6 +201,24 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
           .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
       ).toEqual(['/vendor', '/vendor/experiments']);
       await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/vendor/help');
+    } else if (entry.role === 'content_manager') {
+      // CM-01, CM-02, CM-04, CM-09 (Phase 5) and CM-08 Updates (Phase 6), then Help & support.
+      await expect(side.locator('a[href]')).toHaveCount(6);
+      expect(
+        await side
+          .locator('nav[aria-label="Content Manager navigation"] a[href]')
+          .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
+      ).toEqual([
+        '/content-manager',
+        '/content-manager/ready',
+        '/content-manager/library',
+        '/content-manager/updates',
+        '/content-manager/course-codes',
+      ]);
+      await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute(
+        'href',
+        '/content-manager/help',
+      );
     } else if (entry.role === 'super_admin') {
       // SA-02 (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3), Content,
       // Academic structure and Platform roles (Phase 6): all seven, then Help & support.
@@ -223,17 +241,10 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
       // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
       // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the
       // Faculty member's Overview, My courses, Assessments and Question bank. Phase 4B: Marking
-      // and Students, and the Student's Assessments. Phase 5: the Vendor's, Academic Reviewer's
-      // and Content Manager's destinations; Phase 6 the Content Manager's Updates (CM-08).
+      // and Students, and the Student's Assessments. Phase 5: the Academic Reviewer's
+      // destinations (the Vendor's and the Content Manager's are in the V3 rail, above).
       const platform: Readonly<Partial<Record<string, readonly string[]>>> = {
         academic_reviewer: ['/reviewer', '/reviewer/queue', '/reviewer/reviewed'],
-        content_manager: [
-          '/content-manager',
-          '/content-manager/ready',
-          '/content-manager/library',
-          '/content-manager/updates',
-          '/content-manager/course-codes',
-        ],
       };
       const built =
         platform[entry.role] ??
@@ -396,9 +407,9 @@ test('choosing a destination in the drawer moves focus to the new page, never to
 
 test('a document load starts on the skip link: no focus is moved on arrival', async ({ page }) => {
   await openAs(page, roleEntry('content_manager').person, '/content-manager');
-  // Phase 5: the Content Manager's home is CM-01 Overview.
+  // Phase 5: the Content Manager's home is CM-01 Overview (a V3 page since CM-v1).
   await expect(page.getByRole('heading', { level: 1, name: 'Overview' })).toBeVisible();
-  await expect(page.locator('main.xr-page#main')).not.toBeFocused();
+  await expect(page.locator('main#main')).not.toBeFocused();
   await page.keyboard.press('Tab');
   await expect(page.getByRole('link', { name: 'Skip to main content' })).toBeFocused();
 });

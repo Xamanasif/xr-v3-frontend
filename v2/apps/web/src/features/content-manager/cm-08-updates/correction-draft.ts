@@ -1,5 +1,6 @@
 'use client';
 
+import type { CorrectionEntry } from '@xr/domain';
 import { useCallback, useSyncExternalStore } from 'react';
 
 import type { CorrectionForm } from '@/queries/cm-correction-forms';
@@ -14,17 +15,27 @@ import { useSession } from '@/queries/session';
  * again). Each typed form remembers the update's revision it was typed on (`baseRev`): a save sends
  * that revision, so a change made meanwhile in another tab is refused as stale, never overwritten.
  *
- * Beside it, the one-off "Back from the correction" signal (B6-08 f3; state-copy
- * `CM-05.back-from-correction`): set by "Back to the published experiment" on an open update, read
- * once by that experiment's CM-05 — never in the address or browser storage.
+ * Beside it, two one-off signals, never in the address or browser storage: "Back from the
+ * correction" (B6-08 f3; state-copy `CM-05.back-from-correction`), set by "Back to the published
+ * experiment" on an open update and read once by that experiment's CM-05; and the arrival from a
+ * CM-05 entry (CM-v1 `opStart` `ui.entry`; state-copy `CM-08.arrival`): which entry opened the
+ * update and whether it joined the open one (`openCorrection`'s `joined`), set by CM-05 before it
+ * opens the update's page and read once by that page.
  */
 export interface TypedCorrection {
   readonly form: CorrectionForm;
   readonly baseRev: number;
 }
 
+/** How the update's page was reached from CM-05: the entry pressed, and whether it joined. */
+export interface CorrectionArrival {
+  readonly entry: CorrectionEntry;
+  readonly joined: boolean;
+}
+
 const typed = new Map<string, TypedCorrection>();
 const backFlashes = new Set<string>();
+const arrivals = new Map<string, CorrectionArrival>();
 const listeners = new Set<() => void>();
 
 function slotKey(sessionKey: string, record: string): string {
@@ -77,6 +88,7 @@ export function rebaseTypedCorrection(
 /** Forgets every typed correction and signal in this tab (component tests start each world so). */
 export function forgetCorrectionDrafts(): void {
   backFlashes.clear();
+  arrivals.clear();
   if (typed.size === 0) return;
   typed.clear();
   publish();
@@ -135,4 +147,29 @@ export function backFromCorrectionFor(sessionKey: string | null, experimentId: s
 /** Forgets the signal once CM-05 has shown it (it is shown once). */
 export function forgetBackFromCorrection(sessionKey: string | null, experimentId: string): void {
   if (sessionKey !== null) backFlashes.delete(slotKey(sessionKey, experimentId));
+}
+
+/**
+ * A CM-05 entry opened (or joined) this update (CM-06 Edit catalogue details, CM-07 Edit delivery
+ * link, Start a correction): its page explains the arrival once (`openCorrection`'s answer).
+ */
+export function noteCorrectionArrival(
+  sessionKey: string | null,
+  updateId: string,
+  arrival: CorrectionArrival,
+): void {
+  if (sessionKey !== null) arrivals.set(slotKey(sessionKey, updateId), arrival);
+}
+
+/** The arrival CM-05 noted for this update (read while the page first renders), if any. */
+export function correctionArrivalFor(
+  sessionKey: string | null,
+  updateId: string,
+): CorrectionArrival | null {
+  return sessionKey === null ? null : (arrivals.get(slotKey(sessionKey, updateId)) ?? null);
+}
+
+/** Forgets the arrival once the update's page has read it (it is explained once). */
+export function forgetCorrectionArrival(sessionKey: string | null, updateId: string): void {
+  if (sessionKey !== null) arrivals.delete(slotKey(sessionKey, updateId));
 }

@@ -1,0 +1,512 @@
+{
+ "CM01-Overview-1440.dc.html": {
+  "w": 1440,
+  "old": 1652,
+  "h": 1652,
+  "errs": []
+ },
+ "CM02-Ready-1440.dc.html": {
+  "w": 1440,
+  "old": 1243,
+  "h": 1243,
+  "errs": []
+ },
+ "CM03-Decision-1440.dc.html": {
+  "w": 1440,
+  "old": 2918,
+  "h": 2918,
+  "errs": []
+ },
+ "CM04-Library-1440.dc.html": {
+  "w": 1440,
+  "old": 1745,
+  "h": 1745,
+  "errs": []
+ },
+ "CM05-Published-1440.dc.html": {
+  "w": 1440,
+  "old": 1961,
+  "h": 1961,
+  "errs": []
+ },
+ "CM06-EditCatalogue-1440.dc.html": {
+  "w": 1440,
+  "old": 2276,
+  "h": 2276,
+  "errs": []
+ },
+ "CM07-EditDelivery-1440.dc.html": {
+  "w": 1440,
+  "old": 2276,
+  "h": 2276,
+  "errs": []
+ },
+ "CM08-Updates-1440.dc.html": {
+  "w": 1440,
+  "old": 1694,
+  "h": 1694,
+  "errs": []
+ },
+ "CM08-UpdateDetail-1440.dc.html": {
+  "w": 1440,
+  "old": 2935,
+  "h": 2935,
+  "errs": []
+ },
+ "CM09-CourseCodes-1440.dc.html": {
+  "w": 1440,
+  "old": 1211,
+  "h": 1211,
+  "errs": []
+ },
+ "R-Overview-1024.dc.html": {
+  "w": 1024,
+  "old": 2072,
+  "h": 2072,
+  "errs": []
+ },
+ "R-Ready-1024.dc.html": {
+  "w": 1024,
+  "old": 1689,
+  "h": 1689,
+  "errs": []
+ },
+ "R-Decision-1024.dc.html": {
+  "w": 1024,
+  "old": 3545,
+  "h": 3545,
+  "errs": []
+ },
+ "R-Library-1024.dc.html": {
+  "w": 1024,
+  "old": 2146,
+  "h": 2146,
+  "errs": []
+ },
+ "R-Published-1024.dc.html": {
+  "w": 1024,
+  "old": 2931,
+  "h": 2931,
+  "errs": []
+ },
+ "R-UpdateDetail-1024.dc.html": {
+  "w": 1024,
+  "old": 3601,
+  "h": 3601,
+  "errs": []
+ },
+ "R-CourseCodes-1024.dc.html": {
+  "w": 1024,
+  "old": 1575,
+  "h": 1575,
+  "errs": []
+ },
+ "R-Overview-768.dc.html": {
+  "w": 768,
+  "old": 2072,
+  "h": 2072,
+  "errs": []
+ },
+ "R-Ready-768.dc.html": {
+  "w": 768,
+  "old": 1689,
+  "h": 1689,
+  "errs": []
+ },
+ "R-Decision-768.dc.html": {
+  "w": 768,
+  "old": 3589,
+  "h": 3589,
+  "errs": []
+ },
+ "R-Library-768.dc.html": {
+  "w": 768,
+  "old": 2146,
+  "h": 2146,
+  "errs": []
+ },
+ "R-Published-768.dc.html": {
+  "w": 768,
+  "old": 2931,
+  "h": 2931,
+  "errs": []
+ },
+ "R-UpdateDetail-768.dc.html": {
+  "w": 768,
+  "old": 3601,
+  "h": 3601,
+  "errs": []
+ },
+ "R-CourseCodes-768.dc.html": {
+  "w": 768,
+  "old": 1575,
+  "h": 1575,
+  "errs": []
+ },
+ "R-Overview-375.dc.html": {
+  "w": 375,
+  "old": 3197,
+  "h": 3197,
+  "errs": []
+ },
+ "R-Ready-375.dc.html": {
+  "w": 375,
+  "old": 2485,
+  "h": 2485,
+  "errs": []
+ },
+ "R-Decision-375.dc.html": {
+  "w": 375,
+  "old": 5176,
+  "h": 5176,
+  "errs": []
+ },
+ "R-Library-375.dc.html": {
+  "w": 375,
+  "old": 3363,
+  "h": 3363,
+  "errs": []
+ },
+ "R-Published-375.dc.html": {
+  "w": 375,
+  "old": 4094,
+  "h": 4094,
+  "errs": []
+ },
+ "R-UpdateDetail-375.dc.html": {
+  "w": 375,
+  "old": 5029,
+  "h": 5029,
+  "errs": []
+ },
+ "R-CourseCodes-375.dc.html": {
+  "w": 375,
+  "old": 2382,
+  "h": 2382,
+  "errs": []
+ },
+ "P01-Confirm-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "fixed": true
+ },
+ "P02-Prerequisite-1440.dc.html": {
+  "w": 1440,
+  "old": 2513,
+  "h": 2513,
+  "errs": []
+ },
+ "P03-DecisionErrors-1440.dc.html": {
+  "w": 1440,
+  "old": 2918,
+  "h": 2918,
+  "errs": []
+ },
+ "P04-SendVendor-1440.dc.html": {
+  "w": 1440,
+  "old": 2918,
+  "h": 2918,
+  "errs": []
+ },
+ "P05-SentReviewer-1440.dc.html": {
+  "w": 1440,
+  "old": 3001,
+  "h": 3001,
+  "errs": []
+ },
+ "P06-Published-1440.dc.html": {
+  "w": 1440,
+  "old": 3001,
+  "h": 3001,
+  "errs": []
+ },
+ "P07-Stale-1440.dc.html": {
+  "w": 1440,
+  "old": 3082,
+  "h": 3082,
+  "errs": []
+ },
+ "P08-InReview-1440.dc.html": {
+  "w": 1440,
+  "old": 2203,
+  "h": 2203,
+  "errs": []
+ },
+ "P09-WithVendor-1440.dc.html": {
+  "w": 1440,
+  "old": 2552,
+  "h": 2552,
+  "errs": []
+ },
+ "P10-PublicPage-1440.dc.html": {
+  "w": 1440,
+  "old": 1089,
+  "h": 1089,
+  "errs": []
+ },
+ "C01-Joined-1440.dc.html": {
+  "w": 1440,
+  "old": 3099,
+  "h": 3099,
+  "errs": []
+ },
+ "C02-DraftErrors-1440.dc.html": {
+  "w": 1440,
+  "old": 2282,
+  "h": 2282,
+  "errs": []
+ },
+ "C03-DraftSaved-1440.dc.html": {
+  "w": 1440,
+  "old": 2442,
+  "h": 2442,
+  "errs": []
+ },
+ "C04-SaveFailed-1440.dc.html": {
+  "w": 1440,
+  "old": 2935,
+  "h": 2935,
+  "errs": []
+ },
+ "C05-SendDialog-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "fixed": true
+ },
+ "C06-InReview-1440.dc.html": {
+  "w": 1440,
+  "old": 1799,
+  "h": 1799,
+  "errs": []
+ },
+ "C07-Awaiting-1440.dc.html": {
+  "w": 1440,
+  "old": 1702,
+  "h": 1702,
+  "errs": []
+ },
+ "C08-OnHold-1440.dc.html": {
+  "w": 1440,
+  "old": 1799,
+  "h": 1799,
+  "errs": []
+ },
+ "C09-Lifted-1440.dc.html": {
+  "w": 1440,
+  "old": 1922,
+  "h": 1922,
+  "errs": []
+ },
+ "C10-Released-1440.dc.html": {
+  "w": 1440,
+  "old": 1655,
+  "h": 1655,
+  "errs": []
+ },
+ "C11-WithdrawDialog-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "fixed": true
+ },
+ "C12-Withdrawn-1440.dc.html": {
+  "w": 1440,
+  "old": 1822,
+  "h": 1822,
+  "errs": []
+ },
+ "C13-StaleWithdraw-1440.dc.html": {
+  "w": 1440,
+  "old": 1986,
+  "h": 1986,
+  "errs": []
+ },
+ "C14-PubAwaiting-1440.dc.html": {
+  "w": 1440,
+  "old": 2407,
+  "h": 2407,
+  "errs": []
+ },
+ "C15-PubOnHold-1440.dc.html": {
+  "w": 1440,
+  "old": 2229,
+  "h": 2229,
+  "errs": []
+ },
+ "C16-PubReleased-1440.dc.html": {
+  "w": 1440,
+  "old": 2340,
+  "h": 2340,
+  "errs": []
+ },
+ "L01-OverviewCalm-1440.dc.html": {
+  "w": 1440,
+  "old": 1014,
+  "h": 1014,
+  "errs": []
+ },
+ "L02-ReadyEmpty-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L03-ReadyNewest-1440.dc.html": {
+  "w": 1440,
+  "old": 1243,
+  "h": 1243,
+  "errs": []
+ },
+ "L04-LibraryReview-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L05-LibraryNoMatch-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L06-LibraryEmpty-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L07-UpdatesEmpty-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L08-ReadyToResolve-1440.dc.html": {
+  "w": 1440,
+  "old": 1243,
+  "h": 1243,
+  "errs": []
+ },
+ "L09-LibraryLoading-1440.dc.html": {
+  "w": 1440,
+  "old": 919,
+  "h": 919,
+  "errs": []
+ },
+ "L10-LibraryNotLoaded-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L11-ReadyLoading-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L12-ReadyNotLoaded-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L13-UpdatesLoading-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "L14-UpdatesNotLoaded-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "K01-CodesEdited-1440.dc.html": {
+  "w": 1440,
+  "old": 1197,
+  "h": 1197,
+  "errs": []
+ },
+ "K02-CodesDuplicate-1440.dc.html": {
+  "w": 1440,
+  "old": 1382,
+  "h": 1382,
+  "errs": []
+ },
+ "K03-CodesFailed-1440.dc.html": {
+  "w": 1440,
+  "old": 1337,
+  "h": 1337,
+  "errs": []
+ },
+ "K04-CodesSaved-1440.dc.html": {
+  "w": 1440,
+  "old": 1257,
+  "h": 1257,
+  "errs": []
+ },
+ "K05-CodesLoading-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "K06-CodesNotLoaded-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "X01-AccountMenu-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "fixed": true
+ },
+ "X02-Drawer-375.dc.html": {
+  "w": 375,
+  "old": 812,
+  "h": 812,
+  "fixed": true
+ },
+ "X03-Help-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "X04-ReportErrors-1440.dc.html": {
+  "w": 1440,
+  "old": 941,
+  "h": 941,
+  "errs": []
+ },
+ "X05-ReportSent-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "X06-ReportDetail-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "X07-NotYourWorkspace-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ },
+ "X08-SignedOut-1440.dc.html": {
+  "w": 1440,
+  "old": 900,
+  "h": 900,
+  "errs": []
+ }
+}

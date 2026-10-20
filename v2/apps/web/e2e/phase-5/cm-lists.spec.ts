@@ -1,24 +1,24 @@
 import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { actAs, bootWorld, reachAndClick, TEST_HOOKS_URL } from '../support';
 import { checkState } from '../support/screen-checks';
 import { currentSidebarItem, expectSameDocument, markDocument } from '../support/workspace';
 
 /**
- * CM-01 Overview (board B6-05 f0 … f2), CM-02 Ready to publish (B6-06 f0, f3; B6-12 f2), CM-04
- * Content library (B6-06 f1, f4) and CM-09 Course codes (B6-10 f0 … f2; B6-11 f12), on the
+ * CM-01 Overview, CM-02 Ready to publish, CM-04 Content library and CM-09 Platform course codes in
+ * the V3 Refined B design (the owner-approved export design/v3-refined-b/roles/CM-v1), on the
  * test-hook build at 1440, 1024, 768 and 375, as Kavya Nair on spine-start. Each drawn state
  * passes `checkState` (axe WCAG A/AA, one h1, visible focus targets, 24 × 24 targets, no developer
  * surface, no sideways scroll). The CI seam only SETS UP the world: Anil Shetty saves and submits
- * “Conduction Through a Composite Wall” and Prof. A. Menon approves it (Flow E’s E1, E3) for B6-06
- * f0; Kavya’s own publications and a withdrawn correction empty the lists for f1 and f3.
- * Everything the screens do — the library’s tabs and search, typing codes, Save codes (the
- * duplicate refused, a unique code saved), Undo changes, the rows’ links to CM-03 and CM-05 — is
- * done by real clicks and typing; CM-03 and CM-05 are another group’s pages (their address and an
- * h1 are checked only).
+ * “Conduction Through a Composite Wall” and Prof. A. Menon approves it (Flow E’s E1, E3); Kavya’s
+ * own publications and a withdrawn correction empty the lists for the calm and empty states.
+ * Everything the screens do — the pipeline’s and the desk’s links, the sort, the library’s views,
+ * search and course filter, typing codes, Save codes (the duplicate refused, a unique code saved),
+ * Undo changes, the rows’ links to CM-03 and CM-05 — is done by real clicks and typing; CM-03 and
+ * CM-05 are another group’s pages (their address and an h1 are checked only).
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -31,7 +31,7 @@ const MENON = { personId: 'per-a-menon' };
 /** Where the product screenshots for the visual comparison go (the session scratchpad). */
 const SHOTS =
   process.env['XR_PRODUCT_SHOTS'] ??
-  '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/5ecc5525-e260-4938-9ed0-61e1898a71eb/scratchpad/shots-product/cm-lists';
+  '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/a566da95-3982-4d42-9ae6-383145b4d848/scratchpad/cm-lists/shots';
 
 const COMPOSITE_WALL = {
   courseId: 'thermodynamics-heat-transfer',
@@ -132,7 +132,7 @@ async function publish(page: Page, id: string): Promise<void> {
   });
 }
 
-/** Kavya withdraws the returned correction UPD-0006 (set-up of f1 only). */
+/** Kavya withdraws the returned correction UPD-0006 (set-up of the calm state only). */
 async function withdrawReturnedUpdate(page: Page): Promise<void> {
   const view = await port<{ readonly update: { readonly id: string; readonly rev: number } }>(
     page,
@@ -151,41 +151,35 @@ async function withdrawReturnedUpdate(page: Page): Promise<void> {
 const main = (page: Page) => page.locator('main');
 const heading = (page: Page, name: string) => page.getByRole('heading', { level: 1, name });
 const width = (page: Page) => page.viewportSize()?.width ?? 1440;
-const statusLine = (page: Page) => main(page).locator('p.xv-statusline[role="status"]');
 const region = (page: Page, name: string) => page.getByRole('region', { name });
-const tableRows = (page: Page) => main(page).locator('table.xr-table tbody tr');
+const cards = (page: Page) => main(page).locator('ul.cm-qlist > li.cm-qcard');
+const libraryRows = (page: Page) => main(page).locator('table.rk-table tbody tr:not(.cm-grp-h)');
+const codeRows = (page: Page) => main(page).locator('table.cm-codes tbody tr:not(.cm-area)');
 
 async function shot(page: Page, name: string): Promise<void> {
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: join(SHOTS, `${name}-${width(page)}.png`), fullPage: true });
 }
 
-/** A board frame drawn at 720: the 768 project narrows its viewport for the comparison shot. */
-async function shotAt720(page: Page, name: string): Promise<void> {
-  if (width(page) !== 768) return;
-  await page.setViewportSize({ width: 720, height: 1024 });
-  await shot(page, name);
-  await page.setViewportSize({ width: 768, height: 1024 });
-}
-
-/** Below 760 px of content the table’s rows stack and its header row is hidden (f2, f4). */
-async function expectTableLayout(page: Page): Promise<void> {
-  const header = main(page).locator('table.xr-table thead');
-  const contentWidth = await main(page)
-    .locator('.xr-content')
-    .first()
-    .evaluate((element) => element.getBoundingClientRect().width);
-  if (contentWidth < 760) {
+/** On a phone a table's rows become labelled blocks: its head is hidden; on wide pages it shows. */
+async function expectTableLayout(page: Page, table: Locator): Promise<void> {
+  const head = table.locator('thead');
+  if (width(page) <= 375) {
     await expect
-      .poll(() => header.evaluate((element) => getComputedStyle(element).position))
-      .toBe('absolute');
-  } else {
-    await expect(header).toBeVisible();
+      .poll(() =>
+        head.evaluate((element) => {
+          const style = getComputedStyle(element);
+          return style.display === 'none' || style.position === 'absolute';
+        }),
+      )
+      .toBe(true);
+  } else if (width(page) >= 1440) {
+    await expect(head).toBeVisible();
   }
 }
 
 /** A link reached and pressed: Enter after focus (a wrapped inline link at 375), else a click. */
-async function follow(page: Page, link: ReturnType<Page['getByRole']>): Promise<void> {
+async function follow(page: Page, link: Locator): Promise<void> {
   if (width(page) <= 375) {
     await link.focus();
     await page.keyboard.press('Enter');
@@ -195,136 +189,172 @@ async function follow(page: Page, link: ReturnType<Page['getByRole']>): Promise<
 }
 
 test.describe('CM-01 Overview', () => {
-  test('as drawn at spine-start (f0, f2), the rows’ links, then nothing waiting (f1)', async ({
+  test('as drawn at spine-start: the pipeline, the desk, with others, the catalogue, their links; then calm', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'spine-start', session: KAVYA });
     await page.goto('/content-manager');
     await expect(heading(page, 'Overview')).toBeVisible({ timeout: 90_000 });
-    await expect(main(page).locator('.xr-overline')).toHaveText('Kavya Nair');
-    // UPD-0005 is Flow F’s: two with others at spine-start (B6-05 draws three).
-    await expect(statusLine(page).locator('span')).toHaveText([
-      '2 ready to publish',
-      '1 correction needs you',
-      '2 with others',
+    const pipeline = region(page, 'Publishing pipeline');
+    await expect(pipeline.locator('li.cm-tile')).toHaveCount(8);
+    await expect(pipeline.locator('li.cm-tile.is-you .cm-you')).toHaveText([
+      'Your step',
+      'Your step',
     ]);
-    const needs = region(page, 'Needs your decision');
-    await expect(needs.locator('li.xr-row .xr-row-title')).toHaveText([
-      'Ready to publish: Transient Cooling',
-      'Ready to publish: Packed Bed Pressure Drop',
-      'Update returned: Induction Motor Loading 1.1',
+    await expect(
+      pipeline.getByRole('link', {
+        name: '2 Ready to publish. Oldest approved 14 Aug. Your step. Open Ready to publish',
+      }),
+    ).toHaveAttribute('href', '/content-manager/ready');
+    const desk = region(page, 'Needs your decision');
+    await expect(desk.locator('li.cm-orow .rb-row-t')).toHaveText([
+      'Transient Cooling',
+      'Packed Bed Pressure Drop',
+      'Induction Motor Loading',
     ]);
-    await expect(needs.locator('li.xr-row .xr-row-sub').first()).toHaveText(
-      'SUB-0074 · ME ZG523 · approved 14 Aug 2026 · oldest of 2',
+    await expect(desk.locator('li.cm-orow.is-first .cm-next')).toHaveText('Publish next');
+    await expect(desk.locator('li.cm-orow .rb-row-d').first()).toHaveText(
+      'SUB-0074 · ME ZG523 · Northline Simulation Studio',
     );
-    await expect(needs.locator('li.xr-row .xr-row-sub').nth(2)).toHaveText(
-      'UPD-0006 · returned by the Academic Reviewer on 26 Aug 2026 · “The proposed description says slip falls as the load rises…”',
+    await expect(desk.locator('blockquote.cm-orow-q footer')).toHaveText(
+      'Prof. A. Menon, Academic Reviewer · 26 Aug',
     );
-    // “Open update” opens the returned correction (CM-08, Phase 6).
-    await expect(needs.getByRole('link', { name: 'Open update' })).toHaveAttribute(
-      'href',
-      '/content-manager/updates/UPD-0006',
-    );
+    await expect(
+      desk.getByRole('link', { name: 'Continue UPD-0006, correction to Induction Motor Loading' }),
+    ).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
     const others = region(page, 'With others');
-    await expect(others.locator('.xr-section-head .xr-meta')).toHaveText(
-      'For information — nothing to do',
-    );
-    await expect(others.locator('li.xr-row .xr-row-title')).toHaveText([
-      'Venturi Meter Calibration — with the Academic Reviewer for a re-check',
-      'Boiler Drum Level 2.1 — on hold',
+    await expect(others.locator('.cm-hold-t')).toHaveText([
+      'Boiler Drum Level 2.1',
+      'Venturi Meter Calibration',
     ]);
+    const catalogue = region(page, 'In the catalogue');
+    await expect(catalogue.locator('.cm-cattotal')).toHaveText(
+      /^12\s*experiments live, in 5 courses$/,
+    );
+    await expect(catalogue.locator('.cm-catlist-t')).toHaveCount(5);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager');
     await checkState(page, 'Overview');
-    if (width(page) === 1440) await shot(page, 'b6-05-f0-overview');
-    if (width(page) === 375) await shot(page, 'b6-05-f2-overview');
+    await shot(page, '01-overview');
 
     // The oldest ready item opens its decision (CM-03), in the same tab.
     const mark = await markDocument(page);
-    await follow(page, needs.getByRole('link', { name: 'Open the next ready item' }));
+    await follow(
+      page,
+      desk.getByRole('link', { name: 'Open the publication decision for Transient Cooling' }),
+    );
     await expect(page).toHaveURL(/\/content-manager\/decisions\/SUB-0074$/, { timeout: 60_000 });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
     await expectSameDocument(page, mark);
     await page.goBack();
     await expect(heading(page, 'Overview')).toBeVisible({ timeout: 60_000 });
-    // The re-check row opens the same decision page, read-only while the reviewer has it.
+    // The re-check opens the same decision page, read-only while the reviewer has it.
     await follow(page, others.getByRole('link', { name: 'Open Venturi Meter Calibration' }));
     await expect(page).toHaveURL(/\/content-manager\/decisions\/SUB-0071$/, { timeout: 60_000 });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
     await page.goBack();
     await expect(heading(page, 'Overview')).toBeVisible({ timeout: 60_000 });
-    // The header’s Content library.
-    await follow(page, main(page).locator('.xr-phead-actions').getByRole('link'));
-    await expect(page).toHaveURL(/\/content-manager\/library$/, { timeout: 60_000 });
+    // A pipeline stage opens the list that holds its items.
+    await follow(
+      page,
+      pipeline.getByRole('link', {
+        name: '1 With the vendor. Vendor revising. Open the Content library, With vendor',
+      }),
+    );
+    await expect(page).toHaveURL(/\/content-manager\/library\?tab=with-vendor$/, {
+      timeout: 60_000,
+    });
     await expect(heading(page, 'Content library')).toBeVisible({ timeout: 60_000 });
+    await expect(page.getByRole('button', { name: /^With vendor/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    await page.goBack();
+    await expect(heading(page, 'Overview')).toBeVisible({ timeout: 60_000 });
+    // A course in the catalogue opens the library's Published view filtered to it.
+    await follow(
+      page,
+      catalogue.getByRole('link', {
+        name: 'Thermodynamics & Heat Transfer, 3 published experiments. Open in the Content library',
+      }),
+    );
+    await expect(page).toHaveURL(
+      /\/content-manager\/library\?tab=published&course=thermodynamics-heat-transfer$/,
+      { timeout: 60_000 },
+    );
+    await expect(heading(page, 'Content library')).toBeVisible({ timeout: 60_000 });
+    await expect(libraryRows(page)).toHaveCount(3);
     await expectSameDocument(page, mark);
     await page.goBack();
     await expect(heading(page, 'Overview')).toBeVisible({ timeout: 60_000 });
 
-    // f1: both published and the returned correction withdrawn — nothing waits for her.
+    // Calm: both published and the returned correction withdrawn — nothing waits for her.
     await publish(page, 'SUB-0074');
     await publish(page, 'SUB-0070');
     await withdrawReturnedUpdate(page);
-    const calm = main(page).getByRole('heading', {
-      level: 2,
-      name: 'Nothing is waiting for your publication decision',
-    });
+    const calm = region(page, 'Nothing is waiting for your decision');
     await expect(calm).toBeVisible();
-    await expect(statusLine(page).locator('span')).toHaveText([
-      '0 ready to publish',
-      '0 corrections need you',
-      '2 with others',
-    ]);
-    await expect(main(page)).toContainText(
-      'Approved experiments and corrections that need you appear here.',
+    await expect(calm).toContainText(
+      'Approved experiments and corrections returned to you appear here.',
     );
+    await expect(
+      pipeline.getByRole('link', {
+        name: '0 Ready to publish. Nothing waiting. Your step. Open Ready to publish',
+      }),
+    ).toBeVisible();
+    await expect(catalogue.locator('.cm-cattotal')).toHaveText(/^14\s*experiments live/);
     await checkState(page, 'Overview');
-    await shotAt720(page, 'b6-05-f1-nothing-waiting');
-    await follow(page, main(page).getByRole('link', { name: 'Open the Content library' }));
+    await shot(page, '14-empty-overview');
+    await follow(page, calm.getByRole('link', { name: 'Open the Content library' }));
     await expect(page).toHaveURL(/\/content-manager\/library$/, { timeout: 60_000 });
     await expect(heading(page, 'Content library')).toBeVisible({ timeout: 60_000 });
   });
 });
 
 test.describe('CM-02 Ready to publish', () => {
-  test('spine-start (B6-12 f2), SUB-0077 approved (f0) and its Open decision, then empty (f3)', async ({
+  test('spine-start, SUB-0077 approved (three cards), the sort, its Open decision, then empty', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'spine-start', session: KAVYA });
     await page.goto('/content-manager/ready');
     await expect(heading(page, 'Ready to publish')).toBeVisible({ timeout: 90_000 });
-    const list = region(page, 'Approved by the Academic Reviewer');
-    await expect(list.locator('.xr-section-head .xr-meta')).toHaveText(
-      '2 experiments approved and waiting · oldest first',
-    );
-    await expect(tableRows(page)).toHaveCount(2);
+    const list = region(page, 'Approved experiments waiting for your decision');
+    await expect(list.getByRole('status')).toHaveText('2 experiments approved and waiting');
+    await expect(cards(page)).toHaveCount(2);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/ready');
     await checkState(page, 'Ready to publish');
-    if (width(page) === 1440) await shot(page, 'b6-12-f2-ready');
 
-    // The Academic Reviewer approves SUB-0077: the list (and the sidebar count) follow.
+    // The Academic Reviewer approves SUB-0077: the list (and the rail count) follow.
     const id = await approveCompositeWall(page);
     expect(id).toBe('SUB-0077');
-    await expect(tableRows(page)).toHaveCount(3);
-    await expect(list.locator('.xr-section-head .xr-meta')).toHaveText(
-      '3 experiments approved and waiting · oldest first',
-    );
-    const third = tableRows(page).nth(2);
-    await expect(third.locator('td').first()).toHaveText(
-      'Conduction Through a Composite WallSUB-0077 · ME ZG523 · Northline Simulation Studio',
-    );
-    await expect(third.locator('.xr-fmt')).toHaveText(['WEB', 'VR']);
-    await expect(third.locator('td').nth(2)).toContainText('Prof. A. Menon');
-    await expect(third.locator('.xr-status--ok')).toHaveText('Ready');
+    await expect(cards(page)).toHaveCount(3);
+    await expect(list.getByRole('status')).toHaveText('3 experiments approved and waiting');
+    const third = cards(page).nth(2);
+    await expect(third.locator('.cm-qname')).toHaveText('Conduction Through a Composite Wall');
+    await expect(third.locator('.cm-qmeta .xr-fmt')).toHaveText(['WEB', 'VR']);
+    await expect(third.locator('.cm-qsum')).toHaveText('All 4 checks met');
+    await expect(cards(page).first()).toHaveClass(/is-first/);
     await expect(currentSidebarItem(page)).toContainText('3');
-    await expectTableLayout(page);
     await checkState(page, 'Ready to publish');
-    if (width(page) === 1440) await shot(page, 'b6-06-f0-ready');
-    await shotAt720(page, 'b6-06-f2-ready-stacked');
+    await shot(page, '02-ready');
+
+    // Newest first: the longest wait stays marked and gold.
+    await reachAndClick(page, list.getByRole('button', { name: /^Sort: / }));
+    await expect(cards(page).first().locator('.cm-qname')).toHaveText(
+      'Conduction Through a Composite Wall',
+    );
+    await expect(cards(page).last()).toHaveClass(/is-first/);
+    await expect(cards(page).last().locator('.cm-qact a')).toHaveClass(/rb-btn--primary/);
+    await checkState(page, 'Ready to publish');
+    await shot(page, '02d-ready-newest');
+    await reachAndClick(page, list.getByRole('button', { name: /^Sort: / }));
+    await expect(cards(page).first().locator('.cm-qname')).toHaveText('Transient Cooling');
 
     const mark = await markDocument(page);
     await follow(
       page,
-      list.getByRole('link', { name: 'Open decision for Conduction Through a Composite Wall' }),
+      list.getByRole('link', {
+        name: 'Open the publication decision for Conduction Through a Composite Wall',
+      }),
     );
     await expect(page).toHaveURL(/\/content-manager\/decisions\/SUB-0077$/, { timeout: 60_000 });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
@@ -332,22 +362,23 @@ test.describe('CM-02 Ready to publish', () => {
     await page.goBack();
     await expect(heading(page, 'Ready to publish')).toBeVisible({ timeout: 60_000 });
 
-    // f3: all three published — nothing is ready.
+    // Empty: all three published — nothing is ready.
     for (const ready of ['SUB-0074', 'SUB-0070', 'SUB-0077']) await publish(page, ready);
     const empty = main(page).getByRole('heading', {
-      level: 3,
+      level: 2,
       name: 'Nothing is ready to publish',
     });
     await expect(empty).toBeVisible();
-    await expect(list.locator('.xr-section-head .xr-meta')).toHaveText(
-      '0 experiments approved and waiting · oldest first',
-    );
     await expect(main(page)).toContainText(
       'Experiments appear here once the Academic Reviewer approves them.',
     );
+    await expect(main(page).locator('dl.rb-figs')).toHaveCount(0);
     await checkState(page, 'Ready to publish');
-    await shotAt720(page, 'b6-06-f3-empty');
-    await follow(page, main(page).getByRole('link', { name: 'Open the Content library' }));
+    await shot(page, '14b-empty-ready');
+    await follow(
+      page,
+      list.locator('.rk-state').getByRole('link', { name: 'Open the Content library' }),
+    );
     await expect(page).toHaveURL(/\/content-manager\/library$/, { timeout: 60_000 });
     await expect(heading(page, 'Content library')).toBeVisible({ timeout: 60_000 });
     await expectSameDocument(page, mark);
@@ -355,92 +386,124 @@ test.describe('CM-02 Ready to publish', () => {
 });
 
 test.describe('CM-04 Content library', () => {
-  test('the tabs and the search by real clicks and typing (f1, f4), the rows’ links', async ({
+  test('the views, the search and the course filter by real clicks and typing, the rows’ links', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'spine-start', session: KAVYA });
     await page.goto('/content-manager/library');
     await expect(heading(page, 'Content library')).toBeVisible({ timeout: 90_000 });
-    const library = region(page, 'Every experiment you look after');
-    const tabs = library.getByRole('tablist', { name: 'Content library' });
-    const status = library.locator('.xr-toolbar-status [role="status"]');
-    await expect(tabs.getByRole('tab')).toHaveText([
+    const views = page.getByRole('group', { name: 'Show experiments that are' });
+    const count = main(page).locator('.rk-statusline [role="status"]');
+    await expect(views.getByRole('button')).toHaveText([
       'Ready 2',
       'In review 3',
       'With vendor 1',
       'Published 12',
     ]);
-    await expect(status).toHaveText('Ready · 2 of 2');
-    await expect(tableRows(page)).toHaveCount(2);
-    await expect(tableRows(page).first().locator('td').nth(2)).toHaveText('Approved 14 Aug 2026');
+    await expect(count).toHaveText('2 ready to publish');
+    await expect(libraryRows(page)).toHaveCount(2);
+    await expect(main(page).locator('table.rk-table tbody tr.cm-grp-h')).toHaveCount(2);
+    await expect(main(page).locator('.cm-stageline .cm-own')).toHaveText('With you');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/library');
-    await expectTableLayout(page);
+    await expectTableLayout(page, main(page).locator('table.rk-table'));
     await checkState(page, 'Content library');
-    if (width(page) === 1440) await shot(page, 'b6-06-f1-library');
+    await shot(page, '04-library');
 
     // In review: the address follows; the re-check row opens CM-03 read-only.
-    await reachAndClick(page, tabs.getByRole('tab', { name: /^In review/ }));
+    await reachAndClick(page, views.getByRole('button', { name: /^In review/ }));
     await expect(page).toHaveURL(/\/content-manager\/library\?tab=in-review$/, { timeout: 60_000 });
-    await expect(status).toHaveText('In review · 3 of 3');
-    await expect(tableRows(page).locator('td:nth-child(3)')).toHaveText([
-      'New submission · since 24 Aug 2026',
-      'Re-check you asked for · since 25 Aug 2026',
-      'New submission · since 2 Oct 2026',
+    await expect(count).toHaveText('3 in academic review');
+    await expect(libraryRows(page).locator('.cm-stcell .rk-small')).toHaveText([
+      'New submission',
+      'New submission',
+      'Re-check you asked for',
     ]);
-    // The search narrows the tab (typed), and “Clear search” clears it.
-    const search = library.getByRole('searchbox', { name: 'Search the library' });
+    // The search narrows the view (typed); its chip; Clear filters clears it.
+    const search = main(page).getByRole('searchbox', { name: 'Search' });
     await search.click();
     await search.pressSequentially('venturi');
-    await expect(status).toHaveText('In review · 1 of 3');
-    await expect(tableRows(page)).toHaveCount(1);
+    await expect(count).toHaveText('1 of 3 in academic review');
+    await expect(libraryRows(page)).toHaveCount(1);
     await checkState(page, 'Content library');
-    await reachAndClick(page, library.getByRole('button', { name: 'Clear search' }));
-    await expect(status).toHaveText('In review · 3 of 3');
+    await reachAndClick(page, main(page).getByRole('button', { name: 'Clear filters' }));
+    await expect(count).toHaveText('3 in academic review');
+    await expect(search).toBeFocused();
     await search.pressSequentially('zz-nothing');
-    await expect(library.getByRole('heading', { level: 3, name: 'Nothing here' })).toBeVisible();
-    await expect(status).toHaveText('In review · 0 of 3');
-    await reachAndClick(page, library.getByRole('button', { name: 'Clear search' }));
-    await expect(tableRows(page)).toHaveCount(3);
+    await expect(
+      main(page).getByRole('heading', { level: 2, name: 'Nothing in In review matches' }),
+    ).toBeVisible();
+    await expect(count).toHaveText('0 of 3 in academic review');
+    await checkState(page, 'Content library');
+    await shot(page, '04c-lib-nomatch');
+    await reachAndClick(
+      page,
+      main(page).locator('.rk-state').getByRole('button', { name: 'Clear filters' }),
+    );
+    await expect(libraryRows(page)).toHaveCount(3);
     const mark = await markDocument(page);
-    await follow(page, library.getByRole('link', { name: 'Open Venturi Meter Calibration' }));
+    await follow(
+      page,
+      main(page).getByRole('link', {
+        name: 'Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open',
+      }),
+    );
     await expect(page).toHaveURL(/\/content-manager\/decisions\/SUB-0071$/, { timeout: 60_000 });
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
     await expectSameDocument(page, mark);
     await page.goBack();
     await expect(heading(page, 'Content library')).toBeVisible({ timeout: 60_000 });
-    await expect(tabs.getByRole('tab', { name: /^In review/ })).toHaveAttribute(
-      'aria-selected',
+    await expect(views.getByRole('button', { name: /^In review/ })).toHaveAttribute(
+      'aria-pressed',
       'true',
     );
 
-    // With vendor, by the arrow key (one tab stop).
-    await tabs.getByRole('tab', { name: /^In review/ }).focus();
-    await page.keyboard.press('ArrowRight');
+    // With vendor, from the keyboard (each view is its own button).
+    await views.getByRole('button', { name: /^With vendor/ }).focus();
+    await page.keyboard.press('Enter');
     await expect(page).toHaveURL(/\?tab=with-vendor$/, { timeout: 60_000 });
-    await expect(tableRows(page)).toHaveCount(1);
-    await expect(tableRows(page).first().locator('td').nth(2)).toHaveText(
-      'Returned by the Academic Reviewer · 24 Aug 2026',
+    await expect(libraryRows(page)).toHaveCount(1);
+    await expect(libraryRows(page).first().locator('.cm-stcell')).toHaveText(
+      /^With the vendor\s*Returned by the Academic Reviewer$/,
     );
 
-    // Published (f4 at 375): twelve rows, their open corrections named; a row opens CM-05.
-    await reachAndClick(page, tabs.getByRole('tab', { name: /^Published/ }));
+    // Published: twelve rows by course, their open corrections as their own chips; the pressed
+    // view stays in sight on a phone; a row opens CM-05.
+    await reachAndClick(page, views.getByRole('button', { name: /^Published/ }));
     await expect(page).toHaveURL(/\?tab=published$/, { timeout: 60_000 });
-    await expect(status).toHaveText('Published · 12 of 12');
-    await expect(tableRows(page)).toHaveCount(12);
-    const distillation = tableRows(page).filter({ hasText: 'Distillation Column' });
-    await expect(distillation.locator('td').nth(2)).toHaveText(
-      'Version 1.2 · live since 3 Jul 2026',
-    );
+    await expect(count).toHaveText('12 published');
+    await expect(libraryRows(page)).toHaveCount(12);
+    const pressed = await views.getByRole('button', { name: /^Published/ }).boundingBox();
+    const box = await views.boundingBox();
+    expect(
+      pressed &&
+        box &&
+        pressed.x >= box.x - 1 &&
+        pressed.x + pressed.width <= box.x + box.width + 1,
+    ).toBe(true);
     await expect(
-      tableRows(page).filter({ hasText: 'Induction Motor Loading' }).locator('td').nth(2),
-    ).toHaveText('Version 1.0 · live since 9 Jun 2026 · Update returned to you');
+      libraryRows(page).filter({ hasText: 'Induction Motor Loading' }).locator('.cm-stcell .xr-st'),
+    ).toHaveText(['Published', 'Update returned to you']);
     await expect(
-      tableRows(page).filter({ hasText: 'Boiler Drum Level' }).locator('td').nth(2),
-    ).toHaveText('Version 2.0 · live since 18 Jun 2026 · Update on hold');
-    await expectTableLayout(page);
+      libraryRows(page).filter({ hasText: 'Boiler Drum Level' }).locator('.cm-stcell .xr-st'),
+    ).toHaveText(['Published', 'Update on hold']);
+    // The course filter narrows the view to one course; its chip; the address carries it.
+    await main(page)
+      .getByRole('combobox', { name: 'Course' })
+      .selectOption('process-instrumentation-control');
+    await expect(page).toHaveURL(/\?tab=published&course=process-instrumentation-control$/, {
+      timeout: 60_000,
+    });
+    await expect(count).toHaveText('3 of 12 published');
+    await expect(libraryRows(page)).toHaveCount(3);
+    await expectTableLayout(page, main(page).locator('table.rk-table'));
     await checkState(page, 'Content library');
-    if (width(page) === 375) await shot(page, 'b6-06-f4-published');
-    await follow(page, library.getByRole('link', { name: 'Open Distillation Column' }));
+    await shot(page, '04b-lib-pub');
+    await follow(
+      page,
+      main(page).getByRole('link', {
+        name: /^Distillation Column, CHE ZG513, version 1\.2, published.*\. Open the published experiment$/,
+      }),
+    );
     await expect(page).toHaveURL(/\/content-manager\/published\/distillation-column$/, {
       timeout: 60_000,
     });
@@ -449,47 +512,47 @@ test.describe('CM-04 Content library', () => {
   });
 });
 
-test.describe('CM-09 Course codes', () => {
-  test('as drawn (f0, f2), a duplicate refused (B6-11 f12, f1), a unique code saved, Undo changes', async ({
-    page,
-  }) => {
+test.describe('CM-09 Platform course codes', () => {
+  test('clean, a duplicate refused, a unique code saved, Undo changes', async ({ page }) => {
     await bootWorld(page, { fixture: 'spine-start', session: KAVYA });
     await page.goto('/content-manager/course-codes');
     await expect(heading(page, 'Course codes')).toBeVisible({ timeout: 90_000 });
     const field = (course: string) =>
       page.getByRole('textbox', { name: `Platform course code for ${course}` });
-    const foot = main(page).locator('.xw-flow-foot [role="status"]');
-    await expect(tableRows(page)).toHaveCount(6);
+    const foot = main(page).locator('.cm-codes-foot [role="status"]');
+    await expect(codeRows(page)).toHaveCount(6);
+    await expect(main(page).locator('table.cm-codes tr.cm-area .cm-grp-name')).toHaveText([
+      'Mechanical & Manufacturing',
+      'Electrical & Electronics',
+      'Chemical & Process',
+    ]);
     await expect(field('Thermodynamics & Heat Transfer')).toHaveValue('ME ZG523');
     await expect(field('Fluid Mechanics')).toHaveValue('');
-    await expect(tableRows(page).last()).toContainText(
+    await expect(codeRows(page).nth(2)).toContainText(
       'No code yet — the catalogue shows the course name only.',
     );
     await expect(foot).toHaveText('No unsaved changes');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/course-codes');
-    await expectTableLayout(page);
+    await expectTableLayout(page, main(page).locator('table.cm-codes'));
     await checkState(page, 'Course codes');
-    if (width(page) === 1440) await shot(page, 'b6-10-f0-course-codes');
-    if (width(page) === 375) await shot(page, 'b6-10-f2-course-codes');
+    await shot(page, '09-codes');
 
     // Fluid Mechanics given ME ZG523: Save codes is refused, nothing saved.
     await field('Fluid Mechanics').click();
     await field('Fluid Mechanics').pressSequentially('ME ZG523');
-    await expect(tableRows(page).last().locator('.xg-changed-mark')).toHaveText(
-      'Changed — not saved yet',
-    );
+    await expect(codeRows(page).nth(2).locator('.cm-tag')).toHaveText('Changed — not saved yet');
     await expect(foot).toHaveText('1 change not saved');
     await reachAndClick(page, main(page).getByRole('button', { name: 'Save codes' }));
-    const summary = main(page).locator('div.xw-errsum[role="alert"]');
+    const summary = main(page).locator('div.rk-errsum[role="alert"]');
     const words =
       'ME ZG523 is already the code for Thermodynamics & Heat Transfer. Each course needs its own code.';
     await expect(summary).toBeFocused();
-    await expect(summary.locator('strong')).toHaveText('Check the codes');
+    await expect(summary.locator('.rk-errsum-t')).toHaveText('Check the codes');
     await expect(summary.getByRole('link')).toHaveText(words);
-    await expect(tableRows(page).last().locator('.xr-error')).toHaveText(words);
+    await expect(codeRows(page).nth(2).locator('.rk-ferr')).toHaveText(words);
     await expect(field('Fluid Mechanics')).toHaveAttribute('aria-invalid', 'true');
     await checkState(page, 'Course codes');
-    await shotAt720(page, 'b6-11-f12-duplicate');
+    await shot(page, '09b-codes-dup');
     // The summary link moves focus to the field (a wrapped inline link: Enter after focus).
     await summary.getByRole('link').focus();
     await page.keyboard.press('Enter');
@@ -498,24 +561,28 @@ test.describe('CM-09 Course codes', () => {
     // A unique code instead: saved, said so, and kept as the platform’s code.
     await field('Fluid Mechanics').fill('');
     await field('Fluid Mechanics').pressSequentially('ME ZG541');
-    await expect(tableRows(page).last().locator('.xr-error')).toHaveCount(0);
+    await expect(codeRows(page).nth(2).locator('.rk-ferr')).toHaveCount(0);
     await reachAndClick(page, main(page).getByRole('button', { name: 'Save codes' }));
-    const saved = main(page).locator('p.xa-save.is-ok[role="status"]');
-    await expect(saved).toHaveText(
-      /^Codes saved · \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d · the catalogue shows them from now on$/,
+    const saved = main(page).locator('div.rk-notice--ok[role="status"]');
+    await expect(saved.locator('.rk-notice-t')).toHaveText('Codes saved');
+    await expect(saved.locator('.rk-notice-d')).toHaveText(
+      /^\d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d · the catalogue shows them from now on$/,
     );
     await expect(saved).toBeFocused();
     await expect(foot).toHaveText('No unsaved changes');
     await expect(field('Fluid Mechanics')).toHaveValue('ME ZG541');
-    await expect(main(page).locator('.xg-changed-mark')).toHaveCount(0);
+    await expect(main(page).locator('.cm-tag')).toHaveCount(0);
     await checkState(page, 'Course codes');
+    await shot(page, '09e-codes-saved');
 
     // Undo changes puts every typed code back.
     await field('Power Electronics').fill('');
-    await expect(tableRows(page).nth(3)).toContainText(
+    await expect(codeRows(page).nth(4)).toContainText(
       'No code yet — the catalogue shows the course name only.',
     );
     await expect(foot).toHaveText('1 change not saved');
+    await checkState(page, 'Course codes');
+    await shot(page, '09c-codes-edit');
     await reachAndClick(page, main(page).getByRole('button', { name: 'Undo changes' }));
     await expect(field('Power Electronics')).toHaveValue('EEE ZG512');
     await expect(foot).toHaveText('No unsaved changes');

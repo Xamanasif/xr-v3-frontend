@@ -1,15 +1,37 @@
 'use client';
 
 import type { Out, platformCodesOutput } from '@xr/contracts/draft';
-import { Button, ErrorSummary, Icon, Notice, PageContent, PageHeader } from '@xr/ui';
-import { useId, useLayoutEffect, useRef, useState } from 'react';
+import {
+  Button,
+  type CmCodeRow,
+  CmCodesFailed,
+  CmCodesFoot,
+  CmCodesSurface,
+  CmCodesTable,
+  CmColumns,
+  type CmCourseGroup,
+  CmPageHead,
+  CmSays,
+  CmSide,
+  CmSideCard,
+  CmSideText,
+  ErrorSummary,
+  type Figure,
+  ListState,
+  LoadingRows,
+  Notice,
+} from '@xr/ui/v3';
+import { useLayoutEffect, useRef, useState } from 'react';
 
 import {
+  areaCount,
   changedCountWords,
+  codedDetail,
   codeFieldLabel,
   codesSavedWords,
   COURSE_CODES,
-  courseMeta,
+  LIST_FAILED,
+  liveUnderCourse,
 } from '@/copy/cm-lists';
 import { stateWords } from '@/copy/state-copy';
 import { COURSE_CODES_TITLE, courseCodesPlacement } from '@/nav/content-manager';
@@ -18,7 +40,7 @@ import { courseCodeErrors, courseCodesSummaryTitle } from '@/queries/production-
 import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { LoadFailed, LoadingRows, useRetryFocus } from '../cm-02-ready/list-parts';
+import { useToday } from '../cm-02-ready/list-facts';
 import { clearCodeEdits, type CodeEdits, useCodeEdits } from './code-edits';
 
 type CourseRow = Out<typeof platformCodesOutput>[number];
@@ -29,13 +51,22 @@ interface CodeError {
   readonly summaryText: string;
 }
 
-/** A refusal other than the drawn field errors (state-copy `CM-09.stale` / `.policy-open` / `.unavailable`). */
-type SaveNotice = 'stale' | 'policy-open' | 'unavailable';
+/**
+ * A save that did not go through: `failed` (the export's save failure, with Try again) or a
+ * refusal the export does not draw, in the same place (state-copy `CM-09.stale.*`,
+ * `CM-09.policy-open.*`).
+ */
+type SaveNotice = 'failed' | 'stale' | 'policy-open';
 
-const NOTICE_WORDS = {
-  stale: { title: 'CM-09.stale.title', line: 'CM-09.stale.line' },
-  'policy-open': { title: 'CM-09.policy-open.title', line: 'CM-09.policy-open.line' },
-  unavailable: { title: 'CM-09.unavailable.title', line: 'CM-09.unavailable.line' },
+const TITLE_ID = 'cm-h-codes';
+const SECTION_ID = 'cm-k-h';
+const HINT_ID = 'cc-hint';
+const WHERE_ID = 'cm-k-where';
+const RULES_ID = 'cm-k-rules';
+const SAYS_ICONS = {
+  catalogue: 'contentLibrary',
+  workspace: 'readyToPublish',
+  blank: 'courseCodes',
 } as const;
 
 /** The code a row shows: what was typed, else the saved code, else blank. */
@@ -43,40 +74,42 @@ export function shownCode(row: CourseRow, edits: CodeEdits): string {
   return edits[row.course.id] ?? row.course.platformCode ?? '';
 }
 
-/** Whether the row’s typed code differs from its saved one (B6-10 `changed`: both trimmed). */
+/** Whether the row’s typed code differs from its saved one (both trimmed). */
 export function isChanged(row: CourseRow, edits: CodeEdits): boolean {
   return shownCode(row, edits).trim() !== (row.course.platformCode ?? '').trim();
 }
 
 /**
- * CM-09 Course codes — board B6-10 f0 … f2 (and B6-11 f12), at `/content-manager/course-codes`:
- * “The official platform code of each course — shown in the public catalogue”.
+ * CM-09 Platform course codes — the V3 Refined B design (the owner-approved export
+ * design/v3-refined-b/roles/CM-v1, `Main.dc.html` CM-09 and `codesVM`), at
+ * `/content-manager/course-codes`.
  *
  * - **Read**: `PlatformCourseCodeService.list` — every course from Academic structure with its
- *   area, its published experiments and its platform code, in the service’s order.
+ *   area, its published experiments and its platform code, in the service’s order; grouped here by
+ *   engineering area in the order the areas first appear (read-only: the Super Admin keeps the
+ *   structure), each course with its live experiments.
  * - **Save**: `PlatformCourseCodeService.save` with the changed rows only, each with the course’s
- *   `expectedRev`. Blank is allowed (“No code yet — the catalogue shows the course name only.”); a
- *   duplicate is refused by the service with B6-11 f12’s words under the row that repeats it and
- *   in “Check the codes”, which takes focus; nothing is saved until every code is unique or blank.
- *   Saved: “Codes saved · <time> · the catalogue shows them from now on” takes focus, and the
- *   public catalogue reads the new codes (one world). The Content Manager is the only writer
- *   (M-2); a code of a course with published experiments is saved directly (OD-B6-13).
- * - **As B6-10 draws it**: each row “Changed — not saved yet” while its code differs from the saved
- *   one; the footer “No unsaved changes” or “<n> changes not saved” with “Undo changes”; “Save
- *   codes” the one primary; the note on who edits the codes. Below 760 px of content the rows
- *   become labelled blocks (f1, f2).
+ *   `expectedRev` (the repeat-press protection of `useCommand`). Blank is allowed; a duplicate is
+ *   refused by the service with its words under the row and in "Check the codes", which takes
+ *   focus; nothing is saved until every code is unique or blank. Saved: "Codes saved" with the time
+ *   takes focus. A failed save keeps every typed code and says so with Try again; a stale revision
+ *   or an open policy (CC-06) are said in the same place (state-copy `CM-09.stale.*`,
+ *   `CM-09.policy-open.*`).
+ * - **As the export draws it**: the head with its figures; each row "Changed — not saved yet" while
+ *   its code differs from the saved one; the foot "No unsaved changes" / "<n> changes not saved" /
+ *   "Saving…", Undo changes (shown when something changed; it waits while the codes save) and Save
+ *   codes; beside it where a code appears, and platform versus institution codes.
  * - Typed codes stay in memory for the session while she moves around (state-copy `CM-09.kept`).
- *   A stale revision, an open policy (CC-06) or a failed save keep every typed code and say so
- *   (state-copy `CM-09.stale.*`, `CM-09.policy-open.*`, `CM-09.unavailable.*`).
- * - Undrawn: loading and failed + Try again (state-copy `CM-09.loading`, `CM-09.failed`).
+ * - **States**: loading (no figures), couldn't load (Try again reads again and moves focus to the
+ *   title).
  */
 export function CourseCodes() {
   useShellPage(courseCodesPlacement());
-  const headingId = useId();
+  const today = useToday();
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const read = usePlatformCourseCodes();
   const rows = read.data?.ok ? read.data.value : null;
   const failed = read.isError || (read.data !== undefined && !read.data.ok);
-  const retried = useRetryFocus(rows !== null);
   const [edits, edit] = useCodeEdits();
   const [errors, setErrors] = useState<Readonly<Record<string, CodeError>>>({});
   const [summaryTitle, setSummaryTitle] = useState('');
@@ -84,7 +117,7 @@ export function CourseCodes() {
   const [notice, setNotice] = useState<SaveNotice | null>(null);
   const save = useCommand((ports) => ports.platformCourseCodes.save);
   const summary = useRef<HTMLDivElement>(null);
-  const savedLine = useRef<HTMLParagraphElement>(null);
+  const savedBox = useRef<HTMLDivElement>(null);
   const noticeBox = useRef<HTMLDivElement>(null);
   const firstInput = useRef<HTMLInputElement>(null);
   const focusTarget = useRef<'summary' | 'saved' | 'notice' | 'first' | null>(null);
@@ -92,13 +125,13 @@ export function CourseCodes() {
     focusTarget.current = target;
   };
 
-  // Focus moves once the element it goes to is on the page (B6-10 `focus(pid + '-err' | '-saved')`):
-  // every outcome also changes state, so a render follows the request.
+  // Focus moves once the element it goes to is on the page (the export's `focus('cm-k-errs' |
+  // 'cm-k-saved' | 'cm-k-fail')`): every outcome also changes state, so a render follows.
   useLayoutEffect(() => {
     if (focusTarget.current === null) return;
     const target = {
       summary: summary.current,
-      saved: savedLine.current,
+      saved: savedBox.current,
       notice: noticeBox.current,
       first: firstInput.current,
     }[focusTarget.current];
@@ -107,9 +140,9 @@ export function CourseCodes() {
     target.focus();
   });
 
-  const retry = () => {
-    retried();
+  const retryRead = () => {
     void read.refetch();
+    titleRef.current?.focus();
   };
 
   const change = (courseId: string, value: string) => {
@@ -121,13 +154,14 @@ export function CourseCodes() {
       return next;
     });
     setSaved(null);
+    setNotice(null);
   };
 
   const changedRows = rows ? rows.filter((row) => isChanged(row, edits)) : [];
 
   const submit = async () => {
     if (!rows || save.busy) return;
-    // Nothing changed: nothing to send (the footer reads “No unsaved changes”; `CM-09.kept`).
+    // Nothing changed: nothing to send (the foot reads “No unsaved changes”; `CM-09.kept`).
     if (changedRows.length === 0) return;
     const changes = changedRows.map((row) => ({
       courseId: row.course.id,
@@ -167,16 +201,17 @@ export function CourseCodes() {
         setNotice('stale');
         void read.refetch();
       } else {
-        setNotice(error.kind === 'policy-open' ? 'policy-open' : 'unavailable');
+        setNotice(error.kind === 'policy-open' ? 'policy-open' : 'failed');
       }
       setFocusTarget('notice');
     } catch {
-      setNotice('unavailable');
+      setNotice('failed');
       setFocusTarget('notice');
     }
   };
 
   const undo = () => {
+    if (save.busy) return;
     clearCodeEdits();
     setErrors({});
     setSaved(null);
@@ -192,136 +227,167 @@ export function CourseCodes() {
       })
     : [];
 
+  const areas: CmCourseGroup<CmCodeRow>[] = [];
+  if (rows) {
+    const areaNames: string[] = [];
+    for (const row of rows) if (!areaNames.includes(row.areaName)) areaNames.push(row.areaName);
+    for (const area of areaNames) {
+      const inArea = rows
+        .map((row, index) => ({ row, index }))
+        .filter(({ row }) => row.areaName === area);
+      areas.push({
+        key: area || 'other',
+        name: area || COURSE_CODES.otherArea,
+        count: areaCount(inArea.length),
+        rows: inArea.map(({ row, index }) => {
+          const id = fieldId(index);
+          const value = shownCode(row, edits);
+          const error = errors[row.course.id];
+          const changed = isChanged(row, edits);
+          const blank = value.trim() === '';
+          return {
+            key: row.course.id,
+            name: row.course.name,
+            liveText: liveUnderCourse(row.publishedExperiments),
+            live: row.publishedExperiments,
+            field: {
+              id,
+              value,
+              label: codeFieldLabel(row.course.name),
+              inlineLabel: COURSE_CODES.inlineLabel,
+              onChange: (next) => change(row.course.id, next),
+              invalid: Boolean(error),
+              describedBy: [
+                HINT_ID,
+                changed ? `${id}-c` : null,
+                blank ? `${id}-b` : null,
+                error ? `${id}-e` : null,
+              ]
+                .filter(Boolean)
+                .join(' '),
+              ...(index === 0 ? { ref: firstInput } : {}),
+            },
+            ...(changed ? { changed: { id: `${id}-c`, text: COURSE_CODES.changed } } : {}),
+            ...(blank ? { blank: { id: `${id}-b`, text: COURSE_CODES.blank } } : {}),
+            ...(error ? { error: { id: `${id}-e`, text: error.message } } : {}),
+          };
+        }),
+      });
+    }
+  }
+
+  const coded = rows
+    ? rows.filter((row) => (row.course.platformCode ?? '').trim() !== '').length
+    : 0;
+  const figures: Figure[] = rows
+    ? [
+        {
+          title: COURSE_CODES.withCode,
+          value: coded,
+          details: [codedDetail(rows.length, rows.length - coded)],
+        },
+        {
+          title: COURSE_CODES.liveExperiments,
+          value: rows.reduce((sum, row) => sum + row.publishedExperiments, 0),
+          details: [COURSE_CODES.listed],
+        },
+      ]
+    : [];
+
+  const noticeWords =
+    notice === 'stale'
+      ? { title: stateWords('CM-09.stale.title'), line: stateWords('CM-09.stale.line') }
+      : notice === 'policy-open'
+        ? {
+            title: stateWords('CM-09.policy-open.title'),
+            line: stateWords('CM-09.policy-open.line'),
+          }
+        : { title: COURSE_CODES.saveFailed, line: COURSE_CODES.saveFailedLine };
+
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-6"
+    <>
+      <CmPageHead
         title={COURSE_CODES_TITLE}
-        meta={<span className="xl-meta">{COURSE_CODES.meta}</span>}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        date={today.line}
+        lead={COURSE_CODES.lead}
+        figures={figures}
+        figuresLabel={COURSE_CODES.figuresLabel}
       />
-      <section
-        className="xr-section"
-        aria-labelledby={headingId}
-        aria-busy={rows === null && !failed ? true : undefined}
-      >
-        <div className="xr-section-head">
-          <h2 id={headingId} className="xr-h2">
-            {COURSE_CODES.sectionTitle}
-          </h2>
-          <span className="xr-meta">{COURSE_CODES.sectionMeta}</span>
-        </div>
-        {failed ? (
-          <LoadFailed title={stateWords('CM-09.failed')} onRetry={retry} />
-        ) : rows === null ? (
-          <LoadingRows
-            label={stateWords('CM-09.loading')}
-            grid="grid-cols-[1.4fr_1fr]"
-            cells={2}
-            rows={6}
-          />
-        ) : (
-          <>
-            <div className="[padding:0_24px_12px]">
-              <ErrorSummary
-                ref={summary}
-                id="cc-err"
-                title={summaryTitle}
-                items={summaryItems}
-                autoFocus={false}
+      <CmColumns>
+        <CmCodesSurface
+          title={COURSE_CODES.sectionTitle}
+          titleId={SECTION_ID}
+          note={COURSE_CODES.sectionNote}
+          hint={COURSE_CODES.hint}
+          hintId={HINT_ID}
+          messages={
+            rows ? (
+              <>
+                <ErrorSummary
+                  ref={summary}
+                  id="cc-err"
+                  title={summaryTitle}
+                  items={summaryItems}
+                  autoFocus={false}
+                />
+                {notice ? (
+                  <CmCodesFailed
+                    ref={noticeBox}
+                    id="cc-fail"
+                    title={noticeWords.title}
+                    {...(notice === 'failed'
+                      ? { retry: { label: LIST_FAILED.retry, onRetry: () => void submit() } }
+                      : {})}
+                  >
+                    {noticeWords.line}
+                  </CmCodesFailed>
+                ) : null}
+                {saved ? (
+                  <Notice
+                    ref={savedBox}
+                    id="cc-saved"
+                    tone="ok"
+                    role="status"
+                    title={COURSE_CODES.saved}
+                  >
+                    {saved}
+                  </Notice>
+                ) : null}
+              </>
+            ) : null
+          }
+        >
+          {failed ? (
+            <ListState
+              kind="failed"
+              titleAs="h2"
+              title={COURSE_CODES.failed}
+              action={<Button onClick={retryRead}>{LIST_FAILED.retry}</Button>}
+            >
+              {LIST_FAILED.line}
+            </ListState>
+          ) : rows === null ? (
+            <LoadingRows message={COURSE_CODES.loading} cells={[2, 1, 1]} rows={4} />
+          ) : (
+            <>
+              <CmCodesTable
+                caption={COURSE_CODES.caption}
+                headers={COURSE_CODES.headers}
+                areas={areas}
               />
-              {notice ? (
-                <Notice
-                  ref={noticeBox}
-                  tone="err"
-                  role="alert"
-                  tabIndex={-1}
-                  title={stateWords(NOTICE_WORDS[notice].title)}
-                  className="mb-3"
-                >
-                  {stateWords(NOTICE_WORDS[notice].line)}
-                </Notice>
-              ) : null}
-              <p className="xr-hint m-0" id="cc-hint">
-                {COURSE_CODES.hint}
-              </p>
-            </div>
-            {saved ? (
-              <p
-                ref={savedLine}
-                className="xa-save is-ok [margin:0_24px_12px]"
-                role="status"
-                id="cc-saved"
-                tabIndex={-1}
+              <CmCodesFoot
+                state={
+                  save.busy
+                    ? COURSE_CODES.saving
+                    : changedRows.length > 0
+                      ? changedCountWords(changedRows.length)
+                      : COURSE_CODES.clean
+                }
               >
-                <Icon name="done" />
-                {saved}
-              </p>
-            ) : null}
-            <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-              <table className="xr-table xg-codes">
-                <thead>
-                  <tr>
-                    <th scope="col">{COURSE_CODES.columns.course}</th>
-                    <th scope="col">{COURSE_CODES.columns.code}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rows.map((row, index) => {
-                    const id = fieldId(index);
-                    const value = shownCode(row, edits);
-                    const error = errors[row.course.id];
-                    return (
-                      <tr key={row.course.id}>
-                        <td className="is-primary">
-                          <strong>{row.course.name}</strong>
-                          <span className="xr-meta block">
-                            {courseMeta(row.areaName, row.publishedExperiments)}
-                          </span>
-                        </td>
-                        <td data-label={COURSE_CODES.columns.code}>
-                          <label className="xr-sr" htmlFor={id}>
-                            {codeFieldLabel(row.course.name)}
-                          </label>
-                          <input
-                            ref={index === 0 ? firstInput : undefined}
-                            id={id}
-                            className="xr-input"
-                            value={value}
-                            onChange={(event) => change(row.course.id, event.target.value)}
-                            aria-invalid={error ? true : undefined}
-                            aria-describedby={error ? `cc-hint ${id}-e` : 'cc-hint'}
-                          />
-                          {error ? (
-                            <span className="xr-error" id={`${id}-e`}>
-                              <Icon name="failed" />
-                              {error.message}
-                            </span>
-                          ) : null}
-                          {isChanged(row, edits) ? (
-                            <span className="xg-changed-mark">
-                              <Icon name="marking" size={16} />
-                              {COURSE_CODES.changed}
-                            </span>
-                          ) : null}
-                          {value.trim() === '' ? (
-                            <span className="xr-meta mt-[6px] block">{COURSE_CODES.blank}</span>
-                          ) : null}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-            <div className="xw-flow-foot [padding:16px_24px]">
-              <span className="xr-meta" role="status">
-                {changedRows.length > 0
-                  ? changedCountWords(changedRows.length)
-                  : COURSE_CODES.clean}
-              </span>
-              <div className="xw-actions">
                 {changedRows.length > 0 ? (
-                  <Button variant="text" onClick={undo}>
+                  <Button busy={save.busy} onClick={undo}>
                     {COURSE_CODES.undo}
                   </Button>
                 ) : null}
@@ -333,15 +399,26 @@ export function CourseCodes() {
                 >
                   {COURSE_CODES.save}
                 </Button>
-              </div>
-            </div>
-          </>
-        )}
-      </section>
-      <p className="xl-open mt-4 mb-0">
-        <Icon name="info" size={16} />
-        <span>{COURSE_CODES.note}</span>
-      </p>
-    </PageContent>
+              </CmCodesFoot>
+            </>
+          )}
+        </CmCodesSurface>
+        <CmSide label={COURSE_CODES.side.label}>
+          <CmSideCard titleId={WHERE_ID} title={COURSE_CODES.side.where}>
+            <CmSays
+              items={COURSE_CODES.side.says.map((point) => ({
+                key: point.key,
+                icon: SAYS_ICONS[point.key],
+                title: point.title,
+                children: point.line,
+              }))}
+            />
+          </CmSideCard>
+          <CmSideCard ivory titleId={RULES_ID} title={COURSE_CODES.side.rules}>
+            <CmSideText flush>{COURSE_CODES.side.rulesLine}</CmSideText>
+          </CmSideCard>
+        </CmSide>
+      </CmColumns>
+    </>
   );
 }

@@ -1,0 +1,56 @@
+/* XR Learning Platform · Design V3 · Refined B · BORROWED shared surfaces (xsb- prefix)
+   Skip link and account menu of the workspace shell (board 05 · XS-05), message pages for refusals and
+   sign-out (XS-06 · XS-03 · AR-10 template) and the Help & support pages (XS-07), implemented from the
+   frozen v46 shared contract (boards 05, 07, 08, 10)
+   with V3 tokens so the Content Manager preview is navigable. The XS workstream owns these; when its V3
+   components are delivered they replace this file one-for-one. Additive only; no base class is restyled. */
+
+/* skip link: the first thing Tab reaches; hidden above the shell until it has focus */
+.rb .xsb-skip{position:absolute;z-index:60;left:12px;top:-80px;padding:10px 14px;border-radius:8px;background:var(--paper);color:var(--navy);font:700 15px/20px var(--sans);text-decoration:underline;text-underline-offset:3px;box-shadow:0 18px 50px -12px rgba(12,18,71,.30)}
+.rb .xsb-skip:focus{top:12px}
+
+/* account menu: name and role, Help & support, Sign out */
+.rb-top .xsb-acctwrap{position:relative;margin-left:auto}
+.xsb-veil{position:fixed;inset:0;z-index:38;border:0;padding:0;background:transparent;cursor:default}
+.xsb-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:40;width:min(300px,calc(100vw - 32px));padding:8px;border:1px solid var(--rb-line);border-radius:14px;background:var(--paper);box-shadow:0 18px 50px -12px rgba(12,18,71,.30);animation:xsb-pop 140ms cubic-bezier(.2,0,0,1)}
+.xsb-menu-id{display:flex;align-items:center;gap:12px;padding:10px 10px 14px;margin-bottom:6px;border-bottom:1px solid var(--rb-line)}
+.xsb-menu-name{font:650 16px/22px var(--sans);color:var(--ink)}
+.xsb-menu-role{font:400 14.5px/20px var(--sans);color:var(--ink-3)}
+.xsb-menu ul{display:flex;flex-direction:column;gap:2px}
+.rb .xsb-item{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;color:var(--navy);font:600 15px/20px var(--sans);text-align:left;text-decoration:none;cursor:pointer}
+.rb .xsb-item:hover{background:var(--rb-sel-tint);color:var(--navy)}
+.xsb-item svg{width:19px;height:19px;flex:none;fill:none;stroke:var(--indigo);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@keyframes xsb-pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+
+/* message page (AR-10): one explanation, one way forward, Help as a quiet link */
+.xsb-msg{display:flex;flex-direction:column;align-items:flex-start;gap:12px;max-width:600px;padding-top:12px}
+.xsb-msg-ico{display:flex;align-items:center;justify-content:center;width:48px;height:48px;margin-bottom:4px;border-radius:50%;background:var(--rb-sel-tint);color:var(--indigo)}
+.xsb-msg-ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.xsb-msg-ico--ok{background:var(--ok-bg);color:var(--ok)}
+.xsb-msg-ico--off{background:#F1F2FA;color:var(--navy)}
+.xsb-msg-d{font:400 17px/26px var(--sans);color:var(--ink-2)}
+.xsb-msg-act{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:8px}
+.xsb-ref{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+
+/* help & support list and report form */
+.xsb-form{display:flex;flex-direction:column;gap:20px;max-width:44em}
+.xsb-file{display:block;width:100%;max-width:28em;padding:9px 12px;border:1.5px dashed #BEC5E2;border-radius:10px;background:var(--paper);color:var(--ink-2);font:400 15px/22px var(--sans)}
+.xsb-foot{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:10px;padding-top:4px}
+
+/* signed-out page: outside any workspace, so no rail */
+.rb > .xsb-out{grid-column:1 / -1}
+.xsb-out{container:xsbout / inline-size;min-height:100vh;background:var(--rb-canvas)}
+.xsb-outbar{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;min-height:72px;padding:14px 40px;border-bottom:1px solid var(--rb-line);background:var(--paper)}
+.xsb-outbody{max-width:1040px;margin:0 auto;padding:40px}
+
+@container rb (max-width: 759.98px){
+  .xsb-msg-d{font-size:16px;line-height:24px}
+  .xsb-msg-act,.xsb-msg-act .rb-btn{width:100%}
+  .xsb-msg-act .rb-btn{min-height:46px}
+  .xsb-foot .rb-btn{flex:1 1 100%;min-height:46px}
+}
+@container xsbout (max-width: 759.98px){
+  .xsb-outbar{padding:12px 16px}
+  .xsb-outbody{padding:24px 16px}
+}
+@media (prefers-reduced-motion: reduce){ .xsb-menu{animation:none} }

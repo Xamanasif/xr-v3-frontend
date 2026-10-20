@@ -304,3 +304,133 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 :where(.xr) .vr-ret:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
   border-radius: 6px;
 }
+
+/*
+ * V3P-14 · The Content Manager export's inline spacings (design/v3-refined-b/roles/CM-v1,
+ * `project/Main.dc.html`). The export sets these with `style=`; product code takes no inline style,
+ * so each is a product class on the element the export styles, set by its component. Values
+ * exactly as the export writes them:
+ * - `.cm-grp-head.rk-x-grp-head-side` `margin-bottom: 8px` and `.cm-sidecard-t.rk-x-sidecard-t-flush`
+ *   `margin-bottom: 0` — the CM-01 "With others" side card's head and its title. `CmGroupHead`
+ *   `variant="side"` (cm.tsx).
+ * - `p.rk-x-calm-foot` `padding: 0 0 18px` — "Open the Content library" under CM-01's calm state.
+ *   `CmCalmDesk` (cm-lists.tsx).
+ * - `.rk-fmts.rk-x-fmts-flush` `margin-top: 0` — the format badges of the catalogue entry's
+ *   "Available in" (CM-03, CM-05) and of a Content library row (CM-04). `CmFormatBadges` (cm.tsx).
+ * - `th.rk-c-inst.rk-x-lib-col` … `th.rk-c-st.rk-x-lib-col` `width: 34%`, `17%`, `16%`, `13%`,
+ *   `20%` — the Content library's columns (CM-04). `CmLibraryTable` (cm-lists.tsx).
+ * - `.rk-h3.rk-x-h3-sub` `margin: 24px 0 10px` — CM-03 "Delivery by format". `CmSubHeading`
+ *   (cm-decision.tsx). The note under its rows (`margin-top: 12px`) is V3P-12's `rk-x-hint-list`.
+ * - `ul.rk-x-pending-list` `margin-top: 4px; padding-left: 18px; list-style: disc` and
+ *   `li.rk-x-pending-item` `font-weight: 500` — CM-03's blockers in the decision panel.
+ *   `CmBlockers` (cm-decision.tsx).
+ * - `.rk-textarea.rk-x-textarea-short` `min-height: 80px` and `.rk-textarea.rk-x-textarea-long`
+ *   `min-height: 150px` — the correction's Summary (`#cm-u-summary`) and Description
+ *   (`#cm-u-desc`). `CmCorrectionField` `height` (cm-correction.tsx).
+ * - `.rk-ferr.rk-x-ferr-below` `margin-bottom: 10px` — "Change at least one …" over the comparison
+ *   (`#cm-u-chg-err`). `CmComparison` `error` (cm-correction.tsx).
+ * - `.rk-notice-d.rk-x-notice-more` `grid-column: 2; margin-top: 6px` — the reason and the extra
+ *   line of the correction's state notice (`#cm-u-state`: on hold, withdrawn, hold lifted).
+ *   `CmStateNotice` (cm-correction.tsx).
+ * - `p.rk-x-errsum-line` `margin-top: 4px; font: 500 15px/22px var(--sans)` and
+ *   `.rb-btn.rk-x-errsum-retry` `margin-top: 10px` — a save that failed: the draft
+ *   (`#cm-u-savefail`, `CmSaveFailed`) and the course codes (`#cm-k-fail`, `CmCodesFailed`).
+ * - `.cm-hold-d.rk-x-hold-d-flush` `margin-top: 0` — CM-09 "Platform codes, not institution
+ *   codes". `CmSideText` `flush` (cm-lists.tsx).
+ * - `.rk-dlg-body.rk-x-dlg-body-tight` `padding-bottom: 12px` — the Withdraw dialog's body (one
+ *   field). `ConfirmDialog` `tightBody` (dialog.tsx).
+ *
+ * And the export's cascade, checked as for V3P-13: the export loads core.css, rb.css, rb-kit.css,
+ * then cm.css unlayered, so where a Refined B rule and a `cm-` rule set the same property on one
+ * element the more specific one wins there, while the product's `xr.v3.cm` layer wins whatever the
+ * specificity. Comparing both cascades on every element and longhand a `cm-` rule sets, on every
+ * Content Manager screen state reached through the product (CM-01 … CM-09 with the dialogs, the
+ * validation, the saved, empty, calm and no-match states, read-only, on hold, lifted, released and
+ * withdrawn: 44 states on the spine-start, after-flow-e and after-flow-f worlds, at 1440, 1024, 768
+ * and 375, at rest and with hover / focus forced) finds no element where they differ: the export
+ * raises its own selectors where a Refined B rule would win (`.rb .cm-tile-a`, `.rb .cm-catlist-t`
+ * over `.rb a`), so no declaration is restored here.
+ */
+:where(.xr) .cm-grp-head.rk-x-grp-head-side:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 8px;
+}
+
+:where(.xr) .cm-sidecard-t.rk-x-sidecard-t-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 0;
+}
+
+:where(.xr) p.rk-x-calm-foot:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  padding: 0 0 18px;
+}
+
+:where(.xr) .rk-fmts.rk-x-fmts-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 0;
+}
+
+:where(.xr) th.rk-c-inst.rk-x-lib-col:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  width: 34%;
+}
+
+:where(.xr) th.rk-c-exp.rk-x-lib-col:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  width: 17%;
+}
+
+:where(.xr) th.rk-c-type.rk-x-lib-col:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  width: 16%;
+}
+
+:where(.xr) th.rk-c-date.rk-x-lib-col:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  width: 13%;
+}
+
+:where(.xr) th.rk-c-st.rk-x-lib-col:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  width: 20%;
+}
+
+:where(.xr) .rk-h3.rk-x-h3-sub:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin: 24px 0 10px;
+}
+
+:where(.xr) ul.rk-x-pending-list:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 4px;
+  padding-left: 18px;
+  list-style: disc;
+}
+
+:where(.xr) li.rk-x-pending-item:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  font-weight: 500;
+}
+
+:where(.xr) .rk-textarea.rk-x-textarea-short:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  min-height: 80px;
+}
+
+:where(.xr) .rk-textarea.rk-x-textarea-long:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  min-height: 150px;
+}
+
+:where(.xr) .rk-ferr.rk-x-ferr-below:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 10px;
+}
+
+:where(.xr) .rk-notice-d.rk-x-notice-more:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  grid-column: 2;
+  margin-top: 6px;
+}
+
+:where(.xr) p.rk-x-errsum-line:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 4px;
+  font: 500 15px/22px var(--sans);
+}
+
+:where(.xr) .rb-btn.rk-x-errsum-retry:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 10px;
+}
+
+:where(.xr) .cm-hold-d.rk-x-hold-d-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 0;
+}
+
+:where(.xr) .rk-dlg-body.rk-x-dlg-body-tight:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  padding-bottom: 12px;
+}

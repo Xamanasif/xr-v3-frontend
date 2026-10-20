@@ -11,48 +11,48 @@ const REVIEW_UPDATE = '/reviewer/updates/UPD-0005';
 const QUEUE = '/reviewer/queue';
 
 /**
- * Phase 6 link targets: CM-08 Updates (the list; B6-09 f0, B6-13 f2, B7-11 f2) and RV-04 Review an
+ * Phase 6 link targets: CM-08 Updates (the list; V3: the export CM-v1) and RV-04 Review an
  * update (B6-04 f0 … f4, B6-13 f4, B7-11 f6). The update rows of RV-01, RV-02, RV-05 and CM-01 are
  * in their Phase-5 files (`link-targets-p5/reviewer-lists.ts`, `cm-lists.ts`), now built; CM-04’s
- * published row keeps its drawn “Open” to the published experiment (CM-05). The list draws no
- * primary (every row’s action is `xr-btn--secondary`); RV-04’s one primary is the panel’s
+ * published row keeps its drawn “Open” to the published experiment (CM-05). The list's primary is
+ * a Need-you card's “Continue” (CM-v1, one per card); RV-04’s one primary is the panel’s
  * “Approve update” / “Return to the Content Manager” (a command, through DL-1 or DL-2). Approving
  * releases and publishes nothing: Release / Hold is the Super Admin’s (SA-11).
  */
 export const P6_REVIEW_UPDATE_LINK_TARGETS: readonly LedgerEntry[] = [
-  // CM-08 Updates (B6-09 f0; B6-13 f2; B7-11 f2).
+  // CM-08 Updates — V3 (CM-v1 `Main.dc.html` “CM-08 Updates list”; LINK-MAP “CM-08 Updates list”).
   ...pageRows('CM-08', UPDATES, [
     [
-      'Corrections you raised (a draft or returned row)',
+      'Need you (a draft or returned card)',
       'Continue',
-      'secondary',
+      'primary',
       CORRECTION_HERS,
       'built',
-      'B6-09 f0; B7-11 f2 `a.xr-btn--secondary.xr-btn--sm` (named “Continue <UPD id> <name>”; `D.links.cupd`; state-copy `CM-08.list.actions`)',
+      'CM-v1 `div.cm-trk-act a.rb-btn--primary` (named “Continue <UPD id>, <name>, <status>”; `openLink`; state-copy `CM-08.list.actions`); LINK-MAP → CM-08 “Update to …”',
     ],
     [
-      'Corrections you raised (every other row)',
+      'With others · Closed (every other card)',
       'Open',
       'secondary',
       CORRECTION_WITH_OTHERS,
       'built',
-      'B6-09 f0; B7-11 f2 `a.xr-btn--secondary.xr-btn--sm` (named “Open <UPD id> <name>”; `D.links.cupd`)',
+      'CM-v1 `div.cm-trk-act a.rb-btn` (named “Open <UPD id>, <name>, <status>”; `openLink`); LINK-MAP → CM-08 “Update to …”',
     ],
     [
       'Empty',
       'Open the Content library',
       'secondary',
-      LIBRARY,
+      `${LIBRARY}?tab=published`,
       'built',
-      'B6-09 script `uNoRows` `div.xr-empty a.xr-btn--secondary`',
+      'CM-v1 `U.empty` `div.rk-state a.rb-btn` (`goLibraryPublished`)',
     ],
     [
-      'Failed state (the list)',
+      'Couldn’t load (the list)',
       'Try again',
       'secondary',
       null,
       'in-page',
-      'state-copy `CM-08.list.failed`',
+      'CM-v1 `U.lsFailed` `button#cm-upd-retry` (`lsRetry`: reads the list again, focus to the page title; state-copy `CM-08.list.failed`)',
     ],
   ]),
   // RV-04 Review an update (B6-04 f0 … f4; B6-13 f4; B7-11 f6).

@@ -23,8 +23,9 @@
 //
 // It also writes the scoped derivative of each owner-approved role export's extension sheet
 // (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): XS-v6's xs-shared.css →
-// src/styles/v3/xs-scoped.css, SA-v1's sa-role.css → src/styles/v3/sa-scoped.css and VE-v1's
-// v3-vendor.css → src/styles/v3/ve-scoped.css, with the same selector-only transform. Before anything is written, the export must name this foundation,
+// src/styles/v3/xs-scoped.css, SA-v1's sa-role.css → src/styles/v3/sa-scoped.css, VE-v1's
+// v3-vendor.css → src/styles/v3/ve-scoped.css and CM-v1's cm.css → src/styles/v3/cm-scoped.css,
+// with the same selector-only transform. Before anything is written, the export must name this foundation,
 // its three base sheets must be the foundation's own bytes (a different base is a new foundation
 // version: STOP), and the extension sheet must match both the export's FOUNDATION-LOCK.json and
 // its checksums (the export's own SHA256SUMS.txt, or the list recorded at intake beside it).
@@ -390,6 +391,28 @@ export const ROLE_SHEETS = [
       'export draws, are left out.',
     ],
   },
+  {
+    /** The workstream: CM · Content Manager (9 screens). */
+    role: 'CM',
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'CM-v1'),
+    /** The role stylesheet (every rule selects a `cm-` class). */
+    sheet: 'project/cm.css',
+    /** No SHA256SUMS.txt in the export: the list recorded at intake, `CM-v1.SHA256SUMS.txt`. */
+    sums: 'beside',
+    output: join(packageRoot, 'src', 'styles', 'v3', 'cm-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these (the export's COMPONENT-EXTENSIONS.md
+     * "Preview-only — never product UI"): the scenario handoff box (`cm-dock*`: "Must not ship")
+     * and the public-page handoff frame (`cm-pub*`: "not a design of PU-06" — the product opens the
+     * real public page). The export's borrowed XS sheet (`xs-borrowed.css`) is not generated: the
+     * delivered XS export (XS-v6) draws those surfaces.
+     */
+    omit: /\.cm-(?:dock(?:-[\w-]+)?|pub(?:bar|body|logo|prod)?)(?![\w-])/,
+    omitNote: [
+      'scenario handoff box (cm-dock*) and public-page handoff frame (cm-pub*), preview-only, are left',
+      'out; its borrowed XS sheet (xs-borrowed.css) is not generated — the delivered XS export draws it.',
+    ],
+  },
 ];
 
 /** Whether every selector of a rule names something its export says is not product UI. */
@@ -397,16 +420,17 @@ export function previewOnlyRule(role, prelude) {
   return splitTopLevel(prelude, ',').every((selector) => role.omit.test(selector));
 }
 
-/** The export's recorded SHA-256 of one of its base sheets, in any of the three lock layouts. */
+/** The export's recorded SHA-256 of one of its base sheets, in any of the four lock layouts. */
 function exportedBaseSheet(exportLock, sheet) {
   return (
     exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
     exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256 ??
-    exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256
+    exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256 ??
+    exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256
   );
 }
 
-/** The export's recorded SHA-256 of its extension sheet, in any of the three lock layouts. */
+/** The export's recorded SHA-256 of its extension sheet, in any of the four lock layouts. */
 function exportedLocalAddition(exportLock, sheet) {
   const entry = exportLock.localAdditions?.[sheet] ?? exportLock.localAdditions?.[basename(sheet)];
   return typeof entry === 'string' ? entry : entry?.sha256;

@@ -5,9 +5,9 @@ import { joinClasses } from '../internal/classes.js';
  * The line icons the Refined Direction B boards draw (foundation XR-V3-RB-1.0): the nav icons
  * inline in each rail, and the `rbi-*` / `rki-*` symbols of SA01, SA02, IA01 and IA02, plus the
  * ones the Entry & shared export (XS-v6) draws in its sign-in card, account menu, Help pages and
- * messages, the Super Admin export (SA-v1) in its sprite and the Vendor export (VE-v1) in its
- * `vei-*` symbols. Twenty-nine are the very paths of
- * the v46 registry (taken from it, so the two never drift); the others are new to V3.
+ * messages, the Super Admin export (SA-v1) in its sprite, the Vendor export (VE-v1) in its
+ * `vei-*` symbols and the Content Manager export (CM-v1) in its `cmi-*` symbols. Thirty-four are
+ * the very paths of the v46 registry (taken from it, so the two never drift); the others are new to V3.
  * `primitives.test.tsx` checks every path against the board or export that draws it.
  */
 export const V3_ICON_PATHS = {
@@ -39,6 +39,13 @@ export const V3_ICON_PATHS = {
   infoNote: ICON_PATHS.info,
   next: ICON_PATHS.next,
   myExperiments: ICON_PATHS.myExperiments,
+  // Shared with the v46 registry, drawn by the Content Manager export (CM-v1 `cmi-*` symbols): its
+  // rail (Ready to publish, Content library, Updates, Course codes) and "View the public page".
+  readyToPublish: ICON_PATHS.readyToPublish,
+  contentLibrary: ICON_PATHS.contentLibrary,
+  updates: ICON_PATHS.updates,
+  courseCodes: ICON_PATHS.courseCodes,
+  externalLink: ICON_PATHS.externalLink,
   // Shared with the v46 registry, drawn by the XS export (XS-v6).
   back: ICON_PATHS.back,
   signOut: ICON_PATHS.signOut,
@@ -82,6 +89,8 @@ export const V3_ICON_PATHS = {
   // returned item and the document of the sample files.
   returned: 'M9 14 4 9l5-5M4 9h10.5a5.5 5.5 0 0 1 0 11H11',
   document: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6',
+  // New in the Content Manager export (CM-v1 `cmi-cross`): a publishing check that is not met.
+  cross: 'M7 7l10 10M17 7 7 17',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;
