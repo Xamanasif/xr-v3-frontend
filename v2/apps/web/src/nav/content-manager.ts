@@ -112,17 +112,13 @@ export function courseCodesPlacement(): CmPlacement {
   return { screen: 'CM-09', title: COURSE_CODES_TITLE, trail: [] };
 }
 
-/** B6-07 f0 "Ready to publish / SUB-0077"; while it loads, "Ready to publish". */
-export function publicationDecisionPlacement(
-  submission: { readonly id: string; readonly name: string } | null,
-): CmPlacement {
-  if (submission === null) return { screen: 'CM-03', title: READY_TO_PUBLISH_TITLE, trail: [] };
-  return {
-    screen: 'CM-03',
-    title: submission.name,
-    trail: [READY_CRUMB],
-    currentCrumb: submission.id,
-  };
+/**
+ * "Ready to publish / Transient Cooling" — the experiment's name, never its submission reference
+ * (owner correction, 20 Oct 2026; v46 B6-07 f0 drew "SUB-0077"); while it loads, "Ready to publish".
+ */
+export function publicationDecisionPlacement(name: string | null): CmPlacement {
+  if (name === null) return { screen: 'CM-03', title: READY_TO_PUBLISH_TITLE, trail: [] };
+  return { screen: 'CM-03', title: name, trail: [READY_CRUMB], currentCrumb: name };
 }
 
 /** B6-08 f0 "Content library / Distillation Column"; while it loads, "Content library". */
@@ -136,8 +132,17 @@ export function updatesPlacement(): CmPlacement {
   return { screen: 'CM-08', title: UPDATES_TITLE, trail: [] };
 }
 
-/** B6-09 f1 "Updates / UPD-0005" (the mobile top bar: "Updates"); while it loads, "Updates". */
-export function correctionPlacement(updateId: string | null): CmPlacement {
-  if (updateId === null) return { screen: 'CM-08', title: UPDATES_TITLE, trail: [] };
-  return { screen: 'CM-08', title: UPDATES_TITLE, trail: [UPDATES_CRUMB], currentCrumb: updateId };
+/**
+ * B6-09 f1 "Updates / Update to Distillation Column" (the mobile top bar: "Updates"); while it
+ * loads, "Updates". The current crumb is the page's H1, never the update's reference (the owner's
+ * correction of 20 Oct 2026, state-copy `CM-08.no-reference`).
+ */
+export function correctionPlacement(updateTitle: string | null): CmPlacement {
+  if (updateTitle === null) return { screen: 'CM-08', title: UPDATES_TITLE, trail: [] };
+  return {
+    screen: 'CM-08',
+    title: UPDATES_TITLE,
+    trail: [UPDATES_CRUMB],
+    currentCrumb: updateTitle,
+  };
 }

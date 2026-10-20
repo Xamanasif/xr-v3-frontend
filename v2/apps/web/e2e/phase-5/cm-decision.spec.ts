@@ -20,7 +20,8 @@ import { currentSidebarItem, expectSameDocument, markDocument } from '../support
  * page, the course page and the catalogue — is done by real clicks and typing in one tab (one
  * world, no reload). The CI seam only READS (that publishing changed no access plan, licence or
  * Student grant; where a sent-back record now is) or SETS UP a world (UPD-0005 for CM-05's update
- * states).
+ * states). Neither page shows an internal reference (SUB-, UPD- …) in its words, names, dialogs,
+ * announcements or tab title (owner visual-review correction, 20 Oct 2026): `expectNoReference`.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -107,6 +108,48 @@ const historyWhat = (page: Page) => region(page, 'History').locator('.rk-tl-w');
 const historyNote = (page: Page) => region(page, 'History').locator('.rk-tl-n');
 const done = (page: Page) => page.locator('#cm-d-done');
 
+/** An internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference where a person reads or hears it (owner visual-review correction, 20 Oct
+ * 2026; the SA-v1 rule): the page's words (`document.body.innerText`, screen-reader-only words and
+ * status regions included), every dialog's words whether it is shown or not, the route
+ * announcer's, every `aria-label`, `title` and `placeholder`, and the tab's title. CM-03 and CM-05
+ * quote no seeded text holding a reference (the seeded “Correction UPD-0006.” is the correction
+ * page's), so nothing is excepted. The references stay in the addresses.
+ */
+async function expectNoReference(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const reference = new RegExp(source);
+    const hits: string[] = [];
+    const check = (where: string, words: string | null | undefined) => {
+      const match = words ? reference.exec(words) : null;
+      if (match && words) {
+        hits.push(`${where}: …${words.slice(Math.max(0, match.index - 40), match.index + 20)}…`);
+      }
+    };
+    check('page words', document.body.innerText);
+    for (const dialog of document.querySelectorAll(
+      'dialog, [role="dialog"], [role="alertdialog"]',
+    )) {
+      check('dialog', dialog.textContent);
+    }
+    check(
+      'route announcer',
+      document.querySelector('next-route-announcer')?.shadowRoot?.textContent,
+    );
+    for (const element of document.querySelectorAll('[aria-label], [title], [placeholder]')) {
+      for (const attribute of ['aria-label', 'title', 'placeholder']) {
+        check(`${attribute} of ${element.tagName.toLowerCase()}`, element.getAttribute(attribute));
+      }
+    }
+    check('tab title', document.title);
+    return hits;
+  }, REFERENCE.source);
+  expect(found).toEqual([]);
+}
+
 async function shot(page: Page, name: string): Promise<void> {
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: join(SHOTS, `${name}-${width(page)}.png`), fullPage: true });
@@ -181,7 +224,9 @@ test.describe('CM-03 Publication decision', () => {
       'href',
       '/content-manager/ready',
     );
-    await expect(band(page).locator('.rk-eyebrow')).toHaveText('SUB-0074 · First publication');
+    // The record kind and the tab name no submission reference (it stays in the address).
+    await expect(band(page).locator('.rk-eyebrow')).toHaveText('First publication');
+    await expect(page).toHaveTitle('Transient Cooling · Ready to publish · XR Learning Platform');
     await expect(chip(page)).toHaveText('Ready to publish');
     await expect(chip(page)).toHaveClass(/xr-st--info/);
     await expect(band(page).locator('.rb-id-status')).toContainText(
@@ -230,6 +275,7 @@ test.describe('CM-03 Publication decision', () => {
     );
     await expectDetailLayout(page, panel(page));
     await checkState(page, 'Transient Cooling');
+    await expectNoReference(page);
     await shot(page, 'cm03-open');
 
     // No choice made: the error summary takes focus.
@@ -258,6 +304,7 @@ test.describe('CM-03 Publication decision', () => {
       'Students get access only when their institution’s administrator gives it.',
     ]);
     await expect(dialog.getByRole('heading', { level: 2 })).toBeFocused();
+    await expectNoReference(page);
     await settle(dialog);
     if (width(page) === 1440 || width(page) === 375) await shot(page, 'cm03-confirm');
     await reachAndClick(page, dialog.getByRole('button', { name: 'Cancel' }));
@@ -293,6 +340,7 @@ test.describe('CM-03 Publication decision', () => {
       done(page).getByRole('link', { name: 'Back to Ready to publish' }),
     ).toHaveAttribute('href', '/content-manager/ready');
     await checkState(page, 'Transient Cooling');
+    await expectNoReference(page);
     await shot(page, 'cm03-published');
 
     // Publishing gave no one access: every plan, licence and Student grant reads as before.
@@ -369,6 +417,7 @@ test.describe('CM-03 Publication decision', () => {
       panel(page).getByRole('textbox', { name: 'Reason they will see (required)' }),
     ).toHaveAttribute('aria-invalid', 'true');
     await checkState(page, 'Packed Bed Pressure Drop');
+    await expectNoReference(page);
     if (width(page) === 1440) await shot(page, 'cm03-send-errors');
 
     // P04: to the vendor, the reason label names them; references show (OD-B6-05).
@@ -424,6 +473,7 @@ test.describe('CM-03 Publication decision', () => {
       '“Name the supported phones and tablets for the AR build.” Refers to: Formats & delivery · AR · Device need.',
     );
     await checkState(page, 'Packed Bed Pressure Drop');
+    await expectNoReference(page);
 
     // Where it is now, read as the vendor (CI seam, read only).
     const record = await port<{
@@ -474,6 +524,7 @@ test.describe('CM-03 Publication decision', () => {
       '“Please re-check the second outcome against the description.”',
     );
     await checkState(page, 'Transient Cooling');
+    await expectNoReference(page);
     if (width(page) === 1440) await shot(page, 'cm03-sent-reviewer');
 
     // The Academic Reviewer has it back as a re-check (CI seam, read only).
@@ -519,6 +570,9 @@ test.describe('CM-03 Publication decision', () => {
     ).toHaveAttribute('href', '/content-manager/library?tab=in-review');
     await expectDetailLayout(page, panel(page));
     await checkState(page, 'Flash Distillation');
+    await expect(band(page).locator('.rk-eyebrow')).toHaveText('First publication');
+    await expect(page).toHaveTitle('Flash Distillation · Ready to publish · XR Learning Platform');
+    await expectNoReference(page);
     await shot(page, 'cm03-in-review');
   });
 
@@ -537,6 +591,7 @@ test.describe('CM-03 Publication decision', () => {
     await expect(panel(page)).toContainText('Nothing to decide yet.');
     await expect(panel(page).getByRole('button')).toHaveCount(0);
     await checkState(page, 'Forced Convection');
+    await expectNoReference(page);
     if (width(page) === 1440) await shot(page, 'cm03-with-vendor');
 
     await page.goto(DECISION('SUB-0071'));
@@ -550,6 +605,10 @@ test.describe('CM-03 Publication decision', () => {
     );
     await expect(panel(page).getByRole('button')).toHaveCount(0);
     await checkState(page, 'Venturi Meter Calibration');
+    await expect(page).toHaveTitle(
+      'Venturi Meter Calibration · Ready to publish · XR Learning Platform',
+    );
+    await expectNoReference(page);
   });
 
   test('after Flow E: SUB-0077 published — the result read from the record', async ({ page }) => {
@@ -568,7 +627,23 @@ test.describe('CM-03 Publication decision', () => {
       '— after 1 return with a reason',
     );
     await checkState(page, 'Conduction Through a Composite Wall');
+    await expect(page).toHaveTitle(
+      'Conduction Through a Composite Wall · Ready to publish · XR Learning Platform',
+    );
+    await expectNoReference(page);
     await shot(page, 'cm03-sub0077');
+
+    // Its published experiment (CM-05): the first publication names no submission reference.
+    await pressInPanel(
+      page,
+      done(page).getByRole('link', { name: 'Open the published experiment' }),
+    );
+    await expect(heading(page, 'Conduction Through a Composite Wall')).toBeVisible({
+      timeout: 90_000,
+    });
+    await expect(historyWhat(page).last()).toHaveText(/^Published · version /);
+    await expect(historyNote(page).last()).toHaveText('First publication by the Content Manager.');
+    await expectNoReference(page);
   });
 });
 
@@ -619,9 +694,11 @@ test.describe('CM-05 Published experiment', () => {
       'Version 1.1 released',
       'Published · version 1.0',
     ]);
+    // The release notes are the product's words around each version's source (its update's
+    // reference only), so the reference is left out — not seeded text quoted.
     await expect(historyNote(page)).toHaveText([
-      'Correction UPD-0002 — released by the Super Admin.',
-      'Correction UPD-0001.',
+      'Correction released by the Super Admin.',
+      'Correction.',
       'First publication by the Content Manager.',
     ]);
     // The Corrections panel: no update open — the three entries (their behaviour is
@@ -638,39 +715,51 @@ test.describe('CM-05 Published experiment', () => {
     );
     await expectDetailLayout(page, corrections(page));
     await checkState(page, 'Distillation Column');
+    await expect(page).toHaveTitle('Distillation Column · Content library · XR Learning Platform');
+    await expectNoReference(page);
     await shot(page, 'cm05-live');
 
-    // World set-up through the CI seam: Kavya opens UPD-0005 — a draft.
-    await port(page, KAVYA, 'corrections', 'openCorrection', {
-      experimentId: 'distillation-column',
-      entry: 'edit-catalogue-details',
-    });
+    // World set-up through the CI seam: Kavya opens UPD-0005 — a draft. Its reference is read from
+    // the service's answer and the link's address, never from the page's words.
+    const opened = await port<{ readonly update: { readonly id: string } }>(
+      page,
+      KAVYA,
+      'corrections',
+      'openCorrection',
+      { experimentId: 'distillation-column', entry: 'edit-catalogue-details' },
+    );
+    const updateId = opened.update.id;
+    expect(updateId).toBe('UPD-0005');
     const notice = corrections(page).locator('.rk-notice');
     await expect(notice).toHaveText(
-      /A correction is open\s*UPD-0005 · Draft\. Edits to this experiment join that update\./,
+      /A correction is open\s*Update draft in progress\. Edits to this experiment join that update\./,
     );
     await expect(
       corrections(page).getByRole('link', { name: 'Continue the update' }),
-    ).toHaveAttribute('href', '/content-manager/updates/UPD-0005');
+    ).toHaveAttribute('href', `/content-manager/updates/${updateId}`);
     await expect(corrections(page).getByRole('button')).toHaveText([
       'Edit catalogue details',
       'Edit delivery link',
     ]);
     const track = band(page).locator('.cm-idflow');
+    await expect(band(page).locator('dl.cm-idfacts > div').last()).toHaveText(
+      /Corrections\s*Update draft in progress/,
+    );
     await expect(track.locator('.cm-idflow-h')).toHaveText(
-      /Correction in progress\s*UPD-0005 · Draft\s*1\.2 live\s*No version label yet/,
+      /Correction in progress\s*Update draft in progress\s*1\.2 live\s*No version label yet/,
     );
     await expect(
       track.getByRole('list', { name: 'Where the open correction is' }).locator('li'),
     ).toHaveCount(4);
-    await expect(historyWhat(page).first()).toHaveText('UPD-0005 started — draft');
+    await expect(historyWhat(page).first()).toHaveText('Update started — draft');
     await checkState(page, 'Distillation Column');
+    await expectNoReference(page);
     if (width(page) === 1440) await shot(page, 'cm05-draft');
 
     // … saved with version 1.3 and sent for academic review.
     const draft = await port<{
       readonly update: { readonly id: string; readonly rev: number; readonly proposed: object };
-    }>(page, KAVYA, 'corrections', 'getUpdate', 'UPD-0005');
+    }>(page, KAVYA, 'corrections', 'getUpdate', updateId);
     const saved = await port<{ readonly rev: number }>(
       page,
       KAVYA,
@@ -693,21 +782,22 @@ test.describe('CM-05 Published experiment', () => {
       expectedRev: saved.rev,
     });
     await expect(notice).toHaveText(
-      /An update is in progress\s*UPD-0005 · In academic review\. It is with the Academic Reviewer\. You can start another correction once it is decided\./,
+      /An update is in progress\s*Update in academic review\. It is with the Academic Reviewer\. You can start another correction once it is decided\./,
     );
     await expect(corrections(page).getByRole('button')).toHaveCount(0);
     await expect(corrections(page).getByRole('link', { name: 'Open update' })).toHaveAttribute(
       'href',
-      '/content-manager/updates/UPD-0005',
+      `/content-manager/updates/${updateId}`,
     );
     await expect(track.locator('.cm-idflow-h')).toHaveText(
-      /UPD-0005 · In academic review\s*1\.2 live\s*1\.3 proposed/,
+      /Update in academic review\s*1\.2 live\s*1\.3 proposed/,
     );
-    await expect(historyWhat(page).first()).toHaveText('UPD-0005 started — in academic review');
+    await expect(historyWhat(page).first()).toHaveText('Update started — in academic review');
     await expect(historyNote(page).first()).toHaveText(
       'Version 1.3. The live version below is unchanged.',
     );
     await checkState(page, 'Distillation Column');
+    await expectNoReference(page);
     if (width(page) === 1440) await shot(page, 'cm05-review');
   });
 
@@ -718,11 +808,19 @@ test.describe('CM-05 Published experiment', () => {
     await page.goto(PUBLISHED('induction-motor-loading'));
     await expect(heading(page, 'Induction Motor Loading')).toBeVisible({ timeout: 90_000 });
     await expect(corrections(page).locator('.rk-notice')).toHaveText(
-      /A correction is open\s*UPD-0006 · Returned\. It was returned to you with a reason\. Edits to this experiment join that update\./,
+      /A correction is open\s*Update returned to you\. It was returned to you with a reason\. Edits to this experiment join that update\./,
     );
+    await expect(band(page).locator('dl.cm-idfacts > div').last()).toHaveText(
+      /Corrections\s*Update returned to you/,
+    );
+    await expect(band(page).locator('.cm-idflow-h .xr-st')).toHaveText('Update returned to you');
     await expect(band(page).locator('.cm-idflow-h .xr-st')).toHaveClass(/xr-st--err/);
-    await expect(historyWhat(page).first()).toHaveText('UPD-0006 started — returned');
+    await expect(
+      corrections(page).getByRole('link', { name: 'Continue the update' }),
+    ).toHaveAttribute('href', /^\/content-manager\/updates\/UPD-\d+$/);
+    await expect(historyWhat(page).first()).toHaveText('Update started — returned');
     await checkState(page, 'Induction Motor Loading');
+    await expectNoReference(page);
     await shot(page, 'cm05-returned');
 
     await page.goto(PUBLISHED('boiler-drum-level'));
@@ -730,8 +828,12 @@ test.describe('CM-05 Published experiment', () => {
     const notice = corrections(page).locator('.rk-notice');
     await expect(notice).toHaveClass(/rk-notice--paused/);
     await expect(notice).toHaveText(
-      /An update is in progress\s*UPD-0004 · On hold\. The Super Admin put it on hold\. Version 2\.0 stays live\./,
+      /An update is in progress\s*Update on hold\. The Super Admin put it on hold\. Version 2\.0 stays live\./,
     );
+    await expect(band(page).locator('dl.cm-idfacts > div').last()).toHaveText(
+      /Corrections\s*Update on hold/,
+    );
+    await expect(band(page).locator('.cm-idflow-h .xr-st')).toHaveText('Update on hold');
     await expect(corrections(page).getByRole('link', { name: 'Open update' })).toHaveAttribute(
       'href',
       '/content-manager/updates/UPD-0004',
@@ -739,8 +841,9 @@ test.describe('CM-05 Published experiment', () => {
     await expect(band(page).locator('dl.cm-idfacts > div').nth(1)).toHaveText(
       /Live since\s*18 Jun 2026/,
     );
-    await expect(historyWhat(page).first()).toHaveText('UPD-0004 on hold');
+    await expect(historyWhat(page).first()).toHaveText('Update on hold');
     await checkState(page, 'Boiler Drum Level');
+    await expectNoReference(page);
     await shot(page, 'cm05-on-hold');
   });
 
@@ -752,14 +855,16 @@ test.describe('CM-05 Published experiment', () => {
     await expect(heading(page, 'Distillation Column')).toBeVisible({ timeout: 90_000 });
     const released = main(page).locator('.rk-notice--ok');
     await expect(released).toHaveText(
-      /Version 1\.3 is live\s*The Super Admin released UPD-0005 on .+\. The history keeps version 1\.2 and every decision\. Nobody’s access changed\./,
+      /Version 1\.3 is live\s*The Super Admin released the correction on .+\. The history keeps version 1\.2 and every decision\. Nobody’s access changed\./,
     );
     await expect(band(page).locator('.rb-id-status .cm-ver-live')).toHaveText('1.3 live');
     await expect(historyWhat(page).first()).toHaveText('Version 1.3 released');
+    await expect(historyNote(page).first()).toHaveText('Correction released by the Super Admin.');
     await expect(
       corrections(page).getByRole('button', { name: 'Start a correction' }),
     ).toBeVisible();
     await checkState(page, 'Distillation Column');
+    await expectNoReference(page);
     await shot(page, 'cm05-released');
   });
 });

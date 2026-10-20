@@ -112,7 +112,7 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       UPDATE,
       'built',
-      'CM-v1 LINK-MAP CM-01 “Continue UPD-0006, correction to Induction Motor Loading” (`a.rb-btn`; the gold primary only when nothing is ready)',
+      'CM-v1 LINK-MAP CM-01 Continue (`a.rb-btn`; the gold primary only when nothing is ready), named “Continue the update to Induction Motor Loading” (the LINK-MAP’s name without its reference: state-copy `CM-lists.no-reference`)',
     ],
     [
       'Nothing waiting (calm)',
@@ -136,7 +136,7 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       UPDATE_WITH_OTHERS,
       'built',
-      'CM-v1 LINK-MAP CM-01 “Open UPD-0004, Boiler Drum Level” (`ul.cm-hold a.rb-link`)',
+      'CM-v1 LINK-MAP CM-01 With others Open (`ul.cm-hold a.rb-link`), named “Open the update to Boiler Drum Level” (the LINK-MAP’s name without its reference: state-copy `CM-lists.no-reference`)',
     ],
     [
       'In the catalogue (each course)',
@@ -239,7 +239,7 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       DECISION_READY,
       'built',
-      'CM-v1 LINK-MAP CM-04 Library · Ready “Transient Cooling, SUB-0074, ready to publish. Open the decision” (`a.rk-rowlink`, the whole row)',
+      'CM-v1 LINK-MAP CM-04 Library · Ready (`a.rk-rowlink`, the whole row), named “Transient Cooling, ready to publish. Open the decision” (the LINK-MAP’s name without its reference: state-copy `CM-lists.no-reference`)',
     ],
     [
       'In review row',
@@ -247,7 +247,7 @@ export const P5_CM_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       DECISION_RECHECK,
       'built',
-      'CM-v1 LINK-MAP CM-04 Library · In review “Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open” (CM-03 read-only)',
+      'CM-v1 LINK-MAP CM-04 Library · In review (CM-03 read-only), named “Venturi Meter Calibration, back with the academic reviewer. Open” (the LINK-MAP’s name without its reference: state-copy `CM-lists.no-reference`)',
     ],
     [
       'With vendor row',

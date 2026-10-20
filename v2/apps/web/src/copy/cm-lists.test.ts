@@ -3,8 +3,11 @@
  * library and CM-09 Platform course codes — are the owner-approved V3 export's
  * (design/v3-refined-b/roles/CM-v1 `project/Main.dc.html`): each drawn phrase is in its markup or
  * script verbatim, and each composed line takes the script's form (`ovVM`, `readyVM`, `libVM`,
- * `codesVM`) with the records' values. The undrawn forms and rules are provisional entries of the
- * state-copy register, each with its decision and no decision id in its words.
+ * `codesVM`) with the records' values — except that no line or name carries an internal reference
+ * (SUB-, UPD-): where the script's form writes one, it is left out and the record is named by
+ * content (owner visual-review correction, 20 Oct 2026; state-copy `CM-lists.no-reference`). The
+ * undrawn forms and rules are provisional entries of the state-copy register, each with its
+ * decision and no decision id in its words.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -15,7 +18,7 @@ import {
   areaCount,
   cardAge,
   cardByLine,
-  cardIdLine,
+  cardVendorLine,
   cardSummary,
   catalogueCourseLabel,
   catalogueLine,
@@ -35,7 +38,6 @@ import {
   deskReadyLine,
   deskWhen,
   formatsLabel,
-  fromSubmission,
   latestWords,
   libraryCaption,
   libraryCountWords,
@@ -80,6 +82,8 @@ import { STATE_COPY } from './state-copy';
 import { STATE_COPY_CM_LISTS } from './state-copy-cm-lists';
 
 const MAIN = cmExport('Main.dc.html');
+/** An internal reference (owner visual-review correction, 20 Oct 2026; the SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
 /** The markup with its tags removed and `&amp;` read, then the raw source (attributes, script). */
 const WORDS = `${MAIN.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${MAIN}`;
 
@@ -173,12 +177,11 @@ describe('CM-01 Overview (`ovVM`)', () => {
     expect(deskWhen('returned', AUG_26)).toBe('returned 26 Aug');
     expect(deskWhen('saved', AUG_26)).toBe('saved 26 Aug');
     expect(MAIN).toContain("when2: (ret ? 'returned ' : 'saved ') + this.short(at)");
-    expect(deskReadyLine('SUB-0074', 'ME ZG523', 'Northline Simulation Studio')).toBe(
-      'SUB-0074 · ME ZG523 · Northline Simulation Studio',
+    // The script's line without `x.id` (state-copy `CM-lists.no-reference`).
+    expect(deskReadyLine('ME ZG523', 'Northline Simulation Studio')).toBe(
+      'ME ZG523 · Northline Simulation Studio',
     );
-    expect(deskReadyLine('SUB-0074', null, 'Northline Simulation Studio')).toBe(
-      'SUB-0074 · Northline Simulation Studio',
-    );
+    expect(deskReadyLine(null, 'Northline Simulation Studio')).toBe('Northline Simulation Studio');
     expect(MAIN).toContain("d: [x.id, this.cShort(c), this.vName(w, x.vendor)].join(' · ')");
     expect(deskCheckWords(4, 4)).toBe('4 of 4 checks met');
     expect(deskCheckWords(3, 4)).toBe('1 thing to resolve');
@@ -195,8 +198,9 @@ describe('CM-01 Overview (`ovVM`)', () => {
     expect(MAIN).toContain(
       "who: ret ? u.ret.who + ', Academic Reviewer · ' + this.short(u.ret.when)",
     );
-    expect(continueLabel('UPD-0006', 'Induction Motor Loading')).toBe(
-      'Continue UPD-0006, correction to Induction Motor Loading',
+    // Named by content, not by the script's `u.id` (state-copy `CM-lists.no-reference`).
+    expect(continueLabel('Induction Motor Loading')).toBe(
+      'Continue the update to Induction Motor Loading',
     );
     expect(MAIN).toContain("aria: 'Continue ' + u.id + ', correction to ' + e.name");
   });
@@ -232,9 +236,8 @@ describe('CM-01 Overview (`ovVM`)', () => {
       expect(MAIN).toContain(piece);
     }
     expect(openSubmissionLabel('Venturi Meter Calibration')).toBe('Open Venturi Meter Calibration');
-    expect(openUpdateLabel('UPD-0004', 'Boiler Drum Level')).toBe(
-      'Open UPD-0004, Boiler Drum Level',
-    );
+    // Named by content, not by the script's `u.id` (state-copy `CM-lists.no-reference`).
+    expect(openUpdateLabel('Boiler Drum Level')).toBe('Open the update to Boiler Drum Level');
   });
 
   it('in the catalogue: the total’s line and each course’s name', () => {
@@ -308,12 +311,12 @@ describe('CM-02 Ready to publish (`readyVM`)', () => {
     ]) {
       expect(MAIN).toContain(piece);
     }
-    expect(cardIdLine('SUB-0077', 'Northline Simulation Studio', 2)).toBe(
-      'SUB-0077 · Northline Simulation Studio · revision 2',
+    // The script's `idLine` without `x.id` (state-copy `CM-lists.no-reference`).
+    expect(cardVendorLine('Northline Simulation Studio', 2)).toBe(
+      'Northline Simulation Studio · revision 2',
     );
-    expect(cardIdLine('SUB-0074', 'Northline Simulation Studio', 1)).toBe(
-      'SUB-0074 · Northline Simulation Studio',
-    );
+    expect(cardVendorLine('Northline Simulation Studio', 1)).toBe('Northline Simulation Studio');
+    expect(cardVendorLine('', 1)).toBe('');
     expect(MAIN).toContain(
       "idLine: x.id + ' · ' + this.vName(w, x.vendor) + (x.rev > 1 ? ' · revision ' + x.rev : '')",
     );
@@ -351,16 +354,17 @@ describe('CM-04 Content library (`libVM`)', () => {
     expect(WORDS).toContain(phrase);
   });
 
-  it('the search’s words are the export’s without “vendor”: the service does not match vendors', () => {
-    // A recorded deviation (state copy): the search is ProductionService.getLibrary's (name, ID or
-    // course code), as before the V3 migration (lead decision).
+  it('the search’s words are the export’s without “ID” and “vendor”', () => {
+    // Recorded deviations (state copy): the search is ProductionService.getLibrary's (name, ID or
+    // course code), as before the V3 migration (lead decision), and does not match vendors; the
+    // field no longer names the reference (owner visual-review correction, 20 Oct 2026).
     expect(MAIN).toContain('placeholder="Experiment, ID, course or vendor"');
-    expect(STATE_COPY_CM_LISTS['CM-04.search.placeholder'].words).toBe('Experiment, ID or course');
+    expect(STATE_COPY_CM_LISTS['CM-04.search.placeholder'].words).toBe('Experiment or course');
     expect(MAIN).toContain(
       'Try fewer filters, another view or a different spelling of the experiment, ID, course or vendor.',
     );
     expect(STATE_COPY_CM_LISTS['CM-04.search.no-match'].words).toBe(
-      'Try fewer filters, another view or a different spelling of the experiment, ID or course.',
+      'Try fewer filters, another view or a different spelling of the experiment or course.',
     );
   });
 
@@ -404,21 +408,17 @@ describe('CM-04 Content library (`libVM`)', () => {
     expect(MAIN).toContain("'Revision ' + x.rev");
     expect(versionWords('1.2')).toBe('Version 1.2');
     expect(MAIN).toContain("c3: 'Version ' + e.ver");
-    expect(fromSubmission('SUB-0052')).toBe('From SUB-0052');
+    // The script's line under a published name is a reference ("From SUB-0052"): not drawn.
     expect(MAIN).toContain("meta: e.fromSub ? 'From ' + e.fromSub : ''");
     expect(rowToResolve(1)).toBe('1 to resolve');
     expect(MAIN).toContain("(nb ? nb + ' to resolve' : 'Ready to publish')");
-    expect(submissionRowLabel('Transient Cooling', 'SUB-0074', 'Ready to publish', true)).toBe(
-      'Transient Cooling, SUB-0074, ready to publish. Open the decision',
+    // The script's name without `x.id` (state-copy `CM-lists.no-reference`).
+    expect(submissionRowLabel('Transient Cooling', 'Ready to publish', true)).toBe(
+      'Transient Cooling, ready to publish. Open the decision',
     );
     expect(
-      submissionRowLabel(
-        'Venturi Meter Calibration',
-        'SUB-0071',
-        'Back with the Academic Reviewer',
-        false,
-      ),
-    ).toBe('Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open');
+      submissionRowLabel('Venturi Meter Calibration', 'Back with the Academic Reviewer', false),
+    ).toBe('Venturi Meter Calibration, back with the academic reviewer. Open');
     expect(MAIN).toContain(
       "aria: x.name + ', ' + x.id + ', ' + (isReady ? 'ready to publish' : st.label.toLowerCase()) + '. ' + (isReady ? 'Open the decision' : 'Open')",
     );
@@ -468,6 +468,54 @@ describe('CM-09 Platform course codes (`codesVM`)', () => {
       "this.T(r.code) + ' is already the code for ' + this.course(s.w, K.rows[seen[k]].id).name + '. Each course needs its own code.'",
     );
     expect(MAIN).toContain('<p class="rk-errsum-t">Check the codes</p>');
+  });
+});
+
+describe('no internal reference in the lists’ words (owner visual-review correction, 20 Oct 2026)', () => {
+  it('every composed line and name of a record leaves its reference out', () => {
+    const lines = [
+      deskReadyLine('ME ZG523', 'Northline Simulation Studio'),
+      continueLabel('Induction Motor Loading'),
+      openUpdateLabel('Boiler Drum Level'),
+      openSubmissionLabel('Venturi Meter Calibration'),
+      openDecisionLabel('Transient Cooling'),
+      cardVendorLine('Northline Simulation Studio', 2),
+      submissionRowLabel('Transient Cooling', 'Ready to publish', true),
+      submissionRowLabel('Forced Convection', 'With the vendor', false),
+      publishedRowLabel('Boiler Drum Level', 'CHE ZG513', '2.0', 'Update on hold'),
+    ];
+    expect(lines).toEqual([
+      'ME ZG523 · Northline Simulation Studio',
+      'Continue the update to Induction Motor Loading',
+      'Open the update to Boiler Drum Level',
+      'Open Venturi Meter Calibration',
+      'Open the publication decision for Transient Cooling',
+      'Northline Simulation Studio · revision 2',
+      'Transient Cooling, ready to publish. Open the decision',
+      'Forced Convection, with the vendor. Open',
+      'Boiler Drum Level, CHE ZG513, version 2.0, published, update on hold. Open the published experiment',
+    ]);
+    for (const line of lines) expect(line).not.toMatch(REFERENCE);
+  });
+
+  it('no fixed word of the four lists, and no state-copy word of theirs, names a reference', () => {
+    const words = [
+      ...strings(CM_OVERVIEW),
+      ...strings(PIPELINE_STAGES),
+      ...strings(PIPELINE_DESTINATIONS),
+      ...strings(READY_TO_PUBLISH),
+      ...strings(CONTENT_LIBRARY),
+      ...strings(COURSE_CODES),
+      ...strings(LIST_FAILED),
+      ...Object.values(STATE_COPY_CM_LISTS).map((entry) => entry.words ?? ''),
+    ];
+    for (const phrase of words) {
+      expect(phrase).not.toMatch(REFERENCE);
+      expect(phrase).not.toMatch(/\bID\b/);
+    }
+    expect(STATE_COPY_CM_LISTS['CM-lists.no-reference'].basis).toMatch(
+      /^Owner visual-review correction, 20 Oct 2026: no internal reference \(SA-v1 rule\)/,
+    );
   });
 });
 

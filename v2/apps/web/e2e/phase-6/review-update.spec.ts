@@ -128,10 +128,13 @@ const chip = (page: Page) => main(page).locator('.xr-phead-meta .xr-status');
 const tableRows = (page: Page) => main(page).locator('table.xr-table tbody tr');
 /** CM-08's V3 tracker (CM-v1): every card in page order — Need you, With others, Closed. */
 const trackerCards = (page: Page) => main(page).locator('section.cm-trksec li.cm-trk');
-/** The tracker's card of one correction (its meta starts with the update's ID). */
+/**
+ * The tracker's card of one correction: its link opens the update's address (no page shows the
+ * reference itself — the owner's 20 Oct 2026 correction, SA-v1 rule).
+ */
 const trackerCard = (page: Page, id: string) =>
   trackerCards(page).filter({
-    has: page.locator('.cm-trk-meta > span:first-child', { hasText: new RegExp(`^${id} · `) }),
+    has: page.locator(`a[href="/content-manager/updates/${id}"]`),
   });
 /** Who has a correction now: its card's mini track's current step (none once closed). */
 const holder = (card: Locator) => card.locator('[aria-current="step"]');
@@ -355,14 +358,16 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     const mine = trackerCard(page, 'UPD-0005');
     await expect(mine.locator('.cm-qname')).toHaveText('Distillation Column');
     await expect(mine.locator('.cm-trk-meta > span:first-child')).toHaveText(
-      /^UPD-0005 · .* · last change \d{1,2} [A-Z][a-z]{2}$/,
+      /^CHE ZG513 · .* · last change \d{1,2} [A-Z][a-z]{2}$/,
     );
     await expect(mine.locator('.cm-ver')).toHaveText(/^1\.2 live\s*1\.3 proposed$/);
     await expect(mine.locator('.cm-trk-st .xr-st')).toHaveText('Awaiting release decision');
     await expect(mine.locator('.cm-trk-st .xr-st')).toHaveClass(/xr-st--info/);
     await expect(holder(mine)).toHaveText(/^Now: Super Admin\s*Release decision/);
     await expect(
-      trackerGroup(page, 'With others').locator('li.cm-trk').filter({ hasText: 'UPD-0005' }),
+      trackerGroup(page, 'With others')
+        .locator('li.cm-trk')
+        .filter({ has: page.locator('a[href="/content-manager/updates/UPD-0005"]') }),
     ).toHaveCount(1);
     await expect(mine.locator('.cm-trk-act a')).toHaveText('Open');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/updates');
@@ -372,7 +377,7 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     await follow(
       page,
       mine.getByRole('link', {
-        name: 'Open UPD-0005, Distillation Column, awaiting release decision',
+        name: 'Open the update to Distillation Column, version 1.3, awaiting release decision',
       }),
     );
     await expect(page).toHaveURL(/\/content-manager\/updates\/UPD-0005$/, { timeout: 60_000 });
@@ -480,19 +485,23 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     const mine = trackerCard(page, sent.id);
     await expect(mine.locator('.cm-qname')).toHaveText('Orifice Plate Metering');
     await expect(mine.locator('.cm-trk-meta > span:first-child')).toHaveText(
-      new RegExp(`^${sent.id} · .* · last change \\d{1,2} [A-Z][a-z]{2}$`),
+      /^CHE ZG513 · .* · last change \d{1,2} [A-Z][a-z]{2}$/,
     );
     await expect(mine.locator('.cm-ver')).toHaveText(/^1\.1 live\s*1\.2 proposed$/);
     await expect(mine.locator('.cm-trk-st .xr-st')).toHaveText('Returned');
     await expect(mine.locator('.cm-trk-st .xr-st')).toHaveClass(/xr-st--err/);
     await expect(mine).toHaveClass(/\bis-you\b/);
     await expect(
-      trackerGroup(page, 'Need you').locator('li.cm-trk').filter({ hasText: sent.id }),
+      trackerGroup(page, 'Need you')
+        .locator('li.cm-trk')
+        .filter({ has: page.locator(`a[href="/content-manager/updates/${sent.id}"]`) }),
     ).toHaveCount(1);
     await expect(holder(mine)).toHaveText(/^Your step, now: You/);
     await expect(mine.locator('blockquote.cm-trk-note')).toContainText(RETURN_REASON);
     await expect(
-      mine.getByRole('link', { name: `Continue ${sent.id}, Orifice Plate Metering, returned` }),
+      mine.getByRole('link', {
+        name: 'Continue the update to Orifice Plate Metering, version 1.2, returned',
+      }),
     ).toHaveAttribute('href', `/content-manager/updates/${sent.id}`);
     await checkState(page, 'Updates');
     await softNavigate(page, '/content-manager');
@@ -510,7 +519,7 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     await follow(
       page,
       returned.getByRole('link', {
-        name: `Continue ${sent.id}, correction to Orifice Plate Metering`,
+        name: 'Continue the update to Orifice Plate Metering',
       }),
     );
     await expect(page).toHaveURL(new RegExp(`/content-manager/updates/${sent.id}$`), {
@@ -545,12 +554,24 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
       'Distillation Column',
       'Distillation Column',
     ]);
+    // No reference in the meta (the course leads); each card opens its update's address.
     await expect(trackerCards(page).locator('.cm-trk-meta > span:first-child')).toHaveText([
-      /^UPD-0006 · /,
-      /^UPD-0004 · /,
-      /^UPD-0003 · /,
-      /^UPD-0002 · /,
-      /^UPD-0001 · /,
+      /^EEE ZC341 · /,
+      /^CHE ZG513 · /,
+      /^CHE ZG513 · /,
+      /^CHE ZG513 · /,
+      /^CHE ZG513 · /,
+    ]);
+    expect(
+      await trackerCards(page)
+        .getByRole('link')
+        .evaluateAll((links) => links.map((link) => link.getAttribute('href'))),
+    ).toEqual([
+      '/content-manager/updates/UPD-0006',
+      '/content-manager/updates/UPD-0004',
+      '/content-manager/updates/UPD-0003',
+      '/content-manager/updates/UPD-0002',
+      '/content-manager/updates/UPD-0001',
     ]);
     await expect(trackerCards(page).locator('.cm-ver')).toHaveText([
       /^1\.0 live\s*1\.1 proposed$/,
@@ -588,9 +609,9 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     // “Continue” opens the returned correction.
     await follow(
       page,
-      trackerCards(page)
-        .first()
-        .getByRole('link', { name: 'Continue UPD-0006, Induction Motor Loading, returned' }),
+      trackerCards(page).first().getByRole('link', {
+        name: 'Continue the update to Induction Motor Loading, version 1.1, returned',
+      }),
     );
     await expect(page).toHaveURL(/\/content-manager\/updates\/UPD-0006$/, { timeout: 60_000 });
     await expectSameDocument(page, mark);
@@ -602,7 +623,7 @@ test.describe('RV-04 Review an update and CM-08 Updates', () => {
     const first = trackerCards(page).first();
     await expect(first.locator('.cm-qname')).toHaveText('Distillation Column');
     await expect(first.locator('.cm-trk-meta > span:first-child')).toHaveText(
-      new RegExp(`^${draft.id} · .* · last change \\d{1,2} [A-Z][a-z]{2}$`),
+      /^CHE ZG513 · .* · last change \d{1,2} [A-Z][a-z]{2}$/,
     );
     await expect(first.locator('.cm-ver')).toHaveText(/^1\.2 live\s*1\.3 proposed$/);
     await expect(first.locator('.cm-trk-st .xr-st')).toHaveText('Draft');

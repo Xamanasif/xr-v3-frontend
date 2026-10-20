@@ -5,7 +5,8 @@ import type { StateCopyEntry } from './state-copy';
  * one register (`state-copy.ts`, VD-12): every state string or rule these screens show that the
  * owner-approved Content Manager export (V3 Refined B, design/v3-refined-b/roles/CM-v1) does not
  * draw word for word, with its basis and the decisions it waits on. Decision ids never appear in
- * visible copy.
+ * visible copy, and no internal reference (SUB-, UPD- …) appears in any words or accessible name
+ * (`CM-03.references`, `CM-05.references`).
  */
 export const STATE_COPY_CM_DECISION = {
   // ---- CM-03 Publication decision ----
@@ -40,8 +41,19 @@ export const STATE_COPY_CM_DECISION = {
     screen: 'CM-03',
     state: 'The rail’s current item and the document title',
     words: null,
-    rule: 'The rail marks “Ready to publish” (the screen’s owner). The breadcrumb is inside the page (`CM-03.crumb`). The document title follows the shell rule: “<SUB id> · Ready to publish · XR Learning Platform”.',
-    basis: 'CM-v1 `Main.dc.html` CM-03 `nav.rk-crumbs`; the V3 role shell',
+    rule: 'The rail marks “Ready to publish” (the screen’s owner). The breadcrumb is inside the page (`CM-03.crumb`). The document title follows the shell rule with the experiment’s name, never its submission reference: “<experiment> · Ready to publish · XR Learning Platform” (“Transient Cooling · Ready to publish · XR Learning Platform”); Help’s “where it happened” names the same.',
+    basis:
+      'CM-v1 `Main.dc.html` CM-03 `nav.rk-crumbs`; the V3 role shell. Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'CM-03.references': {
+    screen: 'CM-03',
+    state: 'Internal references on the decision page',
+    words: null,
+    rule: 'No internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in the page’s words or accessible names, the tab title included: the band’s record kind reads “First publication” (the export’s “SUB-0077 · First publication” without its reference) and the tab names the experiment (`CM-03.top-title`). The submission’s reference stays in the address, the commands and the state.',
+    basis:
+      'CM-v1 `decVM` `over`; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -277,8 +289,9 @@ export const STATE_COPY_CM_DECISION = {
     screen: 'CM-05',
     state: 'The band’s “Corrections” fact',
     words: null,
-    rule: 'The open correction and its status (“UPD-0004 · On hold”); with none open, the released corrections counted from the experiment’s versions (“2 corrections released”); with none, “None yet”.',
-    basis: 'CM-v1 `pubVM` `corrFact`',
+    rule: 'The open correction by its status, in the Content library’s chip words (“Update on hold”, “Update returned to you”, “Update draft in progress”, “Update in academic review”, “Update awaiting release”), never its reference; with none open, the released corrections counted from the experiment’s versions (“2 corrections released”); with none, “None yet”.',
+    basis:
+      'CM-v1 `pubVM` `corrFact` (“UPD-0004 · On hold”), `libVM` `tag`; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -286,8 +299,9 @@ export const STATE_COPY_CM_DECISION = {
     screen: 'CM-05',
     state: 'The live version was released today',
     words: null,
-    rule: 'When the live version came from a correction released on today’s date (the session’s clock, in India time): the green notice “Version <label> is live” with the update, the day and the version it replaced.',
-    basis: 'CM-v1 `pubVM` `rel`, `relTitle`, `relBody`; board C16-PubReleased',
+    rule: 'When the live version came from a correction released on today’s date (the session’s clock, in India time): the green notice “Version <label> is live” with “The Super Admin released the correction on <day>.” (the correction named by what it is, not its reference), the version it replaced and that nobody’s access changed.',
+    basis:
+      'CM-v1 `pubVM` `rel`, `relTitle`, `relBody`; board C16-PubReleased; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -295,8 +309,19 @@ export const STATE_COPY_CM_DECISION = {
     screen: 'CM-05',
     state: 'The versions and updates history',
     words: null,
-    rule: 'Newest first: the open update, if any (on hold: “<UPD id> on hold”, the day, “Version <live> stays live. Reason: “…””; otherwise “<UPD id> started — <status>”, the day it started, “Version <label>. The live version below is unchanged.”); each released correction (“Version <label> released”, the day it went live, “Correction <UPD id> — released by the Super Admin.” for the live version, “Correction <UPD id>.” for an earlier one); the first publication (“Published · version <label>”, “First publication by the Content Manager, from <SUB id>.”, without the id when none is recorded).',
-    basis: 'CM-v1 `pubVM` `histOpen`, sample `hist` entries',
+    rule: 'Newest first: the open update, if any (on hold: “Update on hold”, the day, “Version <live> stays live. Reason: “…”” — the hold reason quoted as the Super Admin wrote it; otherwise “Update started — <status>”, the day it started, “Version <label>. The live version below is unchanged.”); each released correction (“Version <label> released”, the day it went live, “Correction released by the Super Admin.” for the live version, “Correction.” for an earlier one — the product’s words around the version’s source, which holds only the update’s reference, so the reference and its dash are left out); the first publication (“Published · version <label>”, “First publication by the Content Manager.”). No internal reference in any entry.',
+    basis:
+      'CM-v1 `pubVM` `histOpen` (“UPD-0004 on hold”, “UPD-0005 started — …”), sample `hist` entries (“Correction UPD-0002 — released by the Super Admin.”, “Correction UPD-0001.”, “…, from SUB-0052.”); Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'CM-05.references': {
+    screen: 'CM-05',
+    state: 'Internal references on the published experiment and its Corrections panel',
+    words: null,
+    rule: 'No internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in the page’s words or accessible names, the tab title included: the open correction is named by its status (“Update on hold”, `CM-05.corrections-fact`) in the band’s fact, its track’s pill and the panel’s notice (“Update on hold. The Super Admin put it on hold. Version 2.0 stays live.”); the history and the released notice name corrections by what they are (`CM-05.history`, `CM-05.released-today`). “Continue the update” and “Open update” keep the update’s reference in their address only.',
+    basis:
+      'CM-v1 `pubVM` `corrFact`, `trkId`, `progBody`, `histOpen`, `relBody`; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

@@ -24,7 +24,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       UPDATES,
       'built',
-      'CM-v1 `nav.rk-crumbs` (`goUpdates`); LINK-MAP “CM-08 Detail · returned” → CM-08',
+      'CM-v1 `nav.rk-crumbs` (`goUpdates`; the current crumb is the H1’s words “Update to <experiment>”, never the reference — state-copy `CM-08.no-reference`); LINK-MAP “CM-08 Detail · returned” → CM-08',
     ],
     [
       'Identity band',
@@ -80,7 +80,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       null,
       'in-page',
-      'CM-v1 `button.rb-btn--primary.rk-go#cm-u-send` → the check or the dialog “Send UPD-… for academic review?” → In academic review',
+      'CM-v1 `button.rb-btn--primary.rk-go#cm-u-send` → the check or the dialog “Send the update to <experiment> for academic review?” (`CM-08.no-reference`) → In academic review',
     ],
     [
       'Your update panel (draft, returned)',
@@ -96,7 +96,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'CM-v1 `button.rb-btn--ghost.cm-wide#cm-u-wd` → the dialog “Withdraw UPD-…?”',
+      'CM-v1 `button.rb-btn--ghost.cm-wide#cm-u-wd` → the dialog “Withdraw the update to <experiment>?” (`CM-08.no-reference`)',
     ],
     [
       'Your update panel (in academic review)',
@@ -104,7 +104,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'CM-v1 `E.canWithdraw` `button.rb-btn.cm-wide#cm-u-wd` → the dialog “Withdraw UPD-…?”',
+      'CM-v1 `E.canWithdraw` `button.rb-btn.cm-wide#cm-u-wd` → the dialog “Withdraw the update to <experiment>?” (`CM-08.no-reference`)',
     ],
     [
       'Your update panel (read-only)',
@@ -115,7 +115,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'CM-v1 `a.rb-btn.cm-wide` (`E.goExp`); LINK-MAP “CM-08 Detail · awaiting” → CM-05',
     ],
     [
-      'Send UPD-…? dialog',
+      'Send the update to <experiment> for academic review? dialog',
       'Cancel',
       'secondary',
       null,
@@ -123,7 +123,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'CM-v1 `#cm-dlg-send-cancel` (nothing is saved or sent; waits while sending)',
     ],
     [
-      'Send UPD-…? dialog',
+      'Send the update to <experiment> for academic review? dialog',
       'Send for academic review',
       'secondary',
       null,
@@ -131,7 +131,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'CM-v1 `#cm-dlg-send-ok` (saves the page, then sends it — state-copy `CM-08.send-saves-first`; Sending…)',
     ],
     [
-      'Withdraw UPD-…? dialog',
+      'Withdraw the update to <experiment>? dialog',
       'Cancel',
       'secondary',
       null,
@@ -139,7 +139,7 @@ export const P6_CM_CORRECTION_LINK_TARGETS: readonly LedgerEntry[] = [
       'CM-v1 `#cm-dlg-wd-cancel` (nothing is withdrawn; waits while withdrawing)',
     ],
     [
-      'Withdraw UPD-…? dialog',
+      'Withdraw the update to <experiment>? dialog',
       'Withdraw update',
       'secondary',
       null,

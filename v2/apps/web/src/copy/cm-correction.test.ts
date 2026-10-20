@@ -4,7 +4,9 @@
  * `project/Main.dc.html`): each drawn phrase is found verbatim in its markup or script, the composed
  * ones equal the export's with sample values and use the script's own pieces; the undrawn forms are
  * provisional entries of the state-copy register, each with its decision and no decision id in its
- * words. A correction never says "Publish".
+ * words. A correction never says "Publish", and never names an update by its reference (the owner's
+ * correction of 20 Oct 2026, state-copy `CM-08.no-reference`): where the export leads with
+ * "UPD-0006", the product names the update by its experiment.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -12,8 +14,8 @@ import { board, cmExport } from '@/test-support/boards';
 
 import {
   ARRIVAL_GO,
+  ARRIVAL_JOIN_TITLE,
   arrivalJoinBody,
-  arrivalJoinTitle,
   arrivalNewBody,
   arrivalNewTitle,
   approvedMeanwhileLine,
@@ -68,6 +70,7 @@ import {
   startedNote,
   startedWhat,
   STATE_NOTICE,
+  theUpdateTo,
   TRACKER,
   TRACKER_GROUPS,
   trackerActionLabel,
@@ -77,7 +80,6 @@ import {
   UPDATE_FACTS,
   UPDATE_PANEL,
   UPDATE_SHEET,
-  updateEyebrow,
   UPDATES_HEAD,
   updateTitle,
   versionHint,
@@ -161,17 +163,33 @@ describe('CM-08 Updates and the correction (CM-v1)', () => {
         '4 corrections you raised, most recent change first',
         ["this.plural(rows.length, 'correction') + ' you raised, most recent change first'"],
       ],
+      // The export's meta leads with `u.id`; the owner's correction leaves it out.
       [
-        trackerMeta('UPD-0006', 'EEE ZC341 · Electrical Machines', '26 Aug'),
-        'UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug',
-        ["u.id + ' · ' + this.cLabel(c) + ' · last change ' + this.short(u.last)"],
+        trackerMeta('EEE ZC341 · Electrical Machines', '26 Aug'),
+        'EEE ZC341 · Electrical Machines · last change 26 Aug',
+        ["this.cLabel(c) + ' · last change ' + this.short(u.last)"],
+      ],
+      [trackerMeta(null, '5 Aug'), 'last change 5 Aug', ["' · last change ' + this.short(u.last)"]],
+      // The export names the action by `u.id`; the product by the experiment and the version label.
+      [
+        trackerActionLabel(true, 'Induction Motor Loading', '1.1', 'Returned'),
+        'Continue the update to Induction Motor Loading, version 1.1, returned',
+        ["(cont ? 'Continue ' : 'Open ')", 'U[u.st].label.toLowerCase()'],
       ],
       [
-        trackerActionLabel(true, 'UPD-0006', 'Induction Motor Loading', 'Returned'),
-        'Continue UPD-0006, Induction Motor Loading, returned',
-        [
-          "(cont ? 'Continue ' : 'Open ') + u.id + ', ' + e.name + ', ' + U[u.st].label.toLowerCase()",
-        ],
+        trackerActionLabel(false, 'Distillation Column', '1.2', 'Released'),
+        'Open the update to Distillation Column, version 1.2, released',
+        ["(cont ? 'Continue ' : 'Open ')", 'U[u.st].label.toLowerCase()'],
+      ],
+      [
+        trackerActionLabel(true, 'Distillation Column', null, 'Draft'),
+        'Continue the update to Distillation Column, draft',
+        ["(cont ? 'Continue ' : 'Open ')"],
+      ],
+      [
+        trackerActionLabel(true, 'Distillation Column', '  ', 'Draft'),
+        'Continue the update to Distillation Column, draft',
+        ["(cont ? 'Continue ' : 'Open ')"],
       ],
       [
         returnedNoteBy('Prof. A. Menon', '26 Aug'),
@@ -202,8 +220,8 @@ describe('CM-08 Updates and the correction (CM-v1)', () => {
         ["'Withdrawn on ' + this.day(u.wd.when) + '. Nothing changed in the live version.'"],
       ],
       [
-        updateEyebrow('UPD-0006'),
-        'UPD-0006 · Correction to a published experiment',
+        UPDATE_BAND.eyebrow,
+        'Correction to a published experiment',
         ["id + ' · Correction to a published experiment'"],
       ],
       [
@@ -263,7 +281,7 @@ describe('CM-08 Updates and the correction (CM-v1)', () => {
           "'Every field is pre-filled with live version ' + e.ver + '. Change only what needs correcting and say why. Nothing changes in the catalogue until the Super Admin releases it.'",
         ],
       ],
-      [arrivalJoinTitle('UPD-0006'), 'Your edit joins UPD-0006', ["'Your edit joins ' + id"]],
+      [ARRIVAL_JOIN_TITLE, 'Your edit joins the open update', ["'Your edit joins ' + id"]],
       [
         arrivalJoinBody('edit-delivery-link'),
         'This experiment already has an open correction, so your delivery change goes into it. One correction at a time per experiment.',
@@ -379,8 +397,8 @@ describe('CM-08 Updates and the correction (CM-v1)', () => {
         ],
       ],
       [
-        sendTitle('UPD-0006'),
-        'Send UPD-0006 for academic review?',
+        sendTitle('Induction Motor Loading'),
+        'Send the update to Induction Motor Loading for academic review?',
         ['Send {{ E.id }} for academic review?'],
       ],
       [
@@ -388,7 +406,11 @@ describe('CM-08 Updates and the correction (CM-v1)', () => {
         'Version 1.0 stays live — nothing changes for the public or for students.',
         ["'Version ' + e.ver + ' stays live — nothing changes for the public or for students.'"],
       ],
-      [withdrawTitle('UPD-0006'), 'Withdraw UPD-0006?', ['Withdraw {{ E.id }}?']],
+      [
+        withdrawTitle('Induction Motor Loading'),
+        'Withdraw the update to Induction Motor Loading?',
+        ['Withdraw {{ E.id }}?'],
+      ],
       [
         startedWhat('edit-catalogue-details'),
         'Correction started from Edit catalogue details',
@@ -444,6 +466,41 @@ describe('CM-08 Updates and the correction (CM-v1)', () => {
       expect(product).toBe(drawn);
       for (const piece of pieces) expect(CM, piece).toContain(piece);
     }
+  });
+
+  it('an update is named by its experiment, never by its reference (owner correction, state-copy `CM-08.no-reference`)', () => {
+    const reference = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+    expect(theUpdateTo('Boiler Drum Level')).toBe('the update to Boiler Drum Level');
+    const words = [
+      trackerMeta('EEE ZC341 · Electrical Machines', '26 Aug'),
+      trackerActionLabel(false, 'Boiler Drum Level', '2.1', 'On hold'),
+      UPDATE_BAND.eyebrow,
+      updateTitle('Induction Motor Loading'),
+      ARRIVAL_JOIN_TITLE,
+      sendTitle('Induction Motor Loading'),
+      withdrawTitle('Induction Motor Loading'),
+      ...strings(UPDATES_HEAD),
+      ...strings(TRACKER_GROUPS),
+      ...strings(TRACKER),
+      ...strings(UPDATE_BAND),
+      ...strings(UPDATE_FACTS),
+      ...strings(UPDATE_SHEET),
+      ...strings(UPDATE_PANEL),
+      ...strings(STATE_NOTICE),
+      ...strings(STALE_NOTICE),
+      ...strings(SEND_DIALOG),
+      ...strings(WITHDRAW_DIALOG),
+      ...strings(NO_UPDATE),
+    ];
+    for (const phrase of words) expect(phrase).not.toMatch(reference);
+    // The export's own forms lead with the reference: these are the product's corrections of them.
+    expect(CM).toContain("'Your edit joins ' + id");
+    expect(CM).not.toContain(ARRIVAL_JOIN_TITLE);
+    const entry = STATE_COPY_CM_CORRECTION['CM-08.no-reference'];
+    expect(entry.basis).toContain(
+      'Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
+    );
+    expect(STATE_COPY['CM-08.no-reference']).toBe(entry);
   });
 
   it('the reviewer is not named where the record does not name them (state-copy `CM-08.reviewer-unnamed`)', () => {

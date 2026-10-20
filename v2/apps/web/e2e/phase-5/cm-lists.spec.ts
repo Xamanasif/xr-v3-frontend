@@ -18,7 +18,9 @@ import { currentSidebarItem, expectSameDocument, markDocument } from '../support
  * Everything the screens do — the pipeline’s and the desk’s links, the sort, the library’s views,
  * search and course filter, typing codes, Save codes (the duplicate refused, a unique code saved),
  * Undo changes, the rows’ links to CM-03 and CM-05 — is done by real clicks and typing; CM-03 and
- * CM-05 are another group’s pages (their address and an h1 are checked only).
+ * CM-05 are another group’s pages (their address and an h1 are checked only). No drawn state shows
+ * an internal reference (SUB-, UPD-, …) in its words, names, titles or placeholders (owner
+ * visual-review correction, 20 Oct 2026): a record's reference is read from the address only.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -149,6 +151,40 @@ async function withdrawReturnedUpdate(page: Page): Promise<void> {
 }
 
 const main = (page: Page) => page.locator('main');
+
+/** An internal reference (owner visual-review correction, 20 Oct 2026; the SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference in the page's words (`document.body.innerText`, and every text node
+ * outside scripts and styles, so hidden and screen-reader-only words and the announcements too),
+ * in any `aria-label`, `title` or `placeholder`, or in the tab's title (`document.title`). No
+ * seeded quote that names one (a correction's “Correction UPD-0006.”) reaches these four lists, so
+ * nothing is excepted.
+ */
+async function expectNoReferences(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const reference = new RegExp(source);
+    const hits: string[] = [];
+    const visible = document.body.innerText.match(reference);
+    if (visible) hits.push(`innerText: ${visible[0]}`);
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.parentElement?.closest('script, style, noscript, template')) continue;
+      const hidden = (node.textContent ?? '').match(reference);
+      if (hidden) hits.push(`text: ${hidden[0]} in <${node.parentElement?.tagName.toLowerCase()}>`);
+    }
+    for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+      for (const name of ['aria-label', 'title', 'placeholder']) {
+        const value = element.getAttribute(name) ?? '';
+        if (reference.test(value)) hits.push(`${name}: ${value}`);
+      }
+    }
+    if (reference.test(document.title)) hits.push(`document.title: ${document.title}`);
+    return hits;
+  }, REFERENCE.source);
+  expect(found).toEqual([]);
+}
 const heading = (page: Page, name: string) => page.getByRole('heading', { level: 1, name });
 const width = (page: Page) => page.viewportSize()?.width ?? 1440;
 const region = (page: Page, name: string) => page.getByRole('region', { name });
@@ -214,19 +250,22 @@ test.describe('CM-01 Overview', () => {
     ]);
     await expect(desk.locator('li.cm-orow.is-first .cm-next')).toHaveText('Publish next');
     await expect(desk.locator('li.cm-orow .rb-row-d').first()).toHaveText(
-      'SUB-0074 · ME ZG523 · Northline Simulation Studio',
+      'ME ZG523 · Northline Simulation Studio',
     );
     await expect(desk.locator('blockquote.cm-orow-q footer')).toHaveText(
       'Prof. A. Menon, Academic Reviewer · 26 Aug',
     );
     await expect(
-      desk.getByRole('link', { name: 'Continue UPD-0006, correction to Induction Motor Loading' }),
+      desk.getByRole('link', { name: 'Continue the update to Induction Motor Loading' }),
     ).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
     const others = region(page, 'With others');
     await expect(others.locator('.cm-hold-t')).toHaveText([
       'Boiler Drum Level 2.1',
       'Venturi Meter Calibration',
     ]);
+    await expect(
+      others.getByRole('link', { name: 'Open the update to Boiler Drum Level' }),
+    ).toHaveAttribute('href', '/content-manager/updates/UPD-0004');
     const catalogue = region(page, 'In the catalogue');
     await expect(catalogue.locator('.cm-cattotal')).toHaveText(
       /^12\s*experiments live, in 5 courses$/,
@@ -234,6 +273,7 @@ test.describe('CM-01 Overview', () => {
     await expect(catalogue.locator('.cm-catlist-t')).toHaveCount(5);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager');
     await checkState(page, 'Overview');
+    await expectNoReferences(page);
     await shot(page, '01-overview');
 
     // The oldest ready item opens its decision (CM-03), in the same tab.
@@ -303,6 +343,7 @@ test.describe('CM-01 Overview', () => {
     ).toBeVisible();
     await expect(catalogue.locator('.cm-cattotal')).toHaveText(/^14\s*experiments live/);
     await checkState(page, 'Overview');
+    await expectNoReferences(page);
     await shot(page, '14-empty-overview');
     await follow(page, calm.getByRole('link', { name: 'Open the Content library' }));
     await expect(page).toHaveURL(/\/content-manager\/library$/, { timeout: 60_000 });
@@ -321,7 +362,11 @@ test.describe('CM-02 Ready to publish', () => {
     await expect(list.getByRole('status')).toHaveText('2 experiments approved and waiting');
     await expect(cards(page)).toHaveCount(2);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/ready');
+    await expect(cards(page).first().locator('.cm-qline').first()).toHaveText(
+      'Northline Simulation Studio',
+    );
     await checkState(page, 'Ready to publish');
+    await expectNoReferences(page);
 
     // The Academic Reviewer approves SUB-0077: the list (and the rail count) follow.
     const id = await approveCompositeWall(page);
@@ -332,9 +377,17 @@ test.describe('CM-02 Ready to publish', () => {
     await expect(third.locator('.cm-qname')).toHaveText('Conduction Through a Composite Wall');
     await expect(third.locator('.cm-qmeta .xr-fmt')).toHaveText(['WEB', 'VR']);
     await expect(third.locator('.cm-qsum')).toHaveText('All 4 checks met');
+    await expect(third.locator('.cm-qline').first()).toHaveText('Northline Simulation Studio');
+    // The submission is read from its link's address, not from the card's words.
+    await expect(
+      third.getByRole('link', {
+        name: 'Open the publication decision for Conduction Through a Composite Wall',
+      }),
+    ).toHaveAttribute('href', `/content-manager/decisions/${id}`);
     await expect(cards(page).first()).toHaveClass(/is-first/);
     await expect(currentSidebarItem(page)).toContainText('3');
     await checkState(page, 'Ready to publish');
+    await expectNoReferences(page);
     await shot(page, '02-ready');
 
     // Newest first: the longest wait stays marked and gold.
@@ -345,6 +398,7 @@ test.describe('CM-02 Ready to publish', () => {
     await expect(cards(page).last()).toHaveClass(/is-first/);
     await expect(cards(page).last().locator('.cm-qact a')).toHaveClass(/rb-btn--primary/);
     await checkState(page, 'Ready to publish');
+    await expectNoReferences(page);
     await shot(page, '02d-ready-newest');
     await reachAndClick(page, list.getByRole('button', { name: /^Sort: / }));
     await expect(cards(page).first().locator('.cm-qname')).toHaveText('Transient Cooling');
@@ -374,6 +428,7 @@ test.describe('CM-02 Ready to publish', () => {
     );
     await expect(main(page).locator('dl.rb-figs')).toHaveCount(0);
     await checkState(page, 'Ready to publish');
+    await expectNoReferences(page);
     await shot(page, '14b-empty-ready');
     await follow(
       page,
@@ -405,8 +460,21 @@ test.describe('CM-04 Content library', () => {
     await expect(main(page).locator('table.rk-table tbody tr.cm-grp-h')).toHaveCount(2);
     await expect(main(page).locator('.cm-stageline .cm-own')).toHaveText('With you');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/library');
+    // The search names no reference (the service still matches one).
+    await expect(main(page).getByRole('searchbox', { name: 'Search' })).toHaveAttribute(
+      'placeholder',
+      'Experiment or course',
+    );
+    // Nothing under an experiment's name: the export's reference is left out.
+    await expect(libraryRows(page).locator('td.rk-c-inst > *')).toHaveCount(2);
+    await expect(
+      main(page).getByRole('link', {
+        name: 'Transient Cooling, ready to publish. Open the decision',
+      }),
+    ).toHaveAttribute('href', '/content-manager/decisions/SUB-0074');
     await expectTableLayout(page, main(page).locator('table.rk-table'));
     await checkState(page, 'Content library');
+    await expectNoReferences(page);
     await shot(page, '04-library');
 
     // In review: the address follows; the re-check row opens CM-03 read-only.
@@ -418,6 +486,8 @@ test.describe('CM-04 Content library', () => {
       'New submission',
       'Re-check you asked for',
     ]);
+    await expect(libraryRows(page).locator('td.rk-c-inst > *')).toHaveCount(3);
+    await expectNoReferences(page);
     // The search narrows the view (typed); its chip; Clear filters clears it.
     const search = main(page).getByRole('searchbox', { name: 'Search' });
     await search.click();
@@ -433,7 +503,11 @@ test.describe('CM-04 Content library', () => {
       main(page).getByRole('heading', { level: 2, name: 'Nothing in In review matches' }),
     ).toBeVisible();
     await expect(count).toHaveText('0 of 3 in academic review');
+    await expect(main(page).locator('.rk-state')).toContainText(
+      'Try fewer filters, another view or a different spelling of the experiment or course.',
+    );
     await checkState(page, 'Content library');
+    await expectNoReferences(page);
     await shot(page, '04c-lib-nomatch');
     await reachAndClick(
       page,
@@ -444,7 +518,7 @@ test.describe('CM-04 Content library', () => {
     await follow(
       page,
       main(page).getByRole('link', {
-        name: 'Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open',
+        name: 'Venturi Meter Calibration, back with the academic reviewer. Open',
       }),
     );
     await expect(page).toHaveURL(/\/content-manager\/decisions\/SUB-0071$/, { timeout: 60_000 });
@@ -465,6 +539,10 @@ test.describe('CM-04 Content library', () => {
     await expect(libraryRows(page).first().locator('.cm-stcell')).toHaveText(
       /^With the vendor\s*Returned by the Academic Reviewer$/,
     );
+    await expect(
+      main(page).getByRole('link', { name: 'Forced Convection, with the vendor. Open' }),
+    ).toHaveAttribute('href', '/content-manager/decisions/SUB-0081');
+    await expectNoReferences(page);
 
     // Published: twelve rows by course, their open corrections as their own chips; the pressed
     // view stays in sight on a phone; a row opens CM-05.
@@ -486,6 +564,10 @@ test.describe('CM-04 Content library', () => {
     await expect(
       libraryRows(page).filter({ hasText: 'Boiler Drum Level' }).locator('.cm-stcell .xr-st'),
     ).toHaveText(['Published', 'Update on hold']);
+    // No “From <reference>” under a published name: each experiment's cell holds its link only.
+    await expect(libraryRows(page).locator('td.rk-c-inst > *')).toHaveCount(12);
+    await expect(libraryRows(page).locator('td.rk-c-inst .rk-small')).toHaveCount(0);
+    await expectNoReferences(page);
     // The course filter narrows the view to one course; its chip; the address carries it.
     await main(page)
       .getByRole('combobox', { name: 'Course' })
@@ -497,6 +579,7 @@ test.describe('CM-04 Content library', () => {
     await expect(libraryRows(page)).toHaveCount(3);
     await expectTableLayout(page, main(page).locator('table.rk-table'));
     await checkState(page, 'Content library');
+    await expectNoReferences(page);
     await shot(page, '04b-lib-pub');
     await follow(
       page,
@@ -535,6 +618,7 @@ test.describe('CM-09 Platform course codes', () => {
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/course-codes');
     await expectTableLayout(page, main(page).locator('table.cm-codes'));
     await checkState(page, 'Course codes');
+    await expectNoReferences(page);
     await shot(page, '09-codes');
 
     // Fluid Mechanics given ME ZG523: Save codes is refused, nothing saved.
@@ -552,6 +636,7 @@ test.describe('CM-09 Platform course codes', () => {
     await expect(codeRows(page).nth(2).locator('.rk-ferr')).toHaveText(words);
     await expect(field('Fluid Mechanics')).toHaveAttribute('aria-invalid', 'true');
     await checkState(page, 'Course codes');
+    await expectNoReferences(page);
     await shot(page, '09b-codes-dup');
     // The summary link moves focus to the field (a wrapped inline link: Enter after focus).
     await summary.getByRole('link').focus();
@@ -573,6 +658,7 @@ test.describe('CM-09 Platform course codes', () => {
     await expect(field('Fluid Mechanics')).toHaveValue('ME ZG541');
     await expect(main(page).locator('.cm-tag')).toHaveCount(0);
     await checkState(page, 'Course codes');
+    await expectNoReferences(page);
     await shot(page, '09e-codes-saved');
 
     // Undo changes puts every typed code back.

@@ -14,11 +14,22 @@ export const STATE_COPY_CM_LISTS = {
     screen: 'CM-02',
     state: 'A row or band whose course has no platform code yet (CM-01, CM-02, CM-04)',
     words: null,
-    rule: 'The code chip is left out and the course name stands alone (“SUB-0074 · Northline Simulation Studio”, a course band with its name only), as the public catalogue shows the course name only for such a course; nothing stands in for it.',
+    rule: 'The code chip is left out and the course name stands alone (a desk row’s line “Northline Simulation Studio”, a course band with its name only), as the public catalogue shows the course name only for such a course; nothing stands in for it.',
     basis:
       'CM-v1 Main.dc.html `hasCode` on every code chip; CM-09 “No code yet — the catalogue shows the course name only.”',
     status: 'provisional',
     decisions: ['VD-12', 'OD-B6-13'],
+  },
+  'CM-lists.no-reference': {
+    screen: 'CM-04',
+    state:
+      'Where the export writes a submission’s or a correction’s reference (CM-01, CM-02, CM-04)',
+    words: null,
+    rule: 'No internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-) in the lists’ words or accessible names; each record is named by content. CM-01: a ready row’s line is the course code and the vendor (“ME ZG523 · Northline Simulation Studio”); a correction’s Continue is “Continue the update to Induction Motor Loading”; a correction with others opens as “Open the update to Boiler Drum Level”. CM-02: a card’s line is the vendor, with “· revision <n>” after a revision (“Northline Simulation Studio”). CM-04: nothing under an experiment’s name (the export’s reference and “From <reference>” are left out); a submission row is “Transient Cooling, ready to publish. Open the decision” or “Venturi Meter Calibration, back with the academic reviewer. Open”; the search says “Experiment or course” (`CM-04.search.placeholder`). The references stay in the addresses, the keys and the service calls; the library’s search still matches them.',
+    basis:
+      'Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule); supersedes CM-v1 HANDOFF §5 (“SUB- and UPD- IDs stay visible”) and Main.dc.html `ovVM` (`d`, `aria`), `readyVM` (`idLine`), `libVM` (`meta`, `aria`)',
+    status: 'provisional',
+    decisions: ['VD-12'],
   },
 
   // ---- CM-01 Overview ----
@@ -95,9 +106,10 @@ export const STATE_COPY_CM_LISTS = {
   'CM-04.search.placeholder': {
     screen: 'CM-04',
     state: 'The search field’s placeholder',
-    words: 'Experiment, ID or course',
+    words: 'Experiment or course',
+    rule: 'The field names what a person searches by; the search itself is unchanged (the service still matches a reference typed into it).',
     basis:
-      'Deviation from CM-v1 Main.dc.html (“Experiment, ID, course or vendor”): the export’s words without “vendor”, because the search is the service’s (ProductionService.getLibrary: name, ID or course code), which does not match vendors (lead decision)',
+      'Deviation from CM-v1 Main.dc.html (“Experiment, ID, course or vendor”): without “vendor”, because the search is the service’s (ProductionService.getLibrary: name, ID or course code), which does not match vendors (lead decision); without “ID”: Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -105,10 +117,9 @@ export const STATE_COPY_CM_LISTS = {
     screen: 'CM-04',
     state:
       'No row matches the search or the course filter: the line under “Nothing in <view> matches”',
-    words:
-      'Try fewer filters, another view or a different spelling of the experiment, ID or course.',
+    words: 'Try fewer filters, another view or a different spelling of the experiment or course.',
     basis:
-      'Deviation from CM-v1 Main.dc.html (“… a different spelling of the experiment, ID, course or vendor.”): the export’s words without “vendor”, as the placeholder (`CM-04.search.placeholder`)',
+      'Deviation from CM-v1 Main.dc.html (“… a different spelling of the experiment, ID, course or vendor.”): the export’s words without “ID” and “vendor”, as the placeholder (`CM-04.search.placeholder`; Owner visual-review correction, 20 Oct 2026: no internal reference, SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

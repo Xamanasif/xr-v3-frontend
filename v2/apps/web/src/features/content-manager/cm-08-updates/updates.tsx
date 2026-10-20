@@ -110,8 +110,10 @@ function useTodayLine(): string | undefined {
  * - **As the export draws it**: “Updates” with its line and two figures (Need you · With others);
  *   the count; the cards grouped by who must act — Need you (draft, returned; gold), With others
  *   (in academic review, awaiting the release decision, on hold), Closed (released, withdrawn) —
- *   each with its name, ID, course and last change, its version change, status and action
- *   (“Continue” while it is hers, else “Open”: both open the correction's page), the mini
+ *   each with its name, course and last change, its version change, status and action
+ *   (“Continue” while it is hers, else “Open”: both open the correction's page, named by the
+ *   experiment and the version label — never by the update's reference, which stays in the
+ *   address: state-copy `CM-08.no-reference`), the mini
  *   four-stage track, or once closed its outcome line, and the return, hold or withdrawal reason
  *   quoted. Empty; loading (the count and figures hidden); couldn't load with Try again (reads the
  *   list again and moves focus to the page title).
@@ -279,14 +281,14 @@ function TrackerEntry({
       yours={yours}
       closed={isClosed}
       name={experimentName}
-      meta={trackerMeta(update.id, facts?.course ?? null, dayMonth(lastChangeOf(update)))}
+      meta={trackerMeta(facts?.course ?? null, dayMonth(lastChangeOf(update)))}
       version={<CmVersionChange {...correctionVersionChange(update, live)} />}
       status={<StatusPill tone={pill.tone}>{pill.words}</StatusPill>}
       action={
         <ButtonLink
           variant={yours ? 'primary' : 'default'}
           href={correctionAddress(update.id)}
-          aria-label={trackerActionLabel(yours, update.id, experimentName, pill.words)}
+          aria-label={trackerActionLabel(yours, experimentName, update.versionLabel, pill.words)}
         >
           {yours ? TRACKER.continue : TRACKER.open}
         </ButtonLink>

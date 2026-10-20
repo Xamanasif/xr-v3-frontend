@@ -8,6 +8,8 @@
  * world moves the pages: publishing empties Ready to publish; a code saved on CM-09 is the
  * platform’s code. The drawn validation (a duplicate code), the busy save and the failed save; the
  * list states (empty, no match, loading, couldn’t load); the undrawn stale and policy-open refusals.
+ * No state shows an internal reference (SUB-, UPD-, …) in its words, names, titles or placeholders
+ * (owner visual-review correction, 20 Oct 2026): the references are read from the links' addresses.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -154,6 +156,27 @@ function show(runtime: PlatformRuntime, ui: ReactNode, pathname: string, search 
 }
 
 const main = () => screen.getByRole('main');
+
+/** An internal reference (owner visual-review correction, 20 Oct 2026; the SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference in the document's words (hidden and screen-reader-only words and the
+ * announcements included), in any `aria-label`, `title` or `placeholder`, or in the tab's title.
+ * No seeded quote that names one (a correction's “Correction UPD-0006.”) reaches these four lists,
+ * so nothing is excepted.
+ */
+function expectNoReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
 const text = (element: Element | null) => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
 const h1 = (name: string) => screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
 const sidebarCurrent = () =>
@@ -246,7 +269,7 @@ describe('CM-01 Overview at spine-start', () => {
     expect(readyRows[0]!.querySelector('.cm-next')).toHaveTextContent('Publish next');
     expect(readyRows[1]!.querySelector('.cm-next')).toBeNull();
     expect(text(readyRows[0]!.querySelector('.rb-row-d'))).toBe(
-      'SUB-0074 · ME ZG523 · Northline Simulation Studio',
+      'ME ZG523 · Northline Simulation Studio',
     );
     expect(text(readyRows[0]!.querySelector('.rb-row-when span'))).toBe('approved 14 Aug');
     expect(readyRows[0]!.querySelector('.rb-row-when b')!.textContent).toMatch(/^\d+ days$/);
@@ -283,7 +306,7 @@ describe('CM-01 Overview at spine-start', () => {
       'Prof. A. Menon, Academic Reviewer · 26 Aug',
     );
     const resume = within(corrections).getByRole('link', {
-      name: 'Continue UPD-0006, correction to Induction Motor Loading',
+      name: 'Continue the update to Induction Motor Loading',
     });
     expect(resume).toHaveTextContent('Continue');
     expect(resume).not.toHaveClass('rb-btn--primary');
@@ -308,7 +331,7 @@ describe('CM-01 Overview at spine-start', () => {
         .getAllByRole('link')
         .map((link) => [link.getAttribute('aria-label'), link.getAttribute('href')]),
     ).toEqual([
-      ['Open UPD-0004, Boiler Drum Level', '/content-manager/updates/UPD-0004'],
+      ['Open the update to Boiler Drum Level', '/content-manager/updates/UPD-0004'],
       ['Open Venturi Meter Calibration', '/content-manager/decisions/SUB-0071'],
     ]);
 
@@ -337,6 +360,7 @@ describe('CM-01 Overview at spine-start', () => {
 
     // The shell: Overview current.
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager');
+    expectNoReferences();
   });
 
   it('after SUB-0077 is approved: three ready, the oldest still first and still “Publish next”', async () => {
@@ -351,14 +375,20 @@ describe('CM-01 Overview at spine-start', () => {
     expect(text(rows[0]!.querySelector('.rb-row-t'))).toBe('Transient Cooling');
     expect(text(rows[2]!.querySelector('.rb-row-t'))).toBe('Conduction Through a Composite Wall');
     expect(text(rows[2]!.querySelector('.rb-row-d'))).toBe(
-      'SUB-0077 · ME ZG523 · Northline Simulation Studio',
+      'ME ZG523 · Northline Simulation Studio',
     );
+    expect(
+      within(ready).getByRole('link', {
+        name: 'Open the publication decision for Conduction Through a Composite Wall',
+      }),
+    ).toHaveAttribute('href', '/content-manager/decisions/SUB-0077');
     expect(text(rows[2]!.querySelector('.rb-row-when span'))).toBe('approved 27 Aug');
     expect(
       within(region('Publishing pipeline')).getByRole('link', {
         name: '3 Ready to publish. Oldest approved 14 Aug. Your step. Open Ready to publish',
       }),
     ).toBeVisible();
+    expectNoReferences();
   });
 
   it('nothing waiting: the calm state, the Content library one click away', async () => {
@@ -387,6 +417,7 @@ describe('CM-01 Overview at spine-start', () => {
     expect(region('With others')).toHaveTextContent(
       'Nothing is waiting on the Academic Reviewer, the vendors or the Super Admin.',
     );
+    expectNoReferences();
   });
 
   it('nothing needs her but others have work: the calm state, then “With others”, oldest first', async () => {
@@ -426,9 +457,10 @@ describe('CM-01 Overview at spine-start', () => {
         .getAllByRole('link')
         .map((link) => [link.getAttribute('aria-label'), link.getAttribute('href')]),
     ).toEqual([
-      ['Open UPD-0007, Transformer Tests', '/content-manager/updates/UPD-0007'],
-      ['Open UPD-0005, Distillation Column', '/content-manager/updates/UPD-0005'],
+      ['Open the update to Transformer Tests', '/content-manager/updates/UPD-0007'],
+      ['Open the update to Distillation Column', '/content-manager/updates/UPD-0005'],
     ]);
+    expectNoReferences();
   });
 
   it('announces loading; a failed read has Try again, which reads again and focuses the title', async () => {
@@ -442,9 +474,11 @@ describe('CM-01 Overview at spine-start', () => {
     expect(screen.queryByRole('region', { name: 'Publishing pipeline' })).toBeNull();
     expect(await screen.findByText('We couldn’t load your overview')).toBeVisible();
     expect(screen.getByRole('alert')).toHaveTextContent('Nothing has changed. Try again.');
+    expectNoReferences();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(screen.getByRole('heading', { level: 1, name: 'Overview' })).toHaveFocus();
     expect(await screen.findByRole('region', { name: 'Needs your decision' })).toBeVisible();
+    expectNoReferences();
   });
 });
 
@@ -486,7 +520,7 @@ describe('CM-02 Ready to publish', () => {
       'Transient Cooling',
     );
     expect([...first!.querySelectorAll('.cm-qline')].map(text)).toEqual([
-      'SUB-0074 · Northline Simulation Studio',
+      'Northline Simulation Studio',
       'Approved by Prof. A. Menon · 2 learning outcomes',
     ]);
     expect(text(first!.querySelector('.cm-qmeta .cm-fmtname'))).toBe(
@@ -537,6 +571,7 @@ describe('CM-02 Ready to publish', () => {
     );
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager/ready');
     await waitFor(() => expect(sidebarCurrent()).toHaveTextContent('2'));
+    expectNoReferences();
   });
 
   it('once the Academic Reviewer approves SUB-0077 it is listed third, WEB and VR, just approved', async () => {
@@ -547,7 +582,13 @@ describe('CM-02 Ready to publish', () => {
     await waitFor(() => expect(cards()).toHaveLength(3));
     const third = cards()[2]!;
     expect(text(third.querySelector('.cm-qname'))).toBe('Conduction Through a Composite Wall');
-    expect(text(third.querySelector('.cm-qline'))).toBe('SUB-0077 · Northline Simulation Studio');
+    expect(text(third.querySelector('.cm-qline'))).toBe('Northline Simulation Studio');
+    // The submission is read from its link's address, not from the card's words.
+    expect(
+      within(third as HTMLElement).getByRole('link', {
+        name: 'Open the publication decision for Conduction Through a Composite Wall',
+      }),
+    ).toHaveAttribute('href', `/content-manager/decisions/${id}`);
     expect([...third.querySelectorAll('.cm-qmeta .xr-fmt')].map(text)).toEqual(['WEB', 'VR']);
     expect(text(third.querySelector('.cm-qline:last-of-type'))).toBe(
       'Approved by Prof. A. Menon · 2 learning outcomes',
@@ -555,6 +596,7 @@ describe('CM-02 Ready to publish', () => {
     expect(region('Approved experiments waiting for your decision')).toHaveTextContent(
       '3 experiments approved and waiting',
     );
+    expectNoReferences();
   });
 
   it('newest first by the sort button; the longest wait stays marked and gold', async () => {
@@ -582,6 +624,7 @@ describe('CM-02 Ready to publish', () => {
       'Transient Cooling',
     ]);
     expect(marked[0]!.querySelector('.cm-qact a')).toHaveClass('rb-btn--primary');
+    expectNoReferences();
     await user.click(screen.getByRole('button', { name: /^Sort: approved, newest first/ }));
     expect(names()[0]).toBe('Transient Cooling');
   });
@@ -658,6 +701,7 @@ describe('CM-02 Ready to publish', () => {
     expect(
       within(region('Approved experiments waiting for your decision')).queryByRole('status'),
     ).toBeNull();
+    expectNoReferences();
   });
 
   it('loading: the card skeleton, no figures or count; couldn’t load: Try again reads again and focuses the title', async () => {
@@ -675,9 +719,11 @@ describe('CM-02 Ready to publish', () => {
     expect(failed).toHaveTextContent('We couldn’t load the experiments ready to publish');
     expect(failed).toHaveTextContent('Nothing has changed. Try again.');
     expect(document.querySelector('dl.rb-figs')).toBeNull();
+    expectNoReferences();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(screen.getByRole('heading', { level: 1, name: 'Ready to publish' })).toHaveFocus();
     await waitFor(() => expect(document.querySelectorAll('li.cm-qcard')).toHaveLength(2));
+    expectNoReferences();
   });
 });
 
@@ -713,9 +759,9 @@ describe('CM-04 Content library', () => {
     );
     const surface = region('Experiments ready to publish');
     const search = within(surface).getByRole('searchbox', { name: 'Search' });
-    // The export's words without "vendor": the search is the service's (state-copy
-    // `CM-04.search.placeholder`).
-    expect(search).toHaveAttribute('placeholder', 'Experiment, ID or course');
+    // The export's words without "ID" and "vendor": the search is the service's, and the field
+    // names no reference (state-copy `CM-04.search.placeholder`).
+    expect(search).toHaveAttribute('placeholder', 'Experiment or course');
     const course = within(surface).getByRole('combobox', { name: 'Course' });
     expect(
       within(course)
@@ -742,7 +788,7 @@ describe('CM-04 Content library', () => {
     expect(await tableLines()).toEqual([
       ['band', 'ME ZG523Thermodynamics & Heat Transfer1 ready to publish'],
       [
-        'Transient CoolingSUB-0074',
+        'Transient Cooling',
         'Formats: WEBWEB',
         'Prof. A. MenonAcademic Reviewer',
         'Approved 14 Aug 2026',
@@ -750,7 +796,7 @@ describe('CM-04 Content library', () => {
       ],
       ['band', 'CHE ZG513Process Instrumentation & Control1 ready to publish'],
       [
-        'Packed Bed Pressure DropSUB-0070',
+        'Packed Bed Pressure Drop',
         'Formats: WEB, ARWEBAR',
         'Prof. A. MenonAcademic Reviewer',
         'Approved 21 Aug 2026',
@@ -758,14 +804,21 @@ describe('CM-04 Content library', () => {
       ],
     ]);
     const open = screen.getByRole('link', {
-      name: 'Transient Cooling, SUB-0074, ready to publish. Open the decision',
+      name: 'Transient Cooling, ready to publish. Open the decision',
     });
     expect(open).toHaveClass('rk-rowlink');
     expect(open).toHaveAttribute('href', '/content-manager/decisions/SUB-0074');
+    // The experiment's cell holds its link only (the export's reference under it is left out).
+    expect(
+      [...table.querySelectorAll('td.rk-c-inst')].map((cell) =>
+        [...cell.children].map((child) => child.className),
+      ),
+    ).toEqual([['rk-rowlink'], ['rk-rowlink']]);
     expect(surface.querySelector('.rk-ca-foot')).toHaveTextContent(
       'Drafts stay with the vendor and aren’t listed. Published rows open the live experiment.',
     );
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager/library');
+    expectNoReferences();
   });
 
   it('the views by click: In review, With vendor, Published; the address follows', async () => {
@@ -780,7 +833,7 @@ describe('CM-04 Content library', () => {
       expect(await tableLines()).toEqual([
         ['band', 'EEE ZC341Electrical Machines1 in academic review'],
         [
-          'DC Motor Speed ControlSUB-0085',
+          'DC Motor Speed Control',
           'Formats: WEBWEB',
           expect.stringMatching(/Revision 1$/),
           'Since 2 Oct 2026',
@@ -788,14 +841,14 @@ describe('CM-04 Content library', () => {
         ],
         ['band', 'CHE ZG513Process Instrumentation & Control2 in academic review'],
         [
-          'Flash DistillationSUB-0086',
+          'Flash Distillation',
           'Formats: WEBWEB',
           'Meridian Virtual LabsRevision 1',
           'Since 24 Aug 2026',
           'In academic reviewNew submission',
         ],
         [
-          'Venturi Meter CalibrationSUB-0071',
+          'Venturi Meter Calibration',
           'Formats: WEB, ARWEBAR',
           'Meridian Virtual LabsRevision 1',
           'Since 25 Aug 2026',
@@ -806,15 +859,16 @@ describe('CM-04 Content library', () => {
     expect(text(main().querySelector('.cm-stageline .cm-own'))).toBe('With the Academic Reviewer');
     expect(
       screen.getByRole('link', {
-        name: 'Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open',
+        name: 'Venturi Meter Calibration, back with the academic reviewer. Open',
       }),
     ).toHaveAttribute('href', '/content-manager/decisions/SUB-0071');
+    expectNoReferences();
     await user.click(viewButton(/^With vendor/));
     expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library?tab=with-vendor');
     await waitFor(async () =>
       expect(await tableRows()).toEqual([
         [
-          'Forced ConvectionSUB-0081',
+          'Forced Convection',
           'Formats: WEB, ARWEBAR',
           expect.stringMatching(/Revision \d+$/),
           'Since 24 Aug 2026',
@@ -823,6 +877,10 @@ describe('CM-04 Content library', () => {
       ]),
     );
     expect(main().querySelector('.cm-stageline .cm-own')).toHaveClass('is-vendor');
+    expect(
+      screen.getByRole('link', { name: 'Forced Convection, with the vendor. Open' }),
+    ).toHaveAttribute('href', '/content-manager/decisions/SUB-0081');
+    expectNoReferences();
     await user.click(viewButton(/^Published/));
     expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library?tab=published');
     await waitFor(async () => expect(await tableRows()).toHaveLength(12));
@@ -869,6 +927,14 @@ describe('CM-04 Content library', () => {
         name: 'Distillation Column, CHE ZG513, version 1.2, published. Open the published experiment',
       }),
     ).toHaveAttribute('href', '/content-manager/published/distillation-column');
+    // A published experiment that came from a submission shows no “From <reference>” under its
+    // name: every experiment's cell holds its link only.
+    expect(
+      [...screen.getByRole('table').querySelectorAll('td.rk-c-inst')].every(
+        (cell) => cell.children.length === 1 && cell.children[0]!.matches('a.rk-rowlink'),
+      ),
+    ).toBe(true);
+    expectNoReferences();
     await user.click(viewButton(/^Ready/));
     expect(navigation.replace).toHaveBeenLastCalledWith('/content-manager/library');
   });
@@ -889,9 +955,10 @@ describe('CM-04 Content library', () => {
     await user.click(viewButton(/^Ready/));
     const none = await screen.findByRole('heading', { level: 2, name: 'Nothing in Ready matches' });
     expect(none.closest('.rk-state')).toHaveTextContent(
-      'Try fewer filters, another view or a different spelling of the experiment, ID or course.',
+      'Try fewer filters, another view or a different spelling of the experiment or course.',
     );
     await waitFor(() => expect(libraryCount()).toHaveTextContent('0 of 2 ready to publish'));
+    expectNoReferences();
     await user.click(
       within(none.closest('.rk-state') as HTMLElement).getByRole('button', {
         name: 'Clear filters',
@@ -902,7 +969,7 @@ describe('CM-04 Content library', () => {
     expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
   });
 
-  it('the search is the service’s: the name, the ID or the course code — not the vendor', async () => {
+  it('the search is the service’s: the name, the reference or the course code — not the vendor', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(KAVYA, 'spine-start');
     const getLibrary = vi.spyOn(runtime.ports.production, 'getLibrary');
@@ -911,20 +978,26 @@ describe('CM-04 Content library', () => {
     const search = screen.getByRole('searchbox', { name: 'Search' });
     await user.type(search, 'SUB-0070');
     await waitFor(async () =>
-      expect((await tableRows()).map((row) => row[0])).toEqual([
-        'Packed Bed Pressure DropSUB-0070',
-      ]),
+      expect((await tableRows()).map((row) => row[0])).toEqual(['Packed Bed Pressure Drop']),
     );
     expect(getLibrary).toHaveBeenLastCalledWith({ tab: 'ready', search: 'SUB-0070' });
+    // The row found by its reference is named by content; the reference is in its address only
+    // (the search field and its chip hold what she typed).
+    expect(
+      screen.getByRole('link', {
+        name: 'Packed Bed Pressure Drop, ready to publish. Open the decision',
+      }),
+    ).toHaveAttribute('href', '/content-manager/decisions/SUB-0070');
     await user.clear(search);
     await user.type(search, 'ME ZG523');
     await waitFor(async () =>
-      expect((await tableRows()).map((row) => row[0])).toEqual(['Transient CoolingSUB-0074']),
+      expect((await tableRows()).map((row) => row[0])).toEqual(['Transient Cooling']),
     );
+    expectNoReferences();
     await user.clear(search);
     await user.type(search, 'transient');
     await waitFor(async () =>
-      expect((await tableRows()).map((row) => row[0])).toEqual(['Transient CoolingSUB-0074']),
+      expect((await tableRows()).map((row) => row[0])).toEqual(['Transient Cooling']),
     );
     // The vendor is not searched (the service matches name, ID and course code only).
     await user.clear(search);
@@ -947,9 +1020,7 @@ describe('CM-04 Content library', () => {
       '/content-manager/library?course=process-instrumentation-control',
     );
     await waitFor(async () =>
-      expect((await tableRows()).map((row) => row[0])).toEqual([
-        'Packed Bed Pressure DropSUB-0070',
-      ]),
+      expect((await tableRows()).map((row) => row[0])).toEqual(['Packed Bed Pressure Drop']),
     );
     await waitFor(() => expect(libraryCount()).toHaveTextContent('1 of 2 ready to publish'));
     await user.click(
@@ -988,6 +1059,7 @@ describe('CM-04 Content library', () => {
       'band',
       'ME ZG523Thermodynamics & Heat Transfer3 published',
     ]);
+    expectNoReferences();
   });
 
   it('the Ready view names a publication check not met (“1 to resolve”, in error)', async () => {
@@ -1055,6 +1127,7 @@ describe('CM-04 Content library', () => {
     expect(viewButton(/^Ready/)).toHaveTextContent('Ready 0');
     expect(viewButton(/^Published/)).toHaveTextContent('Published 14');
     await waitFor(() => expect(libraryCount()).toHaveTextContent('0 ready to publish'));
+    expectNoReferences();
   });
 
   it('loading hides the count, the view counts and the figures; couldn’t load: Try again reads again and focuses the title', async () => {
@@ -1072,6 +1145,7 @@ describe('CM-04 Content library', () => {
     const failed = await screen.findByRole('alert');
     expect(failed).toHaveTextContent('We couldn’t load the content library');
     expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    expectNoReferences();
     await user.click(within(failed).getByRole('button', { name: 'Try again' }));
     expect(screen.getByRole('heading', { level: 1, name: 'Content library' })).toHaveFocus();
     await waitFor(async () => expect(await tableRows()).toHaveLength(2));
@@ -1154,6 +1228,7 @@ describe('CM-09 Platform course codes', () => {
       within(aside).getByRole('region', { name: 'Platform codes, not institution codes' }),
     ).toHaveTextContent('Institute Admins keep their own code for a course (for example MEC-523)');
     expect(sidebarCurrent()).toHaveAttribute('href', '/content-manager/course-codes');
+    expectNoReferences();
   });
 
   it('a duplicate is refused on Save codes — the words under the row and in “Check the codes”, which takes focus', async () => {
@@ -1182,6 +1257,7 @@ describe('CM-09 Platform course codes', () => {
       'aria-describedby',
       'cc-hint cc-code-5-c cc-code-5-e',
     );
+    expectNoReferences();
     await user.click(link);
     expect(codeField('Fluid Mechanics')).toHaveFocus();
     // Nothing was saved.
@@ -1214,6 +1290,7 @@ describe('CM-09 Platform course codes', () => {
     await waitFor(() => expect(notice).toHaveFocus());
     expect(codeField('Fluid Mechanics')).toHaveValue('ME ZG541');
     expect(footerStatus()).toHaveTextContent('No unsaved changes');
+    expectNoReferences();
     const codes = ok(await asPersonId(sample, KAVYA).platformCourseCodes.list());
     expect(codes.find((row) => row.course.id === 'fluid-mechanics')?.course.platformCode).toBe(
       'ME ZG541',
@@ -1371,6 +1448,7 @@ describe('CM-09 Platform course codes', () => {
       await waitFor(() => expect(notice).toHaveFocus());
       expect(codeField('Fluid Mechanics')).toHaveValue('ME ZG541');
       expect(footerStatus()).toHaveTextContent('1 change not saved');
+      expectNoReferences();
     },
   );
 
@@ -1389,6 +1467,7 @@ describe('CM-09 Platform course codes', () => {
     const failed = await screen.findByRole('alert');
     expect(failed).toHaveTextContent('We couldn’t load the course codes');
     expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    expectNoReferences();
     await user.click(within(failed).getByRole('button', { name: 'Try again' }));
     expect(screen.getByRole('heading', { level: 1, name: 'Course codes' })).toHaveFocus();
     await waitFor(async () => expect(await tableRows()).toHaveLength(6));

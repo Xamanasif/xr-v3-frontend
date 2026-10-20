@@ -2160,7 +2160,7 @@
       "ownerApproved": "sent by the owner as the final complete package after approving the anchors (“I will approve the anchors … and send the final complete package”, 20 Oct 2026); the export’s own files still read “OWNER VISUAL ACCEPTANCE PENDING” — final acceptance is the owner’s browser review",
       "implementationComplete": "migrated — figures, the four views with counts (switch), who holds them, rows grouped by course, the service search, a course filter, chips, no match, empty, an open correction’s chip, loading, couldn’t load; bound to getLibrary",
       "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
-      "openIssue": "Search stays the service’s (name, ID or course code): the placeholder reads “Experiment, ID or course” (the export’s words without “vendor”, CM-04.search.placeholder). The course filter runs on the page (`course=` in the address)."
+      "openIssue": "Search stays the service’s (name, ID or course code): the placeholder reads “Experiment or course” (no vendor, which the service does not match; no ID, which no Content Manager page shows — CM-04.search.placeholder). The course filter runs on the page (`course=` in the address)."
     },
     {
       "id": "CM-05",

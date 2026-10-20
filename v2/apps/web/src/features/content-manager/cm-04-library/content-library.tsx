@@ -30,7 +30,6 @@ import {
   courseChip,
   courseLabel,
   formatsLabel,
-  fromSubmission,
   libraryCaption,
   libraryCountWords,
   libraryPanelLabel,
@@ -138,8 +137,7 @@ export function submissionRow(row: SubmissionRow, blockers: number): CmLibraryRo
     key: submission.id,
     href: publicationDecisionAddress(submission.id),
     title: name,
-    linkLabel: submissionRowLabel(name, submission.id, pill.words, ready),
-    titleDetail: submission.id,
+    linkLabel: submissionRowLabel(name, pill.words, ready),
     formats: <CmFormatBadges formats={codes} label={formatsLabel(codes)} />,
     kind: ready
       ? { strong: lastApproval(submission)?.by ?? '', small: CONTENT_LIBRARY.reviewer }
@@ -174,9 +172,6 @@ export function experimentRow(row: ExperimentRow, course: Course | null): CmLibr
       experiment.live.label,
       tag,
     ),
-    ...(experiment.originSubmissionId
-      ? { titleDetail: fromSubmission(experiment.originSubmissionId) }
-      : {}),
     formats: <CmFormatBadges formats={codes} label={formatsLabel(codes)} />,
     kind: { strong: versionWords(experiment.live.label), small: experiment.vendorOrganisation },
     whenLabel: CONTENT_LIBRARY.headers.when.published,
@@ -212,7 +207,9 @@ function courseIdOf(row: LibraryRow): string | null {
  *   sight on a phone); the line saying who holds the view's items; the list surface — search,
  *   course, the count, chips and Clear filters — and the table grouped by course (a band with the
  *   code, name and count), each row a link: a submission to its decision (CM-03; read-only unless
- *   ready), a published experiment to CM-05, its open correction as its own chip.
+ *   ready), a published experiment to CM-05, its open correction as its own chip. No internal
+ *   reference (SUB-, UPD-) in a row's words or its link's name (state-copy `CM-lists.no-reference`):
+ *   nothing under the experiment's name; the references stay in the rows' addresses and keys.
  * - **States**: no match (Clear filters), empty view, loading (no count, view counts or figures),
  *   couldn't load (Try again reads again and moves focus to the title).
  * - Nothing here changes a record.

@@ -198,7 +198,7 @@ export interface CmDeskRow {
   /** The ivory band of the next to publish (`is-first`). */
   readonly first?: boolean;
   readonly title: ReactNode;
-  /** "SUB-0074 · ME ZG523 · Northline Simulation Studio". */
+  /** "ME ZG523 · Northline Simulation Studio" (never an internal reference). */
   readonly description?: ReactNode;
   /**
    * The row's facts (`p.cm-orow-x`): the checks (`CmCheckChip`) and formats (`FormatBadges`), or a
@@ -648,8 +648,12 @@ export interface CmDecisionCard {
   readonly age: { readonly value: ReactNode; readonly unit: ReactNode; readonly detail: ReactNode };
   /** The experiment's name (`h2.cm-qname`). */
   readonly name: ReactNode;
-  /** "SUB-0074 · Northline Simulation Studio". */
-  readonly idLine: ReactNode;
+  /**
+   * The vendor, and the revision after one (`p.cm-qline`, the export's `idLine` without the
+   * submission's reference — never an internal reference): "Northline Simulation Studio ·
+   * revision 2". Left out when there is none.
+   */
+  readonly vendorLine?: ReactNode;
   /** The course and formats (`p.cm-qmeta`): `CmCourseName` and `FormatBadges`. */
   readonly meta: ReactNode;
   /** "Approved by Prof. A. Menon · 2 learning outcomes". */
@@ -691,7 +695,7 @@ export function CmDecisionCards({
                 <p className="cm-next">{entry.firstLabel}</p>
               ) : null}
               <h2 className="cm-qname">{entry.name}</h2>
-              <p className="cm-qline">{entry.idLine}</p>
+              {entry.vendorLine ? <p className="cm-qline">{entry.vendorLine}</p> : null}
               <p className="cm-qmeta">{entry.meta}</p>
               <p className="cm-qline">{entry.byLine}</p>
             </div>
@@ -926,10 +930,12 @@ export interface CmLibraryRow {
   readonly href: string;
   /** The experiment's name (`a.rk-rowlink`). */
   readonly title: ReactNode;
-  /** "Transient Cooling, SUB-0074, ready to publish. Open the decision". */
+  /**
+   * "Transient Cooling, ready to publish. Open the decision" (never an internal reference). The
+   * export's line under the link (`span.rk-small`: the submission's reference, "From <reference>")
+   * is not drawn.
+   */
   readonly linkLabel: string;
-  /** Under the link (`span.rk-small`): "SUB-0074", "From SUB-0052". */
-  readonly titleDetail?: ReactNode;
   /** The formats (`CmFormatBadges`: the export writes them with `margin-top: 0`). */
   readonly formats: ReactNode;
   /** "Prof. A. Menon" over "Academic Reviewer"; "Version 1.2" over the vendor. */
@@ -1075,7 +1081,6 @@ export function CmLibraryTable({ caption, headers, groups }: CmLibraryTableProps
                   <>
                     <td role="cell" className="rk-c-inst">
                       {link}
-                      {row.titleDetail ? <span className="rk-small">{row.titleDetail}</span> : null}
                     </td>
                     <td role="cell" className="rk-c-exp">
                       {row.formats}

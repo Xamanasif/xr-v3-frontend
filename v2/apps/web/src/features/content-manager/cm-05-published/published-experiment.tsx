@@ -36,16 +36,16 @@ import {
 import { type ReactNode, useEffect, useState } from 'react';
 
 import {
-  correctionNamed,
   CORRECTIONS_PANEL,
   correctionsReleased,
   courseLabel,
-  firstPublishedNote,
   firstPublishedWhat,
   formatsLabel,
   formatsList,
   fromVendor,
   liveVersionLine,
+  type OpenUpdateState,
+  openUpdateStatus,
   PUBLISHED_PAGE,
   publishedOverline,
   releasedLine,
@@ -98,7 +98,7 @@ const OPEN_STATES = [
   'in-academic-review',
   'awaiting-release-decision',
   'on-hold',
-] as const;
+] as const satisfies readonly OpenUpdateState[];
 type OpenState = (typeof OPEN_STATES)[number];
 
 function isOpenState(state: string): state is OpenState {
@@ -190,12 +190,12 @@ function historyOf(view: PublishedExperimentView, open: OpenUpdate | null): Time
     events.push(
       open.state === 'on-hold' && openUpdate.hold
         ? {
-            what: updateHeldWhat(openUpdate.id),
+            what: updateHeldWhat(),
             when: dayMonthYear(openUpdate.hold.at),
             note: updateHeldNote(experiment.live.label, openUpdate.hold.reason),
           }
         : {
-            what: updateStartedWhat(openUpdate.id, CM_UPDATE_STATUS[open.state]),
+            what: updateStartedWhat(CM_UPDATE_STATUS[open.state]),
             when: dayMonthYear(openUpdate.startedAt),
             note: updateStartedNote(openUpdate.versionLabel),
           },
@@ -207,15 +207,12 @@ function historyOf(view: PublishedExperimentView, open: OpenUpdate | null): Time
         ? {
             what: versionReleasedWhat(version.label),
             when: dayMonthYear(version.liveFrom),
-            note: versionReleasedNote(
-              version.source.updateId,
-              version.label === experiment.live.label,
-            ),
+            note: versionReleasedNote(version.label === experiment.live.label),
           }
         : {
             what: firstPublishedWhat(version.label),
             when: dayMonthYear(version.liveFrom),
-            note: firstPublishedNote(version.source.submissionId),
+            note: PUBLISHED_PAGE.firstPublicationNote,
           },
     );
   }
@@ -351,10 +348,7 @@ function Published({
     live.source.kind === 'correction-release' &&
     session.status === 'signed-in' &&
     dayMonthYear(live.liveFrom) === dayMonthYear(session.signedInAt)
-      ? {
-          updateId: live.source.updateId,
-          from: liveIndex > 0 ? (experiment.versions[liveIndex - 1]?.label ?? '') : '',
-        }
+      ? { from: liveIndex > 0 ? (experiment.versions[liveIndex - 1]?.label ?? '') : '' }
       : null;
   const released = experiment.versions.filter(
     (version) => version.source.kind === 'correction-release',
@@ -378,7 +372,7 @@ function Published({
       </>
     );
   } else {
-    const line = updateProgressLine(open.id, CM_UPDATE_STATUS[open.state], open.state, live.label);
+    const line = updateProgressLine(open.state, live.label);
     actions = joinable ? (
       <>
         <Notice tone="info" icon="edit" role="status" title={CORRECTIONS_PANEL.correctionOpen}>
@@ -445,7 +439,7 @@ function Published({
             ? {
                 key: 'corrections',
                 term: PUBLISHED_PAGE.factCorrections,
-                value: correctionNamed(open.id, openPill.words),
+                value: openUpdateStatus(open.state),
               }
             : released > 0
               ? {
@@ -466,9 +460,7 @@ function Published({
               title={PUBLISHED_PAGE.trackTitle}
               status={
                 <>
-                  <StatusPill tone={openPill.tone}>
-                    {correctionNamed(open.id, openPill.words)}
-                  </StatusPill>
+                  <StatusPill tone={openPill.tone}>{openUpdateStatus(open.state)}</StatusPill>
                   <CmVersionChange {...correctionVersionChange(openUpdate, live.label)} />
                 </>
               }
@@ -490,7 +482,7 @@ function Published({
       ) : null}
       {releasedToday ? (
         <Notice tone="ok" icon="check" role="status" title={releasedTitle(live.label)}>
-          {releasedLine(releasedToday.updateId, dayMonthYear(live.liveFrom), releasedToday.from)}
+          {releasedLine(dayMonthYear(live.liveFrom), releasedToday.from)}
         </Notice>
       ) : null}
       <DetailLayout

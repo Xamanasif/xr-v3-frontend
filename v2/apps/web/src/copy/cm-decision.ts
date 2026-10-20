@@ -8,10 +8,15 @@
  * The status words, the stage track's words and the version change are the role's shared words
  * (`cm-shared.ts`); the correction entries' words are the correction group's (`cm-correction.ts`).
  * What the export does not word is a provisional entry of the state-copy register
- * (`state-copy-cm-decision.ts`, VD-12).
+ * (`state-copy-cm-decision.ts`, VD-12). No internal reference (SUB-, UPD- …) is part of any words:
+ * the owner's visual-review correction of 20 Oct 2026 (the SA-v1 rule) names things by content —
+ * the band's record kind without its submission, an open correction by its status words (the
+ * library's chip words, `cm-lists.ts`), a release by what it did (state-copy `CM-03.references`,
+ * `CM-05.references`).
  */
 import type { ReturnReference } from '@xr/domain';
 
+import { CONTENT_LIBRARY } from './cm-lists';
 import { stateWords } from './state-copy';
 
 /** "1 outcome", "3 outcomes" (the script's `plural`). */
@@ -46,6 +51,11 @@ export function courseLabel(code: string | null, name: string): string {
 // ---- CM-03 Publication decision ----------------------------------------------------------------
 
 export const DECISION_PAGE = {
+  /**
+   * `p.rk-eyebrow` (`D.over`): the record kind, without the export's submission reference (“SUB-0077
+   * · First publication”; owner correction, state-copy `CM-03.references`).
+   */
+  overline: 'First publication',
   /** `a.rb-btn.rk-goto` (below 860 px of page width). */
   goTo: 'Go to decision',
   /** The band's facts (`D.facts`). */
@@ -100,11 +110,6 @@ export const DECISION_PAGE = {
   /** `reviewLine` before an approval. */
   notDecided: 'Not decided yet',
 } as const;
-
-/** `p.rk-eyebrow` "SUB-0077 · First publication" (`D.over`). */
-export function decisionOverline(id: string): string {
-  return `${id} · First publication`;
-}
 
 /** The status line's vendor: "From Northline Simulation Studio". */
 export function fromVendor(organisation: string): string {
@@ -502,6 +507,10 @@ export const PUBLISHED_PAGE = {
   installNotes: 'Install notes',
   historyTitle: 'History',
   historyMeta: 'Versions and updates · newest first',
+  /**
+   * The first publication's note — without the export's “, from SUB-0052” (owner correction,
+   * state-copy `CM-05.references`).
+   */
   firstPublicationNote: 'First publication by the Content Manager.',
 } as const;
 
@@ -520,9 +529,17 @@ export function liveVersionLine(version: string, since: string): string {
   return `${version}, since ${since}`;
 }
 
-/** The open correction as its fact and pill name it: "UPD-0004 · On hold". */
-export function correctionNamed(id: string, status: string): string {
-  return `${id} · ${status}`;
+/** The states of an open correction (CM-v1 `pubVM` `openUpd`: draft, returned, review, awaiting, hold). */
+export type OpenUpdateState =
+  'draft' | 'returned' | 'in-academic-review' | 'awaiting-release-decision' | 'on-hold';
+
+/**
+ * The open correction as its fact, its pill and the panel's notice name it: “Update on hold” — the
+ * Content library's chip words, one wording for both screens (the export's “UPD-0004 · On hold”
+ * without its reference; owner correction, state-copy `CM-05.references`).
+ */
+export function openUpdateStatus(state: OpenUpdateState): string {
+  return CONTENT_LIBRARY.updateTags[state];
 }
 
 /** `corrFact` without an open correction: "2 corrections released". */
@@ -543,14 +560,9 @@ export const CORRECTIONS_PANEL = {
   foot: 'The live experiment changes only when the Super Admin releases a correction. Publishing and releasing give no one access.',
 } as const;
 
-/** `progBody` by the open update's state: "UPD-0004 · On hold. The Super Admin put it on hold. …". */
-export function updateProgressLine(
-  id: string,
-  status: string,
-  state: 'draft' | 'returned' | 'in-academic-review' | 'awaiting-release-decision' | 'on-hold',
-  liveVersion: string,
-): string {
-  const lead = `${correctionNamed(id, status)}. `;
+/** `progBody` by the open update's state: "Update on hold. The Super Admin put it on hold. …". */
+export function updateProgressLine(state: OpenUpdateState, liveVersion: string): string {
+  const lead = `${openUpdateStatus(state)}. `;
   switch (state) {
     case 'draft':
       return `${lead}Edits to this experiment join that update.`;
@@ -570,14 +582,17 @@ export function releasedTitle(version: string): string {
   return `Version ${version} is live`;
 }
 
-/** `relBody`: the release made today, the version it replaced, nobody's access changed. */
-export function releasedLine(updateId: string, day: string, from: string): string {
-  return `The Super Admin released ${updateId} on ${day}. The history keeps version ${from} and every decision. Nobody’s access changed.`;
+/**
+ * `relBody`: the release made today, the version it replaced, nobody's access changed — the
+ * correction named by what it is, not by its reference.
+ */
+export function releasedLine(day: string, from: string): string {
+  return `The Super Admin released the correction on ${day}. The history keeps version ${from} and every decision. Nobody’s access changed.`;
 }
 
-/** `histOpen` for an open update: "UPD-0005 started — in academic review". */
-export function updateStartedWhat(id: string, status: string): string {
-  return `${id} started — ${status.toLowerCase()}`;
+/** `histOpen` for an open update: "Update started — in academic review". */
+export function updateStartedWhat(status: string): string {
+  return `Update started — ${status.toLowerCase()}`;
 }
 
 /** "Version 1.3. The live version below is unchanged." (`not set yet` before a label). */
@@ -585,9 +600,9 @@ export function updateStartedNote(version: string | null): string {
   return `Version ${version || 'not set yet'}. The live version below is unchanged.`;
 }
 
-/** `histOpen` on hold: "UPD-0004 on hold". */
-export function updateHeldWhat(id: string): string {
-  return `${id} on hold`;
+/** `histOpen` on hold: "Update on hold" (the open correction's status words). */
+export function updateHeldWhat(): string {
+  return openUpdateStatus('on-hold');
 }
 
 /** "Version 2.0 stays live. Reason: “…”". */
@@ -601,21 +616,16 @@ export function versionReleasedWhat(version: string): string {
 }
 
 /**
- * "Correction UPD-0002 — released by the Super Admin." for the live version, "Correction UPD-0001."
- * for an earlier one (the export's sample `hist`).
+ * "Correction released by the Super Admin." for the live version, "Correction." for an earlier one
+ * (the export's sample `hist`, “Correction UPD-0002 — released by the Super Admin.” / “Correction
+ * UPD-0001.”, without the reference and its dash: these are the product's words around the
+ * version's source, not a person's text).
  */
-export function versionReleasedNote(updateId: string, live: boolean): string {
-  return live ? `Correction ${updateId} — released by the Super Admin.` : `Correction ${updateId}.`;
+export function versionReleasedNote(live: boolean): string {
+  return live ? 'Correction released by the Super Admin.' : 'Correction.';
 }
 
 /** "Published · version 1.0". */
 export function firstPublishedWhat(version: string): string {
   return `Published · version ${version}`;
-}
-
-/** "First publication by the Content Manager, from SUB-0052." (its submission, when recorded). */
-export function firstPublishedNote(submissionId: string | null): string {
-  return submissionId
-    ? `First publication by the Content Manager, from ${submissionId}.`
-    : PUBLISHED_PAGE.firstPublicationNote;
 }

@@ -132,7 +132,7 @@ describe('CM-08 Updates: the head and the tracker (`div.cm-trk`)', () => {
           <CmTrackerItem
             yours
             name="Induction Motor Loading"
-            meta="UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug"
+            meta="EEE ZC341 · Electrical Machines · last change 26 Aug"
             version={
               <CmVersionChange
                 from={{ text: '1.0 live', kind: 'live' }}
@@ -144,7 +144,7 @@ describe('CM-08 Updates: the head and the tracker (`div.cm-trk`)', () => {
               <ButtonLink
                 variant="primary"
                 href="/content-manager/updates/UPD-0006"
-                aria-label="Continue UPD-0006, Induction Motor Loading, returned"
+                aria-label="Continue the update to Induction Motor Loading, version 1.1, returned"
               >
                 Continue
               </ButtonLink>
@@ -216,12 +216,12 @@ describe('CM-08 Updates: the head and the tracker (`div.cm-trk`)', () => {
     ]);
     expect(tracked.querySelector('h3.cm-qname')).toHaveTextContent('Induction Motor Loading');
     expect(tracked.querySelector('p.cm-trk-meta > span:first-child')).toHaveTextContent(
-      'UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug',
+      'EEE ZC341 · Electrical Machines · last change 26 Aug',
     );
     expect(tracked.querySelector('p.cm-trk-meta > span.cm-ver')).not.toBeNull();
     expect(
       within(tracked as HTMLElement).getByRole('link', {
-        name: 'Continue UPD-0006, Induction Motor Loading, returned',
+        name: 'Continue the update to Induction Motor Loading, version 1.1, returned',
       }),
     ).toHaveClass('rb-btn', 'rb-btn--primary');
     const track = within(tracked as HTMLElement).getByRole('list', {
@@ -244,7 +244,7 @@ describe('CM-08 Updates: the head and the tracker (`div.cm-trk`)', () => {
         <CmTrackerItem
           closed
           name="Orifice Plate Metering"
-          meta="UPD-0003 · last change 5 Aug"
+          meta="last change 5 Aug"
           version={
             <CmVersionChange
               from={{ text: '1.0', kind: 'old' }}
@@ -261,7 +261,7 @@ describe('CM-08 Updates: the head and the tracker (`div.cm-trk`)', () => {
         <CmTrackerItem
           closed
           name="Boiler Drum Level"
-          meta="UPD-0008 · last change 27 Aug"
+          meta="last change 27 Aug"
           version={<CmVersionChange from={{ text: '2.0 live', kind: 'live' }} />}
           status={<StatusPill tone="ended">Withdrawn</StatusPill>}
           action={<ButtonLink href="/content-manager/updates/UPD-0008">Open</ButtonLink>}

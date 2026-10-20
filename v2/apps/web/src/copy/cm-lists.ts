@@ -3,10 +3,13 @@
  * design/v3-refined-b/roles/CM-v1 `project/Main.dc.html`): CM-01 Overview (`ovVM`), CM-02 Ready to
  * publish (`readyVM`), CM-04 Content library (`libVM`) and CM-09 Platform course codes (`codesVM`).
  * Every phrase is the export's own, found verbatim in its markup or script (`cm-lists.test.ts`);
- * the composed lines take the script's forms with the records' values (names, ids, codes, counts
- * and dates come from the services, never from the export's sample world). The status words of a
- * submission and of a correction are `cm-shared.ts`'s. What the export does not draw is a
- * provisional entry of the state-copy register (`state-copy-cm-lists.ts`) and is read from there.
+ * the composed lines take the script's forms with the records' values (names, codes, counts and
+ * dates come from the services, never from the export's sample world). No line or name carries an
+ * internal reference (SUB-, UPD-): where the script's form writes one, it is left out and the
+ * record is named by content (owner visual-review correction, 20 Oct 2026; state-copy
+ * `CM-lists.no-reference`). The status words of a submission and of a correction are
+ * `cm-shared.ts`'s. What the export does not draw is a provisional entry of the state-copy register
+ * (`state-copy-cm-lists.ts`) and is read from there.
  */
 import { dateTime, dayMonth, dayMonthYear } from './dates';
 import { stateWords } from './state-copy';
@@ -183,9 +186,12 @@ export function deskWhen(kind: 'approved' | 'returned' | 'saved', at: string): s
   return `${kind} ${dayMonth(at)}`;
 }
 
-/** "SUB-0074 · ME ZG523 · Northline Simulation Studio" (the code left out when there is none). */
-export function deskReadyLine(id: string, course: string | null, vendor: string): string {
-  return [id, course, vendor].filter(Boolean).join(' · ');
+/**
+ * "ME ZG523 · Northline Simulation Studio" (the code left out when there is none): the script's
+ * line without the submission's reference (state-copy `CM-lists.no-reference`).
+ */
+export function deskReadyLine(course: string | null, vendor: string): string {
+  return [course, vendor].filter(Boolean).join(' · ');
 }
 
 /** "4 of 4 checks met", or "1 thing to resolve" while a check is not met. */
@@ -199,9 +205,9 @@ export function reviewerOn(name: string, at: string): string {
   return `${name ? `${name}, ` : ''}Academic Reviewer · ${dayMonth(at)}`;
 }
 
-/** "Continue UPD-0006, correction to Induction Motor Loading". */
-export function continueLabel(updateId: string, name: string): string {
-  return `Continue ${updateId}, correction to ${name}`;
+/** "Continue the update to Induction Motor Loading" (state-copy `CM-lists.no-reference`). */
+export function continueLabel(name: string): string {
+  return `Continue the update to ${name}`;
 }
 
 /** "Boiler Drum Level 2.1": a correction named with its proposed version. */
@@ -243,9 +249,9 @@ export function openSubmissionLabel(name: string): string {
   return `Open ${name}`;
 }
 
-/** "Open UPD-0004, Boiler Drum Level" (a correction with others). */
-export function openUpdateLabel(updateId: string, name: string): string {
-  return `Open ${updateId}, ${name}`;
+/** "Open the update to Boiler Drum Level" (a correction with others; `CM-lists.no-reference`). */
+export function openUpdateLabel(name: string): string {
+  return `Open the update to ${name}`;
 }
 
 /** "experiments live, in 5 courses" beside the catalogue's total, or "Nothing is published yet". */
@@ -352,9 +358,12 @@ export function cardAge(
   };
 }
 
-/** "SUB-0077 · Northline Simulation Studio · revision 2". */
-export function cardIdLine(id: string, vendor: string, revision: number): string {
-  return [id, vendor, revision > 1 ? `revision ${revision}` : null].filter(Boolean).join(' · ');
+/**
+ * "Northline Simulation Studio · revision 2": the script's `idLine` without the submission's
+ * reference (state-copy `CM-lists.no-reference`).
+ */
+export function cardVendorLine(vendor: string, revision: number): string {
+  return [vendor, revision > 1 ? `revision ${revision}` : null].filter(Boolean).join(' · ');
 }
 
 /** "Approved by Prof. A. Menon · 2 learning outcomes" ("· no learning outcomes yet"). */
@@ -552,11 +561,6 @@ export function versionWords(label: string): string {
   return `Version ${label}`;
 }
 
-/** "From SUB-0052" (under a published experiment's name). */
-export function fromSubmission(id: string): string {
-  return `From ${id}`;
-}
-
 /** "1 to resolve" (a ready row whose publication check is not met). */
 export function rowToResolve(blockers: number): string {
   return `${blockers} to resolve`;
@@ -567,16 +571,14 @@ export function overrideTag(): string {
   return stateWords('CM-04.override');
 }
 
-/** "Transient Cooling, SUB-0074, ready to publish. Open the decision". */
-export function submissionRowLabel(
-  name: string,
-  id: string,
-  status: string,
-  ready: boolean,
-): string {
+/**
+ * "Transient Cooling, ready to publish. Open the decision": the script's name without the
+ * submission's reference (state-copy `CM-lists.no-reference`).
+ */
+export function submissionRowLabel(name: string, status: string, ready: boolean): string {
   return ready
-    ? `${name}, ${id}, ready to publish. Open the decision`
-    : `${name}, ${id}, ${status.toLowerCase()}. Open`;
+    ? `${name}, ready to publish. Open the decision`
+    : `${name}, ${status.toLowerCase()}. Open`;
 }
 
 /** "Distillation Column, CHE ZG513, version 1.2, published, update awaiting release. Open the published experiment". */

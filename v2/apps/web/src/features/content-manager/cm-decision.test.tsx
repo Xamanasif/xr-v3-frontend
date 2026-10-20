@@ -9,7 +9,8 @@
  * takes focus), sends references toward the vendor only and keeps what was typed when the record
  * changed meanwhile; still in review or with the vendor, the page is read-only. CM-05 states the
  * live version, the open update in its band and in the Corrections panel; its entries' behaviour is
- * `cm-correction.test.tsx`.
+ * `cm-correction.test.tsx`. Neither page shows an internal reference (SUB-, UPD- …) in its words,
+ * names or tab title (owner visual-review correction, 20 Oct 2026): `expectNoReference`.
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -101,6 +102,29 @@ const railCurrent = () =>
     .getAllByRole('link')
     .find((link) => link.getAttribute('aria-current') === 'page');
 
+/** An internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference anywhere a person reads or hears it (owner visual-review correction, 20 Oct
+ * 2026; the SA-v1 rule): the document's words — hidden dialogs, screen-reader-only words and status
+ * regions included —, every `aria-label`, `title` and `placeholder`, and the tab's title. CM-03 and
+ * CM-05 quote no seeded text holding one (the seeded “Correction UPD-0006.” is the correction
+ * page's, not theirs), so nothing is excepted. The references stay in the addresses.
+ */
+function expectNoReference(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const attribute of ['aria-label', 'title', 'placeholder']) {
+      expect(
+        element.getAttribute(attribute) ?? '',
+        `${attribute} of ${element.tagName}`,
+      ).not.toMatch(REFERENCE);
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
+
 /** One port's command answered with a refusal (the screen's handling of it, not the service). */
 function answerWith(
   runtime: PlatformRuntime,
@@ -151,7 +175,11 @@ describe('CM-03 Publication decision — open (CM-v1 CM03-Decision)', () => {
     );
     expect(crumbs().querySelector('[aria-current="page"]')).toHaveTextContent('Transient Cooling');
     expect(railCurrent()).toHaveAttribute('href', '/content-manager/ready');
-    expect(text(band().querySelector('.rk-eyebrow'))).toBe('SUB-0074 · First publication');
+    // The record kind and the tab name no submission reference (it stays in the address).
+    expect(text(band().querySelector('.rk-eyebrow'))).toBe('First publication');
+    await waitFor(() =>
+      expect(document.title).toBe('Transient Cooling · Ready to publish · XR Learning Platform'),
+    );
     expect(text(chip())).toBe('Ready to publish');
     expect(chip()).toHaveClass('xr-st', 'xr-st--info', 'rk-st-lg');
     expect(text(band().querySelector('.rb-id-status'))).toBe(
@@ -216,6 +244,7 @@ describe('CM-03 Publication decision — open (CM-v1 CM03-Decision)', () => {
       'id',
       'cm-d-go',
     );
+    expectNoReference();
   });
 
   it('no choice made: the error summary takes focus with “Choose a decision”', async () => {
@@ -257,6 +286,7 @@ describe('CM-03 Publish (CM-v1 P01, P06; J1, J10)', () => {
       'Only after later events Institutions can use it only once BITS gives them access to it. Publishing gives no one access. Students get access only when their institution’s administrator gives it.',
     ]);
     await waitFor(() => expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus());
+    expectNoReference();
     // Cancel: nothing is published.
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
@@ -303,6 +333,7 @@ describe('CM-03 Publish (CM-v1 P01, P06; J1, J10)', () => {
       'Met: Approved by the Academic Reviewer Prof. A. Menon · 14 Aug 2026',
     );
     expect(historyWhat()[0]).toBe('Published by Kavya Nair');
+    expectNoReference();
 
     // BC9: the submission and the new experiment are the only records written.
     const after = snapshot(sample);
@@ -374,6 +405,7 @@ describe('CM-03 Publish (CM-v1 P01, P06; J1, J10)', () => {
       'This page is out of date Transient Cooling was changed from another tab or window. Nothing was changed by your decision. Show where it is now',
     );
     await waitFor(() => expect(stale).toHaveFocus());
+    expectNoReference();
     // The page keeps what it showed, the choice included.
     expect(text(chip())).toBe('Ready to publish');
     expect(within(panel()).getByRole('radio', { name: 'Publish' })).toBeChecked();
@@ -434,6 +466,7 @@ describe('CM-03 Publish (CM-v1 P01, P06; J1, J10)', () => {
     expect(
       await within(panel()).findByText('This submission has moved on. Its current state is shown.'),
     ).toBeVisible();
+    expectNoReference();
     await waitFor(() =>
       expect(screen.getByRole('heading', { level: 2, name: 'Your decision' })).toHaveFocus(),
     );
@@ -453,6 +486,7 @@ describe('CM-03 Publish (CM-v1 P01, P06; J1, J10)', () => {
       await within(dialog).findByText('It wasn’t published. Nothing was lost — try again.'),
     ).toBeVisible();
     expect(text(chip())).toBe('Ready to publish');
+    expectNoReference();
   });
 });
 
@@ -505,6 +539,7 @@ describe('CM-03 missing prerequisite (CM-v1 P02 — a state sample, OD-B6-03)', 
     expect(text(panel().querySelector('p.rk-pending'))).toBe(
       'Publish is possible once nothing is missing. Choose who it goes back to and give a reason.',
     );
+    expectNoReference();
   });
 });
 
@@ -533,6 +568,7 @@ describe('CM-03 Send back (CM-v1 P03, P04, P05; J6, J8; OD-B6-05)', () => {
       within(panel()).getByRole('textbox', { name: 'Reason they will see (required)' }),
     ).toHaveAttribute('aria-invalid', 'true');
     expect(within(panel()).queryByRole('group', { name: /What it refers to/ })).toBeNull();
+    expectNoReference();
 
     // To the Academic Reviewer: no references.
     await user.click(within(panel()).getByRole('radio', { name: 'Academic Reviewer' }));
@@ -588,6 +624,7 @@ describe('CM-03 Send back (CM-v1 P03, P04, P05; J6, J8; OD-B6-05)', () => {
     expect(text(region('History').querySelector('.rk-tl-n'))).toBe(
       '“Name the supported phones and tablets for the AR build.” Refers to: Formats & delivery · AR · Device need.',
     );
+    expectNoReference();
     const record = await asPersonId(sample, RITU).production.getRecord('SUB-0070' as never);
     expect(record.ok && record.value.submission.status).toMatchObject({
       state: 'returned',
@@ -638,6 +675,7 @@ describe('CM-03 Send back (CM-v1 P03, P04, P05; J6, J8; OD-B6-05)', () => {
       'Approved by Prof. A. Menon',
       'Submitted for academic review',
     ]);
+    expectNoReference();
   });
 
   it('a stale revision keeps the choice and the reason typed, and says the page is out of date', async () => {
@@ -671,6 +709,7 @@ describe('CM-03 Send back (CM-v1 P03, P04, P05; J6, J8; OD-B6-05)', () => {
         name: 'Reason the Academic Reviewer will see (required)',
       }),
     ).toHaveValue('Please re-check the second outcome.');
+    expectNoReference();
   });
 
   it('the service’s own validation words show on the fields', async () => {
@@ -722,6 +761,7 @@ describe('CM-03 Send back (CM-v1 P03, P04, P05; J6, J8; OD-B6-05)', () => {
     ).toBeVisible();
     expect(reason).toHaveValue('Add the install steps.');
     expect(text(chip())).toBe('Ready to publish');
+    expectNoReference();
   });
 });
 
@@ -757,6 +797,11 @@ describe('CM-03 read-only (CM-v1 P08, P09) and not found', () => {
     expect(text(band().querySelector('li[aria-current="step"]'))).toBe(
       'Now: Academic Reviewer In academic review Since 24 Aug',
     );
+    expect(text(band().querySelector('.rk-eyebrow'))).toBe('First publication');
+    await waitFor(() =>
+      expect(document.title).toBe('Flash Distillation · Ready to publish · XR Learning Platform'),
+    );
+    expectNoReference();
   });
 
   it('returned to the vendor by the Academic Reviewer: “With the vendor”, read-only', async () => {
@@ -776,6 +821,7 @@ describe('CM-03 read-only (CM-v1 P08, P09) and not found', () => {
     expect(historyWhat()[0]).toBe('Returned to vendor by Prof. A. Menon');
     expect(text(panel())).toContain('Nothing to decide yet.');
     expect(within(panel()).queryByRole('button')).toBeNull();
+    expectNoReference();
   });
 
   it('a re-check she asked for: “Back with the Academic Reviewer” with her reason, read-only', async () => {
@@ -791,6 +837,12 @@ describe('CM-03 read-only (CM-v1 P08, P09) and not found', () => {
       /Academic review Approved by Prof\. A\. Menon on .*; you sent it back for a re-check on 25 Aug 2026/,
     );
     expect(within(panel()).queryByRole('button')).toBeNull();
+    await waitFor(() =>
+      expect(document.title).toBe(
+        'Venturi Meter Calibration · Ready to publish · XR Learning Platform',
+      ),
+    );
+    expectNoReference();
   });
 
   it('a draft is the Vendor’s only: not found', async () => {
@@ -873,9 +925,11 @@ describe('CM-05 Published experiment (CM-v1 CM05-Published, C14 … C16)', () =>
       'Version 1.1 released',
       'Published · version 1.0',
     ]);
+    // The release notes are the product's words around each version's source (its update's
+    // reference only), so the reference is left out — not seeded text quoted.
     expect([...region('History').querySelectorAll('.rk-tl-n')].map((node) => text(node))).toEqual([
-      'Correction UPD-0002 — released by the Super Admin.',
-      'Correction UPD-0001.',
+      'Correction released by the Super Admin.',
+      'Correction.',
       'First publication by the Content Manager.',
     ]);
     // The Corrections panel: no update open — the three entries.
@@ -894,6 +948,10 @@ describe('CM-05 Published experiment (CM-v1 CM05-Published, C14 … C16)', () =>
     expect(within(corrections()).queryByRole('link')).toBeNull();
     expect(main().querySelectorAll('input, textarea, select')).toHaveLength(0);
     expect(main().querySelector('.rk-notice')).toBeNull();
+    await waitFor(() =>
+      expect(document.title).toBe('Distillation Column · Content library · XR Learning Platform'),
+    );
+    expectNoReference();
   });
 
   it('an update in progress (a draft): the band’s track, “Continue the update” and the joining entries', async () => {
@@ -906,11 +964,11 @@ describe('CM-05 Published experiment (CM-v1 CM05-Published, C14 … C16)', () =>
     showPublished(runtime, 'distillation-column');
     await heading('Distillation Column');
     expect(text(band().querySelector('dl.cm-idfacts > div:last-child'))).toBe(
-      'Corrections UPD-0005 · Draft',
+      'Corrections Update draft in progress',
     );
     const track = band().querySelector('.cm-idflow')!;
     expect(text(track.querySelector('.cm-idflow-h'))).toBe(
-      'Correction in progress UPD-0005 · Draft 1.2 live No version label yet',
+      'Correction in progress Update draft in progress 1.2 live No version label yet',
     );
     const steps = within(track as HTMLElement).getByRole('list', {
       name: 'Where the open correction is',
@@ -920,20 +978,24 @@ describe('CM-05 Published experiment (CM-v1 CM05-Published, C14 … C16)', () =>
     const notice = corrections().querySelector('.rk-notice')!;
     expect(notice).toHaveClass('rk-notice--info');
     expect(text(notice)).toBe(
-      'A correction is open UPD-0005 · Draft. Edits to this experiment join that update.',
+      'A correction is open Update draft in progress. Edits to this experiment join that update.',
     );
+    // The update is reached by its address only (the reference read from the service's answer).
+    const updateId = opened.ok ? opened.value.update.id : '';
+    expect(updateId).toMatch(/^UPD-\d+$/);
     const open = within(corrections()).getByRole('link', { name: 'Continue the update' });
-    expect(open).toHaveAttribute('href', '/content-manager/updates/UPD-0005');
+    expect(open).toHaveAttribute('href', `/content-manager/updates/${updateId}`);
     expect(open.className).toBe('rb-btn rb-btn--primary rk-go');
     expect(
       within(corrections())
         .queryAllByRole('button')
         .map((button) => text(button)),
     ).toEqual(['Edit catalogue details', 'Edit delivery link']);
-    expect(historyWhat()[0]).toBe('UPD-0005 started — draft');
+    expect(historyWhat()[0]).toBe('Update started — draft');
     expect(text(region('History').querySelector('.rk-tl-n'))).toBe(
       'Version not set yet. The live version below is unchanged.',
     );
+    expectNoReference();
   });
 
   it('on hold (UPD-0004): only “Open update”, the hold in the history; a blank package value reads “—”', async () => {
@@ -941,25 +1003,29 @@ describe('CM-05 Published experiment (CM-v1 CM05-Published, C14 … C16)', () =>
     showPublished(runtime, 'boiler-drum-level');
     await heading('Boiler Drum Level');
     expect(text(band().querySelector('.rb-id-status'))).toBe('Published 2.0 live');
+    expect(text(band().querySelector('dl.cm-idfacts > div:last-child'))).toBe(
+      'Corrections Update on hold',
+    );
     expect(text(band().querySelector('.cm-idflow-h'))).toBe(
-      'Correction in progress UPD-0004 · On hold 2.0 live 2.1 proposed',
+      'Correction in progress Update on hold 2.0 live 2.1 proposed',
     );
     expect(band().querySelector('.cm-idflow-h .xr-st')).toHaveClass('xr-st--paused');
     const notice = corrections().querySelector('.rk-notice')!;
     expect(notice).toHaveClass('rk-notice--paused');
     expect(text(notice)).toBe(
-      'An update is in progress UPD-0004 · On hold. The Super Admin put it on hold. Version 2.0 stays live.',
+      'An update is in progress Update on hold. The Super Admin put it on hold. Version 2.0 stays live.',
     );
     expect(within(corrections()).queryAllByRole('button')).toHaveLength(0);
     expect(within(corrections()).getByRole('link', { name: 'Open update' })).toHaveAttribute(
       'href',
       '/content-manager/updates/UPD-0004',
     );
-    expect(historyWhat()[0]).toBe('UPD-0004 on hold');
+    expect(historyWhat()[0]).toBe('Update on hold');
     expect(text(region('History').querySelector('.rk-tl-n'))).toMatch(
       /^Version 2\.0 stays live\. Reason: “.+”$/,
     );
     expect(text(region('Delivery'))).toContain('Package —');
+    expectNoReference();
   });
 
   it('returned (UPD-0006): the entries join it, the notice says it was returned', async () => {
@@ -967,13 +1033,18 @@ describe('CM-05 Published experiment (CM-v1 CM05-Published, C14 … C16)', () =>
     showPublished(runtime, 'induction-motor-loading');
     await heading('Induction Motor Loading');
     expect(text(corrections().querySelector('.rk-notice'))).toBe(
-      'A correction is open UPD-0006 · Returned. It was returned to you with a reason. Edits to this experiment join that update.',
+      'A correction is open Update returned to you. It was returned to you with a reason. Edits to this experiment join that update.',
     );
+    expect(text(band().querySelector('dl.cm-idfacts > div:last-child'))).toBe(
+      'Corrections Update returned to you',
+    );
+    expect(text(band().querySelector('.cm-idflow-h .xr-st'))).toBe('Update returned to you');
     expect(band().querySelector('.cm-idflow-h .xr-st')).toHaveClass('xr-st--err');
     expect(
       within(corrections()).getByRole('link', { name: 'Continue the update' }),
     ).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
-    expect(historyWhat()[0]).toBe('UPD-0006 started — returned');
+    expect(historyWhat()[0]).toBe('Update started — returned');
+    expectNoReference();
   });
 
   it('released today: “Version <label> is live” with the update and the version it replaced', async () => {
@@ -1005,8 +1076,28 @@ describe('CM-05 Published experiment (CM-v1 CM05-Published, C14 … C16)', () =>
     const notice = main().querySelector('.rk-notice--ok')!;
     expect(notice).toHaveAttribute('role', 'status');
     expect(text(notice)).toMatch(
-      /^Version 1\.2 is live The Super Admin released UPD-0002 on \d+ \w+ 2026\. The history keeps version 1\.1 and every decision\. Nobody’s access changed\.$/,
+      /^Version 1\.2 is live The Super Admin released the correction on \d+ \w+ 2026\. The history keeps version 1\.1 and every decision\. Nobody’s access changed\.$/,
     );
+    expectNoReference();
+  });
+
+  it('first published from a recorded submission: the history names no submission reference', async () => {
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    const read = await asPersonId(sample, KAVYA).production.getPublicationDecision(
+      'SUB-0074' as never,
+    );
+    const published = await asPersonId(sample, KAVYA).production.publish({
+      id: 'SUB-0074' as never,
+      expectedRev: read.ok ? read.value.submission.rev : 0,
+    });
+    expect(published.ok).toBe(true);
+    showPublished(runtime, 'transient-cooling');
+    await heading('Transient Cooling');
+    expect(historyWhat()).toEqual(['Published · version 1.0']);
+    expect(text(region('History').querySelector('.rk-tl-n'))).toBe(
+      'First publication by the Content Manager.',
+    );
+    expectNoReference();
   });
 
   it('an unknown experiment is not found', async () => {

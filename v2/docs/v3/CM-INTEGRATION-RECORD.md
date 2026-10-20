@@ -106,7 +106,7 @@ The behaviour is the product's own: the `production` service's reads and command
 (`expectedRev`) and repeat-press protection; the role permissions; the sample world and its
 persistence (TE-6); what other roles see. No service contract, permission, workflow or publication
 rule changed; no backend was added; no sample record or preview logic of the export was imported.
-Submission and update IDs (SUB-, UPD-) stay visible in this role, as the export draws them.
+No Content Manager page shows an internal reference (SUB-, UPD-, REQ-, ACC-, DTR-, SUP-) in its words, its accessible names or its tab titles (§5, 11); the references stay in the addresses and the services.
 
 ## 5. Decisions and discrepancies
 
@@ -128,8 +128,9 @@ Submission and update IDs (SUB-, UPD-) stay visible in this role, as the export 
    “Show where it is now”, and the page keeps what was typed. A correction approved meanwhile is
    refused with the export's words. Other refusals keep their existing words.
 5. **CM-04 search stays the service's.** The service matches name, ID or course code; the
-   placeholder and the no-match line therefore say “Experiment, ID or course” instead of the
-   export's “… or vendor” (state copy `CM-04.search.placeholder`, `CM-04.search.no-match`). The
+   placeholder and the no-match line say “Experiment or course”: no vendor (the service does not
+   match one) and no ID (no reference is shown, item 11), where the export says “Experiment, ID,
+   course or vendor” (state copy `CM-04.search.placeholder`, `CM-04.search.no-match`). The
    course filter is new and runs on the page (`course=` in the address).
 6. **Facts the read models do not hold are not drawn.** The reviewer of an update in review (the
    update names none until one decides: “the Academic Reviewer”); the export's resubmission note
@@ -148,6 +149,16 @@ Submission and update IDs (SUB-, UPD-) stay visible in this role, as the export 
 10. **Superseded v46 comparisons** are retired by name under the CM-shell entry
     (`V3-COMPARISON-MAP.json`), reported as `retired-by-v3` — never counted as passed, never
     masked.
+11. **No internal reference (owner's visual-review correction, 20 Oct 2026).** The export kept
+    submission and update IDs visible in this role (its HANDOFF §5); the owner's review asked for
+    the Super Admin's approved rule instead: no SUB-, UPD-, REQ-, ACC-, DTR- or SUP- reference in
+    any Content Manager page's words, accessible names, dialogs, breadcrumbs or tab titles. Rows,
+    links, dialogs and crumbs are named by content (“Continue the update to Induction Motor
+    Loading”, “Withdraw the update to Induction Motor Loading?”, “Update on hold”); official
+    course codes, experiment names, vendor names and format labels stay. The references stay in
+    the addresses, the services, the state and the records (state copy `CM-lists.no-reference`, `CM-03.references`, `CM-05.references`, `CM-08.no-reference`). Text the sample world holds as a person
+    wrote it — a seeded correction's “what changes and why”, “Correction UPD-0006.” — is quoted as
+    written, as on the Super Admin's SA-11; rewording the seed is the owner's call.
 
 ## 6. What did not change
 
@@ -181,6 +192,18 @@ Builds, the browser suites and the final gate ran in the isolated verification c
 `b1-05-f0-preview`, `b1-05-f0-whole-frame`, `b1-05-f6-poster`) still fail against their 14 Oct
 pins, as recorded at the foundation, XS, SA and VE. All 79 public-page product captures of this run
 are byte-identical to the VE verify run's. Not re-pinned, not masked.
+
+**After the owner's no-reference correction (§5, 11), 20–21 Oct 2026**, on the corrected tree in
+the isolated copy: `pnpm verify` — `format`, `repository`, `workspace` (10,340 unit tests: web
+6,874, ui 1,122, …) and `bundle` PASS; `browser`: 3,346 passed and 4 failed — one cross-role step
+(`phase-6/review-update` (b)) at the four widths still found a correction card by the reference in
+its text; it now finds the card by its link's address, and that spec then passed at the four widths
+on the same builds (3 of 3 each). Parity, run as the gate runs it on the same builds: specimens
+32/32; web 45/50 — the same 5 tests and 7 legacy comparisons as above, all 79 public-page captures
+byte-identical to the VE run's. A sweep of every Content Manager screen, its dialogs and tab titles
+on a normal build finds no reference except the seeded “Correction UPD-000n.” quotes; the 21
+capture cases × 4 widths: no overflow, no clipped text, no console error, no reference (the seeded
+quote on the on-hold and released correction pages excepted).
 
 ## 8. Limits and items for the owner
 

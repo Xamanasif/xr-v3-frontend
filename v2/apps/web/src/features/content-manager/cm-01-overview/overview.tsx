@@ -133,6 +133,8 @@ interface OverviewFacts {
  *   catalogue" by course.
  * - **Loading and failed**: the application's page loading under the head (HANDOFF §4; state-copy
  *   `CM-01.loading`, `CM-01.failed`); Try again reads again and moves focus to the title.
+ * - No internal reference (SUB-, UPD-) in its words or names: rows and links are named by content
+ *   (state-copy `CM-lists.no-reference`); the references stay in the links' addresses and keys.
  * - Nothing here changes a record: every action opens the page where the work is done.
  */
 export function CmOverview() {
@@ -334,11 +336,7 @@ function OverviewBody({
       next: index === 0 ? CM_OVERVIEW.needs.next : undefined,
       when: { big: waitWords(days), small: deskWhen('approved', item.approvedAt) },
       title: item.name,
-      description: deskReadyLine(
-        item.submissionId,
-        item.courseCode,
-        row?.submission.vendorOrganisation ?? '',
-      ),
+      description: deskReadyLine(item.courseCode, row?.submission.vendorOrganisation ?? ''),
       facts: row ? (
         <>
           <CmCheckChip met={met === row.check.length}>
@@ -403,7 +401,7 @@ function OverviewBody({
       action: {
         href: correctionAddress(item.id),
         label: CM_OVERVIEW.needs.continue,
-        accessibleName: continueLabel(item.id, item.name),
+        accessibleName: continueLabel(item.name),
         primary: readyRows.length === 0 && index === 0,
       },
     };
@@ -483,7 +481,7 @@ function OverviewBody({
             link: {
               href: correctionAddress(row.updateId),
               label: CM_OVERVIEW.others.open,
-              accessibleName: openUpdateLabel(row.updateId, row.name),
+              accessibleName: openUpdateLabel(row.name),
             },
           };
         }

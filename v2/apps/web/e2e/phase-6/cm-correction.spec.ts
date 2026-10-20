@@ -24,6 +24,9 @@ import { currentSidebarItem, expectSameDocument, markDocument } from '../support
  * saved draft is never public — the public experiment page (PU-06) still shows the live version —
  * and a sent update is read-only “In academic review”. The CI seam only SETS UP a world (the Super
  * Admin's hold) or READS the record. Loading and couldn't-load are the unit tests' (a fault plan).
+ * No page names an update by its reference (UPD-…) — words, hidden dialogs, accessible names, the
+ * browser tab — the owner's correction of 20 Oct 2026 (state-copy `CM-08.no-reference`); the
+ * reference stays in the address, where this spec reads it.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -91,6 +94,59 @@ const WHY_FIELD = 'Reason for the change (required to send)';
 const VERSION_FIELD = 'New version label (required to send)';
 const comparisonFields = (page: Page) => main(page).locator('table.cm-cmp td.cm-cmp-f');
 
+/** Any internal reference (state-copy `CM-08.no-reference`; the SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+/**
+ * The only references these pages show: the sample world's seeded “what changes and why” — words a
+ * person wrote, quoted as written (the Reason field while editable, “What changes and why” once
+ * sent) — named one by one, never a pattern.
+ */
+type SeededWhy = 'Correction UPD-0006.';
+
+/**
+ * No reference in the page's words (`innerText`), in any text of the document — hidden dialogs and
+ * screen-reader-only words included — in a field's value, in any `aria-label`, `title` or
+ * `placeholder`, or in the browser tab; except the one seeded quote named, which must show where a
+ * person's words show.
+ */
+async function expectNoReferences(page: Page, seeded?: SeededWhy): Promise<void> {
+  const seen = await page.evaluate(() => {
+    const all: string[] = [];
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (!node.parentElement?.closest('script, style, noscript, template')) {
+        all.push(node.textContent ?? '');
+      }
+    }
+    const why = document.getElementById('cm-u-why');
+    return {
+      words: document.body.innerText,
+      all: all.join(' '),
+      values: [...document.querySelectorAll('input, textarea')].map(
+        (control) => (control as HTMLInputElement | HTMLTextAreaElement).value,
+      ),
+      names: [...document.querySelectorAll('[aria-label], [title], [placeholder]')].flatMap(
+        (element) =>
+          ['aria-label', 'title', 'placeholder'].map((name) => element.getAttribute(name) ?? ''),
+      ),
+      title: document.title,
+      quoted: [
+        why instanceof HTMLTextAreaElement ? why.value : '',
+        ...[...document.querySelectorAll('main blockquote.rk-quote')].map((quote) =>
+          (quote as HTMLElement).innerText.trim(),
+        ),
+      ],
+    };
+  });
+  const drop = (words: string) => (seeded ? words.split(seeded).join('') : words);
+  if (seeded) expect(seen.quoted).toContain(seeded);
+  expect(drop(seen.words)).not.toMatch(REFERENCE);
+  expect(drop(seen.all)).not.toMatch(REFERENCE);
+  for (const value of seen.values) expect(drop(value)).not.toMatch(REFERENCE);
+  for (const name of seen.names) expect(name).not.toMatch(REFERENCE);
+  expect(seen.title).not.toMatch(REFERENCE);
+}
+
 /** Client-side navigation (the world lives in the tab: a full load would start it again). */
 async function softNavigate(page: Page, href: string): Promise<void> {
   await page.evaluate((target) => {
@@ -127,9 +183,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
       'Every field is pre-filled with live version 1.2.',
     );
     const band = main(page).locator('section.cm-idband');
-    await expect(band.locator('.rk-eyebrow')).toHaveText(
-      'UPD-0005 · Correction to a published experiment',
-    );
+    await expect(band.locator('.rk-eyebrow')).toHaveText('Correction to a published experiment');
     await expect(chip(page)).toHaveText('Draft');
     await expect(band.locator('.cm-ver')).toHaveText(/1\.2 live\s*No version label yet/);
     await expect(band.locator('dl.cm-idfacts dd').first()).toHaveText(
@@ -151,9 +205,18 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     await expect(stateNotice(page)).toContainText('Draft — only you can see it');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/updates');
     await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toHaveText(
-      /Updates\s*UPD-0005/,
+      /^Updates\s*Update to Distillation Column$/,
     );
+    await expect(page).toHaveTitle(
+      'Update to Distillation Column · Updates · XR Learning Platform',
+    );
+    // The closed dialogs too name the update by its experiment.
+    await expect(page.locator('dialog.rk-dialog h2')).toHaveText([
+      'Send the update to Distillation Column for academic review?',
+      'Withdraw the update to Distillation Column?',
+    ]);
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     await shot(page, 'cm06-new-draft');
 
     // The check: Send with nothing changed — every error at once, the summary focused.
@@ -170,6 +233,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
       'Change at least one catalogue detail or delivery link',
     );
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     if (width(page) === 1440 || width(page) === 375) await shot(page, 'cm08-draft-errors');
     await summary.getByRole('link', { name: 'Say what changes and why' }).click();
     await expect(field(page, WHY_FIELD)).toBeFocused();
@@ -196,6 +260,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
       '1.3',
     ]);
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     await shot(page, 'cm08-draft-saved');
 
     // Cross-role: a saved draft is never public — PU-06 still reads the live version.
@@ -221,11 +286,12 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     await expect(page).toHaveURL(/\/content-manager\/updates\/UPD-0005\?focus=web-link$/);
     await expect(heading(page, 'Update to Distillation Column')).toBeVisible({ timeout: 90_000 });
     await expect(field(page, 'WEB · web link')).toBeFocused();
-    await expect(page.locator('#cm-u-entry')).toContainText('Your edit joins UPD-0005');
+    await expect(page.locator('#cm-u-entry')).toContainText('Your edit joins the open update');
     await expect(page.locator('#cm-u-entry')).toContainText(
       'so your delivery change goes into it. One correction at a time per experiment.',
     );
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     await shot(page, 'cm07-joined');
     await field(page, 'WEB · web link').fill(
       'https://labs.meridian.example/distillation-column-1-3',
@@ -233,7 +299,9 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
 
     // Send for academic review (its dialog): saves what is on the page and sends it.
     await reachAndClick(page, button(panel(page), 'Send for academic review'));
-    const dialog = page.getByRole('dialog', { name: 'Send UPD-0005 for academic review?' });
+    const dialog = page.getByRole('dialog', {
+      name: 'Send the update to Distillation Column for academic review?',
+    });
     await expect(dialog).toContainText(
       'It goes to the Academic Reviewer, then to the Super Admin, who decides when to release it.',
     );
@@ -242,6 +310,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     );
     await expect(dialog.getByRole('heading', { level: 2 })).toBeFocused();
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     if (width(page) === 1440 || width(page) === 375) await shot(page, 'cm08-send-dialog');
     await reachAndClick(page, button(dialog, 'Send for academic review'));
     await expect(chip(page)).toHaveText('In academic review');
@@ -267,6 +336,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     const sent = await updateRecord(page, 'UPD-0005');
     expect(sent.state).toBe('in-academic-review');
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     await shot(page, 'cm08-in-review');
 
     // Only “Open update” on CM-05 now; the public page still reads 1.2's summary.
@@ -299,17 +369,27 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     await expect(reason.locator('blockquote p').first()).toHaveText(
       'The proposed description says slip falls as the load rises. It rises. Please correct it before I approve.',
     );
+    // The seeded “what changes and why” is a person's words, quoted as written (the one reference).
     await expect(field(page, WHY_FIELD)).toHaveValue('Correction UPD-0006.');
     await expect(stateNotice(page)).toContainText(
       'Prof. A. Menon returned it on 26 Aug 2026. Change it and send it for academic review again.',
     );
     await expect(field(page, 'VR · package reference')).toBeVisible();
     await expect(field(page, 'MR · package reference')).toBeVisible();
+    await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toHaveText(
+      /^Updates\s*Update to Induction Motor Loading$/,
+    );
+    await expect(page).toHaveTitle(
+      'Update to Induction Motor Loading · Updates · XR Learning Platform',
+    );
     await checkState(page, 'Update to Induction Motor Loading');
+    await expectNoReferences(page, 'Correction UPD-0006.');
     await shot(page, 'cm08-returned');
 
     await reachAndClick(page, button(panel(page), 'Withdraw update'));
-    const dialog = page.getByRole('dialog', { name: 'Withdraw UPD-0006?' });
+    const dialog = page.getByRole('dialog', {
+      name: 'Withdraw the update to Induction Motor Loading?',
+    });
     await expect(dialog).toContainText(
       'Nothing changes in the live version. The update closes and can’t be sent again; you can start a new correction later.',
     );
@@ -317,6 +397,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     await reachAndClick(page, button(dialog, 'Withdraw update'));
     await expect(dialog).toContainText('Add a reason for withdrawing this update');
     await checkState(page, 'Update to Induction Motor Loading');
+    await expectNoReferences(page, 'Correction UPD-0006.');
     if (width(page) === 1440 || width(page) === 375) await shot(page, 'cm08-withdraw-dialog');
     await dialog
       .getByLabel('Reason (required)')
@@ -329,7 +410,11 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     );
     await expect(main(page).locator('section.cm-idband li.cm-step.is-off')).toHaveCount(4);
     await expect(panel(page).getByRole('button')).toHaveCount(0);
+    await expect(
+      main(page).getByRole('region', { name: 'What changes and why' }).locator('blockquote'),
+    ).toHaveText('Correction UPD-0006.');
     await checkState(page, 'Update to Induction Motor Loading');
+    await expectNoReferences(page, 'Correction UPD-0006.');
     await shot(page, 'cm08-withdrawn');
 
     // The experiment offers a new correction again; no “Back from the correction” after a withdrawal.
@@ -358,6 +443,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     ]);
     await expect(panel(page).getByRole('button')).toHaveCount(0);
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     await shot(page, 'cm08-awaiting');
 
     // World set-up through the CI seam: the Super Admin holds UPD-0005.
@@ -369,10 +455,12 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     });
     await softNavigate(page, '/content-manager/updates');
     await expect(heading(page, 'Updates')).toBeVisible({ timeout: 90_000 });
-    await reachAndClick(
-      page,
-      main(page).getByRole('link', { name: 'Open UPD-0005, Distillation Column, on hold' }),
-    );
+    const held = main(page).getByRole('link', {
+      name: 'Open the update to Distillation Column, version 1.3, on hold',
+    });
+    await expect(held).toHaveAttribute('href', UPDATE('UPD-0005'));
+    await expectNoReferences(page);
+    await reachAndClick(page, held);
     await expect(heading(page, 'Update to Distillation Column')).toBeVisible({ timeout: 90_000 });
     await expect(chip(page)).toHaveText('On hold');
     await expect(stateNotice(page)).toContainText(
@@ -380,6 +468,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     );
     await expect(main(page).locator('.rk-tl-w').first()).toHaveText('Put on hold by Arjun Mehta');
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     await shot(page, 'cm08-on-hold');
   });
 
@@ -410,6 +499,7 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     await expect(comparisonFields(page)).toHaveText(['Description', 'WEB · web link', 'Version']);
     await expect(main(page).locator('.rk-tl-w').first()).toHaveText('Released by Arjun Mehta');
     await checkState(page, 'Update to Distillation Column');
+    await expectNoReferences(page);
     await shot(page, 'cm08-released');
 
     await softNavigate(page, UPDATE('UPD-0099'));
@@ -418,7 +508,11 @@ test.describe('CM-05 → CM-06 / CM-07 → CM-08: one correction draft, never pu
     await expect(
       main(page).getByRole('link', { name: 'Open the Content library' }),
     ).toHaveAttribute('href', '/content-manager/library');
+    await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toHaveText(
+      /^Updates\s*No update open$/,
+    );
     await checkState(page, 'No update open');
+    await expectNoReferences(page);
   });
 });
 
@@ -446,13 +540,37 @@ test.describe('CM-08 Updates — the correction tracker', () => {
     ]);
     await expect(main(page).locator('li.cm-trk.is-closed p.cm-trk-res')).toHaveCount(3);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/content-manager/updates');
+    // Each card: the course and last change; its action named by the experiment and the version
+    // label (two updates to Distillation Column never share a name); the reference only in its href.
+    await expect(main(page).locator('li.cm-trk .cm-trk-meta > span:first-child')).toHaveText([
+      'EEE ZC341 · Electrical Machines · last change 26 Aug',
+      'CHE ZG513 · Process Instrumentation & Control · last change 20 Aug',
+      'CHE ZG513 · Process Instrumentation & Control · last change 5 Aug',
+      'CHE ZG513 · Process Instrumentation & Control · last change 3 Jul',
+      'CHE ZG513 · Process Instrumentation & Control · last change 19 Jun',
+    ]);
+    expect(
+      await main(page)
+        .locator('li.cm-trk .cm-trk-act a')
+        .evaluateAll((links) =>
+          links.map((link) => [link.getAttribute('aria-label'), link.getAttribute('href')]),
+        ),
+    ).toEqual([
+      ['Continue the update to Induction Motor Loading, version 1.1, returned', UPDATE('UPD-0006')],
+      ['Open the update to Boiler Drum Level, version 2.1, on hold', UPDATE('UPD-0004')],
+      ['Open the update to Orifice Plate Metering, version 1.1, released', UPDATE('UPD-0003')],
+      ['Open the update to Distillation Column, version 1.2, released', UPDATE('UPD-0002')],
+      ['Open the update to Distillation Column, version 1.1, released', UPDATE('UPD-0001')],
+    ]);
+    await expect(page).toHaveTitle('Updates · XR Learning Platform');
     await checkState(page, 'Updates');
+    await expectNoReferences(page);
     await shot(page, 'cm08-updates');
     const mark = await markDocument(page);
     await reachAndClick(
       page,
       main(page).getByRole('link', {
-        name: 'Continue UPD-0006, Induction Motor Loading, returned',
+        name: 'Continue the update to Induction Motor Loading, version 1.1, returned',
       }),
     );
     await expect(page).toHaveURL(/\/content-manager\/updates\/UPD-0006$/);

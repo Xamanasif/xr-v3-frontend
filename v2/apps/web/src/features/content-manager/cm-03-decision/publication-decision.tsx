@@ -46,7 +46,6 @@ import {
   DECISION_PAGE,
   DECISION_PANEL,
   DECISION_RESULT,
-  decisionOverline,
   formatsLabel,
   fromVendor,
   listedUnder,
@@ -139,10 +138,10 @@ const PUBLIC_EXPERIMENT = (experimentId: string) =>
 export function PublicationDecision({ submissionId }: { readonly submissionId: string }) {
   const read = usePublicationDecision(submissionId);
   const view = read.data?.ok ? read.data.value : null;
+  // The tab and Help's "where it happened" name the experiment, never its submission reference
+  // (state-copy `CM-03.top-title`).
   useShellPage({
-    ...publicationDecisionPlacement(
-      view ? { id: view.submission.id, name: view.submission.content.name } : null,
-    ),
+    ...publicationDecisionPlacement(view ? view.submission.content.name : null),
     title: READY_TO_PUBLISH_TITLE,
   });
   const guard = (
@@ -247,7 +246,7 @@ function Decision({
       <CmIdentityBand
         breadcrumbs={<Breadcrumbs levels={[crumb]} current={submission.content.name} />}
         date={today}
-        eyebrow={decisionOverline(submission.id)}
+        eyebrow={DECISION_PAGE.overline}
         title={submission.content.name}
         titleId={TITLE_ID}
         status={

@@ -4,12 +4,15 @@
  * phrase is found verbatim in its markup or script, the composed ones with the script's own pieces
  * (`decVM`, `checksOf`, `pubVM`, the sample `sh` and `hist` entries); the undrawn forms are
  * provisional entries of the state-copy register, each with its decision and no decision id in its
- * words.
+ * words. No words carry an internal reference (owner visual-review correction, 20 Oct 2026, the SA-v1
+ * rule): where the export composes one in (`x.id`, `u.id`, `rel.id`, the sample `hist`), the product
+ * takes the export's words without it.
  */
 import { describe, expect, it } from 'vitest';
 
 import { cmExport } from '@/test-support/boards';
 
+import { CONTENT_LIBRARY } from './cm-lists';
 import {
   approvedCheckLine,
   approvedNote,
@@ -21,15 +24,12 @@ import {
   CHECK_STATE,
   CHECK_TITLES,
   CORRECTIONS_PANEL,
-  correctionNamed,
   correctionsReleased,
   courseLabel,
   DECISION_PAGE,
   DECISION_PANEL,
   DECISION_RESULT,
-  decisionOverline,
   deliveryCheckLine,
-  firstPublishedNote,
   firstPublishedWhat,
   formatsLabel,
   formatsList,
@@ -39,6 +39,7 @@ import {
   HISTORY,
   listedUnder,
   liveVersionLine,
+  openUpdateStatus,
   outcomesCheckLine,
   packageDetail,
   PUBLISH_DIALOG,
@@ -99,6 +100,9 @@ function strings(value: unknown): string[] {
   return [];
 }
 
+/** An internal reference (REQ-, ACC-, UPD-, DTR-, SUP-, SUB-): never in the words. */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
 /** [the product's words for a sample, the export's words for it, the script piece that forms them]. */
 type Composed = readonly (readonly [string, string, string])[];
 
@@ -131,8 +135,9 @@ describe('CM-03 Publication decision (CM-v1 `v.decision`, `decVM`)', () => {
   it('the band: the record kind, the vendor, the facts, the gate’s verdict', () => {
     expectComposed([
       [
-        decisionOverline('SUB-0077'),
-        'SUB-0077 · First publication',
+        DECISION_PAGE.overline,
+        'First publication',
+        // The export's record kind, after its submission reference (left out).
         "over: x.id + ' · First publication'",
       ],
       [
@@ -386,9 +391,11 @@ describe('CM-05 Published experiment (CM-v1 `v.published`, `pubVM`)', () => {
         '<dd>{{ P.ver }}, since {{ P.since }}</dd>',
       ],
       [
-        correctionNamed('UPD-0004', 'On hold'),
-        'UPD-0004 · On hold',
-        "const corrFact = u ? u.id + ' · ' + label",
+        openUpdateStatus('on-hold'),
+        'Update on hold',
+        // The Content library's chip words for the open correction (`libVM` `tag`), in place of
+        // the export's “u.id + ' · ' + label” (`corrFact`).
+        "hold: 'Update on hold'",
       ],
       [
         correctionsReleased(2),
@@ -402,39 +409,58 @@ describe('CM-05 Published experiment (CM-v1 `v.published`, `pubVM`)', () => {
       ],
     ]);
     expect(correctionsReleased(1)).toBe('1 correction released');
+    expect(MAIN).toContain("const corrFact = u ? u.id + ' · ' + label");
+    // One wording for the open correction on CM-04 and CM-05.
+    for (const state of [
+      'draft',
+      'returned',
+      'in-academic-review',
+      'awaiting-release-decision',
+      'on-hold',
+    ] as const) {
+      expect(openUpdateStatus(state)).toBe(CONTENT_LIBRARY.updateTags[state]);
+    }
+    expect(
+      ['draft', 'returned', 'in-academic-review', 'awaiting-release-decision', 'on-hold'].map(
+        (state) => openUpdateStatus(state as never),
+      ),
+    ).toEqual([
+      'Update draft in progress',
+      'Update returned to you',
+      'Update in academic review',
+      'Update awaiting release',
+      'Update on hold',
+    ]);
   });
 
   it('the Corrections panel’s lines by the open update’s state', () => {
+    // The export's lead is the reference and the status; the product's is the status alone, in the
+    // open correction's words.
     expect(MAIN).toContain("const lead = u ? u.id + ' · ' + label + '. ' : '';");
     expectComposed([
       [
-        updateProgressLine('UPD-0005', 'Draft', 'draft', '1.2'),
-        'UPD-0005 · Draft. Edits to this experiment join that update.',
+        updateProgressLine('draft', '1.2'),
+        'Update draft in progress. Edits to this experiment join that update.',
         "'Edits to this experiment join that update.'",
       ],
       [
-        updateProgressLine('UPD-0006', 'Returned', 'returned', '1.0'),
-        'UPD-0006 · Returned. It was returned to you with a reason. Edits to this experiment join that update.',
+        updateProgressLine('returned', '1.0'),
+        'Update returned to you. It was returned to you with a reason. Edits to this experiment join that update.',
         "'It was returned to you with a reason. Edits to this experiment join that update.'",
       ],
       [
-        updateProgressLine('UPD-0005', 'In academic review', 'in-academic-review', '1.2'),
-        'UPD-0005 · In academic review. It is with the Academic Reviewer. You can start another correction once it is decided.',
+        updateProgressLine('in-academic-review', '1.2'),
+        'Update in academic review. It is with the Academic Reviewer. You can start another correction once it is decided.',
         "'It is with the Academic Reviewer. You can start another correction once it is decided.'",
       ],
       [
-        updateProgressLine(
-          'UPD-0003',
-          'Awaiting release decision',
-          'awaiting-release-decision',
-          '1.0',
-        ),
-        'UPD-0003 · Awaiting release decision. The Academic Reviewer approved it. The Super Admin decides when to release it. Version 1.0 stays live.',
+        updateProgressLine('awaiting-release-decision', '1.0'),
+        'Update awaiting release. The Academic Reviewer approved it. The Super Admin decides when to release it. Version 1.0 stays live.',
         "'The Academic Reviewer approved it. The Super Admin decides when to release it. Version ' + e.ver + ' stays live.'",
       ],
       [
-        updateProgressLine('UPD-0004', 'On hold', 'on-hold', '2.0'),
-        'UPD-0004 · On hold. The Super Admin put it on hold. Version 2.0 stays live.',
+        updateProgressLine('on-hold', '2.0'),
+        'Update on hold. The Super Admin put it on hold. Version 2.0 stays live.',
         "'The Super Admin put it on hold. Version ' + e.ver + ' stays live.'",
       ],
     ]);
@@ -448,13 +474,14 @@ describe('CM-05 Published experiment (CM-v1 `v.published`, `pubVM`)', () => {
         "relTitle: rel ? 'Version ' + e.ver + ' is live' : ''",
       ],
       [
-        releasedLine('UPD-0003', '27 Aug 2026', '1.0'),
-        'The Super Admin released UPD-0003 on 27 Aug 2026. The history keeps version 1.0 and every decision. Nobody’s access changed.',
+        releasedLine('27 Aug 2026', '1.0'),
+        'The Super Admin released the correction on 27 Aug 2026. The history keeps version 1.0 and every decision. Nobody’s access changed.',
+        // The export's words with “the correction” in place of its reference (`rel.id`).
         "'The Super Admin released ' + rel.id + ' on ' + this.day(rel.rel.when) + '. The history keeps version ' + rel.from + ' and every decision. Nobody’s access changed.'",
       ],
       [
-        updateStartedWhat('UPD-0005', 'In academic review'),
-        'UPD-0005 started — in academic review',
+        updateStartedWhat('In academic review'),
+        'Update started — in academic review',
         "what: u.id + ' started — ' + label.toLowerCase()",
       ],
       [
@@ -462,7 +489,7 @@ describe('CM-05 Published experiment (CM-v1 `v.published`, `pubVM`)', () => {
         'Version 1.3. The live version below is unchanged.',
         "note: 'Version ' + (this.T(u.ver) || 'not set yet') + '. The live version below is unchanged.'",
       ],
-      [updateHeldWhat('UPD-0004'), 'UPD-0004 on hold', "what: u.id + ' on hold'"],
+      [updateHeldWhat(), 'Update on hold', "what: u.id + ' on hold'"],
       [
         updateHeldNote('2.0', 'Hold until the vendor fixes it.'),
         'Version 2.0 stays live. Reason: “Hold until the vendor fixes it.”',
@@ -473,24 +500,16 @@ describe('CM-05 Published experiment (CM-v1 `v.published`, `pubVM`)', () => {
         'Version 1.1 released',
         "what: 'Version ' + e.ver + ' released'",
       ],
+      // The export's release notes without the reference and its dash.
       [
-        versionReleasedNote('UPD-0003', true),
-        'Correction UPD-0003 — released by the Super Admin.',
+        versionReleasedNote(true),
+        'Correction released by the Super Admin.',
         "note: 'Correction ' + u.id + ' — released by the Super Admin.'",
       ],
-      [
-        versionReleasedNote('UPD-0001', false),
-        'Correction UPD-0001.',
-        "note: 'Correction UPD-0001.'",
-      ],
+      [versionReleasedNote(false), 'Correction.', "note: 'Correction UPD-0001.'"],
       [firstPublishedWhat('1.0'), 'Published · version 1.0', "what: 'Published · version 1.0'"],
       [
-        firstPublishedNote('SUB-0052'),
-        'First publication by the Content Manager, from SUB-0052.',
-        "note: 'First publication by the Content Manager, from SUB-0052.'",
-      ],
-      [
-        firstPublishedNote(null),
+        PUBLISHED_PAGE.firstPublicationNote,
         'First publication by the Content Manager.',
         "note: 'First publication by the Content Manager.'",
       ],
@@ -498,6 +517,42 @@ describe('CM-05 Published experiment (CM-v1 `v.published`, `pubVM`)', () => {
     expect(updateStartedNote(null)).toBe(
       'Version not set yet. The live version below is unchanged.',
     );
+  });
+});
+
+describe('no internal reference in the CM-03 / CM-05 words (owner correction, 20 Oct 2026)', () => {
+  it('no fixed phrase and no composed line carries a reference', () => {
+    const composed = [
+      ...strings([
+        DECISION_PAGE,
+        DECISION_PANEL,
+        READ_ONLY,
+        PUBLISH_DIALOG,
+        DECISION_RESULT,
+        STALE_NOTICE,
+        CHECK_TITLES,
+        CHECK_LINES,
+        CHECK_FIXES,
+        HISTORY,
+        PUBLISHED_PAGE,
+        CORRECTIONS_PANEL,
+      ]),
+      ...(
+        ['draft', 'returned', 'in-academic-review', 'awaiting-release-decision', 'on-hold'] as const
+      ).flatMap((state) => [openUpdateStatus(state), updateProgressLine(state, '1.2')]),
+      releasedLine('27 Aug 2026', '1.0'),
+      updateStartedWhat('Draft'),
+      updateHeldWhat(),
+      versionReleasedNote(true),
+      versionReleasedNote(false),
+    ];
+    for (const words of composed) expect(words).not.toMatch(REFERENCE);
+  });
+
+  it('the register’s words for these screens carry none either', () => {
+    for (const entry of Object.values(STATE_COPY_CM_DECISION)) {
+      if (entry.words !== null) expect(entry.words).not.toMatch(REFERENCE);
+    }
   });
 });
 

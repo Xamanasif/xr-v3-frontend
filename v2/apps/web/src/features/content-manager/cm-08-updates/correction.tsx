@@ -45,8 +45,8 @@ import { type MouseEvent, useCallback, useEffect, useMemo, useRef, useState } fr
 
 import {
   ARRIVAL_GO,
+  ARRIVAL_JOIN_TITLE,
   arrivalJoinBody,
-  arrivalJoinTitle,
   arrivalNewBody,
   arrivalNewTitle,
   approvedMeanwhileLine,
@@ -84,7 +84,6 @@ import {
   UPDATE_FACTS,
   UPDATE_PANEL,
   UPDATE_SHEET,
-  updateEyebrow,
   updateTitle,
   versionHint,
   versionNote,
@@ -183,8 +182,10 @@ function useTodayLine(): string | undefined {
  *   platform course codes (`platformCourseCodes.list`: the course's code and name in the band; left
  *   out if that read fails). An update the service does not answer is “No update open”. Loading and
  *   a failed read are the application's record guard (HANDOFF §4: no separate design).
- * - **As the export draws it**: the crumbs “Updates › UPD-…”; the identity band — “UPD-… ·
- *   Correction to a published experiment”, the stable title “Update to <experiment>”, the status,
+ * - **As the export draws it**, without the update's reference (the owner's correction of 20 Oct
+ *   2026, state-copy `CM-08.no-reference`: the reference stays in the address, keys and service
+ *   calls): the crumbs “Updates › Update to <experiment>” (the browser tab too); the identity band —
+ *   “Correction to a published experiment”, the stable title “Update to <experiment>”, the status,
  *   the version change and the course; “Back to the published experiment” and “Go to actions”; the
  *   facts (live version, proposed, fields changed, started / sent / released / withdrawn) and the
  *   four stages with “Your step”. Then a stale refusal's notice, the arrival from CM-05 (a new
@@ -212,8 +213,13 @@ export function Correction({ updateId }: { readonly updateId: string }) {
   const view = read.data?.ok ? read.data.value : null;
   const experimentRead = usePublishedExperiment(view ? view.update.experimentId : null);
   const codes = usePlatformCourseCodes();
-  // The top bar names the destination below 1024 px; the crumbs name the update.
-  useShellPage(correctionPlacement(view ? view.update.id : null));
+  // The top bar names the destination below 1024 px; the crumbs and the browser tab name the update
+  // by the page's H1 (“Update to <experiment>”), never by its reference (`CM-08.no-reference`).
+  const experimentName =
+    view && experimentRead.data?.ok
+      ? experimentRead.data.value.experiment.live.catalogue.name
+      : null;
+  useShellPage(correctionPlacement(experimentName === null ? null : updateTitle(experimentName)));
 
   const answer = read.data;
   const experimentAnswer = experimentRead.data;
@@ -252,8 +258,8 @@ export function Correction({ updateId }: { readonly updateId: string }) {
       loadingLabel={stateWords('CM-08.loading')}
       failed={{ title: stateWords('CM-08.failed'), line: stateWords('CM-08.failed.line') }}
       refusals={{
-        'not-found': <NoUpdate updateId={updateId} />,
-        'not-permitted': <NoUpdate updateId={updateId} />,
+        'not-found': <NoUpdate />,
+        'not-permitted': <NoUpdate />,
       }}
     >
       {(page) => (
@@ -274,8 +280,11 @@ export function Correction({ updateId }: { readonly updateId: string }) {
   );
 }
 
-/** No update at this address (state-copy `CM-08.no-update`); its heading is the page's H1. */
-function NoUpdate({ updateId }: { readonly updateId: string }) {
+/**
+ * No update at this address (state-copy `CM-08.no-update`); its heading is the page's H1, and the
+ * current crumb says the same words — never the address's reference (`CM-08.no-reference`).
+ */
+function NoUpdate() {
   return (
     <>
       <PageHead
@@ -285,7 +294,7 @@ function NoUpdate({ updateId }: { readonly updateId: string }) {
         breadcrumbs={
           <Breadcrumbs
             levels={[{ label: UPDATES_TITLE, href: UPDATES_ADDRESS }]}
-            current={updateId}
+            current={NO_UPDATE.title}
           />
         }
       />
@@ -613,11 +622,11 @@ function UpdatePage({
         breadcrumbs={
           <Breadcrumbs
             levels={[{ label: UPDATES_TITLE, href: UPDATES_ADDRESS }]}
-            current={update.id}
+            current={updateTitle(experiment.live.catalogue.name)}
           />
         }
         date={today}
-        eyebrow={updateEyebrow(update.id)}
+        eyebrow={UPDATE_BAND.eyebrow}
         title={updateTitle(experiment.live.catalogue.name)}
         titleId={ID.title}
         titleRef={titleRef}
@@ -669,7 +678,7 @@ function UpdatePage({
           icon="edit"
           role="status"
           id={ID.entry}
-          title={arrival.joined ? arrivalJoinTitle(update.id) : arrivalNewTitle(arrival.entry)}
+          title={arrival.joined ? ARRIVAL_JOIN_TITLE : arrivalNewTitle(arrival.entry)}
           actions={
             arrival.entry === 'start-a-correction' ? undefined : (
               <Button
@@ -823,7 +832,7 @@ function UpdatePage({
       <ConfirmDialog
         open={dialog === 'send'}
         idPrefix="cm-dlg-send"
-        title={sendTitle(update.id)}
+        title={sendTitle(experiment.live.catalogue.name)}
         description={SEND_DIALOG.description}
         groups={[
           {
@@ -853,7 +862,7 @@ function UpdatePage({
       <ConfirmDialog
         open={dialog === 'withdraw'}
         idPrefix="cm-dlg-wd"
-        title={withdrawTitle(update.id)}
+        title={withdrawTitle(experiment.live.catalogue.name)}
         description={WITHDRAW_DIALOG.description}
         initialFocus="field"
         cancelLabel={WITHDRAW_DIALOG.cancel}

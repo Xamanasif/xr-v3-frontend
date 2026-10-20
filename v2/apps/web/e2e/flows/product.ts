@@ -255,11 +255,15 @@ export async function openPublished(page: Page, name: string, id = SHELL_ID): Pr
   await expect(h1(page)).toHaveText(name);
 }
 
-/** CM-08: sends the draft correction for academic review (DL-1; V3: “Send UPD-… for academic review?”). */
+/** CM-08: sends the draft correction for academic review (DL-1; V3: “Send the update to <experiment> for academic review?”). */
 export async function sendForReview(page: Page): Promise<void> {
-  const id = /UPD-\d{4}/.exec(page.url())![0];
+  // The page's H1 is “Update to <experiment>”: the dialog names the update the same way.
+  const title = (await page.getByRole('heading', { level: 1 }).first().textContent())!.trim();
+  const experiment = title.replace(/^Update to /, '');
   await reachAndClick(page, button(page, 'Send for academic review'));
-  const send = page.getByRole('dialog', { name: `Send ${id} for academic review?` });
+  const send = page.getByRole('dialog', {
+    name: `Send the update to ${experiment} for academic review?`,
+  });
   await reachAndClick(page, send.getByRole('button', { name: 'Send for academic review' }));
   await expect(send).toBeHidden();
   await expect(cmChip(page)).toHaveText('In academic review');

@@ -278,14 +278,16 @@ async function reviewShellCorrection(page: Page, id: string): Promise<void> {
 
 /**
  * CM Updates → CM-08: the Content Manager (signed in) opens the update from her list. CM-08 (V3,
- * CM-v1): a card's action is named “Open|Continue <id>, <name>, <status>”.
+ * CM-v1): a card's action opens the update's address and is named by content, “Open|Continue the
+ * update to <name>[, version <label>], <status>” (no reference — the owner's 20 Oct 2026 rule).
  */
 async function openUpdate(page: Page, id: string): Promise<void> {
   await sidebar(page, '/content-manager/updates');
-  await reachAndClick(
-    page,
-    main(page).getByRole('link', { name: new RegExp(`^(Open|Continue) ${id}, ${SHELL}, `) }),
+  const action = main(page).locator(`a[href="/content-manager/updates/${id}"]`);
+  await expect(action).toHaveAccessibleName(
+    new RegExp(`^(Open|Continue) the update to ${SHELL}, `),
   );
+  await reachAndClick(page, action);
   await page.waitForURL(`**/content-manager/updates/${id}`);
   await expect(h1(page)).toHaveText(UPDATE_TITLE);
 }
@@ -673,7 +675,7 @@ test('F-alt withdraw · the Content Manager withdraws a correction in academic r
   await openUpdate(page, id);
   await expect(cmChip(page)).toHaveText('In academic review');
   await reachAndClick(page, button(page, 'Withdraw update'));
-  const dialog = page.getByRole('dialog', { name: `Withdraw ${id}?` });
+  const dialog = page.getByRole('dialog', { name: `Withdraw the update to ${SHELL}?` });
   await expect(dialog).toContainText('Nothing changes in the live version.');
   await reachAndClick(page, dialog.getByRole('button', { name: 'Withdraw update' }));
   await expect(dialog).toContainText('Add a reason for withdrawing this update');

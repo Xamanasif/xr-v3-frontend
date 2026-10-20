@@ -658,35 +658,35 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
     expect(cards().map(card)).toEqual([
       [
         'Induction Motor Loading',
-        'UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug',
+        'EEE ZC341 · Electrical Machines · last change 26 Aug',
         '1.0 live 1.1 proposed',
         'Returned',
         'Continue',
       ],
       [
         'Boiler Drum Level',
-        'UPD-0004 · CHE ZG513 · Process Instrumentation & Control · last change 20 Aug',
+        'CHE ZG513 · Process Instrumentation & Control · last change 20 Aug',
         '2.0 live 2.1 proposed',
         'On hold',
         'Open',
       ],
       [
         'Orifice Plate Metering',
-        'UPD-0003 · CHE ZG513 · Process Instrumentation & Control · last change 5 Aug',
+        'CHE ZG513 · Process Instrumentation & Control · last change 5 Aug',
         '1.0 1.1 live',
         'Released',
         'Open',
       ],
       [
         'Distillation Column',
-        'UPD-0002 · CHE ZG513 · Process Instrumentation & Control · last change 3 Jul',
+        'CHE ZG513 · Process Instrumentation & Control · last change 3 Jul',
         '1.1 1.2 live',
         'Released',
         'Open',
       ],
       [
         'Distillation Column',
-        'UPD-0001 · CHE ZG513 · Process Instrumentation & Control · last change 19 Jun',
+        'CHE ZG513 · Process Instrumentation & Control · last change 19 Jun',
         '1.0 1.1 live',
         'Released',
         'Open',
@@ -708,12 +708,14 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
       'Released by Arjun Mehta, Super Admin, on 5 Aug 2026. Version 1.1 is live for everyone.',
     );
     const cont = within(returned!).getByRole('link', {
-      name: 'Continue UPD-0006, Induction Motor Loading, returned',
+      name: 'Continue the update to Induction Motor Loading, version 1.1, returned',
     });
     expect(cont).toHaveClass('rb-btn', 'rb-btn--primary');
     expect(cont).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
     expect(
-      within(held!).getByRole('link', { name: 'Open UPD-0004, Boiler Drum Level, on hold' }),
+      within(held!).getByRole('link', {
+        name: 'Open the update to Boiler Drum Level, version 2.1, on hold',
+      }),
     ).toHaveAttribute('href', '/content-manager/updates/UPD-0004');
     // The one primary is the Need-you card's Continue (v46 drew none: every row's was secondary).
     expect([...main().querySelectorAll('a.rb-btn--primary')]).toEqual([cont]);
@@ -744,7 +746,7 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
     const withOthers = () => [...groupOf('With others').querySelectorAll('li.cm-trk')];
     expect(withOthers().map(card)[0]).toEqual([
       'Distillation Column',
-      'UPD-0005 · CHE ZG513 · Process Instrumentation & Control · last change 25 Aug',
+      'CHE ZG513 · Process Instrumentation & Control · last change 25 Aug',
       '1.2 live 1.3 proposed',
       'In academic review',
       'Open',
@@ -759,7 +761,7 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
       [...groupOf('Need you').querySelectorAll('li.cm-trk')].map((entry) =>
         text(entry.querySelector('.cm-trk-meta > span')),
       ),
-    ).toEqual(['UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug']);
+    ).toEqual(['EEE ZC341 · Electrical Machines · last change 26 Aug']);
     // The Academic Reviewer approves it (set-up through the port; RV-04’s own run is above).
     moveClock(sample, DECIDED);
     const reviewer = asPersonId(sample, MENON);
@@ -776,7 +778,7 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
     await waitFor(() =>
       expect(withOthers().map(card)[0]).toEqual([
         'Distillation Column',
-        'UPD-0005 · CHE ZG513 · Process Instrumentation & Control · last change 27 Aug',
+        'CHE ZG513 · Process Instrumentation & Control · last change 27 Aug',
         '1.2 live 1.3 proposed',
         'Awaiting release decision',
         'Open',
@@ -786,7 +788,7 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
     expect(holder(withOthers()[0]!)).toBe('Now: Super Admin Release decision Waiting since 27 Aug');
     expect(
       within(groupOf('With others')).getByRole('link', {
-        name: 'Open UPD-0005, Distillation Column, awaiting release decision',
+        name: 'Open the update to Distillation Column, version 1.3, awaiting release decision',
       }),
     ).toHaveAttribute('href', `/content-manager/updates/${sent.id}`);
     expect(await countLine(6)).toBeVisible();
@@ -808,7 +810,7 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
     expect(draft.closest('section')).toBe(groupOf('Need you'));
     expect(card(draft)).toEqual([
       'Orifice Plate Metering',
-      'UPD-0005 · CHE ZG513 · Process Instrumentation & Control · last change 2 Oct',
+      'CHE ZG513 · Process Instrumentation & Control · last change 2 Oct',
       '1.1 live No version label yet',
       'Draft',
       'Continue',
@@ -817,7 +819,9 @@ describe('CM-08 Updates — the list (V3 CM-v1 tracker; was B6-09 f0, B6-13 f2, 
     // Draft is neutral (no tone).
     expect(draft.querySelector('.cm-trk-st .xr-st')!.className).toBe('xr-st');
     expect(
-      within(draft).getByRole('link', { name: 'Continue UPD-0005, Orifice Plate Metering, draft' }),
+      within(draft).getByRole('link', {
+        name: 'Continue the update to Orifice Plate Metering, draft',
+      }),
     ).toHaveAttribute('href', '/content-manager/updates/UPD-0005');
   });
 

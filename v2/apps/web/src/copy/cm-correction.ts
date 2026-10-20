@@ -7,9 +7,11 @@
  * Send for academic review and Withdraw dialogs, and the script's `updListVM`, `updVM`, `opStart`,
  * `opSend`, `hoLift`). Every phrase is the export's own, found verbatim in its markup or script
  * (`cm-correction.test.ts`); the composed lines take the script's forms with the records' values —
- * names, versions and dates are never copied from the export's sample world. The status words,
- * the stage track's words and the version change are the role's shared ones (`cm-shared.ts`). What
- * the export does not word is a provisional entry of the state-copy register
+ * names, versions and dates are never copied from the export's sample world. Where the export names
+ * an update by its reference (UPD-…), the owner's correction of 20 Oct 2026 names it by its
+ * experiment instead (state-copy `CM-08.no-reference`); the reference stays in the address. The
+ * status words, the stage track's words and the version change are the role's shared ones
+ * (`cm-shared.ts`). What the export does not word is a provisional entry of the state-copy register
  * (`state-copy-cm-correction.ts`, VD-12). A correction is never “published”: it is sent for
  * academic review, then released or held (BC8).
  */
@@ -96,21 +98,33 @@ export const TRACKER = {
 } as const;
 
 /**
- * A card's meta (`meta`): “UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug”; the
- * course is left out while it is not known.
+ * A card's meta (`meta`): “EEE ZC341 · Electrical Machines · last change 26 Aug”; the course is
+ * left out while it is not known. The export leads with the update's reference; the owner's
+ * correction (state-copy `CM-08.no-reference`) leaves it out.
  */
-export function trackerMeta(id: string, course: string | null, lastChange: string): string {
-  return [id, course, `last change ${lastChange}`].filter(Boolean).join(' · ');
+export function trackerMeta(course: string | null, lastChange: string): string {
+  return [course, `last change ${lastChange}`].filter(Boolean).join(' · ');
 }
 
-/** A card action's name (`aria`): “Continue UPD-0006, Induction Motor Loading, returned”. */
+/** “the update to Induction Motor Loading”: an update named by its experiment, never its reference. */
+export function theUpdateTo(name: string): string {
+  return `the update to ${name}`;
+}
+
+/**
+ * A card action's name (`aria`): “Continue the update to Induction Motor Loading, version 1.1,
+ * returned”, “Open the update to Distillation Column, version 1.2, released” — the version (the
+ * proposed or released label) whenever the update has one, so two updates to one experiment never
+ * share a name (state-copy `CM-08.no-reference`; the export names it by its reference).
+ */
 export function trackerActionLabel(
   yours: boolean,
-  id: string,
   name: string,
+  version: string | null,
   status: string,
 ): string {
-  return `${yours ? TRACKER.continue : TRACKER.open} ${id}, ${name}, ${status.toLowerCase()}`;
+  const label = version?.trim();
+  return `${yours ? TRACKER.continue : TRACKER.open} ${theUpdateTo(name)}${label ? `, version ${label}` : ''}, ${status.toLowerCase()}`;
 }
 
 /** Whose reason a card quotes (`noteBy`): “Prof. A. Menon, Academic Reviewer · 26 Aug”. */
@@ -145,17 +159,17 @@ export function withdrawnOutcome(day: string): string {
 
 // ---- CM-08 the correction: the identity band (`updVM`) -------------------------------------------
 
-/** `p.rk-eyebrow`: “UPD-0006 · Correction to a published experiment”. */
-export function updateEyebrow(id: string): string {
-  return `${id} · Correction to a published experiment`;
-}
-
-/** The stable H1: “Update to Induction Motor Loading”. */
+/** The stable H1: “Update to Induction Motor Loading” — also the crumb and the browser tab's words. */
 export function updateTitle(name: string): string {
   return `Update to ${name}`;
 }
 
 export const UPDATE_BAND = {
+  /**
+   * `p.rk-eyebrow`: the export's “UPD-0006 · Correction to a published experiment” without the
+   * reference (state-copy `CM-08.no-reference`).
+   */
+  eyebrow: 'Correction to a published experiment',
   backToPublished: 'Back to the published experiment',
   /** `a.rb-btn.rk-goto[href=#cm-u-panel]`, shown under 860 px. */
   goToActions: 'Go to actions',
@@ -232,10 +246,11 @@ export function arrivalNewBody(entry: CorrectionEntry, live: string): string {
     : `Every field is pre-filled with live version ${live}. Change only what needs correcting and say why. Nothing changes in the catalogue until the Super Admin releases it.`;
 }
 
-/** “Your edit joins UPD-0006”. */
-export function arrivalJoinTitle(id: string): string {
-  return `Your edit joins ${id}`;
-}
+/**
+ * The joined arrival's title: the export's “Your edit joins UPD-0006” names the open update by its
+ * reference; the owner's correction names it by what it is (state-copy `CM-08.no-reference`).
+ */
+export const ARRIVAL_JOIN_TITLE = 'Your edit joins the open update';
 
 /** Why the edit joined the open correction (`entB`, joined). */
 export function arrivalJoinBody(entry: CorrectionEntry): string {
@@ -559,9 +574,12 @@ export const SEND_DIALOG = {
   busy: 'Sending…',
 } as const;
 
-/** “Send UPD-0006 for academic review?”. */
-export function sendTitle(id: string): string {
-  return `Send ${id} for academic review?`;
+/**
+ * “Send the update to Induction Motor Loading for academic review?” (the export's “Send UPD-0006 for
+ * academic review?”, named by its experiment: state-copy `CM-08.no-reference`).
+ */
+export function sendTitle(name: string): string {
+  return `Send ${theUpdateTo(name)} for academic review?`;
 }
 
 /** `nowList[1]`: “Version 1.0 stays live — nothing changes for the public or for students.” */
@@ -579,9 +597,12 @@ export const WITHDRAW_DIALOG = {
   busy: 'Withdrawing…',
 } as const;
 
-/** “Withdraw UPD-0006?”. */
-export function withdrawTitle(id: string): string {
-  return `Withdraw ${id}?`;
+/**
+ * “Withdraw the update to Induction Motor Loading?” (the export's “Withdraw UPD-0006?”, named by its
+ * experiment: state-copy `CM-08.no-reference`).
+ */
+export function withdrawTitle(name: string): string {
+  return `Withdraw ${theUpdateTo(name)}?`;
 }
 
 // ---- no update (B6-13 f0; the export draws none) -----------------------------------------------

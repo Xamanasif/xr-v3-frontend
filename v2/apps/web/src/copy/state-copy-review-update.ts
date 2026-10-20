@@ -30,9 +30,9 @@ export const STATE_COPY_REVIEW_UPDATE = {
     screen: 'CM-08',
     state: 'Which corrections the list shows, how they are grouped, and each card’s facts',
     words: null,
-    rule: 'Every correction the service lets the Content Manager see (her scope), grouped by who must act — Need you (draft, returned), With others (in academic review, awaiting the release decision, on hold), Closed (released, withdrawn); a group with none is not shown — the most recent change first within each, as `listUpdates` answers. A card: the experiment’s live name; “<UPD id> · <course> · last change <day month>” (the latest step in its history, or a later save); the version change; the status (`cmUpdatePill`); the mini four-stage track while open, or the outcome line once closed; the return, hold or withdrawal reason quoted. The figures count Need you and With others.',
+    rule: 'Every correction the service lets the Content Manager see (her scope), grouped by who must act — Need you (draft, returned), With others (in academic review, awaiting the release decision, on hold), Closed (released, withdrawn); a group with none is not shown — the most recent change first within each, as `listUpdates` answers. A card: the experiment’s live name; “<course> · last change <day month>” (the latest step in its history, or a later save; no reference — state-copy `CM-08.no-reference`); the version change; the status (`cmUpdatePill`); the mini four-stage track while open, or the outcome line once closed; the return, hold or withdrawal reason quoted. The figures count Need you and With others.',
     basis:
-      'CM-v1 `updListVM` (`sections`, `meta`, `ver`, `note`, `res`, `nYou`, `nOn`); contract `listUpdatesOutput`; state-copy `CM-08.course`',
+      'CM-v1 `updListVM` (`sections`, `meta`, `ver`, `note`, `res`, `nYou`, `nOn`); contract `listUpdatesOutput`; state-copy `CM-08.course`; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -40,8 +40,9 @@ export const STATE_COPY_REVIEW_UPDATE = {
     screen: 'CM-08',
     state: 'A card’s action',
     words: null,
-    rule: '“Continue” (gold, the card ivory) while the correction is hers — a draft or returned — otherwise “Open”; both open the correction page (`/content-manager/updates/<UPD id>`), named “<Continue|Open> <UPD id>, <experiment>, <status>”.',
-    basis: 'CM-v1 `updListVM` (`act`, `btnCls`, `aria`); LINK-MAP “CM-08 Updates list”',
+    rule: '“Continue” (gold, the card ivory) while the correction is hers — a draft or returned — otherwise “Open”; both open the correction page (`/content-manager/updates/<UPD id>`: the reference stays in the address only), named “<Continue|Open> the update to <experiment>, version <label>, <status>” — “, version <label>” whenever the update has a proposed or released label, so two updates to one experiment never share a name (state-copy `CM-08.no-reference`).',
+    basis:
+      'CM-v1 `updListVM` (`act`, `btnCls`, `aria`); LINK-MAP “CM-08 Updates list”; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

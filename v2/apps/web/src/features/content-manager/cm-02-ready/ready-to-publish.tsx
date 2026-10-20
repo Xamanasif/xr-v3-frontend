@@ -27,7 +27,7 @@ import { useRef, useState } from 'react';
 import {
   cardAge,
   cardByLine,
-  cardIdLine,
+  cardVendorLine,
   cardSummary,
   daysWaiting,
   formatsLabel,
@@ -105,8 +105,9 @@ export function latestInCatalogue(library: Library | null): CmFeedItem[] {
  *   check (the rail counts the same read); the platform course codes name each card's course; the
  *   library's Published view gives the latest changes to the catalogue (side card).
  * - **As the export draws it**: the head with its figures (waiting for you, the longest wait); one
- *   decision card per submission — days waiting (to today on the session clock), name, ID,
- *   vendor, course, formats, who approved it and its outcomes, the four checks and the summary,
+ *   decision card per submission — days waiting (to today on the session clock), name, vendor
+ *   (no reference: state-copy `CM-lists.no-reference`), course, formats, who approved it and its
+ *   outcomes, the four checks and the summary,
  *   Open decision (CM-03). Oldest first, or newest first by the sort button; the longest wait is
  *   marked "Waiting longest" and has the gold button either way (state-copy `CM-02.order`). Below
  *   600 px a card keeps only the checks not met. Beside it: what publishing does, the latest in
@@ -171,7 +172,7 @@ export function ReadyToPublish() {
       firstLabel: READY_TO_PUBLISH.firstLabel,
       age: cardAge(days(row), row.approvedAt),
       name,
-      idLine: cardIdLine(submission.id, submission.vendorOrganisation, submission.revision),
+      vendorLine: cardVendorLine(submission.vendorOrganisation, submission.revision),
       meta: (
         <>
           {course ? <CmCourseName code={course.platformCode} name={course.name} /> : null}

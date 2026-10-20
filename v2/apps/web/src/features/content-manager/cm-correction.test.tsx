@@ -8,7 +8,10 @@
  * Last saved; Send for academic review through its dialog (it saves, then sends; Cancel and Esc
  * wait while it runs); Withdraw through its dialog (a reason is required); typed work kept in the
  * tab; a stale or approved-meanwhile refusal said calmly and read again; the read-only states with
- * the hold reason and the released comparison. Nothing here changes the live version.
+ * the hold reason and the released comparison. Nothing here changes the live version. No page
+ * names an update by its reference — words, accessible names, hidden dialogs, the browser tab — the
+ * owner's correction of 20 Oct 2026 (state-copy `CM-08.no-reference`); the reference stays in the
+ * address, where these tests read it.
  */
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -113,6 +116,47 @@ const facts = () =>
 /** The comparison's rows: the field names. */
 const comparisonFields = () =>
   [...main().querySelectorAll('table.cm-cmp tbody td.cm-cmp-f')].map((cell) => text(cell));
+
+/** Any internal reference (state-copy `CM-08.no-reference`; the SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+/**
+ * The only references these pages show: the sample world's seeded “what changes and why” — words a
+ * person wrote, quoted as written (the Reason field while editable, “What changes and why” once
+ * sent) — named one by one, never a pattern.
+ */
+type SeededWhy =
+  | 'Correction UPD-0001.'
+  | 'Correction UPD-0002.'
+  | 'Correction UPD-0003.'
+  | 'Correction UPD-0004.'
+  | 'Correction UPD-0006.';
+
+/**
+ * No reference in the document's words (hidden dialogs and screen-reader-only words included), in
+ * a field's value, in any `aria-label`, `title` or `placeholder`, or in the browser tab — except the
+ * one seeded quote named, which must show where a person's words show.
+ */
+function expectNoReferences(seeded?: SeededWhy) {
+  const drop = (words: string) => (seeded ? words.split(seeded).join('') : words);
+  if (seeded) {
+    const why = document.getElementById('cm-u-why');
+    const quoted = [
+      why instanceof HTMLTextAreaElement ? why.value : '',
+      ...[...main().querySelectorAll('blockquote.rk-quote')].map((quote) => text(quote)),
+    ];
+    expect(quoted).toContain(seeded);
+  }
+  expect(drop(document.body.textContent ?? '')).not.toMatch(REFERENCE);
+  for (const control of document.querySelectorAll('input, textarea')) {
+    expect(drop((control as HTMLInputElement | HTMLTextAreaElement).value)).not.toMatch(REFERENCE);
+  }
+  for (const element of document.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '').not.toMatch(REFERENCE);
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 /** One port's command answered with a refusal (the screen's handling of it, not the service). */
 function answerWith(
@@ -403,17 +447,18 @@ describe('CM-08 Updates — the correction tracker', () => {
       'Closed 3 Kept with their history',
     ]);
     expect(groups[0]!.querySelector('.cm-grp-n')).toHaveClass('is-you');
-    // Need you: UPD-0006, returned — the ivory card, Continue in gold, the reason quoted.
+    // Need you: Induction Motor Loading (UPD-0006 in the address), returned — the ivory card,
+    // Continue in gold, the reason quoted.
     const returned = groups[0]!.querySelector('li.cm-trk')!;
     expect(returned).toHaveClass('is-you');
     expect(text(returned.querySelector('.cm-qname'))).toBe('Induction Motor Loading');
     expect(text(returned.querySelector('.cm-trk-meta > span'))).toBe(
-      'UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug',
+      'EEE ZC341 · Electrical Machines · last change 26 Aug',
     );
     expect(text(returned.querySelector('.cm-ver'))).toBe('1.0 live 1.1 proposed');
     expect(returned.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--err');
     const cont = within(returned as HTMLElement).getByRole('link', {
-      name: 'Continue UPD-0006, Induction Motor Loading, returned',
+      name: 'Continue the update to Induction Motor Loading, version 1.1, returned',
     });
     expect(cont).toHaveClass('rb-btn', 'rb-btn--primary');
     expect(cont).toHaveAttribute('href', '/content-manager/updates/UPD-0006');
@@ -425,15 +470,19 @@ describe('CM-08 Updates — the correction tracker', () => {
     expect(text(returned.querySelector('blockquote.cm-trk-note'))).toBe(
       '“The proposed description says slip falls as the load rises. It rises. Please correct it before I approve.” Prof. A. Menon, Academic Reviewer · 26 Aug',
     );
-    // With others: UPD-0004 on hold, the Super Admin's reason.
+    // With others: Boiler Drum Level (UPD-0004) on hold, the Super Admin's reason.
     const held = groups[1]!.querySelector('li.cm-trk')!;
     expect(held).not.toHaveClass('is-you');
     expect(held.querySelector('.cm-trk-st .xr-st')).toHaveClass('xr-st--paused');
     expect(
       within(held as HTMLElement).getByRole('link', {
-        name: 'Open UPD-0004, Boiler Drum Level, on hold',
+        name: 'Open the update to Boiler Drum Level, version 2.1, on hold',
       }),
     ).not.toHaveClass('rb-btn--primary');
+    expect(within(held as HTMLElement).getByRole('link')).toHaveAttribute(
+      'href',
+      '/content-manager/updates/UPD-0004',
+    );
     expect(text(held.querySelector('blockquote.cm-trk-note footer'))).toBe(
       'Arjun Mehta, Super Admin · 20 Aug',
     );
@@ -441,9 +490,30 @@ describe('CM-08 Updates — the correction tracker', () => {
     // Closed: the outcome line instead of the track.
     const closed = [...groups[2]!.querySelectorAll('li.cm-trk')];
     expect(closed.map((card) => text(card.querySelector('.cm-trk-meta > span')))).toEqual([
-      'UPD-0003 · CHE ZG513 · Process Instrumentation & Control · last change 5 Aug',
-      'UPD-0002 · CHE ZG513 · Process Instrumentation & Control · last change 3 Jul',
-      'UPD-0001 · CHE ZG513 · Process Instrumentation & Control · last change 19 Jun',
+      'CHE ZG513 · Process Instrumentation & Control · last change 5 Aug',
+      'CHE ZG513 · Process Instrumentation & Control · last change 3 Jul',
+      'CHE ZG513 · Process Instrumentation & Control · last change 19 Jun',
+    ]);
+    // Two updates to one experiment never share a name: the version label tells them apart; the
+    // reference is only in the address.
+    expect(
+      closed.map((card) => {
+        const link = within(card as HTMLElement).getByRole('link');
+        return [link.getAttribute('aria-label'), link.getAttribute('href')];
+      }),
+    ).toEqual([
+      [
+        'Open the update to Orifice Plate Metering, version 1.1, released',
+        '/content-manager/updates/UPD-0003',
+      ],
+      [
+        'Open the update to Distillation Column, version 1.2, released',
+        '/content-manager/updates/UPD-0002',
+      ],
+      [
+        'Open the update to Distillation Column, version 1.1, released',
+        '/content-manager/updates/UPD-0001',
+      ],
     ]);
     expect(closed[0]).toHaveClass('is-closed');
     expect(closed[0]!.querySelector('.cm-flowwrap')).toBeNull();
@@ -465,6 +535,8 @@ describe('CM-08 Updates — the correction tracker', () => {
       'tabindex',
       '-1',
     );
+    await waitFor(() => expect(document.title).toBe('Updates · XR Learning Platform'));
+    expectNoReferences();
   });
 
   it('follows the chain in the same world: a draft is hers, then sent it is with others', async () => {
@@ -480,9 +552,12 @@ describe('CM-08 Updates — the correction tracker', () => {
       },
     );
     const mine = main().querySelectorAll('section.cm-trksec')[0]!;
-    const card = within(mine as HTMLElement)
-      .getByRole('link', { name: 'Continue UPD-0005, Distillation Column, draft' })
-      .closest('li')!;
+    const start = within(mine as HTMLElement).getByRole('link', {
+      name: 'Continue the update to Distillation Column, draft',
+    });
+    expect(start).toHaveAttribute('href', `/content-manager/updates/${draft.id}`);
+    const card = start.closest('li')!;
+    expectNoReferences();
     expect(text(card.querySelector('.cm-ver'))).toBe('1.2 live No version label yet');
     expect(card.querySelector('.cm-trk-st .xr-st')).not.toHaveClass('xr-st--err');
     expect(card.querySelector('blockquote')).toBeNull();
@@ -503,11 +578,12 @@ describe('CM-08 Updates — the correction tracker', () => {
     await waitFor(() =>
       expect(
         within(main()).getByRole('link', {
-          name: 'Open UPD-0005, Distillation Column, in academic review',
+          name: 'Open the update to Distillation Column, version 1.3, in academic review',
         }),
       ).toBeVisible(),
     );
     expect(text(main().querySelector('dl.rb-figs'))).toContain('With others 2');
+    expectNoReferences();
   });
 
   it('empty: “You haven’t raised any corrections” with the Content library', async () => {
@@ -533,6 +609,7 @@ describe('CM-08 Updates — the correction tracker', () => {
     ).toHaveAttribute('href', '/content-manager/library?tab=published');
     expect(main().querySelector('dl.rb-figs')).toBeNull();
     expect(main().querySelector('.cm-trkcount')).toBeNull();
+    expectNoReferences();
   });
 
   it('loading (no count, no figures), then couldn’t load + Try again (focus to the title)', async () => {
@@ -547,11 +624,13 @@ describe('CM-08 Updates — the correction tracker', () => {
     );
     expect(main().querySelector('dl.rb-figs')).toBeNull();
     expect(main().querySelector('.cm-trkcount')).toBeNull();
+    expectNoReferences();
     const failed = await screen.findByRole('alert', {}, { timeout: 5000 });
     expect(text(failed)).toBe(
       'We couldn’t load your corrections Nothing has changed. Try again. Try again',
     );
     expect(main().querySelector('dl.rb-figs')).toBeNull();
+    expectNoReferences();
     await user.click(within(failed).getByRole('button', { name: 'Try again' }));
     expect(screen.getByRole('heading', { level: 1, name: 'Updates' })).toHaveFocus();
     await screen.findByText(
@@ -573,9 +652,7 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     showUpdate(runtime, 'UPD-0005', '?focus=summary');
     const title = await heading('Update to Distillation Column');
     expect(title).toHaveAttribute('tabindex', '-1');
-    expect(text(band().querySelector('.rk-eyebrow'))).toBe(
-      'UPD-0005 · Correction to a published experiment',
-    );
+    expect(text(band().querySelector('.rk-eyebrow'))).toBe('Correction to a published experiment');
     expect(chip()).toBe('Draft');
     expect(band().querySelector('.rb-id-status .xr-st')).toHaveClass('rk-st-lg');
     expect(text(band().querySelector('.cm-ver'))).toBe('1.2 live No version label yet');
@@ -598,8 +675,14 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     expect(band().querySelectorAll('dd.is-quiet')).toHaveLength(2);
     const track = within(band()).getByRole('list', { name: 'Where this correction is' });
     expect(track.querySelector('li.is-you .cm-you')).toHaveTextContent('Your step');
-    // The crumbs: Updates › UPD-0005; the top bar names the destination.
-    expect(text(screen.getByRole('navigation', { name: 'Breadcrumb' }))).toBe('Updates UPD-0005');
+    // The crumbs: Updates › the H1's words (never the reference); the top bar names the
+    // destination; the browser tab leads with the update.
+    expect(text(screen.getByRole('navigation', { name: 'Breadcrumb' }))).toBe(
+      'Updates Update to Distillation Column',
+    );
+    await waitFor(() =>
+      expect(document.title).toBe('Update to Distillation Column · Updates · XR Learning Platform'),
+    );
     // The sheet.
     expect(field('Reason for the change (required to send)').value).toBe('');
     expect(field('Name').value).toBe('Distillation Column');
@@ -643,6 +726,14 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     ]);
     // CM-06: the summary is focused.
     await waitFor(() => expect(field('Summary')).toHaveFocus());
+    // Nowhere a reference — the closed Send and Withdraw dialogs included.
+    expect(
+      [...document.querySelectorAll('dialog.rk-dialog h2')].map((title) => text(title)),
+    ).toEqual([
+      'Send the update to Distillation Column for academic review?',
+      'Withdraw the update to Distillation Column?',
+    ]);
+    expectNoReferences();
   });
 
   it('CM-06 arrival (CM-05’s note): “New correction draft, from Edit catalogue details”; Go to the catalogue details', async () => {
@@ -663,9 +754,10 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     field('Name').focus();
     await user.click(within(arrival).getByRole('button', { name: 'Go to the catalogue details' }));
     expect(field('Summary')).toHaveFocus();
+    expectNoReferences();
   });
 
-  it('CM-07 joins the open draft: “Your edit joins UPD-0005”, the web link focused; Go to the web link', async () => {
+  it('CM-07 joins the open draft: “Your edit joins the open update”, the web link focused; Go to the web link', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
@@ -678,11 +770,12 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     await waitFor(() => expect(field('WEB · web link')).toHaveFocus());
     const arrival = document.getElementById('cm-u-entry')!;
     expect(text(arrival)).toBe(
-      'Your edit joins UPD-0005 This experiment already has an open correction, so your delivery change goes into it. One correction at a time per experiment. Go to the web link',
+      'Your edit joins the open update This experiment already has an open correction, so your delivery change goes into it. One correction at a time per experiment. Go to the web link',
     );
     field('Name').focus();
     await user.click(within(arrival).getByRole('button', { name: 'Go to the web link' }));
     expect(field('WEB · web link')).toHaveFocus();
+    expectNoReferences();
   });
 
   it('CM-07 without CM-05’s note: the address names the entry (a new draft from Edit a delivery link)', async () => {
@@ -879,9 +972,10 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     await user.type(field('New version label (required to send)'), '1.3');
     await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
     const dialog = await screen.findByRole('dialog', {
-      name: 'Send UPD-0005 for academic review?',
+      name: 'Send the update to Distillation Column for academic review?',
     });
     expect(dialog).toHaveClass('rk-dialog');
+    expectNoReferences();
     await waitFor(() => expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus());
     expect(text(dialog.querySelector('.rk-dlg-head p'))).toBe(
       'It goes to the Academic Reviewer, then to the Super Admin, who decides when to release it.',
@@ -922,6 +1016,7 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
       WHY,
       '1.3',
     ]);
+    expectNoReferences();
     expect((await liveOf(sample)).label).toBe('1.2');
   });
 
@@ -934,7 +1029,9 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     // Esc closes the dialog before anything is sent, focus back to the opener.
     const send = within(panel()).getByRole('button', { name: 'Send for academic review' });
     await user.click(send);
-    let dialog = await screen.findByRole('dialog', { name: 'Send UPD-0005 for academic review?' });
+    let dialog = await screen.findByRole('dialog', {
+      name: 'Send the update to Distillation Column for academic review?',
+    });
     fireEvent.keyDown(dialog, { key: 'Escape' });
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(send).toHaveFocus();
@@ -942,7 +1039,9 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     // Confirmed: it runs; Cancel and Esc wait for the answer.
     const release = holdCommand(runtime, 'sendForAcademicReview');
     await user.click(send);
-    dialog = await screen.findByRole('dialog', { name: 'Send UPD-0005 for academic review?' });
+    dialog = await screen.findByRole('dialog', {
+      name: 'Send the update to Distillation Column for academic review?',
+    });
     const confirm = within(dialog).getByRole('button', { name: 'Send for academic review' });
     fireEvent.click(confirm);
     await waitFor(() => expect(confirm).toHaveTextContent('Sending…'));
@@ -953,7 +1052,9 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     fireEvent.keyDown(dialog, { key: 'Escape' });
     expect(
-      screen.getByRole('dialog', { name: 'Send UPD-0005 for academic review?' }),
+      screen.getByRole('dialog', {
+        name: 'Send the update to Distillation Column for academic review?',
+      }),
     ).toBeVisible();
     release();
     await waitFor(() => expect(chip()).toBe('In academic review'));
@@ -967,13 +1068,16 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     showUpdate(runtime, 'UPD-0005');
     await heading('Update to Distillation Column');
     await user.click(within(panel()).getByRole('button', { name: 'Withdraw update' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Withdraw UPD-0005?' });
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Withdraw the update to Distillation Column?',
+    });
     expect(text(dialog.querySelector('.rk-dlg-head p'))).toBe(
       'Nothing changes in the live version. The update closes and can’t be sent again; you can start a new correction later.',
     );
     const reason = within(dialog).getByLabelText('Reason (required)');
     await waitFor(() => expect(reason).toHaveFocus());
     expect(text(reason.closest('.rk-field'))).toContain('Kept in this update’s history.');
+    expectNoReferences();
     const confirm = within(dialog).getByRole('button', { name: 'Withdraw update' });
     expect(confirm).toHaveClass('rb-btn--navy');
     await user.click(confirm);
@@ -999,6 +1103,7 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     );
     expect(within(panel()).queryAllByRole('button')).toHaveLength(0);
     expect((await liveOf(sample)).label).toBe('1.2');
+    expectNoReferences();
   });
 
   it('the withdraw dialog while it runs: Withdrawing…, Cancel and Esc wait', async () => {
@@ -1009,7 +1114,9 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     await heading('Update to Distillation Column');
     const release = holdCommand(runtime, 'withdrawUpdate');
     await user.click(within(panel()).getByRole('button', { name: 'Withdraw update' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Withdraw UPD-0005?' });
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Withdraw the update to Distillation Column?',
+    });
     await user.type(within(dialog).getByLabelText('Reason (required)'), 'Not needed.');
     const confirm = within(dialog).getByRole('button', { name: 'Withdraw update' });
     fireEvent.click(confirm);
@@ -1018,7 +1125,11 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus();
     fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     fireEvent.keyDown(dialog, { key: 'Escape' });
-    expect(screen.getByRole('dialog', { name: 'Withdraw UPD-0005?' })).toBeVisible();
+    expect(
+      screen.getByRole('dialog', {
+        name: 'Withdraw the update to Distillation Column?',
+      }),
+    ).toBeVisible();
     release();
     await waitFor(() => expect(chip()).toBe('Withdrawn'));
   });
@@ -1034,7 +1145,9 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     const approved = await reviewer.approveUpdate({ id: sent.id, expectedRev: sent.rev });
     expect(approved.ok).toBe(true);
     await user.click(within(panel()).getByRole('button', { name: 'Withdraw update' }));
-    const dialog = await screen.findByRole('dialog', { name: 'Withdraw UPD-0005?' });
+    const dialog = await screen.findByRole('dialog', {
+      name: 'Withdraw the update to Distillation Column?',
+    });
     await user.type(within(dialog).getByLabelText('Reason (required)'), 'No longer needed.');
     await user.click(within(dialog).getByRole('button', { name: 'Withdraw update' }));
     const stale = await screen.findByRole('alert');
@@ -1047,6 +1160,7 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     await waitFor(() => expect(chip()).toBe('Awaiting release decision'));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect((await updateOf(sample)).state).toBe('awaiting-release-decision');
+    expectNoReferences();
   });
 });
 
@@ -1088,6 +1202,16 @@ describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, releas
     // An app package reference for each app format the experiment has.
     expect(field('VR · package reference')).toBeVisible();
     expect(field('MR · package reference')).toBeVisible();
+    // The seeded reason is the one reference shown: a person's words, quoted as written.
+    expect(text(screen.getByRole('navigation', { name: 'Breadcrumb' }))).toBe(
+      'Updates Update to Induction Motor Loading',
+    );
+    await waitFor(() =>
+      expect(document.title).toBe(
+        'Update to Induction Motor Loading · Updates · XR Learning Platform',
+      ),
+    );
+    expectNoReferences('Correction UPD-0006.');
   });
 
   it('sent again after a return: “Sent again for academic review” in the history', async () => {
@@ -1098,8 +1222,9 @@ describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, releas
     await user.type(field('Name'), ' (corrected)');
     await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
     const dialog = await screen.findByRole('dialog', {
-      name: 'Send UPD-0006 for academic review?',
+      name: 'Send the update to Induction Motor Loading for academic review?',
     });
+    expectNoReferences('Correction UPD-0006.');
     await user.click(within(dialog).getByRole('button', { name: 'Send for academic review' }));
     await waitFor(() => expect(chip()).toBe('In academic review'));
     expect(historyWhat()[0]).toBe('Sent again for academic review');
@@ -1125,6 +1250,7 @@ describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, releas
     expect(
       within(panel()).getByRole('link', { name: 'Open the published experiment' }),
     ).toBeVisible();
+    expectNoReferences();
   });
 
   it('on hold (UPD-0004): the reason shown; then the hold lifted (awaiting again)', async () => {
@@ -1142,6 +1268,15 @@ describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, releas
       '“Version 2.0 stays live while the 2.1 build is checked.” Version 2.0 stays live.',
     );
     expect(band().querySelector('li.cm-step.is-held')).not.toBeNull();
+    // The seeded “what changes and why” is quoted as written, the one reference shown.
+    expect(
+      text(
+        screen
+          .getByRole('region', { name: 'What changes and why' })
+          .querySelector('blockquote.rk-quote'),
+      ),
+    ).toBe('Correction UPD-0004.');
+    expectNoReferences('Correction UPD-0004.');
     first.view.unmount();
     // The Super Admin lifts the hold (through the port): awaiting again, the lift said.
     const admin = asPersonId(sample, 'sa-arjun-mehta').corrections;
@@ -1162,6 +1297,7 @@ describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, releas
       / The hold was lifted on \d+ \w+ 2026\. Nothing went live; it is waiting for the Super Admin’s decision again\.$/,
     );
     expect(historyWhat()[0]).toBe('Hold lifted by Arjun Mehta');
+    expectNoReferences('Correction UPD-0004.');
   });
 
   it('released (after Flow F): what changed — Live before against Released', async () => {
@@ -1194,6 +1330,27 @@ describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, releas
       'Version Live before 1.2 Released 1.3',
     );
     expect(historyWhat()[0]).toBe('Released by Arjun Mehta');
+    expectNoReferences();
+  });
+
+  it('loading, then couldn’t load + Try again: no reference while it waits (a test fault plan)', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+    faults(sample).failNext('CorrectionService.getUpdate' as never);
+    showUpdate(runtime, 'UPD-0006');
+    await waitFor(() => expect(main()).toHaveTextContent('Loading the update'));
+    expectNoReferences();
+    const failed = await screen.findByRole('alert', {}, { timeout: 5000 });
+    expect(failed).toHaveTextContent('We couldn’t load this update');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    // Until the update is read the crumbs and the tab name only the destination.
+    await waitFor(() => expect(document.title).toBe('Updates · XR Learning Platform'));
+    expectNoReferences();
+    await act(async () => {
+      await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    });
+    await heading('Update to Induction Motor Loading');
+    expectNoReferences('Correction UPD-0006.');
   });
 
   it('no such update: “No update open” with the Content library', async () => {
@@ -1205,6 +1362,11 @@ describe('CM-08 the correction: returned, awaiting, on hold, hold lifted, releas
       'href',
       '/content-manager/library',
     );
+    // The crumb says the H1's words, never the address's reference.
+    expect(text(screen.getByRole('navigation', { name: 'Breadcrumb' }))).toBe(
+      'Updates No update open',
+    );
+    expectNoReferences();
   });
 
   it('the history in her words, newest first (state-copy `CM-08.history`)', async () => {

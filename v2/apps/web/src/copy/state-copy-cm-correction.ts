@@ -87,8 +87,20 @@ export const STATE_COPY_CM_CORRECTION = {
     screen: 'CM-08',
     state: 'An update address the service does not answer (no such update, or not hers to see)',
     words: null,
-    rule: '“Updates › <the address’s id>” crumbs, the page head “No update open” (the page’s one H1) and a sheet with “Start a correction from a published experiment.” and “Open the Content library”. Not found and not permitted read the same, so nothing says whether the update exists. The CM-v1 export draws no such page.',
-    basis: 'B6-13 f0; Appendix F §5.2 record guards; V3 kit PageHead, ListState',
+    rule: '“Updates › No update open” crumbs (the current crumb is the H1’s words, never the address’s reference: `CM-08.no-reference`), the page head “No update open” (the page’s one H1) and a sheet with “Start a correction from a published experiment.” and “Open the Content library”. Not found and not permitted read the same, so nothing says whether the update exists. The CM-v1 export draws no such page.',
+    basis:
+      'B6-13 f0; Appendix F §5.2 record guards; V3 kit PageHead, ListState; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'CM-08.no-reference': {
+    screen: 'CM-08',
+    state:
+      'Every CM-08 page — the Updates list and the correction page in every state, the CM-06 / CM-07 arrivals, the dialogs, the browser tab',
+    words: null,
+    rule: 'No internal reference (UPD-…, or any REQ-, ACC-, SUB-, DTR-, SUP- one) in the pages’ words or accessible names, hidden dialogs and screen-reader words included. A list card’s meta is “<course> · last change <day month>”; its action is named “<Continue|Open> the update to <experiment>, version <label>, <status>” (“, version <label>” — the proposed or released label — whenever the update has one, so two updates to one experiment never share a name). The correction page’s crumb and browser tab are its H1’s words (“Update to <experiment>”; tab “Update to <experiment> · Updates”), the band’s eyebrow “Correction to a published experiment”, the dialogs “Send the update to <experiment> for academic review?” and “Withdraw the update to <experiment>?”, a joined arrival “Your edit joins the open update”; a missing update’s crumb is “No update open”. The reference stays in the address (`/content-manager/updates/<UPD id>`), keys, query keys and service calls. A person’s own words are quoted as written: the sample world’s seeded “what changes and why” (“Correction UPD-0006.”, “Correction UPD-0004.”, …) shows as written in the Reason field and under “What changes and why”.',
+    basis:
+      'Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule); docs/v3/SA-INTEGRATION-RECORD.md §3 “No reference anywhere”; CM-v1 `updListVM` (`meta`, `aria`), `updVM` (eyebrow), `E.dlgSend`, `E.dlgW`, `entT` — which name the update by its reference',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -97,9 +109,9 @@ export const STATE_COPY_CM_CORRECTION = {
     state:
       'The correction opened from CM-05 by Edit catalogue details (CM-06), Edit delivery link (CM-07) or Start a correction',
     words: null,
-    rule: 'The arrival notice once, while the correction is a draft or returned: a new draft “New correction draft, from <entry>” with what it is pre-filled with, or a joined one “Your edit joins <UPD id>” with why; CM-06 and CM-07 add “Go to the catalogue details” / “Go to the web link”, which focus the summary / the web link (the first package reference without WEB). Which entry and whether it joined is the one-off note CM-05 leaves in memory for the tab (`noteCorrectionArrival`, from `openCorrection`’s `joined`); without one, an address with `?focus=` names the entry, and the update counts as joined when it is returned or was started by another entry. A reload with `?focus=` explains it again.',
+    rule: 'The arrival notice once, while the correction is a draft or returned: a new draft “New correction draft, from <entry>” with what it is pre-filled with, or a joined one “Your edit joins the open update” with why (the export names the update by its reference; `CM-08.no-reference`); CM-06 and CM-07 add “Go to the catalogue details” / “Go to the web link”, which focus the summary / the web link (the first package reference without WEB). Which entry and whether it joined is the one-off note CM-05 leaves in memory for the tab (`noteCorrectionArrival`, from `openCorrection`’s `joined`); without one, an address with `?focus=` names the entry, and the update counts as joined when it is returned or was started by another entry. A reload with `?focus=` explains it again.',
     basis:
-      'CM-v1 `Main.dc.html` `E.entryShow`, `entT`, `entB`, `goEntry`; `opStart` `ui.entry`; boards CM06, CM07, C01',
+      'CM-v1 `Main.dc.html` `E.entryShow`, `entT`, `entB`, `goEntry`; `opStart` `ui.entry`; boards CM06, CM07, C01; Owner visual-review correction, 20 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -283,7 +295,7 @@ export const STATE_COPY_CM_CORRECTION = {
   },
   'CM-08.withdraw-effect': {
     screen: 'CM-08',
-    state: 'Withdraw UPD-…? (the dialog)',
+    state: 'Withdraw the update to <experiment>? (the dialog)',
     words: null,
     rule: 'The export’s words: nothing changes in the live version, the update closes and can’t be sent again, a new correction can start later; the reason is required and “Kept in this update’s history.” (withdrawal reasons are not shown to the Academic Reviewer). Withdraw is offered while the update is a draft, returned or in academic review.',
     basis:

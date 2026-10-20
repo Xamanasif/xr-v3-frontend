@@ -51,6 +51,19 @@ const LIBRARY = section('<!-- CM-04 Content library -->', '<!-- CM-05 Published 
 const CODES = section('<!-- CM-09 Platform course codes -->', '<!-- XS-07 Help & support');
 
 const pathOf = (element: Element | null) => element?.querySelector('path')?.getAttribute('d');
+
+/** An internal reference (owner visual-review correction, 20 Oct 2026; the SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/** No internal reference in the words, the names, the titles or the placeholders drawn. */
+function expectNoReference(container: Element): void {
+  expect(container.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of container.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '').not.toMatch(REFERENCE);
+    }
+  }
+}
 const classesOf = (elements: Iterable<Element>) =>
   [...elements].map((element) => element.className);
 
@@ -226,7 +239,7 @@ describe('CM-01 the page head, the pipeline and the decision desk', () => {
                 next: 'Publish next',
                 when: { big: '13 days', small: 'approved 14 Aug' },
                 title: 'Transient Cooling',
-                description: 'SUB-0074 · ME ZG523 · Northline Simulation Studio',
+                description: 'ME ZG523 · Northline Simulation Studio',
                 facts: (
                   <>
                     <CmCheckChip met>4 of 4 checks met</CmCheckChip>
@@ -267,7 +280,7 @@ describe('CM-01 the page head, the pipeline and the decision desk', () => {
                 action: {
                   href: '/updates/UPD-0006',
                   label: 'Continue',
-                  accessibleName: 'Continue UPD-0006, correction to Induction Motor Loading',
+                  accessibleName: 'Continue the update to Induction Motor Loading',
                 },
               },
             ],
@@ -307,9 +320,13 @@ describe('CM-01 the page head, the pipeline and the decision desk', () => {
     ).toHaveTextContent('Prof. A. Menon, Academic Reviewer · 26 Aug');
     expect(
       within(corrections).getByRole('link', {
-        name: 'Continue UPD-0006, correction to Induction Motor Loading',
+        name: 'Continue the update to Induction Motor Loading',
       }).className,
     ).toBe('rb-btn');
+    expect(row.querySelector('.rb-row-d')).toHaveTextContent(
+      'ME ZG523 · Northline Simulation Studio',
+    );
+    expectNoReference(container);
     expectV3ClassesOnly(container);
     await assertNoAxeViolations(container);
   });
@@ -396,7 +413,7 @@ describe('CM-01 the page head, the pipeline and the decision desk', () => {
                   link: {
                     href: '/updates/UPD-0004',
                     label: 'Open',
-                    accessibleName: 'Open UPD-0004, Boiler Drum Level',
+                    accessibleName: 'Open the update to Boiler Drum Level',
                   },
                 },
               ]}
@@ -449,8 +466,9 @@ describe('CM-01 the page head, the pipeline and the decision desk', () => {
       'cm-hold-st',
     ]);
     expect(
-      within(others).getByRole('link', { name: 'Open UPD-0004, Boiler Drum Level' }),
+      within(others).getByRole('link', { name: 'Open the update to Boiler Drum Level' }),
     ).toHaveClass('rb-link');
+    expectNoReference(container);
     const catalogue = screen.getByRole('region', { name: 'In the catalogue' });
     expect(classesOf(catalogue.children)).toEqual([
       'cm-sidecard-t',
@@ -552,7 +570,7 @@ describe('CM-02 decision cards and their side cards', () => {
             firstLabel: 'Waiting longest',
             age: { value: '13', unit: 'days waiting', detail: 'since 14 Aug' },
             name: 'Transient Cooling',
-            idLine: 'SUB-0074 · Northline Simulation Studio',
+            vendorLine: 'Northline Simulation Studio',
             meta: (
               <>
                 <CmCourseName code="ME ZG523" name="Thermodynamics & Heat Transfer" />
@@ -607,8 +625,42 @@ describe('CM-02 decision cards and their side cards', () => {
         name: 'Open the publication decision for Transient Cooling',
       }).className,
     ).toBe('rb-btn rb-btn--primary');
+    expect(decisionCard.querySelector('.cm-qname + .cm-qline')).toHaveTextContent(
+      'Northline Simulation Studio',
+    );
+    expectNoReference(container);
     expectV3ClassesOnly(container);
     await assertNoAxeViolations(container);
+  });
+
+  it('a card with no vendor line leaves its line out (no empty `p.cm-qline`)', () => {
+    const { container } = render(
+      <CmDecisionCards
+        label="Approved experiments, oldest first"
+        checksLabel="Publication check"
+        cards={[
+          {
+            key: 'one',
+            age: { value: 'Today', unit: 'just approved', detail: 'at 15:20' },
+            name: 'Transient Cooling',
+            meta: <FormatBadges formats={['WEB']} label="Formats: WEB" />,
+            byLine: 'Approved by Prof. A. Menon · 2 learning outcomes',
+            checks: [],
+            summary: { text: 'All 4 checks met', met: true },
+            action: {
+              href: '/decisions/one',
+              label: 'Open decision',
+              accessibleName: 'Open the publication decision for Transient Cooling',
+            },
+          },
+        ]}
+      />,
+    );
+    expect(classesOf(container.querySelector('.cm-qmain')!.children)).toEqual([
+      'cm-qname',
+      'cm-qmeta',
+      'cm-qline',
+    ]);
   });
 
   it('loading: the announced line over three card skeletons', () => {
@@ -796,9 +848,7 @@ describe('CM-04 the view switch, the stage line and the course-grouped table', (
                 key: 'venturi',
                 href: '/decisions/SUB-0071',
                 title: 'Venturi Meter Calibration',
-                titleDetail: 'SUB-0071',
-                linkLabel:
-                  'Venturi Meter Calibration, SUB-0071, back with the academic reviewer. Open',
+                linkLabel: 'Venturi Meter Calibration, back with the academic reviewer. Open',
                 formats: <CmFormatBadges formats={['WEB']} label="Formats: WEB" />,
                 kind: { strong: 'Meridian Virtual Labs', small: 'Revision 1' },
                 whenLabel: 'Since',
@@ -840,6 +890,17 @@ describe('CM-04 the view switch, the stage line and the course-grouped table', (
     expect(rows[1]!.querySelector('.cm-stcell > .rk-small')).toHaveTextContent(
       'Re-check you asked for',
     );
+    // The export's line under the name (`span.rk-small`: the submission's reference, "From
+    // <reference>") is not drawn: the experiment's cell holds its link only.
+    for (const row of rows) {
+      expect(classesOf(row.querySelector('.rk-c-inst')!.children)).toEqual(['rk-rowlink']);
+    }
+    expect(
+      screen.getByRole('link', {
+        name: 'Venturi Meter Calibration, back with the academic reviewer. Open',
+      }),
+    ).toHaveAttribute('href', '/decisions/SUB-0071');
+    expectNoReference(container);
     const link = screen.getByRole('link', {
       name: 'Boiler Drum Level, CHE ZG513, version 2.0, published, update on hold. Open the published experiment',
     });

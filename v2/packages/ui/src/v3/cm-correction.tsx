@@ -128,7 +128,10 @@ export interface CmTrackerOutcome {
 export interface CmTrackerItemProps {
   /** The experiment's name (`h3.cm-qname`). */
   readonly name: ReactNode;
-  /** "UPD-0006 · EEE ZC341 · Electrical Machines · last change 26 Aug". */
+  /**
+   * "EEE ZC341 · Electrical Machines · last change 26 Aug" — never the update's reference (the
+   * owner's correction of 20 Oct 2026; the export leads with it).
+   */
   readonly meta: ReactNode;
   /** The version change (`CmVersionChange`). */
   readonly version: ReactNode;
@@ -149,7 +152,7 @@ export interface CmTrackerItemProps {
 }
 
 /**
- * One correction (`li.cm-trk`): its name, ID, course and last change with its version change; its
+ * One correction (`li.cm-trk`): its name, course and last change with its version change; its
  * status and action; the mini track, or the outcome once closed; the reason quoted. Below 700 px of
  * list the status leads and the action takes the full width (container `cmtrk`).
  */

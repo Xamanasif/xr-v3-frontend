@@ -321,7 +321,7 @@ draws. Every component takes its words, figures, dates and destinations from the
   dialog (V3P-01); the busy confirm `aria-disabled` (the kit's busy button) where the export draws
   `disabled`; CM-04's search is the service's (`ProductionService.getLibrary`: name, ID or course
   code — not the vendor or the course's name), so its placeholder and no-match line drop "vendor"
-  (state copy `CM-04.search.placeholder`, `CM-04.search.no-match`); the course filter narrows the
+  and "ID" (no Content Manager page shows a reference — the owner's 20 Oct 2026 correction) (state copy `CM-04.search.placeholder`, `CM-04.search.no-match`); the course filter narrows the
   rows on the page.
 
 ## Central patches (`src/styles/v3/patch.css`, layer `xr.v3.patch`)

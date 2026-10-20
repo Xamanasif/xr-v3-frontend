@@ -735,7 +735,9 @@ const CM_CASES = [
         .getByRole('complementary', { name: 'Your update' })
         .getByRole('button', { name: 'Withdraw update', exact: true })
         .click();
-      await page.getByRole('dialog', { name: 'Withdraw UPD-0006?' }).waitFor();
+      await page
+        .getByRole('dialog', { name: 'Withdraw the update to Induction Motor Loading?' })
+        .waitFor();
     },
   },
   {

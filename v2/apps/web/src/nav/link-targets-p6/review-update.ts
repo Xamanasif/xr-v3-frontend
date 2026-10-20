@@ -28,7 +28,7 @@ export const P6_REVIEW_UPDATE_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       CORRECTION_HERS,
       'built',
-      'CM-v1 `div.cm-trk-act a.rb-btn--primary` (named “Continue <UPD id>, <name>, <status>”; `openLink`; state-copy `CM-08.list.actions`); LINK-MAP → CM-08 “Update to …”',
+      'CM-v1 `div.cm-trk-act a.rb-btn--primary` (named “Continue the update to <name>, version <label>, <status>” — never by its reference, `CM-08.no-reference`; `openLink`; state-copy `CM-08.list.actions`); LINK-MAP → CM-08 “Update to …”',
     ],
     [
       'With others · Closed (every other card)',
@@ -36,7 +36,7 @@ export const P6_REVIEW_UPDATE_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       CORRECTION_WITH_OTHERS,
       'built',
-      'CM-v1 `div.cm-trk-act a.rb-btn` (named “Open <UPD id>, <name>, <status>”; `openLink`); LINK-MAP → CM-08 “Update to …”',
+      'CM-v1 `div.cm-trk-act a.rb-btn` (named “Open the update to <name>, version <label>, <status>” — never by its reference, `CM-08.no-reference`; `openLink`); LINK-MAP → CM-08 “Update to …”',
     ],
     [
       'Empty',
