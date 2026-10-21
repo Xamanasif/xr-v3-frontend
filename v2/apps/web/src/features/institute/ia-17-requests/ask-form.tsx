@@ -1,27 +1,29 @@
 'use client';
 
 import type { AccessPlanView, ServiceError, ValidationFailed } from '@xr/contracts/draft';
-import type { AccessPlan, ExperimentId, Institution, Technology } from '@xr/domain';
+import type { AccessPlan, ExperimentId, Institution, RequestStatus } from '@xr/domain';
 import { inDisplayOrder } from '@xr/domain';
 import {
   Button,
-  Checkbox,
-  CheckboxGroup,
-  ChoiceCard,
-  ChoiceList,
+  DefinitionList,
   ErrorSummary,
   Field,
-  FormatSet,
-  type FormatCode,
-  Icon,
-  LoadingState,
-  Notice,
-  PageHeader,
-  RadioGroup,
-  Section,
+  IaActions,
+  IaBusyButton,
+  IaField,
+  IaFormatBadges,
+  IaRqChoices,
+  IaRqForm,
+  IaRqFormPart,
+  IaRqFormSection,
+  IaRqNote,
+  ListState,
+  LoadingRows,
+  PageHead,
+  Surface,
   Textarea,
   TextInput,
-} from '@xr/ui';
+} from '@xr/ui/v3';
 import { type FormEvent, useState } from 'react';
 
 import { requestWords, wordsOf } from '@/copy/flow-state-words';
@@ -29,23 +31,26 @@ import {
   ASK_FORM,
   askSummaryTitle,
   contactWords,
+  experimentChoiceLine,
   experimentCourseWords,
-  experimentRowMeta,
-  experimentsInWords,
   licencesWords,
   moreLicencesWords,
   needRequiredWords,
-  renewalOfWords,
-  renewChoiceWords,
+  OPEN_RENEWAL_TITLE,
+  openRenewalLine,
+  planFormatsLabel,
+  RENEWAL_OF_YOUR_PLAN,
   renewingTermWords,
+  REQUESTS_PAGE,
 } from '@/copy/institute-requests';
 import { stateWords } from '@/copy/state-copy';
 import { useAccessPlan } from '@/queries/institute-home';
+import { useInstitutionRequests } from '@/queries/institute-requests';
 import { useCommand } from '@/queries/use-command';
 
-import { LoadFailed } from '../ia-02-content-access/institute-parts';
+import { formatCodes } from '../shared/format-codes';
 
-/** What the result page says about the request just sent (B3-08 f0 `done`). */
+/** What the result page says about the request just sent (IA-v1 "sent"). */
 export interface SentRequest {
   readonly reference: string;
   readonly what: string;
@@ -66,9 +71,14 @@ type Errors = Partial<Record<FieldName, string>>;
 
 const ORDER: readonly FieldName[] = ['type', 'experimentIds', 'licences'];
 
-const code = (format: Technology) => format.toUpperCase() as FormatCode;
+/** A renewal still open with BITS: sent, not yet active (IA-v1 `openRen`). */
+const OPEN: readonly RequestStatus[] = [
+  'under-review',
+  'information-requested',
+  'approved-payment-required',
+];
 
-/** The drawn words of the service's field errors on this form (B3-08 script `submit`). */
+/** The drawn words of the service's field errors on this form (IA-v1 `send`). */
 function errorsOf(error: ValidationFailed): Errors {
   const found: Errors = {};
   for (const item of error.fieldErrors) {
@@ -80,28 +90,31 @@ function errorsOf(error: ValidationFailed): Errors {
 }
 
 /**
- * IA-17's form, in place on Requests (board B3-08 f1, f2; "Ask for a renewal or more licences" —
- * it mirrors the public request form). Two kinds, both about the plan IA-01's status line names
- * (state-copy `IA-17.form-plan`), read with `InstitutionService.getAccessPlan`:
+ * IA-17's form, in place on Requests (the owner-approved Institute Admin export, IA-v1
+ * `Main.dc.html` "IA-17 form", `vm17form`: "Ask for a renewal or more licences"). Two kinds, both
+ * about the plan IA-01's status line names (state-copy `IA-17.form-plan`), read with
+ * `InstitutionService.getAccessPlan`, and named "your access plan" — never by its reference:
  *
- * - **Renew access plan ACC-0107** (f2): nothing to change — "The plan you’re renewing" mirrors
- *   the plan (its experiments, formats, licences as approved, term); `submitRenewalRequest`.
- * - **More licences for experiments you hold** (f1): the plan's experiments (all chosen at first)
- *   and "Licences requested" as a whole number; `submitAdditionalLicencesRequest`. No term,
- *   experiment or format can be added (B3-08 "Not asked"); nothing explains how licences are
- *   counted (D7).
+ * - **Renew your access plan**: nothing to change — "The plan you’re renewing" mirrors the plan
+ *   (its experiments, formats, licences as approved, term); `submitRenewalRequest`. While a
+ *   renewal is still open with BITS, a note says so (`listInstitutionRequests`, the list's read).
+ * - **More licences for experiments you hold**: the plan's experiments (all chosen at first) and
+ *   "Licences requested" as a whole number; `submitAdditionalLicencesRequest`. No term,
+ *   experiment or format can be added; nothing explains how licences are counted (D7).
  *
  * "Choose what you need" is the form's own check (no kind chosen); the service checks the rest and
  * answers in the drawn words ("Choose at least one experiment", "Enter the number of licences you
- * need", "Enter a whole number, like 60") under "Check your request", focused on every failed send
- * (f1). A refusal because the institution is paused returns to the list (`onPaused`); any other
- * refusal says nothing was sent (state-copy `IA-17.send.refused`); a failure for now keeps the
- * answers (`IA-17.send.unavailable`). Cancel returns to the list and forgets the answers.
+ * need", "Enter a whole number, like 60") under "Check your request", focused on every failed send.
+ * A refusal because the institution is paused returns to the list (`onPaused`); any other refusal
+ * says nothing was sent (state-copy `IA-17.send.refused`); a failure for now keeps the answers
+ * (`IA-17.send.unavailable`). While it sends, "Send request to BITS" reads "Sending…" and is busy.
+ * Cancel and the crumb return to the list and forget the answers.
  */
 export function AskForm({
   plan,
   institution,
   titleId,
+  date,
   onCancel,
   onPaused,
   onSent,
@@ -109,6 +122,8 @@ export function AskForm({
   readonly plan: AccessPlan;
   readonly institution: Institution | null;
   readonly titleId: string;
+  /** Today's date line (`p.rb-eyebrow-date`). */
+  readonly date: string | undefined;
   readonly onCancel: () => void;
   readonly onPaused: () => void;
   readonly onSent: (request: SentRequest) => void;
@@ -119,19 +134,36 @@ export function AskForm({
   let body;
   if (read.isError || (read.data && !read.data.ok)) {
     body = (
-      <LoadFailed
-        title={stateWords('IA-17.failed')}
-        onRetry={() => {
-          void read.refetch();
-        }}
-      />
+      <Surface>
+        <ListState
+          kind="failed"
+          titleAs="h2"
+          title={stateWords('IA-17.failed')}
+          action={
+            <Button
+              onClick={() => {
+                void read.refetch();
+              }}
+            >
+              {REQUESTS_PAGE.tryAgain}
+            </Button>
+          }
+        >
+          {REQUESTS_PAGE.failedLine}
+        </ListState>
+      </Surface>
     );
   } else if (view === null) {
-    body = <LoadingState label={stateWords('IA-17.form.loading')} surface="section" />;
+    body = (
+      <Surface busy>
+        <LoadingRows message={stateWords('IA-17.form.loading')} cells={[2, 1]} rows={2} />
+      </Surface>
+    );
   } else {
     body = (
       <FormBody
         view={view}
+        titleId={titleId}
         institution={institution}
         onCancel={onCancel}
         onPaused={onPaused}
@@ -142,17 +174,9 @@ export function AskForm({
 
   return (
     <>
-      <button
-        type="button"
-        className="xr-back cursor-pointer [background:none] [border:0] [font:inherit] [padding:0]"
-        onClick={onCancel}
-      >
-        <Icon name="back" />
-        {ASK_FORM.back}
-      </button>
-      <PageHeader
-        className="mt-2 mb-5"
-        overline={ASK_FORM.overline}
+      <PageHead
+        date={date}
+        eyebrow={ASK_FORM.overline}
         title={ASK_FORM.title}
         titleId={titleId}
         titleFocusTarget
@@ -164,12 +188,14 @@ export function AskForm({
 
 function FormBody({
   view,
+  titleId,
   institution,
   onCancel,
   onPaused,
   onSent,
 }: {
   readonly view: AccessPlanView;
+  readonly titleId: string;
   readonly institution: Institution | null;
   readonly onCancel: () => void;
   readonly onPaused: () => void;
@@ -178,6 +204,7 @@ function FormBody({
   const { plan } = view;
   const renewal = useCommand((ports) => ports.accessRequests.submitRenewalRequest);
   const more = useCommand((ports) => ports.accessRequests.submitAdditionalLicencesRequest);
+  const requests = useInstitutionRequests();
   const [need, setNeed] = useState<Need | null>(null);
   const [chosen, setChosen] = useState<readonly string[]>(() =>
     view.experiments.map((experiment) => experiment.experimentId),
@@ -214,6 +241,7 @@ function FormBody({
     }
     setErrors({});
     setRefused(true);
+    setAttempt((current) => current + 1);
   };
 
   const status = wordsOf(
@@ -233,7 +261,7 @@ function FormBody({
       renewal.run({ planId: plan.id, message: note }).then(
         (answer) => {
           if (answer.ok)
-            onSent({ reference: answer.value.reference, what: renewalOfWords(plan.id), status });
+            onSent({ reference: answer.value.reference, what: RENEWAL_OF_YOUR_PLAN, status });
           else answered(answer.error);
         },
         // Failed for now: nothing changes, the answers stay (state-copy `IA-17.send.unavailable`).
@@ -267,165 +295,171 @@ function FormBody({
   const formats = inDisplayOrder([
     ...new Set(view.experiments.flatMap((experiment) => experiment.formats)),
   ]);
+  const openRenewal = requests.data?.ok
+    ? (requests.data.value.find((row) => row.type === 'renewal' && OPEN.includes(row.status)) ??
+      null)
+    : null;
 
   return (
-    <form className="xw-stack" noValidate aria-label={ASK_FORM.title} onSubmit={submit}>
+    <IaRqForm labelledBy={titleId} onSubmit={submit}>
       {listed.length > 0 && summaryTitle ? (
-        <ErrorSummary
-          key={attempt}
-          id="ask-errors"
-          title={summaryTitle}
-          items={listed.map((field) => ({
-            fieldId: FIELD_IDS[field],
-            summaryText: errors[field]!,
-          }))}
-        />
+        <IaRqFormPart>
+          <ErrorSummary
+            key={attempt}
+            id="ask-errors"
+            title={summaryTitle}
+            items={listed.map((field) => ({
+              fieldId: FIELD_IDS[field],
+              summaryText: errors[field]!,
+            }))}
+          />
+        </IaRqFormPart>
       ) : null}
-      {refused ? <Notice tone="err">{stateWords('IA-17.send.refused')}</Notice> : null}
-      <Section title={ASK_FORM.need} headingId="ask-need-h">
-        <div className="xr-section-body">
-          <RadioGroup
-            id={FIELD_IDS.type}
-            tabIndex={-1}
-            legend={ASK_FORM.need}
-            legendClass="xr-sr"
-            error={errors.type}
-            errorPlacement="before-options"
-            value={need}
-            onValueChange={(value) => {
-              setNeed(value as Need);
-              setErrors({});
-            }}
-          >
-            <ChoiceList>
-              <ChoiceCard
-                id="ask-need-renew"
-                value="renew"
-                title={renewChoiceWords(plan.id)}
-                sub={ASK_FORM.renewSub}
-              />
-              <ChoiceCard
-                id="ask-need-more"
-                value="more"
-                title={ASK_FORM.more}
-                sub={ASK_FORM.moreSub}
-              />
-            </ChoiceList>
-          </RadioGroup>
-        </div>
-      </Section>
+      {refused ? (
+        <IaRqFormPart>
+          <ErrorSummary
+            key={`refused-${attempt}`}
+            id="ask-refused"
+            alwaysShown
+            title={stateWords('IA-17.send.refused')}
+            items={[]}
+          />
+        </IaRqFormPart>
+      ) : null}
+      <IaRqFormSection title={ASK_FORM.need} titleId="ask-need-h">
+        <IaRqChoices
+          kind="radio"
+          id={FIELD_IDS.type}
+          name="ask-need"
+          legend={ASK_FORM.need}
+          legendHidden
+          options={[
+            { value: 'renew', title: ASK_FORM.renew, description: ASK_FORM.renewSub },
+            { value: 'more', title: ASK_FORM.more, description: ASK_FORM.moreSub },
+          ]}
+          values={need === null ? [] : [need]}
+          onToggle={(value) => {
+            setNeed(value as Need);
+            setErrors({});
+          }}
+          error={errors.type}
+        />
+        {openRenewal ? (
+          <IaRqNote title={OPEN_RENEWAL_TITLE}>
+            {openRenewalLine(
+              openRenewal.receivedAt,
+              wordsOf(
+                requestWords({ status: openRenewal.status, reviewStarted: false }, 'tenant_admin'),
+              ) ?? openRenewal.status,
+            )}
+          </IaRqNote>
+        ) : null}
+      </IaRqFormSection>
       {need === 'renew' ? (
-        <Section title={ASK_FORM.renewing} headingId="ask-renewing-h">
-          <div className="xr-section-body">
-            <dl className="xl-kv">
-              <dt>{ASK_FORM.keys.plan}</dt>
-              <dd>
-                <span className="xr-id">{plan.id}</span>
-              </dd>
-              <dt>{ASK_FORM.keys.experiment}</dt>
-              <dd>
-                {view.experiments.map((experiment, index) => (
-                  <span key={experiment.experimentId} className={index > 0 ? 'block' : undefined}>
-                    {experimentCourseWords(experiment.name, experiment.course.platformCode)}
-                  </span>
-                ))}
-              </dd>
-              <dt>{ASK_FORM.keys.formats}</dt>
-              <dd>
-                <FormatSet compact formats={formats.map(code)} />
-              </dd>
-              <dt>{ASK_FORM.keys.licences}</dt>
-              <dd>{licencesWords(plan.licences)}</dd>
-              <dt>{ASK_FORM.keys.term}</dt>
-              <dd>{renewingTermWords(plan.term, plan.endsOn)}</dd>
-            </dl>
-          </div>
-        </Section>
+        <IaRqFormSection title={ASK_FORM.renewing} titleId="ask-renewing-h">
+          <DefinitionList
+            items={[
+              {
+                term: ASK_FORM.keys.experiment,
+                value: view.experiments
+                  .map((experiment) =>
+                    experimentCourseWords(experiment.name, experiment.course.platformCode),
+                  )
+                  .join(', '),
+              },
+              {
+                term: ASK_FORM.keys.formats,
+                value: (
+                  <IaFormatBadges
+                    flush
+                    formats={formatCodes(formats)}
+                    label={planFormatsLabel(formats)}
+                  />
+                ),
+              },
+              { term: ASK_FORM.keys.licences, value: licencesWords(plan.licences) },
+              { term: ASK_FORM.keys.term, value: renewingTermWords(plan.term, plan.endsOn) },
+            ]}
+          />
+        </IaRqFormSection>
       ) : null}
       {need === 'more' ? (
-        <Section title={ASK_FORM.experimentsAndLicences} headingId="ask-more-h">
-          <div className="xr-section-body flex flex-col gap-[18px]">
-            <CheckboxGroup
-              id={FIELD_IDS.experimentIds}
-              tabIndex={-1}
-              legend={experimentsInWords(plan.id)}
-              error={errors.experimentIds}
-              errorPlacement="before-options"
-            >
-              {view.experiments.map((experiment) => (
-                <Checkbox
-                  key={experiment.experimentId}
-                  id={`ask-experiment-${experiment.experimentId}`}
-                  checked={chosen.includes(experiment.experimentId)}
-                  onChange={() => {
-                    setChosen((current) =>
-                      current.includes(experiment.experimentId)
-                        ? current.filter((id) => id !== experiment.experimentId)
-                        : [...current, experiment.experimentId],
-                    );
-                    clear('experimentIds');
-                  }}
-                >
-                  <span>
-                    {experiment.name}{' '}
-                    <span className="xl-meta">
-                      {experimentRowMeta(experiment.course.platformCode, experiment.formats)}
-                    </span>
-                  </span>
-                </Checkbox>
-              ))}
-            </CheckboxGroup>
-            <Field
-              id={FIELD_IDS.licences}
-              label={ASK_FORM.licencesRequested}
-              hint={ASK_FORM.licencesHint}
-              error={errors.licences}
-            >
-              <TextInput
-                className="max-w-[200px]"
-                inputMode="numeric"
-                autoComplete="off"
-                value={licences}
-                onChange={(event) => {
-                  setLicences(event.target.value);
-                  clear('licences');
-                }}
-              />
-            </Field>
-          </div>
-        </Section>
-      ) : null}
-      <Section title={ASK_FORM.organisation} headingId="ask-organisation-h">
-        <div className="xr-section-body flex flex-col gap-[18px]">
-          <dl className="xl-kv">
-            <dt>{ASK_FORM.institution}</dt>
-            <dd>{view.institutionName}</dd>
-            {contact ? (
-              <>
-                <dt>{ASK_FORM.contactPerson}</dt>
-                <dd>{contactWords(contact.name, contact.workEmail)}</dd>
-              </>
-            ) : null}
-          </dl>
-          <Field id="ask-message" label={ASK_FORM.message} marker={ASK_FORM.optional}>
-            <Textarea
-              className="min-h-[90px]"
-              value={message}
-              onChange={(event) => setMessage(event.target.value)}
+        <IaRqFormSection
+          title={ASK_FORM.experimentsAndLicences}
+          titleId="ask-more-h"
+          layout="stack"
+        >
+          <IaRqChoices
+            kind="checkbox"
+            id={FIELD_IDS.experimentIds}
+            legend={ASK_FORM.experimentsIn}
+            options={view.experiments.map((experiment) => ({
+              value: experiment.experimentId,
+              title: experimentCourseWords(experiment.name, experiment.course.platformCode),
+              description: experimentChoiceLine(experiment.formats),
+            }))}
+            values={chosen}
+            onToggle={(value) => {
+              setChosen((current) =>
+                current.includes(value)
+                  ? current.filter((id) => id !== value)
+                  : [...current, value],
+              );
+              clear('experimentIds');
+            }}
+            error={errors.experimentIds}
+          />
+          <IaField
+            id={FIELD_IDS.licences}
+            width="count"
+            label={ASK_FORM.licencesRequested}
+            hint={ASK_FORM.licencesHint}
+            error={errors.licences}
+          >
+            <TextInput
+              inputMode="numeric"
+              autoComplete="off"
+              value={licences}
+              onChange={(event) => {
+                setLicences(event.target.value);
+                clear('licences');
+              }}
             />
-          </Field>
-        </div>
-      </Section>
-      <div className="xw-flow-foot">
-        <Button variant="text" onClick={onCancel}>
+          </IaField>
+        </IaRqFormSection>
+      ) : null}
+      <IaRqFormSection title={ASK_FORM.organisation} titleId="ask-organisation-h" layout="tight">
+        <DefinitionList
+          items={[
+            { term: ASK_FORM.institution, value: view.institutionName },
+            ...(contact
+              ? [
+                  {
+                    term: ASK_FORM.contactPerson,
+                    value: contactWords(contact.name, contact.workEmail),
+                  },
+                ]
+              : []),
+          ]}
+        />
+        <Field id="ask-message" label={ASK_FORM.message}>
+          <Textarea value={message} onChange={(event) => setMessage(event.target.value)} />
+        </Field>
+      </IaRqFormSection>
+      <IaActions>
+        <Button size="lg" onClick={onCancel}>
           {ASK_FORM.cancel}
         </Button>
-        <div className="xw-actions">
-          <Button variant="primary" type="submit" busy={busy} busyLabel={ASK_FORM.sending}>
-            {ASK_FORM.send}
-          </Button>
-        </div>
-      </div>
-    </form>
+        <IaBusyButton
+          type="submit"
+          variant="primary"
+          size="lg"
+          busy={busy}
+          busyLabel={ASK_FORM.sending}
+        >
+          {ASK_FORM.send}
+        </IaBusyButton>
+      </IaActions>
+    </IaRqForm>
   );
 }

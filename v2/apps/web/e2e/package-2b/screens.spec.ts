@@ -2,7 +2,12 @@ import { expect, type Page, test } from '@playwright/test';
 
 import { bootWorld, expectNoAxeViolations, reachAndClick, TEST_HOOKS_URL } from '../support';
 import { checkState } from '../support/screen-checks';
-import { currentSidebarItem, PAUSED_INSTITUTE_ADMIN, revealSidebar } from '../support/workspace';
+import {
+  currentSidebarItem,
+  PAUSED_INSTITUTE_ADMIN,
+  revealSidebar,
+  sidebarLink,
+} from '../support/workspace';
 
 /**
  * The Package-2B screens' drawn states on the test-hook build, at 1440, 1024, 768 and 375 (the
@@ -33,9 +38,34 @@ async function open(
 
 const main = (page: Page) => page.locator('main');
 
-/** A dialog is accessible and modal: axe, Tab stays inside, Esc closes it back to its trigger. */
-async function checkDialog(page: Page, name: string | RegExp): Promise<void> {
-  const dialog = page.getByRole('dialog', { name });
+/** Every internal record reference the Institute Admin's pages keep out of their words. */
+const IA_REFERENCE = /\b(?:REQ|ACC|SACC|GRP|FMAP|UPD|DTR|SUP|SUB)-\d+/;
+
+/** No internal reference in the page's words, names, placeholders or tab title (identifier rule). */
+async function expectNoIaReferences(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const pattern = new RegExp(source);
+    const named = [...document.querySelectorAll('[aria-label], [title], [placeholder]')].flatMap(
+      (element) =>
+        ['aria-label', 'title', 'placeholder'].map((name) => element.getAttribute(name) ?? ''),
+    );
+    return [document.querySelector('main')?.textContent ?? '', document.title, ...named].filter(
+      (text) => pattern.test(text),
+    );
+  }, IA_REFERENCE.source);
+  expect(found).toEqual([]);
+}
+
+/**
+ * A dialog is accessible and modal: axe, Tab stays inside, Esc closes it back to its trigger. A
+ * destructive one is an `alertdialog` (IA-v1: Remove from group).
+ */
+async function checkDialog(
+  page: Page,
+  name: string | RegExp,
+  role: 'dialog' | 'alertdialog' = 'dialog',
+): Promise<void> {
+  const dialog = page.getByRole(role, { name });
   await expect(dialog).toBeVisible();
   await expectNoAxeViolations(page);
   for (let index = 0; index < 6; index += 1) {
@@ -47,7 +77,7 @@ async function checkDialog(page: Page, name: string | RegExp): Promise<void> {
 }
 
 test.describe('Institute Admin', () => {
-  test('IA-13 Groups: the list, People current; Create group (DL-3) refuses a duplicate name (B2-08 f0, f1)', async ({
+  test('IA-13 Groups: the list, People current; Create group (DL-3) refuses a duplicate name (IA-v1 IA-13)', async ({
     page,
   }) => {
     await open(page, 'after-setup', MEERA, '/institute/people?tab=groups');
@@ -55,10 +85,13 @@ test.describe('Institute Admin', () => {
     await expect(main(page).locator('tbody tr')).toContainText(GROUP);
     await expect(main(page).locator('tbody tr')).toContainText('7 members');
     await expect(main(page).locator('tbody tr')).toContainText('None yet');
+    await expect(main(page).getByRole('link', { name: `Open group ${GROUP}` })).toBeVisible();
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/institute/people');
     await checkState(page, 'People');
+    await expectNoIaReferences(page);
     await reachAndClick(page, main(page).getByRole('button', { name: 'Create group' }));
     const dialog = page.getByRole('dialog', { name: 'Create group' });
+    await expect(dialog.getByRole('textbox', { name: 'Group name' })).toBeFocused();
     await dialog.getByRole('textbox', { name: 'Group name' }).fill(GROUP.toLowerCase());
     await reachAndClick(page, dialog.getByRole('button', { name: 'Create group' }));
     // The words name the group that already has the name (B2-08 `create`, ignoring case).
@@ -67,12 +100,12 @@ test.describe('Institute Admin', () => {
     await expect(main(page).getByRole('button', { name: 'Create group' })).toBeFocused();
   });
 
-  test('IA-14 Group after the group grant: each member’s standing, the grant (B2-08 f4); Remove (DL-1), Rename (DL-3)', async ({
+  test('IA-14 Group after the group grant: each member’s standing, the grant (IA-v1 IA-14); Remove (DL-1), Rename (DL-3)', async ({
     page,
   }) => {
     await open(page, 'later-sample', MEERA, '/institute/people/groups/GRP-0012');
     await expect(page.getByRole('heading', { level: 1, name: GROUP })).toBeVisible();
-    const members = page.getByRole('table', { name: 'Members' });
+    const members = page.getByRole('table', { name: `Members of ${GROUP}` });
     await expect(members.locator('tbody tr', { hasText: 'Sneha Reddy' })).toContainText(
       'Can’t open experiments while inactive',
     );
@@ -80,89 +113,127 @@ test.describe('Institute Admin', () => {
       'Waiting for a licence',
     );
     await expect(members.locator('tbody tr', { hasText: 'Rahul Verma' })).toContainText(
-      /Has it individually · SACC-\d{4}/,
+      'Has it individuallyGiven 9 Oct 2026',
     );
     await expect(members.locator('tbody tr', { hasText: 'Priya Natarajan' })).toContainText(
       'Can open it',
     );
-    const grants = page.getByRole('table', { name: 'Experiments given to this group' });
+    const grants = page.getByRole('list', { name: `Experiments given to ${GROUP}` });
     await expect(grants).toContainText(SHELL);
-    await expect(grants).toContainText('From access plan ACC-0107');
+    await expect(grants).toContainText('Given 12 Oct 2026');
     await checkState(page, GROUP);
+    await expectNoIaReferences(page);
     await reachAndClick(
       page,
       main(page).getByRole('button', { name: 'Remove Priya Natarajan from this group' }),
     );
-    await expect(page.getByRole('dialog')).toContainText(
+    await expect(page.getByRole('alertdialog')).toContainText(
       'Priya will no longer be a member of ME ZG523 — Sem II. Their student record stays in People.',
     );
-    await checkDialog(page, 'Remove Priya Natarajan from this group?');
+    await expect(
+      page.getByRole('alertdialog').getByRole('button', { name: 'Cancel' }),
+    ).toBeFocused();
+    await checkDialog(page, 'Remove Priya Natarajan from this group?', 'alertdialog');
     await reachAndClick(page, main(page).getByRole('button', { name: 'Rename', exact: true }));
     await checkDialog(page, 'Rename group');
   });
 
-  test('IA-14 Group: the add-students panel (B2-08 f7) and an empty group (f8)', async ({
-    page,
-  }) => {
+  test('IA-14 Group: the add-students panel (IA-v1 IA-14 adding)', async ({ page }) => {
     await open(page, 'after-setup', MEERA, '/institute/people/groups/GRP-0012');
-    await reachAndClick(page, main(page).getByRole('button', { name: 'Add students' }));
+    const toggle = main(page).locator('#gd-add');
+    await reachAndClick(page, toggle);
+    await expect(toggle).toHaveAttribute('aria-expanded', 'true');
     await expect(
-      page.getByRole('heading', { level: 3, name: 'Add students to this group' }),
+      page.getByRole('heading', { level: 2, name: 'Add students to this group' }),
     ).toBeFocused();
-    await expect(main(page).getByRole('button', { name: 'Add students' })).toBeDisabled();
+    const panel = page.getByRole('region', { name: 'Add students to this group' });
+    await expect(panel.getByRole('button', { name: 'Add students' })).toBeDisabled();
+    await reachAndClick(page, panel.getByRole('checkbox', { name: /Vikram Joshi/ }));
+    await expect(panel.getByRole('button', { name: 'Add 1 student' })).toBeEnabled();
     await checkState(page, GROUP);
+    await reachAndClick(page, panel.getByRole('button', { name: 'Cancel' }));
+    await expect(toggle).toBeFocused();
   });
 
-  test('IA-09 Faculty record, from the Faculty tab (B2-06 f15), and a record with no courses (f16)', async ({
+  test('IA-09 Faculty record, from the Faculty tab, and a record with no courses (IA-v1 IA-09)', async ({
     page,
   }) => {
     await open(page, 'after-setup', MEERA, '/institute/people?tab=faculty');
-    await reachAndClick(page, main(page).getByRole('link', { name: 'Dr S. Ranganathan' }));
+    await reachAndClick(
+      page,
+      main(page).getByRole('link', { name: 'Open faculty record: Dr S. Ranganathan' }),
+    );
     await page.waitForURL('**/institute/people/faculty/**');
-    await expect(main(page)).toContainText('ME ZG523 · Thermodynamics & Heat Transfer');
-    await expect(main(page)).toContainText(/FMAP-0021/);
+    await expect(main(page)).toContainText('Thermodynamics & Heat Transfer');
+    await expect(main(page)).toContainText('Your course code MEC-523');
+    await expect(main(page)).toContainText('Added 8 Oct 2026');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/institute/people');
     await checkState(page, 'Dr S. Ranganathan');
-    await reachAndClick(page, main(page).locator('a.xr-back'));
-    await reachAndClick(page, main(page).getByRole('link', { name: 'Dr Anita Desai' }));
+    // Named by its course and when it was assigned, never by its reference (the identifier rule).
+    await expectNoIaReferences(page);
+    await reachAndClick(
+      page,
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Faculty' }),
+    );
+    await reachAndClick(
+      page,
+      main(page).getByRole('link', { name: 'Open faculty record: Dr Anita Desai' }),
+    );
     await page.waitForURL('**/institute/people/faculty/**');
     await expect(page.getByRole('heading', { name: 'No courses yet' })).toBeVisible();
     await checkState(page, 'Dr Anita Desai');
+    await expectNoIaReferences(page);
   });
 
-  test('IA-15 Faculty courses: the table and the panel; validation; Remove (DL-1) (B2-09 f0, f3, f4)', async ({
+  test('IA-15 Faculty courses: the table and the panel; validation; Remove (DL-1) (IA-v1 IA-15)', async ({
     page,
   }) => {
     await open(page, 'after-setup', MEERA, '/institute/people?tab=faculty-courses');
     await expect(main(page).locator('tbody tr')).toHaveCount(3);
     await checkState(page, 'People');
-    const panel = page.getByRole('complementary', { name: 'Assign a course' });
+    const panel = page.getByRole('region', { name: 'Assign a course' });
     await reachAndClick(page, panel.getByRole('button', { name: 'Assign course' }));
-    await expect(panel).toContainText('Choose a faculty member');
+    await expect(panel.getByRole('alert')).toContainText('Choose a faculty member');
+    await expect(panel.getByRole('combobox', { name: 'Faculty member' })).toBeFocused();
     await checkState(page, 'People');
-    await reachAndClick(
-      page,
-      main(page).getByRole('button', { name: 'Remove ME ZG523 from Dr S. Ranganathan' }),
-    );
-    await checkDialog(page, 'Remove ME ZG523 from Dr S. Ranganathan?');
+    await expectNoIaReferences(page);
+    const remove = main(page).getByRole('button', {
+      name: 'Remove ME ZG523 from Dr S. Ranganathan',
+    });
+    await reachAndClick(page, remove);
+    // Destructive DL-1: an alert dialog, focus on Cancel.
+    await expect(
+      page.getByRole('alertdialog', { name: 'Remove ME ZG523 from Dr S. Ranganathan?' }),
+    ).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Cancel' })).toBeFocused();
+    await checkDialog(page, 'Remove ME ZG523 from Dr S. Ranganathan?', 'alertdialog');
+    await expect(remove).toBeFocused();
   });
 
-  test('IA-16 Course codes: the editable table; the one designed rule (B2-03 f6, f8)', async ({
+  test('IA-16 Course codes: the editor; the one designed rule (IA-v1 IA-16, st-ia16-error)', async ({
     page,
   }) => {
     await open(page, 'after-setup', MEERA, '/institute/content-access?tab=course-codes');
-    await expect(main(page)).toContainText('Every course has a code from your institution');
+    const editor = page.getByRole('region', { name: 'Course codes' });
+    await expect(editor).toContainText('Your institution’s code is added');
+    await expect(editor.locator('.ia-cc-lock')).toHaveText('ME ZG523');
+    await expect(page.getByRole('complementary', { name: 'How course codes work' })).toBeVisible();
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/institute/content-access');
     await checkState(page, 'Content access');
-    await page
-      .getByRole('textbox', { name: 'Your course code for Thermodynamics & Heat Transfer' })
-      .fill('');
-    await reachAndClick(page, main(page).getByRole('button', { name: 'Save course codes' }));
-    await expect(main(page)).toContainText('Add your course code, or clear the semester');
-    await expect(
-      page.getByRole('textbox', { name: 'Your course code for Thermodynamics & Heat Transfer' }),
-    ).toBeFocused();
+    await expectNoIaReferences(page);
+    const code = page.getByRole('textbox', {
+      name: 'Your course code for Thermodynamics & Heat Transfer',
+    });
+    await code.fill('');
+    await expect(editor.locator('.ia-cc-state')).toHaveText('You have unsaved changes');
+    await reachAndClick(page, editor.getByRole('button', { name: 'Save course code' }));
+    await expect(editor.locator('.rk-ferr')).toContainText(
+      'Add your course code, or clear the semester',
+    );
+    await expect(code).toBeFocused();
+    await expect(code).toHaveAttribute('aria-invalid', 'true');
     await checkState(page, 'Content access');
+    await expectNoIaReferences(page);
   });
 
   test('IA-16 and IA-13 read-only while the institution is paused (B2-03 f9)', async ({ page }) => {
@@ -172,14 +243,15 @@ test.describe('Institute Admin', () => {
       PAUSED_INSTITUTE_ADMIN,
       '/institute/content-access?tab=course-codes',
     );
-    await expect(main(page)).toContainText('Read-only while your institution’s access is paused');
-    await expect(main(page).getByRole('button', { name: 'Save course codes' })).toHaveCount(0);
-    await checkState(page, 'Content access');
-    await revealSidebar(page);
-    await reachAndClick(
-      page,
-      page.locator('aside.xr-side nav a[href="/institute/people"]').first(),
+    await expect(main(page).locator('.rk-notice--paused')).toContainText(
+      'Read-only while your institution’s access is paused',
     );
+    await expect(main(page).getByRole('button', { name: /^Save course code/ })).toHaveCount(0);
+    await expect(main(page).getByRole('textbox')).toHaveCount(0);
+    await checkState(page, 'Content access');
+    await expectNoIaReferences(page);
+    await revealSidebar(page);
+    await reachAndClick(page, sidebarLink(page, '/institute/people'));
     await page.waitForURL('**/institute/people');
     await reachAndClick(
       page,
@@ -189,13 +261,16 @@ test.describe('Institute Admin', () => {
     await checkState(page, 'People');
   });
 
-  test('IA-11 Import students: step 1, “Choose a CSV file first”, then the file’s problems (B2-07 f5, f6)', async ({
+  test('IA-11 Import students: step 1, “Choose a CSV file first”, then the file’s problems (IA-v1 IA-11)', async ({
     page,
   }) => {
     await open(page, 'after-setup', MEERA, '/institute/people/import');
+    await expect(page.getByRole('list', { name: 'Steps' })).toBeVisible();
     await checkState(page, 'Choose a file');
+    await expectNoIaReferences(page);
     await reachAndClick(page, main(page).getByRole('button', { name: 'Check file' }));
-    await expect(main(page)).toContainText('Choose a CSV file first');
+    await expect(main(page).getByRole('alert')).toContainText('Choose a CSV file first');
+    await expect(main(page).getByRole('button', { name: 'Choose a CSV file' })).toBeFocused();
     await checkState(page, 'Choose a file');
     await main(page)
       .locator('input[type="file"]')
@@ -213,7 +288,28 @@ test.describe('Institute Admin', () => {
     await reachAndClick(page, main(page).getByRole('button', { name: 'Check file' }));
     await expect(page.getByRole('heading', { level: 1, name: 'Check rows' })).toBeFocused();
     await expect(main(page)).toContainText('2 rows with errors');
+    await expect(
+      main(page)
+        .getByRole('table', { name: /^Rows that need attention/ })
+        .locator('tbody tr'),
+    ).toHaveCount(2);
     await checkState(page, 'Check rows');
+    await expectNoIaReferences(page);
+  });
+
+  test('IA-11 refused while paused: the message in place of the flow (IA-v1 IA-11)', async ({
+    page,
+  }) => {
+    await open(page, 'after-flow-b', PAUSED_INSTITUTE_ADMIN, '/institute/people/import');
+    await expect(
+      page.getByRole('heading', {
+        level: 1,
+        name: 'You can’t import students while your institution’s access is paused',
+      }),
+    ).toBeVisible();
+    await expect(page.getByRole('list', { name: 'Steps' })).toHaveCount(0);
+    await checkState(page, 'You can’t import students while your institution’s access is paused');
+    await expectNoIaReferences(page);
   });
 });
 

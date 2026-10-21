@@ -1,10 +1,18 @@
 'use client';
 
-import { Button, Link, PageContent, PageHeader, SectionTabs } from '@xr/ui';
+import {
+  Button,
+  ButtonLink,
+  ContentStack,
+  IaPeopleTabs,
+  type IaPeopleTab,
+  PageHead,
+} from '@xr/ui/v3';
 import { useEffect, useState } from 'react';
 
-import { GROUPS_TAB } from '@/copy/groups';
-import { PEOPLE_PAGE } from '@/copy/institute-people';
+import { GROUPS_TAB, groupCountWords } from '@/copy/groups';
+import { tabCountWords } from '@/copy/ia-people';
+import { facultyCountWords, PEOPLE_PAGE, studentCountWords } from '@/copy/institute-people';
 import {
   addPersonAddress,
   destinationPlacement,
@@ -17,34 +25,48 @@ import {
   tabPlacement,
 } from '@/nav/institute';
 import { useAppNavigation } from '@/nav/navigation';
+import { useAllStudents, useFacultyDirectory, useGroupList } from '@/queries/people';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { FacultyTab } from '../ia-08-faculty/faculty';
 import { CREATE_GROUP_ID, GroupsTab } from '../ia-13-groups/groups';
 import { FacultyCoursesTab } from '../ia-15-faculty-courses/faculty-courses';
-import { PausedNotice, useInstitutionPaused } from './paused';
+import { useInstitutionPaused } from '../shared/paused';
+import { useInstituteTodayLine } from '../shared/use-today-line';
 import { StudentsTab } from './students';
 
 type PeopleTab = 'students' | 'faculty' | 'groups' | 'faculty-courses';
 
 const TABS: readonly PeopleTab[] = ['students', 'faculty', 'groups', 'faculty-courses'];
 
+/** The page's H1: where focus lands after a navigation (V3 shell route focus). */
+const TITLE_ID = 'ia-h1';
+
+/** A read's length once it has answered, for a tab's count; none while it has not. */
+function countOf(read: { readonly data?: { readonly ok: boolean; readonly value?: unknown } }) {
+  const data = read.data;
+  return data?.ok && Array.isArray(data.value) ? data.value.length : null;
+}
+
 /**
- * People — board B2-06 ("Students and faculty at your institution"), one page with four tabs
- * (`nav.xr-tabs` "People", ordinary links; Appendix A rule T2):
+ * People — the owner-approved V3 export's People page (IA-v1 `Main.dc.html` "People head and
+ * tabs"): the head ("People", its line, the tab's actions), then the People tabs with their counts
+ * (`nav.ia-tabs` "People", ordinary links; a 2 × 2 grid on phones) and the tab:
  *
  * - **Students** (IA-06, `/institute/people`), **Faculty** (IA-08, `?tab=faculty`), **Groups**
- *   (IA-13, `?tab=groups`, B2-08) and **Faculty courses** (IA-15, `?tab=faculty-courses`, B2-09).
- *   Any other `tab` shows Students and the address becomes the bare `/institute/people`
- *   (`navigation.replace`; state-copy `IA-06.tab-address`).
- * - **Header actions as drawn per tab**: "Import students" (IA-11) and "Add student" (IA-10) on
- *   Students (B2-06 f0), "Add faculty member" on Faculty (f14), "Create group" on Groups (B2-08 f0,
- *   opening DL-3 on the tab); none on Faculty courses (B2-09 f0). Adding or importing a person
- *   creates a record only; nothing is sent (T-11).
- * - **Paused institution**: read-only. The writes are not offered and the paused notice shows; the
- *   service refuses every write `institution-paused` all the same (B2-01 f5).
- * - The top bar: "People" on Students; a tab with an id of its own reads the tab, crumbed under
- *   People — "People / Faculty", "People / Groups", "People / Faculty courses".
+ *   (IA-13, `?tab=groups`) and **Faculty courses** (IA-15, `?tab=faculty-courses`). Any other `tab`
+ *   shows Students and the address becomes the bare `/institute/people` (`navigation.replace`;
+ *   state-copy `IA-06.tab-address`).
+ * - **The counts** are the reads' own answers: every student (`listStudents` unfiltered), every
+ *   faculty member (`listFaculty`), every group (`listGroups`); none on Faculty courses, and none
+ *   while a read has not answered.
+ * - **Header actions as drawn per tab**: "Import students" and "Add student" (primary) on Students,
+ *   "Add faculty member" on Faculty, "Create group" on Groups (opening DL-3 on the tab); none on
+ *   Faculty courses. Adding or importing a person creates a record only; nothing is sent (T-11).
+ * - **Paused institution**: read-only. The writes are not offered and each tab shows the paused
+ *   notice; the service refuses every write `institution-paused` all the same (B2-01 f5).
+ * - The tab title: "People" on Students; a tab with an id of its own reads the tab ("Faculty",
+ *   "Groups", "Faculty courses").
  */
 export function People() {
   const navigation = useAppNavigation();
@@ -65,6 +87,7 @@ export function People() {
           ? tabPlacement('IA-15', PEOPLE_PAGE.tabs.facultyCourses)
           : destinationPlacement('IA-06'),
   );
+  const today = useInstituteTodayLine();
   const paused = useInstitutionPaused();
   const [creating, setCreating] = useState(false);
   // DL-3 belongs to the Groups tab: leaving the tab closes it (state adjusted while rendering).
@@ -74,56 +97,78 @@ export function People() {
     setCreating(false);
   }
 
-  const action = paused ? null : tab === 'faculty' ? (
-    <Link className="xr-btn xr-btn--primary" href={addPersonAddress('faculty')}>
+  const students = countOf(useAllStudents());
+  const faculty = countOf(useFacultyDirectory());
+  const groups = countOf(useGroupList());
+  const count = (value: number | null, words: (value: number) => string) =>
+    value === null ? null : { value, words: tabCountWords(words(value)) };
+  const tabs: IaPeopleTab[] = [
+    {
+      label: PEOPLE_PAGE.tabs.students,
+      href: PEOPLE_ADDRESS,
+      current: tab === 'students',
+      count: count(students, (n) => studentCountWords(n, n, false)),
+    },
+    {
+      label: PEOPLE_PAGE.tabs.faculty,
+      href: FACULTY_ADDRESS,
+      current: tab === 'faculty',
+      count: count(faculty, (n) => facultyCountWords(n, n, false)),
+    },
+    {
+      label: PEOPLE_PAGE.tabs.groups,
+      href: GROUPS_ADDRESS,
+      current: tab === 'groups',
+      count: count(groups, groupCountWords),
+    },
+    {
+      label: PEOPLE_PAGE.tabs.facultyCourses,
+      href: FACULTY_COURSES_ADDRESS,
+      current: tab === 'faculty-courses',
+    },
+  ];
+
+  const actions = paused ? null : tab === 'faculty' ? (
+    <ButtonLink variant="primary" size="lg" href={addPersonAddress('faculty')}>
       {PEOPLE_PAGE.addFaculty}
-    </Link>
+    </ButtonLink>
   ) : tab === 'groups' ? (
-    <Button id={CREATE_GROUP_ID} variant="primary" onClick={() => setCreating(true)}>
+    <Button id={CREATE_GROUP_ID} variant="primary" size="lg" onClick={() => setCreating(true)}>
       {GROUPS_TAB.createGroup}
     </Button>
   ) : tab === 'faculty-courses' ? null : (
     <>
-      <Link className="xr-btn xr-btn--secondary" href={IMPORT_STUDENTS_ADDRESS}>
+      <ButtonLink size="lg" href={IMPORT_STUDENTS_ADDRESS}>
         {PEOPLE_PAGE.importStudents}
-      </Link>
-      <Link className="xr-btn xr-btn--primary" href={addPersonAddress('student')}>
+      </ButtonLink>
+      <ButtonLink variant="primary" size="lg" href={addPersonAddress('student')}>
         {PEOPLE_PAGE.addStudent}
-      </Link>
+      </ButtonLink>
     </>
   );
 
   return (
-    <PageContent wrap="wide">
-      <PageHeader className="mb-4" title={PEOPLE_TITLE} meta={PEOPLE_PAGE.meta} actions={action} />
-      {paused ? <PausedNotice className="mb-4" /> : null}
-      <SectionTabs
-        label={PEOPLE_PAGE.tabsLabel}
-        tabs={[
-          {
-            href: PEOPLE_ADDRESS,
-            label: PEOPLE_PAGE.tabs.students,
-            current: tab === 'students',
-          },
-          { href: FACULTY_ADDRESS, label: PEOPLE_PAGE.tabs.faculty, current: tab === 'faculty' },
-          { href: GROUPS_ADDRESS, label: PEOPLE_PAGE.tabs.groups, current: tab === 'groups' },
-          {
-            href: FACULTY_COURSES_ADDRESS,
-            label: PEOPLE_PAGE.tabs.facultyCourses,
-            current: tab === 'faculty-courses',
-          },
-        ]}
+    <>
+      <PageHead
+        title={PEOPLE_TITLE}
+        titleId={TITLE_ID}
+        titleFocusTarget
+        date={today}
+        lead={PEOPLE_PAGE.meta}
+        actions={actions}
       />
-      <div className="h-5" />
-      {tab === 'faculty' ? (
-        <FacultyTab />
-      ) : tab === 'groups' ? (
-        <GroupsTab paused={paused} creating={creating} onCreatingChange={setCreating} />
-      ) : tab === 'faculty-courses' ? (
-        <FacultyCoursesTab paused={paused} />
-      ) : (
-        <StudentsTab paused={paused} />
-      )}
-    </PageContent>
+      <ContentStack>
+        <IaPeopleTabs label={PEOPLE_PAGE.tabsLabel} tabs={tabs} />
+        {tab === 'faculty' ? (
+          <FacultyTab paused={paused} />
+        ) : tab === 'groups' ? (
+          <GroupsTab paused={paused} creating={creating} onCreatingChange={setCreating} />
+        ) : tab === 'faculty-courses' ? (
+          <FacultyCoursesTab paused={paused} />
+        ) : (
+          <StudentsTab paused={paused} />
+        )}
+      </ContentStack>
+    </>
   );
 }

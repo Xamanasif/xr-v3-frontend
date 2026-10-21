@@ -271,6 +271,13 @@ export * from './rv.js';
 export * from './rv-lists.js';
 export * from './rv-submission.js';
 export * from './rv-update.js';
+// The Institute Admin role's patterns (IA-v1): what more than one screen group draws, then what one
+// screen group alone draws, one module per group.
+export * from './ia.js';
+export * from './ia-plan.js';
+export * from './ia-access.js';
+export * from './ia-people.js';
+export * from './ia-requests.js';
 export {
   PlanBand,
   CourseGroup,

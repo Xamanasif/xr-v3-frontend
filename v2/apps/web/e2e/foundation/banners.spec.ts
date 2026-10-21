@@ -67,12 +67,14 @@ async function expectBanner(page: Page, kind: 'paused' | 'inactive', help: strin
           border: 'rgb(197, 202, 216)',
         },
   );
-  // The first thing in the page column (XS: first child of main), and never modal: nothing inert,
-  // no dialog.
+  // The first thing in the page column (XS: first child of main) — in its V3 region in a v46
+  // shell, first in the page of the V3 shell (the Institute Admin's, IA-v1) — and never modal:
+  // nothing inert, no dialog.
   expect(
     await banner.evaluate(
       (element) =>
-        element.parentElement?.matches('main#main > .rk-x-region--banner:first-child') ?? false,
+        element.matches('main#main.rb-page > .rk-banner:first-child') ||
+        (element.parentElement?.matches('main#main > .rk-x-region--banner:first-child') ?? false),
     ),
   ).toBe(true);
   await expect(

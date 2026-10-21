@@ -68,11 +68,16 @@ async function tick(page: Page, box: Locator): Promise<void> {
   await expect(box).toBeChecked();
 }
 
-/** A People tab (the page's own `nav.xr-tabs`). */
+/**
+ * A People tab (the page's own tabs navigation). V3 (IA-v1) names a tab with its count after a
+ * comma ("Faculty, 3 faculty members"); "Faculty courses" has none.
+ */
 async function peopleTab(page: Page, name: string): Promise<void> {
   await reachAndClick(
     page,
-    page.getByRole('navigation', { name: 'People' }).getByRole('link', { name, exact: true }),
+    page
+      .getByRole('navigation', { name: 'People' })
+      .getByRole('link', { name: new RegExp(`^${name}\\s*(,|$)`) }),
   );
 }
 
@@ -82,6 +87,11 @@ const ARUN = 'Account menu, Arun Kumar, Student, Godavari Institute of Technolog
 const RAHUL = 'Account menu, Rahul Verma, Student, Godavari Institute of Technology';
 const SHELL = 'Shell-and-Tube Heat Exchanger';
 const GROUP = 'ME ZG523 — Sem II';
+/**
+ * The identifier rule (owner, every V3 role; IA-v1): no internal reference in the Institute
+ * Admin's words — the references stay in addresses, keys and services.
+ */
+const REFERENCE = /\b(?:SACC|ACC|REQ|GRP|DTR|FMAP)-\d+/;
 const IDENTITY_WORDS =
   'This e-mail is already used to sign in to the platform. Use a different e-mail.';
 
@@ -180,11 +190,22 @@ test('one tab, the product build: activation → course codes, import, group and
   // 2. Meera: Overview → Content access → the plan → Course codes (MEC-523).
   await signIn(page, 'meera.iyer@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/institute');
-  await expect(main(page).locator('.xw-statusline')).toContainText('Access active');
+  await expect(main(page).locator('.ia-ov-status')).toContainText('Access active');
   await sidebar(page, '/institute/content-access');
-  await reachAndClick(page, main(page).getByRole('link', { name: 'View access plan ACC-0107' }));
+  // V3 (IA-v1): the plan is named by its term; its reference is only in the link's address.
+  const viewPlan = page
+    .getByRole('region', { name: 'Access plan', exact: true })
+    .getByRole('link', { name: /^View access plan, / });
+  await expect(viewPlan).toHaveAttribute('href', '/institute/content-access/plans/ACC-0107');
+  await reachAndClick(page, viewPlan);
   await page.waitForURL('**/institute/content-access/plans/ACC-0107');
-  await expect(main(page)).toContainText('120 — as approved by BITS');
+  await expect(
+    page
+      .getByRole('region', { name: 'Licences and term' })
+      .locator('dt', { hasText: /^Licences$/ })
+      .locator('xpath=following-sibling::dd[1]'),
+  ).toHaveText(/^120\s*as approved by BITS$/);
+  await expect(main(page)).not.toContainText(REFERENCE);
   await sidebar(page, '/institute/content-access');
   await reachAndClick(
     page,
@@ -193,7 +214,8 @@ test('one tab, the product build: activation → course codes, import, group and
     }),
   );
   await page.waitForURL('**/institute/content-access?tab=course-codes');
-  await expect(main(page)).toContainText('1 of 1 course has no code from your institution');
+  // One course: the V3 count words (IA-v1 `vm16`) — "Your institution’s code isn’t added yet".
+  await expect(main(page)).toContainText('Your institution’s code isn’t added yet');
   await checkState(page, 'Content access');
   await page
     .getByRole('textbox', { name: 'Your course code for Thermodynamics & Heat Transfer' })
@@ -201,17 +223,18 @@ test('one tab, the product build: activation → course codes, import, group and
   await page
     .getByRole('textbox', { name: 'Semester for Thermodynamics & Heat Transfer (optional)' })
     .fill('Sem II');
-  await reachAndClick(page, main(page).getByRole('button', { name: 'Save course codes' }));
+  // One course: "Save course code" (the plural with several, IA-v1 `saveText`).
+  await reachAndClick(page, main(page).getByRole('button', { name: 'Save course code' }));
   await expect(main(page)).toContainText(
     'Students and faculty at your institution see MEC-523 with Thermodynamics & Heat Transfer.',
   );
-  await expect(main(page)).toContainText('Every course has a code from your institution');
+  await expect(main(page)).toContainText('Your institution’s code is added');
 
   // 3. Import students (IA-11): errors block the whole file; the corrected file imports three.
   await sidebar(page, '/institute/people');
   await reachAndClick(
     page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Import students' }),
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Import students' }),
   );
   await page.waitForURL('**/institute/people/import');
   await expect(page.getByRole('heading', { level: 1, name: 'Choose a file' })).toBeVisible();
@@ -248,7 +271,11 @@ test('one tab, the product build: activation → course codes, import, group and
   // 4. A group (IA-13 → IA-14), its members and the group grant; Arun's own grant.
   await peopleTab(page, 'Groups');
   await page.waitForURL('**/institute/people?tab=groups');
-  await reachAndClick(page, main(page).getByRole('button', { name: 'Create group' }));
+  // The head's "Create group" (V3, IA-v1: the empty Groups list repeats it).
+  await reachAndClick(
+    page,
+    main(page).locator('.rk-head-act').getByRole('button', { name: 'Create group' }),
+  );
   const create = page.getByRole('dialog', { name: 'Create group' });
   await create.getByRole('textbox', { name: 'Group name' }).fill(GROUP);
   await reachAndClick(page, create.getByRole('button', { name: 'Create group' }));
@@ -257,18 +284,25 @@ test('one tab, the product build: activation → course codes, import, group and
   await reachAndClick(page, main(page).getByRole('link', { name: `Open group ${GROUP}` }));
   await page.waitForURL('**/institute/people/groups/**');
   await expect(page.getByRole('heading', { level: 1, name: GROUP })).toBeVisible();
-  await reachAndClick(page, main(page).getByRole('button', { name: 'Add students' }));
+  // The head's "Add students" (V3, IA-v1: the empty members list repeats it).
+  await reachAndClick(
+    page,
+    main(page).locator('.rk-head-act').getByRole('button', { name: 'Add students' }),
+  );
   await tick(page, page.getByRole('checkbox', { name: /Rahul Verma/ }));
   await tick(page, page.getByRole('checkbox', { name: /Priya Natarajan/ }));
   await reachAndClick(page, main(page).getByRole('button', { name: 'Add 2 students' }));
-  await expect(main(page)).toContainText('2 students added to the group.');
+  await expect(main(page)).toContainText('2 students were added to the group.');
   await checkState(page, GROUP);
-  await reachAndClick(
-    page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Give this group access' }),
-  );
+  const giveGroup = main(page)
+    .locator('.rk-head-act')
+    .getByRole('link', { name: 'Give this group access' });
+  // The group is named by its name; its reference stays in the address (IA-v1 identifier rule).
+  await expect(giveGroup).toHaveAttribute('href', /[?&]group=GRP-\d+/);
+  await expect(main(page)).not.toContainText(REFERENCE);
+  await reachAndClick(page, giveGroup);
   await page.waitForURL('**/institute/student-access/give?**');
-  await expect(main(page)).toContainText(`Giving access to the group ${GROUP}.`);
+  await expect(main(page)).toContainText(`Giving access to the group ${GROUP}`);
   await tick(page, page.getByRole('checkbox', { name: new RegExp(SHELL) }));
   await reachAndClick(page, main(page).getByRole('button', { name: 'Continue' }));
   await expect(page.getByRole('heading', { level: 1, name: 'Choose students' })).toBeVisible();
@@ -285,7 +319,11 @@ test('one tab, the product build: activation → course codes, import, group and
     main(page).getByRole('link', { name: 'Open student record: Arun Kumar' }),
   );
   await page.waitForURL('**/institute/people/students/**');
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Give this student access' }));
+  // The record's head action (V3, IA-v1: an empty "Experiments given" repeats it).
+  await reachAndClick(
+    page,
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Give this student access' }),
+  );
   await page.waitForURL('**/institute/student-access/give?**');
   await tick(page, page.getByRole('checkbox', { name: new RegExp(SHELL) }));
   await reachAndClick(page, main(page).getByRole('button', { name: 'Continue' }));
@@ -324,7 +362,7 @@ test('one tab, the product build: activation → course codes, import, group and
     page,
     main(page).getByRole('button', { name: `Withdraw Arun Kumar’s access to ${SHELL}` }),
   );
-  const withdraw = page.getByRole('dialog', { name: 'Withdraw access?' });
+  const withdraw = page.getByRole('alertdialog', { name: 'Withdraw access?' });
   await withdraw.getByLabel(/^Reason/).fill('Given to the wrong student.');
   await reachAndClick(page, withdraw.getByRole('button', { name: 'Withdraw access' }));
   await expect(withdraw).toBeHidden();
@@ -358,7 +396,7 @@ test('one tab, the product build: activation → course codes, import, group and
   await peopleTab(page, 'Faculty');
   await reachAndClick(
     page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Add faculty member' }),
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Add faculty member' }),
   );
   await page.waitForURL('**/institute/people/add?type=faculty');
   await page.getByLabel('Full name', { exact: true }).fill('Dr S. Ranganathan');
@@ -366,7 +404,8 @@ test('one tab, the product build: activation → course codes, import, group and
   await reachAndClick(page, main(page).getByRole('button', { name: 'Add faculty member' }));
   await reachAndClick(page, main(page).getByRole('link', { name: 'Assign a course' }));
   await page.waitForURL('**/institute/people?tab=faculty-courses&faculty=**');
-  const panelAside = page.getByRole('complementary', { name: 'Assign a course' });
+  // V3 (IA-v1): the assign panel is a region of the page beside the table.
+  const panelAside = page.getByRole('region', { name: 'Assign a course' });
   await expect(panelAside.getByRole('combobox', { name: /^Faculty member/ })).toHaveValue(/per-/);
   await panelAside
     .getByRole('combobox', { name: /^Course/ })
@@ -378,9 +417,20 @@ test('one tab, the product build: activation → course codes, import, group and
   await checkState(page, 'People');
   await reachAndClick(page, main(page).getByRole('link', { name: 'Dr S. Ranganathan' }));
   await page.waitForURL('**/institute/people/faculty/**');
-  await expect(main(page)).toContainText('ME ZG523 · Thermodynamics & Heat Transfer');
+  const taught = main(page)
+    .getByRole('table', { name: 'Courses taught by Dr S. Ranganathan' })
+    .getByRole('row')
+    .filter({ hasText: 'ME ZG523' });
+  await expect(taught).toContainText('Thermodynamics & Heat Transfer');
   await checkState(page, 'Dr S. Ranganathan');
-  await reachAndClick(page, main(page).locator('a.xr-back'));
+  // Back to the Faculty tab: the V3 breadcrumb (IA-v1) in place of the v46 back link.
+  await reachAndClick(
+    page,
+    main(page).getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', {
+      name: 'Faculty',
+      exact: true,
+    }),
+  );
   await page.waitForURL('**/institute/people?tab=faculty');
   await expect(main(page).locator('tbody tr', { hasText: 'Dr S. Ranganathan' })).toContainText(
     'ME ZG523',

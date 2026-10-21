@@ -3,26 +3,34 @@
 import type { ServiceError } from '@xr/contracts/draft';
 import type { GroupId } from '@xr/domain';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
+  ButtonLink,
+  DefinitionList,
   ErrorSummary,
   Field,
-  Link,
+  IaActions,
+  IaBusyButton,
+  IaFieldGrid,
+  IaFieldset,
+  IaFormSurface,
+  IaMessageCard,
+  IaNoWrap,
   Notice,
-  PageContent,
-  PageHeader,
-  Section,
+  PageHead,
   Select,
-  StatusPill,
   TextInput,
-} from '@xr/ui';
+  TextLink,
+} from '@xr/ui/v3';
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 
+import { ADD_PERSON_V3, backToWords } from '@/copy/ia-people';
 import { ADD_PERSON, ADDED_FACULTY_LINE, ADDED_STUDENT_LINE } from '@/copy/institute-people';
 import {
   FACULTY_ADDRESS,
   facultyCoursesAddress,
   giveAccessAddress,
+  INSTITUTE_HELP_ADDRESS,
   PEOPLE_ADDRESS,
   underPlacement,
 } from '@/nav/institute';
@@ -32,14 +40,20 @@ import {
   type PersonFieldError,
   personFieldErrors,
   personSummaryTitle,
+  useAllStudents,
   useGroupList,
 } from '@/queries/people';
 import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { PausedNotice, useInstitutionPaused } from '../ia-06-people/paused';
+import { useInstitutionPaused } from '../shared/paused';
+import { useInstituteTodayLine } from '../shared/use-today-line';
 
 type PersonType = 'student' | 'faculty';
+
+/** The page's H1 (the head's, or the paused refusal's): where focus lands. */
+const TITLE_ID = 'ia-h1';
+const DONE_TITLE_ID = 'person-added-t';
 
 /** The control each field error and its summary link point to. */
 const FIELD_IDS: Readonly<Record<PersonField, string>> = {
@@ -64,25 +78,36 @@ const EMPTY: Draft = {
   group: '',
 };
 
+/** Who was added, as the result names them (the command's answer and the group chosen). */
+interface Added {
+  readonly id: string;
+  readonly name: string;
+  readonly email: string;
+  readonly studentId: string | null;
+  readonly group: string;
+}
+
 /**
- * IA-10 Add a student / Add a faculty member — board B2-07 f0 … f4, at `/institute/people/add`
- * (`?type=faculty` for a faculty member).
+ * IA-10 Add student / Add faculty member — the V3 export's add page (IA-v1 `Main.dc.html` IA-10,
+ * reviewed and unchanged), at `/institute/people/add` (`?type=faculty` for a faculty member).
  *
- * - **The form as drawn**: "Who they are" (Full name, Institution e-mail) and, for a student,
- *   "Student details" (Student ID, Programme and Group — both optional; the groups are
- *   `GroupService.listGroups`'), with the quiet notice saying what adding does not do.
+ * - **The form as drawn**, in the form column: the info notice saying what adding does not do,
+ *   "Who they are" (Full name, Institution e-mail — two per row from 640 px) and, for a student,
+ *   "Student details" (Student ID with the first student's ID as the example, Programme and Group —
+ *   both optional; the groups are `GroupService.listGroups`'), then Cancel and the primary.
  * - **Checked by the service**: `PeopleService.addStudent` / `addFaculty` answer the drawn words —
- *   required fields, a full e-mail address, an e-mail or student ID already in People ("is already
- *   used by Rahul Verma") — shown on the fields and in the error summary, which takes focus. Typing
- *   in a field clears its error. The service checks the formats before uniqueness (state-copy
- *   `IA-10.check-order`). Uniqueness is People's own rule only; whether an e-mail a platform user
- *   or another institution's admin already holds may be used is open (T-11 / P1-01).
+ *   required fields, a full e-mail address, an e-mail or student ID already in People, an e-mail
+ *   another account signs in with — shown on the fields and in the error summary, which takes
+ *   focus. Typing in a field clears its error. The service checks the formats before uniqueness
+ *   (state-copy `IA-10.check-order`); nothing is overwritten.
  * - **Sent once**; "Adding…" while busy. Adding creates the record only: no invitation or e-mail
  *   (T-11). A failure for now keeps every answer (state-copy `IA-10.unavailable`).
- * - **The result in place** (f2), which takes focus: "Give this student access" (IA-05 with the new
- *   student chosen), "Add another student", "Back to People". A faculty member's result offers
- *   "Assign a course" (IA-15 with them chosen, Package 2B) and "Add another faculty member".
- * - **Paused institution**: read-only — the paused notice instead of the form.
+ * - **The result in place**, which takes focus: "Added", who and what was recorded, then "Give this
+ *   student access" (IA-05 with the new student chosen) or "Assign a course" (IA-15 with them
+ *   chosen), "Add another …" and "Back to Students / Faculty".
+ * - **Paused institution**: the refusal instead of the page ("You can’t add people while your
+ *   institution’s access is paused"), with the way back and Help; a write refused
+ *   `institution-paused` meanwhile turns the page into it, its heading focused.
  */
 export function AddPerson() {
   const navigation = useAppNavigation();
@@ -90,64 +115,83 @@ export function AddPerson() {
     new URLSearchParams(navigation.search).get('type') === 'faculty' ? 'faculty' : 'student';
   const words = type === 'faculty' ? ADD_PERSON.faculty : ADD_PERSON.student;
   useShellPage(underPlacement('IA-10', words.title));
+  const today = useInstituteTodayLine();
   const sessionPaused = useInstitutionPaused();
   const [refusedPaused, setRefusedPaused] = useState(false);
   const paused = sessionPaused || refusedPaused;
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const back = type === 'faculty' ? FACULTY_ADDRESS : PEOPLE_ADDRESS;
+  const crumbs = <Breadcrumbs levels={[{ label: words.back, href: back }]} current={words.title} />;
+
+  // A write refused while paused turns the page into the refusal: its heading takes focus.
+  useEffect(() => {
+    if (refusedPaused) document.getElementById(TITLE_ID)?.focus();
+  }, [refusedPaused]);
+
+  if (paused) {
+    return (
+      <>
+        {crumbs}
+        <IaMessageCard
+          icon="pauseCircle"
+          title={ADD_PERSON_V3.pausedTitle}
+          titleId={TITLE_ID}
+          actions={
+            <>
+              <ButtonLink variant="navy" href={back}>
+                {backToWords(words.back)}
+              </ButtonLink>
+              <TextLink href={INSTITUTE_HELP_ADDRESS}>{ADD_PERSON_V3.help}</TextLink>
+            </>
+          }
+        >
+          {ADD_PERSON_V3.pausedLine}
+        </IaMessageCard>
+      </>
+    );
+  }
 
   return (
-    <PageContent wrap="form">
-      <PageHeader
-        className="mt-2 mb-5"
-        back={
-          <BackLink href={type === 'faculty' ? FACULTY_ADDRESS : PEOPLE_ADDRESS}>
-            {words.back}
-          </BackLink>
-        }
-        overline={ADD_PERSON.overline}
+    <>
+      <PageHead
+        breadcrumbs={crumbs}
+        date={today}
+        eyebrow={ADD_PERSON.overline}
         title={words.title}
+        titleId={TITLE_ID}
         titleFocusTarget
-        titleRef={titleRef}
       />
-      {paused ? (
-        <PausedNotice />
-      ) : (
-        <AddPersonForm
-          key={type}
-          type={type}
-          onPaused={() => {
-            setRefusedPaused(true);
-            titleRef.current?.focus();
-          }}
-        />
-      )}
-    </PageContent>
+      <AddPersonForm key={type} type={type} back={back} onPaused={() => setRefusedPaused(true)} />
+    </>
   );
 }
 
 function AddPersonForm({
   type,
+  back,
   onPaused,
 }: {
   readonly type: PersonType;
+  readonly back: string;
   readonly onPaused: () => void;
 }) {
   const words = type === 'faculty' ? ADD_PERSON.faculty : ADD_PERSON.student;
+  const lead = type === 'faculty' ? ADD_PERSON_V3.faculty : ADD_PERSON_V3.student;
   const student = type === 'student';
   const [draft, setDraft] = useState<Draft>(EMPTY);
   const [errors, setErrors] = useState<readonly PersonFieldError[]>([]);
   // Each failed "Add" shows the summary anew, and it takes focus (B2-07 `focus(pid + '-errsum')`).
   const [attempt, setAttempt] = useState(0);
-  const [added, setAdded] = useState<{ readonly id: string; readonly name: string } | null>(null);
+  const [added, setAdded] = useState<Added | null>(null);
   const [focusName, setFocusName] = useState(0);
   const doneRef = useRef<HTMLDivElement>(null);
   const groups = useGroupList(student);
+  const students = useAllStudents();
   const addStudent = useCommand((ports) => ports.people.addStudent);
   const addFaculty = useCommand((ports) => ports.people.addFaculty);
   const busy = addStudent.busy || addFaculty.busy;
 
-  // The result takes focus when it appears (B2-07 `focus(pid + '-done')`); "Add another …" puts it
-  // on the first field.
+  // The result takes focus when it appears (the export's `focusLater('ad-done')`); "Add another …"
+  // puts it on the first field.
   useEffect(() => {
     if (added) doneRef.current?.focus();
   }, [added]);
@@ -161,6 +205,9 @@ function AddPersonForm({
     setErrors((current) => current.filter((error) => error.field !== name));
   };
   const errorOf = (field: PersonField) => errors.find((error) => error.field === field)?.message;
+  const groupOptions = groups.data?.ok ? groups.data.value : [];
+  const groupName = (id: string) =>
+    groupOptions.find((entry) => entry.group.id === id)?.group.name ?? null;
 
   const refused = (error: ServiceError) => {
     if (error.kind === 'validation-failed') {
@@ -191,7 +238,14 @@ function AddPersonForm({
       (answer) => {
         if (answer.ok) {
           setErrors([]);
-          setAdded({ id: answer.value.id, name: answer.value.fullName });
+          const person = answer.value;
+          setAdded({
+            id: person.id,
+            name: person.fullName,
+            email: person.institutionEmail,
+            studentId: 'institutionStudentId' in person ? person.institutionStudentId : null,
+            group: draft.group,
+          });
         } else refused(answer.error);
       },
       // Failed for now: nothing changes and every answer stays (state-copy `IA-10.unavailable`).
@@ -207,139 +261,174 @@ function AddPersonForm({
   };
 
   if (added) {
+    const facts = student
+      ? [
+          { term: ADD_PERSON_V3.facts.studentId, value: added.studentId ?? '' },
+          { term: ADD_PERSON_V3.facts.email, value: added.email },
+          {
+            term: ADD_PERSON_V3.facts.group,
+            value: (added.group && groupName(added.group)) || ADD_PERSON_V3.facts.notInGroup,
+          },
+        ]
+      : [
+          { term: ADD_PERSON_V3.facts.email, value: added.email },
+          { term: ADD_PERSON_V3.facts.coursesTaught, value: ADD_PERSON_V3.facts.noneYet },
+        ];
     return (
-      <Section focusTarget ref={doneRef} id="person-added" className="flex flex-col gap-4 p-7">
-        <StatusPill tone="ok">{ADD_PERSON.added}</StatusPill>
-        <p className="xr-body m-0">
-          <strong>{added.name}</strong>
+      <IaFormSurface
+        labelledBy={DONE_TITLE_ID}
+        actions={
+          <IaActions start>
+            {student ? (
+              <ButtonLink
+                variant="primary"
+                size="lg"
+                href={giveAccessAddress({ student: added.id })}
+              >
+                {ADD_PERSON.giveAccess}
+              </ButtonLink>
+            ) : (
+              // "Assign a course" opens Faculty courses with them chosen (IA-15).
+              <ButtonLink variant="primary" size="lg" href={facultyCoursesAddress(added.id)}>
+                {ADD_PERSON.assignCourse}
+              </ButtonLink>
+            )}
+            <Button size="lg" onClick={again}>
+              {words.again}
+            </Button>
+            <ButtonLink variant="ghost" size="lg" href={back}>
+              {backToWords(words.back)}
+            </ButtonLink>
+          </IaActions>
+        }
+      >
+        <Notice
+          tone="ok"
+          role="status"
+          id="person-added"
+          ref={doneRef}
+          title={<span id={DONE_TITLE_ID}>{ADD_PERSON.added}</span>}
+        >
+          {added.name}
           {student ? ADDED_STUDENT_LINE : ADDED_FACULTY_LINE}
-        </p>
-        <div className="xw-actions">
-          {student ? (
-            <Link
-              className="xr-btn xr-btn--primary"
-              href={giveAccessAddress({ student: added.id })}
-            >
-              {ADD_PERSON.giveAccess}
-            </Link>
-          ) : null}
-          {student ? null : (
-            // B2-07 f3: "Assign a course" opens Faculty courses with them chosen (IA-15, Package 2B).
-            <Link className="xr-btn xr-btn--primary" href={facultyCoursesAddress(added.id)}>
-              {ADD_PERSON.assignCourse}
-            </Link>
-          )}
-          <Button variant="secondary" onClick={again}>
-            {words.again}
-          </Button>
-          {student ? (
-            <Link className="xr-btn xr-btn--text" href={PEOPLE_ADDRESS}>
-              {ADD_PERSON.backToPeople}
-            </Link>
-          ) : null}
-        </div>
-      </Section>
+        </Notice>
+        <DefinitionList items={facts} />
+      </IaFormSurface>
     );
   }
 
-  const groupOptions = groups.data?.ok ? groups.data.value : [];
+  const example = students.data?.ok ? students.data.value[0]?.student.institutionStudentId : null;
   return (
-    <div className="xw-stack">
-      {errors.length > 0 ? (
-        <ErrorSummary
-          key={attempt}
-          id="person-errors"
-          title={personSummaryTitle(errors.length)}
-          items={errors.map((error) => ({
-            fieldId: FIELD_IDS[error.field],
-            summaryText: error.summaryText,
-          }))}
-        />
-      ) : null}
-      <Notice tone="quiet">{words.notice}</Notice>
-      <form
-        className="xr-section flex flex-col gap-7 p-6"
-        noValidate
-        aria-label={words.title}
-        onSubmit={submit}
-      >
-        <fieldset className="xr-fieldset m-0 flex min-w-0 flex-col gap-[18px] border-0 p-0">
-          <legend className="xr-h3 mb-2">{ADD_PERSON.whoTheyAre}</legend>
-          <Field
-            id={FIELD_IDS.fullName}
-            label={ADD_PERSON.fullName}
-            errorClass="xw-ferr"
-            error={errorOf('fullName')}
-          >
-            <TextInput
-              autoComplete="off"
-              value={draft.fullName}
-              onChange={(event) => set('fullName')(event.target.value)}
-            />
-          </Field>
-          <Field
-            id={FIELD_IDS.institutionEmail}
-            label={ADD_PERSON.email}
-            errorClass="xw-ferr"
-            error={errorOf('institutionEmail')}
-          >
-            <TextInput
-              type="email"
-              autoComplete="off"
-              placeholder={ADD_PERSON.emailPlaceholder}
-              value={draft.institutionEmail}
-              onChange={(event) => set('institutionEmail')(event.target.value)}
-            />
-          </Field>
-        </fieldset>
-        {student ? (
-          <fieldset className="xr-fieldset m-0 flex min-w-0 flex-col gap-[18px] border-0 p-0">
-            <legend className="xr-h3 mb-2">{ADD_PERSON.studentDetails}</legend>
-            <Field
-              id={FIELD_IDS.institutionStudentId}
-              label={ADD_PERSON.studentId}
-              hint={ADD_PERSON.studentIdHint}
-              errorClass="xw-ferr"
-              error={errorOf('institutionStudentId')}
+    <form noValidate onSubmit={submit}>
+      <IaFormSurface
+        labelledBy={TITLE_ID}
+        actions={
+          <IaActions>
+            <ButtonLink size="lg" href={back}>
+              {ADD_PERSON.cancel}
+            </ButtonLink>
+            <IaBusyButton
+              type="submit"
+              variant="primary"
+              size="lg"
+              busy={busy}
+              busyLabel={ADD_PERSON.busy}
             >
+              {words.submit}
+            </IaBusyButton>
+          </IaActions>
+        }
+      >
+        {errors.length > 0 ? (
+          <ErrorSummary
+            key={attempt}
+            id="person-errors"
+            title={personSummaryTitle(errors.length)}
+            items={errors.map((error) => ({
+              fieldId: FIELD_IDS[error.field],
+              summaryText: error.summaryText,
+            }))}
+          />
+        ) : null}
+        <Notice tone="info" icon="info" title={lead.leadTitle}>
+          {lead.leadLine}
+        </Notice>
+        <IaFieldset legend={ADD_PERSON.whoTheyAre}>
+          <IaFieldGrid two>
+            <Field id={FIELD_IDS.fullName} label={ADD_PERSON.fullName} error={errorOf('fullName')}>
               <TextInput
                 autoComplete="off"
-                value={draft.institutionStudentId}
-                onChange={(event) => set('institutionStudentId')(event.target.value)}
+                value={draft.fullName}
+                onChange={(event) => set('fullName')(event.target.value)}
               />
             </Field>
-            <Field id="person-programme" label={ADD_PERSON.programme} marker={ADD_PERSON.optional}>
+            <Field
+              id={FIELD_IDS.institutionEmail}
+              label={ADD_PERSON.email}
+              error={errorOf('institutionEmail')}
+            >
               <TextInput
-                value={draft.programme}
-                onChange={(event) => set('programme')(event.target.value)}
+                type="email"
+                autoComplete="off"
+                placeholder={ADD_PERSON.emailPlaceholder}
+                value={draft.institutionEmail}
+                onChange={(event) => set('institutionEmail')(event.target.value)}
               />
             </Field>
-            <Field id="person-group" label={ADD_PERSON.group} marker={ADD_PERSON.optional}>
-              <Select
-                value={draft.group}
-                onChange={(event) => set('group')(event.target.value)}
-                options={[
-                  { value: '', label: ADD_PERSON.noGroup },
-                  ...groupOptions.map((entry) => ({
-                    value: entry.group.id,
-                    label: entry.group.name,
-                  })),
-                ]}
-              />
-            </Field>
-          </fieldset>
+          </IaFieldGrid>
+        </IaFieldset>
+        {student ? (
+          <IaFieldset legend={ADD_PERSON.studentDetails}>
+            <IaFieldGrid two>
+              <Field
+                id={FIELD_IDS.institutionStudentId}
+                label={ADD_PERSON.studentId}
+                hint={
+                  example ? (
+                    <>
+                      {ADD_PERSON_V3.studentIdExample}
+                      <IaNoWrap>{example}</IaNoWrap>.
+                    </>
+                  ) : (
+                    ADD_PERSON_V3.studentIdNoExample
+                  )
+                }
+                error={errorOf('institutionStudentId')}
+              >
+                <TextInput
+                  autoComplete="off"
+                  value={draft.institutionStudentId}
+                  onChange={(event) => set('institutionStudentId')(event.target.value)}
+                />
+              </Field>
+              <Field
+                id="person-programme"
+                label={ADD_PERSON_V3.programme}
+                hint={ADD_PERSON_V3.programmeHint}
+              >
+                <TextInput
+                  autoComplete="off"
+                  value={draft.programme}
+                  onChange={(event) => set('programme')(event.target.value)}
+                />
+              </Field>
+              <Field id="person-group" label={ADD_PERSON_V3.group}>
+                <Select
+                  value={draft.group}
+                  onChange={(event) => set('group')(event.target.value)}
+                  options={[
+                    { value: '', label: ADD_PERSON.noGroup },
+                    ...groupOptions.map((entry) => ({
+                      value: entry.group.id,
+                      label: entry.group.name,
+                    })),
+                  ]}
+                />
+              </Field>
+            </IaFieldGrid>
+          </IaFieldset>
         ) : null}
-        <div className="xw-flow-foot">
-          <Link className="xr-btn xr-btn--text" href={student ? PEOPLE_ADDRESS : FACULTY_ADDRESS}>
-            {ADD_PERSON.cancel}
-          </Link>
-          <div className="xw-actions">
-            <Button variant="primary" type="submit" busy={busy} busyLabel={ADD_PERSON.busy}>
-              {words.submit}
-            </Button>
-          </div>
-        </div>
-      </form>
-    </div>
+      </IaFormSurface>
+    </form>
   );
 }

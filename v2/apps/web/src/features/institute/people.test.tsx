@@ -53,7 +53,11 @@ function inInstitute(runtime: PlatformRuntime, path: string, page: ReactNode, se
 }
 
 const main = () => screen.getByRole('main');
-const count = () => document.querySelector('.xr-toolbar-status [role="status"]');
+/**
+ * What a People list says it shows, announced: the Students tab's live line ("12 students shown",
+ * `p.xr-sr[role=status]`) or the Faculty tab's count beside its search ("3 faculty members").
+ */
+const count = () => main().querySelector('section [role="status"]');
 const rowsOf = () => [...document.querySelectorAll<HTMLTableRowElement>('main tbody tr')];
 const cellsOf = (row: HTMLTableRowElement) =>
   [...row.querySelectorAll('td')].map((cell) => cell.textContent);
@@ -64,13 +68,50 @@ async function studentRows(): Promise<HTMLTableRowElement[]> {
   return rowsOf();
 }
 
+/** A V3 list row by the name its row link shows (`a.rk-rowlink`). */
 function rowNamed(name: string): HTMLTableRowElement {
   const row = rowsOf().find((candidate) =>
-    candidate.querySelector('td.is-primary')?.textContent?.startsWith(name),
+    candidate.querySelector('a.rk-rowlink')?.textContent?.startsWith(name),
   );
   if (!row) throw new Error(`No row for ${name}`);
   return row;
 }
+
+/** A record's internal reference: none in any People word (the identifier rule). */
+const PEOPLE_REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|GRP|FMAP)-\d+/;
+
+/**
+ * No internal reference in the document's words (hidden and screen-reader-only words and the
+ * announcements included), in any `aria-label`, `title` or `placeholder`, or in the tab's title.
+ */
+function expectNoPeopleReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(PEOPLE_REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        PEOPLE_REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(PEOPLE_REFERENCE);
+}
+
+/** The People tabs as [label, count words, address]. */
+function peopleTabs() {
+  return within(screen.getByRole('navigation', { name: 'People' }))
+    .getAllByRole('link')
+    .map((tab) => [
+      tab.firstElementChild?.textContent,
+      tab.querySelector('.xr-sr')?.textContent ?? null,
+      tab.getAttribute('href'),
+    ]);
+}
+
+/** The status switch's buttons as their names. */
+const segmentNames = () =>
+  within(screen.getByRole('group', { name: 'Show students by status' }))
+    .getAllByRole('button')
+    .map((button) => button.textContent);
 
 async function portStudents(runtime: PlatformRuntime, filter = {}) {
   const answer = await runtime.ports.people.listStudents(filter);
@@ -97,34 +138,51 @@ async function pauseGodavari(sample: Parameters<typeof asPersonId>[0]) {
   if (!paused.ok) throw new Error('pause');
 }
 
-// ---- IA-06 People › Students (B2-06 f0 … f7) ---------------------------------------------------
+// ---- IA-06 People › Students (V3 IA-v1 IA-06; B2-06 f0 … f7) -----------------------------------
 
 describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
-  it('after the import: twelve students, B2-06’s columns and words, each opening the record', async () => {
+  it('after the import: twelve students, the V3 roster and words, each opening the record', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     inInstitute(runtime, '/institute/people', <People />);
     const rows = await studentRows();
     const expected = await portStudents(runtime);
     expect(rows).toHaveLength(12);
-    expect(rows.map((row) => row.querySelector('td.is-primary a')!.textContent)).toEqual(
+    expect(rows.map((row) => row.querySelector('a.rk-rowlink')!.textContent)).toEqual(
       expected.map((row) => row.student.fullName),
     );
+    const table = screen.getByRole('table', { name: 'Students at your institution' });
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((cell) => cell.textContent),
+    ).toEqual(['Student', 'Group', 'Access', 'Action']);
+    // Who (the institution's own ID and the e-mail), the group and course, the status in words,
+    // and the "Give access" shortcut while the institution can give access.
     expect(cellsOf(rowNamed('Rahul Verma'))).toEqual([
-      'Rahul VermaGIT-2026-0418',
-      'ME ZG523ME ZG523 — Sem II',
-      'None yet',
+      'Rahul VermaGIT-2026-0418 · rahul.verma@godavari.edu.in',
+      // "Group: " leads the groups in the phone rows only (`span.ia-rt-plab`).
+      'Group: ME ZG523 — Sem IIME ZG523',
       'No access yet',
+      'Give access',
     ]);
-    expect(cellsOf(rowNamed('Sneha Reddy'))[3]).toBe('Inactive');
-    expect(cellsOf(rowNamed('Lakshmi Prasad'))[1]).toBe('ME ZG523No group');
+    expect(cellsOf(rowNamed('Sneha Reddy')).slice(2)).toEqual([
+      'InactiveExperiments given: No current experiments',
+      '',
+    ]);
+    expect(cellsOf(rowNamed('Lakshmi Prasad'))[1]).toBe('No groupME ZG523');
     const rahul = screen.getByRole('link', { name: 'Open student record: Rahul Verma' });
     expect(rahul).toHaveAttribute('href', `/institute/people/students/${RAHUL}`);
-    expect(count()).toHaveTextContent('12 students');
-    // The header: "People", its line, one primary action and "Import students" (IA-11, Package 2B).
-    expect(screen.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent(
-      'Students and faculty at your institution',
+    expect(screen.getByRole('link', { name: 'Give Rahul Verma access' })).toHaveAttribute(
+      'href',
+      `/institute/student-access/give?student=${RAHUL}`,
     );
+    expect(count()).toHaveTextContent('12 students shown');
+    // The status switch: every student, then the directory's statuses that occur.
+    expect(segmentNames()).toEqual(['All 12', 'No access yet 11', 'Inactive 1']);
+    expect(screen.getByRole('button', { name: 'All 12' })).toHaveAttribute('aria-pressed', 'true');
+    // The head: "People", its line, one primary action and "Import students".
+    expect(screen.getByRole('heading', { level: 1, name: 'People' })).toBeVisible();
+    expect(main()).toHaveTextContent('Students and faculty at your institution');
     expect(screen.getByRole('link', { name: 'Add student' })).toHaveAttribute(
       'href',
       '/institute/people/add',
@@ -133,50 +191,58 @@ describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
       'href',
       '/institute/people/import',
     );
-    expect(main().querySelector('.xr-phead-actions .xr-btn--primary')).toHaveTextContent(
-      'Add student',
+    expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(1);
+    expect(main().querySelector('.rb-btn--primary')).toHaveTextContent('Add student');
+    // The People tabs with their counts: Students (current), Faculty, Groups and Faculty courses.
+    await waitFor(() =>
+      expect(peopleTabs()).toEqual([
+        ['Students', ', 12 students', '/institute/people'],
+        ['Faculty', ', 3 faculty members', '/institute/people?tab=faculty'],
+        ['Groups', ', 1 group', '/institute/people?tab=groups'],
+        ['Faculty courses', null, '/institute/people?tab=faculty-courses'],
+      ]),
     );
-    // The People tabs: Students (current), Faculty, Groups and Faculty courses (Package 2B).
     const tabs = within(screen.getByRole('navigation', { name: 'People' })).getAllByRole('link');
-    expect(tabs.map((tab) => [tab.textContent, tab.getAttribute('href')])).toEqual([
-      ['Students', '/institute/people'],
-      ['Faculty', '/institute/people?tab=faculty'],
-      ['Groups', '/institute/people?tab=groups'],
-      ['Faculty courses', '/institute/people?tab=faculty-courses'],
-    ]);
     expect(tabs[0]).toHaveAttribute('aria-current', 'page');
-    // The table's labelled cells (B2-06 f7, rows become labelled blocks).
-    expect(rowNamed('Rahul Verma').querySelector('td[data-label="Status"]')).not.toBeNull();
-    expect(screen.getByRole('table', { name: 'Students' })).toBeVisible();
+    expectNoPeopleReferences();
   });
 
-  it('after SACC-0310: Rahul is Access active with the experiment and its formats (f1)', async () => {
+  it('after SACC-0310: Rahul is Access active with the experiment given now (f1)', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
     inInstitute(runtime, '/institute/people', <People />);
     await studentRows();
     const rahul = rowNamed('Rahul Verma');
-    expect(cellsOf(rahul)[2]).toBe('Shell-and-Tube Heat ExchangerWEBVR');
+    expect(cellsOf(rahul)[2]).toBe('Access activeExperiments given: Shell-and-Tube Heat Exchanger');
+    expect(rahul.querySelector('.xr-st.xr-st--ok')).toHaveTextContent('Access active');
+    // Access active: no shortcut to give access.
+    expect(within(rahul).queryByRole('link', { name: /^Give / })).toBeNull();
+    const priya = rowNamed('Priya Natarajan');
+    expect(priya.querySelector('.xr-st')).toHaveTextContent('No access yet');
+    expect(priya.querySelector('.xr-st')!.className).toBe('xr-st');
     expect(
-      [...rahul.querySelectorAll('.xr-fmt.xr-fmt--compact')].map((chip) => chip.textContent),
-    ).toEqual(['WEB', 'VR']);
-    expect(rahul.querySelector('.xr-status.xr-status--ok')).toHaveTextContent('Access active');
-    expect(rowNamed('Priya Natarajan').querySelector('.xr-status--info')).toHaveTextContent(
-      'No access yet',
-    );
+      within(priya).getByRole('link', { name: 'Give Priya Natarajan access' }),
+    ).toHaveAttribute('href', `/institute/student-access/give?student=${PRIYA}`);
+    expect(segmentNames()).toEqual(['All 12', 'Access active 1', 'No access yet 10', 'Inactive 1']);
+    expectNoPeopleReferences();
   });
 
-  it('Search, Status and Group go to the service; chips, Clear filters and no match (f2, f6)', async () => {
+  it('the status switch, Search and Group go to the service; chips, Clear filters and no match (f2, f6)', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     inInstitute(runtime, '/institute/people', <People />);
     await studentRows();
 
-    await user.selectOptions(screen.getByRole('combobox', { name: 'Status' }), 'Inactive');
-    await waitFor(() => expect(count()).toHaveTextContent('1 of 12 students'));
+    await user.click(screen.getByRole('button', { name: 'Inactive 1' }));
+    await waitFor(() => expect(count()).toHaveTextContent('1 student shown'));
     expect(rowsOf().map((row) => row.querySelector('a')!.textContent)).toEqual(['Sneha Reddy']);
-    expect(screen.getByRole('button', { name: 'Remove Status: Inactive' })).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Remove Status: Inactive' }));
-    await waitFor(() => expect(count()).toHaveTextContent('12 students'));
+    expect(screen.getByRole('button', { name: 'Inactive 1' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    // A status alone is the switch's: no chip, no "Clear filters".
+    expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
+    await user.click(screen.getByRole('button', { name: 'All 12' }));
+    await waitFor(() => expect(count()).toHaveTextContent('12 students shown'));
 
     const group = screen.getByRole('combobox', { name: 'Group' });
     expect([...group.querySelectorAll('option')].map((option) => option.textContent)).toEqual([
@@ -186,38 +252,46 @@ describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
     ]);
     await user.selectOptions(group, 'Not in a group');
     const outside = await portStudents(runtime, { notInGroup: true });
-    await waitFor(() => expect(count()).toHaveTextContent(`${outside.length} of 12 students`));
+    await waitFor(() => expect(main()).toHaveTextContent(`Showing ${outside.length} of 12`));
     expect(rowsOf().map((row) => row.querySelector('a')!.textContent)).toEqual(
       outside.map((row) => row.student.fullName),
     );
-    expect(screen.getByRole('button', { name: 'Remove Not in a group' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Remove filter Not in a group' })).toBeVisible();
     await user.selectOptions(group, 'ME ZG523 — Sem II');
-    await waitFor(() => expect(count()).toHaveTextContent('7 of 12 students'));
-    expect(screen.getByRole('button', { name: 'Remove Group: ME ZG523 — Sem II' })).toBeVisible();
+    await waitFor(() => expect(main()).toHaveTextContent('Showing 7 of 12'));
+    expect(
+      screen.getByRole('button', { name: 'Remove filter Group: ME ZG523 — Sem II' }),
+    ).toBeVisible();
+    // With a status too, "of" counts that status.
+    await user.click(screen.getByRole('button', { name: 'Inactive 1' }));
+    await waitFor(() => expect(main()).toHaveTextContent('Showing 1 of 1'));
+    await user.click(screen.getByRole('button', { name: 'All 12' }));
 
-    const search = screen.getByRole('searchbox', { name: 'Search' });
-    expect(search).toHaveAttribute('placeholder', 'Name, student ID or e-mail');
+    const search = screen.getByRole('searchbox', { name: 'Search students' });
+    expect(search).toHaveAttribute('placeholder', 'Search name, student ID or e-mail');
     await user.type(search, 'git-2026-0418');
-    await waitFor(() => expect(count()).toHaveTextContent('1 of 12 students'));
+    await waitFor(() => expect(main()).toHaveTextContent('Showing 1 of 12'));
     expect(rowsOf().map((row) => row.querySelector('a')!.textContent)).toEqual(['Rahul Verma']);
+    // Removing a chip gives focus to the control that set it.
+    await user.click(
+      screen.getByRole('button', { name: 'Remove filter Group: ME ZG523 — Sem II' }),
+    );
+    expect(group).toHaveValue('');
+    expect(group).toHaveFocus();
     await user.clear(search);
     await user.type(search, 'Meenakshi');
-    expect(
-      await screen.findByRole('heading', { name: 'No students match these filters' }),
-    ).toBeVisible();
+    expect(await screen.findByText('No students match these filters')).toBeVisible();
     expect(screen.getByText('Check the spelling, or search by student ID.')).toBeVisible();
-    expect(count()).toHaveTextContent('0 of 12 students');
-    expect(screen.getByRole('button', { name: 'Remove Search: “Meenakshi”' })).toBeVisible();
-    const clears = screen.getAllByRole('button', { name: 'Clear filters' });
-    expect(clears).toHaveLength(2);
-    act(() => clears[1]!.focus());
+    await waitFor(() => expect(count()).toHaveTextContent('0 students shown'));
+    expect(screen.getByRole('button', { name: 'Remove filter Search: “Meenakshi”' })).toBeVisible();
+    expect(screen.getAllByRole('button', { name: 'Clear filters' })).toHaveLength(1);
+    expectNoPeopleReferences();
+    act(() => screen.getByRole('button', { name: 'Show all students' }).focus());
     await user.keyboard('{Enter}');
     await waitFor(() => expect(rowsOf()).toHaveLength(12));
     expect(search).toHaveValue('');
-    expect(count()).toHaveTextContent('12 students');
-    await waitFor(() =>
-      expect(screen.getByRole('link', { name: 'Open student record: Rahul Verma' })).toHaveFocus(),
-    );
+    expect(count()).toHaveTextContent('12 students shown');
+    await waitFor(() => expect(search).toHaveFocus());
   });
 
   it('loading is announced; a failure has “Try again” (f4, f5)', async () => {
@@ -225,29 +299,36 @@ describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
     const user = userEvent.setup();
     faults(sample).failNext('PeopleService.listStudents');
     inInstitute(runtime, '/institute/people', <People />);
-    expect(await screen.findByText('Loading students')).toHaveAttribute('role', 'status');
-    expect(document.querySelector('.xr-table-wrap[aria-busy="true"] .xr-skel')).not.toBeNull();
-    expect(
-      await screen.findByRole('heading', { name: 'We couldn’t load the students' }),
-    ).toBeVisible();
-    expect(screen.getByText('Nothing has changed. Try again.')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    expect(await screen.findByText('Loading students…')).toHaveAttribute('role', 'status');
+    expect(document.querySelector('[aria-busy="true"] .rk-skel')).not.toBeNull();
+    const failed = await screen.findByRole('alert');
+    expect(failed).toHaveTextContent('We couldn’t load the students');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
     expect(await studentRows()).toHaveLength(12);
   });
 
-  it('no students yet: one way in, no toolbar (f3)', async () => {
+  it('no students yet: the head’s actions are the way in, no toolbar (f3)', async () => {
     const { runtime } = await tabPlatform(PAUSED_INSTITUTE_ADMIN, 'after-setup');
     inInstitute(runtime, '/institute/people', <People />);
-    expect(await screen.findByRole('heading', { name: 'No students yet' })).toBeVisible();
+    expect(await screen.findByRole('heading', { level: 2, name: 'No students yet' })).toBeVisible();
     expect(
       screen.getByText(
-        'Add students one at a time or import a CSV file. Adding a student doesn’t give them any experiments yet.',
+        'Add students one at a time or import a CSV file with the buttons above. Adding a student doesn’t give them any experiments yet.',
       ),
     ).toBeVisible();
-    const adds = screen.getAllByRole('link', { name: 'Add student' });
-    expect(adds).toHaveLength(2);
-    for (const link of adds) expect(link).toHaveAttribute('href', '/institute/people/add');
-    expect(document.querySelector('.xr-toolbar')).toBeNull();
+    expect(screen.getByRole('link', { name: 'Add student' })).toHaveAttribute(
+      'href',
+      '/institute/people/add',
+    );
+    expect(screen.getByRole('link', { name: 'Import students' })).toHaveAttribute(
+      'href',
+      '/institute/people/import',
+    );
+    expect(screen.queryByRole('searchbox')).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Show students by status' })).toBeNull();
+    await waitFor(() => expect(peopleTabs()[0]![1]).toBe(', 0 students'));
+    expectNoPeopleReferences();
   });
 
   it('`?tab=students` (or any other tab) is the bare address', async () => {
@@ -258,7 +339,7 @@ describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
   });
 });
 
-// ---- IA-08 People › Faculty (B2-06 f14) --------------------------------------------------------
+// ---- IA-08 People › Faculty (V3 IA-v1 IA-08; B2-06 f14) ----------------------------------------
 
 describe('IA-08 — the faculty tab (B2-06 f14)', () => {
   it('three faculty members, the courses they teach, the search and its no match', async () => {
@@ -267,23 +348,40 @@ describe('IA-08 — the faculty tab (B2-06 f14)', () => {
     const { navigation } = inInstitute(runtime, '/institute/people', <People />, '?tab=faculty');
     await waitFor(() => expect(rowsOf()).toHaveLength(3));
     expect(navigation.replace).not.toHaveBeenCalled();
-    expect(rowsOf().map(cellsOf)).toEqual([
-      ['Dr S. Ranganathans.ranganathan@godavari.edu.in', 'ME ZG523', 'Active'],
-      ['Dr Anita Desaianita.desai@godavari.edu.in', 'No courses yet', 'Active'],
-      ['Prof. Ravi Shankarravi.shankar@godavari.edu.in', 'No courses yet', 'Inactive'],
-    ]);
-    // Each name opens the Faculty record (IA-09, Package 2B).
+    const table = screen.getByRole('table', {
+      name: 'Faculty at your institution and the courses they teach',
+    });
     expect(
-      within(screen.getByRole('table', { name: 'Faculty' }))
+      within(table)
+        .getAllByRole('columnheader')
+        .map((cell) => cell.textContent),
+    ).toEqual(['Faculty member', 'Courses taught', 'Status']);
+    // The courses cell carries its label for the phone rows (`ia-lt-lab`).
+    expect(rowsOf().map(cellsOf)).toEqual([
+      [
+        'Dr S. Ranganathans.ranganathan@godavari.edu.in',
+        'Courses taughtME ZG523Thermodynamics & Heat Transfer',
+        'Active',
+      ],
+      ['Dr Anita Desaianita.desai@godavari.edu.in', 'Courses taughtNo courses yet', 'Active'],
+      [
+        'Prof. Ravi Shankarravi.shankar@godavari.edu.in',
+        'Courses taughtNo courses yet',
+        'Inactive',
+      ],
+    ]);
+    // Each row opens the Faculty record (IA-09), named for whom it opens.
+    expect(
+      within(table)
         .getAllByRole('link')
         .map((link) => [
-          link.textContent,
+          link.getAttribute('aria-label'),
           /^\/institute\/people\/faculty\/per-/.test(link.getAttribute('href') ?? ''),
         ]),
     ).toEqual([
-      ['Dr S. Ranganathan', true],
-      ['Dr Anita Desai', true],
-      ['Prof. Ravi Shankar', true],
+      ['Open faculty record: Dr S. Ranganathan', true],
+      ['Open faculty record: Dr Anita Desai', true],
+      ['Open faculty record: Prof. Ravi Shankar', true],
     ]);
     expect(count()).toHaveTextContent('3 faculty members');
     expect(screen.getByRole('link', { name: 'Add faculty member' })).toHaveAttribute(
@@ -295,26 +393,30 @@ describe('IA-08 — the faculty tab (B2-06 f14)', () => {
     expect(tabs[1]).toHaveAttribute('aria-current', 'page');
     // No status change is offered for faculty (PER-07).
     expect(screen.queryByRole('button', { name: /Deactivate/ })).toBeNull();
+    expect(main()).toHaveTextContent(
+      'Courses taught set what each person sees in the Faculty workspace. They never give students access.',
+    );
+    expectNoPeopleReferences();
 
-    const search = screen.getByRole('searchbox', { name: 'Search' });
-    expect(search).toHaveAttribute('placeholder', 'Name or e-mail');
+    const search = screen.getByRole('searchbox', { name: 'Search faculty' });
+    expect(search).toHaveAttribute('placeholder', 'Search name or e-mail');
     await user.type(search, 'DESAI');
     expect(count()).toHaveTextContent('1 of 3 faculty members');
     expect(rowsOf()).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Remove filter Search: “DESAI”' })).toBeVisible();
     await user.clear(search);
     await user.type(search, 'nobody');
-    expect(await screen.findByRole('heading', { name: 'No faculty members match' })).toBeVisible();
+    expect(await screen.findByText('No faculty members match')).toBeVisible();
+    expect(screen.getByText('Check the spelling of the name or e-mail.')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Clear search' }));
     await waitFor(() => expect(rowsOf()).toHaveLength(3));
     expect(search).toHaveFocus();
-    // The top bar: "Faculty", crumbed "People / Faculty" (B2-06 f14).
-    await waitFor(() =>
-      expect(document.querySelector('.xr-crumbs')).toHaveTextContent('People/Faculty'),
-    );
+    // The foot line shows in every state.
+    expect(main()).toHaveTextContent('Courses taught set what each person sees');
   });
 });
 
-// ---- IA-07 Student record (B2-06 f8 … f13, f17) ------------------------------------------------
+// ---- IA-07 Student record (V3 IA-v1 IA-07; B2-06 f8 … f13, f17) ------------------------------------------------
 
 async function openRecord(runtime: PlatformRuntime, id: string) {
   const rendered = inInstitute(
@@ -329,20 +431,25 @@ async function openRecord(runtime: PlatformRuntime, id: string) {
   return rendered;
 }
 
-describe('IA-07 — the student’s record as it is (B2-06 f8, f9, f10, f11, f17)', () => {
-  it('Rahul before access: who he is, nothing given yet, one primary action (f8)', async () => {
+describe('IA-07 — the student’s record as it is (V3 IA-v1 IA-07)', () => {
+  it('Rahul before access: who he is, nothing given yet, one primary action', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     await openRecord(runtime, RAHUL);
-    expect(main().querySelector('.xr-overline')).toHaveTextContent('Student · GIT-2026-0418');
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent(
+    expect(main().querySelector('.rk-eyebrow')).toHaveTextContent('Student · GIT-2026-0418');
+    expect(main().querySelector('.rk-meta')).toHaveTextContent(
       'Account activerahul.verma@godavari.edu.in',
     );
-    expect(main().querySelector('a.xr-back')).toHaveAttribute('href', '/institute/people');
-    expect(main().querySelector('a.xr-back')).toHaveTextContent('Students');
-    expect(screen.getByRole('link', { name: 'Give this student access' })).toHaveAttribute(
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(crumbs).toHaveTextContent('StudentsRahul Verma');
+    expect(within(crumbs).getByRole('link', { name: 'Students' })).toHaveAttribute(
       'href',
-      `/institute/student-access/give?student=${RAHUL}`,
+      '/institute/people',
     );
+    const give = screen.getAllByRole('link', { name: 'Give this student access' });
+    expect(give).toHaveLength(2);
+    for (const link of give)
+      expect(link).toHaveAttribute('href', `/institute/student-access/give?student=${RAHUL}`);
+    expect(give[0]).toHaveClass('rb-btn--primary');
     const given = region('Experiments given');
     expect(
       within(given).getByRole('heading', {
@@ -350,41 +457,37 @@ describe('IA-07 — the student’s record as it is (B2-06 f8, f9, f10, f11, f17
         name: 'Rahul hasn’t been given any experiments yet',
       }),
     ).toBeVisible();
+    expect(given).toHaveTextContent(
+      'Give this student access to choose experiments from your access plan. They’ll see the formats the plan includes.',
+    );
     expect(within(given).queryByRole('link', { name: 'Open Student access' })).toBeNull();
-    const courses = region('Courses and groups');
-    expect(courses).toHaveTextContent('CourseME ZG523 · Thermodynamics & Heat Transfer');
-    expect(courses).toHaveTextContent('GroupME ZG523 — Sem II');
-    // The group's name opens the group (IA-14, Package 2B).
-    expect(within(courses).getByRole('link', { name: 'ME ZG523 — Sem II' })).toHaveAttribute(
+    const about = region('About Rahul Verma');
+    expect(about).toHaveTextContent('CourseME ZG523 · Thermodynamics & Heat Transfer');
+    expect(about).toHaveTextContent('GroupME ZG523 — Sem II');
+    // The group's name opens the group (IA-14).
+    expect(within(about).getByRole('link', { name: 'ME ZG523 — Sem II' })).toHaveAttribute(
       'href',
       '/institute/people/groups/GRP-0012',
     );
-    expect(region('Details')).toHaveTextContent(
-      'Student IDGIT-2026-0418Institution e-mailrahul.verma@godavari.edu.inProgrammeB.Tech MechanicalAdded8 Oct 2026 · imported by Meera Iyer',
-    );
-    const history = region('History');
-    expect(history.querySelector('.xr-tl.is-latest .xr-tl-what')).toHaveTextContent(
-      'Added to People',
-    );
-    expect(history.querySelector('.xr-tl-when')).toHaveTextContent(
-      '8 Oct 2026, 15:40 · Meera Iyer',
-    );
-    expect(history.querySelector('.xr-tl-note')).toHaveTextContent(
-      'Imported from godavari-me-zg523-corrected.csv',
-    );
-    expect(region('Account')).toHaveTextContent(
+    expect(about).toHaveTextContent('ProgrammeB.Tech Mechanical');
+    expect(about).toHaveTextContent('Added8 Oct 2026 · imported by Meera Iyer');
+    expect(about).toHaveTextContent(
       'Deactivating stops this student from opening experiments until you reactivate the account. Their work and access history are kept.',
     );
-    expect(screen.getByRole('button', { name: 'Deactivate account…' })).toHaveClass(
-      'xr-btn--danger-quiet',
+    expect(within(about).getByRole('button', { name: 'Deactivate account…' })).toHaveClass(
+      'rb-btn',
     );
-    // The top bar: "Rahul Verma", crumbed "People / Students / Rahul Verma" (B2-06).
-    await waitFor(() =>
-      expect(document.querySelector('.xr-crumbs')).toHaveTextContent('People/Students/Rahul Verma'),
+    const history = region('History');
+    const latest = history.querySelector('.rk-tl > li.is-latest')!;
+    expect(latest.querySelector('.rk-tl-w')).toHaveTextContent('Added to People');
+    expect(latest.querySelector('.rk-tl-t')).toHaveTextContent('8 Oct 2026, 15:40 · Meera Iyer');
+    expect(latest.querySelector('.rk-tl-n')).toHaveTextContent(
+      'Imported from godavari-me-zg523-corrected.csv',
     );
+    expectNoPeopleReferences();
   });
 
-  it('after SACC-0310: the grant’s own line and its history (f9)', async () => {
+  it('after the first grant: the grant’s own row (formats from the plan) and its history', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
     await openRecord(runtime, RAHUL);
     const given = region('Experiments given');
@@ -392,72 +495,91 @@ describe('IA-07 — the student’s record as it is (B2-06 f8, f9, f10, f11, f17
       'href',
       '/institute/student-access',
     );
+    expect(
+      within(given).getByRole('table', { name: /^Experiments given to Rahul Verma/ }),
+    ).toBeVisible();
     const rows = [...given.querySelectorAll('tbody tr')] as HTMLTableRowElement[];
     expect(rows.map(cellsOf)).toEqual([
-      [
-        'Shell-and-Tube Heat ExchangerME ZG523',
-        'WEBVRFrom access plan ACC-0107',
-        'Individually · 9 Oct 2026 · SACC-0310',
-        'Active',
-      ],
+      ['Shell-and-Tube Heat ExchangerME ZG523WEBVR', 'Individually9 Oct 2026', 'Active'],
     ]);
-    expect(rows[0]!.querySelector('.xr-status--ok')).toHaveTextContent('Active');
-    const latest = region('History').querySelector('.xr-tl.is-latest')!;
-    expect(latest.querySelector('.xr-tl-what')).toHaveTextContent(
+    expect(
+      within(rows[0]!).getByRole('img', { name: 'Formats from your plan: WEB, VR' }),
+    ).toBeVisible();
+    expect(rows[0]!.querySelector('.xr-st--ok')).toHaveTextContent('Active');
+    expect(given).toHaveTextContent(
+      'Formats come from your access plan; they are never chosen per student.',
+    );
+    const latest = region('History').querySelector('.rk-tl > li.is-latest')!;
+    expect(latest.querySelector('.rk-tl-w')).toHaveTextContent(
       'Given Shell-and-Tube Heat Exchanger',
     );
-    expect(latest.querySelector('.xr-tl-when')).toHaveTextContent('9 Oct 2026, 10:20 · Meera Iyer');
-    expect(latest.querySelector('.xr-tl-note')).toHaveTextContent(
-      'SACC-0310 · individually · WEB and VR from ACC-0107',
+    expect(latest.querySelector('.rk-tl-t')).toHaveTextContent('9 Oct 2026, 10:20 · Meera Iyer');
+    expect(latest.querySelector('.rk-tl-n')).toHaveTextContent(
+      'Individually · WEB and VR from your access plan',
     );
+    expectNoPeopleReferences();
   });
 
-  it('later sample: a supplied wait through the group, in words (f10)', async () => {
+  it('later sample: a supplied wait through the group, in words', async () => {
     const { runtime } = await tabPlatform(MEERA, 'later-sample');
     await openRecord(runtime, ARUN);
     const row = region('Experiments given').querySelector('tbody tr') as HTMLTableRowElement;
-    expect(cellsOf(row).slice(2)).toEqual([
-      'Group ME ZG523 — Sem II · 12 Oct 2026 · SACC-0311',
-      'Waiting for a licenceNo licence is available for Arun on ACC-0107 right now.',
+    expect(cellsOf(row).slice(1)).toEqual([
+      'Group: ME ZG523 — Sem II12 Oct 2026',
+      'Waiting for a licenceNo licence is available for Arun on your access plan right now.',
     ]);
-    expect(row.querySelector('.xr-status--wait')).toHaveTextContent('Waiting for a licence');
-    expect(region('History').querySelector('.xr-tl-what')).toHaveTextContent(
+    expect(within(row).getByRole('link', { name: 'Group: ME ZG523 — Sem II' })).toHaveAttribute(
+      'href',
+      '/institute/people/groups/GRP-0012',
+    );
+    expect(row.querySelector('.xr-st--warn')).toHaveTextContent('Waiting for a licence');
+    expect(region('History').querySelector('.rk-tl-w')).toHaveTextContent(
       'Given Shell-and-Tube Heat Exchanger through the group ME ZG523 — Sem II',
     );
+    expect(region('History').querySelector('.rk-tl-n')).toHaveTextContent(/^Group grant/);
+    expectNoPeopleReferences();
   });
 
-  it('later sample: Rahul’s two grants on one line, “Also in” the group (f17; OD-B2-01)', async () => {
+  it('later sample: Rahul’s two grants on one row, “Also in” the group (OD-B2-01)', async () => {
     const { runtime } = await tabPlatform(MEERA, 'later-sample');
     await openRecord(runtime, RAHUL);
     const rows = [
       ...region('Experiments given').querySelectorAll('tbody tr'),
     ] as HTMLTableRowElement[];
     expect(rows).toHaveLength(1);
-    expect(cellsOf(rows[0]!)[2]).toBe(
-      'Individually · 9 Oct 2026 · SACC-0310Also in ME ZG523 — Sem II, which has this experiment · SACC-0311',
+    expect(cellsOf(rows[0]!)[1]).toBe(
+      'Individually9 Oct 2026Also in ME ZG523 — Sem II, which has this experiment',
     );
-    expect(rows[0]!.querySelector('.xw-also')).not.toBeNull();
-    expect(cellsOf(rows[0]!)[3]).toBe('Active');
+    expect(rows[0]!.querySelector('.ia-cell-also')).not.toBeNull();
+    expect(cellsOf(rows[0]!)[2]).toBe('Active');
     // No can / can't-open statement anywhere on the record.
     expect(main()).not.toHaveTextContent(/can open|can’t open it/i);
+    expectNoPeopleReferences();
   });
 
-  it('Sneha, inactive: the reason shown and Reactivate the one action (f11)', async () => {
+  it('Sneha, inactive: the reason shown and Reactivate the one action', async () => {
     const { runtime } = await tabPlatform(MEERA, 'later-sample');
     await openRecord(runtime, SNEHA);
-    expect(main().querySelector('.xr-phead-meta .xr-status--off')).toHaveTextContent('Inactive');
-    expect(screen.getByRole('button', { name: 'Reactivate account' })).toBeVisible();
+    expect(main().querySelector('.rk-meta .rk-st-ended')).toHaveTextContent('Inactive');
+    expect(screen.getByRole('button', { name: 'Reactivate account' })).toHaveClass(
+      'rb-btn--primary',
+    );
     expect(screen.queryByRole('link', { name: 'Give this student access' })).toBeNull();
-    const notice = main().querySelector('.xr-notice.xr-notice--quiet')!;
+    const notice = main().querySelector('.rk-notice.rk-notice--off')!;
     expect(notice).toHaveTextContent(
-      'This account is inactiveInactive since 8 Oct 2026 · Meera Iyer: “Left the programme.” Sneha can’t open experiments until their account is reactivated.',
+      'This account is inactiveInactive since 8 Oct 2026 · Meera Iyer: “Left the programme.” Sneha can’t open experiments until the account is reactivated.',
     );
     const row = region('Experiments given').querySelector('tbody tr') as HTMLTableRowElement;
-    expect(cellsOf(row)[3]).toBe('Can’t open — inactiveSneha’s account is inactive.');
-    expect(screen.queryByRole('region', { name: 'Account' })).toBeNull();
-    expect(region('History').querySelectorAll('.xr-tl-what')[1]).toHaveTextContent(
+    expect(cellsOf(row)[2]).toBe('Student inactiveSneha’s account is inactive.');
+    const about = region('About Sneha Reddy');
+    expect(within(about).queryByRole('button', { name: 'Deactivate account…' })).toBeNull();
+    expect(about).toHaveTextContent(
+      'Reactivating lets Sneha open the experiments they’ve been given again, while your access plan allows it.',
+    );
+    expect(region('History').querySelectorAll('.rk-tl-w')[1]).toHaveTextContent(
       'Account deactivated',
     );
+    expectNoPeopleReferences();
   });
 
   it('an unknown student, or another institution’s, is the in-shell not-found page', async () => {
@@ -486,13 +608,13 @@ describe('IA-07 — the student’s record as it is (B2-06 f8, f9, f10, f11, f17
   });
 });
 
-describe('IA-07 — Deactivate and Reactivate (B2-06 f9, f12, f13)', () => {
+describe('IA-07 — Deactivate and Reactivate (V3 IA-v1 IA-07, DL-2 and DL-1)', () => {
   it('a reason is required; deactivated, then reactivated, each in the history', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     await openRecord(runtime, PRIYA);
     await user.click(screen.getByRole('button', { name: 'Deactivate account…' }));
-    const dialog = await screen.findByRole('dialog', {
+    const dialog = await screen.findByRole('alertdialog', {
       name: 'Deactivate Priya Natarajan’s account?',
     });
     expect(dialog).toHaveTextContent(
@@ -501,32 +623,35 @@ describe('IA-07 — Deactivate and Reactivate (B2-06 f9, f12, f13)', () => {
     expect(dialog).toHaveTextContent(
       'Shown on the student record to your institution’s administrators.',
     );
+    expect(within(dialog).getByRole('button', { name: 'Deactivate account' })).toHaveClass(
+      'ia-btn--danger',
+    );
     const reason = within(dialog).getByRole('textbox', { name: 'Reason (required)' });
-    expect(reason).toHaveFocus();
+    await waitFor(() => expect(reason).toHaveFocus());
     await user.click(within(dialog).getByRole('button', { name: 'Deactivate account' }));
     await waitFor(() =>
       expect(dialog).toHaveTextContent('Enter the reason for deactivating this account'),
     );
-    expect(dialog.querySelector('.xw-ferr')).not.toBeNull();
+    expect(dialog.querySelector('.rk-ferr')).not.toBeNull();
     expect(reason).toHaveAttribute('aria-invalid', 'true');
     await waitFor(() => expect(reason).toHaveFocus());
     expect((await recordOf(runtime, PRIYA)).student.accountStatus).toBe('active');
 
     await user.type(reason, 'On leave this semester.');
     await user.click(within(dialog).getByRole('button', { name: 'Deactivate account' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(main().querySelector('.xr-notice--ok')).toHaveTextContent(
-      'Account deactivated. Their work and access history are kept.',
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    expect(main().querySelector('.rk-notice--ok')).toHaveTextContent(
+      'SavedAccount deactivated. Their work and access history are kept.',
     );
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Reactivate account' })).toHaveFocus(),
     );
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('Inactive');
-    expect(main().querySelector('.xr-notice--quiet')).toHaveTextContent(
+    expect(main().querySelector('.rk-meta')).toHaveTextContent('Inactive');
+    expect(main().querySelector('.rk-notice--off')).toHaveTextContent(
       /Inactive since \d+ Oct 2026 · Meera Iyer: “On leave this semester.”/,
     );
-    expect(region('History').querySelector('.xr-tl-what')).toHaveTextContent('Account deactivated');
-    expect(region('History').querySelector('.xr-tl-note')).toHaveTextContent(
+    expect(region('History').querySelector('.rk-tl-w')).toHaveTextContent('Account deactivated');
+    expect(region('History').querySelector('.rk-tl-n')).toHaveTextContent(
       '“On leave this semester.”',
     );
     expect((await recordOf(runtime, PRIYA)).student.accountStatus).toBe('inactive');
@@ -544,12 +669,12 @@ describe('IA-07 — Deactivate and Reactivate (B2-06 f9, f12, f13)', () => {
     );
     await user.click(within(reactivate).getByRole('button', { name: 'Reactivate account' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(main().querySelector('.xr-notice--ok')).toHaveTextContent('Account reactivated.');
+    expect(main().querySelector('.rk-notice--ok')).toHaveTextContent('Account reactivated.');
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Deactivate account…' })).toHaveFocus(),
     );
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('Account active');
-    expect(region('History').querySelector('.xr-tl-what')).toHaveTextContent('Account reactivated');
+    expect(main().querySelector('.rk-meta')).toHaveTextContent('Account active');
+    expect(region('History').querySelector('.rk-tl-w')).toHaveTextContent('Account reactivated');
     expect((await recordOf(runtime, PRIYA)).student.accountStatus).toBe('active');
   });
 
@@ -560,10 +685,10 @@ describe('IA-07 — Deactivate and Reactivate (B2-06 f9, f12, f13)', () => {
     const version = sample.worldVersion();
     const open = screen.getByRole('button', { name: 'Deactivate account…' });
     await user.click(open);
-    const dialog = await screen.findByRole('dialog');
+    const dialog = await screen.findByRole('alertdialog');
     await user.type(within(dialog).getByRole('textbox'), 'Not now.');
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(open).toHaveFocus();
     expect(sample.worldVersion()).toBe(version);
   });
@@ -573,7 +698,7 @@ describe('IA-07 — Deactivate and Reactivate (B2-06 f9, f12, f13)', () => {
     const user = userEvent.setup();
     await openRecord(runtime, PRIYA);
     await user.click(screen.getByRole('button', { name: 'Deactivate account…' }));
-    const dialog = await screen.findByRole('dialog');
+    const dialog = await screen.findByRole('alertdialog');
     await user.type(within(dialog).getByRole('textbox'), 'Left the course.');
     const elsewhere = asPersonId(sample, MEERA);
     const record = await recordOf(runtime, PRIYA);
@@ -585,12 +710,12 @@ describe('IA-07 — Deactivate and Reactivate (B2-06 f9, f12, f13)', () => {
     expect(done.ok).toBe(true);
     const version = sample.worldVersion();
     await user.click(within(dialog).getByRole('button', { name: 'Deactivate account' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(sample.worldVersion()).toBe(version);
     await waitFor(() =>
-      expect(main().querySelector('.xr-notice--quiet')).toHaveTextContent('“From another tab.”'),
+      expect(main().querySelector('.rk-notice--off')).toHaveTextContent('“From another tab.”'),
     );
-    expect(main().querySelector('.xr-notice--ok')).toBeNull();
+    expect(main().querySelector('.rk-notice--ok')).toBeNull();
     await waitFor(() =>
       expect(screen.getByRole('heading', { level: 1, name: 'Priya Natarajan' })).toHaveFocus(),
     );
@@ -601,16 +726,16 @@ describe('IA-07 — Deactivate and Reactivate (B2-06 f9, f12, f13)', () => {
     const user = userEvent.setup();
     await openRecord(runtime, PRIYA);
     await user.click(screen.getByRole('button', { name: 'Deactivate account…' }));
-    const dialog = await screen.findByRole('dialog');
+    const dialog = await screen.findByRole('alertdialog');
     await user.type(within(dialog).getByRole('textbox'), 'On leave.');
     faults(sample).failNext('PeopleService.deactivateStudent');
     await user.click(within(dialog).getByRole('button', { name: 'Deactivate account' }));
     await waitFor(() =>
-      expect(within(dialog).getByRole('button', { name: 'Deactivate account' })).not.toHaveClass(
-        'is-busy',
-      ),
+      expect(
+        within(dialog).getByRole('button', { name: 'Deactivate account' }),
+      ).not.toHaveAttribute('aria-disabled'),
     );
-    expect(screen.getByRole('dialog')).toBeVisible();
+    expect(screen.getByRole('alertdialog')).toBeVisible();
     expect(within(dialog).getByRole('textbox')).toHaveValue('On leave.');
     expect((await recordOf(runtime, PRIYA)).student.accountStatus).toBe('active');
   });
@@ -632,13 +757,14 @@ describe('People while the institution is paused: read-only (B2-01 f5)', () => {
     await openRecord(runtime, RAHUL);
     await waitFor(() =>
       expect(main()).toHaveTextContent(
-        'You can’t add people or change their accounts, groups or courses until BITS lifts the pause.',
+        'Read-only while your institution’s access is pausedYou can give access or change this account again when BITS lifts the pause.',
       ),
     );
     expect(screen.queryByRole('link', { name: 'Give this student access' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Deactivate account…' })).toBeNull();
-    // The reads stay: the grant is still listed.
-    expect(region('Experiments given')).toHaveTextContent('SACC-0310');
+    // The reads stay: the grant is still listed (by what it gives, never by its id).
+    expect(region('Experiments given')).toHaveTextContent('Shell-and-Tube Heat Exchanger');
+    expectNoPeopleReferences();
   });
 
   it('Deccan’s Institute Admin (paused on 12 Oct): no Add student, no Add faculty member', async () => {
@@ -652,7 +778,7 @@ describe('People while the institution is paused: read-only (B2-01 f5)', () => {
   });
 });
 
-// ---- IA-10 Add a student / Add a faculty member (B2-07 f0 … f4) ------------------------------
+// ---- IA-10 Add a student / Add a faculty member (V3 IA-v1 IA-10; B2-07 f0 … f4) ---------------
 
 async function openAdd(runtime: PlatformRuntime, search = '') {
   const rendered = inInstitute(runtime, '/institute/people/add', <AddPerson />, search);
@@ -663,32 +789,49 @@ async function openAdd(runtime: PlatformRuntime, search = '') {
   return rendered;
 }
 
+const crumbs = () => screen.getByRole('navigation', { name: 'Breadcrumb' });
+
 describe('IA-10 — Add student (B2-07 f0, f1, f2)', () => {
   it('validation in words, an error summary that takes focus (f0, f1)', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     await openAdd(runtime);
     const version = sample.worldVersion();
-    expect(main().querySelector('.xr-overline')).toHaveTextContent('People');
-    expect(main().querySelector('a.xr-back')).toHaveTextContent('Students');
-    expect(main().querySelector('.xr-notice--quiet')).toHaveTextContent(
-      'Adding a student doesn’t give them any experiments yet. You give access separately.',
+    expect(main().querySelector('.rk-eyebrow')).toHaveTextContent('People');
+    expect(within(crumbs()).getByRole('link', { name: 'Students' })).toHaveAttribute(
+      'href',
+      '/institute/people',
     );
+    expect(crumbs()).toHaveTextContent('StudentsAdd student');
+    expect(main().querySelector('.rk-notice--info')).toHaveTextContent(
+      'Adding a student doesn’t give them any experiments' +
+        'You give access separately, from Student access or the student’s record. No invitation or e-mail is sent.',
+    );
+    expect(screen.getByRole('group', { name: 'Who they are' })).toBeVisible();
+    expect(screen.getByRole('group', { name: 'Student details' })).toBeVisible();
     expect(screen.getByRole('textbox', { name: 'Institution e-mail' })).toHaveAttribute(
       'placeholder',
       'name@godavari.edu.in',
     );
-    expect(screen.getByRole('textbox', { name: 'Student ID' })).toHaveAccessibleDescription(
-      'Your institution’s ID for this student, for example GIT-2026-0418.',
+    // The example is the institution's own first student's ID, never a fixed one.
+    const first = (await portStudents(runtime))[0]!.student.institutionStudentId;
+    await waitFor(() =>
+      expect(screen.getByRole('textbox', { name: 'Student ID' })).toHaveAccessibleDescription(
+        `Your institution’s ID, for example ${first}.`,
+      ),
     );
+    expect(
+      screen.getByRole('textbox', { name: 'Programme (optional)' }),
+    ).toHaveAccessibleDescription('Optional here. The CSV import asks for it.');
     expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute(
       'href',
       '/institute/people',
     );
+    expectNoPeopleReferences();
 
     await user.click(screen.getByRole('button', { name: 'Add student' }));
     const summary = await screen.findByRole('alert');
-    expect(summary).toHaveClass('xw-errsum');
+    expect(summary).toHaveClass('rk-errsum');
     expect(summary).toHaveTextContent('3 things need fixing');
     expect(
       within(summary)
@@ -726,7 +869,7 @@ describe('IA-10 — Add student (B2-07 f0, f1, f2)', () => {
     expect(main().querySelector('#person-student-id-e')).toHaveTextContent(
       'GIT-2026-0418 is already used by Rahul Verma',
     );
-    expect(main().querySelector('#person-student-id-e')).toHaveClass('xw-ferr');
+    expect(main().querySelector('#person-student-id-e')).toHaveClass('rk-ferr');
 
     // A short e-mail: the format first (state-copy IA-10.check-order).
     await user.clear(screen.getByRole('textbox', { name: 'Institution e-mail' }));
@@ -740,6 +883,7 @@ describe('IA-10 — Add student (B2-07 f0, f1, f2)', () => {
         'Enter a full e-mail address, like name@godavari.edu.in',
       ),
     );
+    expectNoPeopleReferences();
     expect(sample.worldVersion()).toBe(version);
   });
 
@@ -773,24 +917,38 @@ describe('IA-10 — Add student (B2-07 f0, f1, f2)', () => {
       return element!;
     });
     await waitFor(() => expect(result).toHaveFocus());
-    expect(result.querySelector('.xr-status--ok')).toHaveTextContent('Added');
+    expect(result).toHaveAttribute('role', 'status');
+    expect(result.querySelector('.rk-notice-t')).toHaveTextContent('Added');
     expect(result).toHaveTextContent(
       'Meenakshi Pillai is in People now, with no experiments yet. No invitation or e-mail is sent.',
     );
+    // The result is named by its title; what was recorded follows.
+    const surface = screen.getByRole('region', { name: 'Added' });
+    expect(
+      [...surface.querySelectorAll('dt')].map((term) => [
+        term.textContent,
+        term.nextElementSibling?.textContent,
+      ]),
+    ).toEqual([
+      ['Student ID', 'GIT-2026-0444'],
+      ['Institution e-mail', 'meenakshi.pillai@godavari.edu.in'],
+      ['Group', 'ME ZG523 — Sem II'],
+    ]);
     const listed = await portStudents(runtime, { search: 'meenakshi' });
     expect(listed).toHaveLength(1);
     const added = listed[0]!;
     expect(added.directoryStatus).toBe('no-access-yet');
     expect(added.groups.map((entry) => entry.name)).toEqual(['ME ZG523 — Sem II']);
     expect(added.student.programme).toBe('B.Tech Mechanical');
-    expect(within(result).getByRole('link', { name: 'Give this student access' })).toHaveAttribute(
+    expect(within(surface).getByRole('link', { name: 'Give this student access' })).toHaveAttribute(
       'href',
       `/institute/student-access/give?student=${added.student.id}`,
     );
-    expect(within(result).getByRole('link', { name: 'Back to People' })).toHaveAttribute(
+    expect(within(surface).getByRole('link', { name: 'Back to Students' })).toHaveAttribute(
       'href',
       '/institute/people',
     );
+    expectNoPeopleReferences();
     // The sample sign-in resolves people by e-mail: the new student signs in to their own workspace.
     const signedIn = await visitorPorts(sample).session.signIn({
       method: 'email',
@@ -800,7 +958,7 @@ describe('IA-10 — Add student (B2-07 f0, f1, f2)', () => {
     expect(signedIn.ok && signedIn.value.session.personId).toBe(added.student.id);
     expect(signedIn.ok && signedIn.value.landing).toBe('/student');
 
-    await user.click(within(result).getByRole('button', { name: 'Add another student' }));
+    await user.click(within(surface).getByRole('button', { name: 'Add another student' }));
     const name = await screen.findByRole('textbox', { name: 'Full name' });
     expect(name).toHaveValue('');
     await waitFor(() => expect(name).toHaveFocus());
@@ -821,14 +979,17 @@ describe('IA-10 — Add student (B2-07 f0, f1, f2)', () => {
     first.view.unmount();
     inInstitute(runtime, '/institute/people', <People />);
     await waitFor(() => expect(rowsOf()).toHaveLength(13));
-    expect(count()).toHaveTextContent('13 students');
-    // Added one at a time: no course filed, so the group line stands alone (IA-06.no-course).
-    expect(cellsOf(rowNamed('Meenakshi Pillai'))).toEqual([
-      'Meenakshi PillaiGIT-2026-0444',
-      'No group',
-      'None yet',
-      'No access yet',
-    ]);
+    expect(count()).toHaveTextContent('13 students shown');
+    // Added one at a time: no course filed (IA-06.no-course); the shortcut to give access once
+    // the institution's standing has answered.
+    await waitFor(() =>
+      expect(cellsOf(rowNamed('Meenakshi Pillai'))).toEqual([
+        'Meenakshi PillaiGIT-2026-0444 · meenakshi.pillai@godavari.edu.in',
+        'No groupNo course recorded',
+        'No access yet',
+        'Give access',
+      ]),
+    );
   });
 
   it('failed for now: nothing changes and every answer stays', async () => {
@@ -845,8 +1006,11 @@ describe('IA-10 — Add student (B2-07 f0, f1, f2)', () => {
     faults(sample).failNext('PeopleService.addStudent');
     await user.click(screen.getByRole('button', { name: 'Add student' }));
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Add student' })).not.toHaveClass('is-busy'),
+      expect(screen.getByRole('button', { name: 'Add student' })).not.toHaveAttribute(
+        'aria-disabled',
+      ),
     );
+    expect(screen.getByRole('button', { name: 'Add student' })).not.toHaveClass('ia-btn--busy');
     expect(screen.getByRole('textbox', { name: 'Full name' })).toHaveValue('Meenakshi Pillai');
     expect(screen.queryByRole('alert')).toBeNull();
     expect(sample.worldVersion()).toBe(version);
@@ -858,16 +1022,20 @@ describe('IA-10 — Add faculty member (B2-07 f3)', () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     const first = await openAdd(runtime, '?type=faculty');
-    expect(main().querySelector('a.xr-back')).toHaveTextContent('Faculty');
-    expect(main().querySelector('a.xr-back')).toHaveAttribute(
+    expect(within(crumbs()).getByRole('link', { name: 'Faculty' })).toHaveAttribute(
       'href',
       '/institute/people?tab=faculty',
     );
-    expect(main().querySelector('.xr-notice--quiet')).toHaveTextContent(
-      'Assign the courses they teach after adding them, in Faculty courses.',
+    expect(main().querySelector('.rk-notice--info')).toHaveTextContent(
+      'Adding a faculty member doesn’t assign any courses' +
+        'Assign the courses they teach after adding them, in Faculty courses. No invitation or e-mail is sent.',
     );
     expect(screen.queryByRole('textbox', { name: 'Student ID' })).toBeNull();
     expect(screen.queryByRole('group', { name: 'Student details' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute(
+      'href',
+      '/institute/people?tab=faculty',
+    );
     await user.type(screen.getByRole('textbox', { name: 'Full name' }), 'Dr Kavitha Rao');
     await user.type(
       screen.getByRole('textbox', { name: 'Institution e-mail' }),
@@ -882,32 +1050,87 @@ describe('IA-10 — Add faculty member (B2-07 f3)', () => {
     expect(result).toHaveTextContent(
       'Dr Kavitha Rao is in People now, with no courses yet. No invitation or e-mail is sent.',
     );
-    // "Assign a course" opens Faculty courses with them chosen (IA-15, Package 2B; B2-07 f3).
+    const surface = screen.getByRole('region', { name: 'Added' });
     expect(
-      within(result).getByRole('link', { name: 'Assign a course' }).getAttribute('href'),
+      [...surface.querySelectorAll('dt')].map((term) => [
+        term.textContent,
+        term.nextElementSibling?.textContent,
+      ]),
+    ).toEqual([
+      ['Institution e-mail', 'kavitha.rao@godavari.edu.in'],
+      ['Courses taught', 'None yet'],
+    ]);
+    // "Assign a course" opens Faculty courses with them chosen (IA-15; B2-07 f3).
+    expect(
+      within(surface).getByRole('link', { name: 'Assign a course' }).getAttribute('href'),
     ).toMatch(/^\/institute\/people\?tab=faculty-courses&faculty=per-/);
     expect(
-      within(result).getByRole('button', { name: 'Add another faculty member' }),
+      within(surface).getByRole('button', { name: 'Add another faculty member' }),
     ).toBeVisible();
+    expect(within(surface).getByRole('link', { name: 'Back to Faculty' })).toHaveAttribute(
+      'href',
+      '/institute/people?tab=faculty',
+    );
+    expectNoPeopleReferences();
     first.view.unmount();
 
     inInstitute(runtime, '/institute/people', <People />, '?tab=faculty');
     await waitFor(() => expect(rowsOf()).toHaveLength(4));
     expect(cellsOf(rowNamed('Dr Kavitha Rao'))).toEqual([
       'Dr Kavitha Raokavitha.rao@godavari.edu.in',
-      'No courses yet',
+      'Courses taughtNo courses yet',
       'Active',
     ]);
   });
 });
 
 describe('IA-10 while the institution is paused', () => {
-  it('Deccan’s Institute Admin sees the read-only notice, not the form', async () => {
+  it('Deccan’s Institute Admin sees the refusal, not the form', async () => {
     const { runtime } = await tabPlatform(PAUSED_INSTITUTE_ADMIN, 'after-flow-b');
-    await openAdd(runtime);
-    await waitFor(() =>
-      expect(main()).toHaveTextContent('Read-only while your institution’s access is paused'),
+    inInstitute(runtime, '/institute/people/add', <AddPerson />);
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'You can’t add people while your institution’s access is paused',
+      }),
+    ).toBeVisible();
+    expect(main()).toHaveTextContent(
+      'People and their work are kept. You can add people again when BITS lifts the pause.',
     );
+    expect(screen.queryByRole('textbox', { name: 'Full name' })).toBeNull();
+    expect(screen.getByRole('link', { name: 'Back to Students' })).toHaveAttribute(
+      'href',
+      '/institute/people',
+    );
+    const refusal = screen.getByRole('region', {
+      name: 'You can’t add people while your institution’s access is paused',
+    });
+    expect(within(refusal).getByRole('link', { name: 'Help' })).toHaveAttribute(
+      'href',
+      '/institute/help',
+    );
+    expectNoPeopleReferences();
+  });
+
+  it('paused meanwhile: the add is refused, nothing written, the refusal takes focus', async () => {
+    const { runtime, sample } = await tabPlatform(MEERA, 'after-setup');
+    const user = userEvent.setup();
+    await openAdd(runtime);
+    await user.type(screen.getByRole('textbox', { name: 'Full name' }), 'Meenakshi Pillai');
+    await user.type(
+      screen.getByRole('textbox', { name: 'Institution e-mail' }),
+      'meenakshi.pillai@godavari.edu.in',
+    );
+    await user.type(screen.getByRole('textbox', { name: 'Student ID' }), 'GIT-2026-0444');
+    await pauseGodavari(sample);
+    const version = sample.worldVersion();
+    await user.click(screen.getByRole('button', { name: 'Add student' }));
+    const refusal = await screen.findByRole('heading', {
+      level: 1,
+      name: 'You can’t add people while your institution’s access is paused',
+    });
+    await waitFor(() => expect(refusal).toHaveFocus());
+    expect(sample.worldVersion()).toBe(version);
     expect(screen.queryByRole('textbox', { name: 'Full name' })).toBeNull();
   });
 });

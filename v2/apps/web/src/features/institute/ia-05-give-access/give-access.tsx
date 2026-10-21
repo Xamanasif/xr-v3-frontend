@@ -1,32 +1,32 @@
 'use client';
 
-import type { GiveAccessOptions, ServiceError } from '@xr/contracts/draft';
+import type { ServiceError } from '@xr/contracts/draft';
 import {
-  BackLink,
+  Breadcrumbs,
+  Button,
+  ButtonLink,
   ErrorSummary,
-  FailedState,
-  Icon,
-  Link,
-  LoadingState,
+  IaGiveLayout,
+  IaMessageCard,
+  IaStack,
+  IaSteps,
+  ListState,
+  LoadingRows,
   Notice,
-  PageContent,
-  PageHeader,
-  Skeleton,
-  Stepper,
-  stepCountText,
-} from '@xr/ui';
+  PageHead,
+  TextLink,
+} from '@xr/ui/v3';
 import { type ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 
-import { REQUEST_ACTIONS } from '@/copy/institute-requests';
-import { stateWords } from '@/copy/state-copy';
 import {
-  GIVE_ACCESS,
-  type GiveStep,
+  IA05,
   planEndedLine,
-  planEndedTitle,
-  requestAwaitingPaymentWords,
-  studentsChosenWords,
-} from '@/copy/student-access';
+  prefillGroupTitle,
+  prefillStudentTitle,
+  stepOfWords,
+} from '@/copy/ia-access';
+import { stateWords } from '@/copy/state-copy';
+import { GIVE_ACCESS, type GiveStep } from '@/copy/student-access';
 import {
   CONTENT_ACCESS_ADDRESS,
   INSTITUTE_HELP_ADDRESS,
@@ -47,13 +47,15 @@ import {
 import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { useInstituteTodayLine } from '../shared/use-today-line';
 import {
   ExperimentsStep,
+  type GivenResult,
   ResultSection,
   ReviewStep,
-  SelectionSummary,
+  SelectionFold,
+  SelectionPanel,
   StudentsStep,
-  type GivenResult,
 } from './give-access-steps';
 import {
   checkExperiments,
@@ -74,33 +76,35 @@ import {
   stepOf,
 } from './give-access-view';
 
-const TITLE_ID = 'give-access-title';
+const TITLE_ID = 'ia-h1';
 
 /**
- * IA-05 Give students access — board B2-05, at `/institute/student-access/give`
+ * IA-05 Give students access — the owner-approved V3 design (design/v3-refined-b/roles/IA-v1,
+ * `Main.dc.html` `R.rIA05`, `vm05`), at `/institute/student-access/give`
  * (`?step=experiments|students|review`; pre-filled by `?student=`, `?group=`, `?course=`,
  * `?experiment=`).
  *
  * - **Read**: `StudentAccessService.getGiveAccessOptions` — the plan, the course's experiments in
  *   the plan (formats inherited, LD-1) and the ones published but not in it, the students and the
- *   groups, each with whether the service offers it (already has it, inactive, an empty group;
- *   f9) — with each student's ID and groups from `PeopleService.listStudents` and the plan's status
- *   from `InstitutionService.getAccessPlan`. Refused while paused (f15), after the plan has ended
- *   (f16) and before anything is held (f17): the drawn message page, named from the institution's
- *   own overview.
- * - **Three steps** in the address: experiments → students or a group → review. "Continue" checks
- *   the step with the contract's own input schema (the drawn summary, focus on it; f10); the
- *   review is the service's preview (`previewGiveAccess`, which writes nothing): what will be
- *   created, whom it reaches and how each stands — a wait only where the service supplies one (D7).
+ *   groups, each with whether the service offers it (already has it, inactive, an empty group) —
+ *   with each student's ID and groups from `PeopleService.listStudents` and the plan's status from
+ *   `InstitutionService.getAccessPlan`. Refused while paused, after the plan has ended and before
+ *   anything is held: the message in place of the flow, named from the institution's overview.
+ * - **Three steps** in the address, with the numbered step indicator and "Your selection" beside
+ *   steps 1 and 2 (folded into one line under the steps on narrow pages): experiments → students
+ *   or a group → review. "Continue" checks the step with the contract's own input schema (the error
+ *   summary takes focus); the review is the service's preview (`previewGiveAccess`, which writes
+ *   nothing): what will be created, whom it reaches and how each stands — a wait only where the
+ *   service supplies one (D7).
  * - **Act**: "Give access" sends `giveAccess` once, with the plan's revision as read
- *   (`expectedPlanRev`). The result names each new grant ("Access given · SACC-0310") with its
- *   status; "View Student access" and "Give more access". A failure keeps every choice (f12); a
- *   refusal says so and reads the options again.
- * - "Request renewal" on f16 opens Requests (IA-17, Phase 3). "Import students" (f14) opens IA-11.
+ *   (`expectedPlanRev`). The result lists each grant by who, what and its status — never by its
+ *   id — with a link to the student or the group; "View Student access" and "Give more access". A
+ *   failure keeps every choice; a refusal says so and reads the options again.
  */
 export function GiveAccess() {
   useShellPage(underPlacement('IA-05', GIVE_ACCESS.title));
   const navigation = useAppNavigation();
+  const date = useInstituteTodayLine();
   const step = stepOf(navigation.search);
   const [prefill, setPrefill] = useState<Prefill>(() => prefillOf(navigation.search));
   const [draft, setDraft] = useState<Draft>(() => draftOf(navigation.search));
@@ -133,8 +137,8 @@ export function GiveAccess() {
   const choice = chosen ? choiceOf(draft, chosen) : null;
   const preview = useGiveAccessPreview(step === 'review' && given === null ? choice : null);
 
-  // The title takes focus when the step changes in the page, and after the result (B2-05
-  // `focus(pid + '-h')`); a failed check focuses its summary instead (ErrorSummary).
+  // The title takes focus when the step changes in the page, and after the result (the export's
+  // `focusLater('ia-h1')`); a failed check focuses its summary instead (ErrorSummary).
   const shownStep = useRef(step);
   useEffect(() => {
     if (shownStep.current === step) return;
@@ -189,12 +193,12 @@ export function GiveAccess() {
         error.code === 'plan-ended' ||
         error.code === 'nothing-held')
     ) {
-      // The options are refused the same way now: the page shows the drawn message (f15–f17).
+      // The options are refused the same way now: the page shows the message.
       void options.refetch();
       return;
     }
     fail({
-      title: GIVE_ACCESS.errorTitle,
+      title: IA05.errorTitle,
       items: [{ fieldId: FIELD_IDS.give, summaryText: stateWords('IA-05.give.refused') }],
     });
     void options.refetch();
@@ -208,10 +212,10 @@ export function GiveAccess() {
     try {
       result = await give.run({ ...giveInput(current), expectedPlanRev: offered.plan.rev });
     } catch {
-      // Unavailable: nothing was given, every choice is kept (B2-05 f12).
+      // Unavailable: nothing was given, every choice is kept.
       fail({
-        title: GIVE_ACCESS.errorTitle,
-        items: [{ fieldId: FIELD_IDS.give, summaryText: GIVE_ACCESS.giveFailed }],
+        title: IA05.errorTitle,
+        items: [{ fieldId: FIELD_IDS.give, summaryText: IA05.giveFailed }],
       });
       return;
     }
@@ -221,8 +225,11 @@ export function GiveAccess() {
     }
     setGiven({
       results: result.value,
-      planId: offered.plan.id,
-      group: current.target.kind === 'group' ? (chosen.group?.name ?? null) : null,
+      group:
+        current.target.kind === 'group' && chosen.group
+          ? { id: chosen.group.id, name: chosen.group.name }
+          : null,
+      students: chosen.students.map((student) => ({ id: student.id, name: student.name })),
       experiments: chosen.experiments,
     });
     setFocusTitle((count) => count + 1);
@@ -238,23 +245,33 @@ export function GiveAccess() {
     setFocusTitle((count) => count + 1);
   };
 
-  // ---- refusals: the drawn message pages (f15, f16, f17) ----
+  const crumbs = (
+    <Breadcrumbs
+      levels={[{ label: IA05.crumb, href: STUDENT_ACCESS_ADDRESS }]}
+      current={IA05.title}
+    />
+  );
+
+  // ---- refusals: the message in place of the flow (paused, ended, nothing held) ----
   if (refusal?.kind === 'refused' && refusal.code === 'institution-paused') {
     return (
-      <Message
-        title={GIVE_ACCESS.paused.title}
-        line={GIVE_ACCESS.paused.line}
-        actions={
-          <>
-            <Link className="xr-btn xr-btn--secondary" href={STUDENT_ACCESS_ADDRESS}>
-              {GIVE_ACCESS.paused.back}
-            </Link>
-            <Link className="xr-btn xr-btn--text" href={INSTITUTE_HELP_ADDRESS}>
-              {GIVE_ACCESS.paused.help}
-            </Link>
-          </>
-        }
-      />
+      <>
+        {crumbs}
+        <IaMessageCard
+          icon="pauseCircle"
+          title={IA05.paused.title}
+          actions={
+            <>
+              <ButtonLink variant="navy" href={STUDENT_ACCESS_ADDRESS}>
+                {IA05.paused.back}
+              </ButtonLink>
+              <TextLink href={INSTITUTE_HELP_ADDRESS}>{IA05.paused.help}</TextLink>
+            </>
+          }
+        >
+          {IA05.paused.line}
+        </IaMessageCard>
+      </>
     );
   }
   if (
@@ -263,45 +280,56 @@ export function GiveAccess() {
   ) {
     const overview = standing.data?.ok ? standing.data.value : null;
     if (overview === null) {
-      return standing.isError || (standing.data && !standing.data.ok) ? (
-        <Failed onRetry={() => void standing.refetch()} />
-      ) : (
-        <Loading />
+      return (
+        <>
+          {crumbs}
+          {standing.isError || (standing.data && !standing.data.ok) ? (
+            <Failed onRetry={() => void standing.refetch()} />
+          ) : (
+            <LoadingRows message={GIVE_ACCESS.loading} rows={1} cells={[1]} />
+          )}
+        </>
       );
     }
     if (refusal.code === 'plan-ended' && overview.plan) {
       return (
-        <Message
-          title={planEndedTitle(overview.plan.id)}
-          line={planEndedLine(overview.plan.endsOn)}
-          actions={
-            <>
-              {/* f16: "Request renewal" opens Requests (IA-17, Phase 3). */}
-              <Link className="xr-btn xr-btn--primary" href={INSTITUTE_REQUESTS_ADDRESS}>
-                {REQUEST_ACTIONS.requestRenewal}
-              </Link>
-              <Link className="xr-btn xr-btn--text" href={CONTENT_ACCESS_ADDRESS}>
-                {GIVE_ACCESS.contentAccess}
-              </Link>
-            </>
-          }
-        />
+        <>
+          {crumbs}
+          <IaMessageCard
+            icon="ended"
+            title={IA05.ended.title}
+            actions={
+              <>
+                {/* "Request renewal" opens Requests (IA-17). */}
+                <ButtonLink variant="navy" href={INSTITUTE_REQUESTS_ADDRESS}>
+                  {IA05.ended.renewal}
+                </ButtonLink>
+                <TextLink href={CONTENT_ACCESS_ADDRESS}>{IA05.contentAccess}</TextLink>
+              </>
+            }
+          >
+            {planEndedLine(overview.plan.endsOn)}
+          </IaMessageCard>
+        </>
       );
     }
     return (
-      <Message
-        title={GIVE_ACCESS.nothingHeld.title}
-        line={
-          overview.status === 'approved-payment-required'
-            ? `${GIVE_ACCESS.nothingHeld.line} ${requestAwaitingPaymentWords(overview.institution.createdFromRequestId)}`
-            : GIVE_ACCESS.nothingHeld.line
-        }
-        actions={
-          <Link className="xr-btn xr-btn--secondary" href={CONTENT_ACCESS_ADDRESS}>
-            {GIVE_ACCESS.contentAccess}
-          </Link>
-        }
-      />
+      <>
+        {crumbs}
+        <IaMessageCard
+          icon="contentAccess"
+          title={IA05.nothingHeld.title}
+          actions={
+            <ButtonLink variant="navy" href={CONTENT_ACCESS_ADDRESS}>
+              {IA05.contentAccess}
+            </ButtonLink>
+          }
+        >
+          {overview.status === 'approved-payment-required'
+            ? `${IA05.nothingHeld.line} ${IA05.nothingHeld.approved}`
+            : IA05.nothingHeld.line}
+        </IaMessageCard>
+      </>
     );
   }
 
@@ -315,234 +343,148 @@ export function GiveAccess() {
     !failed && (offered === null || students.data === undefined || plan.data === undefined);
   const done = given !== null;
   const current = done ? null : reachable;
+  const ready = !failed && !loading && offered !== null && chosen !== null;
+  // The running summary helps while choosing (steps 1–2); the review and the result say all of it.
+  const summary = ready && (current === 'experiments' || current === 'students');
 
-  return (
-    <PageContent wrap="wide">
-      <BackLink href={STUDENT_ACCESS_ADDRESS}>{GIVE_ACCESS.back}</BackLink>
-      <PageHeader
-        className="mt-2 mb-4"
-        overline={current === null ? GIVE_ACCESS.title : stepCountText(stepNumber(current), 3)}
-        title={current === null ? GIVE_ACCESS.doneTitle : GIVE_ACCESS.stepTitles[current]}
-        titleId={TITLE_ID}
-        titleFocusTarget
-        titleRef={titleRef}
-      />
-      {current !== null ? (
-        <Stepper
-          label={GIVE_ACCESS.title}
-          steps={GIVE_ACCESS.steps}
-          current={stepNumber(current)}
-          doneWords={false}
-          className="mb-6"
+  let sheet: ReactNode;
+  if (failed) {
+    sheet = (
+      <IaStack sec>
+        <Failed
+          onRetry={() => {
+            for (const read of [options, students, plan]) void read.refetch();
+          }}
         />
-      ) : (
-        <div className="mb-5">
-          <Notice tone="ok" title={GIVE_ACCESS.doneTitle}>
-            {GIVE_ACCESS.doneLine}
-          </Notice>
-        </div>
-      )}
-      <div className="xw-flow">
-        <div className="xw-flow-main">
-          {errors ? (
+      </IaStack>
+    );
+  } else if (!ready) {
+    sheet = (
+      <IaStack sec>
+        <LoadingRows message={GIVE_ACCESS.loading} rows={2} cells={[2, 1]} />
+      </IaStack>
+    );
+  } else if (done) {
+    sheet = <ResultSection given={given} onRestart={restart} />;
+  } else {
+    sheet = (
+      <>
+        {errors ? (
+          <IaStack sec>
             <ErrorSummary
               key={attempt}
               id="give-access-errors"
               title={errors.title}
               items={errors.items}
             />
-          ) : null}
-          {failed ? (
-            <Failed
-              inline
-              onRetry={() => {
-                for (const read of [options, students, plan]) void read.refetch();
-              }}
-            />
-          ) : loading || !offered || !chosen ? (
-            <LoadingState
-              label={GIVE_ACCESS.loading}
-              surface="section"
-              className="flex flex-col gap-4 p-6"
-              skeleton={
-                <>
-                  <Skeleton className="w-[40%]" />
-                  <Skeleton />
-                  <Skeleton className="w-[70%]" />
-                  <Skeleton className="w-[55%]" />
-                </>
-              }
-            />
-          ) : (
-            <Flow
-              step={current}
-              offered={offered}
-              chosen={chosen}
-              draft={draft}
-              prefill={prefill}
-              planStatus={plan.data?.ok ? plan.data.value.status : null}
-              directory={students.data?.ok ? students.data.value : []}
-              preview={preview}
-              given={given}
-              busy={give.busy}
-              update={update}
-              onContinue={onContinue}
-              onBack={onBack}
-              onGive={(next) => void onGive(next)}
-              onRestart={restart}
-              choice={choice}
-            />
-          )}
-        </div>
-        {current !== null && offered && chosen && !failed && !loading ? (
-          <SelectionSummary offered={offered} chosen={chosen} draft={draft} variant="aside" />
+          </IaStack>
         ) : null}
-      </div>
-    </PageContent>
-  );
-}
-
-/** The flow's body once the options are read: the prefill notice, the step, the summary bar. */
-function Flow({
-  step,
-  offered,
-  chosen,
-  draft,
-  prefill,
-  planStatus,
-  directory,
-  preview,
-  given,
-  busy,
-  update,
-  onContinue,
-  onBack,
-  onGive,
-  onRestart,
-  choice,
-}: {
-  readonly step: GiveStep | null;
-  readonly offered: GiveAccessOptions;
-  readonly chosen: ReturnType<typeof chosenOf>;
-  readonly draft: Draft;
-  readonly prefill: Prefill;
-  readonly planStatus: Parameters<typeof ExperimentsStep>[0]['planStatus'];
-  readonly directory: Parameters<typeof StudentsStep>[0]['directory'];
-  readonly preview: ReturnType<typeof useGiveAccessPreview>;
-  readonly given: GivenResult | null;
-  readonly busy: boolean;
-  readonly update: (patch: Partial<Draft>) => void;
-  readonly onContinue: () => void;
-  readonly onBack: () => void;
-  readonly onGive: (choice: GiveChoice) => void;
-  readonly onRestart: () => void;
-  readonly choice: GiveChoice | null;
-}) {
-  if (step === null && given !== null) {
-    return <ResultSection given={given} onRestart={onRestart} />;
+        <Prefilled prefill={prefill} draft={draft} chosen={chosen} />
+        {current === 'experiments' ? (
+          <ExperimentsStep
+            offered={offered}
+            chosen={chosen}
+            draft={draft}
+            planStatus={plan.data?.ok ? plan.data.value.status : null}
+            update={update}
+            onContinue={onContinue}
+          />
+        ) : current === 'students' ? (
+          <StudentsStep
+            offered={offered}
+            chosen={chosen}
+            draft={draft}
+            directory={students.data?.ok ? students.data.value : []}
+            update={update}
+            onBack={onBack}
+            onContinue={onContinue}
+          />
+        ) : current === 'review' && choice !== null ? (
+          <ReviewStep
+            offered={offered}
+            chosen={chosen}
+            draft={draft}
+            choice={choice}
+            preview={preview}
+            busy={give.busy}
+            onBack={onBack}
+            onGive={() => void onGive(choice)}
+          />
+        ) : null}
+      </>
+    );
   }
-  const prefilledStudent =
-    draft.who === 'students' &&
-    prefill.student !== null &&
-    chosen.students.some((student) => student.id === prefill.student);
-  const prefilledGroup =
-    draft.who === 'group' && prefill.group !== null && chosen.group?.id === prefill.group;
+
   return (
     <>
-      {prefilledStudent ? (
-        <Notice tone="quiet" icon="person">
-          {GIVE_ACCESS.prefillStudent.before}
-          <strong>{studentsChosenWords(chosen.students.map((student) => student.name))}</strong>
-          {GIVE_ACCESS.prefillStudent.after}
-        </Notice>
-      ) : null}
-      {prefilledGroup && chosen.group ? (
-        <Notice tone="quiet" icon="person">
-          {GIVE_ACCESS.prefillGroup.before}
-          <strong>{chosen.group.name}</strong>
-          {GIVE_ACCESS.prefillGroup.after}
-        </Notice>
-      ) : null}
-      {step === 'experiments' ? (
-        <ExperimentsStep
-          offered={offered}
-          chosen={chosen}
-          draft={draft}
-          planStatus={planStatus}
-          update={update}
-          onContinue={onContinue}
-        />
-      ) : step === 'students' ? (
-        <StudentsStep
-          offered={offered}
-          chosen={chosen}
-          draft={draft}
-          directory={directory}
-          update={update}
-          onBack={onBack}
-          onContinue={onContinue}
-        />
-      ) : step === 'review' && choice !== null ? (
-        <ReviewStep
-          offered={offered}
-          chosen={chosen}
-          draft={draft}
-          choice={choice}
-          preview={preview}
-          busy={busy}
-          onBack={onBack}
-          onGive={() => onGive(choice)}
-        />
-      ) : null}
-      <SelectionSummary offered={offered} chosen={chosen} draft={draft} variant="bar" />
+      {crumbs}
+      <PageHead
+        title={current === null ? IA05.doneTitle : IA05.stepTitles[current]}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        titleFocusTarget
+        date={date}
+        eyebrow={current === null ? IA05.title : stepOfWords(stepNumber(current))}
+      />
+      <IaSteps
+        label={IA05.stepsLabel}
+        steps={IA05.steps.map((label, index) => ({ key: STEPS[index]!, label }))}
+        current={current === null ? IA05.steps.length + 1 : stepNumber(current)}
+        stateWords={{ done: IA05.stepDone, current: IA05.stepCurrent }}
+      />
+      {summary ? <SelectionFold offered={offered} chosen={chosen} draft={draft} /> : null}
+      <IaGiveLayout
+        asideLabel={IA05.selection}
+        aside={summary ? <SelectionPanel offered={offered} chosen={chosen} draft={draft} /> : null}
+      >
+        {sheet}
+      </IaGiveLayout>
     </>
   );
 }
 
-/** B2-05 f15–f17: the message page in place of the flow (`xr-wrap--read`, `xr-msg`). */
-function Message({
-  title,
-  line,
-  actions,
+/** The pre-fill notice: who was chosen from the student record or the group page (until step 3). */
+function Prefilled({
+  prefill,
+  draft,
+  chosen,
 }: {
-  readonly title: string;
-  readonly line: string;
-  readonly actions: ReactNode;
+  readonly prefill: Prefill;
+  readonly draft: Draft;
+  readonly chosen: NonNullable<ReturnType<typeof chosenOf>>;
 }) {
+  const student =
+    draft.who === 'students' && prefill.student !== null
+      ? (chosen.students.find((entry) => entry.id === prefill.student) ?? null)
+      : null;
+  const group =
+    draft.who === 'group' && prefill.group !== null && chosen.group?.id === prefill.group
+      ? chosen.group
+      : null;
+  if (!student && !group) return null;
   return (
-    <PageContent wrap="read">
-      <div className="xr-msg mx-0 my-6">
-        <span className="xr-msg-icon">
-          <Icon name="readOnly" />
-        </span>
-        <h1 className="xr-msg-title">{title}</h1>
-        <p className="xr-lead">{line}</p>
-        <div className="xr-msg-actions">{actions}</div>
-      </div>
-    </PageContent>
+    <IaStack sec>
+      <Notice
+        tone="info"
+        icon="infoNote"
+        role="status"
+        title={student ? prefillStudentTitle(student.name) : prefillGroupTitle(group!.name)}
+      >
+        {student ? IA05.prefillStudentLine : IA05.prefillGroupLine}
+      </Notice>
+    </IaStack>
   );
 }
 
-/** The options could not be read (state-copy IA-05.failed): in the flow, or alone. */
-function Failed({
-  onRetry,
-  inline = false,
-}: {
-  readonly onRetry: () => void;
-  readonly inline?: boolean;
-}) {
-  const state = (
-    <FailedState title={stateWords('IA-05.failed')} onRetry={onRetry}>
+/** The options could not be read (state-copy IA-05.failed): Try again reads them again. */
+function Failed({ onRetry }: { readonly onRetry: () => void }) {
+  return (
+    <ListState
+      kind="failed"
+      title={stateWords('IA-05.failed')}
+      action={<Button onClick={onRetry}>{IA05.tryAgain}</Button>}
+    >
       {stateWords('IA-05.failed.line')}
-    </FailedState>
-  );
-  return inline ? state : <PageContent wrap="read">{state}</PageContent>;
-}
-
-function Loading() {
-  return (
-    <PageContent wrap="read">
-      <LoadingState label={GIVE_ACCESS.loading} surface="section" className="p-6" lines={3} />
-    </PageContent>
+    </ListState>
   );
 }

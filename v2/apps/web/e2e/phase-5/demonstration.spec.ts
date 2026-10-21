@@ -195,7 +195,7 @@ test('one tab, the product build: Flow E — create → return with a reason →
   await sidebar(page, '/institute/people');
   await reachAndClick(
     page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Add student' }),
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Add student' }),
   );
   await page.waitForURL('**/institute/people/add**');
   await page.getByLabel('Full name', { exact: true }).fill('Rahul Verma');

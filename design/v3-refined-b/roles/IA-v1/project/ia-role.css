@@ -1,0 +1,661 @@
+/* XR Learning Platform · Design V3 · Refined B · Institute Admin role extension (ia- prefix)
+   Foundation XR-V3-RB-1.0. Loaded after core.css, rb.css and rb-kit.css. Uses their tokens only;
+   never restyles an xr-, rb- or rk- class. Each block names why the shared kit could not express it.
+   See COMPONENT-EXTENSIONS.md. */
+
+/* IDs and record numbers never break at hyphens */
+.ia-nowrap{white-space:nowrap}
+
+/* ── guided steps (Give students access, Import students) ──────────────────────────
+   The kit has no step indicator. Done steps use navy, the current one indigo (selection),
+   later ones neutral; each step is words plus number, never colour alone. */
+.ia-steps{display:flex;flex-wrap:wrap;gap:8px 28px;margin:0;padding:0;list-style:none;counter-reset:none}
+.ia-step{display:flex;align-items:center;gap:10px;min-height:32px;font:600 15px/20px var(--sans);color:var(--ink-3)}
+.ia-step-n{display:inline-flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;border-radius:50%;border:2px solid #C5CAD8;background:var(--paper);color:var(--ink-3);font:700 14px/1 var(--sans)}
+.ia-step-n svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.ia-step.is-done{color:var(--ink-2)}
+.ia-step.is-done .ia-step-n{border-color:var(--navy);background:var(--navy);color:#FFFFFF}
+.ia-step.is-current{color:var(--navy)}
+.ia-step.is-current .ia-step-n{border-color:var(--rb-sel);background:var(--rb-sel-tint);color:var(--indigo-2)}
+
+/* ── pick list: choose students or a group in a guided step ────────────────────────
+   rk-choice is a card for 2–3 options; choosing from a list of people needs dense rows
+   with an identity line, a reason when a row can't be chosen, and a visible selected state. */
+.ia-pick{container:iapick / inline-size;display:flex;flex-direction:column;border:1px solid var(--rb-line);border-radius:14px;overflow:hidden;background:var(--paper)}
+.ia-pick > li + li{border-top:1px solid var(--rb-line)}
+.ia-pick-row{display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;column-gap:14px;row-gap:2px;min-height:56px;padding:10px 16px;cursor:pointer;transition:background-color 120ms linear}
+.ia-pick-row:hover{background:#F8F9FD}
+.ia-pick-row input{width:20px;height:20px;margin:0;accent-color:var(--rb-sel);cursor:pointer}
+.ia-pick-row:has(input:checked){background:var(--rb-sel-tint)}
+.ia-pick-row:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:-3px}
+.ia-pick-t{display:block;font:650 16px/22px var(--sans);color:var(--ink)}
+.ia-pick-d{display:block;font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.ia-pick-why{justify-self:end;text-align:right;font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ia-pick-row.is-off{cursor:not-allowed;background:#FAFBFD}
+.ia-pick-row.is-off .ia-pick-t{color:var(--ink-3)}
+.ia-pick-row.is-off input{cursor:not-allowed}
+@container iapick (max-width: 559.98px){
+  .ia-pick-row{grid-template-columns:22px minmax(0,1fr)}
+  .ia-pick-why{grid-column:2;justify-self:start;text-align:left}
+}
+
+/* ── account menu (borrowed XS-05 contract: name, role, institution, Help, Sign out) ──
+   rb.css draws the account button but no menu. Values follow the V3 surfaces. */
+.ia-acctwrap{position:relative;margin-left:auto}
+.ia-menu{position:absolute;right:0;top:calc(100% + 8px);z-index:45;width:288px;padding:8px;border:1px solid var(--rb-line);border-radius:16px;background:var(--paper);box-shadow:0 12px 32px rgba(12,18,71,.14)}
+.ia-menu-head{display:flex;flex-direction:column;gap:2px;padding:10px 12px 12px;border-bottom:1px solid var(--rb-line);margin-bottom:6px}
+.ia-menu-name{font:700 16px/22px var(--sans);color:var(--navy)}
+.ia-menu-meta{font:400 14.5px/20px var(--sans);color:var(--ink-3)}
+.rb .ia-menu-item{display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:none;color:var(--ink);font:600 15px/20px var(--sans);text-decoration:none;text-align:left;cursor:pointer}
+.rb .ia-menu-item:hover{background:var(--rb-sel-tint);color:var(--navy)}
+.ia-menu-item svg{width:20px;height:20px;flex:none;fill:none;stroke:var(--indigo);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ia-menu-sep{height:1px;margin:6px 4px;background:var(--rb-line)}
+@container rb (max-width: 759.98px){ .ia-menu{width:min(288px,calc(100vw - 32px))} }
+
+/* ── destructive confirmation button (DL-1/DL-2 contract, v46 board 10) ─────────────
+   rb.css has primary, navy and ghost buttons only. Red is the err token; used only for
+   the destructive action itself, with Cancel taking initial focus. */
+.rb .ia-btn--danger{background:var(--err);border-color:var(--err);color:#FFFFFF}
+.rb .ia-btn--danger:hover{background:#912018;border-color:#912018;color:#FFFFFF}
+.rb .ia-btn--busy,.rb .ia-btn--busy:hover{opacity:.72;cursor:progress}
+
+/* ── attention lead variants for the paused and ended institution states ───────────
+   rb-lead is the ivory urgency band. Paused uses the kit's paused tint; ended uses the
+   kit's 'off' tint. Same geometry as rb-lead. */
+.rb .ia-lead--paused{border-color:#CDD2EC;background:#F1F2FA}
+.rb .ia-lead--paused .rb-lead-ico{background:var(--paper);color:var(--navy);box-shadow:inset 0 0 0 1.5px #CDD2EC}
+.rb .ia-lead--off{border-color:#DFE2EA;background:#F4F5F8}
+.rb .ia-lead--off .rb-lead-ico{background:var(--paper);color:var(--ink-3);box-shadow:inset 0 0 0 1.5px #DFE2EA}
+
+/* ── form layout (AR-8 add/edit pages) ─────────────────────────────────────────────
+   rk-field gives one field; add and request forms need a readable column with two
+   fields side by side from 640px of form width. */
+.ia-form{container:iaform / inline-size;max-width:860px}
+.ia-fgrid{display:grid;grid-template-columns:minmax(0,1fr);gap:18px 20px}
+@container iaform (min-width: 640px){ .ia-fgrid--2{grid-template-columns:repeat(2,minmax(0,1fr))} }
+.ia-actions{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px;padding:18px 28px 22px;border-top:1px solid var(--rb-line)}
+.ia-actions--start{justify-content:flex-start}
+.ia-actions .rk-clear{margin-right:auto}
+@container rb (max-width: 759.98px){
+  .ia-actions{padding:16px 18px 18px}
+  .ia-actions .rb-btn{flex:1 1 100%;min-height:46px}
+}
+.ia-file{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:16px 18px;border:1.5px dashed #BEC5E2;border-radius:14px;background:#FAFBFD}
+.ia-file-name{flex:1 1 220px;min-width:0;font:600 16px/22px var(--sans);color:var(--ink);overflow-wrap:anywhere}
+.ia-file-name.is-none{color:var(--ink-3);font-weight:500}
+.ia-cols{display:flex;flex-wrap:wrap;gap:6px}
+.ia-cols li{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:7px;background:#F1F2F7;color:var(--ink-2);font:600 14px/1 ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace}
+
+/* ── small layout helpers that keep sibling groups on flex/grid with gap ─────────── */
+.ia-stack{display:flex;flex-direction:column;gap:20px}
+.ia-stack--tight{gap:12px}
+.ia-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px}
+.ia-sum{display:flex;flex-direction:column;gap:12px}
+.ia-sum dt{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ia-sum dd{margin:2px 0 0;font:500 16px/23px var(--sans);color:var(--ink);overflow-wrap:anywhere}
+.ia-lines{display:flex;flex-direction:column;gap:8px}
+.ia-lines li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;font:400 16px/24px var(--sans);color:var(--ink)}
+.ia-lines li svg{width:20px;height:20px;margin-top:2px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-lines .is-ok svg{color:var(--ok)}.ia-lines .is-wait svg{color:var(--warn)}.ia-lines .is-info svg{color:var(--indigo)}.ia-lines .is-off svg{color:var(--ink-3)}
+.ia-arrow{color:var(--ink-3)}
+.ia-flow{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.ia-gap-top{margin-top:16px}
+
+/* ── preview chrome: RoleStart page and the floating preview button ─────────────────
+   Not part of the product. The dashed outline reuses the reserved-placeholder language
+   (as on the logo slot) so it reads as design scaffolding, never as product UI. */
+.ia-pv{container:iapv / inline-size;min-height:100vh;background:#F3F4F9}
+.ia-pv-wrap{max-width:1180px;margin:0 auto;padding:40px 40px 72px;display:flex;flex-direction:column;gap:28px}
+.ia-pv-tag{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;min-height:32px;padding:0 14px;border:1.5px dashed var(--indigo);border-radius:999px;background:var(--paper);color:var(--indigo-2);font:600 14px/20px var(--sans)}
+.ia-pv-tag svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-pv-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:12px}
+.ia-pv-card{display:flex;flex-direction:column;gap:6px;padding:18px 20px;border:1px solid var(--rb-line);border-radius:16px;background:var(--paper)}
+.ia-pv-card.is-on{border-color:var(--rb-sel);box-shadow:inset 0 0 0 1px var(--rb-sel);background:var(--rb-sel-tint)}
+.ia-pv-card h3{font:700 17px/24px var(--sans);color:var(--navy)}
+.ia-pv-card p{font:400 15px/22px var(--sans);color:var(--ink-2)}
+.ia-pv-meta{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ia-pv-card .ia-row{margin-top:auto;padding-top:8px}
+.ia-pv-steps{display:flex;flex-direction:column;gap:6px;margin:4px 0 0;padding:0;list-style:none}
+.ia-pv-steps li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.ia-pv-steps li svg{width:18px;height:18px;margin-top:2px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ia-pv-steps li.is-done{color:var(--ok)}
+.ia-pv-steps li.is-done span{color:var(--ink)}
+.rb-btn.ia-pv-fab,.ia-pv-fab{position:fixed;right:16px;bottom:16px;z-index:30;display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:1.5px dashed var(--indigo);border-radius:999px;background:var(--paper);color:var(--indigo-2);font:600 14.5px/20px var(--sans);box-shadow:0 6px 20px -8px rgba(19,25,56,.35);cursor:pointer}
+.ia-pv-fab:hover{background:var(--rb-sel-tint)}
+.ia-pv-fab svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-pv-fab b{font-weight:700;color:var(--navy)}
+.ia-pv-space{height:56px}
+@container iapv (max-width: 759.98px){ .ia-pv-wrap{padding:24px 16px 72px;gap:22px} }
+/* preview annotation inside a product page: dashed indigo = design scaffolding, never
+   product UI (names what happens outside this role and links to the documented handoff). */
+.ia-pv-note{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;padding:10px 14px;border:1.5px dashed var(--indigo);border-radius:12px;background:var(--paper);color:var(--indigo-2);font:500 14.5px/21px var(--sans)}
+.ia-pv-note svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-pv-note > span{flex:1 1 240px;min-width:0}
+.rb .ia-pv-note a{font-weight:650;color:var(--indigo-2);text-decoration:underline;text-underline-offset:3px}
+.ia-pv-btn{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px;border:1.5px dashed var(--indigo);border-radius:999px;background:var(--paper);color:var(--indigo-2);font:600 14.5px/20px var(--sans);text-align:left;cursor:pointer}
+.ia-pv-btn:hover{background:var(--rb-sel-tint)}
+.ia-pv-btn svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── signed-out page (borrowed XS-03): public header band + one message column ───────
+   Outside the workspace shell, so it reuses the rail's brand pieces on the same navy. */
+.ia-out{min-height:100vh;background:var(--rb-canvas)}
+.ia-out-head{display:flex;flex-wrap:wrap;align-items:center;gap:12px 18px;padding:14px 24px;background:var(--rb-rail)}
+.ia-out-logo{width:168px;height:44px}
+.ia-out-main{max-width:680px;margin:0 auto;padding:48px 16px 72px;display:flex;flex-direction:column;gap:20px}
+
+@media (prefers-reduced-motion: reduce){ .ia-pick-row{transition:none} }
+
+/* ═══ Page layouts: Overview, Student access, People, Course codes ══════════════════════ */
+
+/* ── IA-01 Overview · compact identity head ─────────────────────────────────────────
+   Replaces the lavender identity band: name, status and actions stay; the term moves into the
+   access-plan summary and the duplicate "Go to" links are dropped (the rail already has them). */
+.ia-ov-head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px 32px}
+.ia-ov-id{min-width:0;max-width:52em}
+.ia-ov-status{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:10px;font:400 16px/24px var(--sans);color:var(--ink-2)}
+.ia-ov-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,384px);gap:24px;align-items:start}
+@container rbpage (max-width: 859.98px){ .ia-ov-grid{grid-template-columns:minmax(0,1fr);gap:20px} }
+
+/* attention list: one row per item, count tile, words, one quiet action */
+.ia-att{container:iaatt / inline-size;padding:20px 24px 8px}
+.ia-att-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px}
+.ia-att-list{margin-top:6px}
+.ia-att-item{display:grid;grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"n t go" "n d go";column-gap:16px;row-gap:2px;align-items:center;padding:14px 0;border-top:1px solid var(--rb-line)}
+.ia-att-item:first-child{border-top:0}
+.ia-att-n{grid-area:n;align-self:start;display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:12px;background:var(--rb-sel-tint);color:var(--navy);font:700 20px/1 var(--sans);font-variant-numeric:lining-nums tabular-nums}
+.ia-att-t{grid-area:t;font:600 16.5px/24px var(--sans);color:var(--ink)}
+.ia-att-d{grid-area:d;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.rb .ia-att-go{grid-area:go;display:inline-flex;align-items:center;gap:2px;min-height:40px;padding:0 6px 0 12px;border-radius:10px;color:var(--indigo);font:600 15px/20px var(--sans);text-decoration:none;white-space:nowrap}
+.rb .ia-att-go:hover{background:var(--rb-sel-tint);color:var(--navy)}
+.ia-att-go svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+@container iaatt (max-width: 519.98px){
+  .ia-att-item{grid-template-columns:40px minmax(0,1fr);grid-template-areas:"n t" "n d" "n go"}
+  .ia-att-n{width:40px;height:40px;font-size:18px}
+  .rb .ia-att-go{justify-self:start;margin-top:10px;min-height:44px;padding:0 10px 0 14px;border:1.5px solid #C3C9E4;background:var(--paper);color:var(--navy)}
+}
+@container rbpage (max-width: 559.98px){ .ia-att{padding:16px 16px 6px} }
+
+/* access-plan summary: term, licences, experiments with compact format badges. The plan context
+   carries the foundation's plan tint (rb-id, rk-plan): flat, tinted, never a work surface. */
+.ia-plan{container:iaplan / inline-size;padding:20px 22px 18px;border:1px solid var(--rb-tint-line);border-radius:18px;background:var(--rb-tint)}
+.ia-plan-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 12px}
+.ia-plan-id{display:inline-flex;flex-wrap:wrap;align-items:center;gap:8px}
+.ia-plan-term{margin-top:18px}
+.ia-plan-term-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
+.ia-plan-lab{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ia-plan-left{font:700 15px/20px var(--sans);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.ia-plan-left.is-warn{color:var(--warn)}
+.ia-plan-term-ends{display:flex;justify-content:space-between;gap:12px;margin-top:8px;font:500 14px/20px var(--sans);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ia-tt{position:relative;height:8px;border-radius:999px;background:#D7DCF0}
+.ia-tt-fill{position:absolute;left:0;top:0;bottom:0;border-radius:999px 0 0 999px;background:var(--navy)}
+.ia-tt-rest{position:absolute;top:0;bottom:0;right:0;border-radius:0 999px 999px 0;background:var(--gold)}
+.ia-tt-today{position:absolute;top:-5px;bottom:-5px;width:3px;margin-left:-1.5px;border-radius:2px;background:var(--navy);box-shadow:0 0 0 2px var(--paper)}
+.ia-tt.is-paused{background:repeating-linear-gradient(135deg,#CDD3EC 0 8px,#DDE1F3 8px 16px)}
+.ia-tt.is-paused .ia-tt-fill{display:none}
+.ia-tt.is-full .ia-tt-fill{border-radius:999px}
+.ia-plan-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--rb-tint-line)}
+.ia-plan-facts div{min-width:0}
+.ia-plan-facts dt{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ia-plan-facts dd{margin:2px 0 0;font:600 15.5px/22px var(--sans);color:var(--ink)}
+.ia-plan-dd-sub{display:block;font:400 13.5px/19px var(--sans);color:var(--ink-3)}
+.ia-plan-exp{margin-top:14px;padding-top:14px;border-top:1px solid var(--rb-tint-line)}
+.ia-plan-exp-t{font:700 16.5px/23px var(--sans);color:var(--navy)}
+.ia-plan-exp-c{margin-top:2px;font:400 14.5px/21px var(--sans);color:var(--ink-2)}
+.ia-plan-code{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:8px;font:400 14.5px/21px var(--sans);color:var(--ink-2)}
+.ia-plan-fmts{margin-top:12px}
+.ia-plan-fmts .xr-fmt{height:26px}
+.ia-fmt-key{margin-top:8px;font:400 14px/20px var(--sans);color:var(--ink-3)}
+.ia-plan-note{margin-top:12px;font:400 14.5px/21px var(--sans);color:var(--ink-2)}
+.ia-plan-links{display:flex;flex-wrap:wrap;align-items:center;gap:8px 20px;margin-top:14px;padding-top:14px;border-top:1px solid var(--rb-tint-line)}
+@container rbpage (max-width: 559.98px){ .ia-plan{padding:18px 16px 16px} }
+
+/* ── IA-04 Student access · IA-06 People: management surface ────────────────────────
+   Search and one supporting select in one row; status as the V3 segmented switch with counts
+   (rb-switch, as on SA-01); compact rows instead of a labelled field per line on phones. */
+.ia-gm{container:iagm / inline-size}
+.ia-gm-tools{display:flex;flex-direction:column;gap:14px;padding:18px 22px 16px;border-bottom:1px solid var(--rb-line)}
+.ia-gm-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px}
+.ia-gm-search{flex:1 1 320px}
+.ia-gm-sel{flex:0 1 250px}
+.ia-gm-segs{align-self:flex-start}
+.ia-gm-status{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;min-height:34px}
+.ia-gm-shown{font:600 14.5px/20px var(--sans);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.ia-gm-foot{padding:12px 22px 14px;border-top:1px solid var(--rb-line);font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+@container iagm (max-width: 639.98px){
+  .ia-gm-tools{padding:16px 16px 14px;gap:12px}
+  .ia-gm-search,.ia-gm-sel{flex:1 1 100%}
+  .ia-gm-foot{padding:12px 16px 14px}
+}
+
+/* grouped grant table (IA-04): one group per experiment, one row per student */
+.ia-gt,.ia-rt{width:100%;border-collapse:collapse}
+.ia-gt caption,.ia-rt caption{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.ia-gt thead th,.ia-rt thead th{padding:10px 14px;border-bottom:1px solid var(--rb-line);background:#F7F8FC;color:var(--ink-3);font:600 14px/20px var(--sans);text-align:left;white-space:nowrap}
+.ia-gt thead th:first-child,.ia-rt thead th:first-child{padding-left:22px}
+.ia-gt thead th:last-child,.ia-rt thead th:last-child{padding-right:22px}
+.ia-gt-grp th{padding:14px 22px 12px;border-bottom:1px solid var(--rb-line);background:var(--paper);text-align:left;font-weight:400}
+.ia-gt-gh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.ia-gt-gt{font:700 16px/22px var(--sans);color:var(--navy)}
+.ia-gt-gn{margin-left:auto;font:600 14.5px/20px var(--sans);color:var(--ink-3);white-space:nowrap}
+.ia-gt tbody td,.ia-rt tbody td{padding:13px 14px;vertical-align:top;border-bottom:1px solid var(--rb-line);font:400 15px/22px var(--sans);color:var(--ink-2)}
+.ia-gt tbody td:first-child,.ia-rt tbody td:first-child{padding-left:22px}
+.ia-gt tbody td:last-child,.ia-rt tbody td:last-child{padding-right:22px}
+.ia-gt tbody:last-of-type tr:last-child td,.ia-rt tbody tr:last-child td{border-bottom:0}
+.ia-gt-row.is-muted td{background:#FAFBFD}
+.ia-gt .ia-gt-who{width:30%}
+.ia-gt .ia-gt-how{width:36%}
+.ia-gt .ia-gt-st{width:24%}
+.ia-gt .ia-gt-act,.ia-rt .ia-rt-act{text-align:right;white-space:nowrap}
+.rb .ia-cell-name{display:block;font:600 15.5px/22px var(--sans);color:var(--ink);text-decoration:none}
+.rb .ia-cell-name:hover{color:var(--navy);text-decoration:underline;text-underline-offset:3px}
+.ia-cell-sub{display:block;margin-top:1px;font:400 14px/20px var(--sans);color:var(--ink-3)}
+.ia-cell-t{display:block;font:500 15px/22px var(--sans);color:var(--ink)}
+.rb .ia-cell-t a{color:var(--indigo);text-decoration:none}
+.rb .ia-cell-t a:hover{color:var(--navy);text-decoration:underline;text-underline-offset:3px}
+.ia-cell-note{display:block;margin-top:4px;font:400 14px/20px var(--sans);color:var(--ink-3)}
+.ia-cell-also{display:inline-block;margin-top:6px;padding:3px 9px;border-radius:8px;background:#F4F5FA;font:400 14px/20px var(--sans);color:var(--ink-2)}
+.ia-gt-act .rb-btn,.ia-rt-act .rb-btn{min-height:36px;padding:0 12px}
+@container iagm (max-width: 639.98px){
+  .ia-gt,.ia-gt tbody,.ia-gt tr,.ia-gt td,.ia-gt th{display:block;width:auto}
+  .ia-gt thead{display:none}
+  .ia-gt-grp th{padding:14px 16px 12px}
+  .ia-gt tbody tr.ia-gt-row{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"who act" "st st" "how how";column-gap:12px;row-gap:8px;padding:14px 16px;border-bottom:1px solid var(--rb-line)}
+  .ia-gt tbody tr.ia-gt-row td,.ia-gt tbody tr.ia-gt-row td:first-child,.ia-gt tbody tr.ia-gt-row td:last-child{padding:0;border:0}
+  .ia-gt .ia-gt-who{grid-area:who;width:auto}
+  .ia-gt .ia-gt-how{grid-area:how;width:auto}
+  .ia-gt .ia-gt-st{grid-area:st;width:auto}
+  .ia-gt .ia-gt-act{grid-area:act;align-self:start}
+  .ia-gt-act .rb-btn{min-height:44px}
+  .ia-gt tbody:last-of-type tr:last-child{border-bottom:0}
+}
+
+/* roster table (IA-06): the table stays; the whole row opens the record */
+.ia-rt tbody tr.is-link{cursor:pointer;transition:background-color 120ms linear}
+.ia-rt tbody tr.is-link:hover{background:#F8F9FD}
+.ia-rt tbody tr.is-link:focus-within{background:var(--rb-sel-tint)}
+.ia-rt tbody tr.is-link:has(.rk-rowlink:focus-visible){outline:2px solid var(--focus);outline-offset:-3px}
+.ia-rt .ia-rt-who{width:36%}
+.ia-rt .ia-rt-grp{width:22%}
+.ia-rt .ia-rt-acc{width:28%}
+.ia-rt .ia-cell-t{font-size:14.5px}
+.ia-rt-exps{margin-top:5px}
+.ia-rt-plab{display:none}
+.ia-rt-idline{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ia-rt .ia-rt-who{max-width:0}
+@container iagm (max-width: 639.98px){
+  .ia-rt,.ia-rt tbody,.ia-rt tr,.ia-rt td{display:block;width:auto}
+  .ia-rt thead{display:none}
+  .ia-rt tbody tr.ia-rt-row{display:grid;grid-template-columns:minmax(0,1fr);grid-template-areas:"who" "acc" "grp";row-gap:8px;padding:14px 16px;border-bottom:1px solid var(--rb-line)}
+  .ia-rt tbody tr.ia-rt-row td,.ia-rt tbody tr.ia-rt-row td:first-child,.ia-rt tbody tr.ia-rt-row td:last-child{padding:0;border:0}
+  .ia-rt .ia-rt-who{grid-area:who;width:auto}
+  .ia-rt .ia-rt-grp{grid-area:grp;width:auto}
+  .ia-rt .ia-rt-acc{grid-area:acc;width:auto;display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+  .ia-rt-exps{margin-top:0}
+  .ia-rt .ia-rt-who{max-width:none}
+  .ia-rt .ia-rt-act{display:none}
+  .ia-rt-email{display:none}
+  .ia-rt-grp .ia-cell-sub{display:none}
+  .ia-rt-grp .ia-cell-t{display:inline;margin:0;font:400 14.5px/21px var(--sans);color:var(--ink-2)}
+  .ia-rt-plab{display:inline;font-weight:600;color:var(--ink-3)}
+  .ia-rt tbody tr:last-child{border-bottom:0}
+}
+
+/* ── People tabs with counts ────────────────────────────────────────────────────────
+   Same underline tabs as rk-tabs on wide screens. On phones the four tabs become a 2×2 grid so
+   every tab is visible without sideways scrolling. */
+.ia-tabs{display:flex;gap:2px;border-bottom:1px solid var(--rb-line-2)}
+.rb .ia-tab{position:relative;display:inline-flex;align-items:center;gap:8px;flex:none;min-height:48px;padding:0 16px;border-radius:10px 10px 0 0;color:var(--ink-2);font:600 16px/20px var(--sans);text-decoration:none}
+.rb .ia-tab:hover{color:var(--navy);background:rgba(59,73,184,.06)}
+.rb .ia-tab[aria-current="page"]{color:var(--navy)}
+.ia-tab[aria-current="page"]::after{content:"";position:absolute;left:12px;right:12px;bottom:-1px;height:3px;border-radius:3px 3px 0 0;background:var(--rb-sel)}
+.ia-tab-n{min-width:24px;height:22px;padding:0 7px;border-radius:11px;background:var(--mist-2);color:var(--ink-2);font:700 13px/22px var(--sans);text-align:center;font-variant-numeric:tabular-nums}
+.ia-tab[aria-current="page"] .ia-tab-n{background:var(--rb-sel-tint);color:var(--indigo-2)}
+@container rbpage (max-width: 559.98px){
+  .ia-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;border-bottom:0}
+  .rb .ia-tab{justify-content:center;min-height:44px;padding:0 10px;border:1px solid var(--rb-line);border-radius:10px;background:var(--paper)}
+  .rb .ia-tab[aria-current="page"]{border-color:var(--rb-sel);background:var(--rb-sel-tint)}
+  .ia-tab[aria-current="page"]::after{display:none}
+}
+
+/* ── IA-16 Course codes: focused editor + explainer ─────────────────────────────────
+   One block per course: the read-only BITS code beside the editable institution code. */
+.ia-cc{display:grid;grid-template-columns:minmax(0,1fr) minmax(260px,320px);gap:24px;align-items:start}
+@container rbpage (max-width: 899.98px){ .ia-cc{grid-template-columns:minmax(0,1fr);gap:20px} }
+.ia-cc-main{container:iaccm / inline-size}
+.ia-cc-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:20px 24px 16px;border-bottom:1px solid var(--rb-line)}
+.ia-cc-sub{margin-top:2px;font:400 15px/22px var(--sans);color:var(--ink-3)}
+.ia-cc-item{padding:20px 24px 20px;border-top:1px solid var(--rb-line)}
+.ia-cc-item:first-child{border-top:0}
+.ia-cc-title{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:6px 12px;margin-bottom:14px}
+.ia-cc-name{font:700 17px/24px var(--sans);color:var(--navy)}
+.ia-cc-map{display:grid;grid-template-columns:minmax(150px,200px) 28px minmax(0,1fr) minmax(0,.8fr);gap:8px 14px;align-items:start}
+.ia-cc-lab{display:block;margin-bottom:6px;font:600 14.5px/20px var(--sans);color:var(--ink-2)}
+.ia-cc-lock{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:1.5px solid var(--rule);border-radius:10px;background:var(--mist);color:var(--ink);font:700 15px/1 var(--sans);letter-spacing:.02em;white-space:nowrap}
+.ia-cc-lock svg{width:16px;height:16px;flex:none;fill:none;stroke:var(--ink-3);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-cc-note{display:block;margin-top:6px;font:400 13.5px/19px var(--sans);color:var(--ink-3)}
+.ia-cc-arrow{display:flex;align-items:center;justify-content:center;height:44px;margin-top:26px;color:var(--ink-3)}
+.ia-cc-arrow svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ia-cc-opt{font-weight:400;color:var(--ink-3)}
+.ia-cc-ro{display:flex;align-items:center;min-height:44px;font:600 16px/22px var(--sans);color:var(--ink)}
+.ia-cc-prev{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;margin-top:14px;font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.ia-cc-prev b{font-weight:600;color:var(--ink-2)}
+.ia-cc-save{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:16px 24px 18px;border-top:1px solid var(--rb-line);border-radius:0 0 18px 18px;background:#FAFBFD}
+.ia-cc-state{flex:1 1 auto;font:600 14.5px/20px var(--sans);color:var(--ink-3)}
+.ia-cc-state.is-dirty{color:var(--warn)}
+.ia-cc-help{padding:20px 22px 18px}
+.ia-cc-help-h{margin-bottom:12px;font:700 17px/24px var(--sans);color:var(--navy)}
+.ia-cc-help .ia-lines li{font-size:15px;line-height:22px}
+@container iaccm (max-width: 599.98px){
+  .ia-cc-head,.ia-cc-item{padding-left:16px;padding-right:16px}
+  .ia-cc-map{grid-template-columns:minmax(0,1fr);gap:14px}
+  .ia-cc-arrow{display:none}
+  .ia-cc-bits{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+  .ia-cc-bits .ia-cc-lab{margin:0}
+  .ia-cc-bits .ia-cc-lock{height:34px;padding:0 11px;font-size:14.5px}
+  .ia-cc-bits .ia-cc-note{flex-basis:100%;margin-top:0}
+  .ia-cc-save{padding:14px 16px 16px}
+  .ia-cc-save .rb-btn{flex:1 1 100%;min-height:46px}
+}
+
+/* ═══ Page layout: Content access · Experiments ═══════════════════════════════════════ */
+
+/* ── access-plan summary: one compact strip in the plan tint instead of the tall band ── */
+.ia-cp{container:iacp / inline-size;overflow:hidden;border:1px solid var(--rb-tint-line);border-radius:18px;background:var(--rb-tint)}
+.ia-cp .ia-tt,.ia-plan .ia-tt{background:#CDD3EE}
+.ia-cp .ia-tt-today,.ia-plan .ia-tt-today{box-shadow:0 0 0 2px var(--rb-tint)}
+.ia-cp-row{display:grid;grid-template-columns:minmax(180px,auto) minmax(140px,auto) minmax(260px,1fr) auto;align-items:center;gap:14px 40px;padding:18px 24px}
+.ia-cp-k{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ia-cp-name{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:2px}
+.ia-cp-code{font:700 20px/28px var(--sans);letter-spacing:-.01em;color:var(--navy);font-variant-numeric:tabular-nums}
+.ia-cp-facts{margin:0}
+.ia-cp-facts dt{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ia-cp-facts dd{margin:2px 0 0;font:700 17px/24px var(--sans);color:var(--ink);font-variant-numeric:tabular-nums}
+.ia-cp-sub{display:block;font:400 13.5px/19px var(--sans);color:var(--ink-3)}
+.ia-cp-term{min-width:0}
+.ia-cp-term-top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
+.ia-cp-term-top .ia-plan-lab{white-space:nowrap}
+.ia-cp-term-top .ia-plan-left{text-align:right}
+.rb .ia-cp-view{justify-self:end;white-space:nowrap}
+.ia-cp-note{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;padding:12px 24px;border-top:1px solid transparent;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.ia-cp-note > svg{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.ia-cp-note p{flex:1 1 360px;min-width:0}
+.ia-cp-note b{font-weight:700;color:var(--ink)}
+.ia-cp-note .rb-btn{min-height:38px}
+.ia-cp-note--warn{background:var(--rb-ivory);border-top-color:var(--rb-ivory-line);color:var(--gold-ink)}
+.ia-cp-note--off{background:#F4F5F8;border-top-color:#DFE2EA;color:var(--ink-3)}
+.ia-cp-note--paused{background:#F1F2FA;border-top-color:#CDD2EC;color:var(--navy)}
+@container iacp (max-width: 819.98px){
+  .ia-cp-row{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px 20px}
+  .ia-cp-term{grid-column:1 / -1}
+  .rb .ia-cp-view{grid-column:1 / -1;justify-self:start}
+}
+@container iacp (max-width: 479.98px){
+  .ia-cp-row{padding:16px}
+  .ia-cp-note{padding:12px 16px}
+  .ia-cp-note > svg{align-self:flex-start;margin-top:1px}
+  .ia-cp-note p{flex-basis:calc(100% - 40px)}
+}
+
+/* ── experiments list: tools, shared format key, count ───────────────────────────── */
+.ia-xs-meta{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 24px}
+.ia-xs-key{display:flex;flex-wrap:wrap;align-items:center;gap:6px 14px;font:500 14px/20px var(--sans);color:var(--ink-2)}
+.ia-xs-key-k{font-weight:600;color:var(--ink-3)}
+.ia-xs-key ul{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;margin:0;padding:0;list-style:none}
+.ia-xs-key li{display:inline-flex;align-items:center;gap:7px}
+.ia-xs-key .rk-swatch{width:24px;height:18px}
+.ia-xs-count{font:600 14.5px/20px var(--sans);color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* ── experiments table: one group per course, one row per experiment ─────────────── */
+.ia-xt{width:100%;border-collapse:collapse}
+.ia-xt caption{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.ia-xt thead th{padding:10px 14px;border-bottom:1px solid var(--rb-line);background:#F7F8FC;color:var(--ink-3);font:600 14px/20px var(--sans);text-align:left;white-space:nowrap}
+.ia-xt thead th:first-child{padding-left:22px}
+.ia-xt thead th:last-child{padding-right:22px}
+.ia-xt-grp th{padding:14px 22px 12px;border-bottom:1px solid var(--rb-line);background:var(--paper);text-align:left;font-weight:400}
+.ia-xt-gh{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.ia-xt-gt{font:700 16px/22px var(--sans);color:var(--navy)}
+.ia-xt-own{display:inline-flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-left:auto;font:500 14.5px/20px var(--sans);color:var(--ink-2)}
+.ia-xt-row > th,.ia-xt-row > td{padding:14px;vertical-align:middle;border-bottom:1px solid var(--rb-line);text-align:left;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.ia-xt-row > th:first-child{padding-left:22px}
+.ia-xt-row > td:last-child{padding-right:22px}
+.ia-xt tbody:last-of-type tr:last-child > th,.ia-xt tbody:last-of-type tr:last-child > td{border-bottom:0}
+.ia-xt .ia-xt-name{width:38%;font-weight:400}
+.ia-xt .ia-xt-fm{width:25%}
+.ia-xt .ia-xt-given{width:19%;white-space:nowrap}
+.ia-xt .ia-xt-act{text-align:right;white-space:nowrap}
+.ia-xt-nm{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px}
+.ia-xt-t{font:600 15.5px/22px var(--sans);color:var(--ink)}
+.ia-xt-fm .xr-fmts{margin:0;padding:0;list-style:none}
+.ia-xt-lab{display:none}
+.rb .ia-xt-given a{display:inline-flex;align-items:center;gap:6px;color:var(--indigo);font-weight:600;text-decoration:underline;text-underline-offset:3px}
+.rb .ia-xt-given a:hover{color:var(--navy)}
+.ia-xt-given svg{width:17px;height:17px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ia-xt-none{font-weight:600;color:var(--ink-3)}
+.ia-xt-act .rb-btn{min-height:36px;padding:0 14px}
+
+/* medium widths: name, students and action on one line, formats below */
+@container iagm (max-width: 859.98px){
+  .ia-xt,.ia-xt tbody,.ia-xt tr,.ia-xt th,.ia-xt td{display:block;width:auto}
+  .ia-xt thead{display:none}
+  .ia-xt tbody tr.ia-xt-row{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"name given act" "fm fm fm";align-items:center;column-gap:20px;row-gap:10px;padding:14px 22px;border-bottom:1px solid var(--rb-line)}
+  .ia-xt tbody tr.ia-xt-row > th,.ia-xt tbody tr.ia-xt-row > td{padding:0;border:0;width:auto}
+  .ia-xt .ia-xt-name{grid-area:name}
+  .ia-xt .ia-xt-fm{grid-area:fm}
+  .ia-xt .ia-xt-given{grid-area:given}
+  .ia-xt .ia-xt-act{grid-area:act}
+  .ia-xt-lab{display:inline;margin-right:6px;font-weight:600;color:var(--ink-3)}
+  .ia-xt tbody:last-of-type tr.ia-xt-row:last-child{border-bottom:0}
+}
+/* phones: action beside the name, formats, then students given access */
+@container iagm (max-width: 639.98px){
+  .ia-xt-grp th{padding:14px 16px 12px}
+  .ia-xt-own{flex-basis:100%;margin-left:0}
+  .ia-xt tbody tr.ia-xt-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"name act" "fm fm" "given given";column-gap:12px;padding:14px 16px}
+  .ia-xt .ia-xt-given{white-space:normal}
+  .ia-xt .ia-xt-act{align-self:start}
+  .ia-xt-act .rb-btn{min-height:44px}
+  .ia-xs-key{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:start;column-gap:12px}
+  .ia-xs-key ul{flex-direction:column;align-items:flex-start;gap:6px}
+}
+
+/* ═══ Page layouts: records, lists and guided steps (the role's remaining screens) ══════════ */
+
+/* ── record pages: main content, a summary column, and what follows ─────────────────────
+   rk-detail puts its aside after the whole main sheet on narrow widths, so a record's summary
+   would fall below a long history. Records here use three named areas. Below 860px of page width
+   the summary follows the main content, or comes first where the page needs it (a group). */
+.ia-rec{container:iarec / inline-size}
+.ia-rec-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(340px,384px);grid-template-rows:auto 1fr;grid-template-areas:"main side" "more side";gap:28px;align-items:start}
+.ia-rec-main{grid-area:main;min-width:0;display:flex;flex-direction:column;gap:20px}
+.ia-rec-side{grid-area:side;min-width:0;display:flex;flex-direction:column;gap:20px}
+.ia-rec-more{grid-area:more;min-width:0;display:flex;flex-direction:column;gap:20px}
+@container iarec (max-width: 859.98px){
+  .ia-rec-grid{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-template-areas:"main" "side" "more";gap:20px}
+  .ia-rec-grid--sidefirst{grid-template-areas:"side" "main" "more"}
+}
+/* Faculty courses: the assign panel (about 28%) sits beside the table only from 1,060px of content (B2-09) */
+.ia-rec-grid--wide{grid-template-columns:minmax(0,1fr) minmax(300px,320px)}
+@container iarec (max-width: 1059.98px){
+  .ia-rec-grid--wide{grid-template-columns:minmax(0,1fr);grid-template-rows:none;grid-template-areas:"main" "side" "more";gap:20px}
+}
+
+/* ── surface sections: heading row on the same 22px edge as the table cells ─────────────
+   rk-sec pads 28px; every list in the role starts its cells at 22px, so a heading, its count or
+   link, the body and a footnote line up with the rows below them. */
+.ia-shead{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:4px 16px;padding:18px 22px 16px;border-bottom:1px solid var(--rb-line)}
+.ia-shead--line{border-top:1px solid var(--rb-line)}
+.ia-shead-n{font:600 14.5px/20px var(--sans);color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ia-shead-key{color:var(--ink);font-weight:650}
+.ia-shead-sub{margin-top:2px;font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.ia-sbody{padding:18px 22px 20px}
+.ia-sbody + .ia-sbody{border-top:1px solid var(--rb-line)}
+.ia-sbody > .rb-h2:first-child{margin-bottom:16px}
+.ia-sbody > .rk-h3:first-child{margin-bottom:12px}
+.ia-sbody > p + p,.ia-sbody .ia-sum + p{margin-top:12px}
+.ia-sbody > .ia-empty-t + p{margin-top:2px}
+.ia-empty-t{margin-bottom:4px;font:650 16px/23px var(--sans);color:var(--navy)}
+.ia-sfoot{padding:12px 22px 14px;border-top:1px solid var(--rb-line);font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+@container rbpage (max-width: 559.98px){
+  .ia-shead{padding:16px 16px 14px}
+  .ia-sbody{padding:16px 16px 18px}
+  .ia-sfoot{padding:12px 16px 14px}
+}
+
+/* ── compact list table: People lists, records, Requests, Usage, Import errors ─────────────
+   One table language for every list that isn't grouped (ia-gt) or an experiment list (ia-xt):
+   the same rows as ia-gt and ia-rt on wide screens; below 640px of table width each row becomes
+   a short block (identity first with its one action beside it, the status next, then the other
+   cells, labelled inline only where the value needs it). */
+.ia-ltwrap{container:ialt / inline-size}
+.ia-lt{width:100%;border-collapse:collapse}
+.ia-lt caption{position:absolute;left:0;top:0;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+.ia-lt thead th{padding:10px 14px;border-bottom:1px solid var(--rb-line);background:#F7F8FC;color:var(--ink-3);font:600 14px/20px var(--sans);text-align:left;white-space:nowrap}
+.ia-lt thead th:first-child{padding-left:22px}
+.ia-lt thead th:last-child{padding-right:22px}
+.ia-lt tbody td{padding:13px 14px;vertical-align:top;border-bottom:1px solid var(--rb-line);font:400 15px/22px var(--sans);color:var(--ink-2)}
+.ia-lt tbody td:first-child{padding-left:22px}
+.ia-lt tbody td:last-child{padding-right:22px}
+.ia-lt tbody tr:last-child td{border-bottom:0}
+.ia-lt tbody tr.is-link{cursor:pointer;transition:background-color 120ms linear}
+.ia-lt tbody tr.is-link:hover{background:#F8F9FD}
+.ia-lt tbody tr.is-link:focus-within{background:var(--rb-sel-tint)}
+.ia-lt tbody tr.is-link:has(.rk-rowlink:focus-visible){outline:2px solid var(--focus);outline-offset:-3px}
+.ia-lt tbody tr.is-muted td{background:#FAFBFD}
+.ia-lt .ia-lt-act{width:1%;text-align:right;white-space:nowrap}
+.ia-lt .ia-lt-act .rb-btn{min-height:36px;padding:0 12px}
+.ia-lt .ia-lt-act .rb-btn--ghost{padding:0 10px}
+.rb .ia-btn--sm{min-height:32px;padding:0 8px;font-size:14.5px}
+.ia-lt th.ia-lt-num,.ia-lt td.ia-lt-num{text-align:right;white-space:nowrap}
+.ia-lt-numv{font:600 15.5px/22px var(--sans);color:var(--ink);font-variant-numeric:lining-nums tabular-nums}
+.ia-lt-lab{display:none}
+.ia-lt-main .ia-cell-sub{overflow-wrap:anywhere}
+.ia-cell-title{display:block;font:600 15.5px/22px var(--sans);color:var(--ink)}
+.ia-cell-line{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px}
+.ia-cell-line .rk-fmts{margin-top:0}
+.ia-cell-courses + .ia-cell-courses,.ia-cell-exp + .ia-cell-exp{margin-top:6px}
+.ia-cell-muted{color:var(--ink-3)}
+.ia-inline{display:inline}
+@container ialt (min-width: 640px){
+  .ia-lt .ia-inline{display:block}
+  /* column shares per list */
+  .ia-lt--sr .ia-sr-exp{width:36%}
+  .ia-lt--sr .ia-sr-how{width:38%}
+  .ia-lt--fr .ia-fr-course{width:56%}
+  .ia-lt--gm .ia-gm-who{width:42%}
+  .ia-lt--fac .ia-fac-who{width:36%}
+  .ia-lt--grp .ia-grp-who{width:30%}
+  .ia-lt--grp .ia-grp-n{width:18%}
+  .ia-lt--fc .ia-fc-who{width:36%;max-width:0}
+  .ia-lt--fc .ia-fc-courses{width:28%}
+  .ia-lt--fc .ia-fc-who .ia-cell-sub{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;overflow-wrap:normal}
+  .ia-lt--fc .ia-cell-courses{flex-wrap:nowrap;white-space:nowrap}
+  .ia-lt--fc .ia-lt-pri{white-space:nowrap}
+  .ia-lt--rq .ia-rq-id{width:18%}
+  .ia-lt--rq .ia-rq-when{width:20%;white-space:nowrap}
+  .ia-lt--dv .ia-dv-who{width:28%}
+  .ia-lt--dv .ia-dv-req{width:32%}
+  .ia-lt--imp .ia-imp-row{width:12%}
+  .ia-lt--imp td:nth-child(2){width:24%}
+  .ia-lt--pv .ia-pv-id{width:12%}
+  .ia-lt--pv .ia-pv-type{white-space:nowrap}
+}
+@container ialt (max-width: 639.98px){
+  .ia-lt,.ia-lt tbody,.ia-lt tr,.ia-lt td{display:block;width:auto}
+  .ia-lt thead{display:none}
+  .ia-lt tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:12px;row-gap:6px;padding:14px 16px;border-bottom:1px solid var(--rb-line)}
+  .ia-lt tbody tr:last-child{border-bottom:0}
+  .ia-lt tbody td,.ia-lt tbody td:first-child,.ia-lt tbody td:last-child{grid-column:1 / -1;padding:0;border:0}
+  .ia-lt tbody td.ia-lt-main{grid-column:1;grid-row:1}
+  .ia-lt tbody td.ia-lt-act{grid-column:2;grid-row:1;align-self:start;width:auto}
+  .ia-lt tbody td.ia-lt-pri{order:-1}
+  .ia-lt .ia-lt-act .rb-btn{min-height:44px}
+  .ia-lt th.ia-lt-num,.ia-lt td.ia-lt-num{text-align:left}
+  .ia-lt-lab{display:inline;margin-right:6px;font-weight:600;color:var(--ink-3)}
+  .ia-cell-courses + .ia-cell-courses,.ia-cell-exp + .ia-cell-exp{margin-top:4px}
+  .ia-lt--grp .ia-grp-n .ia-cell-t{color:var(--ink-2)}
+  .ia-lt--pv .ia-pv-type{display:inline}
+  /* counts (Usage): the label above each figure, three figures side by side */
+  .ia-lt--stats tbody tr{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:10px}
+  .ia-lt--stats tbody td.ia-lt-main{grid-column:1 / -1;grid-row:auto}
+  .ia-lt--stats tbody td.ia-lt-num,.ia-lt--stats tbody td.ia-lt-stat{grid-column:auto;display:flex;flex-direction:column;align-items:flex-start;white-space:normal}
+  .ia-lt--stats .ia-lt-lab{display:block;margin:0;font:600 13.5px/19px var(--sans)}
+  .ia-lt--stats .ia-lt-numv{font-size:18px;line-height:25px}
+}
+/* a count beside the search in a list toolbar (Faculty, Faculty courses) */
+.ia-gm-count{margin-left:auto;font:600 14.5px/20px var(--sans);color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+@container iagm (max-width: 639.98px){ .ia-gm-count{margin-left:0} }
+
+/* ── short items in a summary column (a group's grants) ──────────────────────────────── */
+.ia-items{margin:0;padding:0;list-style:none}
+.ia-item{padding:14px 22px;border-top:1px solid var(--rb-line)}
+.ia-item:first-child{border-top:0}
+.ia-item-t{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font:650 15.5px/22px var(--sans);color:var(--ink)}
+.ia-item-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:8px;font:400 14px/20px var(--sans);color:var(--ink-3)}
+.ia-item .rk-fmts{margin-top:8px}
+@container rbpage (max-width: 559.98px){ .ia-item{padding:14px 16px} }
+
+/* ── access plan page: licences, the term and where to ask for more, in the plan strip ──── */
+.ia-cp-row--plan{grid-template-columns:minmax(150px,auto) minmax(280px,1fr) minmax(190px,auto)}
+.ia-cp-row--plan.is-noask{grid-template-columns:minmax(150px,auto) minmax(280px,1fr)}
+.ia-cp-ask{display:flex;flex-direction:column;align-items:flex-start;gap:2px;font:400 14.5px/21px var(--sans);color:var(--ink-2)}
+.rb .ia-cp-ask .rb-link{white-space:normal}
+.ia-cp-foot{padding:0 24px 16px;font:400 14px/20px var(--sans);color:var(--ink-3)}
+@container iacp (max-width: 819.98px){
+  .ia-cp-row.ia-cp-row--plan{grid-template-columns:minmax(120px,auto) minmax(0,1fr)}
+  .ia-cp-row--plan .ia-cp-term{grid-column:auto}
+  .ia-cp-row--plan .ia-cp-ask{grid-column:1 / -1}
+}
+@container iacp (max-width: 479.98px){
+  .ia-cp-row.ia-cp-row--plan{grid-template-columns:minmax(0,1fr)}
+  .ia-cp-foot{padding:0 16px 14px}
+}
+/* the plan's experiments (no status, no action) and the students given access (read-only) */
+@container iagm (min-width: 640px){
+  .ia-xt--plan .ia-xt-name{width:50%}
+  .ia-xt--plan .ia-xt-fm{width:50%}
+  .ia-gt--ro .ia-gt-who{width:34%}
+  .ia-gt--ro .ia-gt-how{width:40%}
+  .ia-gt--ro .ia-gt-st{width:auto}
+}
+
+/* ── Faculty courses: below 1,060px the assign panel is one compact row under the table (B2-09) ── */
+/* ── error summaries in role forms: single-line links keep 24px between targets (WCAG 2.2, 2.5.8) ── */
+.ia-form .rk-errsum li + li{margin-top:4px}
+
+.ia-fcform{container:iafc / inline-size}
+.ia-fc-grid{display:flex;flex-direction:column;gap:14px}
+.rb .ia-fc-go{width:100%}
+@container iafc (min-width: 640px){
+  .ia-fc-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;align-items:end;gap:14px 16px}
+  .rb .ia-fc-go{width:auto;min-height:44px}
+}
+
+/* ── guided steps on phones: every step keeps its number; only the current one its words ─── */
+@container rbpage (max-width: 559.98px){
+  .ia-steps{flex-wrap:nowrap;gap:8px 14px}
+  .ia-step:not(.is-current) .ia-step-l{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);clip-path:inset(50%);white-space:nowrap}
+}
+
+/* ── Give students access: "Your selection" folds into one line on narrow pages (B2-05) ──── */
+.ia-selsum{display:none}
+@container rbpage (max-width: 859.98px){
+  .ia-selsum{display:block;border:1px solid var(--rb-line);border-radius:14px;background:var(--paper)}
+  .ia-gv-aside{display:none}
+}
+.ia-selsum summary{display:flex;align-items:center;gap:4px 10px;min-height:48px;padding:10px 16px;cursor:pointer;list-style:none;font:650 15.5px/22px var(--sans);color:var(--navy)}
+.ia-selsum summary::-webkit-details-marker{display:none}
+.ia-selsum summary .ia-selsum-k{flex:none;white-space:nowrap}
+.ia-selsum summary .ia-selsum-v{min-width:0;font-weight:500;color:var(--ink-3)}
+.ia-selsum summary svg{width:18px;height:18px;flex:none;margin-left:auto;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform 120ms linear}
+.ia-selsum[open] summary svg{transform:rotate(180deg)}
+.ia-selsum summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:14px}
+.ia-selsum .ia-sum{padding:2px 16px 16px}
+
+/* ── small helpers ─────────────────────────────────────────────────────────────────── */
+.ia-gap-xs{margin-top:6px}
+.ia-gap-top-s{margin-top:12px}
+.ia-block{display:block}
+.rb .ia-wrap{white-space:normal}
+.ia-num-t{font-variant-numeric:lining-nums tabular-nums}
+.ia-sum--defs dd{font-weight:400;font-size:15px;line-height:22px}
+@media (prefers-reduced-motion: reduce){ .ia-lt tbody tr.is-link,.ia-selsum summary svg{transition:none} }

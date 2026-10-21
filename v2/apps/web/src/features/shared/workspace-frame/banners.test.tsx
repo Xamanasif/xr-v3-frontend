@@ -3,7 +3,8 @@
  * owner-approved XS export's `XsAccessNotice` placement `banner`; B7-04): the paused banner for a
  * paused institution's Student, Faculty and Institute Admin (Faculty: the banner only, OD-B7-07),
  * the grey inactive banner for an inactive Student, none for the platform roles; `role="status"`,
- * never modal, Help to the person's own Help, the first thing in the page column. The state is
+ * never modal, Help to the person's own Help, the first thing in the page column — in its V3 region
+ * in a v46 shell, first in the page of the V3 shell (the Institute Admin's, IA-v1). The state is
  * changed only through port commands (no policy is bent to force a banner).
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
@@ -23,6 +24,7 @@ import {
   testNavigation,
 } from '@/test-support/workspace';
 
+import { V3_SHELL_ROLES } from '../workspace-shell/v3-role-shell';
 import { forgetLastAddress } from './route-focus';
 import { WorkspaceLayout } from './workspace-frame';
 import { workspaceOf } from '@/nav/routes';
@@ -98,8 +100,13 @@ describe('XS-08 — from the shared world', () => {
         return element!;
       });
       expect(shown.className).toBe('rk-banner');
-      // The first thing in the page column, in its V3 region.
-      expect(shown.closest('main > .rk-x-region--banner:first-child')).not.toBeNull();
+      // The first thing in the page column: in its V3 region in a v46 shell; the first thing in the
+      // page of the V3 shell (the Institute Admin's, IA-v1 `Main.dc.html`).
+      if (V3_SHELL_ROLES.has(role)) {
+        expect(shown.matches('main#main.rb-page > .rk-banner:first-child')).toBe(true);
+      } else {
+        expect(shown.closest('main > .rk-x-region--banner:first-child')).not.toBeNull();
+      }
       expect(shown).toHaveAttribute('role', 'status');
       expect(shown).toHaveTextContent(PAUSED);
       expect(within(shown).getByRole('link', { name: 'Help' })).toHaveAttribute(

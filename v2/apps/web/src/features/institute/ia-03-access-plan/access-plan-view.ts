@@ -1,28 +1,100 @@
 /**
- * IA-03's pure view rules (B2-03): the "History" lines, newest first — the plan's own history
- * (activation, grants given and withdrawn, pause and restore), its request's "Request submitted"
- * and "Request approved" lines (the payment lines fold into "Access activated", as B2-03 f0
- * draws), and "Plan ended" once the plan reads ended (state-copy `IA-03.history`,
- * `IA-03.history-ended`).
+ * IA-03's pure view rules in the V3 design (IA-v1 `Main.dc.html` IA-03 and its script's `vm03`):
+ *
+ * - "Students you’ve given access", grouped by experiment (as on Student access): one row per
+ *   student — the grant they hold individually, else the group grant that reaches them — with
+ *   "Also in …" for each other group whose grant reaches them too (the export's `saRow`).
+ * - "History", newest first: the plan's own history (activation, grants given and withdrawn,
+ *   pause and restore), its request's "Request submitted" and "Request approved" lines (the
+ *   payment lines fold into "Access activated"), and "Plan ended" once the plan reads ended
+ *   (state-copy `IA-03.history`, `IA-03.history-ended`). No grant or plan reference is written: a
+ *   grant is who was given what and how (state-copy `IA-plan.no-reference`).
  */
-import type { AccessPlanView, RequesterRequestView } from '@xr/contracts/draft';
-import type { ActorRef, InstitutionKind } from '@xr/domain';
+import type { AccessPlanView, PlanGrantRow, RequesterRequestView } from '@xr/contracts/draft';
+import type { GrantDisplayStatus, InstitutionKind, Technology } from '@xr/domain';
 
 import { calendarDay, dateTime, dayMonthYear } from '@/copy/dates';
 import {
   ACCESS_PLAN_WORDS,
-  activatedNote,
   approvedWithChangesWhat,
-  createdNote,
   endOfTermNote,
-  givenNote,
   givenWhat,
   requestApprovedWhat,
   RESTORED_WHAT,
   whenBy,
-  withdrawnWhat,
+  withdrawnNote,
 } from '@/copy/institute-home';
 import { routeWords } from '@/copy/requests';
+
+import { actorName } from '../shared/actor-name';
+
+// ---- Students you've given access ----
+
+/** One student of an experiment, by the grant that reaches them. */
+export interface GivenStudentView {
+  readonly key: string;
+  readonly student: PlanGrantRow['student'];
+  /** Individually, or through a group (its page). */
+  readonly via: PlanGrantRow['via'];
+  readonly givenAt: string;
+  readonly display: GrantDisplayStatus;
+  /** The other groups whose grant reaches the student too ("Also in …"). */
+  readonly alsoIn: readonly string[];
+}
+
+/** One experiment of the plan with the students given it. */
+export interface GivenGroupView {
+  readonly experimentId: string;
+  readonly name: string;
+  readonly courseCode: string | null;
+  readonly courseName: string;
+  readonly formats: readonly Technology[];
+  readonly students: readonly GivenStudentView[];
+}
+
+/**
+ * The students given each experiment of the plan, in the plan's order and the service's row order:
+ * a student's own grant first, else the group grant that reaches them; every other group grant
+ * that reaches them is named under it.
+ */
+export function givenGroups(view: AccessPlanView): GivenGroupView[] {
+  return view.experiments.flatMap((experiment) => {
+    const rows = view.givenTo.filter((row) => row.experimentId === experiment.experimentId);
+    const byStudent = new Map<string, PlanGrantRow[]>();
+    for (const row of rows) {
+      const list = byStudent.get(row.student.id) ?? [];
+      list.push(row);
+      byStudent.set(row.student.id, list);
+    }
+    const students = [...byStudent.values()].map((held): GivenStudentView => {
+      const primary = held.find((row) => row.via.kind === 'student') ?? held[0]!;
+      const alsoIn = held
+        .filter((row) => row !== primary)
+        .flatMap((row) => (row.via.kind === 'group' ? [row.via.groupName] : []));
+      return {
+        key: `${experiment.experimentId}:${primary.student.id}`,
+        student: primary.student,
+        via: primary.via,
+        givenAt: primary.givenAt,
+        display: primary.display,
+        alsoIn,
+      };
+    });
+    if (students.length === 0) return [];
+    return [
+      {
+        experimentId: experiment.experimentId,
+        name: experiment.name,
+        courseCode: experiment.course.platformCode,
+        courseName: experiment.course.name,
+        formats: experiment.formats,
+        students,
+      },
+    ];
+  });
+}
+
+// ---- History ----
 
 export interface HistoryLine {
   readonly id: string;
@@ -31,13 +103,6 @@ export interface HistoryLine {
   readonly what: string;
   readonly when: string;
   readonly note: string | null;
-}
-
-/** The person named after the time ("· Meera Iyer"): a person or the requester, never a system. */
-function actorName(actor: ActorRef): string | null {
-  if (actor.kind === 'person') return actor.displayName;
-  if (actor.kind === 'requester') return actor.name;
-  return null;
 }
 
 function routeOf(note: string | null): InstitutionKind | null {
@@ -78,7 +143,7 @@ export function historyLines(
           entry.event === 'approved'
             ? requestApprovedWhat(routeText)
             : approvedWithChangesWhat(routeText),
-        // B2-03 names no BITS person for the approval.
+        // The export names no BITS person for the approval.
         when: dateTime(entry.at),
         note: route === 'external' ? ACCESS_PLAN_WORDS.requestApprovedNote : null,
       });
@@ -97,8 +162,8 @@ export function historyLines(
           when: dateTime(entry.at),
           note:
             entry.actor.kind === 'system' && entry.actor.system === 'system:payment-provider'
-              ? activatedNote(plan.sourceRequestId, plan.id)
-              : createdNote(plan.id),
+              ? ACCESS_PLAN_WORDS.activatedNote
+              : ACCESS_PLAN_WORDS.createdNote,
         });
         break;
       case 'access-given':
@@ -106,9 +171,16 @@ export function historyLines(
         lines.push({
           id: entry.id,
           at: entry.at,
-          what: givenWhat(grant.target.name, experimentName(grant.experimentId)),
+          what: givenWhat(
+            grant.target.name,
+            experimentName(grant.experimentId),
+            grant.target.kind === 'group',
+          ),
           when: whenBy(dateTime(entry.at), actorName(entry.actor)),
-          note: givenNote(grant.id, grant.target.kind === 'group'),
+          note:
+            grant.target.kind === 'group'
+              ? ACCESS_PLAN_WORDS.groupGrant
+              : ACCESS_PLAN_WORDS.individually,
         });
         break;
       case 'access-withdrawn':
@@ -116,9 +188,9 @@ export function historyLines(
         lines.push({
           id: entry.id,
           at: entry.at,
-          what: withdrawnWhat(grant.target.name, experimentName(grant.experimentId)),
+          what: ACCESS_PLAN_WORDS.withdrawn,
           when: whenBy(dateTime(entry.at), actorName(entry.actor)),
-          note: grant.id,
+          note: withdrawnNote(grant.target.name, experimentName(grant.experimentId)),
         });
         break;
       case 'paused':
@@ -149,7 +221,7 @@ export function historyLines(
         });
         break;
       default:
-        // ending-soon, renewal-requested, renewed: no sample writer and no board words yet.
+        // ending-soon, renewal-requested, renewed: no sample writer and no words yet.
         break;
     }
   }

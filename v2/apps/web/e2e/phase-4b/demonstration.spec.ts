@@ -196,7 +196,7 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await sidebar(page, '/institute/people');
   await reachAndClick(
     page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Add student' }),
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Add student' }),
   );
   await page.waitForURL('**/institute/people/add**');
   await page.getByLabel('Full name', { exact: true }).fill('Rahul Verma');
@@ -216,13 +216,13 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await reachAndClick(
     page,
     page.getByRole('navigation', { name: 'People' }).getByRole('link', {
-      name: 'Faculty',
-      exact: true,
+      // V3 (IA-v1) names the tab with its count: "Faculty, 3 faculty members".
+      name: /^Faculty\s*(,|$)/,
     }),
   );
   await reachAndClick(
     page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Add faculty member' }),
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Add faculty member' }),
   );
   await page.waitForURL('**/institute/people/add?type=faculty');
   await page.getByLabel('Full name', { exact: true }).fill('Dr S. Ranganathan');
@@ -230,7 +230,7 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await reachAndClick(page, main(page).getByRole('button', { name: 'Add faculty member' }));
   await reachAndClick(page, main(page).getByRole('link', { name: 'Assign a course' }));
   await page.waitForURL('**/institute/people?tab=faculty-courses&faculty=**');
-  const assignCourse = page.getByRole('complementary', { name: 'Assign a course' });
+  const assignCourse = page.getByRole('region', { name: 'Assign a course' });
   await assignCourse
     .getByRole('combobox', { name: /^Course/ })
     .selectOption({ label: `ME ZG523 — ${THERMO}` });

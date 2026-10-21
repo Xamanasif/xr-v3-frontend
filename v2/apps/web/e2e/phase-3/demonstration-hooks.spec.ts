@@ -109,7 +109,11 @@ test('one tab, the test-hook build: access → resources → WEB → runtime pro
     page,
     main(page).getByRole('link', { name: 'Open student record: Rahul Verma' }),
   );
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Give this student access' }));
+  // The record's head action (V3, IA-v1: an empty "Experiments given" repeats it).
+  await reachAndClick(
+    page,
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Give this student access' }),
+  );
   await page.waitForURL('**/institute/student-access/give?**');
   await tick(page, page.getByRole('checkbox', { name: new RegExp(SHELL) }));
   await reachAndClick(page, main(page).getByRole('button', { name: 'Continue' }));
@@ -197,10 +201,15 @@ test('one tab, the test-hook build: access → resources → WEB → runtime pro
   await reachAndClick(page, page.getByRole('link', { name: 'Review Rahul Verma’s request' }));
   await page.waitForURL(`**/institute/requests/devices/${reference}`);
   await reachAndClick(page, main(page).getByRole('button', { name: 'Forward to BITS' }));
-  const forward = page.getByRole('dialog', { name: `Forward ${reference} to BITS?` });
+  // IA-19 in the V3 design (IA-v1): the dialog is named by the request's content, never its
+  // reference; the forward's flash says what happened.
+  const forward = page.getByRole('dialog', {
+    name: 'Forward Rahul Verma’s device request to BITS?',
+  });
   await forward.getByRole('button', { name: 'Forward to BITS' }).click();
   await expect(forward).toBeHidden();
-  await expect(page.locator('#device-request-status')).toContainText('Forwarded to BITS');
+  await expect(page.locator('#device-request-flash')).toContainText('Forwarded to BITS');
+  await expect(main(page)).not.toContainText(reference);
   await signOut(page, MEERA_LINE);
 
   // Device 3: Arjun Mehta — Operations › Device transfers → the decision → Approve (DL-1).
@@ -247,7 +256,14 @@ test('one tab, the test-hook build: access → resources → WEB → runtime pro
   );
   await sidebar(page, '/institute/usage');
   const web = main(page).locator('tbody tr', { hasText: 'WEB' }).first();
-  await expect(web.locator('td[data-label="Started"]')).toHaveText('1');
-  await expect(web.locator('td[data-label="Completed"]')).toHaveText('1');
+  // IA-20 in the V3 design (IA-v1): each figure cell carries its column's label for the narrow
+  // layout (`span.ia-lt-lab`) beside the figure (`span.ia-lt-numv`).
+  const figure = (label: string) =>
+    web
+      .locator('td.ia-lt-num')
+      .filter({ has: page.locator('.ia-lt-lab', { hasText: label }) })
+      .locator('.ia-lt-numv');
+  await expect(figure('Started')).toHaveText('1');
+  await expect(figure('Completed')).toHaveText('1');
   await expectSameDocument(page, mark);
 });

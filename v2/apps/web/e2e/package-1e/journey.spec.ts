@@ -285,7 +285,12 @@ test('Flow A and B1 in one tab of the product build: browse → select → reque
   await expect(page.getByRole('button', { name: MEERA, exact: true })).toBeVisible();
   await checkState(page, 'Overview');
   await revealSidebar(page);
-  await expect(page.locator('aside.xr-side a[href^="/admin"]')).toHaveCount(0);
+  // Her navigation — the V3 rail (or its drawer below 1024 px) since IA-v1 — leads to her own
+  // workspace and to none of the Super Admin's pages.
+  await expect(sidebarLink(page, '/institute')).toBeVisible();
+  await expect(
+    page.locator('aside.xr-side, aside.rb-rail, div.rb-drawer').locator('a[href^="/admin"]'),
+  ).toHaveCount(0);
   // Her institution's request at its address (TEST NAVIGATION): readable by its Institute Admin.
   await openInTab(page, address);
   await expect(statusHead(page)).toContainText('Access active');

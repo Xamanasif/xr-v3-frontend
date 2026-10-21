@@ -2,46 +2,56 @@
 
 import type { ServiceError, StudentRecordView } from '@xr/contracts/draft';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
+  ButtonLink,
   ConfirmDialog,
-  EmptyState,
+  CourseCode,
   Field,
-  FormatSet,
-  Icon,
-  Link,
+  IaBlock,
+  IaFormatBadges,
+  IaGrantHow,
+  IaListTable,
+  IaRecordGrid,
+  IaSectionBody,
+  IaSectionFoot,
+  IaSectionHead,
+  IaStatusNotes,
+  IaSummary,
+  IaWrapLink,
+  IaCellLine,
+  IaCellText,
+  ListState,
   Notice,
-  PageContent,
-  PageHeader,
-  ReasonDialog,
-  Section,
-  SectionBody,
+  PageHead,
+  RecordLine,
   StatusPill,
+  Surface,
   Textarea,
+  TextLink,
   Timeline,
-} from '@xr/ui';
-import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react';
+  V46Island,
+} from '@xr/ui/v3';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { dayMonthYear } from '@/copy/dates';
 import {
-  ALSO_NOT_CHANGED,
-  alsoInWords,
-  courseLine,
+  aboutLabel,
+  alsoInGroupWords,
   deactivateBody,
   deactivateTitle,
-  fromPlanWords,
-  givenIndividuallyWords,
-  givenThroughGroupWords,
-  inactiveSinceWords,
+  experimentsCaption,
+  IA07,
+  inactiveSinceLine,
   inactiveUntilLine,
   noExperimentsTitle,
-  PEOPLE_PAGE,
+  reactivateAccountLine,
   reactivateBody,
   reactivateTitle,
-  RECORD_OVERLINE,
-  RECORD_PAGE,
-  STUDENTS_TAB,
-} from '@/copy/institute-people';
+  studentEyebrow,
+} from '@/copy/ia-access';
+import { formatsFromPlanLabel, IA_PAUSED_READ_ONLY, viaGroupLabel } from '@/copy/ia-shared';
+import { courseLine, PEOPLE_PAGE } from '@/copy/institute-people';
 import { stateWords } from '@/copy/state-copy';
 import {
   giveAccessAddress,
@@ -52,38 +62,42 @@ import {
   underPlacement,
 } from '@/nav/institute';
 import { useStudentRecord } from '@/queries/people';
+import { useInstituteStanding } from '@/queries/student-access';
 import { useCommand } from '@/queries/use-command';
 
 import { RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { PausedNotice, useInstitutionPaused } from '../ia-06-people/paused';
-import { formatCodes } from '../ia-06-people/students';
-import { actorName, addedWords, type GrantLine, grantLines, historyLines } from './record-view';
+import { formatCodes } from '../shared/format-codes';
+import { useInstitutionPaused } from '../shared/paused';
+import { actorName, addedLine, type GrantLine, grantLines, historyLines } from './record-view';
 
-const REASON_ID = 'student-reason';
-const DEACTIVATE_ID = 'student-deactivate';
-const REACTIVATE_ID = 'student-reactivate';
+const TITLE_ID = 'ia-h1';
+const REASON_ID = 'ia-dlg-f';
+const DEACTIVATE_ID = 'sr-deact';
+const REACTIVATE_ID = 'sr-react';
+const FLASH_ID = 'ia-flash';
 
 /**
- * IA-07 Student record — board B2-06 f8 … f13 and f17 ("Who is this student, and what can they
- * open?"), at `/institute/people/students/[studentId]`.
+ * IA-07 Student record — the owner-approved V3 design (design/v3-refined-b/roles/IA-v1,
+ * `Main.dc.html` `R.rIA07`, `vm07`), at `/institute/people/students/[studentId]`.
  *
  * - **Read**: `PeopleService.getStudent` — the student, their groups, the courses they are filed
- *   against and each grant that reaches them as IA-04 reads it. An address naming no student of the
- *   admin's institution — unknown or another institution's — shows the in-shell not-found page.
- * - **Sections as drawn**: Experiments given (Experiment and course code · Formats "From access plan
- *   ACC-0107" · How given · Status with its reason in words; "Open Student access"), Courses and
- *   groups (each group name opens IA-14), Details, History, Account. Each grant
- *   keeps its own word; the record makes no can / can't-open statement (OD-B2-01). Licences are
- *   never counted: "Waiting for a licence" is a supplied wait (D7).
- * - **Act**: "Give this student access" opens IA-05 with the student chosen. "Deactivate account…"
- *   (DL-2, a required reason shown to the institution's administrators) and "Reactivate account"
- *   (DL-1) are `deactivateStudent` / `reactivateStudent`, sent with the revision the page showed
- *   when the dialog opened. The reason's error is the service's drawn words; a refusal because the
- *   record moved on writes nothing, closes the dialog, reads the record again and puts focus on the
- *   title; a failure for now keeps the dialog and its reason. After deactivating, focus goes to
- *   "Reactivate account" (and back), as B2-06's script does.
- * - **Paused institution**: read-only — no write is offered and the paused notice shows.
+ *   against and each grant that reaches them as IA-04 reads it — with the institution's standing
+ *   (`getMyOverview`: the plan's end and the pause, which a grant's note names, and whether access
+ *   can be given). An address naming no student of the admin's institution — unknown or another
+ *   institution's — shows the in-shell not-found page.
+ * - **Layout**: the head (student ID, name, status and e-mail once; Give this student access or
+ *   Reactivate account), "Experiments given" (experiment with course code and formats · how given ·
+ *   status with its reason), the About and Account summary beside it, History below. Each grant
+ *   keeps its own word; the record makes no can / can't-open statement (OD-B2-01). No grant is named
+ *   by its id.
+ * - **Act**: "Deactivate account…" (DL-2, a required reason) and "Reactivate account" (DL-1) are
+ *   `deactivateStudent` / `reactivateStudent`, sent with the revision the page showed when the
+ *   dialog opened. The reason's error is the service's words; a refusal because the record moved on
+ *   writes nothing, closes the dialog, reads the record again and puts focus on the title; a
+ *   failure for now keeps the dialog and its reason. After deactivating, focus goes to "Reactivate
+ *   account" (and back).
+ * - **Paused institution**: read-only — no write is offered and the read-only notice shows.
  */
 export function StudentRecord({ studentId }: { readonly studentId: string }) {
   const read = useStudentRecord(studentId);
@@ -92,21 +106,22 @@ export function StudentRecord({ studentId }: { readonly studentId: string }) {
       { label: PEOPLE_PAGE.tabs.students, href: PEOPLE_ADDRESS },
     ]),
   );
-  return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={read}
-        loadingLabel={stateWords('IA-07.loading')}
-        failed={{
-          title: stateWords('IA-07.failed'),
-          line: stateWords('IA-07.failed.line'),
-          reportHref: `${INSTITUTE_HELP_ADDRESS}/report`,
-        }}
-      >
-        {(record) => <RecordContent record={record} refetch={() => void read.refetch()} />}
-      </RecordGuard>
-    </PageContent>
+  const guard = (
+    <RecordGuard
+      read={read}
+      loadingLabel={stateWords('IA-07.loading')}
+      failed={{
+        title: stateWords('IA-07.failed'),
+        line: stateWords('IA-07.failed.line'),
+        reportHref: `${INSTITUTE_HELP_ADDRESS}/report`,
+      }}
+    >
+      {(record) => <RecordContent record={record} refetch={() => void read.refetch()} />}
+    </RecordGuard>
   );
+  // The application's existing loading and failed states keep their look (IA-v1 draws none for
+  // the record page).
+  return read.data?.ok ? guard : <V46Island>{guard}</V46Island>;
 }
 
 /** An open dialog, with the record's revision as the page showed it when it opened. */
@@ -122,10 +137,14 @@ function RecordContent({
   readonly refetch: () => void;
 }) {
   const { student } = record;
+  const standing = useInstituteStanding();
+  const overview = standing.data?.ok ? standing.data.value : null;
   const sessionPaused = useInstitutionPaused();
   const [refusedPaused, setRefusedPaused] = useState(false);
   const paused = sessionPaused || refusedPaused;
   const inactive = student.accountStatus === 'inactive';
+  const noPlan = overview !== null && overview.plan === null;
+  const ended = overview?.status === 'access-ended';
   const [dialog, setDialog] = useState<Dialog | null>(null);
   const [reasonError, setReasonError] = useState<string | null>(null);
   const [flash, setFlash] = useState<string | null>(null);
@@ -141,11 +160,10 @@ function RecordContent({
   const deactivate = useCommand((ports) => ports.people.deactivateStudent);
   const reactivate = useCommand((ports) => ports.people.reactivateStudent);
 
-  // Focus moves after the commit that shows its target (B2-06 `focus(id)`): the reason after its
-  // error, "Reactivate account" after deactivating and "Deactivate account…" after reactivating —
-  // once the record read again shows them — the title after a refusal that re-reads the record
-  // (and wherever a target is gone). The dialog has given focus back to its trigger in the same
-  // commit, so this request wins.
+  // Focus moves after the commit that shows its target: the reason after its error, "Reactivate
+  // account" after deactivating and "Deactivate account…" after reactivating — once the record read
+  // again shows them — the title after a refusal that re-reads the record (and wherever a target is
+  // gone). The dialog has given focus back to its trigger in the same commit, so this request wins.
   useEffect(() => {
     if (focusRequest.n === handled.current) return;
     const element = focusRequest.id === 'title' ? null : document.getElementById(focusRequest.id);
@@ -179,7 +197,7 @@ function RecordContent({
           (answer) => {
             if (answer.ok) {
               close();
-              setFlash(RECORD_PAGE.deactivatedFlash);
+              setFlash(IA07.deactivatedFlash);
               focus(REACTIVATE_ID, true);
             } else if (answer.error.kind === 'validation-failed') {
               const reason = answer.error.fieldErrors.find((error) => error.field === 'reason');
@@ -196,7 +214,7 @@ function RecordContent({
       (answer) => {
         if (answer.ok) {
           close();
-          setFlash(RECORD_PAGE.reactivatedFlash);
+          setFlash(IA07.reactivatedFlash);
           focus(DEACTIVATE_ID, true);
         } else refused(answer.error);
       },
@@ -210,186 +228,200 @@ function RecordContent({
     setFlash(null);
   };
 
-  const lines = grantLines(record);
+  const lines = grantLines(record, {
+    endsOn: overview?.plan?.endsOn ?? null,
+    pausedSince: overview?.institution.pause?.since ?? null,
+  });
   const history = historyLines(record);
   const deactivation = student.deactivation;
+  const canGive = !paused && !inactive && !noPlan && !ended;
+  const giveHref = giveAccessAddress({ student: student.id });
+  const noRowsLine = canGive
+    ? IA07.noExperimentsCanGive
+    : noPlan
+      ? IA07.noExperimentsNoPlan
+      : inactive
+        ? IA07.noExperimentsInactive
+        : paused
+          ? IA07.noExperimentsPaused
+          : IA07.noExperimentsEnded;
 
-  const action = paused ? null : inactive ? (
+  const actions = paused ? null : inactive ? (
     <Button
       variant="primary"
+      size="lg"
       id={REACTIVATE_ID}
       onClick={() => open({ kind: 'reactivate', expectedRev: student.rev })}
     >
-      {RECORD_PAGE.reactivate}
+      {IA07.reactivate}
     </Button>
-  ) : (
-    <Link className="xr-btn xr-btn--primary" href={giveAccessAddress({ student: student.id })}>
-      {RECORD_PAGE.giveAccess}
-    </Link>
-  );
+  ) : canGive ? (
+    <ButtonLink variant="primary" size="lg" href={giveHref}>
+      {IA07.give}
+    </ButtonLink>
+  ) : null;
 
   return (
     <>
-      <PageHeader
-        className="mt-2 mb-6"
-        back={<BackLink href={PEOPLE_ADDRESS}>{RECORD_PAGE.back}</BackLink>}
-        overline={
-          <>
-            {RECORD_OVERLINE} · <span className="xr-id">{student.institutionStudentId}</span>
-          </>
+      <PageHead
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: IA07.crumb, href: PEOPLE_ADDRESS }]}
+            current={student.fullName}
+          />
         }
+        variant="record"
+        eyebrow={studentEyebrow(student.institutionStudentId)}
         title={student.fullName}
-        titleFocusTarget
+        titleId={TITLE_ID}
         titleRef={titleRef}
+        titleFocusTarget
         meta={
           <>
             {inactive ? (
-              <StatusPill tone="off">{RECORD_PAGE.inactive}</StatusPill>
+              <StatusPill tone="ended">{IA07.inactive}</StatusPill>
             ) : (
-              <StatusPill tone="ok">{RECORD_PAGE.accountActive}</StatusPill>
+              <StatusPill tone="ok">{IA07.accountActive}</StatusPill>
             )}
             <span>{student.institutionEmail}</span>
           </>
         }
-        actions={action}
+        actions={actions}
       />
-      <div className="xw-stack">
-        {flash ? <Notice tone="ok">{flash}</Notice> : null}
-        {paused ? <PausedNotice /> : null}
-        {inactive && deactivation ? (
-          <Notice tone="quiet" icon="notAvailable" title={RECORD_PAGE.inactiveTitle}>
-            {`${inactiveSinceWords(
-              dayMonthYear(deactivation.at),
-              actorName(deactivation.by) ?? '',
-              deactivation.reason,
-            )} ${inactiveUntilLine(student.fullName)}`}
-          </Notice>
-        ) : null}
-        <Section
-          title={RECORD_PAGE.sections.experiments}
-          headingId="student-experiments"
-          headEnd={
-            lines.length > 0 ? (
-              <Link href={STUDENT_ACCESS_ADDRESS}>{RECORD_PAGE.openStudentAccess}</Link>
-            ) : null
-          }
-        >
-          {lines.length > 0 ? (
-            <GrantTable lines={lines} />
-          ) : (
-            <EmptyState
-              icon="graduation"
-              headingLevel={3}
-              title={noExperimentsTitle(student.fullName)}
-            >
-              {stateWords('IA-07.no-experiments.line')}
-            </EmptyState>
-          )}
-        </Section>
-        <Section title={RECORD_PAGE.sections.coursesAndGroups} headingId="student-courses">
-          <SectionBody>
-            <KeyValues
-              keyWidth="140px"
-              rows={[
-                ...(record.courses.length > 0
-                  ? [
-                      [
-                        RECORD_PAGE.keys.course,
-                        record.courses.map((course) => (
-                          <span key={course.id} className="block">
-                            {courseLine(course.platformCode, course.name)}
-                          </span>
-                        )),
-                      ] as const,
-                    ]
-                  : []),
-                [
-                  RECORD_PAGE.keys.group,
-                  // Package 2B: each group name opens its page (IA-14; B2-06 f8 → B2-08).
-                  record.groups.length > 0
-                    ? record.groups.map((group, index) => (
-                        <Fragment key={group.id}>
-                          {index > 0 ? ', ' : null}
-                          <Link href={groupAddress(group.id)}>{group.name}</Link>
-                        </Fragment>
-                      ))
-                    : STUDENTS_TAB.noGroup,
-                ] as const,
-              ]}
+      {paused ? (
+        <Notice tone="paused" icon="lock" role="status" title={IA_PAUSED_READ_ONLY}>
+          {IA07.pausedLine}
+        </Notice>
+      ) : null}
+      {flash ? (
+        <Notice tone="ok" id={FLASH_ID} role="status" title={IA07.flashTitle}>
+          {flash}
+        </Notice>
+      ) : null}
+      {inactive ? (
+        <Notice tone="off" role="status" title={IA07.inactiveTitle}>
+          {deactivation
+            ? inactiveSinceLine(
+                dayMonthYear(deactivation.at),
+                actorName(deactivation.by) ?? '',
+                deactivation.reason,
+                student.fullName,
+              )
+            : inactiveUntilLine(student.fullName)}
+        </Notice>
+      ) : null}
+      <IaRecordGrid
+        main={
+          <Surface labelledBy="sr-exp-h">
+            <IaSectionHead
+              title={IA07.experiments}
+              titleId="sr-exp-h"
+              aside={
+                lines.length > 0 ? (
+                  <TextLink href={STUDENT_ACCESS_ADDRESS}>{IA07.openStudentAccess}</TextLink>
+                ) : null
+              }
             />
-          </SectionBody>
-        </Section>
-        <Section title={RECORD_PAGE.sections.details} headingId="student-details">
-          <SectionBody>
-            <KeyValues
-              keyWidth="160px"
-              rows={[
-                [
-                  RECORD_PAGE.keys.studentId,
-                  <span key="id" className="xr-id text-ink">
-                    {student.institutionStudentId}
-                  </span>,
-                ],
-                [RECORD_PAGE.keys.email, student.institutionEmail],
-                ...(student.programme
-                  ? [[RECORD_PAGE.keys.programme, student.programme] as const]
-                  : []),
-                [RECORD_PAGE.keys.added, addedWords(record)],
-              ]}
-            />
-          </SectionBody>
-        </Section>
-        <Section title={RECORD_PAGE.sections.history} headingId="student-history">
-          <SectionBody>
-            <Timeline
-              events={history.map((line) => ({
-                id: line.id,
-                what: line.what,
-                when: line.when,
-                ...(line.note ? { note: line.note } : {}),
-              }))}
-            />
-          </SectionBody>
-        </Section>
-        {!inactive && !paused ? (
-          <Section title={RECORD_PAGE.sections.account} headingId="student-account">
-            <SectionBody>
-              <p className="xr-body mt-0 mb-[14px] text-ink-2">{RECORD_PAGE.accountLine}</p>
-              <Button
-                variant="danger-quiet"
-                id={DEACTIVATE_ID}
-                onClick={() => open({ kind: 'deactivate', reason: '', expectedRev: student.rev })}
+            {lines.length > 0 ? (
+              <>
+                <GrantTable name={student.fullName} lines={lines} />
+                <IaSectionFoot>{IA07.foot}</IaSectionFoot>
+              </>
+            ) : (
+              <ListState
+                kind="none"
+                titleAs="h3"
+                title={noExperimentsTitle(student.fullName)}
+                action={canGive ? <ButtonLink href={giveHref}>{IA07.give}</ButtonLink> : null}
               >
-                {RECORD_PAGE.deactivate}
-              </Button>
-            </SectionBody>
-          </Section>
-        ) : null}
-      </div>
-      <ReasonDialog
+                {noRowsLine}
+              </ListState>
+            )}
+          </Surface>
+        }
+        side={
+          <Surface label={aboutLabel(student.fullName)}>
+            <IaSectionBody title={IA07.about}>
+              <IaSummary
+                items={[
+                  { key: 'course', term: IA07.keys.course, children: courseValue(record) },
+                  {
+                    key: 'group',
+                    term: record.groups.length > 1 ? IA07.keys.groups : IA07.keys.group,
+                    children:
+                      record.groups.length > 0
+                        ? record.groups.map((group) => (
+                            <IaBlock key={group.id}>
+                              <IaWrapLink href={groupAddress(group.id)}>{group.name}</IaWrapLink>
+                            </IaBlock>
+                          ))
+                        : IA07.notInGroup,
+                  },
+                  {
+                    key: 'programme',
+                    term: IA07.keys.programme,
+                    children: student.programme || IA07.notRecorded,
+                  },
+                  { key: 'added', term: IA07.keys.added, children: addedLine(record) },
+                ]}
+              />
+            </IaSectionBody>
+            <IaSectionBody title={IA07.account}>
+              <RecordLine>
+                {inactive ? reactivateAccountLine(student.fullName) : IA07.accountLine}
+              </RecordLine>
+              {!inactive && !paused ? (
+                <p>
+                  <Button
+                    id={DEACTIVATE_ID}
+                    onClick={() =>
+                      open({ kind: 'deactivate', reason: '', expectedRev: student.rev })
+                    }
+                  >
+                    {IA07.deactivate}
+                  </Button>
+                </p>
+              ) : null}
+            </IaSectionBody>
+          </Surface>
+        }
+        more={
+          <Surface labelledBy="sr-hist-h">
+            <IaSectionBody title={IA07.history} titleId="sr-hist-h" size="section">
+              <Timeline
+                events={history.map((line) => ({
+                  what: line.what,
+                  when: line.when,
+                  ...(line.note ? { note: line.note } : {}),
+                }))}
+              />
+            </IaSectionBody>
+          </Surface>
+        }
+      />
+      <ConfirmDialog
         open={dialog?.kind === 'deactivate'}
-        align="start"
+        destructive
+        initialFocus="field"
         returnFocusFallback={titleRef}
         idPrefix="student-deactivate-dialog"
-        destructive
         title={deactivateTitle(student.fullName)}
-        effect={deactivateBody(student.fullName)}
-        confirmLabel={RECORD_PAGE.deactivateConfirm}
+        description={deactivateBody(student.fullName)}
+        confirmLabel={IA07.deactivateConfirm}
+        cancelLabel={IA07.cancel}
+        busyLook
         busy={deactivate.busy}
-        busyLabel={RECORD_PAGE.deactivateBusy}
+        busyLabel={IA07.deactivateBusy}
         onConfirm={confirm}
         onCancel={close}
       >
         <Field
           id={REASON_ID}
-          label={RECORD_PAGE.reasonLabel}
-          marker={RECORD_PAGE.reasonMarker}
-          hint={RECORD_PAGE.reasonHint}
-          errorClass="xw-ferr"
+          label={IA07.reasonLabel}
+          hint={IA07.deactivateHint}
           error={reasonError ?? undefined}
         >
           <Textarea
-            className="min-h-[96px]"
             value={dialog?.kind === 'deactivate' ? dialog.reason : ''}
             onChange={(event) => {
               const reason = event.target.value;
@@ -400,17 +432,19 @@ function RecordContent({
             }}
           />
         </Field>
-      </ReasonDialog>
+      </ConfirmDialog>
       <ConfirmDialog
         open={dialog?.kind === 'reactivate'}
-        align="start"
+        initialFocus="confirm"
         returnFocusFallback={titleRef}
         idPrefix="student-reactivate-dialog"
         title={reactivateTitle(student.fullName)}
-        effect={reactivateBody(student.fullName)}
-        confirmLabel={RECORD_PAGE.reactivate}
+        description={reactivateBody(student.fullName, ended)}
+        confirmLabel={IA07.reactivate}
+        cancelLabel={IA07.cancel}
+        busyLook
         busy={reactivate.busy}
-        busyLabel={RECORD_PAGE.reactivateBusy}
+        busyLabel={IA07.reactivateBusy}
         onConfirm={confirm}
         onCancel={close}
       />
@@ -418,86 +452,92 @@ function RecordContent({
   );
 }
 
-/** B2-06 f9 "Experiments given" (`xr-table-wrap.xw-table-flush`): one row per grant line. */
-function GrantTable({ lines }: { readonly lines: readonly GrantLine[] }) {
-  const { columns } = RECORD_PAGE;
-  return (
-    <div className="xr-table-wrap xw-table-flush">
-      <table className="xr-table">
-        <caption className="xr-sr">{RECORD_PAGE.experimentsCaption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{columns.experiment}</th>
-            <th scope="col">{columns.formats}</th>
-            <th scope="col">{columns.howGiven}</th>
-            <th scope="col">{columns.status}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {lines.map((line) => (
-            <tr key={line.grantId}>
-              <td className="is-primary">
-                <strong>{line.experimentName}</strong>
-                {line.courseCode ? <span className="xr-sub">{line.courseCode}</span> : null}
-              </td>
-              <td data-label={columns.formats}>
-                <FormatSet compact formats={formatCodes(line.formats)} />
-                <span className="xr-sub">{fromPlanWords(line.planId)}</span>
-              </td>
-              <td data-label={columns.howGiven}>
-                {line.how.kind === 'group'
-                  ? givenThroughGroupWords(line.how.groupName, line.how.date)
-                  : givenIndividuallyWords(line.how.date)}
-                <span className="xr-id">{line.grantId}</span>
-                {line.also ? (
-                  <span className="xw-also">
-                    <Icon name="studentsPeople" size={16} />
-                    <span>
-                      {alsoInWords(line.also.groupName)} ·{' '}
-                      <span className="xr-id">{line.also.grantId}</span>
-                      {line.also.notChanged ? ALSO_NOT_CHANGED : null}
-                    </span>
-                  </span>
-                ) : null}
-              </td>
-              <td data-label={columns.status}>
-                <StatusPill tone={line.status.tone}>{line.status.words}</StatusPill>
-                {line.status.line ? <span className="xr-sub mt-1">{line.status.line}</span> : null}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
+/** The student's course(s): "ME ZG523 · Thermodynamics & Heat Transfer", one per line. */
+function courseValue(record: StudentRecordView): ReactNode {
+  if (record.courses.length === 0) return IA07.notRecorded;
+  if (record.courses.length === 1) {
+    const [course] = record.courses;
+    return courseLine(course!.platformCode, course!.name);
+  }
+  return record.courses.map((course) => (
+    <IaBlock key={course.id}>{courseLine(course.platformCode, course.name)}</IaBlock>
+  ));
 }
 
-/** A key–value list as B2-06 draws it (`dl.doc-kv.xp-kv`; `doc-` is canvas-only). */
-function KeyValues({
-  rows,
-  keyWidth,
+/** "Experiments given" (`table.ia-lt.ia-lt--sr`): Experiment · How given · Status. */
+function GrantTable({
+  name,
+  lines,
 }: {
-  readonly rows: readonly (readonly [string, ReactNode])[];
-  readonly keyWidth: '140px' | '160px';
+  readonly name: string;
+  readonly lines: readonly GrantLine[];
 }) {
   return (
-    <dl
-      className={`xp-kv m-0 grid ${keyWidth === '140px' ? 'grid-cols-[140px_minmax(0,1fr)]' : 'grid-cols-[160px_minmax(0,1fr)]'} gap-x-5 gap-y-[10px] text-[15px] leading-[22px]`}
-    >
-      {rows.map(([name, value]) => (
-        <KeyValue key={name} name={name}>
-          {value}
-        </KeyValue>
-      ))}
-    </dl>
-  );
-}
-
-function KeyValue({ name, children }: { readonly name: string; readonly children: ReactNode }) {
-  return (
-    <>
-      <dt className="font-[700] text-ink">{name}</dt>
-      <dd className="m-0 text-ink-2">{children}</dd>
-    </>
+    <IaListTable
+      variant="sr"
+      caption={experimentsCaption(name)}
+      columns={[
+        { key: 'experiment', header: IA07.columns.experiment },
+        { key: 'how', header: IA07.columns.howGiven },
+        { key: 'status', header: IA07.columns.status },
+      ]}
+      rows={lines.map((line) => {
+        const codes = formatCodes(line.formats);
+        return {
+          key: line.key,
+          muted: line.muted,
+          cells: [
+            {
+              key: 'experiment',
+              role: 'main',
+              className: 'ia-sr-exp',
+              children: (
+                <>
+                  <IaCellText kind="title">{line.experimentName}</IaCellText>
+                  <IaCellLine gap>
+                    {line.courseCode ? <CourseCode code={line.courseCode} /> : null}
+                    <IaFormatBadges formats={codes} label={formatsFromPlanLabel(codes)} />
+                  </IaCellLine>
+                </>
+              ),
+            },
+            {
+              key: 'how',
+              className: 'ia-sr-how',
+              children: (
+                <IaGrantHow
+                  how={
+                    line.group
+                      ? {
+                          kind: 'group',
+                          words: viaGroupLabel(line.group.name),
+                          href: groupAddress(line.group.id),
+                        }
+                      : { kind: 'individual', words: IA07.individually }
+                  }
+                  date={line.date}
+                  also={
+                    line.also
+                      ? alsoInGroupWords(line.also.groupName, line.also.notChanged)
+                      : undefined
+                  }
+                />
+              ),
+            },
+            {
+              key: 'status',
+              role: 'pri',
+              className: 'ia-sr-st',
+              children: (
+                <IaStatusNotes
+                  status={<StatusPill tone={line.status.tone}>{line.status.words}</StatusPill>}
+                  notes={line.status.notes}
+                />
+              ),
+            },
+          ],
+        };
+      })}
+    />
   );
 }

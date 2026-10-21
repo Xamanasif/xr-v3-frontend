@@ -2264,6 +2264,518 @@
       "differences": [],
       "supersedes": [],
       "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-shell",
+      "state": "The Institute Admin workspace in the V3 shell: rail (Overview, Content access, Student access, People, Requests, Usage), Overview · date on the Overview, XS-08 banner, Menu drawer below 1024 px, XS account menu, Help & support",
+      "route": "/institute/*",
+      "sources": ["apps/web/src/features/institute/shared"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/XS-07-help-and-support-borrowed/1440.png",
+          "1-screens-four-widths/XS-07-help-and-support-borrowed/1024.png",
+          "1-screens-four-widths/XS-07-help-and-support-borrowed/768.png",
+          "1-screens-four-widths/XS-07-help-and-support-borrowed/375.png",
+          "1-screens-four-widths/XS-03-signed-out-borrowed/1440.png",
+          "1-screens-four-widths/XS-03-signed-out-borrowed/1024.png",
+          "1-screens-four-widths/XS-03-signed-out-borrowed/768.png",
+          "1-screens-four-widths/XS-03-signed-out-borrowed/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The account menu, Help & support and signed-out pages are the delivered XS components (the export borrowed `ia-acctwrap`, `ia-menu*`, `ia-out*` drafts)."
+      ],
+      "supersedes": [
+        "05-institute-admin-help-built-top-bar",
+        "05-institute-admin-help-built-sidebar-head",
+        "05-institute-admin-help-built-sidebar-workspace",
+        "05-institute-admin-help-built-sidebar-help",
+        "05-institute-admin-help-built-sidebar-phase-3"
+      ],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-01",
+      "state": "Overview: what needs you (attention), the plan card and term bar, Overview · date in the top line; paused, ending, ended, awaiting, calm",
+      "route": "/institute",
+      "sources": ["apps/web/src/features/institute/ia-01-overview"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-01-overview/1440.png",
+          "1-screens-four-widths/IA-01-overview/1024.png",
+          "1-screens-four-widths/IA-01-overview/768.png",
+          "1-screens-four-widths/IA-01-overview/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-02",
+      "state": "Content access: experiments in the plan by course, search, no match, loading, failed, awaiting payment, ending",
+      "route": "/institute/content-access",
+      "sources": ["apps/web/src/features/institute/ia-02-content-access"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-02-content-access-experiments/1440.png",
+          "1-screens-four-widths/IA-02-content-access-experiments/1024.png",
+          "1-screens-four-widths/IA-02-content-access-experiments/768.png",
+          "1-screens-four-widths/IA-02-content-access-experiments/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-03",
+      "state": "Access plan / course detail: the plan record and its experiments; fresh, ending, paused, ended, awaiting",
+      "route": "/institute/content-access/plans/{planId}",
+      "sources": ["apps/web/src/features/institute/ia-03-access-plan"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-03-access-plan/1440.png",
+          "1-screens-four-widths/IA-03-access-plan/1024.png",
+          "1-screens-four-widths/IA-03-access-plan/768.png",
+          "1-screens-four-widths/IA-03-access-plan/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-04",
+      "state": "Student access: grants by experiment with the status switch; waiting, withdraw dialog, after withdraw, ended",
+      "route": "/institute/student-access",
+      "sources": ["apps/web/src/features/institute/ia-04-student-access"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-04-student-access/1440.png",
+          "1-screens-four-widths/IA-04-student-access/1024.png",
+          "1-screens-four-widths/IA-04-student-access/768.png",
+          "1-screens-four-widths/IA-04-student-access/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-05",
+      "state": "Give students access: steps with your selection beside them, review, group review, result, failure, paused",
+      "route": "/institute/student-access/give",
+      "sources": ["apps/web/src/features/institute/ia-05-give-access"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-05-give-students-access/1440.png",
+          "1-screens-four-widths/IA-05-give-students-access/1024.png",
+          "1-screens-four-widths/IA-05-give-students-access/768.png",
+          "1-screens-four-widths/IA-05-give-students-access/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-06",
+      "state": "People · Students: the roster, filters, no match, empty",
+      "route": "/institute/people",
+      "sources": ["apps/web/src/features/institute/ia-06-people"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-06-people-students/1440.png",
+          "1-screens-four-widths/IA-06-people-students/1024.png",
+          "1-screens-four-widths/IA-06-people-students/768.png",
+          "1-screens-four-widths/IA-06-people-students/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-07",
+      "state": "Student record: access, groups, devices; none, inactive, overlap, deactivated",
+      "route": "/institute/people/students/{studentId}",
+      "sources": ["apps/web/src/features/institute/ia-07-student-record"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-07-student-record/1440.png",
+          "1-screens-four-widths/IA-07-student-record/1024.png",
+          "1-screens-four-widths/IA-07-student-record/768.png",
+          "1-screens-four-widths/IA-07-student-record/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-08",
+      "state": "People · Faculty: the faculty list, empty",
+      "route": "/institute/people?tab=faculty",
+      "sources": ["apps/web/src/features/institute/ia-08-faculty"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-08-people-faculty/1440.png",
+          "1-screens-four-widths/IA-08-people-faculty/1024.png",
+          "1-screens-four-widths/IA-08-people-faculty/768.png",
+          "1-screens-four-widths/IA-08-people-faculty/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-09",
+      "state": "Faculty record with courses taught; none, inactive",
+      "route": "/institute/people/faculty/{facultyId}",
+      "sources": ["apps/web/src/features/institute/ia-09-faculty-record"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-09-faculty-record/1440.png",
+          "1-screens-four-widths/IA-09-faculty-record/1024.png",
+          "1-screens-four-widths/IA-09-faculty-record/768.png",
+          "1-screens-four-widths/IA-09-faculty-record/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-10",
+      "state": "Add a student / a faculty member: form, errors, duplicate, added",
+      "route": "/institute/people/add",
+      "sources": ["apps/web/src/features/institute/ia-10-add-person"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-10-add-student/1440.png",
+          "1-screens-four-widths/IA-10-add-student/1024.png",
+          "1-screens-four-widths/IA-10-add-student/768.png",
+          "1-screens-four-widths/IA-10-add-student/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-11",
+      "state": "Import students (CSV): file, errors, duplicates, confirm, done",
+      "route": "/institute/people/import",
+      "sources": ["apps/web/src/features/institute/ia-11-import-students"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-11-import-students/1440.png",
+          "1-screens-four-widths/IA-11-import-students/1024.png",
+          "1-screens-four-widths/IA-11-import-students/768.png",
+          "1-screens-four-widths/IA-11-import-students/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-13",
+      "state": "People · Groups: groups, create, empty",
+      "route": "/institute/people?tab=groups",
+      "sources": ["apps/web/src/features/institute/ia-13-groups"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-13-people-groups/1440.png",
+          "1-screens-four-widths/IA-13-people-groups/1024.png",
+          "1-screens-four-widths/IA-13-people-groups/768.png",
+          "1-screens-four-widths/IA-13-people-groups/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-14",
+      "state": "Group: members and access; adding, late, remove, rename, empty",
+      "route": "/institute/people/groups/{groupId}",
+      "sources": ["apps/web/src/features/institute/ia-14-group"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-14-group/1440.png",
+          "1-screens-four-widths/IA-14-group/1024.png",
+          "1-screens-four-widths/IA-14-group/768.png",
+          "1-screens-four-widths/IA-14-group/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-15",
+      "state": "People · Faculty courses: who teaches what; assigned, error, warning",
+      "route": "/institute/people?tab=courses",
+      "sources": ["apps/web/src/features/institute/ia-15-faculty-courses"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-15-people-faculty-courses/1440.png",
+          "1-screens-four-widths/IA-15-people-faculty-courses/1024.png",
+          "1-screens-four-widths/IA-15-people-faculty-courses/768.png",
+          "1-screens-four-widths/IA-15-people-faculty-courses/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-16",
+      "state": "Content access · Course codes: institution codes; missing, error",
+      "route": "/institute/content-access?tab=codes",
+      "sources": ["apps/web/src/features/institute/ia-16-course-codes"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-16-content-access-course-codes/1440.png",
+          "1-screens-four-widths/IA-16-content-access-course-codes/1024.png",
+          "1-screens-four-widths/IA-16-content-access-course-codes/768.png",
+          "1-screens-four-widths/IA-16-content-access-course-codes/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-17",
+      "state": "Requests to BITS: list, form, renew, sent, review, information, payment, active",
+      "route": "/institute/requests, /institute/requests/{requestId}",
+      "sources": ["apps/web/src/features/institute/ia-17-requests"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-17-requests-to-bits/1440.png",
+          "1-screens-four-widths/IA-17-requests-to-bits/1024.png",
+          "1-screens-four-widths/IA-17-requests-to-bits/768.png",
+          "1-screens-four-widths/IA-17-requests-to-bits/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-18",
+      "state": "Device requests: the list, empty",
+      "route": "/institute/requests?tab=devices",
+      "sources": ["apps/web/src/features/institute/ia-18-device-requests"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-18-device-requests/1440.png",
+          "1-screens-four-widths/IA-18-device-requests/1024.png",
+          "1-screens-four-widths/IA-18-device-requests/768.png",
+          "1-screens-four-widths/IA-18-device-requests/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-19",
+      "state": "Device request — review and forward: dialog, forwarded, decided, paused",
+      "route": "/institute/requests/devices/{transferId}",
+      "sources": ["apps/web/src/features/institute/ia-19-device-request"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-19-device-request-review/1440.png",
+          "1-screens-four-widths/IA-19-device-request-review/1024.png",
+          "1-screens-four-widths/IA-19-device-request-review/768.png",
+          "1-screens-four-widths/IA-19-device-request-review/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "IA-20",
+      "state": "Usage: by course, empty, paused",
+      "route": "/institute/usage",
+      "sources": ["apps/web/src/features/institute/ia-20-usage"],
+      "reference": {
+        "archive": "XR-V3-IA-Final-source.zip",
+        "archiveSha256": "055511089966bdcdeee574b646f17251f854338e318ff0edf58006b90a59787e",
+        "revision": "IA-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb Version 15)",
+        "renders": "XR-V3-IA-Final-screenshots.zip (SHA-256 3998c1106a3ad0f28da18bf1922c1066c6a24287c90e0d414a86305fd7491167; named states, interaction states, sample worlds and canvas boards beside the four-width screens) and XR-V3-IA-Final-review-evidence.zip (SHA-256 7cc34867d4715d300ae3fccd8b0efa12ef0b4ece1cb8afec08235f4f305debd3), kept by the owner",
+        "file": "design/v3-refined-b/roles/IA-v1/project/Main.dc.html",
+        "compared": [
+          "1-screens-four-widths/IA-20-usage/1440.png",
+          "1-screens-four-widths/IA-20-usage/1024.png",
+          "1-screens-four-widths/IA-20-usage/768.png",
+          "1-screens-four-widths/IA-20-usage/375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample worlds, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
     }
   ],
   "foundationEvidence": {
@@ -2944,5 +3456,11 @@
     "tool": "tools/v3-reference/capture-product.mjs",
     "measured": "9 Academic Reviewer cases × 4 widths (36 captures): Overview, Review queue, Reviewed by me, a submission needing learning outcomes, a re-check, the return errors, the decided submission (SUB-0070, its three outcomes), the decided update with the Super Admin, the Menu drawer. No horizontal overflow, no clipped text (visually hidden words excluded), all Public Sans weights, no console error. No internal reference in words or accessible names except the sample world's seeded “Correction UPD-0004.” quote on the decided update page; a sweep of every reviewer screen and tab title finds the same (and “Correction UPD-0003.”).",
     "review": "Reviewed side by side with the export boards (RV, RV01–RV06 at their widths): layout, type, colour, spacing, icons, the desk, kind tags, identity cards and decision panel match. What differs is the sample content (the product's sample clock, 2 Oct 2026) and the differences listed under each RV entry."
+  },
+  "productEvidenceIA": {
+    "note": "Not baselines. Captures of the normal product build (next build + next start, port 3310, isolated verification copy) driven through the real UI by tools/v3-reference/capture-product.mjs (the IA_CASES, as V. Hegde, Malnad — the fresh sample world's Institute Admin with an active plan; Godavari exists only after the sample journey onboards it), 21 Oct 2026, full page at each width, device scale 1, reduced motion; run folder tools/v3-reference/.runs/2026-10-21T12-25-00-448Z-product (git-ignored).",
+    "tool": "tools/v3-reference/capture-product.mjs",
+    "measured": "10 Institute Admin cases × 4 widths (40 captures): Overview, Content access, Student access, Give students access, People, Add a student, Import students, Requests, Usage, the Menu drawer. No horizontal overflow, no clipped text, all Public Sans weights, no console error, no internal reference. A sweep of every list page and the record pages they link to (plans, students, faculty, groups, requests, device requests), as Malnad (active) and Deccan (paused by BITS), finds no reference in words, accessible names or tab titles.",
+    "review": "Reviewed side by side with the export's four-width renders (1-screens-four-widths/IA-*): the attention list, plan card and term bar, plan strips, grouped tables, management toolbars with counted segments, steps and record grids match. What differs is the sample content and the differences listed in IA-INTEGRATION-RECORD.md §5."
   }
 }

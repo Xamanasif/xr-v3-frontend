@@ -1,42 +1,55 @@
 'use client';
 
 import type { ContentAccessRow } from '@xr/contracts/draft';
-import { inDisplayOrder, type Technology } from '@xr/domain';
 import {
   Button,
-  type FilterChip,
-  FormatSet,
-  type FormatCode,
-  Icon,
-  Link,
-  ListToolbar,
-  Notice,
-  PageContent,
-  PageHeader,
-  SectionTabs,
-  Skeleton,
-} from '@xr/ui';
-import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
+  ButtonLink,
+  ContentStack,
+  IaExperimentsMeta,
+  IaExperimentsTable,
+  type IaFilterChip,
+  IaFormatKey,
+  IaFormatList,
+  IaManageFilters,
+  IaManageFoot,
+  IaManageSearch,
+  IaManageSelect,
+  IaManageStatus,
+  IaManageSurface,
+  IaManageTools,
+  IaPlanFacts,
+  IaPlanStrip,
+  IaPlanStripId,
+  IaPlanStripNote,
+  IaPlanStripRow,
+  IaPlanStripView,
+  IaTermBar,
+  LinkTabs,
+  ListState,
+  LoadingRows,
+  PageHead,
+  Surface,
+} from '@xr/ui/v3';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { COURSE_CODES_TAB } from '@/copy/course-codes';
 import {
-  ACCESS_PLAN_LABEL,
-  accessPlanName,
+  addCodeLabel,
   CONTENT_ACCESS_WORDS,
   CONTENT_STATUS_FILTERS,
   contentCountWords,
   type ContentStatusFilter,
   endsOnTitle,
-  experimentsHeldCaption,
+  formatsOfLabel,
   giveAccessLabel,
   INSTITUTE_ACTIONS,
-  noContentLine,
-  notInPlanWords,
   PLAN_NOTICES,
-  planBandLine,
+  PLAN_WORDS,
+  removeFilterLabel,
   searchChip,
   statusChip,
-  studentsGivenWords,
+  studentsGivenLabel,
+  studentsWords,
   viewPlanLabel,
 } from '@/copy/institute-home';
 import { REQUEST_ACTIONS } from '@/copy/institute-requests';
@@ -49,47 +62,51 @@ import {
   STUDENT_ACCESS_ADDRESS,
   tabPlacement,
 } from '@/nav/institute';
-import { INSTITUTE_REQUESTS_ADDRESS } from '@/nav/institute-requests';
+import { INSTITUTE_REQUESTS_ADDRESS, instituteRequestAddress } from '@/nav/institute-requests';
 import { useAppNavigation } from '@/nav/navigation';
 import { useContentAccess, useInstituteOverview } from '@/queries/institute-home';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { useInstitutionPaused } from '../ia-06-people/paused';
 import { CourseCodesTab } from '../ia-16-course-codes/course-codes';
-import {
-  type ContentRowView,
-  type CourseGroupView,
-  contentAccessView,
-  type PlanSectionView,
-} from './content-access-view';
-import { LoadFailed, PlanStatusPill } from './institute-parts';
+import { useInstitutionPaused } from '../shared/paused';
+import { contentAccessView, type CourseGroupView, type PlanStanding } from './content-access-view';
+import { formatFactsOf, pausedAtOf, termBarOf } from './plan-facts';
+import { PlanPill } from './plan-pills';
+import { usePlanToday } from './plan-today';
 
-const code = (format: Technology) => format.toUpperCase() as FormatCode;
-
-const SEARCH_ID = 'content-access-search';
+const TITLE_ID = 'ia-h1';
+const SEARCH_ID = 'ca-q';
+const STATUS_ID = 'ca-st';
+const LIST_ID = 'xs-h';
+const NO_CONTENT_ID = 'ca-none-t';
+const FAILED_ID = 'ca-fail-t';
 
 type ContentTab = 'experiments' | 'course-codes';
 
 /**
- * IA-02 Content access — board B2-02 ("What has BITS given my institution to use?"), at
- * `/institute/content-access`, and its Course codes tab IA-16 (B2-03 f6 … f10,
- * `?tab=course-codes`; Package 2B). Any other `tab` shows Experiments and the address becomes the
- * bare `/institute/content-access` (state-copy `IA-16.tab-address`).
+ * IA-02 Content access › Experiments — the V3 Refined B design (the owner-approved export
+ * design/v3-refined-b/roles/IA-v1, `Main.dc.html` IA-02 and `vm02core` / `vm02`), at
+ * `/institute/content-access`, and the page that hosts its Course codes tab IA-16
+ * (`?tab=course-codes`). Any other `tab` shows Experiments and the address becomes the bare
+ * `/institute/content-access` (state-copy `IA-16.tab-address`).
  *
  * - **Read**: `InstitutionService.listContentAccess` — per course, the plans that hold its
  *   experiments (status and days left on the sample clock) and one row per plan item: the formats
- *   in the plan, the published formats it leaves out ("AR is published but not in your plan",
- *   ACC-10) and how many students an active grant of that plan gives it to now — people, never
- *   licences (T-06). Licence figures are shown as approved; there is no amend control (T-08).
- * - **As B2-02 draws it**: the header, the section tabs ("Experiments · Course codes"), the
- *   Search and Status filters with the count, chips
- *   and "Clear filters" (state-copy `IA-02.filters`), then one section per plan — its band with
- *   "View plan" (IA-03), its notice (ending soon f3, ended f4, paused f5), each course group with
- *   its code line and the experiments table. Rows open the plan (IA-03), the count opens Student
- *   access (IA-04), "Give access" opens IA-05 with the course and experiment chosen; none while
- *   the plan has ended or is paused, nor the header's "Give students access".
- * - **States**: loading (f8), failed with "Try again" (f9), no match with "Clear filters" (f7),
- *   and "No content yet" before any plan (f6; not reachable in the sample world, INST-04).
+ *   in the plan, the published formats it leaves out (ACC-10) and how many students an active
+ *   grant of that plan gives it to now — people, never licences (T-06). Licences are shown as
+ *   approved; there is no amend control (T-08).
+ * - **As the export draws it**: the head ("Give students access", secondary here so each row's
+ *   action reads as the clear one), the tabs, one plan strip per plan on the plan tint (status,
+ *   "120 as approved by BITS", the yearly term bar, View plan; the ending-soon, ended and paused
+ *   notes as bands inside it), then one list surface: search and status in one row, the format key
+ *   and the count, chips with Clear filters, and the experiments grouped by course (BITS code,
+ *   course, your code or "not added" with Add code) — each with its status, its four format badges,
+ *   the students given access (a link to Student access) and Give access.
+ * - **States**: loading, failed with Try again (focus to the title), no match with "Show all
+ *   experiments", and "No content yet" before any plan (not reachable in the sample world,
+ *   INST-04), each as the export draws it.
+ * - No internal reference (ACC-, REQ-) in its words or names (state-copy `IA-plan.no-reference`):
+ *   "View plan" is named by the plan's term.
  */
 export function ContentAccess() {
   const navigation = useAppNavigation();
@@ -104,93 +121,145 @@ export function ContentAccess() {
       ? tabPlacement('IA-16', COURSE_CODES_TAB.tab)
       : destinationPlacement('IA-02'),
   );
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const today = usePlanToday();
   const paused = useInstitutionPaused();
   const read = useContentAccess();
   const rows = read.data?.ok ? read.data.value : null;
   const failed = read.isError || (read.data !== undefined && !read.data.ok);
-  const loading = !failed && rows === null;
+  const view = rows === null ? null : contentAccessView(rows, { search: '', status: 'all' });
+  // The head's "Give students access" while some plan's experiments can be given (none while
+  // paused, ended, loading, failed or before any plan).
+  const showGive = view !== null && view.anyGivable && !paused;
 
+  const retry = () => {
+    void read.refetch();
+    titleRef.current?.focus();
+  };
+
+  let body;
   if (tab === 'course-codes') {
-    // B2-03 f6 keeps the header's "Give students access" while something can be given (f9: none
-    // while paused).
-    const givable =
-      rows !== null && !paused && contentAccessView(rows, { search: '', status: 'all' }).anyGivable;
-    return (
-      <PageContent wrap="wide">
-        <Header showGive={givable} tab="course-codes" />
-        <CourseCodesTab paused={paused} />
-      </PageContent>
+    body = <CourseCodesTab paused={paused} titleRef={titleRef} />;
+  } else if (failed) {
+    body = (
+      <Surface labelledBy={FAILED_ID}>
+        <ListState
+          kind="failed"
+          titleAs="h2"
+          titleId={FAILED_ID}
+          title={CONTENT_ACCESS_WORDS.failedTitle}
+          action={<Button onClick={retry}>{CONTENT_ACCESS_WORDS.tryAgain}</Button>}
+        >
+          {CONTENT_ACCESS_WORDS.failedLine}
+        </ListState>
+      </Surface>
     );
+  } else if (rows === null) {
+    body = (
+      <Surface label={CONTENT_ACCESS_WORDS.title} busy>
+        <LoadingRows message={CONTENT_ACCESS_WORDS.loading} rows={2} cells={[2, 1, 1, 1, 1]} />
+      </Surface>
+    );
+  } else if (rows.length === 0) {
+    body = <NoContentYet />;
+  } else {
+    body = <ContentList rows={rows} />;
   }
 
   return (
-    <PageContent wrap="wide">
-      {failed ? (
-        <>
-          <Header showGive={false} />
-          <LoadFailed
-            title={CONTENT_ACCESS_WORDS.failedTitle}
-            onRetry={() => {
-              void read.refetch();
-            }}
-          />
-        </>
-      ) : loading || rows === null ? (
-        <>
-          <Header showGive={false} />
-          <LoadingRows />
-        </>
-      ) : rows.length === 0 ? (
-        <>
-          <Header showGive={false} />
-          <NoContentYet />
-        </>
-      ) : (
-        <ContentList rows={rows} />
-      )}
-    </PageContent>
-  );
-}
-
-/** B2-02 / B2-03 header and section tabs ("Experiments · Course codes"). */
-function Header({
-  showGive,
-  tab = 'experiments',
-}: {
-  readonly showGive: boolean;
-  readonly tab?: ContentTab;
-}) {
-  return (
     <>
-      <PageHeader
-        className="mb-4"
+      <PageHead
         title={CONTENT_ACCESS_WORDS.title}
-        meta={CONTENT_ACCESS_WORDS.meta}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        titleFocusTarget
+        date={today.line}
+        lead={CONTENT_ACCESS_WORDS.meta}
         actions={
           showGive ? (
-            <Link className="xr-btn xr-btn--primary" href={giveAccessAddress()}>
+            <ButtonLink href={giveAccessAddress()} size="lg">
               {INSTITUTE_ACTIONS.giveStudentsAccess}
-            </Link>
+            </ButtonLink>
           ) : null
         }
       />
-      <SectionTabs
-        label={CONTENT_ACCESS_WORDS.tabsLabel}
-        tabs={[
-          {
-            href: CONTENT_ACCESS_ADDRESS,
-            label: CONTENT_ACCESS_WORDS.experimentsTab,
-            current: tab === 'experiments',
-          },
-          {
-            href: COURSE_CODES_ADDRESS,
-            label: COURSE_CODES_TAB.tab,
-            current: tab === 'course-codes',
-          },
-        ]}
-      />
-      <div className="h-5" />
+      <ContentStack>
+        <LinkTabs
+          label={CONTENT_ACCESS_WORDS.tabsLabel}
+          tabs={[
+            {
+              href: CONTENT_ACCESS_ADDRESS,
+              label: CONTENT_ACCESS_WORDS.experimentsTab,
+              current: tab === 'experiments',
+            },
+            {
+              href: COURSE_CODES_ADDRESS,
+              label: COURSE_CODES_TAB.tab,
+              current: tab === 'course-codes',
+            },
+          ]}
+        />
+        {body}
+      </ContentStack>
     </>
+  );
+}
+
+/** One plan strip on the plan tint: the plan, licences, term, View plan, and its note. */
+function PlanStrip({
+  standing,
+  index,
+}: {
+  readonly standing: PlanStanding;
+  readonly index: number;
+}) {
+  const { plan, status, daysLeft } = standing;
+  const titleId = index === 0 ? 'cp-h' : `cp-h-${index}`;
+  const term = termBarOf(plan, status, daysLeft, pausedAtOf(plan));
+  const renewal = { label: REQUEST_ACTIONS.requestRenewal, href: INSTITUTE_REQUESTS_ADDRESS };
+  return (
+    <IaPlanStrip titleId={titleId}>
+      <IaPlanStripRow>
+        <IaPlanStripId
+          title={PLAN_WORDS.accessPlan}
+          titleId={titleId}
+          status={<PlanPill status={status} />}
+        />
+        <IaPlanFacts
+          place="strip"
+          facts={[{ term: PLAN_WORDS.licences, value: plan.licences, sub: PLAN_WORDS.asApproved }]}
+        />
+        <IaTermBar {...term} place="strip" />
+        <IaPlanStripView
+          link={{
+            label: CONTENT_ACCESS_WORDS.viewPlan,
+            href: accessPlanAddress(plan.id),
+            accessibleName: viewPlanLabel(plan),
+          }}
+        />
+      </IaPlanStripRow>
+      {status === 'ending-soon' ? (
+        <IaPlanStripNote
+          tone="warn"
+          title={endsOnTitle(plan.endsOn)}
+          line={PLAN_NOTICES.endingSoonLine}
+          action={renewal}
+        />
+      ) : status === 'access-ended' ? (
+        <IaPlanStripNote
+          tone="off"
+          title={PLAN_NOTICES.contentEndedTitle}
+          line={PLAN_NOTICES.contentEndedLine}
+          action={renewal}
+        />
+      ) : status === 'paused' ? (
+        <IaPlanStripNote
+          tone="paused"
+          title={PLAN_NOTICES.pausedTitle}
+          line={PLAN_NOTICES.contentPausedLine}
+        />
+      ) : null}
+    </IaPlanStrip>
   );
 }
 
@@ -199,306 +268,211 @@ function ContentList({ rows }: { readonly rows: readonly ContentAccessRow[] }) {
   const [status, setStatus] = useState<ContentStatusFilter>('all');
   const view = contentAccessView(rows, { search, status });
 
-  const chips: FilterChip[] = [];
+  const chips: IaFilterChip[] = [];
   if (search.trim() !== '') {
-    chips.push({ key: 'search', label: searchChip(search), onRemove: () => setSearch('') });
+    const label = searchChip(search);
+    chips.push({
+      key: 'search',
+      label,
+      removeLabel: removeFilterLabel(label),
+      onRemove: () => setSearch(''),
+      focusId: SEARCH_ID,
+    });
   }
   if (status !== 'all') {
-    chips.push({ key: 'status', label: statusChip(status), onRemove: () => setStatus('all') });
+    const label = statusChip(status);
+    chips.push({
+      key: 'status',
+      label,
+      removeLabel: removeFilterLabel(label),
+      onRemove: () => setStatus('all'),
+      focusId: STATUS_ID,
+    });
   }
   const clearFilters = () => {
     setSearch('');
     setStatus('all');
   };
 
-  // "Clear filters" in the no-match state goes with that state: if it had focus, focus moves to
-  // the search box once the button has gone (as SA-06 moves it on), and only if focus was lost.
-  const pressed = useRef<HTMLElement | null>(null);
-  const clearFromNoMatch = () => {
-    const active = document.activeElement;
-    pressed.current =
-      active instanceof HTMLElement && active.closest('.xr-empty') !== null ? active : null;
-    clearFilters();
-  };
+  // "Show all experiments" goes with the no-match state: once it has gone, focus moves to the
+  // search (the export's `clearAll` → `focusLater('ca-q')`).
+  const focusSearch = useRef(false);
   useLayoutEffect(() => {
-    const control = pressed.current;
-    if (control === null || control.isConnected) return;
-    pressed.current = null;
-    const active = document.activeElement;
-    if (active && active !== document.body && active.isConnected) return;
+    if (!focusSearch.current) return;
+    focusSearch.current = false;
     document.getElementById(SEARCH_ID)?.focus();
   });
 
   return (
     <>
-      <Header showGive={view.anyGivable} />
-      <ListToolbar
-        search={{
-          id: SEARCH_ID,
-          label: CONTENT_ACCESS_WORDS.searchLabel,
-          placeholder: CONTENT_ACCESS_WORDS.searchPlaceholder,
-          value: search,
-          onChange: setSearch,
-        }}
-        filters={[
-          {
-            id: 'content-access-status',
-            label: CONTENT_ACCESS_WORDS.statusLabel,
-            options: CONTENT_STATUS_FILTERS.map((value) => ({
-              value,
-              label: CONTENT_ACCESS_WORDS.statusOptions[value],
-            })),
-            value: status,
-            onChange: (value) => setStatus(value as ContentStatusFilter),
-          },
-        ]}
-        status={contentCountWords(view.shown, view.total, view.courses, chips.length > 0)}
-        chips={chips}
-        clearLabel={CONTENT_ACCESS_WORDS.clearFilters}
-        onClearFilters={chips.length > 0 ? clearFilters : undefined}
-      />
-      {view.sections.length > 0 ? (
-        <div className="flex flex-col gap-6">
-          {view.sections.map((section) => (
-            <PlanSection key={section.standing.plan.id} section={section} />
-          ))}
-        </div>
-      ) : (
-        <div className="xr-section">
-          <div className="xr-empty">
-            <span className="xr-empty-icon">
-              <Icon name="search" />
-            </span>
-            <h2 className="xr-h3 m-0">{CONTENT_ACCESS_WORDS.noMatch}</h2>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="secondary" onClick={clearFromNoMatch}>
-                {CONTENT_ACCESS_WORDS.clearFilters}
+      {view.plans.map((standing, index) => (
+        <PlanStrip key={standing.plan.id} standing={standing} index={index} />
+      ))}
+      <IaManageSurface labelledBy={LIST_ID} hiddenTitle={CONTENT_ACCESS_WORDS.listHeading}>
+        <IaManageTools>
+          <IaManageFilters label={CONTENT_ACCESS_WORDS.toolsLabel}>
+            <IaManageSearch
+              id={SEARCH_ID}
+              label={CONTENT_ACCESS_WORDS.searchLabel}
+              placeholder={CONTENT_ACCESS_WORDS.searchPlaceholder}
+              value={search}
+              onChange={setSearch}
+            />
+            <IaManageSelect
+              id={STATUS_ID}
+              label={CONTENT_ACCESS_WORDS.statusLabel}
+              value={status}
+              options={CONTENT_STATUS_FILTERS.map((value) => ({
+                value,
+                label: CONTENT_ACCESS_WORDS.statusOptions[value],
+              }))}
+              onChange={(value) => setStatus(value as ContentStatusFilter)}
+            />
+          </IaManageFilters>
+          <IaExperimentsMeta
+            formatKey={
+              <IaFormatKey
+                label={PLAN_WORDS.formatsKey}
+                listLabel={PLAN_WORDS.formatKeyLabel}
+                inPlan={PLAN_WORDS.inYourPlan}
+                published={PLAN_WORDS.publishedNotInPlan}
+                notPublished={PLAN_WORDS.notPublished}
+              />
+            }
+            count={contentCountWords(view.shown, view.total, view.courses, chips.length > 0)}
+          />
+          {chips.length > 0 ? (
+            <IaManageStatus
+              chips={chips}
+              clearLabel={CONTENT_ACCESS_WORDS.clearFilters}
+              onClear={clearFilters}
+              clearFocusId={SEARCH_ID}
+            />
+          ) : null}
+        </IaManageTools>
+        {view.groups.length > 0 ? (
+          <>
+            <ExperimentsTable groups={view.groups} />
+            <IaManageFoot>{CONTENT_ACCESS_WORDS.foot}</IaManageFoot>
+          </>
+        ) : (
+          <ListState
+            kind="nomatch"
+            title={CONTENT_ACCESS_WORDS.noMatch}
+            action={
+              <Button
+                onClick={() => {
+                  focusSearch.current = true;
+                  clearFilters();
+                }}
+              >
+                {CONTENT_ACCESS_WORDS.showAll}
               </Button>
-            </div>
-          </div>
-        </div>
-      )}
+            }
+          >
+            {CONTENT_ACCESS_WORDS.noMatchLine}
+          </ListState>
+        )}
+      </IaManageSurface>
     </>
   );
 }
 
-/** One plan: its band, then each course group (B2-02 `section[aria-label="Access plan …"]`). */
-function PlanSection({ section }: { readonly section: PlanSectionView }) {
-  const { plan, status, daysLeft } = section.standing;
+/** The experiments grouped by course, one row per plan experiment. */
+function ExperimentsTable({ groups }: { readonly groups: readonly CourseGroupView[] }) {
+  const { columns } = CONTENT_ACCESS_WORDS;
   return (
-    <section className="xr-section" aria-label={accessPlanName(plan.id)}>
-      <div className="xw-plan">
-        <div className="xw-plan-main">
-          <strong>
-            {ACCESS_PLAN_LABEL} <span className="xr-id text-ink">{plan.id}</span>
-          </strong>
-          <PlanStatusPill status={status} />
-          <span className="xr-num">
-            {planBandLine(plan, status === 'ending-soon' ? daysLeft : null)}
-          </span>
-        </div>
-        <Link
-          className="xr-btn xr-btn--secondary xr-btn--sm"
-          href={accessPlanAddress(plan.id)}
-          aria-label={viewPlanLabel(plan.id)}
-        >
-          {CONTENT_ACCESS_WORDS.viewPlan}
-        </Link>
-      </div>
-      {section.courses.map((group, index) => (
-        <Fragment key={group.course.id}>
-          <CourseHead group={group} />
-          {index === 0 ? <PlanNotice section={section} /> : null}
-          <ExperimentsTable group={group} />
-        </Fragment>
-      ))}
-    </section>
-  );
-}
-
-/** B2-02 course group head: the course, its platform code and the institution's own code. */
-function CourseHead({ group }: { readonly group: CourseGroupView }) {
-  return (
-    <div className="xw-cgroup-head">
-      <h3 className="xr-h2 m-0">{group.course.name}</h3>
-      <div className="xw-cgroup-code">
-        {group.course.platformCode ? (
-          <>
-            <span className="xr-id">{group.course.platformCode}</span>
-            <span aria-hidden="true">·</span>
-          </>
-        ) : null}
-        {/* A code record cleared on IA-16 keeps no code: "not added" again (Package 2B). */}
-        {group.institutionCode?.code ? (
-          <span>
-            {CONTENT_ACCESS_WORDS.yourCode}{' '}
-            <strong className="text-ink">{group.institutionCode.code}</strong>
-          </span>
-        ) : (
-          // Package 2B: "Add code" opens Course codes (IA-16).
-          <>
-            <span className="xw-tag xw-tag--warn">
-              <Icon name="warning" />
-              {CONTENT_ACCESS_WORDS.codeNotAdded}
-            </span>
-            <Link href={COURSE_CODES_ADDRESS}>{CONTENT_ACCESS_WORDS.addCode}</Link>
-          </>
-        )}
-      </div>
-    </div>
+    <IaExperimentsTable
+      caption={CONTENT_ACCESS_WORDS.caption}
+      headers={{
+        experiment: columns.experiment,
+        formats: columns.formats,
+        given: columns.studentsGiven,
+        action: columns.action,
+      }}
+      courses={groups.map((group) => {
+        const own = group.institutionCode?.code;
+        const code = group.course.platformCode;
+        return {
+          key: group.course.id,
+          headId: `ca-c-${group.course.id}`,
+          ...(code ? { code } : {}),
+          name: group.course.name,
+          ownCode: own
+            ? { label: PLAN_WORDS.yourCourseCode, code: own }
+            : {
+                missing: PLAN_WORDS.codeNotAdded,
+                add: {
+                  label: CONTENT_ACCESS_WORDS.addCode,
+                  href: COURSE_CODES_ADDRESS,
+                  accessibleName: addCodeLabel(code, group.course.name),
+                },
+              },
+          rows: group.rows.map((row) => ({
+            key: `${row.planId}:${row.experimentId}`,
+            name: row.name,
+            status: <PlanPill status={row.status} />,
+            formats: (
+              <IaFormatList
+                label={formatsOfLabel(row.name)}
+                cells={formatFactsOf(row.formats, row.publishedNotInPlan).cells}
+              />
+            ),
+            given:
+              row.studentsGiven > 0
+                ? {
+                    label: columns.studentsGiven,
+                    link: {
+                      label: studentsWords(row.studentsGiven),
+                      href: STUDENT_ACCESS_ADDRESS,
+                      accessibleName: studentsGivenLabel(row.studentsGiven, row.name),
+                    },
+                  }
+                : { none: CONTENT_ACCESS_WORDS.noneYet },
+            ...(row.givable
+              ? {
+                  action: {
+                    label: CONTENT_ACCESS_WORDS.giveAccess,
+                    href: giveAccessAddress({
+                      course: group.course.id,
+                      experiment: row.experimentId,
+                    }),
+                    accessibleName: giveAccessLabel(row.name),
+                  },
+                }
+              : {}),
+          })),
+        };
+      })}
+    />
   );
 }
 
 /**
- * The plan's notice (B2-02 f3 ending soon, f4 ended, f5 paused), under its first course group's
- * head. "Request renewal" opens Requests (IA-17, Phase 3).
- */
-function PlanNotice({ section }: { readonly section: PlanSectionView }) {
-  const { plan, status } = section.standing;
-  const renewal = <Link href={INSTITUTE_REQUESTS_ADDRESS}>{REQUEST_ACTIONS.requestRenewal}</Link>;
-  const notice =
-    status === 'ending-soon' ? (
-      <Notice tone="warn" icon="clock" title={endsOnTitle(plan.endsOn)} actions={renewal}>
-        {PLAN_NOTICES.endingSoonLine}
-      </Notice>
-    ) : status === 'access-ended' ? (
-      <Notice tone="quiet" title={PLAN_NOTICES.contentEndedTitle} actions={renewal}>
-        {PLAN_NOTICES.contentEndedLine}
-      </Notice>
-    ) : status === 'paused' ? (
-      <Notice tone="warn" icon="readOnly" title={PLAN_NOTICES.pausedTitle}>
-        {PLAN_NOTICES.pausedLine}
-      </Notice>
-    ) : null;
-  return notice ? <div className="px-6 pb-5">{notice}</div> : null;
-}
-
-/** B2-02 table: "Experiment · Formats in your plan · Status · Students given access · (Action)". */
-function ExperimentsTable({ group }: { readonly group: CourseGroupView }) {
-  const { columns } = CONTENT_ACCESS_WORDS;
-  return (
-    <div className="xr-table-wrap xw-table-flush">
-      <table className="xr-table">
-        <caption className="xr-sr">
-          {experimentsHeldCaption(group.course.platformCode ?? group.course.name)}
-        </caption>
-        <thead>
-          <tr>
-            <th scope="col">{columns.experiment}</th>
-            <th scope="col">{columns.formats}</th>
-            <th scope="col">{columns.status}</th>
-            <th scope="col">{columns.studentsGiven}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {group.rows.map((row) => (
-            <ExperimentRow
-              key={`${row.planId}:${row.experimentId}`}
-              row={row}
-              courseId={group.course.id}
-            />
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function ExperimentRow({
-  row,
-  courseId,
-}: {
-  readonly row: ContentRowView;
-  readonly courseId: string;
-}) {
-  const { columns } = CONTENT_ACCESS_WORDS;
-  const notInPlan = inDisplayOrder(row.publishedNotInPlan);
-  return (
-    <tr>
-      <td className="is-primary">
-        <Link href={accessPlanAddress(row.planId)} className="font-[700]">
-          {row.name}
-        </Link>
-      </td>
-      <td data-label={columns.formats}>
-        <FormatSet
-          compact
-          formats={[
-            ...inDisplayOrder(row.formats).map((format) => ({ format: code(format) })),
-            ...notInPlan.map((format) => ({ format: code(format), variant: 'off' as const })),
-          ]}
-        />
-        {notInPlan.length > 0 ? (
-          <span className="xw-sub mt-[6px]">{notInPlanWords(notInPlan)}</span>
-        ) : null}
-      </td>
-      <td data-label={columns.status}>
-        <PlanStatusPill status={row.status} />
-      </td>
-      <td data-label={columns.studentsGiven}>
-        {row.studentsGiven > 0 ? (
-          <Link href={STUDENT_ACCESS_ADDRESS}>{studentsGivenWords(row.studentsGiven)}</Link>
-        ) : (
-          studentsGivenWords(0)
-        )}
-      </td>
-      <td>
-        {row.givable ? (
-          <Link
-            className="xr-btn xr-btn--secondary xr-btn--sm"
-            href={giveAccessAddress({ course: courseId, experiment: row.experimentId })}
-            aria-label={giveAccessLabel(row.name)}
-          >
-            {CONTENT_ACCESS_WORDS.giveAccess}
-          </Link>
-        ) : null}
-      </td>
-    </tr>
-  );
-}
-
-/**
- * B2-02 f6 "No access plan yet": nothing to show before access is active. The request it names is
- * the one the institution was created from (`getMyOverview`); "View request status" (PU-10 from the
- * workspace) is not built in Package 2A.
+ * "No content yet" before any plan: nothing to show before access is active. "View request
+ * status" opens the request the institution was created from (`getMyOverview`) in Requests.
  */
 function NoContentYet() {
   const overview = useInstituteOverview();
   const reference = overview.data?.ok ? overview.data.value.institution.createdFromRequestId : null;
   return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="contentAccess" />
-        </span>
-        <h2 className="xr-h3 m-0">{CONTENT_ACCESS_WORDS.noContent}</h2>
-        {reference ? <p className="xr-body m-0 text-ink-2">{noContentLine(reference)}</p> : null}
-      </div>
-    </div>
-  );
-}
-
-/** B2-02 f8 "Loading": four skeleton rows, announced to screen readers. */
-function LoadingRows() {
-  return (
-    <div className="xr-table-wrap" aria-busy="true">
-      <span className="xr-sr" role="status">
-        {CONTENT_ACCESS_WORDS.loading}
-      </span>
-      {[0, 1, 2, 3].map((line) => (
-        <div
-          key={line}
-          className="grid grid-cols-[1.4fr_1fr_1fr_140px] gap-5 px-4 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-        >
-          <Skeleton />
-          <Skeleton />
-          <Skeleton />
-          <Skeleton />
-        </div>
-      ))}
-    </div>
+    <Surface labelledBy={NO_CONTENT_ID}>
+      <ListState
+        kind="none"
+        roomy
+        titleAs="h2"
+        titleId={NO_CONTENT_ID}
+        title={CONTENT_ACCESS_WORDS.noContent}
+        action={
+          reference ? (
+            <ButtonLink href={instituteRequestAddress(reference)}>
+              {REQUEST_ACTIONS.viewRequestStatus}
+            </ButtonLink>
+          ) : null
+        }
+      >
+        {CONTENT_ACCESS_WORDS.noContentLine}
+      </ListState>
+    </Surface>
   );
 }

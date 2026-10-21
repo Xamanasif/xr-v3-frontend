@@ -113,7 +113,7 @@ export function placeWordsOf(returnTo: string | null): string | null {
       if (outcome.screen === 'ST-01') return HOME_TITLE;
       // Phase 3: the hub's tabs and pages, and feedback, name My courses (experiments are
       // addressed by ids); Progress, My device and Usage name themselves; the Institute Admin's
-      // requests and the Super Admin's transfers add a drawn reference (REQ-0058, DTR-0018).
+      // requests and the Super Admin's transfers name their list (no reference: below).
       if (
         outcome.screen === 'ST-02' ||
         outcome.screen === 'ST-03' ||
@@ -199,13 +199,12 @@ export function placeWordsOf(returnTo: string | null): string | null {
       }
       if (outcome.screen === 'CM-04' || outcome.screen === 'CM-05') return CONTENT_LIBRARY_TITLE;
       if (outcome.screen === 'CM-09') return COURSE_CODES_TITLE;
-      if (outcome.screen === 'IA-17') {
-        return reference ? `${INSTITUTE_REQUESTS_TITLE} › ${reference}` : INSTITUTE_REQUESTS_TITLE;
-      }
+      // The Institute Admin's pages never show a request's or a device request's reference (the
+      // owner's identifier rule, state-copy `IA-17.no-reference`): a request's address names
+      // Requests alone, a device request's the Device requests tab under it.
+      if (outcome.screen === 'IA-17') return INSTITUTE_REQUESTS_TITLE;
       if (outcome.screen === 'IA-19') {
-        return reference
-          ? `${INSTITUTE_REQUESTS_TITLE} › ${DEVICE_REQUESTS_TITLE} › ${reference}`
-          : INSTITUTE_REQUESTS_TITLE;
+        return `${INSTITUTE_REQUESTS_TITLE} › ${DEVICE_REQUESTS_TITLE}`;
       }
       // The Super Admin's own records never show a reference (the owner-approved Super Admin
       // export, SA-v1 HANDOFF: "Internal references … never appear in visible text"): their

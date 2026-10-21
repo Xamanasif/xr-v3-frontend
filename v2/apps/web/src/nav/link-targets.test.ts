@@ -409,18 +409,16 @@ describe('the link-target ledger', () => {
       'PU-12: Continue to payment',
       // Package 2A: one primary per drawn state — IA-05 per step and its result; IA-06 per tab
       // (Students, and Faculty as IA-08); IA-07 active or inactive; IA-10 the form and its result.
+      // V3 (IA-v1): IA-02's head "Give students access" is secondary (each plan row's own action
+      // leads), and IA-16 draws only its save bar's "Save course code(s)"; IA-05's ended-plan
+      // "Request renewal" is the navy identity action, not a primary.
       'IA-01: Give students access',
-      'IA-02: Give students access',
-      // Package 2B: IA-16 draws two (B2-03 f6: the header's and the form's "Save course codes").
-      'IA-16: Give students access',
-      'IA-16: Save course codes',
+      'IA-16: Save course code · Save course codes',
       'IA-03: Give students access',
       'IA-04: Give students access',
       'IA-05: Continue',
       'IA-05: Give access',
       'IA-05: View Student access',
-      // Phase 3: f16's "Request renewal" opens Requests to BITS (IA-17).
-      'IA-05: Request renewal',
       'IA-06: Add student',
       'IA-08: Add faculty member',
       'IA-07: Give this student access',
@@ -428,13 +426,14 @@ describe('the link-target ledger', () => {
       'IA-10: Add student · Add faculty member',
       'IA-10: Give this student access',
       // Package 2B: IA-10's faculty result (B2-07 f3); IA-11 per step and its result; one each on
-      // IA-09, IA-13, IA-14 and IA-15.
+      // IA-09, IA-13, IA-14 and IA-15. V3 (IA-v1): IA-14's primary is "Give this group access"
+      // ("Add students" opens the add panel beside it).
       'IA-10: Assign a course',
       'IA-09: Assign a course',
       'IA-11: Check file · Choose the corrected file · Continue · Import N students',
       'IA-11: Give students access',
       'IA-13: Create group',
-      'IA-14: Add students',
+      'IA-14: Give this group access',
       'IA-15: Assign course',
       'ST-01: Open <experiment> · Continue <experiment>',
       // Phase 3: ST-05's Next step (one variant at a time), the hub tabs, the format pages,

@@ -24,8 +24,9 @@
 // It also writes the scoped derivative of each owner-approved role export's extension sheet
 // (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): XS-v6's xs-shared.css →
 // src/styles/v3/xs-scoped.css, SA-v1's sa-role.css → src/styles/v3/sa-scoped.css, VE-v1's
-// v3-vendor.css → src/styles/v3/ve-scoped.css, CM-v1's cm.css → src/styles/v3/cm-scoped.css and
-// RV-v1's rv.css → src/styles/v3/rv-scoped.css, with the same selector-only transform. Before anything is written, the export must name this foundation,
+// v3-vendor.css → src/styles/v3/ve-scoped.css, CM-v1's cm.css → src/styles/v3/cm-scoped.css,
+// RV-v1's rv.css → src/styles/v3/rv-scoped.css and IA-v1's ia-role.css →
+// src/styles/v3/ia-scoped.css, with the same selector-only transform. Before anything is written, the export must name this foundation,
 // its three base sheets must be the foundation's own bytes (a different base is a new foundation
 // version: STOP), and the extension sheet must match both the export's FOUNDATION-LOCK.json and
 // its checksums (the export's own SHA256SUMS.txt, or the list recorded at intake beside it).
@@ -438,6 +439,32 @@ export const ROLE_SHEETS = [
       'rv-formact, rv-solo*), which the delivered XS export draws, are left out.',
     ],
   },
+  {
+    /** The workstream: IA · Institute Admin (19 screens). */
+    role: 'IA',
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'IA-v1'),
+    /** The role extension sheet (every rule selects an `ia-` class). */
+    sheet: 'project/ia-role.css',
+    /** No SHA256SUMS.txt in the export: the list recorded at intake, `IA-v1.SHA256SUMS.txt`. */
+    sums: 'beside',
+    output: join(packageRoot, 'src', 'styles', 'v3', 'ia-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these (the export's COMPONENT-EXTENSIONS.md
+     * "Notices, shared and preview parts"): the preview chrome (`ia-pv*`: the role start page, the
+     * floating "Preview IA-xx" button, the handoff pages and the in-page notes that link to a
+     * documented handoff — "not product UI … must not be implemented in the app"; `ia-lt--pv`, the
+     * start page's preview index), and the borrowed XS surfaces — the account menu (`ia-acctwrap`,
+     * `ia-menu*`: "Borrowed XS-05 contract … Replace with the XS component at assembly") and the
+     * signed-out page (`ia-out*`: "Borrowed XS-03. Replace at assembly"). The delivered XS export
+     * (XS-v6) draws them. The borrowed Help pages (XS-07) reuse the role's list and form classes
+     * and add only `ia-lt--hp`, which the sheet never styles.
+     */
+    omit: /\.ia-(?:pv(?:-[\w-]+)?|lt--pv|acctwrap|menu(?:-[\w-]+)?|out(?:-[\w-]+)?)(?![\w-])/,
+    omitNote: [
+      'preview chrome (ia-pv*, ia-lt--pv) and its borrowed XS surfaces (ia-acctwrap, ia-menu*,',
+      'ia-out*), which the delivered XS export draws, are left out.',
+    ],
+  },
 ];
 
 /** Whether every selector of a rule names something its export says is not product UI. */
@@ -445,20 +472,27 @@ export function previewOnlyRule(role, prelude) {
   return splitTopLevel(prelude, ',').every((selector) => role.omit.test(selector));
 }
 
-/** The export's recorded SHA-256 of one of its base sheets, in any of the five lock layouts. */
+/** The export's recorded SHA-256 of one of its base sheets, in any of the six lock layouts. */
 function exportedBaseSheet(exportLock, sheet) {
   return (
     exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
     exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256 ??
     exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256 ??
     exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256 ??
-    exportLock.copiedBaseFiles?.[`project/${sheet}`]?.sha256
+    exportLock.copiedBaseFiles?.[`project/${sheet}`]?.sha256 ??
+    exportLock.byteIdenticalCopies?.[`project/${sheet}`]?.sha256
   );
 }
 
-/** The export's recorded SHA-256 of its extension sheet, in any of the five lock layouts. */
+/**
+ * The export's recorded SHA-256 of its extension sheet, in any of the six lock layouts: keyed by
+ * path or file name (a hash or `{ sha256 }`), or — IA-v1 — an array of `{ path, sha256 }` entries.
+ */
 function exportedLocalAddition(exportLock, sheet) {
-  const entry = exportLock.localAdditions?.[sheet] ?? exportLock.localAdditions?.[basename(sheet)];
+  const additions = exportLock.localAdditions;
+  const entry = Array.isArray(additions)
+    ? additions.find((addition) => addition?.path === sheet || addition?.path === basename(sheet))
+    : (additions?.[sheet] ?? additions?.[basename(sheet)]);
   return typeof entry === 'string' ? entry : entry?.sha256;
 }
 

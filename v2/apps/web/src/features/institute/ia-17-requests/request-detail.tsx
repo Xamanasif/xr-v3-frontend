@@ -3,23 +3,39 @@
 import type { RequesterRequestView } from '@xr/contracts/draft';
 import type { AccessPlan, RequestType } from '@xr/domain';
 import {
-  BackLink,
-  Link,
-  LoadingState,
+  Breadcrumbs,
+  Button,
+  ButtonLink,
+  DefinitionList,
+  IaFormatBadges,
+  IaRecordGrid,
+  IaRqMessage,
+  IaRqStands,
+  IaSectionBody,
+  ListState,
+  LoadingRows,
   Notice,
-  PageContent,
-  PageHeader,
-  Section,
+  PageHead,
   StatusPill,
+  Surface,
   Timeline,
-} from '@xr/ui';
-import { useMemo } from 'react';
+} from '@xr/ui/v3';
+import { Fragment, type ReactNode, useMemo } from 'react';
 
-import { askedTermWords, quoted, REQUEST_DETAIL, sentWords } from '@/copy/institute-requests';
-import { stateWords } from '@/copy/state-copy';
 import {
-  INSTITUTE_REQUESTS_ADDRESS,
+  formatsLabel,
+  informationLine,
+  planCreatedWords,
+  quoted,
+  REQUEST_DETAIL,
+  REQUESTS_PAGE,
+  sentWords,
+} from '@/copy/institute-requests';
+import { stateWords } from '@/copy/state-copy';
+import { accessPlanAddress } from '@/nav/institute';
+import {
   paymentPageAddress,
+  REQUESTS_CRUMB,
   requestDetailPlacement,
 } from '@/nav/institute-requests';
 import { useAppNavigation } from '@/nav/navigation';
@@ -27,40 +43,52 @@ import { useContentAccess } from '@/queries/institute-home';
 import { useInstitutionRequest, useInstitutionRequests } from '@/queries/institute-requests';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { LoadFailed } from '../ia-02-content-access/institute-parts';
+import { formatCodes } from '../shared/format-codes';
 import {
-  askedExperimentLines,
+  askedFacts,
+  createdPlanOf,
   type ExperimentNames,
+  informationAskedAt,
   plansOf,
   REQUEST_TONE,
+  requestFormats,
   requestHistoryLines,
+  requestStands,
   requestStatusWords,
   requestSummary,
   requestTitle,
-  requestTypeWords,
   sentAt,
 } from './request-view';
 import { useExperimentNames } from './use-experiment-names';
 
+const TITLE_ID = 'request-title';
+
 /**
- * IA-17's request detail — board B3-08 f4 … f6 (no screen id of its own, O-02; the register's
- * PROPOSED `/institute/requests/[requestId]`): one request to BITS as its requester reads it.
+ * IA-17's request detail in V3 (the owner-approved Institute Admin export, IA-v1 `Main.dc.html`
+ * "IA-17 detail", `vm17detail`; no screen id of its own, O-02; the register's PROPOSED
+ * `/institute/requests/[requestId]`): one request to BITS as its requester reads it.
  *
  * - **Reads**: `AccessRequestService.getInstitutionRequest` (the record's status, what was asked
  *   for, what BITS asked, the history; existence and scope are the adapter's answer — another
  *   institution's request is not found), the institution's request rows (`listInstitutionRequests`,
  *   for the request's kind), the published catalogue's names and the plans (`listContentAccess`,
- *   whose own history names a renewal's plan).
- * - **As B3-08 draws it**: back to Requests; "Request to BITS · REQ-0058", the title ("60 more
- *   licences"), the status chip and "Sent …"; "BITS asked for more information" with the reason
- *   quoted (f5 — no reply field: nothing leaves "Information requested", T-03); "Approved —
- *   payment required" with "Nothing changes until the payment is confirmed." and "Open the
- *   payment page" (f6), which opens PU-12 by the request's opaque address — the Institute Admin of
- *   the requesting institution may pay there (O-05; ADR-0009); "What you asked for" and "History".
- *   Undrawn states and words are provisional (state-copy `IA-17.detail.*`); a renewal or more
- *   licences never reads as a changed plan (OD-B3-09). The requester's own message shows as
- *   "Message to BITS" when the request carries one (PC-50; `IA-17.detail.message`).
- * - Nothing here writes: payment starts on PU-12 ("Continue to payment").
+ *   whose own history names a renewal's plan and whose source names the plan a request created).
+ * - **As the export draws it**, named by content, never by the reference (state-copy
+ *   `IA-17.no-reference`): the crumbs "Requests › <title>" (the browser tab too); "Request to
+ *   BITS", the title ("60 more licences", "Renewal of your access plan", "New access · <experiment>"),
+ *   the status and "Sent …"; "BITS asked for more information" with the reason quoted, when and
+ *   "Reply outside the platform; there is no reply form here." (T-03); "Approved — payment
+ *   required" with "Nothing changes until the payment is confirmed." and "Open the payment page"
+ *   (PU-12 by the request's opaque address — the Institute Admin of the requesting institution may
+ *   pay there, O-05; ADR-0009); "Access active" with the plan the request created and "View your
+ *   access plan"; then the record: "What you asked for" (the facts, the formats, the requester's
+ *   message, PC-50), "Where it stands" beside it (request, payment and access plan kept apart,
+ *   `IA-17.detail.stands`) and "History" below. A renewal or more licences never reads as a
+ *   changed plan (OD-B3-09).
+ * - Nothing here writes: payment starts on PU-12 ("Continue to payment"). Loading and a failed read
+ *   draw the V3 list states under the crumbs; another institution's or no request is the in-shell
+ *   not-found page (the export's "We can’t find that request" card is not adopted: the record
+ *   guard does not reveal existence).
  */
 export function InstituteRequestDetail({ requestId }: { readonly requestId: string }) {
   const request = useInstitutionRequest(requestId);
@@ -68,71 +96,143 @@ export function InstituteRequestDetail({ requestId }: { readonly requestId: stri
   const names = useExperimentNames();
   const content = useContentAccess();
   const view = request.data?.ok ? request.data.value : null;
-  useShellPage(requestDetailPlacement(view ? view.reference : null));
   const { notFound } = useAppNavigation();
   const plans = useMemo(
     () => (content.data?.ok ? plansOf(content.data.value) : []),
     [content.data],
   );
+  const ready = view !== null && !rows.isPending && !names.pending && !content.isPending;
+  const row =
+    ready && rows.data?.ok ? rows.data.value.find((entry) => entry.id === view.reference) : null;
+  // The list names the kind; a request it does not list reads by what it asked (a more-licences
+  // request asks no term of its own: "Current term").
+  const type: RequestType | null = view
+    ? (row?.type ??
+      (view.asked.term.kind === 'current-plan' ? 'additional-licences' : 'new-access'))
+    : null;
+  const title = ready && type ? requestTitle(type, view, names.byId, plans) : null;
+  useShellPage(requestDetailPlacement(title));
 
   if (request.isError || rows.isError) {
     return (
-      <PageContent wrap="read">
-        <BackLink href={INSTITUTE_REQUESTS_ADDRESS}>{REQUEST_DETAIL.back}</BackLink>
-        <div className="h-2" />
-        <LoadFailed
-          title={stateWords('IA-17.detail.failed')}
-          onRetry={() => {
-            void request.refetch();
-            void rows.refetch();
-          }}
-        />
-      </PageContent>
+      <>
+        <Breadcrumbs levels={[REQUESTS_CRUMB]} current={REQUEST_DETAIL.overline} />
+        <Surface>
+          <ListState
+            kind="failed"
+            titleAs="h2"
+            title={stateWords('IA-17.detail.failed')}
+            action={
+              <Button
+                onClick={() => {
+                  void request.refetch();
+                  void rows.refetch();
+                }}
+              >
+                {REQUESTS_PAGE.tryAgain}
+              </Button>
+            }
+          >
+            {REQUESTS_PAGE.failedLine}
+          </ListState>
+        </Surface>
+      </>
     );
   }
   if (request.data && !request.data.ok) notFound();
-  if (view === null || rows.isPending || names.pending || content.isPending) {
+  if (!ready || type === null || title === null) {
     return (
-      <PageContent wrap="read">
-        <LoadingState label={stateWords('IA-17.detail.loading')} surface="section" />
-      </PageContent>
+      <Surface busy>
+        <LoadingRows message={stateWords('IA-17.detail.loading')} cells={[2, 1]} rows={2} />
+      </Surface>
     );
   }
-  const row = rows.data?.ok ? rows.data.value.find((entry) => entry.id === view.reference) : null;
-  // The list names the kind; a request it does not list reads by what it asked (a more-licences
-  // request asks no term of its own: "Current term").
-  const type: RequestType =
-    row?.type ?? (view.asked.term.kind === 'current-plan' ? 'additional-licences' : 'new-access');
-  return <Detail view={view} type={type} names={names.byId} plans={plans} />;
+  return <Detail view={view} type={type} title={title} names={names.byId} plans={plans} />;
+}
+
+/** A notice above the record: what the request's state asks of the Institute Admin. */
+function StateNotice({
+  view,
+  plans,
+}: {
+  readonly view: RequesterRequestView;
+  readonly plans: readonly AccessPlan[];
+}): ReactNode {
+  if (view.status === 'information-requested' && view.whatBitsAsked) {
+    return (
+      <Notice tone="info" icon="infoNote" role="status" title={REQUEST_DETAIL.infoTitle}>
+        {informationLine(view.whatBitsAsked, informationAskedAt(view))}
+      </Notice>
+    );
+  }
+  if (view.status === 'approved-payment-required' || view.status === 'payment-failed') {
+    return (
+      <Notice
+        tone="warn"
+        icon="alertTriangle"
+        role="status"
+        title={
+          view.status === 'approved-payment-required'
+            ? REQUEST_DETAIL.paymentTitle
+            : requestStatusWords(view)
+        }
+        actions={
+          <ButtonLink variant="navy" href={paymentPageAddress(view.routeId)}>
+            {REQUEST_DETAIL.openPayment}
+          </ButtonLink>
+        }
+      >
+        {REQUEST_DETAIL.paymentLine}
+      </Notice>
+    );
+  }
+  if (view.status === 'access-active') {
+    const created = createdPlanOf(view.reference, plans);
+    return (
+      <Notice
+        tone="ok"
+        role="status"
+        title={REQUEST_DETAIL.activeTitle}
+        actions={
+          created ? (
+            <ButtonLink href={accessPlanAddress(created.id)}>{REQUEST_DETAIL.viewPlan}</ButtonLink>
+          ) : null
+        }
+      >
+        {created ? planCreatedWords(created.activatedAt) : REQUEST_DETAIL.activeByBits}
+      </Notice>
+    );
+  }
+  return null;
 }
 
 function Detail({
   view,
   type,
+  title,
   names,
   plans,
 }: {
   readonly view: RequesterRequestView;
   readonly type: RequestType;
+  readonly title: string;
   readonly names: ExperimentNames;
   readonly plans: readonly AccessPlan[];
 }) {
-  const { keys } = REQUEST_DETAIL;
   const status = requestStatusWords(view);
   const summary = requestSummary(type, view, names, plans);
   const history = requestHistoryLines(view, summary);
-  const payable = view.status === 'approved-payment-required' || view.status === 'payment-failed';
+  const formats = requestFormats(view);
+  const facts = askedFacts(type, view, names, plans);
   return (
-    <PageContent wrap="read">
-      <PageHeader
-        className="mt-2 mb-4"
-        back={<BackLink href={INSTITUTE_REQUESTS_ADDRESS}>{REQUEST_DETAIL.back}</BackLink>}
-        overline={
-          <>
-            {REQUEST_DETAIL.overline} · <span className="xr-id">{view.reference}</span>
-          </>
-        }
-        title={requestTitle(type, view, plans)}
+    <>
+      <PageHead
+        breadcrumbs={<Breadcrumbs levels={[REQUESTS_CRUMB]} current={title} />}
+        variant="record"
+        eyebrow={REQUEST_DETAIL.overline}
+        title={title}
+        titleId={TITLE_ID}
+        titleFocusTarget
         meta={
           <>
             <StatusPill tone={REQUEST_TONE[view.status]}>{status}</StatusPill>
@@ -140,69 +240,76 @@ function Detail({
           </>
         }
       />
-      <div className="xw-stack">
-        {view.status === 'information-requested' && view.whatBitsAsked ? (
-          <Notice title={REQUEST_DETAIL.infoTitle}>{quoted(view.whatBitsAsked)}</Notice>
-        ) : null}
-        {payable ? (
-          <Notice
-            tone="warn"
-            icon="payment"
-            title={
-              view.status === 'approved-payment-required' ? REQUEST_DETAIL.paymentTitle : status
-            }
-            actions={
-              <Link className="xr-btn xr-btn--primary" href={paymentPageAddress(view.routeId)}>
-                {REQUEST_DETAIL.openPayment}
-              </Link>
-            }
-          >
-            {REQUEST_DETAIL.paymentLine}
-          </Notice>
-        ) : null}
-        <Section title={REQUEST_DETAIL.asked} headingId="request-asked">
-          <div className="xr-section-body">
-            <dl className="xp-kv m-0 grid grid-cols-[190px_minmax(0,1fr)] gap-x-5 gap-y-[10px] text-[15px] leading-[22px]">
-              <dt className="font-[700] text-ink">{keys.type}</dt>
-              <dd className="m-0 text-ink-2">{requestTypeWords(type, view.reference, plans)}</dd>
-              <dt className="font-[700] text-ink">{keys.experiment}</dt>
-              <dd className="m-0 text-ink-2">
-                {askedExperimentLines(view, names).map((line, index) => (
-                  <span key={line} className={index > 0 ? 'block' : undefined}>
-                    {line}
-                  </span>
-                ))}
-              </dd>
-              <dt className="font-[700] text-ink">{keys.licences}</dt>
-              <dd className="m-0 text-ink-2">{view.asked.licences}</dd>
+      <StateNotice view={view} plans={plans} />
+      <IaRecordGrid
+        main={
+          <Surface labelledBy="request-asked">
+            <IaSectionBody title={REQUEST_DETAIL.asked} titleId="request-asked" size="section">
+              <DefinitionList
+                items={[
+                  ...facts.map((fact) => ({
+                    term: fact.term,
+                    value:
+                      typeof fact.value === 'string'
+                        ? fact.value
+                        : fact.value.map((line, index) => (
+                            <Fragment key={index}>
+                              {index > 0 ? <br /> : null}
+                              {line}
+                            </Fragment>
+                          )),
+                  })),
+                  ...(formats.length > 0
+                    ? [
+                        {
+                          term: REQUEST_DETAIL.keys.formats,
+                          value: (
+                            <IaFormatBadges
+                              flush
+                              formats={formatCodes(formats)}
+                              label={formatsLabel(formats)}
+                            />
+                          ),
+                        },
+                      ]
+                    : []),
+                ]}
+              />
               {view.message === null ? null : (
-                <>
-                  <dt className="font-[700] text-ink">{keys.message}</dt>
-                  <dd className="m-0 text-ink-2">{quoted(view.message)}</dd>
-                </>
+                <IaRqMessage label={REQUEST_DETAIL.keys.message}>
+                  {quoted(view.message)}
+                </IaRqMessage>
               )}
-              {type === 'additional-licences' ? null : (
-                <>
-                  <dt className="font-[700] text-ink">{keys.term}</dt>
-                  <dd className="m-0 text-ink-2">{askedTermWords(view.asked.term)}</dd>
-                </>
-              )}
-            </dl>
-          </div>
-        </Section>
-        <Section title={REQUEST_DETAIL.history} headingId="request-history">
-          <div className="xr-section-body">
-            <Timeline
-              events={history.map((line) => ({
-                id: line.id,
-                what: line.what,
-                when: line.when,
-                ...(line.note ? { note: line.note } : {}),
-              }))}
-            />
-          </div>
-        </Section>
-      </div>
-    </PageContent>
+            </IaSectionBody>
+          </Surface>
+        }
+        side={
+          <Surface labelledBy="request-stands">
+            <IaSectionBody title={REQUEST_DETAIL.stand.title} titleId="request-stands">
+              <IaRqStands
+                items={requestStands(view, plans).map((fact) => ({
+                  term: fact.term,
+                  value: fact.value,
+                }))}
+                hint={REQUEST_DETAIL.stand.hint}
+              />
+            </IaSectionBody>
+          </Surface>
+        }
+        more={
+          <Surface labelledBy="request-history">
+            <IaSectionBody title={REQUEST_DETAIL.history} titleId="request-history" size="section">
+              <Timeline
+                events={history.map((line) => ({
+                  what: line.what,
+                  when: line.when,
+                  ...(line.note ? { note: line.note } : {}),
+                }))}
+              />
+            </IaSectionBody>
+          </Surface>
+        }
+      />
+    </>
   );
 }

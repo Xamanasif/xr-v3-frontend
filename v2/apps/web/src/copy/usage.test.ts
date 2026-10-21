@@ -1,39 +1,38 @@
 /**
- * The words of IA-20 Usage are the frozen board B3-10's: each drawn phrase is found verbatim in its
- * markup, the composed ones with the board's own sample values; the words B3-10 does not draw are
- * provisional entries of the state-copy register.
+ * The words of IA-20 Usage are the owner-approved V3 export's (design/v3-refined-b/roles/IA-v1,
+ * `project/Main.dc.html` IA-20 and `vm20`): each drawn phrase is in its template or script
+ * verbatim, the composed ones take the script's form with its own sample values; the words the
+ * export does not draw are provisional entries of the state-copy register. No word carries a
+ * reference.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { iaExport } from '@/test-support/boards';
 
 import { STATE_COPY } from './state-copy';
 import { STATE_COPY_USAGE } from './state-copy-usage';
 import {
-  accessPlanWords,
   COURSE_TABLE,
-  courseSessionsHeader,
   DEFINITIONS,
+  endedNoticeTitle,
   EXPERIMENT_SECTION,
   experimentTableCaption,
   NO_ACTIVITY,
+  NO_USAGE,
+  sessionsByFormat,
   studentsWithAccessWords,
   USAGE_META,
+  USAGE_NOTICES,
   USAGE_PAGE,
   usageMetaLine,
 } from './usage';
 
-/** A board's text with tags removed and `&amp;` read, then its raw markup (attributes, script). */
-function words(file: string): string {
-  const raw = board(file);
-  const text = raw
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ');
-  return `${text}\n${raw}`;
-}
-
-const B3_10 = words('B3-10-IA-Usage.dc.html');
+const ROOT = iaExport('Main.dc.html');
+const TEMPLATE = ROOT.slice(0, ROOT.indexOf('<script type="text/x-dc"'));
+const SCRIPT = ROOT.slice(ROOT.indexOf('<script type="text/x-dc"'));
+const IA20 = TEMPLATE.slice(TEMPLATE.indexOf('{{ R.rIA20 }}'), TEMPLATE.indexOf('<!-- XS-07'));
+/** The template with its tags removed and `&amp;` read, then the raw source. */
+const WORDS = `${TEMPLATE.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${ROOT}`;
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -42,55 +41,72 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-describe('IA-20 Usage (B3-10 f0 … f4)', () => {
+describe('IA-20 Usage (IA-v1 IA-20)', () => {
   const drawn = [
     ...strings(USAGE_PAGE),
     USAGE_META,
     ...strings(EXPERIMENT_SECTION),
+    COURSE_TABLE.title,
     COURSE_TABLE.caption,
     ...strings(COURSE_TABLE.columns),
     ...strings(DEFINITIONS),
     ...strings(NO_ACTIVITY),
+    NO_USAGE.title,
+    ...strings(USAGE_NOTICES),
   ];
 
-  it.each(drawn)('“%s” is on B3-10', (phrase) => {
-    expect(B3_10).toContain(phrase);
+  it.each(drawn)('“%s” is in the export', (phrase) => {
+    expect(WORDS).toContain(phrase);
   });
 
-  it('the composed words follow the board with its own sample values', () => {
-    const meta = usageMetaLine('24 Oct 2026');
-    expect(meta).toBe('How your content is being used · figures up to 24 Oct 2026');
-    expect(B3_10).toContain(`<div class="xr-phead-meta">${meta}</div>`);
-    expect(accessPlanWords(['ACC-0107'])).toBe('access plan ACC-0107');
-    expect(B3_10).toContain('<span class="xr-id">ME ZG523</span> · access plan ACC-0107');
-    expect(studentsWithAccessWords(5)).toBe('students with access');
-    expect(B3_10).toContain('<span class="xl-num">5</span> students with access');
+  it('the composed words follow the script with its own sample values', () => {
+    expect(usageMetaLine('22 Oct 2026')).toBe(
+      'How your content is being used · figures up to 22 Oct 2026',
+    );
+    expect(SCRIPT).toContain(
+      "sub: 'How your content is being used' + (any ? ' · figures up to ' + this.fDate(x.asOf) : '')",
+    );
+    expect(studentsWithAccessWords(5)).toBe('5 students with access');
+    expect(studentsWithAccessWords(1)).toBe('1 student with access');
+    expect(SCRIPT).toContain("withText: this.plural(n, 'student') + ' with access'");
     expect(experimentTableCaption('Shell-and-Tube Heat Exchanger')).toBe(
       'Usage by format for Shell-and-Tube Heat Exchanger',
     );
-    expect(B3_10).toContain(
-      '<caption class="xr-sr">Usage by format for Shell-and-Tube Heat Exchanger</caption>',
-    );
-    expect(courseSessionsHeader(['WEB', 'VR'])).toBe('Sessions (WEB · VR)');
-    expect(B3_10).toContain('<th scope="col">Sessions (WEB · VR)</th>');
-    expect(B3_10).toContain('<td data-label="Sessions (WEB · VR)">');
+    expect(IA20).toContain('<caption>Usage by format for {{ e.t }}</caption>');
+    expect(
+      sessionsByFormat([
+        { code: 'WEB', sessions: 11 },
+        { code: 'VR', sessions: 4 },
+      ]),
+    ).toBe('WEB 11 · VR 4');
+    expect(SCRIPT).toContain("sess.push(f + ' ' + (v ? v.sessions : 0))");
+    expect(SCRIPT).toContain("sessions: any ? sess.join(' · ') : 'No activity yet'");
   });
 
-  it('the definitions are B3-10’s four, in its order, each a dt and its dd', () => {
-    const drawnList = /<dl class="xl-defs">([\s\S]*?)<\/dl>/.exec(
-      board('B3-10-IA-Usage.dc.html'),
-    )![1]!;
+  it('the line before access is active and the ended notice name things by content', () => {
+    expect(NO_USAGE.line).toBe(
+      'Usage appears after BITS activates your access and you give students experiments. Your request to BITS is approved — payment required.',
+    );
+    expect(IA20).toContain(
+      'Usage appears after BITS activates your access and you give students experiments.',
+    );
+    expect(endedNoticeTitle('7 Oct 2027')).toBe('Your access plan ended on 7 Oct 2027');
+    expect(IA20).toContain(
+      '<p class="rk-notice-t">Access plan {{ V.planId }} ended on {{ V.endText }}</p>',
+    );
+    expect(STATE_COPY['IA-20.ended'].rule).toContain('Your access plan ended on 7 Oct 2027');
+  });
+
+  it('the definitions are the export’s four, in its order, each a dt and its dd', () => {
+    const drawnList = /<dl class="ia-sum ia-sum--defs">([\s\S]*?)<\/dl>/.exec(IA20)![1]!;
     const pairs = DEFINITIONS.terms.map(
-      ({ term, definition }) => `<dt>${term}</dt><dd>${definition}</dd>`,
+      ({ term, definition }) => `<div><dt>${term}</dt><dd>${definition}</dd></div>`,
     );
     expect(drawnList.trim().replace(/>\s+</g, '><')).toBe(pairs.join(''));
   });
 
   it('the undrawn words and rules are provisional entries of the register', () => {
-    expect(studentsWithAccessWords(1)).toBe(STATE_COPY['IA-20.students-one'].words);
-    expect(accessPlanWords(['ACC-0107', 'ACC-0212'])).toBe('access plans ACC-0107 · ACC-0212');
     expect(COURSE_TABLE.perExperiment).toBe(STATE_COPY['IA-20.course-several'].words);
-    expect(COURSE_TABLE.notHeld).toBe(STATE_COPY['IA-20.course-format-not-held'].words);
     for (const [key, entry] of Object.entries(STATE_COPY_USAGE)) {
       expect(key.startsWith('IA-20.'), key).toBe(true);
       expect(entry.screen).toBe('IA-20');
@@ -101,11 +117,13 @@ describe('IA-20 Usage (B3-10 f0 … f4)', () => {
     }
   });
 
-  it('no word of the page counts licences, adds figures up or offers an export', () => {
+  it('no word of the page counts licences, adds figures up, offers an export or names a reference', () => {
     const all = [
       ...drawn,
+      NO_USAGE.line,
       ...Object.values(STATE_COPY_USAGE).flatMap((entry) => (entry.words ? [entry.words] : [])),
     ].join('\n');
     expect(all).not.toMatch(/licen[cs]e|total|percent|%|export|download|feedback/i);
+    expect(all).not.toMatch(/\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/);
   });
 });

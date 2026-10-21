@@ -96,8 +96,10 @@ test('PU-15 public variant (product build)', async ({ page }) => {
 
 test('XS-08 paused banner', async ({ page }) => {
   await openAs(page, PAUSED_INSTITUTE_ADMIN, '/institute/help');
+  // The Institute Admin's V3 shell (IA-v1): the banner is first in the page (`main.rb-page`), not
+  // in a v46 shell's V3 region.
   await expect(
-    page.locator('.rk-x-region--banner > .rk-banner:not(.xs-banner--inactive)'),
+    page.locator('main#main.rb-page > .rk-banner:first-child:not(.xs-banner--inactive)'),
   ).toBeVisible();
   await checkState(page, 'Help & support');
 });

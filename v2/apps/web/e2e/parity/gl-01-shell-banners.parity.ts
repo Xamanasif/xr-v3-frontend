@@ -56,7 +56,10 @@ async function pauseGodavari(page: Page) {
     method: 'pauseInstitution',
     input: { institutionId: id, reason: 'Checking the student list.', expectedRev: rev },
   });
-  await expect(page.locator('.rk-x-region--banner .rk-banner')).toBeVisible();
+  // The XS-08 banner: in its V3 region of a v46 shell, or first in the page of a V3 role shell.
+  await expect(
+    page.locator('.rk-x-region--banner .rk-banner, main#main.rb-page > .rk-banner:first-child'),
+  ).toBeVisible();
 }
 
 test('board 05 · the built shell on Help for 7 roles, with the applicable banners', async ({

@@ -1,0 +1,2971 @@
+{
+ "role": "Institute Admin",
+ "foundation": "XR-V3-RB-1.0",
+ "date": "2026-10-21",
+ "design": "FINAL complete-role design (one design language for all 19 owned screens)",
+ "summary": {
+  "ownedIds": 19,
+  "designed": 19,
+  "notDesigned": 0,
+  "excludedNotDesigned": [
+   "IA-12",
+   "IA-21",
+   "IA-22"
+  ],
+  "coverage": {
+   "screens": 19,
+   "subviews": 76,
+   "redesigned": 59,
+   "reviewedAndUnchanged": 17,
+   "pendingOrIncomplete": 0
+  },
+  "design": "FINAL — OWNER APPROVED",
+  "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+  "assembly": "ASSEMBLY PENDING XS",
+  "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+ },
+ "history": [
+  {
+   "step": "Complete role delivered",
+   "date": "2026-10-18",
+   "what": "19 owned screens, connected preview, source and screenshot ZIPs",
+   "ownerResponse": "Reviewed; a whole-role visual quality refinement was requested"
+  },
+  {
+   "step": "Refinement checkpoint R1",
+   "date": "2026-10-19",
+   "what": "IA-01 Overview, IA-04 Student access, IA-06 People, IA-16 Course codes",
+   "ownerResponse": "Other screens \"acceptable for now\"; IA-02 not visually approved and a targeted correction requested"
+  },
+  {
+   "step": "IA-02 R2",
+   "date": "2026-10-19",
+   "what": "IA-02 Content access: compact badges, one plan strip, grouped table",
+   "ownerResponse": "Reviewed; the final complete-role consolidation was requested. No approval recorded."
+  },
+  {
+   "step": "Final complete-role design",
+   "date": "2026-10-20",
+   "what": "R1 and R2 consolidated into one design; the same language carried to every other screen; delivered, R1 and R2 looks and their boards removed",
+   "ownerResponse": "Approved on 21 Oct 2026, keeping the plan tint, with one change: take internal record ids out of ordinary labels"
+  },
+  {
+   "step": "Owner approval and identifier pass",
+   "date": "2026-10-21",
+   "what": "Grant, faculty-course and group record ids taken out of ordinary labels (identified in words instead); role marked FINAL — OWNER APPROVED and exported",
+   "ownerResponse": "FINAL — OWNER APPROVED"
+  }
+ ],
+ "liveEntry": {
+  "canvas": "https://claude.ai/artifact/VM1CC1Yni43Ngw2bhtgAgb",
+  "version": "Version 15",
+  "page": "Final · start here",
+  "board": "project/Main.dc.html — \"Institute Admin · connected role preview — start here\""
+ },
+ "ownerDecisions": [
+  {
+   "topic": "Plan tint on IA-01 and IA-02",
+   "decidedOn": "2026-10-21",
+   "decision": "KEEP. The Overview plan card and the Content access plan strip stay on the foundation plan tint (#ECEFFB), as the contract assigns it and as IA-03 uses it."
+  },
+  {
+   "topic": "Internal identifiers in labels",
+   "decidedOn": "2026-10-21",
+   "decision": "Grant (SACC), faculty-course (FMAP) and group (GRP) record ids are no longer shown in ordinary labels; see HANDOFF.md § 9. The ids stay in the data model and in this package; no rule, permission, record or state changed."
+  }
+ ],
+ "openDesignDecisions": [],
+ "borrowedShared": [
+  {
+   "id": "XS-03",
+   "what": "Signed out page"
+  },
+  {
+   "id": "XS-05",
+   "what": "Account menu"
+  },
+  {
+   "id": "XS-07",
+   "what": "Help & support (My reports, Report a problem, report detail)"
+  },
+  {
+   "id": "XS-08",
+   "what": "Institution paused notice"
+  }
+ ],
+ "excluded": [
+  {
+   "id": "IA-12",
+   "screen": "Invitations / account activation",
+   "disposition": "OPEN (R02)",
+   "treatment": "not designed, no entry or link"
+  },
+  {
+   "id": "IA-21",
+   "screen": "Reports page",
+   "disposition": "DEFER (R15)",
+   "treatment": "not designed, no entry or link"
+  },
+  {
+   "id": "IA-22",
+   "screen": "Institution settings (incl. institution sign-in / SSO)",
+   "disposition": "DEFER (A-01)",
+   "treatment": "not designed, no entry or link"
+  }
+ ],
+ "screens": [
+  {
+   "id": "IA-01",
+   "screen": "Overview",
+   "registerType": "page",
+   "navigation": "Sidebar Overview",
+   "v46ProposedRoute": "/institute",
+   "v46Boards": [
+    "B2-01"
+   ],
+   "inventoryDisposition": "REFINE (heavy)",
+   "v3Seed": true,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "R1 + final",
+    "subviews": [
+     {
+      "subview": "Identity head: institution, access status, Add students, Give students access",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Needs your attention: items with counts and one quiet action each",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Attention lead: renewal due, renewal requested, paused, ended",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Calm state (nothing needs attention)",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Access-plan card: term bar, licences, experiment with format badges, links",
+      "status": "REDESIGNED",
+      "when": "R1 · final: plan tint"
+     },
+     {
+      "subview": "Approved — payment required (no plan): No content yet",
+      "status": "REDESIGNED",
+      "when": "R1"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-01",
+    "linkHash": "#/institute"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia01.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-01 Overview · populated · Thu 22 Oct 2026"
+    },
+    {
+     "board": "st-ia01-ending.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-01 · plan ending soon · Wed 22 Sep 2027 (approved seed state)"
+    },
+    {
+     "board": "st-ia01-calm.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-01 · calm: nothing needs attention"
+    },
+    {
+     "board": "st-ia01-fresh.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-01 · new active institution · Thu 8 Oct 2026"
+    },
+    {
+     "board": "st-ia01-paused.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-01 · access paused · read-only"
+    },
+    {
+     "board": "st-ia01-ended.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-01 · plan ended"
+    },
+    {
+     "board": "st-ia01-awaiting.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-01 · approved — payment required, no plan"
+    },
+    {
+     "board": "st-account-menu.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "Account menu open (borrowed XS-05 contract)"
+    },
+    {
+     "board": "rsp-ia01-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1555",
+     "title": "IA-01 Overview · 375"
+    },
+    {
+     "board": "rsp-menu-375.dc.html",
+     "page": "Responsive",
+     "size": "375x812",
+     "title": "Menu drawer · 375"
+    },
+    {
+     "board": "rsp-ia01-768.dc.html",
+     "page": "Responsive",
+     "size": "768x1158",
+     "title": "IA-01 Overview · 768"
+    },
+    {
+     "board": "rsp-ia01-1024.dc.html",
+     "page": "Responsive",
+     "size": "1024x1158",
+     "title": "IA-01 Overview · 1024"
+    }
+   ],
+   "states": [
+    "Populated: attention items (waiting for a licence, device request to forward, students with no access yet)",
+    "Ending soon, approved V3 seed state: renewal lead, 5 items",
+    "New active institution: experiment not given yet, course code missing",
+    "Calm: nothing needs attention (journey 1 done)",
+    "Paused by BITS: read-only lead, Help",
+    "Plan ended: Request renewal lead",
+    "Approved — payment required: no content yet, View request status",
+    "Account menu open",
+    "Drawer at 768 and 375"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 8,
+      "clean": 8,
+      "states": [
+       "acct-open",
+       "calm"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia01.dc.html",
+       "st-ia01-ending.dc.html",
+       "st-ia01-calm.dc.html",
+       "st-ia01-fresh.dc.html",
+       "st-ia01-paused.dc.html",
+       "st-ia01-ended.dc.html",
+       "st-ia01-awaiting.dc.html",
+       "st-account-menu.dc.html"
+      ],
+      "375": [
+       "rsp-ia01-375.dc.html",
+       "rsp-menu-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia01-768.dc.html"
+      ],
+      "1024": [
+       "rsp-ia01-1024.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 24,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J1",
+     "K10",
+     "RE",
+     "RF",
+     "RH-375-ia01",
+     "FM1"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-02",
+   "screen": "Content access",
+   "registerType": "page",
+   "navigation": "Sidebar Content access",
+   "v46ProposedRoute": "/institute/content-access",
+   "v46Boards": [
+    "B2-02"
+   ],
+   "inventoryDisposition": "REFINE",
+   "v3Seed": true,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "R2 + final",
+    "subviews": [
+     {
+      "subview": "Access-plan strip: plan, licences, yearly term, View plan",
+      "status": "REDESIGNED",
+      "when": "R2 · final: plan tint"
+     },
+     {
+      "subview": "Ending soon, ended and paused notes in the strip",
+      "status": "REDESIGNED",
+      "when": "R2"
+     },
+     {
+      "subview": "Search, status filter, chips and Clear filters",
+      "status": "REDESIGNED",
+      "when": "R2"
+     },
+     {
+      "subview": "Format key and grouped experiments table with 28 px badges",
+      "status": "REDESIGNED",
+      "when": "R2"
+     },
+     {
+      "subview": "No match, loading, couldn’t load, no plan yet",
+      "status": "REDESIGNED",
+      "when": "R2"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-02",
+    "linkHash": "#/institute/content-access"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia02.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-02 Content access › Experiments · populated"
+    },
+    {
+     "board": "st-ia02-ending.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-02 · plan ending soon (approved seed state)"
+    },
+    {
+     "board": "st-ia02-search.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-02 · search “Shell” with its chip"
+    },
+    {
+     "board": "st-ia02-nomatch.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-02 · no experiment matches"
+    },
+    {
+     "board": "st-ia02-loading.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-02 · loading"
+    },
+    {
+     "board": "st-ia02-failed.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-02 · couldn’t load, Try again"
+    },
+    {
+     "board": "st-ia02-awaiting.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-02 · no plan yet (payment required)"
+    },
+    {
+     "board": "rsp-ia02-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1228",
+     "title": "IA-02 Content access · 375"
+    },
+    {
+     "board": "rsp-ia02-768.dc.html",
+     "page": "Responsive",
+     "size": "768x910",
+     "title": "IA-02 Content access · 768"
+    },
+    {
+     "board": "rsp-ia02-1024.dc.html",
+     "page": "Responsive",
+     "size": "1024x910",
+     "title": "IA-02 Content access · 1024"
+    }
+   ],
+   "states": [
+    "Populated: plan strip on the plan tint and the experiments table grouped by course",
+    "Search with its chip",
+    "New active institution: course code not added, no students",
+    "Ending soon renewal note",
+    "Paused note, read-only",
+    "Ended, Request renewal",
+    "Approved — payment required: no plan yet",
+    "No match, loading, failed with Try again",
+    "Counts agree with Student access after journey 1"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 20,
+      "clean": 20,
+      "states": [
+       "calm-ia02",
+       "ia02-failed",
+       "ia02-loading",
+       "ia02-nomatch",
+       "ia02-search"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia02.dc.html",
+       "st-ia02-ending.dc.html",
+       "st-ia02-search.dc.html",
+       "st-ia02-nomatch.dc.html",
+       "st-ia02-loading.dc.html",
+       "st-ia02-failed.dc.html",
+       "st-ia02-awaiting.dc.html"
+      ],
+      "375": [
+       "rsp-ia02-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia02-768.dc.html"
+      ],
+      "1024": [
+       "rsp-ia02-1024.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 27,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J1",
+     "R2A",
+     "R2B",
+     "R2C",
+     "R2D",
+     "R2E",
+     "R2F",
+     "FM2"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-03",
+   "screen": "Access plan / course detail",
+   "registerType": "page",
+   "navigation": "Detail",
+   "v46ProposedRoute": "/institute/content-access/plans/[planId]",
+   "v46Boards": [
+    "B2-03"
+   ],
+   "inventoryDisposition": "REFINE (split)",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Header: status, plan ID, request link, active since, Give students access",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Plan strip: licences, yearly term, one way to ask BITS (or the renewal note)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "What BITS gave your institution: course group, your code and semester, format badges",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Students you’ve given access: grouped by experiment, read-only",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "History beside the students (below on narrow screens)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "States: just activated, ending, paused, ended, no plan yet",
+      "status": "REDESIGNED",
+      "when": "final"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-03",
+    "linkHash": "#/institute/content-access/plans/ACC-0107"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia03.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x1527",
+     "title": "IA-03 Access plan ACC-0107 · populated"
+    },
+    {
+     "board": "st-ia03-fresh.dc.html",
+     "page": "States",
+     "size": "1440x1147",
+     "title": "IA-03 · just activated: nobody given access, course code missing"
+    },
+    {
+     "board": "st-ia03-ending.dc.html",
+     "page": "States",
+     "size": "1440x1804",
+     "title": "IA-03 · ending soon · renewal note"
+    },
+    {
+     "board": "st-ia03-paused.dc.html",
+     "page": "States",
+     "size": "1440x1705",
+     "title": "IA-03 · paused by BITS · read-only"
+    },
+    {
+     "board": "st-ia03-ended.dc.html",
+     "page": "States",
+     "size": "1440x1893",
+     "title": "IA-03 · plan ended"
+    },
+    {
+     "board": "st-ia03-awaiting.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-03 · no access plan yet"
+    },
+    {
+     "board": "rsp-ia03-375.dc.html",
+     "page": "Responsive",
+     "size": "375x3338",
+     "title": "IA-03 Access plan · 375"
+    },
+    {
+     "board": "rsp-ia03-768.dc.html",
+     "page": "Responsive",
+     "size": "768x2343",
+     "title": "IA-03 Access plan · 768"
+    },
+    {
+     "board": "rsp-ia03-1024.dc.html",
+     "page": "Responsive",
+     "size": "1024x2343",
+     "title": "IA-03 Access plan · 1024"
+    }
+   ],
+   "states": [
+    "Plan strip: licences, yearly term, where to ask BITS",
+    "What BITS gave: course group with your code and semester, experiment with formats",
+    "Students given access, grouped by experiment, read-only",
+    "History beside the students",
+    "New institution: nobody given access yet, course code missing",
+    "Ending soon (15 days left), renewal note",
+    "Paused read-only",
+    "Ended",
+    "No access plan yet (awaiting payment)"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 0,
+      "clean": 0,
+      "states": []
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia03.dc.html",
+       "st-ia03-fresh.dc.html",
+       "st-ia03-ending.dc.html",
+       "st-ia03-paused.dc.html",
+       "st-ia03-ended.dc.html",
+       "st-ia03-awaiting.dc.html"
+      ],
+      "375": [
+       "rsp-ia03-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia03-768.dc.html"
+      ],
+      "1024": [
+       "rsp-ia03-1024.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 27,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "FA1",
+     "FA2",
+     "FA3",
+     "FA4",
+     "FA5",
+     "FA6",
+     "FA7",
+     "FA8"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-04",
+   "screen": "Student access",
+   "registerType": "page",
+   "navigation": "Sidebar Student access",
+   "v46ProposedRoute": "/institute/student-access",
+   "v46Boards": [
+    "B2-01",
+    "B2-04"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "R1 + final",
+    "subviews": [
+     {
+      "subview": "Toolbar: search, how given; status switch with counts; chips",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Grouped grant table: one group per experiment, one row per student",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Withdraw an individual grant (DL-2) and the result notice",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Paused and ended notices; empty, no plan, loading, couldn’t load",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Waiting note shown only while the row reads Waiting for a licence",
+      "status": "REDESIGNED",
+      "when": "final fix"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-04",
+    "linkHash": "#/institute/student-access"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia04.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x1105",
+     "title": "IA-04 Student access · populated"
+    },
+    {
+     "board": "st-ia04-waiting.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-04 · status: waiting for a licence"
+    },
+    {
+     "board": "st-ia04-withdraw-dialog.dc.html",
+     "page": "States",
+     "size": "1440x1105",
+     "title": "IA-04 · withdraw an individual grant (DL-2)"
+    },
+    {
+     "board": "st-ia04-after-withdraw.dc.html",
+     "page": "States",
+     "size": "1440x1194",
+     "title": "IA-04 · after withdrawing SACC-0310 · group grant unchanged"
+    },
+    {
+     "board": "st-ia04-ended.dc.html",
+     "page": "States",
+     "size": "1440x1380",
+     "title": "IA-04 · plan ended · rows read Access ended"
+    },
+    {
+     "board": "rsp-ia04-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1876",
+     "title": "IA-04 Student access · 375"
+    },
+    {
+     "board": "rsp-dialog-375.dc.html",
+     "page": "Responsive",
+     "size": "375x812",
+     "title": "Withdraw dialog (DL-2) · 375"
+    },
+    {
+     "board": "rsp-ia04-768.dc.html",
+     "page": "Responsive",
+     "size": "768x1268",
+     "title": "IA-04 Student access · 768"
+    },
+    {
+     "board": "rsp-ia04-1024.dc.html",
+     "page": "Responsive",
+     "size": "1024x1268",
+     "title": "IA-04 Student access · 1024"
+    }
+   ],
+   "states": [
+    "Populated: grouped by experiment, status switch with counts",
+    "Waiting for a licence segment, search chip, how-given chip, no match",
+    "Withdrawn segment muted, no Withdraw",
+    "Withdraw individual grant dialog (DL-2) with group-grant note, reason error",
+    "After withdrawal: group grant unchanged",
+    "One filtered record",
+    "New institution: nobody has access yet",
+    "Paused read-only",
+    "Ended: Access ended rows, Request renewal",
+    "Awaiting payment: no experiments yet"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 40,
+      "clean": 40,
+      "states": [
+       "calm-ia04",
+       "ia04-after-wd",
+       "ia04-nomatch",
+       "ia04-one",
+       "ia04-seg-withdrawn",
+       "ia04-waiting",
+       "ia04-wd-dialog",
+       "ia04-wd-error",
+       "ia04-withdrawn",
+       "menu-open"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia04.dc.html",
+       "st-ia04-waiting.dc.html",
+       "st-ia04-withdraw-dialog.dc.html",
+       "st-ia04-after-withdraw.dc.html",
+       "st-ia04-ended.dc.html"
+      ],
+      "375": [
+       "rsp-ia04-375.dc.html",
+       "rsp-dialog-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia04-768.dc.html"
+      ],
+      "1024": [
+       "rsp-ia04-1024.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 49,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J1",
+     "J3",
+     "RA",
+     "RB",
+     "RC",
+     "RH-375-ia04",
+     "RI-paused-ia04",
+     "RI-fresh-ia04",
+     "RI-ended-ia04",
+     "RI-one-ia04",
+     "K1",
+     "K2"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-05",
+   "screen": "Give students access (guided)",
+   "registerType": "step",
+   "navigation": "Flow (from IA-02/03/04/07/14)",
+   "v46ProposedRoute": "/institute/student-access/give?step=1…",
+   "v46Boards": [
+    "B2-05"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Step indicator: every step numbered; on phones only the current step keeps its words",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Step 1 experiments (formats read-only, published-not-held listed)",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Step 2 students or a group, with reasons a row can’t be chosen",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Your selection: plan and course once; folds into one line on narrow pages",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Step 3 review and step 4 result: no repeated summary beside them",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Refused while paused, after the plan ended, or before a plan exists",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Validation and “access wasn’t given” failure",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-05",
+    "linkHash": "#/institute/student-access/give?step=1"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia05.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x996",
+     "title": "IA-05 Give students access · step 1 · populated"
+    },
+    {
+     "board": "st-ia05-step2.dc.html",
+     "page": "States",
+     "size": "1440x1428",
+     "title": "IA-05 · step 2 · choose students"
+    },
+    {
+     "board": "st-ia05-review.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-05 · review · one active, one waiting for a licence"
+    },
+    {
+     "board": "st-ia05-group-review.dc.html",
+     "page": "States",
+     "size": "1440x1000",
+     "title": "IA-05 · review · giving a group access"
+    },
+    {
+     "board": "st-ia05-result.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-05 · access given · result"
+    },
+    {
+     "board": "st-ia05-fail.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-05 · giving access failed · nothing changed"
+    },
+    {
+     "board": "st-ia05-paused.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-05 · refused while access is paused"
+    },
+    {
+     "board": "rsp-ia05-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1999",
+     "title": "IA-05 step 2 · selection folded · 375"
+    }
+   ],
+   "states": [
+    "Step 1 experiments, already given at experiment level for a group",
+    "Step 1 error",
+    "Step 2 students (pick list, unavailable reasons) or a group",
+    "Your selection beside steps 1–2; folded into one line on narrow pages",
+    "Step 3 review: one active, one waiting for a licence",
+    "Group review: members who can open it, waiting, already have it, inactive",
+    "Failure: nothing changed",
+    "Result: grants with status",
+    "Refused while paused, after the plan ended, and before a plan exists"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 24,
+      "clean": 24,
+      "states": [
+       "ia05-fail",
+       "ia05-group-review",
+       "ia05-result",
+       "ia05-review",
+       "ia05-step1-error",
+       "ia05-step2"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia05.dc.html",
+       "st-ia05-step2.dc.html",
+       "st-ia05-review.dc.html",
+       "st-ia05-group-review.dc.html",
+       "st-ia05-result.dc.html",
+       "st-ia05-fail.dc.html",
+       "st-ia05-paused.dc.html"
+      ],
+      "375": [
+       "rsp-ia05-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 25,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J1",
+     "J3",
+     "FK1",
+     "FK2",
+     "FK3"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-06",
+   "screen": "Students",
+   "registerType": "tab",
+   "navigation": "Sidebar People › Students",
+   "v46ProposedRoute": "/institute/people?tab=students",
+   "v46Boards": [
+    "B2-06"
+   ],
+   "inventoryDisposition": "REFINE",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "R1",
+    "subviews": [
+     {
+      "subview": "Tabs with counts (2 × 2 on phones)",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Toolbar, status switch, roster rows that open the record, Give access shortcut",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Filtered, no match, no students yet, loading, couldn’t load, paused",
+      "status": "REDESIGNED",
+      "when": "R1"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-06",
+    "linkHash": "#/institute/people?tab=students"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia06.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x1411",
+     "title": "IA-06 People › Students · populated"
+    },
+    {
+     "board": "st-ia06-filtered.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-06 · filtered by status and group"
+    },
+    {
+     "board": "st-ia06-nomatch.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-06 · no student matches"
+    },
+    {
+     "board": "st-ia06-empty.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-06 · no students yet · new institution"
+    },
+    {
+     "board": "rsp-ia06-375.dc.html",
+     "page": "Responsive",
+     "size": "375x2460",
+     "title": "IA-06 Students · 375"
+    },
+    {
+     "board": "rsp-ia06-768.dc.html",
+     "page": "Responsive",
+     "size": "768x1543",
+     "title": "IA-06 Students · 768"
+    }
+   ],
+   "states": [
+    "Populated roster (12 students) with group and access",
+    "Status segments with counts, group filter, no match",
+    "Loading, failed",
+    "Empty new institution",
+    "Paused read-only"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 16,
+      "clean": 16,
+      "states": [
+       "ia06-failed",
+       "ia06-filtered",
+       "ia06-loading",
+       "ia06-nomatch"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia06.dc.html",
+       "st-ia06-filtered.dc.html",
+       "st-ia06-nomatch.dc.html",
+       "st-ia06-empty.dc.html"
+      ],
+      "375": [
+       "rsp-ia06-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia06-768.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 59,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J2",
+     "K7",
+     "RD",
+     "RH-375-ia06",
+     "RI-paused-ia06"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-07",
+   "screen": "Student record",
+   "registerType": "page",
+   "navigation": "Detail",
+   "v46ProposedRoute": "/institute/people/students/[studentId]",
+   "v46Boards": [
+    "B2-01",
+    "B2-06"
+   ],
+   "inventoryDisposition": "REFINE",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Header: ID, status, e-mail; Give this student access or Reactivate",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Experiments given: compact list with formats, how given and status",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "About: course, group, programme, added (the separate Details panel is gone)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Account: deactivate (DL-2) and reactivate (DL-1), in the summary column",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "History below the experiments; summary column first on phones",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "States: no experiments yet, inactive, overlapping grants",
+      "status": "REDESIGNED",
+      "when": "final"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-07",
+    "linkHash": "#/institute/people/students/GIT-2026-0418"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia07.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x972",
+     "title": "IA-07 Student record · Rahul Verma · populated"
+    },
+    {
+     "board": "st-ia07-none.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-07 · just added · no experiments yet"
+    },
+    {
+     "board": "st-ia07-inactive.dc.html",
+     "page": "States",
+     "size": "1440x1063",
+     "title": "IA-07 · inactive student · Sneha Reddy"
+    },
+    {
+     "board": "st-ia07-overlap.dc.html",
+     "page": "States",
+     "size": "1440x1040",
+     "title": "IA-07 · individual grant withdrawn, group grant unchanged"
+    },
+    {
+     "board": "st-ia07-deact.dc.html",
+     "page": "States",
+     "size": "1440x972",
+     "title": "IA-07 · deactivate account (DL-2)"
+    },
+    {
+     "board": "rsp-ia07-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1742",
+     "title": "IA-07 Student record · 375"
+    },
+    {
+     "board": "rsp-ia07-768.dc.html",
+     "page": "Responsive",
+     "size": "768x1441",
+     "title": "IA-07 Student record · 768"
+    }
+   ],
+   "states": [
+    "Rahul Verma: individual and group grants",
+    "Arun Kumar: waiting for a licence",
+    "Sneha Reddy: inactive with reason, Reactivate",
+    "Nikhil Bose: withdrawn grant",
+    "Individual grant withdrawn, group grant unchanged",
+    "New student with no experiments",
+    "Deactivate dialog (DL-2) with reason error",
+    "Not in People",
+    "Paused read-only"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 24,
+      "clean": 24,
+      "states": [
+       "ia07-arun",
+       "ia07-deact",
+       "ia07-fresh-added",
+       "ia07-nikhil",
+       "ia07-overlap",
+       "ia07-sneha"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia07.dc.html",
+       "st-ia07-none.dc.html",
+       "st-ia07-inactive.dc.html",
+       "st-ia07-overlap.dc.html",
+       "st-ia07-deact.dc.html"
+      ],
+      "375": [
+       "rsp-ia07-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia07-768.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 20,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "K8",
+     "FB1",
+     "FB2",
+     "FB3"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-08",
+   "screen": "Faculty",
+   "registerType": "tab",
+   "navigation": "People › Faculty",
+   "v46ProposedRoute": "/institute/people?tab=faculty",
+   "v46Boards": [
+    "B2-06"
+   ],
+   "inventoryDisposition": "REFINE",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Search with count, chips and Clear filters in one toolbar",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Faculty list: name and e-mail, courses taught, status; row opens the record",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "No match and no faculty members yet",
+      "status": "REDESIGNED",
+      "when": "final"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-08",
+    "linkHash": "#/institute/people?tab=faculty"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia08.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-08 People › Faculty · populated"
+    },
+    {
+     "board": "st-ia08-empty.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-08 · no faculty members yet"
+    },
+    {
+     "board": "rsp-ia08-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1057",
+     "title": "IA-08 Faculty · 375"
+    }
+   ],
+   "states": [
+    "Populated (3 faculty, one inactive)",
+    "Search with count and chip, Clear filters",
+    "No match",
+    "Empty",
+    "Paused read-only"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 0,
+      "clean": 0,
+      "states": []
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia08.dc.html",
+       "st-ia08-empty.dc.html"
+      ],
+      "375": [
+       "rsp-ia08-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 22,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J4",
+     "RD",
+     "FE1"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-09",
+   "screen": "Faculty record (incl. courses taught)",
+   "registerType": "page",
+   "navigation": "Detail",
+   "v46ProposedRoute": "/institute/people/faculty/[facultyId]",
+   "v46Boards": [
+    "B2-06"
+   ],
+   "inventoryDisposition": "REFINE",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Header: status, e-mail, added (Details panel folded into the header)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Courses taught: course, assigned, quiet Remove… (DL-1 with marking warning)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "No courses yet, inactive, paused",
+      "status": "REDESIGNED",
+      "when": "final"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-09",
+    "linkHash": "#/institute/people/faculty/f0"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia09.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-09 Faculty record · Dr S. Ranganathan · populated"
+    },
+    {
+     "board": "st-ia09-none.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-09 · no courses yet · Dr Anita Desai"
+    },
+    {
+     "board": "st-ia09-inactive.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-09 · inactive faculty member"
+    },
+    {
+     "board": "rsp-ia09-375.dc.html",
+     "page": "Responsive",
+     "size": "375x812",
+     "title": "IA-09 Faculty record · 375"
+    }
+   ],
+   "states": [
+    "Dr S. Ranganathan: courses taught, remove (DL-1)",
+    "Dr Anita Desai: no courses yet",
+    "Prof. Ravi Shankar: inactive, can't be assigned",
+    "Not in People",
+    "Paused read-only"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 8,
+      "clean": 8,
+      "states": [
+       "ia09-desai",
+       "ia09-ravi"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia09.dc.html",
+       "st-ia09-none.dc.html",
+       "st-ia09-inactive.dc.html"
+      ],
+      "375": [
+       "rsp-ia09-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 15,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J4",
+     "FC1",
+     "FC2"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-10",
+   "screen": "Add a student / Add a faculty member",
+   "registerType": "step",
+   "navigation": "Flow",
+   "v46ProposedRoute": "/institute/people/add",
+   "v46Boards": [
+    "B2-04",
+    "B2-07"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REVIEWED AND UNCHANGED",
+    "passes": "reviewed",
+    "subviews": [
+     {
+      "subview": "Form with the “adding gives no experiments” notice",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Validation: format, duplicate ID, e-mail already used",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Added result with next steps; refused while paused",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-10",
+    "linkHash": "#/institute/people/add"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia10.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x901",
+     "title": "IA-10 Add student · populated"
+    },
+    {
+     "board": "st-ia10-errors.dc.html",
+     "page": "States",
+     "size": "1440x1102",
+     "title": "IA-10 · validation: e-mail format and duplicate student ID"
+    },
+    {
+     "board": "st-ia10-dup.dc.html",
+     "page": "States",
+     "size": "1440x1049",
+     "title": "IA-10 · e-mail already used · refused"
+    },
+    {
+     "board": "st-ia10-added.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-10 · student added · no experiments yet"
+    },
+    {
+     "board": "st-ia10-faculty.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-10 · add a faculty member"
+    },
+    {
+     "board": "rsp-ia10-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1220",
+     "title": "IA-10 Add student · 375"
+    }
+   ],
+   "states": [
+    "Add student form",
+    "Validation: e-mail format, duplicate student ID",
+    "Refused: e-mail already in People or used to sign in",
+    "Added: no experiments yet",
+    "Add faculty member form and done state",
+    "Refused while paused"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 16,
+      "clean": 16,
+      "states": [
+       "ia10-done",
+       "ia10-dup-email",
+       "ia10-errors",
+       "ia10-fac"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia10.dc.html",
+       "st-ia10-errors.dc.html",
+       "st-ia10-dup.dc.html",
+       "st-ia10-added.dc.html",
+       "st-ia10-faculty.dc.html"
+      ],
+      "375": [
+       "rsp-ia10-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 22,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J1",
+     "J2",
+     "J4"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-11",
+   "screen": "Import students (CSV)",
+   "registerType": "step",
+   "navigation": "Flow",
+   "v46ProposedRoute": "/institute/people/import",
+   "v46Boards": [
+    "B2-07"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Guided steps in the form column (same width as Add student)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Step indicator compact on phones",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Row errors in the role’s list table",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Template, sample-file chooser, duplicates refused, confirm, done, failure",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-11",
+    "linkHash": "#/institute/people/import"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia11.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-11 Import students · step 1 · populated"
+    },
+    {
+     "board": "st-ia11-file.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-11 · file chosen, ready to check"
+    },
+    {
+     "board": "st-ia11-errors.dc.html",
+     "page": "States",
+     "size": "1440x1007",
+     "title": "IA-11 · row errors block the import"
+    },
+    {
+     "board": "st-ia11-duplicates.dc.html",
+     "page": "States",
+     "size": "1440x1839",
+     "title": "IA-11 · everyone already in People · refused, nothing changed"
+    },
+    {
+     "board": "st-ia11-confirm.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-11 · confirm import"
+    },
+    {
+     "board": "st-ia11-done.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-11 · import finished"
+    },
+    {
+     "board": "rsp-ia11-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1512",
+     "title": "IA-11 row errors · 375"
+    }
+   ],
+   "states": [
+    "Choose a file (template, sample files, local CSV)",
+    "Row errors block the import (4 of 13)",
+    "Clean file",
+    "Everyone already in People: refused, nothing changed",
+    "Confirm",
+    "Import finished",
+    "Refused while paused"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 24,
+      "clean": 24,
+      "states": [
+       "ia11-clean",
+       "ia11-confirm",
+       "ia11-done",
+       "ia11-dups",
+       "ia11-errors",
+       "ia11-file"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia11.dc.html",
+       "st-ia11-file.dc.html",
+       "st-ia11-errors.dc.html",
+       "st-ia11-duplicates.dc.html",
+       "st-ia11-confirm.dc.html",
+       "st-ia11-done.dc.html"
+      ],
+      "375": [
+       "rsp-ia11-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 24,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J2",
+     "FL1"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-13",
+   "screen": "Groups",
+   "registerType": "tab",
+   "navigation": "People › Groups",
+   "v46ProposedRoute": "/institute/people?tab=groups",
+   "v46Boards": [
+    "B2-01",
+    "B2-02",
+    "B2-08"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Groups list: group and ID, members, experiments given with formats",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Create group (DL-3), created notice, no groups yet",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-13",
+    "linkHash": "#/institute/people?tab=groups"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia13.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-13 People › Groups · populated"
+    },
+    {
+     "board": "st-ia13-create.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-13 · create group (DL-3)"
+    },
+    {
+     "board": "st-ia13-empty.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-13 · no groups yet"
+    },
+    {
+     "board": "rsp-ia13-375.dc.html",
+     "page": "Responsive",
+     "size": "375x812",
+     "title": "IA-13 Groups · 375"
+    }
+   ],
+   "states": [
+    "Populated (2 groups)",
+    "Empty",
+    "Create group dialog (DL-3) with empty and duplicate-name errors",
+    "Created, link to the group",
+    "Paused read-only"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 8,
+      "clean": 8,
+      "states": [
+       "ia13-create",
+       "ia13-created"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia13.dc.html",
+       "st-ia13-create.dc.html",
+       "st-ia13-empty.dc.html"
+      ],
+      "375": [
+       "rsp-ia13-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 24,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J3",
+     "RD",
+     "FF1"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-14",
+   "screen": "Group (create · members · access)",
+   "registerType": "page",
+   "navigation": "Detail / flow",
+   "v46ProposedRoute": "/institute/people/groups/[groupId] · /new",
+   "v46Boards": [
+    "B2-01",
+    "B2-02",
+    "B2-08"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Header: GRP ID, member count once, Rename (DL-3); Add students; Give this group access",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Members list with statuses in words; quiet Remove… (DL-1)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Experiments given to this group beside the members (first on phones)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Add students panel; member added after the grant; group with no members",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Create group page (direct link)",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-14",
+    "linkHash": "#/institute/people/groups/GRP-0012"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia14.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x990",
+     "title": "IA-14 Group · ME ZG523 — Sem II · populated"
+    },
+    {
+     "board": "st-ia14-adding.dc.html",
+     "page": "States",
+     "size": "1440x1574",
+     "title": "IA-14 · add students to the group"
+    },
+    {
+     "board": "st-ia14-late.dc.html",
+     "page": "States",
+     "size": "1440x1181",
+     "title": "IA-14 · member added after the group grant"
+    },
+    {
+     "board": "st-ia14-remove.dc.html",
+     "page": "States",
+     "size": "1440x990",
+     "title": "IA-14 · remove a member (DL-1, destructive)"
+    },
+    {
+     "board": "st-ia14-rename.dc.html",
+     "page": "States",
+     "size": "1440x990",
+     "title": "IA-14 · rename (DL-3)"
+    },
+    {
+     "board": "st-ia14-empty.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-14 · group with no members"
+    },
+    {
+     "board": "rsp-ia14-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1601",
+     "title": "IA-14 Group · 375"
+    },
+    {
+     "board": "rsp-ia14-768.dc.html",
+     "page": "Responsive",
+     "size": "768x1244",
+     "title": "IA-14 Group · 768"
+    }
+   ],
+   "states": [
+    "Members with status in words",
+    "Experiments given to the group beside the members (first on phones)",
+    "Add members (pick list)",
+    "Member added after the group grant",
+    "Remove a member (DL-1)",
+    "Rename (DL-3)",
+    "Empty group",
+    "Create group page",
+    "Every experiment already given note",
+    "Paused read-only"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 24,
+      "clean": 24,
+      "states": [
+       "ia14-adding",
+       "ia14-empty",
+       "ia14-late",
+       "ia14-new",
+       "ia14-remove",
+       "ia14-rename"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia14.dc.html",
+       "st-ia14-adding.dc.html",
+       "st-ia14-late.dc.html",
+       "st-ia14-remove.dc.html",
+       "st-ia14-rename.dc.html",
+       "st-ia14-empty.dc.html"
+      ],
+      "375": [
+       "rsp-ia14-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia14-768.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 36,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J3",
+     "K5",
+     "K6",
+     "FD1",
+     "FD2"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-15",
+   "screen": "Faculty courses (who teaches what)",
+   "registerType": "tab",
+   "navigation": "People › Faculty courses",
+   "v46ProposedRoute": "/institute/people?tab=faculty-courses",
+   "v46Boards": [
+    "B2-09"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Search with count; list with course codes, quiet Remove…, Assign a course",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Assign panel beside the table from 1,060 px, one compact row below it, stacked on phones (B2-09)",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Assigned, already teaches (error), last-marker warning (DL-1), no faculty, paused",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-15",
+    "linkHash": "#/institute/people?tab=faculty-courses"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia15.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-15 People › Faculty courses · populated"
+    },
+    {
+     "board": "st-ia15-assigned.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-15 · course assigned"
+    },
+    {
+     "board": "st-ia15-error.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-15 · already teaches this course · refused"
+    },
+    {
+     "board": "st-ia15-warn.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-15 · remove the last marker of a course (warning)"
+    },
+    {
+     "board": "rsp-ia15-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1425",
+     "title": "IA-15 Faculty courses · 375"
+    },
+    {
+     "board": "rsp-ia15-768.dc.html",
+     "page": "Responsive",
+     "size": "768x923",
+     "title": "IA-15 Faculty courses · 768"
+    },
+    {
+     "board": "rsp-ia15-1024.dc.html",
+     "page": "Responsive",
+     "size": "1024x923",
+     "title": "IA-15 Faculty courses · 1024"
+    }
+   ],
+   "states": [
+    "Who teaches what, with the assign panel beside the table",
+    "Compact assign row under the table below 1,060px; stacked on phones",
+    "Assign a course with errors",
+    "Assigned",
+    "Remove a course (DL-1) with the no-marker warning",
+    "Empty",
+    "Paused: assigning unavailable"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 12,
+      "clean": 12,
+      "states": [
+       "ia15-assigned",
+       "ia15-error",
+       "ia15-warn"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia15.dc.html",
+       "st-ia15-assigned.dc.html",
+       "st-ia15-error.dc.html",
+       "st-ia15-warn.dc.html"
+      ],
+      "375": [
+       "rsp-ia15-375.dc.html"
+      ],
+      "768": [
+       "rsp-ia15-768.dc.html"
+      ],
+      "1024": [
+       "rsp-ia15-1024.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 30,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J4",
+     "RD",
+     "FG1",
+     "FG2",
+     "FG3"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-16",
+   "screen": "Course codes (institution code + optional semester)",
+   "registerType": "tab",
+   "navigation": "Content access › Course codes",
+   "v46ProposedRoute": "/institute/content-access?tab=course-codes",
+   "v46Boards": [
+    "B2-03"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "R1",
+    "subviews": [
+     {
+      "subview": "Course code editor: BITS code read-only beside your code and semester",
+      "status": "REDESIGNED",
+      "when": "R1"
+     },
+     {
+      "subview": "Missing-only filter, validation, saved, paused read-only, no courses",
+      "status": "REDESIGNED",
+      "when": "R1"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-16",
+    "linkHash": "#/institute/content-access?tab=course-codes"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia16.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-16 Content access › Course codes · populated"
+    },
+    {
+     "board": "st-ia16-missing.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-16 · course code missing · new institution"
+    },
+    {
+     "board": "st-ia16-error.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-16 · semester without a code · validation"
+    },
+    {
+     "board": "rsp-ia16-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1257",
+     "title": "IA-16 Course codes · 375"
+    }
+   ],
+   "states": [
+    "Codes added (MEC-523, Sem II)",
+    "Missing code (new institution), Show missing only",
+    "Unsaved changes with Undo; live preview line",
+    "Semester without code error",
+    "Saved flash",
+    "Paused read-only",
+    "No courses yet (awaiting payment)"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 4,
+      "clean": 4,
+      "states": [
+       "ia16-error"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia16.dc.html",
+       "st-ia16-missing.dc.html",
+       "st-ia16-error.dc.html"
+      ],
+      "375": [
+       "rsp-ia16-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 16,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J1",
+     "RE",
+     "RH-375-ia16",
+     "RI-paused-ia16",
+     "RI-awaiting-ia16"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-17",
+   "screen": "Requests to BITS (renewal · additional licences)",
+   "registerType": "page",
+   "navigation": "Sidebar Requests › Requests to BITS",
+   "v46ProposedRoute": "/institute/requests",
+   "v46Boards": [
+    "B3-08"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Requests list: request, what you asked for, status, last change",
+      "status": "REDESIGNED",
+      "when": "final: status legend line removed"
+     },
+     {
+      "subview": "Request detail: what you asked for, where it stands beside it, history below",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "States: under review, information requested, payment required, access active",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Ask BITS form (renew or more licences), validation, open-renewal note",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     },
+     {
+      "subview": "Request sent; refused while paused or before a plan exists",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-17",
+    "linkHash": "#/institute/requests"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia17.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-17 Requests to BITS · populated"
+    },
+    {
+     "board": "st-ia17-form.dc.html",
+     "page": "States",
+     "size": "1440x1223",
+     "title": "IA-17 · ask BITS for more licences"
+    },
+    {
+     "board": "st-ia17-form-errors.dc.html",
+     "page": "States",
+     "size": "1440x1434",
+     "title": "IA-17 · more licences · validation"
+    },
+    {
+     "board": "st-ia17-renew.dc.html",
+     "page": "States",
+     "size": "1440x1149",
+     "title": "IA-17 · renew the access plan"
+    },
+    {
+     "board": "st-ia17-sent.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-17 · request sent"
+    },
+    {
+     "board": "st-ia17-review.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-17 · request REQ-0058 · under review"
+    },
+    {
+     "board": "st-ia17-info.dc.html",
+     "page": "States",
+     "size": "1440x1057",
+     "title": "IA-17 · information requested (no reply form)"
+    },
+    {
+     "board": "st-ia17-pay.dc.html",
+     "page": "States",
+     "size": "1440x1086",
+     "title": "IA-17 · approved — payment required · plan unchanged"
+    },
+    {
+     "board": "st-ia17-active.dc.html",
+     "page": "States",
+     "size": "1440x1235",
+     "title": "IA-17 · REQ-0042 · access active"
+    },
+    {
+     "board": "rsp-ia17-375.dc.html",
+     "page": "Responsive",
+     "size": "375x825",
+     "title": "IA-17 Requests · 375"
+    },
+    {
+     "board": "rsp-ia17d-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1650",
+     "title": "IA-17 payment required · 375"
+    }
+   ],
+   "states": [
+    "Requests list",
+    "New request form (renewal or more licences) with validation",
+    "Request sent",
+    "Under review",
+    "Information requested (reason, no reply form)",
+    "Approved — payment required (plan unchanged, payment handoff)",
+    "Access active",
+    "Refused while paused and before a plan exists"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 32,
+      "clean": 32,
+      "states": [
+       "ia17-active",
+       "ia17-form",
+       "ia17-form-errors",
+       "ia17-info",
+       "ia17-pay",
+       "ia17-renew-form",
+       "ia17-review",
+       "ia17-sent"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia17.dc.html",
+       "st-ia17-form.dc.html",
+       "st-ia17-form-errors.dc.html",
+       "st-ia17-renew.dc.html",
+       "st-ia17-sent.dc.html",
+       "st-ia17-review.dc.html",
+       "st-ia17-info.dc.html",
+       "st-ia17-pay.dc.html",
+       "st-ia17-active.dc.html"
+      ],
+      "375": [
+       "rsp-ia17-375.dc.html",
+       "rsp-ia17d-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 27,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J5",
+     "K9",
+     "K10",
+     "FH1",
+     "FH2"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-18",
+   "screen": "Device requests",
+   "registerType": "tab",
+   "navigation": "Requests › Device requests",
+   "v46ProposedRoute": "/institute/requests?tab=devices",
+   "v46Boards": [
+    "B3-09"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "Device requests list with Review for requests waiting on you",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "No device request yet; paused notice",
+      "status": "REDESIGNED",
+      "when": "final: repeated footnote removed"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-18",
+    "linkHash": "#/institute/requests?tab=devices"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia18.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-18 Device requests · populated"
+    },
+    {
+     "board": "st-ia18-empty.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-18 · no device request yet"
+    },
+    {
+     "board": "rsp-ia18-375.dc.html",
+     "page": "Responsive",
+     "size": "375x812",
+     "title": "IA-18 Device requests · 375"
+    }
+   ],
+   "states": [
+    "Device requests list (waiting, decided)",
+    "Empty",
+    "Paused: can't forward"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 0,
+      "clean": 0,
+      "states": []
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia18.dc.html",
+       "st-ia18-empty.dc.html"
+      ],
+      "375": [
+       "rsp-ia18-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 20,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J5",
+     "FI1"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-19",
+   "screen": "Device request — review & forward",
+   "registerType": "page",
+   "navigation": "Detail",
+   "v46ProposedRoute": "/institute/requests/devices/[transferId]",
+   "v46Boards": [
+    "B3-09"
+   ],
+   "inventoryDisposition": "NEW",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "What the student asked for; Your action beside it; history below",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "History no longer repeats the two devices",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "Forward to BITS (DL-1), forwarded, decided, paused, not found",
+      "status": "REVIEWED AND UNCHANGED",
+      "when": null
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-19",
+    "linkHash": "#/institute/requests/devices/DTR-0018"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia19.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-19 Device request DTR-0018 · review & forward · populated"
+    },
+    {
+     "board": "st-ia19-dialog.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-19 · forward to BITS (DL-1)"
+    },
+    {
+     "board": "st-ia19-forwarded.dc.html",
+     "page": "States",
+     "size": "1440x910",
+     "title": "IA-19 · forwarded to BITS"
+    },
+    {
+     "board": "st-ia19-decided.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-19 · decided · approved by BITS"
+    },
+    {
+     "board": "st-ia19-paused.dc.html",
+     "page": "States",
+     "size": "1440x927",
+     "title": "IA-19 · can’t forward while paused"
+    },
+    {
+     "board": "rsp-ia19-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1308",
+     "title": "IA-19 Device request · 375"
+    }
+   ],
+   "states": [
+    "Waiting on you: Forward to BITS",
+    "Forward confirmation dialog",
+    "Forwarded to BITS",
+    "Decided · approved by BITS",
+    "Partial sample record (DTR-0015)",
+    "Paused: forwarding unavailable",
+    "Not found"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 16,
+      "clean": 16,
+      "states": [
+       "ia19-decided",
+       "ia19-dialog",
+       "ia19-forwarded",
+       "ia19-paused"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia19.dc.html",
+       "st-ia19-dialog.dc.html",
+       "st-ia19-forwarded.dc.html",
+       "st-ia19-decided.dc.html",
+       "st-ia19-paused.dc.html"
+      ],
+      "375": [
+       "rsp-ia19-375.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 17,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "J5",
+     "K9",
+     "FI1",
+     "FI2"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  },
+  {
+   "id": "IA-20",
+   "screen": "Usage",
+   "registerType": "page",
+   "navigation": "Sidebar Usage",
+   "v46ProposedRoute": "/institute/usage",
+   "v46Boards": [
+    "B3-10"
+   ],
+   "inventoryDisposition": "REFINE",
+   "v3Seed": false,
+   "coverage": {
+    "status": "REDESIGNED",
+    "passes": "final",
+    "subviews": [
+     {
+      "subview": "By experiment and format: figures per format; three figures side by side on phones",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "What the figures mean beside the figures",
+      "status": "REDESIGNED",
+      "when": "final"
+     },
+     {
+      "subview": "By course; no activity yet; paused; ended; no plan",
+      "status": "REDESIGNED",
+      "when": "final"
+     }
+    ]
+   },
+   "preview": {
+    "root": "project/Main.dc.html",
+    "routeProp": "IA-20",
+    "linkHash": "#/institute/usage"
+   },
+   "canvasBoards": [
+    {
+     "board": "scr-ia20.dc.html",
+     "page": "Screens · 1440",
+     "size": "1440x900",
+     "title": "IA-20 Usage · populated"
+    },
+    {
+     "board": "st-ia20-course.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-20 · by course"
+    },
+    {
+     "board": "st-ia20-empty.dc.html",
+     "page": "States",
+     "size": "1440x900",
+     "title": "IA-20 · no activity yet"
+    },
+    {
+     "board": "st-ia20-paused.dc.html",
+     "page": "States",
+     "size": "1440x935",
+     "title": "IA-20 · access paused"
+    },
+    {
+     "board": "rsp-ia20-375.dc.html",
+     "page": "Responsive",
+     "size": "375x1115",
+     "title": "IA-20 Usage · 375"
+    },
+    {
+     "board": "rsp-ia20-1024.dc.html",
+     "page": "Responsive",
+     "size": "1024x926",
+     "title": "IA-20 Usage · 1024"
+    }
+   ],
+   "states": [
+    "By experiment and format with definitions beside",
+    "By course",
+    "No activity yet (9 Oct 2026)",
+    "No usage yet (awaiting payment)",
+    "Paused",
+    "Ended: nobody counts as having access now"
+   ],
+   "evidence": {
+    "rendered": {
+     "routeRenders": {
+      "count": 28,
+      "clean": 28,
+      "worlds": 7,
+      "widths": [
+       1440,
+       1024,
+       768,
+       375
+      ]
+     },
+     "namedStateRenders": {
+      "count": 4,
+      "clean": 4,
+      "states": [
+       "ia20-course"
+      ]
+     },
+     "boardsByWidth": {
+      "1440": [
+       "scr-ia20.dc.html",
+       "st-ia20-course.dc.html",
+       "st-ia20-empty.dc.html",
+       "st-ia20-paused.dc.html"
+      ],
+      "375": [
+       "rsp-ia20-375.dc.html"
+      ],
+      "1024": [
+       "rsp-ia20-1024.dc.html"
+      ]
+     },
+     "result": "no horizontal overflow and no console error at any width"
+    },
+    "controlsExercised": 14,
+    "controlsWithNoVisibleEffect": 0,
+    "logicTests": [
+     "FJ1",
+     "FJ2"
+    ]
+   },
+   "status": {
+    "design": "FINAL — OWNER APPROVED",
+    "connectedPreview": "CONNECTED PREVIEW COMPLETE",
+    "assembly": "ASSEMBLY PENDING XS",
+    "ownerApproval": "OWNER APPROVED 21 Oct 2026"
+   }
+  }
+ ]
+}

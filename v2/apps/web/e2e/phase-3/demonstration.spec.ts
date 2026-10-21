@@ -172,7 +172,7 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await sidebar(page, '/institute/people');
   await reachAndClick(
     page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Add student' }),
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Add student' }),
   );
   await page.waitForURL('**/institute/people/add**');
   await page.getByLabel('Full name', { exact: true }).fill('Rahul Verma');
@@ -279,12 +279,18 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   );
   await page.getByRole('textbox', { name: 'Licences requested' }).fill('60');
   await reachAndClick(page, page.getByRole('button', { name: 'Send request to BITS' }));
-  const sent = page.getByRole('heading', { level: 1, name: /^Request REQ-\d{4} sent to BITS$/ });
+  // V3 (IA-v1 identifier rule): the result is named by its content; the request's reference is
+  // only in the address of its "View request" link.
+  const sent = page.getByRole('heading', { level: 1, name: 'Request sent to BITS', exact: true });
   await expect(sent).toBeVisible();
-  const reference = /REQ-\d{4}/.exec((await sent.textContent()) ?? '')![0];
-  await checkState(page, `Request ${reference} sent to BITS`);
+  const viewRequest = main(page).getByRole('link', { name: 'View request', exact: true });
+  await expect(viewRequest).toHaveAttribute('href', /^\/institute\/requests\/REQ-\d{4}$/);
+  const reference = /REQ-\d{4}/.exec((await viewRequest.getAttribute('href')) ?? '')![0];
+  await expect(main(page)).not.toContainText(reference);
+  await checkState(page, 'Request sent to BITS');
   await sidebar(page, '/institute/usage');
-  await expect(page.getByRole('heading', { level: 2, name: 'No activity yet' })).toHaveCount(0);
+  // "No activity yet" is the experiment's empty state (an h3 in its section, IA-v1).
+  await expect(page.getByRole('heading', { name: 'No activity yet' })).toHaveCount(0);
   await expect(main(page)).toContainText(SHELL);
   await checkState(page, 'Usage');
   await sidebar(page, '/institute/requests');
@@ -296,6 +302,7 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   );
   await page.waitForURL('**/institute/requests?tab=devices');
   await expect(main(page).locator('tbody tr')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: 'No device request yet' })).toBeVisible();
   await signOut(page, MEERA);
 
   // The Super Admin: the same request in Requests (SA-02); nothing forwarded in Operations.

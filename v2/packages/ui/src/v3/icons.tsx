@@ -6,9 +6,10 @@ import { joinClasses } from '../internal/classes.js';
  * inline in each rail, and the `rbi-*` / `rki-*` symbols of SA01, SA02, IA01 and IA02, plus the
  * ones the Entry & shared export (XS-v6) draws in its sign-in card, account menu, Help pages and
  * messages, the Super Admin export (SA-v1) in its sprite, the Vendor export (VE-v1) in its
- * `vei-*` symbols, the Content Manager export (CM-v1) in its `cmi-*` symbols and the Academic
- * Reviewer export (RV-v1) in its rail and its `rvi-*` symbols. Thirty-five are the very paths of
- * the v46 registry (taken from it, so the two never drift); the others are new to V3.
+ * `vei-*` symbols, the Content Manager export (CM-v1) in its `cmi-*` symbols, the Academic
+ * Reviewer export (RV-v1) in its rail and its `rvi-*` symbols and the Institute Admin export
+ * (IA-v1) in its rail and its `rbi-*` / `rki-*` sprite. Thirty-five are the very paths of the v46
+ * registry (taken from it, so the two never drift); the others are new to V3.
  * `primitives.test.tsx` checks every path against the board or export that draws it.
  */
 export const V3_ICON_PATHS = {
@@ -115,6 +116,10 @@ export const V3_ICON_PATHS = {
   flag: 'M5 21V4M5 4h11l-2 4 2 4H5',
   outsideScope: 'M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9.5 12.5h5',
   unavailable: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM5.6 5.6l12.8 12.8',
+  // New in the Institute Admin export (IA-v1 `Main.dc.html` `rki-device`): the headset of the empty
+  // Device requests list.
+  device:
+    'M3 8.5A2.5 2.5 0 0 1 5.5 6h13A2.5 2.5 0 0 1 21 8.5v5a2.5 2.5 0 0 1-2.5 2.5h-3l-1.5-2.5h-4L8.5 16h-3A2.5 2.5 0 0 1 3 13.5z',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;

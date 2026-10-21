@@ -128,6 +128,24 @@ export function rvExport(file: string): string {
   return readFileSync(join(RV_EXPORT_DIRECTORY, file), 'utf8');
 }
 
+/**
+ * The owner-approved Institute Admin export (IA-v1), read only: its live role root (`Main.dc.html`,
+ * START-HERE "Live role entry") and sheet (`ia-role.css`).
+ */
+export const IA_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'IA-v1',
+  'project',
+);
+
+/** An IA export file's source (`Main.dc.html`, `ia-role.css`, …), by file name. */
+export function iaExport(file: string): string {
+  return readFileSync(join(IA_EXPORT_DIRECTORY, file), 'utf8');
+}
+
 /** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
 export function xsContract(): {
   readonly components: readonly {

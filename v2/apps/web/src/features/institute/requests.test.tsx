@@ -1,12 +1,14 @@
 /**
- * Phase 3 — the Institute Admin's Requests on the real composition root and the sample world:
- * IA-17 Requests to BITS, its form and its request detail (B3-08), IA-18 Device requests and IA-19
- * Device request — review & forward (B3-09), and the Phase-2 actions they enable (IA-01's
+ * Phase 3 in V3 — the Institute Admin's Requests on the real composition root and the sample world,
+ * as the owner-approved Institute Admin export draws them (design/v3-refined-b/roles/IA-v1):
+ * IA-17 Requests to BITS, its form, its result and its request detail, IA-18 Device requests and
+ * IA-19 Device request — review & forward, and the Phase-2 actions they enable (IA-01's
  * device-request row). Every row, status and line is the ports' answer: a request sent from the
  * form is the record the Super Admin decides (SA-02 / SA-03), and the Super Admin's decisions
  * change what the detail shows; forwarding a device request is the record the Student and the
- * Super Admin read. The Institute Admin never approves or declines a transfer (T-32), and no plan
- * change is ever claimed for a renewal or more licences (OD-B3-09).
+ * Super Admin read. The Institute Admin never approves or declines a transfer (T-32), no plan
+ * change is ever claimed for a renewal or more licences (OD-B3-09), and no page names a request,
+ * an access plan or a device request by its internal reference (state-copy `IA-17.no-reference`).
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -38,6 +40,7 @@ afterEach(() => {
 
 const MEERA = PERSON_OF_ROLE.tenant_admin;
 const IMRAN = 'per-0006';
+const RAHUL = PERSON_OF_ROLE.student;
 
 type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
 
@@ -53,14 +56,46 @@ function inInstitute(runtime: PlatformRuntime, path: string, page: ReactNode, se
 }
 
 const main = () => screen.getByRole('main');
-const topTitle = () => document.querySelector('.xr-top-title')?.textContent;
+/** The browser tab's words before the product's name. */
+const tabTitle = () => document.title.replace(/ · XR Learning Platform$/, '');
+/** The page's own crumbs (V3 draws them in the page): each level, then this page. */
 const crumbs = () =>
-  [...document.querySelectorAll('.xr-crumbs li')].map((item) =>
-    item.textContent?.replace('/', '').trim(),
-  );
+  [
+    ...main().querySelectorAll(
+      'nav[aria-label="Breadcrumb"] > a, nav[aria-label="Breadcrumb"] > [aria-current="page"]',
+    ),
+  ].map((item) => item.textContent);
+const crumbLink = (name: string) =>
+  within(main().querySelector('nav[aria-label="Breadcrumb"]') as HTMLElement).getByRole('link', {
+    name,
+  });
 const rowsOf = (table: HTMLElement) => [...table.querySelectorAll('tbody tr')] as HTMLElement[];
 const cells = (row: HTMLElement) =>
   [...row.querySelectorAll('td')].map((cell) => cell.textContent?.trim());
+const terms = (region: HTMLElement, list = 'dl') =>
+  [...region.querySelectorAll(`${list} dt`)].map((node) => node.textContent);
+const values = (region: HTMLElement, list = 'dl') =>
+  [...region.querySelectorAll(`${list} dd`)].map((node) => node.textContent);
+
+/** An internal reference (the owner's identifier rule, state-copy `IA-17.no-reference`). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference anywhere a person meets it: the page's words (closed dialogs too), the
+ * accessible names, titles and placeholders, the fields' values and the browser tab.
+ */
+function expectNoReference(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const control of document.querySelectorAll('input, textarea')) {
+    expect((control as HTMLInputElement | HTMLTextAreaElement).value).not.toMatch(REFERENCE);
+  }
+  for (const element of document.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '').not.toMatch(REFERENCE);
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 /** The Super Admin pauses Godavari (B7-04). */
 async function pauseGodavari(sample: Sample) {
@@ -75,7 +110,7 @@ async function pauseGodavari(sample: Sample) {
   if (!paused.ok) throw new Error(`pause ${JSON.stringify(paused.error)}`);
 }
 
-/** The Super Admin decides REQ-0058 on SA-03, as B3-08 f5 / f6 draw the result. */
+/** The Super Admin decides REQ-0058 on SA-03. */
 async function decide(sample: Sample, decision: 'information' | 'approve') {
   const arjun = asPersonId(sample, SUPER_ADMIN);
   const page = await arjun.accessRequests.getRequestForDecision('REQ-0058' as never);
@@ -96,22 +131,23 @@ async function decide(sample: Sample, decision: 'information' | 'approve') {
 }
 
 async function requestsTable() {
-  return screen.findByRole('table', { name: 'Requests to BITS' });
+  return screen.findByRole('table', { name: 'Requests to BITS, newest first' });
 }
 
-// ---- IA-17 Requests to BITS (B3-08 f0, f3, f7) ----------------------------------------------------
+// ---- IA-17 Requests to BITS (IA-v1 "IA-17 list") --------------------------------------------------
 
-describe('IA-17 — Requests to BITS (B3-08 f0, f3)', () => {
-  it('the list: REQ-0042 as the institution’s new-access request, the tabs and the one action (f0)', async () => {
+describe('IA-17 — Requests to BITS (IA-v1 list)', () => {
+  it('the list: the institution’s new-access request named by its kind and date, the tabs and the one action', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
     inInstitute(runtime, '/institute/requests', <InstituteRequests />);
     const table = await requestsTable();
-    await waitFor(() => expect(rowsOf(table)[0]).toHaveTextContent('Access active'));
+    await waitFor(() => expect(cells(rowsOf(table)[0]!)[1]).not.toBe(''));
     expect(screen.getByRole('heading', { level: 1, name: 'Requests' })).toBeVisible();
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent(
+    expect(main().querySelector('.rk-head .rk-sub')).toHaveTextContent(
       'What you’ve asked BITS for, and device requests from your students',
     );
-    expect(topTitle()).toBe('Requests');
+    expect(tabTitle()).toBe('Requests');
+    expect(crumbs()).toEqual([]);
     const tabs = screen.getByRole('navigation', { name: 'Requests' });
     expect(within(tabs).getByRole('link', { name: 'Requests to BITS' })).toHaveAttribute(
       'aria-current',
@@ -130,43 +166,56 @@ describe('IA-17 — Requests to BITS (B3-08 f0, f3)', () => {
     expect(rowsOf(table)).toHaveLength(1);
     const row = rowsOf(table)[0]!;
     expect(cells(row)).toEqual([
-      'REQ-0042New access',
+      'New accessSent 2 Oct 2026',
       'Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly',
       'Access active',
-      'Access active since 8 Oct 2026',
+      'Last change8 Oct 2026, 15:05',
     ]);
-    expect(row.querySelector('.xr-status--ok')).toHaveTextContent('Access active');
-    expect(within(row).getByRole('link', { name: 'REQ-0042' })).toHaveAttribute(
-      'href',
-      '/institute/requests/REQ-0042',
+    expect(row.querySelector('.xr-st--ok')).toHaveTextContent('Access active');
+    expect(
+      within(row).getByRole('link', {
+        name: 'New access, sent 2 Oct 2026, Access active. Open the request',
+      }),
+    ).toHaveAttribute('href', '/institute/requests/REQ-0042');
+    expect(row).toHaveClass('is-link');
+    expect(main().querySelector('.ia-gm-foot')).toHaveTextContent(
+      'Licences are shown as requested and approved by BITS.',
     );
     expect(
-      within(main().querySelector('.xr-phead-actions') as HTMLElement).getByRole('button', {
+      within(main().querySelector('.rk-head-act') as HTMLElement).getByRole('button', {
         name: 'Ask BITS for a renewal or more licences',
       }),
-    ).toHaveClass('xr-btn--primary');
+    ).toHaveClass('rb-btn--primary');
+    expectNoReference();
   });
 
-  it('after IA-17 on 21 Oct: REQ-0058 Under review, listed above REQ-0042 (f3)', async () => {
+  it('after IA-17 on 21 Oct: the more-licences request Under review, listed above the new-access one', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-c');
     inInstitute(runtime, '/institute/requests', <InstituteRequests />);
     const table = await requestsTable();
-    await waitFor(() => expect(rowsOf(table)[0]).toHaveTextContent('Under review'));
+    await waitFor(() => expect(cells(rowsOf(table)[0]!)[1]).not.toBe(''));
+    await waitFor(() => expect(cells(rowsOf(table)[1]!)[1]).not.toBe(''));
     expect(rowsOf(table).map(cells)).toEqual([
       [
-        'REQ-0058More licences',
+        'More licencesSent 21 Oct 2026',
         '60 more licences · Shell-and-Tube Heat Exchanger',
         'Under review',
-        '21 Oct 2026, 16:05',
+        'Last change21 Oct 2026, 16:05',
       ],
       [
-        'REQ-0042New access',
+        'New accessSent 2 Oct 2026',
         'Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly',
         'Access active',
-        'Access active since 8 Oct 2026',
+        'Last change8 Oct 2026, 15:05',
       ],
     ]);
-    expect(rowsOf(table)[0]!.querySelector('.xr-status--wait')).toHaveTextContent('Under review');
+    expect(rowsOf(table)[0]!.querySelector('.xr-st--info')).toHaveTextContent('Under review');
+    expect(
+      within(rowsOf(table)[0]!).getByRole('link', {
+        name: 'More licences, sent 21 Oct 2026, Under review. Open the request',
+      }),
+    ).toHaveAttribute('href', '/institute/requests/REQ-0058');
+    expectNoReference();
   });
 
   it('an unknown tab shows Requests to BITS and the address becomes the bare one', async () => {
@@ -181,7 +230,7 @@ describe('IA-17 — Requests to BITS (B3-08 f0, f3)', () => {
     expect(navigation.replace).toHaveBeenCalledWith('/institute/requests');
   });
 
-  it('announces loading; a failed read has Try again', async () => {
+  it('announces loading; a failed read has Try again, which reads again', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-b');
     faults(sample).failNext('AccessRequestService.listInstitutionRequests');
@@ -193,12 +242,13 @@ describe('IA-17 — Requests to BITS (B3-08 f0, f3)', () => {
       'Loading your requests',
     );
     const failed = await screen.findByRole('heading', { name: 'We couldn’t load your requests' });
-    expect(failed.closest('.xr-empty')).toHaveTextContent('Nothing has changed. Try again.');
+    expect(failed.closest('.rk-state')).toHaveTextContent('Nothing has changed. Try again.');
+    expect(failed.closest('.rk-state')).toHaveAttribute('role', 'alert');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await requestsTable()).toBeVisible();
   });
 
-  it('paused: read-only — no “Ask BITS …”, the paused notice; the list stays', async () => {
+  it('paused: read-only — no “Ask BITS …”, the drawn notice; the list stays', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-c');
     await pauseGodavari(sample);
     await act(async () => {
@@ -206,14 +256,21 @@ describe('IA-17 — Requests to BITS (B3-08 f0, f3)', () => {
     });
     inInstitute(runtime, '/institute/requests', <InstituteRequests />);
     expect(await requestsTable()).toBeVisible();
-    expect(main()).toHaveTextContent('Read-only while your institution’s access is paused');
+    const notice = main().querySelector('.rk-notice--paused')!;
+    expect(notice).toHaveTextContent(
+      'You can’t ask BITS for anything while your institution’s access is paused',
+    );
+    expect(notice).toHaveTextContent(
+      'Your requests and their history stay here. You can ask again when BITS lifts the pause.',
+    );
     expect(
       screen.queryByRole('button', { name: 'Ask BITS for a renewal or more licences' }),
     ).toBeNull();
+    expectNoReference();
   });
 });
 
-// ---- IA-17's form (B3-08 f1, f2) and the result (f0 done) ----------------------------------------
+// ---- IA-17's form (IA-v1 "IA-17 form") and the result ("sent") -----------------------------------
 
 async function openForm(runtime: PlatformRuntime) {
   const user = userEvent.setup();
@@ -230,12 +287,25 @@ async function openForm(runtime: PlatformRuntime) {
   return user;
 }
 
-describe('IA-17 — Ask for a renewal or more licences (B3-08 f1, f2)', () => {
-  it('more licences: each drawn error, then REQ sent, Under review, the same record SA-02 lists', async () => {
+/** The new request's reference, read from its address ("View request"), never from the page's words. */
+function sentReference(): string {
+  const href = screen.getByRole('link', { name: 'View request' }).getAttribute('href') ?? '';
+  const reference = /\/institute\/requests\/(REQ-\d{4})$/.exec(href)?.[1];
+  if (!reference) throw new Error(`no request address: ${href}`);
+  return reference;
+}
+
+describe('IA-17 — Ask for a renewal or more licences (IA-v1 form, sent)', () => {
+  it('more licences: each drawn error, then sent, Under review, the same record SA-02 lists', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-b');
     const user = await openForm(runtime);
-    expect(topTitle()).toBe('Requests');
-    expect(main().querySelector('.xr-overline')).toHaveTextContent('Request to BITS');
+    expect(tabTitle()).toBe('Ask BITS · Requests');
+    expect(crumbs()).toEqual(['Requests', 'Ask BITS']);
+    expect(crumbLink('Requests')).toHaveAttribute('href', '/institute/requests');
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent('Request to BITS');
+    expect(
+      screen.getByRole('form', { name: 'Ask for a renewal or more licences' }),
+    ).toHaveAttribute('novalidate');
     const organisation = screen.getByRole('region', { name: 'Organisation and contact person' });
     expect(organisation).toHaveTextContent('InstitutionGodavari Institute of Technology');
     expect(organisation).toHaveTextContent('Contact personMeera Iyer · meera.iyer@godavari.edu.in');
@@ -244,19 +314,25 @@ describe('IA-17 — Ask for a renewal or more licences (B3-08 f1, f2)', () => {
     // Nothing chosen: "Choose what you need" (the form's own check).
     await user.click(screen.getByRole('button', { name: 'Send request to BITS' }));
     const summary = await screen.findByRole('alert');
-    expect(summary).toHaveClass('xw-errsum');
+    expect(summary).toHaveClass('rk-errsum');
     expect(summary).toHaveTextContent('Check your request');
     expect(summary).toHaveTextContent('Choose what you need');
     await waitFor(() => expect(summary).toHaveFocus());
+    expect(screen.getByRole('group', { name: 'What you need' })).toHaveAccessibleDescription(
+      'Choose what you need',
+    );
 
-    await user.click(screen.getByRole('radio', { name: /More licences for experiments you hold/ }));
+    await user.click(screen.getByRole('radio', { name: 'More licences for experiments you hold' }));
     expect(screen.queryByRole('alert')).toBeNull();
     const more = screen.getByRole('region', { name: 'Experiments and licences' });
     const experiment = within(more).getByRole('checkbox', {
-      name: 'Shell-and-Tube Heat Exchanger · ME ZG523 · WEB and VR',
+      name: 'Shell-and-Tube Heat Exchanger · ME ZG523',
     });
     expect(experiment).toBeChecked();
-    expect(within(more).getByRole('group', { name: 'Experiments in ACC-0107' })).toBeVisible();
+    expect(experiment).toHaveAccessibleDescription('WEB and VR · in your access plan');
+    expect(
+      within(more).getByRole('group', { name: 'Experiments in your access plan' }),
+    ).toBeVisible();
     const licences = within(more).getByRole('textbox', { name: 'Licences requested' });
     expect(licences).toHaveAccessibleDescription(/How many more you need, as a whole number./);
 
@@ -284,23 +360,30 @@ describe('IA-17 — Ask for a renewal or more licences (B3-08 f1, f2)', () => {
       'Sem II has a larger batch than planned.',
     );
     await user.click(screen.getByRole('button', { name: 'Send request to BITS' }));
-    const sent = await screen.findByRole('heading', { level: 1, name: /sent to BITS$/ });
-    const reference = sent.querySelector('.xr-id')!.textContent!;
-    expect(reference).toMatch(/^REQ-\d{4}$/);
-    expect(sent).toHaveTextContent(`Request ${reference} sent to BITS`);
+    const sent = await screen.findByRole('heading', { level: 1, name: 'Request sent to BITS' });
+    const reference = sentReference();
     expect(main()).toHaveTextContent(
       '60 more licences · Shell-and-Tube Heat Exchanger. Status: Under review. Each change shows here, in Requests.',
     );
     await waitFor(() => expect(document.getElementById('ask-done')).toHaveFocus());
+    expect(sent).toHaveAttribute('id', 'ask-done');
+    expect(crumbs()).toEqual(['Requests', 'Request sent']);
+    expect(tabTitle()).toBe('Request sent · Requests');
+    expectNoReference();
 
     await user.click(screen.getByRole('button', { name: 'Back to Requests' }));
     const table = await requestsTable();
     await waitFor(() => expect(rowsOf(table)).toHaveLength(2));
-    expect(cells(rowsOf(table)[0]!).slice(0, 3)).toEqual([
-      `${reference}More licences`,
+    await waitFor(() => expect(cells(rowsOf(table)[0]!)[1]).not.toBe(''));
+    expect(cells(rowsOf(table)[0]!)[0]).toMatch(/^More licencesSent /);
+    expect(cells(rowsOf(table)[0]!).slice(1, 3)).toEqual([
       '60 more licences · Shell-and-Tube Heat Exchanger',
       'Under review',
     ]);
+    expect(within(rowsOf(table)[0]!).getByRole('link', { name: /^More licences/ })).toHaveAttribute(
+      'href',
+      `/institute/requests/${reference}`,
+    );
     await waitFor(() =>
       expect(screen.getByRole('heading', { level: 1, name: 'Requests' })).toHaveFocus(),
     );
@@ -319,38 +402,51 @@ describe('IA-17 — Ask for a renewal or more licences (B3-08 f1, f2)', () => {
     expect(plan.ok && plan.value.plan.licences).toBe(120);
   });
 
-  it('renewal mirrors the plan (f2) and is sent as “Renewal of ACC-0107”', async () => {
+  it('renewal mirrors the plan, is sent as “Renewal of your access plan” and is noted as open', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
-    const user = await openForm(runtime);
-    await user.click(screen.getByRole('radio', { name: /Renew access plan ACC-0107/ }));
+    let user = await openForm(runtime);
+    expect(screen.queryByRole('note')).toBeNull();
+    await user.click(screen.getByRole('radio', { name: 'Renew your access plan' }));
     const renewing = screen.getByRole('region', { name: 'The plan you’re renewing' });
-    expect([...renewing.querySelectorAll('dt')].map((node) => node.textContent)).toEqual([
-      'Access plan',
-      'Experiment',
-      'Formats',
-      'Licences',
-      'Term',
-    ]);
-    expect([...renewing.querySelectorAll('dd')].map((node) => node.textContent)).toEqual([
-      'ACC-0107',
+    expect(terms(renewing)).toEqual(['Experiment', 'Formats', 'Licences', 'Term']);
+    expect(values(renewing)).toEqual([
       'Shell-and-Tube Heat Exchanger · ME ZG523',
       'WEBVR',
       '120 licences',
       'Yearly · current plan ends 7 Oct 2027',
     ]);
+    expect(
+      within(renewing).getByRole('img', { name: 'Formats in your access plan: WEB, VR' }),
+    ).toBeVisible();
     expect(screen.queryByRole('textbox', { name: 'Licences requested' })).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Send request to BITS' }));
-    expect(await screen.findByRole('heading', { level: 1, name: /sent to BITS$/ })).toBeVisible();
+    expect(
+      await screen.findByRole('heading', { level: 1, name: 'Request sent to BITS' }),
+    ).toBeVisible();
     expect(main()).toHaveTextContent(
-      'Renewal of ACC-0107. Status: Under review. Each change shows here, in Requests.',
+      'Renewal of your access plan. Status: Under review. Each change shows here, in Requests.',
     );
+    expectNoReference();
     await user.click(screen.getByRole('button', { name: 'Back to Requests' }));
     const table = await requestsTable();
-    await waitFor(() => expect(rowsOf(table)[0]).toHaveTextContent('Renewal of ACC-0107'));
-    expect(rowsOf(table)[0]).toHaveTextContent('Renewal');
+    await waitFor(() => expect(rowsOf(table)[0]).toHaveTextContent('Renewal of your access plan'));
+    expect(cells(rowsOf(table)[0]!)[0]).toMatch(/^RenewalSent /);
+    expectNoReference();
+
+    // The form again: the renewal still with BITS is noted under "What you need".
+    user = userEvent.setup();
+    await user.click(
+      screen.getByRole('button', { name: 'Ask BITS for a renewal or more licences' }),
+    );
+    const note = await screen.findByRole('note');
+    expect(note).toHaveTextContent('You’ve already asked for a renewal');
+    expect(note).toHaveTextContent(
+      /Renewal sent \d{1,2} \w{3} \d{4} · Under review\. You can still send another request; BITS sees both\./,
+    );
+    expectNoReference();
   });
 
-  it('Cancel and the back link return to the list, focus on its title; nothing is sent', async () => {
+  it('Cancel and the crumb return to the list, focus on its title; nothing is sent', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-b');
     const version = sample.worldVersion();
     let user = await openForm(runtime);
@@ -362,26 +458,31 @@ describe('IA-17 — Ask for a renewal or more licences (B3-08 f1, f2)', () => {
       screen.getByRole('button', { name: 'Ask BITS for a renewal or more licences' }),
     );
     await screen.findByRole('heading', { level: 1, name: 'Ask for a renewal or more licences' });
-    await user.click(main().querySelector('button.xr-back') as HTMLElement);
+    await user.click(crumbLink('Requests'));
     expect(await requestsTable()).toBeVisible();
+    await waitFor(() =>
+      expect(screen.getByRole('heading', { level: 1, name: 'Requests' })).toHaveFocus(),
+    );
     expect(sample.worldVersion()).toBe(version);
   });
 
   it('a pause meanwhile: the refusal returns to the list, read-only', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-b');
     const user = await openForm(runtime);
-    await user.click(screen.getByRole('radio', { name: /Renew access plan ACC-0107/ }));
+    await user.click(screen.getByRole('radio', { name: 'Renew your access plan' }));
     await pauseGodavari(sample);
     await user.click(screen.getByRole('button', { name: 'Send request to BITS' }));
     expect(await requestsTable()).toBeVisible();
-    expect(main()).toHaveTextContent('Read-only while your institution’s access is paused');
+    expect(main()).toHaveTextContent(
+      'You can’t ask BITS for anything while your institution’s access is paused',
+    );
     expect(
       screen.queryByRole('button', { name: 'Ask BITS for a renewal or more licences' }),
     ).toBeNull();
   });
 });
 
-// ---- IA-17's request detail (B3-08 f4 … f6) ---------------------------------------------------
+// ---- IA-17's request detail (IA-v1 "IA-17 detail") -----------------------------------------------
 
 async function detailOf(runtime: PlatformRuntime, requestId = 'REQ-0058') {
   inInstitute(
@@ -393,35 +494,39 @@ async function detailOf(runtime: PlatformRuntime, requestId = 'REQ-0058') {
 }
 
 const historyLines = (region: HTMLElement) =>
-  [...region.querySelectorAll('li.xr-tl')].map((item) =>
-    [...item.querySelectorAll('.xr-tl-what, .xr-tl-when, .xr-tl-note')].map(
-      (line) => line.textContent,
-    ),
+  [...region.querySelectorAll('ol.rk-tl > li')].map((item) =>
+    [...item.querySelectorAll('.rk-tl-w, .rk-tl-t, .rk-tl-n')].map((line) => line.textContent),
   );
 
-describe('IA-17 — request detail (B3-08 f4 … f6)', () => {
-  it('Under review (f4): the request, what was asked for and its history', async () => {
+const stands = () => screen.getByRole('region', { name: 'Where it stands' });
+
+describe('IA-17 — request detail (IA-v1 detail)', () => {
+  it('Under review: the request named by what it asks, what was asked for, where it stands, its history', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-c');
     const history = await detailOf(runtime);
     expect(screen.getByRole('heading', { level: 1, name: '60 more licences' })).toBeVisible();
-    expect(main().querySelector('.xr-back')).toHaveAttribute('href', '/institute/requests');
-    expect(main().querySelector('.xr-overline')).toHaveTextContent('Request to BITS · REQ-0058');
-    const meta = main().querySelector('.xr-phead-meta')!;
-    expect(meta.querySelector('.xr-status--wait')).toHaveTextContent('Under review');
+    expect(crumbs()).toEqual(['Requests', '60 more licences']);
+    expect(crumbLink('Requests')).toHaveAttribute('href', '/institute/requests');
+    expect(tabTitle()).toBe('60 more licences · Requests');
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent('Request to BITS');
+    const meta = main().querySelector('.rk-head .rk-meta')!;
+    expect(meta.querySelector('.xr-st--info')).toHaveTextContent('Under review');
     expect(meta).toHaveTextContent('Sent 21 Oct 2026, 16:05');
-    expect(topTitle()).toBe('REQ-0058');
-    expect(crumbs()).toEqual(['Requests', 'REQ-0058']);
     const asked = screen.getByRole('region', { name: 'What you asked for' });
-    expect([...asked.querySelectorAll('dt')].map((node) => node.textContent)).toEqual([
-      'Request type',
-      'Experiment',
-      'Licences requested',
-    ]);
-    expect([...asked.querySelectorAll('dd')].map((node) => node.textContent)).toEqual([
+    expect(terms(asked)).toEqual(['Request type', 'Experiment', 'Licences requested', 'Formats']);
+    expect(values(asked)).toEqual([
       'More licences for experiments you hold',
-      'Shell-and-Tube Heat Exchanger · ME ZG523 · WEB and VR',
+      'Shell-and-Tube Heat Exchanger · ME ZG523',
       '60',
+      'WEBVR',
     ]);
+    expect(within(asked).getByRole('img', { name: 'Formats: WEB, VR' })).toBeVisible();
+    expect(asked.querySelector('.rk-quote')).toBeNull();
+    expect(terms(stands())).toEqual(['Request', 'Payment', 'Your access plan']);
+    expect(values(stands())).toEqual(['Under review', 'Not started', 'Unchanged']);
+    expect(stands()).toHaveTextContent(
+      'Review, payment and your access plan are separate steps. A request doesn’t change your plan by itself.',
+    );
     expect(historyLines(history)).toEqual([
       [
         'Sent to BITS',
@@ -429,38 +534,47 @@ describe('IA-17 — request detail (B3-08 f4 … f6)', () => {
         '60 more licences · Shell-and-Tube Heat Exchanger',
       ],
     ]);
-    expect(main().querySelector('.xr-notice')).toBeNull();
+    expect(main().querySelector('.rk-notice')).toBeNull();
+    expectNoReference();
   });
 
-  it('Information requested (f5): the reason, no reply field', async () => {
+  it('Information requested: the reason, when, and no reply field', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-c');
     await decide(sample, 'information');
     const history = await detailOf(runtime);
-    expect(main().querySelector('.xr-phead-meta .xr-status--info')).toHaveTextContent(
+    expect(main().querySelector('.rk-head .rk-meta .xr-st--err')).toHaveTextContent(
       'Information requested',
     );
-    const notice = main().querySelector('.xw-stack > .xr-notice')!;
+    const notice = main().querySelector('.rk-notice--info')!;
+    expect(notice).toHaveAttribute('role', 'status');
+    expect(notice).toHaveTextContent('BITS asked for more information');
     expect(notice).toHaveTextContent(
-      'BITS asked for more information“Please confirm the batch size for Sem II before we review the request.”',
+      /^BITS asked for more information“Please confirm the batch size for Sem II before we review the request\.” · \d{1,2} \w{3} \d{4}, \d\d:\d\d\. Reply outside the platform; there is no reply form here\.$/,
     );
     expect(screen.queryByRole('textbox')).toBeNull();
+    expect(values(stands())).toEqual(['Information requested', 'Not started', 'Unchanged']);
     expect(historyLines(history)[0]).toEqual([
       'BITS asked for more information',
       expect.stringMatching(/ · BITS$/),
       '“Please confirm the batch size for Sem II before we review the request.”',
     ]);
+    expectNoReference();
   });
 
-  it('Approved — payment required (f6): “Open the payment page” opens PU-12 by its address; no plan change', async () => {
+  it('Approved — payment required: “Open the payment page” opens PU-12 by its address; no plan change', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-c');
     await decide(sample, 'approve');
     const history = await detailOf(runtime);
-    const notice = main().querySelector('.xw-stack > .xr-notice--warn')!;
+    expect(main().querySelector('.rk-head .rk-meta .xr-st--warn')).toHaveTextContent(
+      'Approved — payment required',
+    );
+    const notice = main().querySelector('.rk-notice--warn')!;
     expect(notice).toHaveTextContent('Approved — payment required');
     expect(notice).toHaveTextContent('Nothing changes until the payment is confirmed.');
-    expect(
-      within(notice as HTMLElement).getByRole('link', { name: 'Open the payment page' }),
-    ).toHaveAttribute('href', '/requests/rq-0012/payment');
+    const pay = within(notice as HTMLElement).getByRole('link', { name: 'Open the payment page' });
+    expect(pay).toHaveAttribute('href', '/requests/rq-0012/payment');
+    expect(pay).toHaveClass('rb-btn--navy');
+    expect(values(stands())).toEqual(['Approved', 'Waiting, not confirmed', 'Unchanged']);
     expect(historyLines(history)[0]).toEqual([
       'Approved — payment required',
       expect.stringMatching(/ · BITS$/),
@@ -469,20 +583,45 @@ describe('IA-17 — request detail (B3-08 f4 … f6)', () => {
     expect(main()).not.toHaveTextContent(/plan (changed|updated)|licences added/i);
     const plan = await runtime.ports.institutions.getAccessPlan('ACC-0107' as never);
     expect(plan.ok && plan.value.plan.licences).toBe(120);
+    expectNoReference();
   });
 
-  it('REQ-0042, the new-access request: its term and the events up to Access active', async () => {
+  it('the new-access request: its term, its message, the plan it created and the events up to Access active', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
     const history = await detailOf(runtime, 'REQ-0042');
-    expect(screen.getByRole('heading', { level: 1, name: 'New access' })).toBeVisible();
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'New access · Shell-and-Tube Heat Exchanger',
+      }),
+    ).toBeVisible();
+    expect(crumbs()).toEqual(['Requests', 'New access · Shell-and-Tube Heat Exchanger']);
     const asked = screen.getByRole('region', { name: 'What you asked for' });
-    expect([...asked.querySelectorAll('dd')].map((node) => node.textContent)).toEqual([
-      'New access',
-      'Shell-and-Tube Heat Exchanger · ME ZG523 · WEB and VR',
+    expect(terms(asked)).toEqual(['Request type', 'Experiment', 'Licences', 'Term', 'Formats']);
+    expect(values(asked)).toEqual([
+      'New access (sent from the public request form)',
+      'Shell-and-Tube Heat Exchanger · ME ZG523',
       '120',
-      // PC-50: the requester's own message as sent (B1-07), "Message to BITS" (B3-08 f4).
-      '“We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.”',
       'Yearly',
+      'WEBVR',
+    ]);
+    // PC-50: the requester's own message as sent, "Message to BITS".
+    expect(asked.querySelector('.rk-label')).toHaveTextContent('Message to BITS');
+    expect(asked.querySelector('.rk-quote')).toHaveTextContent(
+      '“We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.”',
+    );
+    const notice = main().querySelector('.rk-notice--ok')!;
+    expect(notice).toHaveTextContent('Access active');
+    expect(notice).toHaveTextContent(
+      'Payment confirmed. Your access plan was created 8 Oct 2026, 15:05.',
+    );
+    expect(
+      within(notice as HTMLElement).getByRole('link', { name: 'View your access plan' }),
+    ).toHaveAttribute('href', '/institute/content-access/plans/ACC-0107');
+    expect(values(stands())).toEqual([
+      'Approved',
+      expect.stringMatching(/^Confirmed \d{1,2} \w{3} \d{4}, \d\d:\d\d$/),
+      'Active since 8 Oct 2026, 15:05',
     ]);
     expect(historyLines(history).map((line) => line[0])).toEqual([
       'Access active',
@@ -490,7 +629,8 @@ describe('IA-17 — request detail (B3-08 f4 … f6)', () => {
       'Approved — payment required',
       'Sent to BITS',
     ]);
-    expect(historyLines(history)[0]![2]).toBe('Access plan ACC-0107.');
+    expect(historyLines(history)[0]![2]).toBe('Your access plan was created.');
+    expectNoReference();
   });
 
   it.each(['REQ-9999', 'REQ-0029'])(
@@ -528,19 +668,18 @@ describe('IA-17 — request detail (B3-08 f4 … f6)', () => {
   });
 });
 
-// ---- IA-18 Device requests (B3-09 f0) ---------------------------------------------------------
+// ---- IA-18 Device requests (IA-v1 "IA-18") --------------------------------------------------------
 
 async function deviceTable() {
-  return screen.findByRole('table', { name: 'Device requests' });
+  return screen.findByRole('table', { name: 'Device requests from your students' });
 }
 
-describe('IA-18 — Device requests (B3-09 f0)', () => {
+describe('IA-18 — Device requests (IA-v1 tab)', () => {
   it('one row per request, newest first, status in words; Review only on the one waiting', async () => {
     const { runtime } = await tabPlatform(MEERA, 'state-coverage');
     inInstitute(runtime, '/institute/requests', <InstituteRequests />, '?tab=devices');
     const table = await deviceTable();
-    expect(topTitle()).toBe('Device requests');
-    expect(crumbs()).toEqual(['Requests', 'Device requests']);
+    expect(tabTitle()).toBe('Device requests');
     expect(main()).toHaveTextContent('You forward device requests to BITS. BITS decides.');
     expect(
       screen.queryByRole('button', { name: 'Ask BITS for a renewal or more licences' }),
@@ -550,41 +689,59 @@ describe('IA-18 — Device requests (B3-09 f0)', () => {
         name: 'Device requests',
       }),
     ).toHaveAttribute('aria-current', 'page');
+    expect([...table.querySelectorAll('thead th')].map((cell) => cell.textContent)).toEqual([
+      'Student',
+      'Request',
+      'Status',
+      'Action',
+    ]);
     const [imran, rahul] = rowsOf(table);
     expect(cells(imran!)).toEqual([
       'Imran ShaikhGIT-2026-0409',
-      'VR device transferDTR-0019 · 15 Nov 2026',
+      'VR device transfer15 Nov 2026',
       'Waiting on you',
       'Review',
     ]);
-    expect(imran!.querySelector('.xr-status--wait')).toHaveTextContent('Waiting on you');
+    expect(imran!.querySelector('.xr-st--warn')).toHaveTextContent('Waiting on you');
     expect(
       within(imran!).getByRole('link', { name: 'Review Imran Shaikh’s request' }),
     ).toHaveAttribute('href', '/institute/requests/devices/DTR-0019');
+    expect(
+      within(imran!).getByRole('link', {
+        name: 'VR device transfer from Imran Shaikh, 15 Nov 2026',
+      }),
+    ).toHaveAttribute('href', '/institute/requests/devices/DTR-0019');
     expect(cells(rahul!)).toEqual([
       'Rahul VermaGIT-2026-0418',
-      'VR device transferDTR-0018 · 22 Oct 2026',
+      'VR device transfer22 Oct 2026',
       'Decided · approved by BITS',
       '',
     ]);
     expect(within(rahul!).getByRole('link', { name: 'Rahul Verma' })).toHaveAttribute(
       'href',
-      '/institute/requests/devices/DTR-0018',
+      `/institute/people/students/${RAHUL}`,
     );
+    expect(
+      within(rahul!).getByRole('link', {
+        name: 'VR device transfer from Rahul Verma, 22 Oct 2026',
+      }),
+    ).toHaveAttribute('href', '/institute/requests/devices/DTR-0018');
     // No approve or decline anywhere (T-32).
     expect(screen.queryByRole('button', { name: /approve|decline/i })).toBeNull();
+    expectNoReference();
   });
 
   it('no request yet: “No device request yet”', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
     inInstitute(runtime, '/institute/requests', <InstituteRequests />, '?tab=devices');
-    expect(await screen.findByRole('heading', { name: 'No device request yet' })).toBeVisible();
+    const empty = await screen.findByRole('heading', { name: 'No device request yet' });
+    expect(empty.closest('.rk-state')).toHaveClass('rk-state--roomy');
     expect(main()).toHaveTextContent(
       'When a student asks to move a headset format to another device, the request appears here for you to forward to BITS.',
     );
   });
 
-  it('paused: the request waits, no Review', async () => {
+  it('paused: the request waits, no Review, the drawn notice', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'state-coverage');
     await pauseGodavari(sample);
     await act(async () => {
@@ -594,6 +751,11 @@ describe('IA-18 — Device requests (B3-09 f0)', () => {
     const table = await deviceTable();
     expect(rowsOf(table)[0]).toHaveTextContent('Waiting on you');
     expect(screen.queryByRole('link', { name: /^Review/ })).toBeNull();
+    const notice = main().querySelector('.rk-notice--paused')!;
+    expect(notice).toHaveTextContent('You can’t forward requests right now');
+    expect(notice).toHaveTextContent(
+      'Your institution’s access is paused. Requests wait here until BITS lifts the pause.',
+    );
   });
 
   it('a failed read has Try again', async () => {
@@ -609,7 +771,7 @@ describe('IA-18 — Device requests (B3-09 f0)', () => {
   });
 });
 
-// ---- IA-19 Device request — review & forward (B3-09 f1 … f5) ------------------------------------
+// ---- IA-19 Device request — review & forward (IA-v1 "IA-19") -------------------------------------
 
 async function transferPage(runtime: PlatformRuntime, transferId = 'DTR-0019') {
   inInstitute(
@@ -620,26 +782,25 @@ async function transferPage(runtime: PlatformRuntime, transferId = 'DTR-0019') {
   return screen.findByRole('region', { name: 'What the student asked for' });
 }
 
-describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
-  it('waiting on you: forward through DL-1 → “Forwarded to BITS”, the same record the Student and BITS read (f1 → f2)', async () => {
+const FORWARD_IMRAN = 'Forward Imran Shaikh’s device request to BITS?';
+
+describe('IA-19 — review and forward (IA-v1)', () => {
+  it('waiting on you: forward through the dialog → “Forwarded to BITS”, the same record the Student and BITS read', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'state-coverage');
     const asked = await transferPage(runtime);
     expect(
       screen.getByRole('heading', { level: 1, name: 'VR device transfer for Imran Shaikh' }),
     ).toBeVisible();
-    expect(main().querySelector('.xr-overline')).toHaveTextContent('Device request · DTR-0019');
-    expect(main().querySelector('.xr-back')).toHaveAttribute(
-      'href',
-      '/institute/requests?tab=devices',
-    );
-    expect(topTitle()).toBe('DTR-0019');
-    expect(crumbs()).toEqual(['Requests', 'Device requests', 'DTR-0019']);
-    const status = document.getElementById('device-request-status')!;
-    expect(status.querySelector('.xr-status--wait')).toHaveTextContent('Waiting on you');
-    expect(status).toHaveTextContent('Requested 15 Nov 2026, 10:40 by Imran Shaikh');
-    expect([...asked.querySelectorAll('dd')].map((node) => node.textContent)).toEqual([
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent('Device request');
+    expect(crumbs()).toEqual(['Device requests', 'VR device transfer for Imran Shaikh']);
+    expect(crumbLink('Device requests')).toHaveAttribute('href', '/institute/requests?tab=devices');
+    expect(tabTitle()).toBe('VR device transfer for Imran Shaikh · Device requests');
+    const meta = main().querySelector('.rk-head .rk-meta')!;
+    expect(meta.querySelector('.xr-st--warn')).toHaveTextContent('Waiting on you');
+    expect(meta).toHaveTextContent('Requested 15 Nov 2026, 10:40 by Imran Shaikh');
+    expect(values(asked)).toEqual([
       'Imran Shaikh · GIT-2026-0409',
-      'VR for Shell-and-Tube Heat Exchanger',
+      'VRfor Shell-and-Tube Heat Exchanger',
       'ME lab VR headset, asset tag GIT-VR-04',
       'ME lab VR headset, asset tag GIT-VR-08',
       'No note',
@@ -648,50 +809,60 @@ describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
       'href',
       `/institute/people/students/${IMRAN}`,
     );
-    expect(asked.querySelector('.xr-fmt.xr-fmt--yours')).toHaveTextContent('VR');
+    expect(asked.querySelector('.xr-fmt')).toHaveTextContent('VR');
     const action = screen.getByRole('region', { name: 'Your action' });
     expect(action).toHaveTextContent(
       'Forward it to BITS. BITS decides; you can’t approve device transfers.',
     );
+    expect(terms(action)).toEqual(['Request', 'Forwarded to BITS', 'BITS decision']);
+    expect(values(action)).toEqual(['Waiting on you', 'Not yet', 'Not yet']);
     expect(screen.queryByRole('button', { name: /approve|decline/i })).toBeNull();
+    expectNoReference();
 
     const user = userEvent.setup();
     const version = sample.worldVersion();
     const forward = within(action).getByRole('button', { name: 'Forward to BITS' });
+    expect(forward).toHaveClass('rb-btn--primary', 'rb-btn--lg', 'rk-go');
     await user.click(forward);
-    let dialog = screen.getByRole('dialog', { name: 'Forward DTR-0019 to BITS?' });
-    expect(dialog).toHaveTextContent(
+    let dialog = screen.getByRole('dialog', { name: FORWARD_IMRAN });
+    expect(dialog).toHaveAccessibleDescription(
       'BITS decides whether Imran Shaikh can move VR to ME lab VR headset, asset tag GIT-VR-08. You can’t take it back once it’s forwarded.',
     );
-    expect(dialog.querySelector('strong')).toHaveTextContent(
-      'ME lab VR headset, asset tag GIT-VR-08',
-    );
     expect(within(dialog).getByRole('button', { name: 'Forward to BITS' })).toHaveFocus();
+    expectNoReference();
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(sample.worldVersion()).toBe(version);
 
     await user.click(forward);
-    dialog = screen.getByRole('dialog', { name: 'Forward DTR-0019 to BITS?' });
+    dialog = screen.getByRole('dialog', { name: FORWARD_IMRAN });
     await user.click(within(dialog).getByRole('button', { name: 'Forward to BITS' }));
     await waitFor(() =>
-      expect(main()).toHaveTextContent(
-        'Forwarded to BITS. Imran Shaikh sees “Forwarded to BITS”. BITS decides.',
-      ),
+      expect(main()).toHaveTextContent('Imran Shaikh sees “Forwarded to BITS”. BITS decides.'),
     );
-    await waitFor(() => expect(document.getElementById('device-request-status')).toHaveFocus());
-    expect(
-      document.getElementById('device-request-status')!.querySelector('.xr-status--info'),
-    ).toHaveTextContent('Forwarded to BITS');
+    const flash = document.getElementById('device-request-flash')!;
+    expect(flash).toHaveClass('rk-notice--ok');
+    expect(flash).toHaveAttribute('role', 'status');
+    expect(flash).toHaveTextContent('Forwarded to BITS');
+    await waitFor(() => expect(flash).toHaveFocus());
+    expect(main().querySelector('.rk-head .rk-meta .xr-st--info')).toHaveTextContent(
+      'Forwarded to BITS',
+    );
     expect(screen.getByRole('region', { name: 'Your action' })).toHaveTextContent(
       'Forwarded. Nothing more is needed from you; BITS decides.',
     );
+    expect(values(screen.getByRole('region', { name: 'Your action' }))).toEqual([
+      'Forwarded to BITS',
+      expect.stringMatching(/^\d{1,2} \w{3} \d{4}, \d\d:\d\d · Meera Iyer$/),
+      'Not yet',
+    ]);
     expect(screen.queryByRole('button', { name: 'Forward to BITS' })).toBeNull();
     expect(
       historyLines(screen.getByRole('region', { name: 'History' })).map((line) => line[0]),
     ).toEqual(['Forwarded to BITS by Meera Iyer', 'Requested by Imran Shaikh']);
+    expectNoReference();
 
-    // The Student reads "Forwarded to BITS" on My device; BITS reads it forwarded (B3-07, B3-11).
+    // The Student reads "Forwarded to BITS" on My device; BITS reads it forwarded.
     const imran = await asPersonId(sample, IMRAN).operations.getMyDevice();
     expect(imran.ok && imran.value.openTransfer?.transfer.state).toBe('forwarded');
     const transfers = await asPersonId(sample, SUPER_ADMIN).operations.listDeviceTransfers({});
@@ -713,7 +884,7 @@ describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
       expectedRev: fresh.value.rev,
     });
     expect(other.ok).toBe(true);
-    const dialog = screen.getByRole('dialog', { name: 'Forward DTR-0019 to BITS?' });
+    const dialog = screen.getByRole('dialog', { name: FORWARD_IMRAN });
     await user.click(within(dialog).getByRole('button', { name: 'Forward to BITS' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     await waitFor(() =>
@@ -727,14 +898,15 @@ describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
     );
   });
 
-  it('institution paused: the request waits, read-only (f4)', async () => {
+  it('institution paused: the request waits, read-only', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'state-coverage');
     await pauseGodavari(sample);
     await act(async () => {
       await runtime.session.refresh();
     });
     await transferPage(runtime);
-    const notice = main().querySelector('.xr-notice--warn')!;
+    const notice = main().querySelector('.rk-notice--paused')!;
+    expect(notice).toHaveAttribute('role', 'status');
     expect(notice).toHaveTextContent('You can’t forward requests right now');
     expect(notice).toHaveTextContent(
       'Your institution’s access is paused. Requests wait here until BITS lifts the pause.',
@@ -743,16 +915,19 @@ describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
       'Forwarding is unavailable while access is paused.',
     );
     expect(screen.queryByRole('button', { name: 'Forward to BITS' })).toBeNull();
-    expect(main().querySelector('.xr-status--wait')).toHaveTextContent('Waiting on you');
+    expect(main().querySelector('.rk-head .rk-meta .xr-st--warn')).toHaveTextContent(
+      'Waiting on you',
+    );
+    expectNoReference();
   });
 
-  it('paused while the dialog is open: the refusal shows f4, nothing written', async () => {
+  it('paused while the dialog is open: the refusal shows the paused state, nothing written', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'state-coverage');
     await transferPage(runtime);
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Forward to BITS' }));
     await pauseGodavari(sample);
-    const dialog = screen.getByRole('dialog', { name: 'Forward DTR-0019 to BITS?' });
+    const dialog = screen.getByRole('dialog', { name: FORWARD_IMRAN });
     await user.click(within(dialog).getByRole('button', { name: 'Forward to BITS' }));
     await waitFor(() =>
       expect(main()).toHaveTextContent('Forwarding is unavailable while access is paused.'),
@@ -761,13 +936,21 @@ describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
     expect(transfer.ok && transfer.value.state).toBe('with-institute-admin');
   });
 
-  it('decided · approved by BITS (f3): read-only, the whole history', async () => {
+  it('decided · approved by BITS: read-only, the whole history without the devices repeated', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-device');
     await transferPage(runtime, 'DTR-0018');
-    expect(main().querySelector('.xr-status--ok')).toHaveTextContent('Decided · approved by BITS');
-    expect(screen.getByRole('region', { name: 'Your action' })).toHaveTextContent(
+    expect(main().querySelector('.rk-head .rk-meta .xr-st--ok')).toHaveTextContent(
+      'Decided · approved by BITS',
+    );
+    const action = screen.getByRole('region', { name: 'Your action' });
+    expect(action).toHaveTextContent(
       'BITS approved this transfer. Nothing more is needed from you.',
     );
+    expect(values(action)).toEqual([
+      'Decided · approved by BITS',
+      '23 Oct 2026, 10:00 · Meera Iyer',
+      'Approved · 24 Oct 2026, 12:30',
+    ]);
     expect(screen.queryByRole('button', { name: 'Forward to BITS' })).toBeNull();
     expect(historyLines(screen.getByRole('region', { name: 'History' }))).toEqual([
       [
@@ -776,15 +959,16 @@ describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
         'The authorised device is now: ME lab VR headset, asset tag GIT-VR-07',
       ],
       ['Forwarded to BITS by Meera Iyer', '23 Oct 2026, 10:00'],
-      [
-        'Requested by Rahul Verma',
-        '22 Oct 2026, 09:10',
-        'From ME lab VR headset, asset tag GIT-VR-03 to ME lab VR headset, asset tag GIT-VR-07',
-      ],
+      ['Requested by Rahul Verma', '22 Oct 2026, 09:10'],
     ]);
-    expect(screen.getByRole('region', { name: 'What the student asked for' })).toHaveTextContent(
-      'GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.',
-    );
+    const asked = screen.getByRole('region', { name: 'What the student asked for' });
+    expect(asked).toHaveTextContent('GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.');
+    expect(values(asked).slice(2, 4)).toEqual([
+      'ME lab VR headset, asset tag GIT-VR-03',
+      'ME lab VR headset, asset tag GIT-VR-07',
+    ]);
+    // The student's own note is quoted as written (it names devices, never a reference).
+    expectNoReference();
   });
 
   it('an unknown request → the in-shell not-found page', async () => {
@@ -818,34 +1002,37 @@ describe('IA-19 — review and forward (B3-09 f1 … f5)', () => {
   });
 });
 
-// ---- IA-01's device-request row (B2-01 f7), drawn since IA-18 is built --------------------------
+// ---- IA-01's device-request item (IA-v1 `attention`), drawn since IA-18 is built -----------------
 
-describe('IA-01 — the device-request row (B2-01 f7; P3-07)', () => {
-  it('a request waiting on Meera: the row, its line and “Open requests” → Device requests', async () => {
+describe('IA-01 — the device-request item (IA-v1 IA-01; P3-07)', () => {
+  it('a request waiting on Meera: the item, its line and “Open requests” → Device requests', async () => {
     const { runtime } = await tabPlatform(MEERA, 'state-coverage');
     inInstitute(runtime, '/institute', <InstituteOverview />);
     const region = await screen.findByRole('region', { name: 'Needs your attention' });
-    const row = await waitFor(() => {
-      const found = [...region.querySelectorAll('li.xr-row')].find((item) =>
-        item.textContent?.includes('device request'),
+    const item = await waitFor(() => {
+      const found = [...region.querySelectorAll('li.ia-att-item')].find((candidate) =>
+        candidate.textContent?.includes('device request'),
       );
-      if (!found) throw new Error('no device row');
+      if (!found) throw new Error('no device item');
       return found as HTMLElement;
     });
-    expect(row.querySelector('.xr-row-title')).toHaveTextContent(
+    expect(item.querySelector('.ia-att-n')).toHaveTextContent('1');
+    expect(item.querySelector('.ia-att-t')).toHaveTextContent(
       '1 device request to forward to BITS',
     );
-    expect(row.querySelector('.xr-row-sub')).toHaveTextContent('From Imran Shaikh · 15 Nov 2026');
-    expect(row.querySelector('.xr-row-icon--info')).not.toBeNull();
-    expect(within(row).getByRole('link', { name: 'Open requests' })).toHaveAttribute(
-      'href',
-      '/institute/requests?tab=devices',
+    expect(item.querySelector('.ia-att-d')?.textContent).toMatch(
+      /^From Imran Shaikh on 15 November( 2026)?\. BITS decides after you forward it\.$/,
     );
-    const titles = [...region.querySelectorAll('.xr-row-title')].map((node) => node.textContent);
+    const open = within(item).getByRole('link', { name: 'Open requests' });
+    expect(open).toHaveClass('ia-att-go');
+    expect(open).toHaveAttribute('href', '/institute/requests?tab=devices');
+    const titles = [...region.querySelectorAll('.ia-att-t')].map((node) => node.textContent);
     const withoutAccess = titles.findIndex((title) => title?.includes('no access yet'));
     if (withoutAccess >= 0) {
       expect(titles.indexOf('1 device request to forward to BITS')).toBeLessThan(withoutAccess);
     }
+    // Named by content: no request reference in the item.
+    expect(item.textContent).not.toMatch(/\bDTR-\d+/);
   });
 
   it('nothing waiting: no row (the decided DTR-0018 is not counted)', async () => {

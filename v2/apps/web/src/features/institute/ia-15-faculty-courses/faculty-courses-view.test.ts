@@ -57,6 +57,7 @@ describe('facultyCourseRows', () => {
       {
         courseId: 'thermodynamics-heat-transfer',
         code: 'ME ZG523',
+        name: 'Thermodynamics & Heat Transfer',
         mapping: { id: 'FMAP-0021', rev: mappings[0]!.rev },
       },
     ]);

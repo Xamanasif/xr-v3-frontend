@@ -21,8 +21,12 @@ export interface ConfirmDialogProps {
   readonly open: boolean;
   /** The question: "Approve the request from Godavari Institute of Technology?". */
   readonly title: ReactNode;
-  /** The line under the title, read as the dialog's description. */
-  readonly description: ReactNode;
+  /**
+   * The line under the title, read as the dialog's description. Every dialog has one except the
+   * Institute Admin export's name dialogs (IA-v1 "Create group", "Rename group": `G.hasBody`
+   * false), which draw no line and no `aria-describedby`.
+   */
+  readonly description?: ReactNode;
   /** What the action does now and what happens only after later events. */
   readonly groups?: readonly ConfirmDialogGroup[];
   /**
@@ -40,10 +44,12 @@ export interface ConfirmDialogProps {
   readonly tightBody?: boolean;
   /**
    * Where focus goes on opening: the title (default, SA-03), the first field of the body (a form
-   * dialog: SA-07 Assign, SA-14 Add course, SA-16 Register) or the confirm button (SA-11, SA-13:
-   * the export's `dlg-ok`). After a refused confirm, focus goes to the first invalid field.
+   * dialog: SA-07 Assign, SA-14 Add course, SA-16 Register), the confirm button (SA-11, SA-13:
+   * the export's `dlg-ok`) or Cancel (the Institute Admin export's destructive dialogs without a
+   * field: IA-14 "Remove … from this group?", IA-09 / IA-15 "Remove … from …?", `ia-dlg-cancel`).
+   * After a refused confirm, focus goes to the first invalid field.
    */
-  readonly initialFocus?: Extract<ModalInitialFocus, 'title' | 'field' | 'confirm'>;
+  readonly initialFocus?: Extract<ModalInitialFocus, 'title' | 'field' | 'confirm' | 'cancel'>;
   /** Enter in a field confirms (a form dialog). */
   readonly submitOnEnter?: boolean;
   readonly confirmLabel: ReactNode;
@@ -52,10 +58,23 @@ export interface ConfirmDialogProps {
    * Resubmit) or `navy` (the Vendor export's "Leave without saving", `rb-btn--navy`).
    */
   readonly confirmVariant?: Extract<ButtonVariant, 'primary' | 'navy'>;
+  /**
+   * A destructive confirmation (the Institute Admin export, IA-v1 COMPONENT-EXTENSIONS "Destructive
+   * confirm": Withdraw access, Deactivate account, Remove from group, Remove course): the dialog is
+   * an `alertdialog` and its confirm the red one (`ia-btn--danger`, drawn red only inside the
+   * dialog) in place of `confirmVariant`. Off by default.
+   */
+  readonly destructive?: boolean;
   readonly cancelLabel?: ReactNode;
   /** While the command runs: presses are ignored and `busyLabel` replaces the confirm words. */
   readonly busy?: boolean;
   readonly busyLabel?: ReactNode;
+  /**
+   * While busy, the confirm also shows the Institute Admin export's busy look (`ia-btn--busy`: faded,
+   * the progress cursor; IA-v1 `dlgContent` `btnCls`). Off by default: elsewhere only the words
+   * change.
+   */
+  readonly busyLook?: boolean;
   /**
    * While busy, the dialog waits for the result (the Content Manager export's Publish, Send for
    * academic review and Withdraw; CM-v1 COMPONENT-EXTENSIONS "Behaviour notes"): Cancel is
@@ -84,7 +103,10 @@ export interface ConfirmDialogProps {
  * refused confirm sending focus to the first invalid field — and its confirmations with a quoted
  * reason or a refusal notice in the body. The Vendor export (VE-v1) adds the navy confirm and a
  * dialog without a body ("Leave without saving?"); the Content Manager export (CM-v1) the hold
- * while its command runs (`holdWhileBusy`) and the Withdraw dialog's tight body (`tightBody`). A native dialog opened with showModal(), so the page
+ * while its command runs (`holdWhileBusy`) and the Withdraw dialog's tight body (`tightBody`); the
+ * Institute Admin export (IA-v1) the destructive `alertdialog` with its red confirm
+ * (`destructive`), focus on Cancel, the busy look (`busyLook`) and the name dialogs without a
+ * line (`description` left out). A native dialog opened with showModal(), so the page
  * behind is inert — the board's `div` over an `aria-hidden` scrim left it reachable (V3P-01). The
  * behaviour is the shared `useModalDialog` of the v46 dialogs.
  */
@@ -99,9 +121,11 @@ export function ConfirmDialog({
   submitOnEnter = false,
   confirmLabel,
   confirmVariant = 'primary',
+  destructive = false,
   cancelLabel = 'Cancel',
   busy = false,
   busyLabel,
+  busyLook = false,
   holdWhileBusy = false,
   onConfirm,
   onCancel,
@@ -111,7 +135,7 @@ export function ConfirmDialog({
   const generated = useId();
   const prefix = idPrefix ?? generated;
   const titleId = `${prefix}-t`;
-  const descriptionId = `${prefix}-d`;
+  const descriptionId = description === undefined ? undefined : `${prefix}-d`;
   const held = holdWhileBusy && busy;
   const modal = useModalDialog({
     open,
@@ -149,6 +173,7 @@ export function ConfirmDialog({
     <dialog
       ref={modal.dialogRef}
       className="rk-dialog"
+      role={destructive ? 'alertdialog' : undefined}
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
       onKeyDown={modal.onKeyDown}
@@ -160,7 +185,7 @@ export function ConfirmDialog({
         <h2 id={titleId} ref={modal.titleRef} tabIndex={-1}>
           {title}
         </h2>
-        <p id={descriptionId}>{description}</p>
+        {description === undefined ? null : <p id={descriptionId}>{description}</p>}
       </div>
       {groups.length > 0 || children !== undefined ? (
         <div className={joinClasses('rk-dlg-body', tightBody && 'rk-x-dlg-body-tight')}>
@@ -189,8 +214,12 @@ export function ConfirmDialog({
         </Button>
         <Button
           ref={modal.confirmRef}
-          variant={confirmVariant}
+          variant={destructive ? 'default' : confirmVariant}
           size="lg"
+          className={
+            joinClasses(destructive && 'ia-btn--danger', busy && busyLook && 'ia-btn--busy') ||
+            undefined
+          }
           busy={busy}
           busyLabel={busyLabel}
           onClick={modal.confirm}

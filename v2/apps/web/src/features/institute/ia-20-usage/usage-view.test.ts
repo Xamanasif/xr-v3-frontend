@@ -1,5 +1,5 @@
 /**
- * IA-20's view of the two reads (B3-10): formats in display order, "No activity yet" as a check of
+ * IA-20's view of the two reads (B3-10; IA-v1 `vm20`): formats in display order, "No activity yet" as a check of
  * each figure, the plans that hold an experiment, and the by-course rows that never add figures up
  * across experiments or formats (state-copy `IA-20.course-several`, `IA-20.course-format-not-held`).
  */
@@ -73,6 +73,7 @@ describe('usageScreenView', () => {
         courseCode: 'ME ZG523',
         planIds: ['ACC-0107'],
         studentsWithAccess: 5,
+        hasActivity: true,
         formats: [
           { format: 'web', started: 4, completed: 2, sessions: 11 },
           { format: 'vr', started: 2, completed: 1, sessions: 4 },
@@ -100,6 +101,13 @@ describe('usageScreenView', () => {
     ]);
     const facts = [content(THERMO, [item('shell', 'Shell', 'ACC-0107')])];
     expect(usageScreenView([zero], facts).none).toBe(true);
+    // V3: each experiment says so on its own (IA-v1 `hasActivity`).
+    expect(usageScreenView([zero], facts).experiments[0]!.hasActivity).toBe(false);
+    expect(
+      usageScreenView([zero, row('fin', 1, [['web', 1, 0, 1]])], facts).experiments.map(
+        (experiment) => experiment.hasActivity,
+      ),
+    ).toEqual([false, true]);
     expect(usageScreenView([], facts).none).toBe(true);
     // Any one figure above zero is activity: a session alone, or a completion alone.
     expect(usageScreenView([row('shell', 3, [['web', 0, 0, 1]])], facts).none).toBe(false);

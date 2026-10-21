@@ -12,6 +12,7 @@ import {
   expectRenderedAsV3Drawn,
   expectV3ClassesOnly,
   cmExportText,
+  iaExportText,
   rvExportText,
   saExportText,
   v3BoardText,
@@ -37,7 +38,7 @@ const XS_FILES = [
 ];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board or the XS, SA, VE, CM or RV export draws', () => {
+  it('every icon is a path a V3 board or the XS, SA, VE, CM, RV or IA export draws', () => {
     const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
       '\n',
     );
@@ -50,13 +51,17 @@ describe('V3 icons', () => {
     // The Academic Reviewer export (RV-v1) draws its rail glyphs inline and the rest as
     // `<symbol id="rvi-…">`, both in its live root.
     const rvRoot = rvExportText('RV.dc.html');
+    // The Institute Admin export (IA-v1) draws its rail glyphs inline and the rest as
+    // `<symbol id="rbi-…">` / `<symbol id="rki-…">`, both in its live root.
+    const iaRoot = iaExportText('Main.dc.html');
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
       expect(
         drawn.includes(`d="${path}"`) ||
           saSprite.includes(`', '${path}']`) ||
           veSprite.includes(`<path d="${path}"></path></symbol>`) ||
           cmSprite.includes(`<path d="${path}"></path></symbol>`) ||
-          rvRoot.includes(`<path d="${path}"></path>`),
+          rvRoot.includes(`<path d="${path}"></path>`) ||
+          iaRoot.includes(`<path d="${path}"></path>`),
         name,
       ).toBe(true);
     }
@@ -67,6 +72,35 @@ describe('V3 icons', () => {
     const glyphs = [...rvExportText('RV.dc.html').matchAll(/<path d="([^"]+)"><\/path>/g)].map(
       (match) => match[1]!,
     );
+    expect(glyphs.length).toBeGreaterThan(30);
+    for (const glyph of glyphs) expect(paths.has(glyph), glyph).toBe(true);
+  });
+
+  it('draws every glyph of the Institute Admin export (IA-v1 rail and sprite) but its preview chrome', () => {
+    const root = iaExportText('Main.dc.html');
+    const paths = new Set<string>(Object.values(V3_ICON_PATHS));
+    /*
+     * The two glyphs of its preview chrome only (COMPONENT-EXTENSIONS.md "Preview chrome (not
+     * product UI)"): the dashed "Design preview" tag, notes and floating button (`rki-preview`) and
+     * the signed-out page's "Preview only: return to the workspace" button (`rki-reset`). Every use
+     * of them is inside an `ia-pv*` element, and they are not product icons.
+     */
+    const PREVIEW_ONLY = ['rki-preview', 'rki-reset'];
+    const previewPaths = PREVIEW_ONLY.map(
+      (id) =>
+        new RegExp(`<symbol id="${id}" viewBox="0 0 24 24"><path d="([^"]+)"></path>`).exec(
+          root,
+        )![1]!,
+    );
+    for (const use of root.matchAll(/<use href="#(rki-preview|rki-reset)"><\/use>/g)) {
+      const opening = root.slice(0, use.index).lastIndexOf('<svg ');
+      const element = root.slice(root.lastIndexOf('<', opening - 1), opening);
+      expect(element, use[1]).toMatch(/class="[^"]*\bia-pv-[\w-]+/);
+    }
+    for (const path of previewPaths) expect(paths.has(path)).toBe(false);
+    const glyphs = [...root.matchAll(/<path d="([^"]+)"><\/path>/g)]
+      .map((match) => match[1]!)
+      .filter((glyph) => !previewPaths.includes(glyph));
     expect(glyphs.length).toBeGreaterThan(30);
     for (const glyph of glyphs) expect(paths.has(glyph), glyph).toBe(true);
   });

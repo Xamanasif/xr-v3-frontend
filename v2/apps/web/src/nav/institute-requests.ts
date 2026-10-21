@@ -3,14 +3,17 @@ import type { BreadcrumbLevel } from '@xr/ui';
 import { WORKSPACE_NAV } from './nav-config';
 
 /**
- * The Institute Admin's Requests destination (Phase 3; boards B3-08, B3-09): its addresses
- * (Appendix A register: IA-17 `/institute/requests`, IA-18 its `?tab=devices`, the request detail
+ * The Institute Admin's Requests destination (Phase 3; boards B3-08, B3-09; in V3 the
+ * owner-approved Institute Admin export, IA-v1): its addresses (Appendix A register: IA-17
+ * `/institute/requests`, IA-18 its `?tab=devices`, the request detail
  * `/institute/requests/[requestId]` — PROPOSED, no screen id of its own, O-02 — and IA-19
  * `/institute/requests/devices/[transferId]`) and their place in the shell (Requests current on
- * every one of them, `nav/active-item.ts`). The top bars follow the boards: "Requests" alone on
- * Requests to BITS (B3-08 f0); the tab with an id of its own reads the tab, crumbed "Requests /
- * Device requests" (B3-09 f0); a record is titled with its reference under the crumbs above it —
- * "Requests / REQ-0058" (B3-08 f4), "Requests / Device requests / DTR-0018" (B3-09 f1).
+ * every one of them, `nav/active-item.ts`). The crumbs are drawn in the page (V3); the placement
+ * names the browser tab and the place a problem report starts from — never by a reference
+ * (state-copy `IA-17.no-reference`): "Requests" on Requests to BITS, "Ask BITS · Requests" and
+ * "Request sent · Requests" for the form and its result, "Device requests" on the tab, a request by
+ * its title ("60 more licences · Requests") and a device request by its title ("VR device transfer
+ * for Rahul Verma · Device requests").
  */
 const destination = WORKSPACE_NAV.tenant_admin.destinations.find(
   (entry) => entry.screen === 'IA-17',
@@ -51,49 +54,59 @@ export interface InstituteRequestsPlacement {
   readonly currentCrumb?: string;
 }
 
-const REQUESTS_CRUMB: BreadcrumbLevel = {
+/** "Requests", the crumb above every page under it (IA-v1 `rk-crumbs`). */
+export const REQUESTS_CRUMB: BreadcrumbLevel = {
   label: INSTITUTE_REQUESTS_TITLE,
   href: INSTITUTE_REQUESTS_ADDRESS,
 };
 
-/** IA-17 (B3-08 f0 … f3, f7): "Requests", the destination's own page — also while the form shows. */
-export function requestsPlacement(): InstituteRequestsPlacement {
-  return { screen: 'IA-17', title: INSTITUTE_REQUESTS_TITLE, trail: [] };
+/**
+ * IA-17 (IA-v1 "Requests head and tabs"): "Requests", the destination's own page; while the form
+ * or its result shows in place, its crumb under "Requests" ("Ask BITS", "Request sent").
+ */
+export function requestsPlacement(inPlace: string | null = null): InstituteRequestsPlacement {
+  if (inPlace === null) return { screen: 'IA-17', title: INSTITUTE_REQUESTS_TITLE, trail: [] };
+  return {
+    screen: 'IA-17',
+    title: INSTITUTE_REQUESTS_TITLE,
+    trail: [REQUESTS_CRUMB],
+    currentCrumb: inPlace,
+  };
 }
 
-/** IA-18 (B3-09 f0): the tab reads itself, crumbed "Requests / Device requests". */
+/** IA-18 (IA-v1 "IA-18 Device requests tab"): the tab reads itself, under "Requests". */
 export function deviceRequestsPlacement(tabLabel: string): InstituteRequestsPlacement {
   return { screen: 'IA-18', title: tabLabel, trail: [REQUESTS_CRUMB], currentCrumb: tabLabel };
 }
 
 /**
- * The request detail (B3-08 f4 … f6): its reference under "Requests". Until the request has loaded
- * its reference is not known: the destination's own crumb stands alone.
+ * The request detail (IA-v1 "IA-17 detail"): its title (the H1's words) under "Requests". Until
+ * the request has loaded its title is not known: the destination's own crumb stands alone.
  */
-export function requestDetailPlacement(reference: string | null): InstituteRequestsPlacement {
-  if (reference === null) {
+export function requestDetailPlacement(title: string | null): InstituteRequestsPlacement {
+  if (title === null) {
     return { screen: 'institute-request-detail', title: INSTITUTE_REQUESTS_TITLE, trail: [] };
   }
   return {
     screen: 'institute-request-detail',
-    title: reference,
+    title: INSTITUTE_REQUESTS_TITLE,
     trail: [REQUESTS_CRUMB],
-    currentCrumb: reference,
+    currentCrumb: title,
   };
 }
 
-/** IA-19 (B3-09 f1 … f5): "Requests / Device requests / DTR-0018". */
+/** IA-19 (IA-v1 "IA-19"): its title under "Requests / Device requests". */
 export function deviceRequestPlacement(
-  reference: string | null,
+  title: string | null,
   tabLabel: string,
 ): InstituteRequestsPlacement {
-  if (reference === null) {
+  if (title === null) {
     return { screen: 'IA-19', title: INSTITUTE_REQUESTS_TITLE, trail: [] };
   }
   return {
     screen: 'IA-19',
-    title: reference,
+    title: tabLabel,
     trail: [REQUESTS_CRUMB, { label: tabLabel, href: DEVICE_REQUESTS_ADDRESS }],
-    currentCrumb: reference,
+    currentCrumb: title,
   };
 }

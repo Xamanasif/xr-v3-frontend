@@ -1,203 +1,340 @@
 /**
- * The words of the Institute Admin's home and content screens — IA-01 Overview (B2-01), IA-02
- * Content access (B2-02) and IA-03 Access plan (B2-03, frames 0–5) — written from the canonical
- * facts the ports answer (`@xr/contracts/draft` `myOverview`, `contentAccessRow`, `accessPlanView`;
- * the request's history from `requesterRequestView`): read models carry no words. Each entry names
- * the board that draws it (`institute-home.test.ts` finds every drawn phrase on its board); what no
- * board words is a provisional entry of the state-copy register (`state-copy-institute-home.ts`,
- * VD-12). Status words come from the role-relative table (`flow-state-words.ts`).
+ * The words of the Institute Admin's plan screens — IA-01 Overview, IA-02 Content access ›
+ * Experiments and IA-03 Access plan — in the owner-approved V3 design (design/v3-refined-b/roles/
+ * IA-v1, `project/Main.dc.html`: its template and its script's `attention`, `vm01core`, `vm02core`,
+ * `vm03`, `termVM` and `fmBadges`), written from the canonical facts the ports answer
+ * (`@xr/contracts/draft` `myOverview`, `contentAccessRow`, `accessPlanView`; the request's history
+ * from `requesterRequestView`): read models carry no words. `institute-home.test.ts` finds every
+ * drawn phrase in the export and each composed line in its script's form; what the export does not
+ * word is a provisional entry of the state-copy register (`state-copy-institute-home.ts`, VD-12).
+ * Status words come from the role-relative table (`flow-state-words.ts`).
  *
- * Licence figures are shown as provided — "120 licences", "120 — as approved by BITS" — never
- * counted or derived (T-06 / D7). "1 student" is a count of people given access, never licences.
+ * No internal reference (ACC-, REQ-, SACC-) is ever written (owner's identifier rule, 21 Oct 2026;
+ * state-copy `IA-plan.no-reference`): the plan is "your access plan", the request "your request to
+ * BITS", a grant who and how it was given; the references stay in the addresses and keys.
+ *
+ * Licence figures are shown as provided — "120", "as approved by BITS" — never counted or derived
+ * (T-06 / D7). "7 students" is a count of people given access, never licences.
  */
 import type { AccessPlanTerm, Technology } from '@xr/domain';
 
 import { calendarDay } from './dates';
 import { formatName } from './flow-state-words';
+import { iaListText, iaPlural } from './ia-shared';
 import { planTermWords } from './institutions';
 
-/** "3 items", "1 item" (B2-01 f0, f3). */
-function plural(count: number, one: string, many = `${one}s`): string {
-  return `${count} ${count === 1 ? one : many}`;
+const LONG_MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+] as const;
+
+function calendarParts(date: string): { day: number; month: number; year: number } {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+  if (!match) throw new Error(`"${date}" is not a calendar date.`);
+  return { day: Number(match[3]), month: Number(match[2]), year: Number(match[1]) };
 }
 
-/** "AR", "AR and MR" — formats as the boards write them, joined in words. */
-function formatsInWords(formats: readonly Technology[]): string {
-  const names = formats.map(formatName);
-  if (names.length <= 1) return names.join('');
-  return `${names.slice(0, -1).join(', ')} and ${names.at(-1)!}`;
+/** A calendar date in full, "7 October 2027" — the export's `fFull`. */
+export function longDay(date: string): string {
+  const { day, month, year } = calendarParts(date);
+  return `${day} ${LONG_MONTHS[month - 1]} ${year}`;
 }
 
-/** "Shell-and-Tube Heat Exchanger", "A and B", "A, B and C". */
-export function namesInWords(names: readonly string[]): string {
-  if (names.length <= 1) return names.join('');
-  return `${names.slice(0, -1).join(', ')} and ${names.at(-1)!}`;
+/**
+ * Day and month in full, with the year only when it is not this year — the export's `fDM`: "7
+ * October" (today in 2027), "8 October 2026" (today in 2027, the date in 2026).
+ */
+export function dayMonthWords(date: string, today: string | null): string {
+  const { day, month, year } = calendarParts(date);
+  const thisYear = today === null ? null : calendarParts(today).year;
+  return `${day} ${LONG_MONTHS[month - 1]}${thisYear === year ? '' : ` ${year}`}`;
 }
 
 // ---- shared ----
 
-/** The header actions of B2-01 f0 and B2-02 f0 / B2-03 f0. */
+/** The head actions (IA-01, IA-02, IA-03). */
 export const INSTITUTE_ACTIONS = {
   addStudents: 'Add students',
   giveStudentsAccess: 'Give students access',
 } as const;
 
-/** B2-02 f3 / f4 / f5, B2-03 f3 / f4: the notices of a plan that is ending, has ended, is paused. */
-export const PLAN_NOTICES = {
-  pausedTitle: 'Read-only while your institution’s access is paused',
-  pausedLine: 'You can’t give or withdraw access until BITS lifts the pause.',
-  endingSoonLine: 'Renewal reminder due. Ask BITS for a renewal from Requests.',
-  contentEndedTitle: 'This plan has ended',
-  contentEndedLine: 'Students can’t open its experiments now. You can still see who had access.',
-  planEndedLine: 'Students can’t open its experiments now. Your records stay here.',
+/** What a plan, its licences and its term are called on the plan screens. */
+export const PLAN_WORDS = {
+  accessPlan: 'Access plan',
+  licences: 'Licences',
+  term: 'Term',
+  asApproved: 'as approved by BITS',
+  yourCourseCode: 'Your course code',
+  codeNotAdded: 'Your course code: not added',
+  addCode: 'Add code',
+  formatsKey: 'Formats',
+  formatKeyLabel: 'Format key',
+  inYourPlan: 'In your plan',
+  publishedNotInPlan: 'Published, not in your plan',
+  notPublished: 'Not published',
 } as const;
 
-/** B2-02 f3: "Ends on 7 Oct 2027". */
-export function endsOnTitle(endsOn: string): string {
-  return `Ends on ${calendarDay(endsOn)}`;
+/** "Yearly term" (the term bar's label); a plan to a fixed date: "Term" (state-copy `IA-plan.term-label`). */
+export function termLabel(term: AccessPlanTerm): string {
+  return term === 'until-date' ? PLAN_WORDS.term : `${planTermWords(term)} term`;
 }
 
-/** B2-03 f3: "This plan ended on 7 Oct 2027". */
-export function planEndedTitle(endsOn: string): string {
-  return `This plan ended on ${calendarDay(endsOn)}`;
-}
-
-/** "15 days left" (B2-02 f3, B2-03 f2); one day: state-copy `IA-01.one-day`. */
+/** "350 days left", "1 day left" (the term bar while the term is live). */
 export function daysLeftWords(days: number): string {
-  return `${plural(days, 'day')} left`;
+  return `${iaPlural(days, 'day')} left`;
 }
 
-/** "AR is published but not in your plan" (B2-02 f0); several formats: state-copy `IA-02.not-in-plan`. */
-export function notInPlanWords(formats: readonly Technology[]): string {
-  return `${formatsInWords(formats)} ${formats.length === 1 ? 'is' : 'are'} published but not in your plan`;
+/** "Paused by BITS on 2 Mar 2027" (the term bar while paused). */
+export function pausedOnWords(on: string | null): string {
+  return on === null ? 'Paused by BITS' : `Paused by BITS on ${on}`;
 }
 
-// ---- IA-01 Overview (B2-01) ----
+/** "Ended on 7 Oct 2027" (the term bar once ended). */
+export function endedOnWords(endsOn: string): string {
+  return `Ended on ${calendarDay(endsOn)}`;
+}
+
+/**
+ * The term bar's accessible name — the export's `termVM` `aria`: "Access term from 8 October 2026
+ * to 7 October 2027. 14 of 364 days have passed; 350 days are left." Paused: "… Paused by BITS on 2
+ * March 2027."; ended: "… The term ended on 7 October 2027."
+ */
+export function termDescription(
+  plan: { readonly startsOn: string; readonly endsOn: string },
+  standing:
+    | {
+        readonly kind: 'live';
+        readonly passed: number;
+        readonly total: number;
+        readonly left: number;
+      }
+    | { readonly kind: 'paused'; readonly on: string | null }
+    | { readonly kind: 'ended' },
+): string {
+  const span = `Access term from ${longDay(plan.startsOn)} to ${longDay(plan.endsOn)}. `;
+  if (standing.kind === 'paused') {
+    return `${span}${standing.on === null ? 'Paused by BITS.' : `Paused by BITS on ${standing.on}.`}`;
+  }
+  if (standing.kind === 'ended') return `${span}The term ended on ${longDay(plan.endsOn)}.`;
+  const left = iaPlural(standing.left, 'day');
+  return standing.passed === 0
+    ? `${span}The term starts today; ${left} ${standing.left === 1 ? 'is' : 'are'} left.`
+    : `${span}${standing.passed} of ${standing.total} days have passed; ${left} ${standing.left === 1 ? 'is' : 'are'} left.`;
+}
+
+/** A format's name in full (the export's `FN`): the badges' words and the usage rows. */
+export const FORMAT_FULL_NAME: Readonly<Record<Technology, string>> = {
+  web: 'Browser',
+  ar: 'Augmented reality',
+  vr: 'Virtual reality',
+  mr: 'Mixed reality',
+};
+
+/** A format badge's state in words (the export's `fmCells` labels). */
+export type BadgeState = 'on' | 'pub' | 'none';
+
+const BADGE_STATE_WORDS: Readonly<Record<BadgeState, string>> = {
+  on: PLAN_WORDS.inYourPlan,
+  pub: PLAN_WORDS.publishedNotInPlan,
+  none: PLAN_WORDS.notPublished,
+};
+
+/** A badge's full meaning, its accessible name and hover title: "WEB, Browser: In your plan". */
+export function badgeWords(format: Technology, state: BadgeState): string {
+  return `${formatName(format)}, ${FORMAT_FULL_NAME[format]}: ${BADGE_STATE_WORDS[state]}`;
+}
+
+/** The badges' list name: "Formats of Shell-and-Tube Heat Exchanger". */
+export function formatsOfLabel(experiment: string): string {
+  return `Formats of ${experiment}`;
+}
+
+/**
+ * The badges in words under the plan card's badges (the export's `fmBadges` `key`): "WEB and VR in
+ * your plan · AR published, not in your plan · MR not published".
+ */
+export function formatKeyLine(
+  on: readonly Technology[],
+  pub: readonly Technology[],
+  none: readonly Technology[],
+): string {
+  const parts: string[] = [];
+  if (on.length > 0) parts.push(`${iaListText(on.map(formatName))} in your plan`);
+  if (pub.length > 0) {
+    parts.push(`${iaListText(pub.map(formatName))} published, not in your plan`);
+  }
+  if (none.length > 0) parts.push(`${iaListText(none.map(formatName))} not published`);
+  return parts.join(' · ');
+}
+
+/** "ME ZG523 · Thermodynamics & Heat Transfer"; a course BITS gave no code: its name. */
+export function courseWords(platformCode: string | null, name: string): string {
+  return platformCode ? `${platformCode} · ${name}` : name;
+}
+
+/** "Add your course code for ME ZG523 Thermodynamics & Heat Transfer" (the Add code link's name). */
+export function addCodeLabel(platformCode: string | null, name: string): string {
+  return `Add your course code for ${platformCode ? `${platformCode} ${name}` : name}`;
+}
+
+/** The plan notices' words (ending soon, ended, paused) in the strips of IA-02 and IA-03. */
+export const PLAN_NOTICES = {
+  endingSoonLine: 'Renewal reminder due. Ask BITS for a renewal from Requests.',
+  contentEndedTitle: 'This plan has ended.',
+  contentEndedLine: 'Students can’t open its experiments now. You can still see who had access.',
+  planEndedLine: 'Students can’t open its experiments now. Your records stay here.',
+  pausedTitle: 'Read-only while your institution’s access is paused.',
+  contentPausedLine: 'You can’t give or withdraw access until BITS lifts the pause.',
+  planPausedLine:
+    'You can’t give or withdraw access, or ask BITS for more, until BITS lifts the pause.',
+} as const;
+
+/** "Ends on 7 Oct 2027." (the ending-soon note). */
+export function endsOnTitle(endsOn: string): string {
+  return `Ends on ${calendarDay(endsOn)}.`;
+}
+
+/** "This plan ended on 7 Oct 2027." (IA-03's ended note). */
+export function planEndedTitle(endsOn: string): string {
+  return `This plan ended on ${calendarDay(endsOn)}.`;
+}
+
+/** "Your request to BITS is approved — payment required." (before access is active). */
+export const REQUEST_APPROVED = 'Your request to BITS is approved — payment required.';
+
+// ---- IA-01 Overview ----
 
 export const OVERVIEW_WORDS = {
+  /** Read before the institution's name in the H1 by screen readers only ("Overview, …"). */
+  titlePrefix: 'Overview,',
   attention: 'Needs your attention',
   calmTitle: 'Nothing needs your attention right now.',
   calmLine: 'New items appear here as they come in.',
   noContent: 'No content yet',
-  approvedLine:
-    'Experiments appear here when your institution’s access is active — after the payment is confirmed.',
-  giveAccess: 'Give access',
-  reviewStudents: 'Review students',
-  // Package 2B: B2-01 f0 "Add course code" (opens IA-16 Course codes).
-  addCourseCode: 'Add course code',
-  viewStudents: 'View students',
-  help: 'Help',
+  approvedLine: `${REQUEST_APPROVED} Experiments appear here when your institution’s access is active, after the payment is confirmed.`,
+  approvedStatusLine: 'Access starts when the payment is confirmed.',
   pausedTitle: 'BITS has paused your institution’s access',
-  pausedLine: 'Students can’t open experiments. Pages are read-only until BITS lifts the pause.',
-  courseCodesPlace: 'Content access · Course codes',
+  pausedLine:
+    'Students can’t open experiments. Pages are read-only until BITS lifts the pause. Your work is kept.',
+  help: 'Help',
+  renewalTitle: 'Request a renewal',
+  endedTitle: 'Your access plan has ended',
+  viewStudents: 'View students',
+  reviewStudents: 'Review students',
+  giveAccess: 'Give access',
+  // Package 2B: "Add course code" (opens IA-16 Course codes).
+  addCourseCode: 'Add course code',
+  planNote:
+    'Students open only the experiments you give them on Student access, in the formats your plan includes.',
+  viewPlan: 'View plan',
+  openContentAccess: 'Open Content access',
 } as const;
 
-/** "3 items", "1 item" (B2-01 section meta). */
+/** "3 items", "1 item" (beside "Needs your attention"). */
 export function itemsWords(count: number): string {
-  return plural(count, 'item');
+  return iaPlural(count, 'item');
 }
 
-/** B2-01 f0 status line: "Access plan ACC-0107 · 120 licences · Yearly, ends 7 Oct 2027". */
-export function activeStatusLine(plan: {
-  readonly id: string;
-  readonly licences: number;
-  readonly term: AccessPlanTerm;
-  readonly endsOn: string;
-}): string {
-  return `Access plan ${plan.id} · ${plan.licences} licences · ${planTermWords(plan.term)}, ends ${calendarDay(plan.endsOn)}`;
+/** The status line, access live: "Your access plan ends on 7 October 2027." */
+export function endsStatusLine(endsOn: string): string {
+  return `Your access plan ends on ${longDay(endsOn)}.`;
 }
 
-/** B2-01 f3: "Access plan ACC-0107 · 120 licences · ends 7 Oct 2027 — 15 days left". */
-export function endingStatusLine(
-  plan: { readonly id: string; readonly licences: number; readonly endsOn: string },
-  daysLeft: number,
-): string {
-  return `Access plan ${plan.id} · ${plan.licences} licences · ends ${calendarDay(plan.endsOn)} — ${daysLeftWords(daysLeft)}`;
+/** The status line, ended: "Your access plan ended on 7 October 2027." */
+export function endedStatusLine(endsOn: string): string {
+  return `Your access plan ended on ${longDay(endsOn)}.`;
 }
 
-/** B2-01 f4: "Access plan ACC-0107 ended on 7 Oct 2027". */
-export function endedStatusLine(plan: { readonly id: string; readonly endsOn: string }): string {
-  return `Access plan ${plan.id} ended on ${calendarDay(plan.endsOn)}`;
+/** The status line, paused: "Your access plan was paused by BITS on 2 Mar 2027." */
+export function pausedStatusLine(pausedOn: string | null): string {
+  return pausedOn === null
+    ? 'Your access plan was paused by BITS.'
+    : `Your access plan was paused by BITS on ${pausedOn}.`;
 }
 
-/** B2-01 f5: "Access plan ACC-0107 · paused by BITS on 2 Mar 2027". */
-export function pausedStatusLine(planId: string, pausedOn: string): string {
-  return `Access plan ${planId} · paused by BITS on ${pausedOn}`;
+/** The lead band, ending soon: "Your plan ends on 7 October. The reminder is due; …". */
+export function renewalLine(endsOn: string, today: string | null): string {
+  return `Your plan ends on ${dayMonthWords(endsOn, today)}. The reminder is due; nothing is sent automatically.`;
 }
 
-/** B2-01 f1: "Request REQ-0042 · access starts when the payment is confirmed". */
-export function approvedStatusLine(reference: string): string {
-  return `Request ${reference} · access starts when the payment is confirmed`;
+/** The lead band, ended: "Ended 7 Oct 2027 · students can’t open its experiments now." */
+export function endedLine(endedOn: string): string {
+  return `Ended ${calendarDay(endedOn)} · students can’t open its experiments now.`;
 }
 
-/** B2-01 f1: "Request REQ-0042 is approved". */
-export function approvedTitle(reference: string): string {
-  return `Request ${reference} is approved`;
-}
-
-/** B2-01 f0: "Shell-and-Tube Heat Exchanger hasn’t been given to any student". */
-export function notGivenTitle(experiment: string): string {
-  return `${experiment} hasn’t been given to any student`;
-}
-
-/** B2-01 f0: "ME ZG523 · access plan ACC-0107" (no course code: state-copy `IA-01.no-platform-code`). */
-export function notGivenLine(courseCode: string | null, planId: string): string {
-  return courseCode ? `${courseCode} · access plan ${planId}` : `access plan ${planId}`;
-}
-
-/** B2-01 f0 / f7: "12 students have no access yet" (one: state-copy `IA-01.one-student`). */
-export function withoutAccessTitle(students: number): string {
-  return students === 1 ? '1 student has no access yet' : `${students} students have no access yet`;
-}
-
-/** B2-01 f0 "Imported on 8 Oct 2026" / f7 "Added on 15 Sep 2027". */
-export function withoutAccessLine(how: 'form' | 'import', on: string): string {
-  return `${how === 'import' ? 'Imported' : 'Added'} on ${calendarDay(on)}`;
-}
-
-/** B2-01 f0: "ME ZG523 has no course code from your institution". */
-export function noCodeTitle(courseCode: string | null): string {
-  return courseCode
-    ? `${courseCode} has no course code from your institution`
-    : 'A course has no course code from your institution';
-}
-
-/** B2-01 f3: "Access plan ACC-0107 ends in 15 days" (one day / today: state-copy `IA-01.one-day`). */
-export function endingSoonTitle(planId: string, days: number): string {
-  return `Access plan ${planId} ends in ${plural(days, 'day')}`;
-}
-
-/** B2-01 f3: "Ends 7 Oct 2027 · renewal reminder due" — a state; nothing is sent (T-31). */
-export function endingSoonLine(endsOn: string): string {
-  return `Ends ${calendarDay(endsOn)} · renewal reminder due`;
-}
-
-/** B2-01 f4: "Access plan ACC-0107 has ended". */
-export function planEndedItemTitle(planId: string): string {
-  return `Access plan ${planId} has ended`;
-}
-
-/** B2-01 f4: "Ended 7 Oct 2027 · students can’t open its experiments now". */
-export function planEndedItemLine(endedOn: string): string {
-  return `Ended ${calendarDay(endedOn)} · students can’t open its experiments now`;
-}
-
-/** B2-01 f7: "2 students are waiting for a licence" — supplied waits, never counted (T-06 / D7). */
+/** "student is waiting for a licence" after the count — supplied waits, never counted (T-06 / D7). */
 export function waitingTitle(students: number): string {
-  return students === 1
-    ? '1 student is waiting for a licence'
-    : `${students} students are waiting for a licence`;
+  return students === 1 ? 'student is waiting for a licence' : 'students are waiting for a licence';
 }
 
-// ---- IA-02 Content access (B2-02) ----
+/** "device request to forward to BITS" after the count. */
+export function deviceTitle(requests: number): string {
+  return requests === 1
+    ? 'device request to forward to BITS'
+    : 'device requests to forward to BITS';
+}
+
+/** "From Rahul Verma on 22 October. BITS decides after you forward it." (several: "… and 1 other …"). */
+export function deviceLine(
+  student: string,
+  others: number,
+  on: string,
+  today: string | null,
+): string {
+  const who = others > 0 ? `${student} and ${iaPlural(others, 'other')}` : student;
+  return `From ${who} on ${dayMonthWords(on, today)}. BITS decides after you forward it.`;
+}
+
+/** "students have no access yet" after the count. */
+export function withoutAccessTitle(students: number): string {
+  return students === 1 ? 'student has no access yet' : 'students have no access yet';
+}
+
+/** "Added on 8 October" (the newest student added, by form or import). */
+export function addedOnLine(on: string, today: string | null): string {
+  return `Added on ${dayMonthWords(on, today)}`;
+}
+
+/** "experiment hasn’t been given to any student" after the count. */
+export function notGivenTitle(experiments: number): string {
+  return experiments === 1
+    ? 'experiment hasn’t been given to any student'
+    : 'experiments haven’t been given to any student';
+}
+
+/** "course has no course code from your institution" after the count. */
+export function noCodeTitle(courses: number): string {
+  return courses === 1
+    ? 'course has no course code from your institution'
+    : 'courses have no course code from your institution';
+}
+
+/** "ME ZG523 Thermodynamics & Heat Transfer" (the course without a code). */
+export function noCodeLine(platformCode: string | null, name: string | null): string {
+  return [platformCode, name].filter((part) => part !== null && part !== '').join(' ');
+}
+
+// ---- IA-02 Content access ----
 
 export const CONTENT_ACCESS_WORDS = {
   title: 'Content access',
   meta: 'What BITS has given your institution to use',
   tabsLabel: 'Content access',
   experimentsTab: 'Experiments',
-  searchLabel: 'Search',
-  searchPlaceholder: 'Experiment or course',
+  listHeading: 'Experiments in your access plan',
+  toolsLabel: 'Filter experiments',
+  searchLabel: 'Search experiments',
+  searchPlaceholder: 'Search experiment or course',
   statusLabel: 'Status',
   statusOptions: {
     all: 'All statuses',
@@ -206,75 +343,61 @@ export const CONTENT_ACCESS_WORDS = {
     ended: 'Ended',
   },
   clearFilters: 'Clear filters',
-  noMatch: 'No experiments match these filters',
-  loading: 'Loading content access',
-  failedTitle: 'We couldn’t load content access',
-  failedLine: 'Nothing has changed. Try again.',
-  tryAgain: 'Try again',
-  viewPlan: 'View plan',
-  codeNotAdded: 'Your institution’s code: not added',
-  // Package 2B: B2-02 course head "Add code" (opens IA-16 Course codes).
-  addCode: 'Add code',
-  yourCode: 'Your code:',
+  caption: 'Experiments in your access plan, grouped by course',
   columns: {
     experiment: 'Experiment',
-    formats: 'Formats in your plan',
-    status: 'Status',
+    formats: 'Formats',
     studentsGiven: 'Students given access',
     action: 'Action',
   },
   noneYet: 'None yet',
   giveAccess: 'Give access',
+  // Package 2B: "Add code" (opens IA-16 Course codes).
+  addCode: 'Add code',
+  foot: 'Only experiments in your access plan are listed here.',
+  noMatch: 'No experiments match these filters',
+  noMatchLine: 'Try fewer filters or a different spelling of the experiment or course.',
+  showAll: 'Show all experiments',
   noContent: 'No content yet',
+  noContentLine: `Experiments appear here when BITS activates your institution’s access. ${REQUEST_APPROVED}`,
+  loading: 'Loading content access…',
+  failedTitle: 'We couldn’t load content access',
+  failedLine: 'Nothing has changed. Try again.',
+  tryAgain: 'Try again',
+  viewPlan: 'View plan',
 } as const;
 
-/** The B2-02 Status filter, in board order (its `select#Cc-st`). */
+/** The Status filter, in the export's order (`select#ca-st`). */
 export const CONTENT_STATUS_FILTERS = ['all', 'active', 'ending', 'ended'] as const;
 export type ContentStatusFilter = (typeof CONTENT_STATUS_FILTERS)[number];
 
-/** B2-02 plan band: "Access plan" + "ACC-0107". */
-export const ACCESS_PLAN_LABEL = 'Access plan';
-
-/** B2-02 plan band: "120 licences · Yearly · 8 Oct 2026 – 7 Oct 2027" (+ " · 15 days left"). */
-export function planBandLine(
-  plan: {
-    readonly licences: number;
-    readonly term: AccessPlanTerm;
-    readonly startsOn: string;
-    readonly endsOn: string;
-  },
-  daysLeft: number | null,
-): string {
-  const line = `${plan.licences} licences · ${planTermWords(plan.term)} · ${calendarDay(plan.startsOn)} – ${calendarDay(plan.endsOn)}`;
-  return daysLeft === null ? line : `${line} · ${daysLeftWords(daysLeft)}`;
+/**
+ * "View plan"'s name, by the plan's term instead of its reference: "View access plan, 8 Oct 2026 –
+ * 7 Oct 2027" (state-copy `IA-plan.no-reference`).
+ */
+export function viewPlanLabel(plan: {
+  readonly startsOn: string;
+  readonly endsOn: string;
+}): string {
+  return `View access plan, ${calendarDay(plan.startsOn)} – ${calendarDay(plan.endsOn)}`;
 }
 
-/** B2-02 "View plan" button name: "View access plan ACC-0107". */
-export function viewPlanLabel(planId: string): string {
-  return `View access plan ${planId}`;
+/** "7 students", "1 student" (students given access — people, never licences). */
+export function studentsWords(students: number): string {
+  return iaPlural(students, 'student');
 }
 
-/** B2-02 section name: "Access plan ACC-0107". */
-export function accessPlanName(planId: string): string {
-  return `Access plan ${planId}`;
+/** The count link's name: "7 students given access to … . Open Student access". */
+export function studentsGivenLabel(students: number, experiment: string): string {
+  return `${studentsWords(students)} given access to ${experiment}. Open Student access`;
 }
 
-/** B2-02 table caption: "Experiments held in ME ZG523". */
-export function experimentsHeldCaption(courseCode: string): string {
-  return `Experiments held in ${courseCode}`;
-}
-
-/** B2-02 "Students given access": "1 student", "2 students", "None yet" (its script `studentsText`). */
-export function studentsGivenWords(students: number): string {
-  return students === 0 ? CONTENT_ACCESS_WORDS.noneYet : plural(students, 'student');
-}
-
-/** B2-02 row action name: "Give students access to Shell-and-Tube Heat Exchanger". */
+/** The row action's name: "Give students access to Shell-and-Tube Heat Exchanger". */
 export function giveAccessLabel(experiment: string): string {
   return `Give students access to ${experiment}`;
 }
 
-/** B2-02 chips (its script `chips`): "Search: “Distillation”", "Status: Ending soon". */
+/** The chips (the export's `vm02core`): "Search: “Distillation”", "Status: Ending soon". */
 export function searchChip(search: string): string {
   return `Search: “${search.trim()}”`;
 }
@@ -282,143 +405,118 @@ export function statusChip(filter: Exclude<ContentStatusFilter, 'all'>): string 
   return `Status: ${CONTENT_ACCESS_WORDS.statusOptions[filter]}`;
 }
 
-/**
- * B2-02 count (its script `count`): "1 experiment in 1 course" with no filter applied, "0 of 1
- * experiment" with one (several courses: state-copy `IA-02.count-courses`).
- */
+/** A chip's remove button: "Remove filter Search: “Distillation”". */
+export function removeFilterLabel(chip: string): string {
+  return `Remove filter ${chip}`;
+}
+
+/** The count: "1 experiment in 1 course" with no filter, "0 of 1 experiment" with one. */
 export function contentCountWords(
   shown: number,
   total: number,
   courses: number,
   filtered: boolean,
 ): string {
-  const experiments = plural(total, 'experiment');
-  return filtered ? `${shown} of ${experiments}` : `${experiments} in ${plural(courses, 'course')}`;
+  const experiments = iaPlural(total, 'experiment');
+  return filtered
+    ? `${shown} of ${experiments}`
+    : `${experiments} in ${iaPlural(courses, 'course')}`;
 }
 
-/** B2-02 f6: "Experiments appear here when BITS activates … Request REQ-0042 is approved — payment required." */
-export function noContentLine(reference: string): string {
-  return `Experiments appear here when BITS activates your institution’s access. Request ${reference} is approved — payment required.`;
-}
-
-// ---- IA-03 Access plan (B2-03 f0 … f5) ----
+// ---- IA-03 Access plan ----
 
 export const ACCESS_PLAN_WORDS = {
-  back: 'Content access',
-  fromRequest: 'From request',
+  /** The breadcrumb's current level and the tab title. */
+  crumb: 'Access plan',
+  title: 'Your access plan',
+  noPlanTitle: 'No access plan yet',
+  noPlanLine: `${REQUEST_APPROVED} The plan appears here when the payment is confirmed.`,
+  from: 'From',
+  fromRequest: 'your request to BITS',
+  stripHeading: 'Licences and term',
+  foot: 'Licences and term are as BITS approved them. Giving or withdrawing access doesn’t change what is shown here.',
   gave: 'What BITS gave your institution',
-  keys: { licences: 'Licences', term: 'Term', course: 'Course' },
-  experimentsCaption: 'Experiments in this plan',
-  columns: {
-    experiment: 'Experiment',
-    formats: 'Formats in your plan',
-    notInPlan: 'Published, not in your plan',
-    student: 'Student',
-    given: 'Given',
-    status: 'Status',
-  },
+  gaveCaption: 'Experiments in your access plan, grouped by course, with the formats in your plan',
   given: 'Students you’ve given access',
+  givenCaption:
+    'Students given access under your access plan, grouped by experiment: one row per student',
   openStudentAccess: 'Open Student access',
   nobodyTitle: 'You haven’t given anyone access yet',
+  nobodyLine:
+    'Choose students and give them experiments from this plan. They see the formats in this plan.',
+  columns: { student: 'Student', how: 'How given', status: 'Status' },
+  individually: 'Individually',
   history: 'History',
-  individually: 'individually',
-  activated: 'Access activated',
   requestSubmitted: 'Request submitted',
   requestApprovedNote: 'Approved — payment required.',
+  activated: 'Access activated',
+  activatedNote: 'Payment confirmed. Your access plan was created.',
+  createdNote: 'Your access plan was created.',
+  groupGrant: 'Group grant',
+  withdrawn: 'Individual grant withdrawn',
   paused: 'Access paused by BITS',
   planEnded: 'Plan ended',
 } as const;
 
-/** B2-03 title: "Access plan ACC-0107". */
-export const planTitle = accessPlanName;
-
-/** B2-03 meta: "Active since 8 Oct 2026, 15:05". */
+/** "Active since 8 Oct 2026, 15:05". */
 export function activeSinceWords(activatedAt: string): string {
   return `Active since ${activatedAt}`;
 }
 
-/** B2-03 "Licences": "120 — as approved by BITS" (shown as provided, T-06). */
-export function licencesWords(licences: number): string {
-  return `${licences} — as approved by BITS`;
+/** "Group: ME ZG523 — Sem II" (how a student was given it through a group). */
+export function viaGroupWords(group: string): string {
+  return `Group: ${group}`;
 }
 
-/** B2-03 "Term": "Yearly · 8 Oct 2026 to 7 Oct 2027" (f2: "… · 15 days left"). */
-export function termWords(
-  plan: { readonly term: AccessPlanTerm; readonly startsOn: string; readonly endsOn: string },
-  daysLeft: number | null,
-): string {
-  const line = `${planTermWords(plan.term)} · ${calendarDay(plan.startsOn)} to ${calendarDay(plan.endsOn)}`;
-  return daysLeft === null ? line : `${line} · ${daysLeftWords(daysLeft)}`;
+/** "Also in ME ZG523 — Sem II, which has this experiment" (another grant reaches the student too). */
+export function alsoInWords(groups: readonly string[]): string {
+  return `Also in ${iaListText(groups)}, which has this experiment`;
 }
 
-/** B2-03 "Course": "ME ZG523 · Thermodynamics & Heat Transfer". */
-export function courseWords(platformCode: string | null, name: string): string {
-  return platformCode ? `${platformCode} · ${name}` : name;
+/** "No licence is available for Arun on this plan right now." (only on a waiting row). */
+export function waitingNote(firstName: string): string {
+  return `No licence is available for ${firstName} on this plan right now.`;
 }
 
-/** B2-03 f0: "Choose students and give them Shell-and-Tube Heat Exchanger. They see the formats in this plan." */
-export function nobodyLine(experiments: readonly string[]): string {
-  return `Choose students and give them ${namesInWords(experiments)}. They see the formats in this plan.`;
+/** The first name the export's `first` reads ("Dr", "Prof." dropped): "Arun". */
+export function firstNameOf(fullName: string): string {
+  return fullName.replace(/^(Dr|Prof\.)\s+/, '').split(' ')[0] ?? fullName;
 }
 
-/** B2-03 f1 caption: "Students given access under ACC-0107". */
-export function givenCaption(planId: string): string {
-  return `Students given access under ${planId}`;
+/** "Formats from your access plan: WEB, VR" (a group heading's formats, read as one image). */
+export function planFormatsLabel(formats: readonly Technology[]): string {
+  return `Formats from your access plan: ${formats.map(formatName).join(', ') || 'none'}`;
 }
 
-/** B2-03 f1 "Given": "9 Oct 2026 · individually" (a group: state-copy `IA-03.given-group`). */
-export function givenWords(on: string, via: { readonly groupName: string } | null): string {
-  return via
-    ? `${on} · through the group ${via.groupName}`
-    : `${on} · ${ACCESS_PLAN_WORDS.individually}`;
-}
-
-/** B2-03 history: "Payment confirmed for REQ-0042. Plan ACC-0107 created." */
-export function activatedNote(reference: string, planId: string): string {
-  return `Payment confirmed for ${reference}. Plan ${planId} created.`;
-}
-
-/** B2-03 history: "Request approved · External". */
+/** "Request approved · External" (history). */
 export function requestApprovedWhat(route: string): string {
   return `Request approved · ${route}`;
 }
 
-/** B2-03 history: "Rahul Verma given Shell-and-Tube Heat Exchanger". */
-export function givenWhat(who: string, experiment: string): string {
-  return `${who} given ${experiment}`;
-}
-
-/** B2-03 history: "SACC-0310 · individually" (a group grant: state-copy `IA-03.history-group`). */
-export function givenNote(grantId: string, toGroup: boolean): string {
-  return `${grantId} · ${toGroup ? 'group grant' : ACCESS_PLAN_WORDS.individually}`;
-}
-
-/** B2-03 history: "9 Oct 2026, 10:20 · Meera Iyer". */
-export function whenBy(when: string, who: string | null): string {
-  return who ? `${when} · ${who}` : when;
-}
-
-/** B2-03 f3 history note: "End of the yearly term." (other terms: state-copy `IA-03.history-ended`). */
-export function endOfTermNote(term: AccessPlanTerm): string {
-  return term === 'until-date' ? 'End of the term.' : `End of the ${term} term.`;
-}
-
-// History lines B2-03 does not draw (state-copy `IA-03.history`, provisional).
-
-/** "Nikhil Bose’s access to Shell-and-Tube Heat Exchanger withdrawn". */
-export function withdrawnWhat(who: string, experiment: string): string {
-  return `${who}’s access to ${experiment} withdrawn`;
-}
-
-/** "Access restored by BITS" (after "Access paused by BITS"). */
-export const RESTORED_WHAT = 'Access restored by BITS';
-
-/** "Request approved with changes · External". */
+/** "Request approved with changes · External" (history; provisional, `IA-03.history`). */
 export function approvedWithChangesWhat(route: string): string {
   return `Request approved with changes · ${route}`;
 }
 
-/** An activation without a payment (an internal institution): "Plan ACC-0098 created." */
-export function createdNote(planId: string): string {
-  return `Plan ${planId} created.`;
+/** History: "Rahul Verma given Shell-and-Tube Heat Exchanger", "Group ME ZG523 — Sem II given …". */
+export function givenWhat(who: string, experiment: string, toGroup: boolean): string {
+  return `${toGroup ? `Group ${who}` : who} given ${experiment}`;
 }
+
+/** History: "Nikhil Bose · Shell-and-Tube Heat Exchanger" (an individual grant withdrawn). */
+export function withdrawnNote(who: string, experiment: string): string {
+  return `${who} · ${experiment}`;
+}
+
+/** History: "9 Oct 2026, 10:20 · Meera Iyer". */
+export function whenBy(when: string, who: string | null): string {
+  return who ? `${when} · ${who}` : when;
+}
+
+/** History: "End of the yearly term." */
+export function endOfTermNote(term: AccessPlanTerm): string {
+  return term === 'until-date' ? 'End of the term.' : `End of the ${term} term.`;
+}
+
+/** "Access restored by BITS" (after "Access paused by BITS"; provisional, `IA-03.history`). */
+export const RESTORED_WHAT = 'Access restored by BITS';

@@ -63,6 +63,15 @@ const MEERA = 'Account menu, Meera Iyer, Institute Admin, Godavari Institute of 
 const RAHUL = 'Account menu, Rahul Verma, Student, Godavari Institute of Technology';
 const SHELL = 'Shell-and-Tube Heat Exchanger';
 const RAHUL_EMAIL = 'rahul.verma@godavari.edu.in';
+/**
+ * The identifier rule (owner, every V3 role; IA-v1): no internal reference in the Institute
+ * Admin's words — the references stay in addresses, keys and services.
+ */
+const REFERENCE = /\b(?:SACC|ACC|REQ|GRP|DTR|FMAP)-\d+/;
+
+/** The plan's "Licences" fact (`dl` > `dd`): "120" and its "as approved by BITS". */
+const licencesOf = (scope: Locator): Locator =>
+  scope.locator('dt', { hasText: /^Licences$/ }).locator('xpath=following-sibling::dd[1]');
 
 test('one tab, the product build: approval → the Institute Admin’s plan, people and Give access → the Student’s access → withdrawal', async ({
   page,
@@ -128,26 +137,49 @@ test('one tab, the product build: approval → the Institute Admin’s plan, peo
   await expect(main(page).locator('.rk-meta')).toContainText('Institute Admin: Meera Iyer');
   await signOut(page, ARJUN);
 
-  // 3. Meera Iyer signs in: her Overview (IA-01) — access active, ACC-0107, what needs her.
+  // 3. Meera Iyer signs in: her Overview (IA-01) — access active, the plan ACC-0107 (named by its
+  //    content in V3, IA-v1: the reference is only in the plan link's address), what needs her.
   await signIn(page, 'meera.iyer@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/institute');
   await expect(page.getByRole('button', { name: MEERA, exact: true })).toBeVisible();
-  const statusLine = main(page).locator('.xw-statusline');
+  const statusLine = main(page).locator('.ia-ov-status');
   await expect(statusLine).toContainText('Access active');
-  await expect(statusLine).toContainText('Access plan ACC-0107 · 120 licences');
+  await expect(statusLine).toContainText(/Your access plan ends on \d{1,2} \w+ \d{4}\./);
+  const planCard = page.getByRole('region', { name: 'Access plan', exact: true });
+  await expect(licencesOf(planCard)).toHaveText(/^120\s*as approved by BITS$/);
+  await expect(planCard.getByRole('link', { name: 'View plan' })).toHaveAttribute(
+    'href',
+    '/institute/content-access/plans/ACC-0107',
+  );
+  await expect(main(page)).not.toContainText(REFERENCE);
   const attention = page.getByRole('region', { name: 'Needs your attention' });
-  await expect(attention).toContainText(`${SHELL} hasn’t been given to any student`);
+  const notGiven = attention
+    .getByRole('listitem')
+    .filter({ hasText: 'hasn’t been given to any student' });
+  await expect(notGiven).toContainText('1 experiment hasn’t been given to any student');
+  await expect(notGiven).toContainText(SHELL);
   await checkState(page, 'Overview');
 
   // 4. Content access (IA-02) → the plan (IA-03): what BITS gave the institution.
   await sidebar(page, '/institute/content-access');
-  await expect(main(page)).toContainText('Access plan ACC-0107');
-  await expect(main(page)).toContainText('AR is published but not in your plan');
+  const planBand = page.getByRole('region', { name: 'Access plan', exact: true });
+  await expect(licencesOf(planBand)).toHaveText(/^120\s*as approved by BITS$/);
+  await expect(
+    main(page)
+      .getByRole('list', { name: `Formats of ${SHELL}` })
+      .getByRole('listitem', { name: 'AR, Augmented reality: Published, not in your plan' }),
+  ).toBeVisible();
+  await expect(main(page)).not.toContainText(REFERENCE);
   await checkState(page, 'Content access');
-  await reachAndClick(page, main(page).getByRole('link', { name: 'View access plan ACC-0107' }));
+  const viewPlan = planBand.getByRole('link', { name: /^View access plan, / });
+  await expect(viewPlan).toHaveAttribute('href', '/institute/content-access/plans/ACC-0107');
+  await reachAndClick(page, viewPlan);
   await page.waitForURL('**/institute/content-access/plans/ACC-0107');
-  await expect(main(page)).toContainText('120 — as approved by BITS');
-  await checkState(page, 'Access plan ACC-0107');
+  await expect(licencesOf(page.getByRole('region', { name: 'Licences and term' }))).toHaveText(
+    /^120\s*as approved by BITS$/,
+  );
+  await expect(main(page)).not.toContainText(REFERENCE);
+  await checkState(page, 'Your access plan');
 
   // 5. People (IA-06): nobody yet → Add student (IA-10) → Rahul Verma.
   await sidebar(page, '/institute/people');
@@ -155,7 +187,7 @@ test('one tab, the product build: approval → the Institute Admin’s plan, peo
   await checkState(page, 'People');
   await reachAndClick(
     page,
-    main(page).locator('.xr-phead').getByRole('link', { name: 'Add student' }),
+    main(page).locator('.rk-head-act').getByRole('link', { name: 'Add student' }),
   );
   await page.waitForURL('**/institute/people/add');
   await checkState(page, 'Add student');
@@ -188,18 +220,28 @@ test('one tab, the product build: approval → the Institute Admin’s plan, peo
   const given = page.getByRole('list', { name: 'Access given' });
   await expect(given).toContainText('Rahul Verma');
   await expect(given).toContainText(SHELL);
-  await expect(given).toContainText(/SACC-\d{4}/);
   await expect(given).toContainText('Active');
+  // The grant is named by its content (IA-v1 identifier rule): who, what, its status, and the
+  // student's record — never the grant's reference.
+  await expect(given.getByRole('link', { name: 'Open Rahul Verma' })).toHaveAttribute(
+    'href',
+    /^\/institute\/people\/students\/per-[\w-]+$/,
+  );
+  await expect(given).not.toContainText(REFERENCE);
 
   // 7. Student access (IA-04) lists the grant; the Overview no longer asks for it.
   await reachAndClick(page, main(page).getByRole('link', { name: 'View Student access' }));
   await page.waitForURL((url) => url.pathname === '/institute/student-access');
-  const row = main(page).locator('tbody tr', { hasText: 'Rahul Verma' });
-  await expect(row).toContainText(SHELL);
+  // V3 (IA-v1): one row group per experiment — the experiment heads its group, Rahul's row is in it.
+  const experimentGroup = main(page).getByRole('rowgroup').filter({ hasText: 'Rahul Verma' });
+  await expect(experimentGroup.getByRole('rowheader')).toContainText(SHELL);
+  const row = experimentGroup.getByRole('row').filter({ hasText: 'Rahul Verma' });
   await expect(row).toContainText('Active');
+  await expect(main(page)).not.toContainText(REFERENCE);
   await checkState(page, 'Student access');
   await sidebar(page, '/institute');
-  await expect(attention).not.toContainText(`${SHELL} hasn’t been given to any student`);
+  await expect(notGiven).toHaveCount(0);
+  await expect(attention).not.toContainText(SHELL);
   await signOut(page, MEERA);
 
   // 8. Rahul Verma signs in with the e-mail Meera entered (the sample sign-in, P1-01): his Home
@@ -239,13 +281,14 @@ test('one tab, the product build: approval → the Institute Admin’s plan, peo
     page,
     main(page).getByRole('button', { name: `Withdraw Rahul Verma’s access to ${SHELL}` }),
   );
-  const withdraw = page.getByRole('dialog', { name: 'Withdraw access?' });
+  const withdraw = page.getByRole('alertdialog', { name: 'Withdraw access?' });
   await withdraw.getByLabel(/^Reason/).fill('Given to the wrong student.');
   await reachAndClick(page, withdraw.getByRole('button', { name: 'Withdraw access' }));
   await expect(withdraw).toBeHidden();
   await expect(main(page)).toContainText(
-    /Access withdrawn\. SACC-\d{4} was Rahul Verma’s only grant/,
+    `Access withdrawn. That was Rahul Verma’s only grant for ${SHELL}`,
   );
+  await expect(main(page)).not.toContainText(REFERENCE);
   await expect(
     main(page).getByRole('button', { name: `Withdraw Rahul Verma’s access to ${SHELL}` }),
   ).toHaveCount(0);

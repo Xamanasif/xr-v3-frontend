@@ -190,8 +190,8 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
     await openAs(tab, entry.person, `${entry.base}/help`);
     await waitForShell(tab);
     // The v46 sidebar, or a V3 rail (the Super Admin's SA-v1, the Vendor's VE-v1, the Content
-    // Manager's CM-v1, the Academic Reviewer's RV-v1), whose Help sits in a navigation of its own
-    // in the rail foot.
+    // Manager's CM-v1, the Academic Reviewer's RV-v1, the Institute Admin's IA-v1), whose Help sits
+    // in a navigation of its own in the rail foot.
     const side = tab.locator('aside.xr-side, aside.rb-rail');
     if (entry.role === 'vendor') {
       // VE-01 Overview and VE-02 My experiments, then Help & support.
@@ -229,6 +229,26 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
           .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
       ).toEqual(['/reviewer', '/reviewer/queue', '/reviewer/reviewed']);
       await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/reviewer/help');
+    } else if (entry.role === 'tenant_admin') {
+      // Package 2A: Overview, Content access, Student access and People; Phase 3: Requests and
+      // Usage. Then Help & support.
+      await expect(side.locator('a[href]')).toHaveCount(7);
+      expect(
+        await side
+          .locator('nav[aria-label="Institute Admin navigation"] a[href]')
+          .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
+      ).toEqual([
+        '/institute',
+        '/institute/content-access',
+        '/institute/student-access',
+        '/institute/people',
+        '/institute/requests',
+        '/institute/usage',
+      ]);
+      await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute(
+        'href',
+        '/institute/help',
+      );
     } else if (entry.role === 'super_admin') {
       // SA-02 (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3), Content,
       // Academic structure and Platform roles (Phase 6): all seven, then Help & support.
@@ -248,31 +268,21 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
       ]);
       await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/admin/help');
     } else {
-      // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
-      // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the
-      // Faculty member's Overview, My courses, Assessments and Question bank. Phase 4B: Marking
-      // and Students, and the Student's Assessments. (Phase 5's Vendor, Content Manager and
-      // Academic Reviewer destinations are in the V3 rail, above.)
+      // Package 2A: the Student's Home and My courses. Phase 3: Progress. Phase 4A: the Faculty
+      // member's Overview, My courses, Assessments and Question bank. Phase 4B: Marking and
+      // Students, and the Student's Assessments. (The Institute Admin's destinations and Phase 5's
+      // Vendor, Content Manager and Academic Reviewer destinations are in the V3 rail, above.)
       const built =
-        entry.role === 'tenant_admin'
+        entry.role === 'faculty'
           ? [
-              '/institute',
-              '/institute/content-access',
-              '/institute/student-access',
-              '/institute/people',
-              '/institute/requests',
-              '/institute/usage',
+              '/faculty',
+              '/faculty/courses',
+              '/faculty/assessments',
+              '/faculty/question-bank',
+              '/faculty/marking',
+              '/faculty/students',
             ]
-          : entry.role === 'faculty'
-            ? [
-                '/faculty',
-                '/faculty/courses',
-                '/faculty/assessments',
-                '/faculty/question-bank',
-                '/faculty/marking',
-                '/faculty/students',
-              ]
-            : ['/student', '/student/courses', '/student/assessments', '/student/progress'];
+          : ['/student', '/student/courses', '/student/assessments', '/student/progress'];
       expect(
         await side
           .locator('nav a[href]')

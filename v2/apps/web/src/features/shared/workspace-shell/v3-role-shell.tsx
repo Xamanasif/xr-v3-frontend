@@ -27,28 +27,33 @@ import {
 /**
  * The roles whose workspace has moved to the V3 Refined B shell with their owner-approved complete
  * role export (pack prompt 11): the Super Admin (design/v3-refined-b/roles/SA-v1), the Vendor
- * (roles/VE-v1), the Content Manager (roles/CM-v1) and the Academic Reviewer (roles/RV-v1). Every
- * other role keeps its v46 shell until its own export is integrated.
+ * (roles/VE-v1), the Content Manager (roles/CM-v1), the Academic Reviewer (roles/RV-v1) and the
+ * Institute Admin (roles/IA-v1). Every other role keeps its v46 shell until its own export is
+ * integrated.
  */
 export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>([
   'super_admin',
   'vendor',
   'content_manager',
   'academic_reviewer',
+  'tenant_admin',
 ]);
 
 /**
  * The roles whose export names the home page before the date in the top line on that page ("Overview
- * · Thursday 27 August 2026": VE-v1 `Main.dc.html` `rb-top-date`, as IA-01 draws it); the Super
- * Admin, Content Manager and Academic Reviewer exports draw the date alone.
+ * · Thursday 27 August 2026": VE-v1 `Main.dc.html` `rb-top-date`; IA-v1 `Main.dc.html` `rb-top-date`
+ * with `topLabel: 'Overview'` on IA-01 only); the Super Admin, Content Manager and Academic Reviewer
+ * exports draw the date alone.
  */
-const HOME_IN_TOP_LINE: ReadonlySet<Role> = new Set<Role>(['vendor']);
+const HOME_IN_TOP_LINE: ReadonlySet<Role> = new Set<Role>(['vendor', 'tenant_admin']);
 
 /**
  * The rail glyph of each destination, as the role exports draw it (SA-v1 `sa-core.js` nav; VE-v1
  * `Main.dc.html` rail: the Overview grid and My experiments' flask; CM-v1 `Main.dc.html` rail: the
  * grid, upload, books, refresh and hash glyphs; RV-v1 `RV.dc.html` rail: the grid, the bulleted
- * list and the checked disc).
+ * list and the checked disc; IA-v1 `Main.dc.html` rail: the grid, the box, the person with a plus,
+ * the two people and the pulse line). A role whose export draws another glyph for the same board
+ * icon has its own entry in ROLE_RAIL_ICON, read first.
  */
 const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   overview: 'overview',
@@ -65,6 +70,19 @@ const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   codes: 'courseCodes',
   queue: 'reviewQueue',
   reviewed: 'checkCircle',
+  caccess: 'contentAccess',
+  saccess: 'studentAccess',
+  people: 'people',
+  usage: 'usage',
+};
+
+/**
+ * A role's own rail glyph where its export draws another one for a board icon another role shares:
+ * the Institute Admin's Requests is the kit's tray (IA-v1 `Main.dc.html` rail, `rbi-inbox`:
+ * `requests`), while the Super Admin's Requests keeps the SA-v1 inbox (`inbox`).
+ */
+const ROLE_RAIL_ICON: Readonly<Partial<Record<Role, Partial<Record<BoardIconKey, V3IconName>>>>> = {
+  tenant_admin: { requests: 'requests' },
 };
 
 export interface V3RoleShellProps {
@@ -118,7 +136,9 @@ export function V3RoleShell({
   const model = sidebarModel(role, { screen, built, counts });
   const destinations: ShellDestination[] = model.destinations.map((destination) => {
     const entry = config.destinations.find((candidate) => candidate.href === destination.href);
-    const icon = entry ? RAIL_ICON[entry.boardIcon] : undefined;
+    const icon = entry
+      ? (ROLE_RAIL_ICON[role]?.[entry.boardIcon] ?? RAIL_ICON[entry.boardIcon])
+      : undefined;
     if (!icon) throw new Error(`No V3 rail icon for ${destination.label}.`);
     // The figure the sidebar model counted, worded as the role export words it where it does.
     const words = V3_RAIL_COUNT_WORDS[`${role}:${destination.href}`];

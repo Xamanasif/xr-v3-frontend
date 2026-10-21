@@ -117,7 +117,24 @@ export const RV_EXPORT_DIRECTORY = join(
   'project',
 );
 
-/** Every class a selector of the V3, XS, SA, VE, CM and RV derivatives or the V3 patches names. */
+/**
+ * The owner-approved Institute Admin export (IA-v1): its live role root (`Main.dc.html`, START-HERE
+ * "Live role entry"), read as the reference for the Institute Admin pages' markup, words and icons.
+ */
+export const IA_EXPORT_DIRECTORY = join(
+  V3_BOARDS_DIRECTORY,
+  '..',
+  '..',
+  '..',
+  '..',
+  'roles',
+  'IA-v1',
+  'project',
+);
+
+/**
+ * Every class a selector of the V3, XS, SA, VE, CM, RV and IA derivatives or the V3 patches names.
+ */
 export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
   [
     'rb-scoped.css',
@@ -126,6 +143,7 @@ export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
     've-scoped.css',
     'cm-scoped.css',
     'rv-scoped.css',
+    'ia-scoped.css',
     'patch.css',
   ].flatMap((sheet) => [...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8'))]),
 );
@@ -153,6 +171,57 @@ export function cmExportText(file: string): string {
 /** The raw text of an RV export file (`RV.dc.html`, …), for markup, words and icon checks. */
 export function rvExportText(file: string): string {
   return readFileSync(join(RV_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The raw text of an IA export file (`Main.dc.html`, …), for markup, words and icon checks. */
+export function iaExportText(file: string): string {
+  return readFileSync(join(IA_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/**
+ * The Institute Admin export's inline sizes on product elements, each with the central patch's
+ * product class the kit emits there instead (V3P-16; `rk-x-fmts-flush` is V3P-14's, reused). Each
+ * `style` value the IA export writes on a product element maps to exactly one class.
+ */
+export const IA_PATCHED_STYLES: Readonly<Record<string, string>> = {
+  'max-width: 760px': 'rk-x-surface-msg',
+  'margin: 0': 'rk-x-state-ico-flush',
+  'max-width: 520px': 'rk-x-field-select',
+  'max-width: 320px': 'rk-x-field-count',
+  'align-items: flex-end': 'rk-x-row-end',
+  'flex: 1 1 320px': 'rk-x-search-grow',
+  'margin-bottom: 10px': 'rk-x-count-low',
+  'max-width: 420px': 'rk-x-search-panel',
+  'justify-content: center': 'rk-x-row-center',
+  'gap: 6px 8px': 'rk-x-row-tight',
+  'grid-template-columns: minmax(0, 1fr)': 'rk-x-choice-plain',
+  'gap: 6px 10px': 'rk-x-row-snug',
+  'vertical-align: -4px; margin-right: 6px': 'rk-x-ico-lead',
+  'color: #3B49B8': 'rk-x-ico-file',
+  'font-size: 17px; line-height: 26px; color: #141B5E': 'rk-x-next-lead',
+  'margin-bottom: 12px': 'rk-x-h3-above',
+  'margin-top: 8px': 'rk-x-ferr-group',
+  'margin-bottom: 8px': 'rk-x-label-above',
+  'margin-top: 0': 'rk-x-fmts-flush',
+};
+
+/**
+ * An excerpt of the IA export with each patched inline size (`IA_PATCHED_STYLES`) written as the
+ * product class the kit emits in its place (added to the element's classes, the `style` dropped);
+ * any other `style` is left as it is.
+ */
+export function iaPatchedMarkup(html: string): string {
+  return html.replace(
+    /<([a-z][\w-]*)([^<>]*?)\sstyle="([^"]*)"([^<>]*)>/g,
+    (whole, tag: string, before: string, style: string, after: string) => {
+      const added = IA_PATCHED_STYLES[style];
+      if (!added) return whole;
+      const attributes = `${before}${after}`;
+      return /\sclass="/.test(attributes)
+        ? `<${tag}${attributes.replace(/\sclass="([^"]*)"/, (_match, value: string) => ` class="${value} ${added}"`)}>`
+        : `<${tag} class="${added}"${attributes}>`;
+    },
+  );
 }
 
 /**

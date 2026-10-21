@@ -7,40 +7,55 @@ import type {
   StudentDirectoryRow,
 } from '@xr/contracts/draft';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
+  ButtonLink,
   ConfirmDialog,
-  EditDialog,
-  EmptyState,
   Field,
-  FormatSet,
-  Link,
+  IaActions,
+  IaAddPanel,
+  IaBusyButton,
+  IaCellText,
+  IaEmptyTitle,
+  IaFormatBadges,
+  IaGrantItems,
+  IaListTable,
+  IaPickList,
+  IaPickSearch,
+  IaRecordGrid,
+  IaRowLink,
+  IaSectionBody,
+  IaSectionFoot,
+  IaSectionHead,
+  IaStatusNotes,
+  ListState,
   Notice,
-  PageContent,
-  PageHeader,
-  Section,
+  PageHead,
+  RecordLine,
   StatusPill,
+  Surface,
   TextInput,
-} from '@xr/ui';
+  V46Island,
+} from '@xr/ui/v3';
 import { useEffect, useRef, useState } from 'react';
 
 import { dayMonthYear } from '@/copy/dates';
 import {
   addedFlash,
   addLabel,
-  candidateLine,
+  addNoteWithGrants,
   givenOnWords,
-  GROUP_PAGE,
+  grantsListLabel,
+  IA14,
   memberCountWords,
-  REMOVE_DIALOG,
+  membersCaption,
+  removeAria,
   removeBody,
   removedFlash,
-  removeLabel,
   removeTitle,
-  RENAME_DIALOG,
-  standingLinePrefix,
-} from '@/copy/groups';
-import { fromPlanWords, OTHER_GRANT_WORDS, PEOPLE_PAGE } from '@/copy/institute-people';
+} from '@/copy/ia-access';
+import { formatsFromPlanLabel, IA_PAUSED_READ_ONLY } from '@/copy/ia-shared';
+import { PEOPLE_PAGE } from '@/copy/institute-people';
 import { stateWords } from '@/copy/state-copy';
 import {
   giveAccessAddress,
@@ -56,50 +71,52 @@ import { useCommand } from '@/queries/use-command';
 
 import { type RecordRead, RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { PausedNotice, useInstitutionPaused } from '../ia-06-people/paused';
-import { formatCodes } from '../ia-06-people/students';
-import {
-  type GroupGrantLine,
-  type GroupMember,
-  liveGrants,
-  memberStatus,
-  type MemberStatus,
-} from './group-view';
+import { formatCodes } from '../shared/format-codes';
+import { useInstitutionPaused } from '../shared/paused';
+import { grantStatus, liveGrants, memberStatus } from './group-view';
 
-const RENAME_ID = 'group-rename';
-const NAME_ID = 'group-rename-name';
-const ADD_ID = 'group-add';
-const ADD_HEADING_ID = 'group-add-heading';
+const TITLE_ID = 'ia-h1';
+const RENAME_ID = 'ia-rename';
+const NAME_ID = 'ia-dlg-n';
+const ADD_ID = 'gd-add';
+const PANEL_ID = 'gd-addpanel';
+const PANEL_TITLE_ID = 'gd-add-h';
+const SEARCH_ID = 'gd-q';
+const FLASH_ID = 'ia-flash';
+
+/** The export offers the panel's search once there are more than eight students to choose from. */
+const SEARCH_FROM = 9;
 
 /** What the page shows: the group, and the reads its words need beside it. */
 interface GroupPage {
   readonly view: GroupRecordView;
-  /** Student access (IA-04) rows: the ID "Has it individually · SACC-0310" names. */
+  /** Student access (IA-04) rows: when a member's own grant was given ("Has it individually"). */
   readonly accessRows: readonly GrantRow[];
   /** Every student of the institution: the "Add students" candidates. */
   readonly students: readonly StudentDirectoryRow[];
 }
 
 /**
- * IA-14 Group — board B2-08 f3 … f10, at `/institute/people/groups/[groupId]`.
+ * IA-14 Group — the owner-approved V3 design (design/v3-refined-b/roles/IA-v1, `Main.dc.html`
+ * `R.rIA14`, `vm14`), at `/institute/people/groups/[groupId]`.
  *
  * - **Read**: `GroupService.getGroup` — the group, its current members with their standing per live
- *   group grant and its grants as the page names them — with the Student access rows (the member's
- *   own grant ID) and every student (the candidates). An address naming no group of the admin's
- *   institution — unknown or another institution's — shows the in-shell not-found page.
- * - **Members**: each student (opening their record) and their status in words: "Inactive" with
- *   "Can’t open experiments while inactive"; "Active" while the group has no live grant; else per
- *   live grant the service's standing — "Can open it", "Has it individually · SACC-…", "Waiting for a
- *   licence" (a supplied wait, D7), "Added after the group grant" (OD-B2-02: no promise either way)
- *   or, for the undecided overlap, words that state no can / can't (OD-B2-01).
+ *   group grant and its grants as the page names them — with the Student access rows (when a
+ *   member's own grant was given) and every student (the candidates). An address naming no group of
+ *   the admin's institution — unknown or another institution's — shows the in-shell not-found page.
+ * - **Layout**: the head (the group's name, its member count once, Rename; Add students and Give
+ *   this group access); the add panel under it; Members (student, status in words, quiet Remove…)
+ *   with "Experiments given to this group" beside it (first on phones). No grant or group is named
+ *   by its id.
  * - **Act** (each sent with the group's revision as the page showed it): "Add students" opens the
- *   inline panel (institution students not in the group; "Add 2 students" → `addMembers`);
- *   "Remove…" opens DL-1 (`removeMember` — only the membership changes, never a grant; GRP-05:
+ *   panel (institution students not in the group; "Add 2 students" → `addMembers`); "Remove…" opens
+ *   the destructive DL-1 (`removeMember` — only the membership changes, never a grant; GRP-05:
  *   nothing is said about access); "Rename" opens DL-3 (`renameGroup`, the service's words on the
- *   field). "Give this group access" opens IA-05 with the group chosen. Each result is said in the
- *   flash. A refusal because the group moved on writes nothing: the dialog or panel closes, the
- *   page reads again and focus goes to the title; a failure for now keeps the dialog or panel.
- * - **Paused institution**: read-only — no write is offered and the paused notice shows.
+ *   field). "Give this group access" (shown once the group has members) opens IA-05 with the group
+ *   chosen. Each result is said in the flash. A refusal because the group moved on writes nothing:
+ *   the dialog or panel closes, the page reads again and focus goes to the title; a failure for now
+ *   keeps the dialog or panel.
+ * - **Paused institution**: read-only — no write is offered and the read-only notice shows.
  */
 export function GroupRecord({ groupId }: { readonly groupId: string }) {
   const group = useGroupRecord(groupId);
@@ -139,21 +156,21 @@ export function GroupRecord({ groupId }: { readonly groupId: string }) {
     refetch,
   };
 
-  return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={read}
-        loadingLabel={stateWords('IA-14.loading')}
-        failed={{
-          title: stateWords('IA-14.failed'),
-          line: stateWords('IA-14.failed.line'),
-          reportHref: `${INSTITUTE_HELP_ADDRESS}/report`,
-        }}
-      >
-        {(page) => <GroupContent page={page} refetch={refetch} />}
-      </RecordGuard>
-    </PageContent>
+  const guard = (
+    <RecordGuard
+      read={read}
+      loadingLabel={stateWords('IA-14.loading')}
+      failed={{
+        title: stateWords('IA-14.failed'),
+        line: stateWords('IA-14.failed.line'),
+        reportHref: `${INSTITUTE_HELP_ADDRESS}/report`,
+      }}
+    >
+      {(page) => <GroupContent page={page} refetch={refetch} />}
+    </RecordGuard>
   );
+  // The application's existing loading and failed states keep their look (IA-v1 draws none).
+  return read.data?.ok && !read.isError ? guard : <V46Island>{guard}</V46Island>;
 }
 
 /** A student's id, as the records type it. */
@@ -169,9 +186,10 @@ type Dialog =
     }
   | { readonly kind: 'rename'; readonly name: string; readonly expectedRev: number };
 
-/** The open "Add students" panel: who is picked, and the revision when it opened. */
+/** The open "Add students" panel: who is picked, the search, and the revision when it opened. */
 interface Adding {
   readonly picked: readonly StudentId[];
+  readonly search: string;
   readonly expectedRev: number;
 }
 
@@ -196,24 +214,21 @@ function GroupContent({
     n: 0,
   });
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const flashRef = useRef<HTMLDivElement>(null);
   const rename = useCommand((ports) => ports.groups.renameGroup);
   const remove = useCommand((ports) => ports.groups.removeMember);
   const add = useCommand((ports) => ports.groups.addMembers);
 
-  // Focus moves after the commit that shows its target (B2-08 `focus(id)`): the panel's heading
-  // when it opens and "Add students" when it closes, the flash after adding or removing, "Rename"
-  // after renaming, the name after its error, the page title after a refusal that re-reads the page
-  // (and wherever a target is gone). A dialog has given focus back to its trigger in the same
-  // commit (a child's effect runs first), so this request wins.
+  // Focus moves after the commit that shows its target (the export's `focusLater`): the panel's
+  // heading (or its search) when it opens and "Add students" when it closes, the flash after adding
+  // or removing, "Rename" after renaming, the name after its error, the page title after a refusal
+  // that re-reads the page (and wherever a target is gone). A dialog has given focus back to its
+  // trigger in the same commit (a child's effect runs first), so this request wins.
   useEffect(() => {
     if (focusRequest.n === 0) return;
     const target =
-      focusRequest.id === 'flash'
-        ? flashRef.current
-        : focusRequest.id === 'title'
-          ? titleRef.current
-          : (document.getElementById(focusRequest.id) ?? titleRef.current);
+      focusRequest.id === 'title'
+        ? titleRef.current
+        : (document.getElementById(focusRequest.id) ?? titleRef.current);
     target?.focus();
   }, [focusRequest]);
   const focus = (id: string) => setFocusRequest((current) => ({ id, n: current.n + 1 }));
@@ -244,7 +259,7 @@ function GroupContent({
     if (dialog.kind === 'rename') {
       rename.run({ id: group.id, name: dialog.name, expectedRev: dialog.expectedRev }).then(
         (answer) => {
-          if (answer.ok) done(GROUP_PAGE.renamedFlash, RENAME_ID);
+          if (answer.ok) done(IA14.renamedFlash, RENAME_ID);
           else if (answer.error.kind === 'validation-failed') {
             const field = answer.error.fieldErrors.find((error) => error.field === 'name');
             if (!field) {
@@ -263,19 +278,26 @@ function GroupContent({
     const { studentId, fullName, expectedRev } = dialog;
     remove.run({ id: group.id, studentId, expectedRev }).then(
       (answer) => {
-        if (answer.ok) done(removedFlash(fullName), 'flash');
+        if (answer.ok) done(removedFlash(fullName), FLASH_ID);
         else refused(answer.error);
       },
       () => undefined,
     );
   };
 
+  const members = view.members;
+  const memberIds = new Set(members.map((member) => member.student.id));
+  const candidates = students.filter((row) => !memberIds.has(row.student.id));
+
   const confirmAdd = () => {
     if (!adding || adding.picked.length === 0) return;
     const studentIds = [...adding.picked];
+    const names = candidates
+      .filter((row) => studentIds.includes(row.student.id))
+      .map((row) => row.student.fullName);
     add.run({ id: group.id, studentIds, expectedRev: adding.expectedRev }).then(
       (answer) => {
-        if (answer.ok) done(addedFlash(studentIds.length), 'flash');
+        if (answer.ok) done(addedFlash(names), FLASH_ID);
         else refused(answer.error);
       },
       // Failed for now: the panel and the picks stay (state-copy `IA-14.unavailable`).
@@ -283,49 +305,59 @@ function GroupContent({
     );
   };
 
-  const startAdd = () => {
-    setAdding({ picked: [], expectedRev: group.rev });
-    focus(ADD_HEADING_ID);
+  const toggleAdd = () => {
+    if (adding) {
+      setAdding(null);
+      focus(ADD_ID);
+      return;
+    }
+    setAdding({ picked: [], search: '', expectedRev: group.rev });
+    focus(candidates.length >= SEARCH_FROM ? SEARCH_ID : PANEL_TITLE_ID);
   };
   const cancelAdd = () => {
     setAdding(null);
     focus(ADD_ID);
   };
 
-  const members = view.members;
   const live = liveGrants(view);
-  const memberIds = new Set(members.map((member) => member.student.id));
-  const candidates = students.filter((row) => !memberIds.has(row.student.id));
-  const count = memberCountWords(members.length);
   const panelOpen = adding !== null && !paused;
+  const canGive = !paused && members.length > 0;
+  const giveHref = giveAccessAddress({ group: group.id });
+  const search = adding?.search.trim().toLowerCase() ?? '';
+  const shownCandidates = candidates.filter(
+    (row) =>
+      search === '' ||
+      `${row.student.fullName} ${row.student.institutionStudentId}`.toLowerCase().includes(search),
+  );
 
   return (
     <>
-      <PageHeader
-        className="mt-2 mb-6"
-        back={<BackLink href={GROUPS_ADDRESS}>{GROUP_PAGE.back}</BackLink>}
-        overline={
-          <>
-            {GROUP_PAGE.overline} · <span className="xr-id">{group.id}</span>
-          </>
+      <PageHead
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: IA14.crumb, href: GROUPS_ADDRESS }]}
+            current={group.name}
+          />
         }
+        variant="record"
+        eyebrow={IA14.eyebrow}
         title={group.name}
-        titleFocusTarget
+        titleId={TITLE_ID}
         titleRef={titleRef}
+        titleFocusTarget
         meta={
           <>
-            <span>{count}</span>
+            <span>{memberCountWords(members.length)}</span>
             {paused ? null : (
               <Button
-                variant="text"
+                variant="ghost"
                 id={RENAME_ID}
-                className="min-h-8"
                 onClick={() => {
                   setNameError(null);
                   setDialog({ kind: 'rename', name: group.name, expectedRev: group.rev });
                 }}
               >
-                {GROUP_PAGE.rename}
+                {IA14.rename}
               </Button>
             )}
           </>
@@ -333,171 +365,259 @@ function GroupContent({
         actions={
           paused ? null : (
             <>
-              <Link
-                className="xr-btn xr-btn--secondary"
-                href={giveAccessAddress({ group: group.id })}
+              <Button
+                size="lg"
+                id={ADD_ID}
+                aria-expanded={panelOpen}
+                aria-controls={PANEL_ID}
+                onClick={toggleAdd}
               >
-                {GROUP_PAGE.giveAccess}
-              </Link>
-              {panelOpen ? null : (
-                <Button variant="primary" id={ADD_ID} onClick={startAdd}>
-                  {GROUP_PAGE.addStudents}
-                </Button>
-              )}
+                {IA14.addStudents}
+              </Button>
+              {canGive ? (
+                <ButtonLink variant="primary" size="lg" href={giveHref}>
+                  {IA14.give}
+                </ButtonLink>
+              ) : null}
             </>
           )
         }
       />
-      <div className="xw-stack">
-        {flash ? (
-          <div ref={flashRef} id="group-flash" tabIndex={-1}>
-            <Notice tone="ok">{flash}</Notice>
-          </div>
-        ) : null}
-        {paused ? <PausedNotice /> : null}
-        <Section title={GROUP_PAGE.members} headingId="group-members" meta={count}>
-          {members.length > 0 ? (
-            <MemberTable
-              members={members}
-              live={live}
-              accessRows={accessRows}
-              paused={paused}
-              onRemove={(member) =>
-                setDialog({
-                  kind: 'remove',
-                  studentId: member.student.id,
-                  fullName: member.student.fullName,
-                  expectedRev: group.rev,
-                })
+      {paused ? (
+        <Notice tone="paused" icon="lock" role="status" title={IA_PAUSED_READ_ONLY}>
+          {IA14.pausedLine}
+        </Notice>
+      ) : null}
+      {flash ? (
+        <Notice tone="ok" id={FLASH_ID} role="status" title={IA14.flashTitle}>
+          {flash}
+        </Notice>
+      ) : null}
+      {panelOpen ? (
+        <IaAddPanel
+          id={PANEL_ID}
+          titleId={PANEL_TITLE_ID}
+          title={IA14.addPanelTitle}
+          actions={
+            <IaActions>
+              <Button size="lg" onClick={cancelAdd}>
+                {IA14.cancel}
+              </Button>
+              <IaBusyButton
+                variant="primary"
+                size="lg"
+                disabled={adding.picked.length === 0}
+                busy={add.busy}
+                onClick={confirmAdd}
+              >
+                {addLabel(adding.picked.length)}
+              </IaBusyButton>
+            </IaActions>
+          }
+        >
+          <RecordLine>
+            {live.length > 0
+              ? addNoteWithGrants(live.map((row) => row.experimentName))
+              : IA14.addNoteNone}
+          </RecordLine>
+          {candidates.length >= SEARCH_FROM ? (
+            <IaPickSearch
+              id={SEARCH_ID}
+              label={IA14.searchStudents}
+              placeholder={IA14.searchPlaceholder}
+              value={adding.search}
+              onChange={(value) =>
+                setAdding((current) => (current ? { ...current, search: value } : current))
               }
             />
-          ) : panelOpen ? null : (
-            <EmptyState icon="studentsPeople" headingLevel={3} title={GROUP_PAGE.noMembersTitle}>
-              {GROUP_PAGE.noMembersLine}
-            </EmptyState>
-          )}
-          {panelOpen ? (
-            <div className="xw-inline-panel">
-              <h3 className="xr-h3 m-0" id={ADD_HEADING_ID} tabIndex={-1}>
-                {GROUP_PAGE.addPanelTitle}
-              </h3>
-              {candidates.length > 0 ? (
-                <ul className="xw-pick" aria-labelledby={ADD_HEADING_ID}>
-                  {candidates.map((row) => {
-                    const id = `group-add-${row.student.id}`;
-                    const checked = adding.picked.includes(row.student.id);
-                    return (
-                      <li key={row.student.id}>
-                        <div className="xw-pick-row">
-                          <label htmlFor={id}>
-                            <input
-                              type="checkbox"
-                              id={id}
-                              checked={checked}
-                              onChange={() =>
-                                setAdding((current) =>
-                                  current
-                                    ? {
-                                        ...current,
-                                        picked: checked
-                                          ? current.picked.filter((pick) => pick !== row.student.id)
-                                          : [...current.picked, row.student.id],
-                                      }
-                                    : current,
-                                )
-                              }
-                            />
-                            <span className="xw-pick-name">
-                              <span className="font-[600]">{row.student.fullName}</span>
-                              <span className="xr-meta">
-                                {candidateLine(
-                                  row.student.institutionStudentId,
-                                  row.student.accountStatus === 'inactive',
-                                )}
-                              </span>
-                            </span>
-                          </label>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              ) : (
-                <p className="xr-body m-0 text-ink-2">{stateWords('IA-14.add.none')}</p>
-              )}
-              <div className="xw-actions xw-actions--end">
-                <Button variant="text" onClick={cancelAdd}>
-                  {GROUP_PAGE.cancel}
-                </Button>
-                <Button
-                  variant="primary"
-                  disabled={adding.picked.length === 0}
-                  busy={add.busy}
-                  onClick={confirmAdd}
-                >
-                  {addLabel(adding.picked.length)}
-                </Button>
-              </div>
-            </div>
           ) : null}
-        </Section>
-        <Section title={GROUP_PAGE.given} headingId="group-given">
-          {view.grantRows.length > 0 ? (
-            <GrantTable rows={view.grantRows} />
+          {shownCandidates.length > 0 ? (
+            <IaPickList
+              label={IA14.candidatesList}
+              items={shownCandidates.map((row) => {
+                const checked = adding.picked.includes(row.student.id);
+                return {
+                  key: row.student.id,
+                  inputId: `gd-c-${row.student.id}`,
+                  name: row.student.fullName,
+                  detail: [
+                    row.student.institutionStudentId,
+                    ...row.groups.map((entry) => entry.name),
+                  ].join(' · '),
+                  why: row.student.accountStatus === 'inactive' ? IA14.inactive : null,
+                  checked,
+                  onChange: () =>
+                    setAdding((current) =>
+                      current
+                        ? {
+                            ...current,
+                            picked: checked
+                              ? current.picked.filter((pick) => pick !== row.student.id)
+                              : [...current.picked, row.student.id],
+                          }
+                        : current,
+                    ),
+                };
+              })}
+            />
+          ) : candidates.length > 0 ? (
+            <RecordLine>{IA14.noCandidateMatch}</RecordLine>
           ) : (
-            <EmptyState
-              icon="studentAccess"
-              headingLevel={3}
-              title={GROUP_PAGE.nothingGivenTitle}
-              actions={
-                paused ? null : (
-                  <div className="flex flex-wrap gap-3">
-                    <Link
-                      className="xr-btn xr-btn--secondary"
-                      href={giveAccessAddress({ group: group.id })}
-                    >
-                      {GROUP_PAGE.giveAccess}
-                    </Link>
-                  </div>
-                )
-              }
-            >
-              {GROUP_PAGE.nothingGivenLine}
-            </EmptyState>
+            <RecordLine>{stateWords('IA-14.add.none')}</RecordLine>
           )}
-        </Section>
-      </div>
+        </IaAddPanel>
+      ) : null}
+      <IaRecordGrid
+        variant="sidefirst"
+        main={
+          <Surface labelledBy="gd-m-h">
+            <IaSectionHead title={IA14.members} titleId="gd-m-h" />
+            {members.length > 0 ? (
+              <IaListTable
+                variant="gm"
+                caption={membersCaption(group.name)}
+                columns={[
+                  { key: 'student', header: IA14.columns.student },
+                  { key: 'status', header: IA14.columns.status },
+                  { key: 'action', header: IA14.columns.action, hidden: true },
+                ]}
+                rows={members.map((member) => {
+                  const status = memberStatus(member, view, accessRows, paused);
+                  return {
+                    key: member.student.id,
+                    cells: [
+                      {
+                        key: 'student',
+                        role: 'main',
+                        className: 'ia-gm-who',
+                        children: (
+                          <>
+                            <IaRowLink href={studentRecordAddress(member.student.id)}>
+                              {member.student.fullName}
+                            </IaRowLink>
+                            <IaCellText kind="sub" nowrap>
+                              {member.student.institutionStudentId}
+                            </IaCellText>
+                          </>
+                        ),
+                      },
+                      {
+                        key: 'status',
+                        children: (
+                          <IaStatusNotes
+                            status={<StatusPill tone={status.tone}>{status.words}</StatusPill>}
+                            notes={status.note ? [status.note] : []}
+                          />
+                        ),
+                      },
+                      {
+                        key: 'action',
+                        role: 'act',
+                        children: paused ? null : (
+                          <Button
+                            variant="ghost"
+                            id={`gd-rm-${member.student.id}`}
+                            aria-label={removeAria(member.student.fullName)}
+                            onClick={() =>
+                              setDialog({
+                                kind: 'remove',
+                                studentId: member.student.id,
+                                fullName: member.student.fullName,
+                                expectedRev: group.rev,
+                              })
+                            }
+                          >
+                            {IA14.remove}
+                          </Button>
+                        ),
+                      },
+                    ],
+                  };
+                })}
+              />
+            ) : (
+              <ListState
+                kind="none"
+                icon="people"
+                titleAs="h3"
+                title={IA14.noMembersTitle}
+                action={paused ? null : <Button onClick={toggleAdd}>{IA14.addStudents}</Button>}
+              >
+                {IA14.noMembersLine}
+              </ListState>
+            )}
+          </Surface>
+        }
+        side={
+          <Surface labelledBy="gd-e-h">
+            <IaSectionHead title={IA14.given} titleId="gd-e-h" size="minor" />
+            {view.grantRows.length > 0 ? (
+              <>
+                <IaGrantItems
+                  label={grantsListLabel(group.name)}
+                  items={view.grantRows.map((row) => {
+                    const codes = formatCodes(row.formats);
+                    return {
+                      key: row.grant.id,
+                      name: row.experimentName,
+                      courseCode: row.courseCode,
+                      formats: (
+                        <IaFormatBadges formats={codes} label={formatsFromPlanLabel(codes)} />
+                      ),
+                      status: grantStatus(row, paused),
+                      given: givenOnWords(dayMonthYear(row.grant.givenAt)),
+                    };
+                  })}
+                />
+                <IaSectionFoot>{IA14.grantNote}</IaSectionFoot>
+              </>
+            ) : (
+              <IaSectionBody>
+                <IaEmptyTitle>{IA14.nothingGivenTitle}</IaEmptyTitle>
+                <RecordLine>{IA14.nothingGivenLine}</RecordLine>
+                {canGive ? (
+                  <p>
+                    <ButtonLink href={giveHref}>{IA14.give}</ButtonLink>
+                  </p>
+                ) : null}
+              </IaSectionBody>
+            )}
+          </Surface>
+        }
+      />
       <ConfirmDialog
         open={dialog?.kind === 'remove' && !paused}
-        align="start"
-        returnFocusFallback={flashRef}
-        idPrefix="group-remove-dialog"
         destructive
+        initialFocus="cancel"
+        idPrefix="group-remove-dialog"
         title={dialog?.kind === 'remove' ? removeTitle(dialog.fullName) : ''}
-        effect={dialog?.kind === 'remove' ? <RemoveEffect dialog={dialog} name={group.name} /> : ''}
-        confirmLabel={REMOVE_DIALOG.confirm}
+        description={
+          dialog?.kind === 'remove' ? removeBody(dialog.fullName, group.name) : undefined
+        }
+        confirmLabel={IA14.removeConfirm}
+        cancelLabel={IA14.cancel}
+        busyLook
         busy={remove.busy}
         onConfirm={confirmDialog}
         onCancel={closeDialog}
       />
-      <EditDialog
+      <ConfirmDialog
         open={dialog?.kind === 'rename' && !paused}
-        align="start"
+        initialFocus="field"
+        submitOnEnter
         returnFocusFallback={titleRef}
         idPrefix="group-rename-dialog"
-        title={RENAME_DIALOG.title}
-        confirmLabel={RENAME_DIALOG.confirm}
+        title={IA14.renameTitle}
+        confirmLabel={IA14.saveName}
+        cancelLabel={IA14.cancel}
+        busyLook
         busy={rename.busy}
         onConfirm={confirmDialog}
         onCancel={closeDialog}
       >
-        <Field
-          id={NAME_ID}
-          label={RENAME_DIALOG.nameLabel}
-          errorClass="xw-ferr"
-          error={nameError ?? undefined}
-        >
+        <Field id={NAME_ID} label={IA14.nameLabel} error={nameError ?? undefined}>
           <TextInput
+            autoComplete="off"
             value={dialog?.kind === 'rename' ? dialog.name : ''}
             onChange={(event) => {
               const name = event.target.value;
@@ -506,168 +626,7 @@ function GroupContent({
             }}
           />
         </Field>
-      </EditDialog>
+      </ConfirmDialog>
     </>
-  );
-}
-
-/** B2-08 DL-1 body: only what is certain — they leave the group, their record stays (GRP-05). */
-function RemoveEffect({
-  dialog,
-  name,
-}: {
-  readonly dialog: { readonly fullName: string };
-  readonly name: string;
-}) {
-  const words = removeBody(dialog.fullName);
-  return (
-    <>
-      {words.before}
-      <strong className="text-ink">{name}</strong>
-      {words.after}
-    </>
-  );
-}
-
-/** B2-08 "Members" (`xr-table-wrap.xw-table-flush`): Student · Status · (Action). */
-function MemberTable({
-  members,
-  live,
-  accessRows,
-  paused,
-  onRemove,
-}: {
-  readonly members: readonly GroupMember[];
-  readonly live: readonly GroupGrantLine[];
-  readonly accessRows: readonly GrantRow[];
-  readonly paused: boolean;
-  readonly onRemove: (member: GroupMember) => void;
-}) {
-  const { memberColumns } = GROUP_PAGE;
-  return (
-    <div className="xr-table-wrap xw-table-flush">
-      <table className="xr-table">
-        <caption className="xr-sr">{GROUP_PAGE.membersCaption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{memberColumns.student}</th>
-            <th scope="col">{memberColumns.status}</th>
-            {paused ? null : (
-              <th scope="col">
-                <span className="xr-sr">{memberColumns.action}</span>
-              </th>
-            )}
-          </tr>
-        </thead>
-        <tbody>
-          {members.map((member) => (
-            <tr key={member.student.id}>
-              <td className="is-primary">
-                <Link href={studentRecordAddress(member.student.id)}>
-                  <strong>{member.student.fullName}</strong>
-                </Link>
-                <span className="xr-sub xr-id">{member.student.institutionStudentId}</span>
-              </td>
-              <td data-label={memberColumns.status}>
-                <MemberStatusCell status={memberStatus(member, live, accessRows)} />
-              </td>
-              {paused ? null : (
-                <td>
-                  <Button
-                    variant="text"
-                    id={`group-remove-${member.student.id}`}
-                    className="min-h-9"
-                    aria-label={removeLabel(member.student.fullName)}
-                    onClick={() => onRemove(member)}
-                  >
-                    {GROUP_PAGE.remove}
-                  </Button>
-                </td>
-              )}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** B2-08 `isOff` / `isWait` / `plain`: the pill and its line, or the plain words. */
-function MemberStatusCell({ status }: { readonly status: MemberStatus }) {
-  if (status.kind === 'inactive') {
-    return (
-      <>
-        <StatusPill tone="off">{GROUP_PAGE.inactive}</StatusPill>
-        <span className="xr-sub">{GROUP_PAGE.inactiveLine}</span>
-      </>
-    );
-  }
-  if (status.kind === 'active') {
-    return <span className="xr-small text-ink-2">{GROUP_PAGE.active}</span>;
-  }
-  const [only] = status.lines;
-  if (status.lines.length === 1 && only) {
-    return only.pill ? (
-      <StatusPill tone="wait">{only.words}</StatusPill>
-    ) : (
-      <span className="xr-small text-ink-2">{only.words}</span>
-    );
-  }
-  // Several live grants: one line per experiment (state-copy `IA-14.several`).
-  return (
-    <>
-      {status.lines.map((line) => (
-        <span key={line.grantId} className="xr-small block text-ink-2">
-          {standingLinePrefix(line.experimentName)}
-          {line.pill ? <StatusPill tone="wait">{line.words}</StatusPill> : line.words}
-        </span>
-      ))}
-    </>
-  );
-}
-
-/** B2-08 f4 "Experiments given to this group": one row per grant of the group. */
-function GrantTable({ rows }: { readonly rows: readonly GroupGrantLine[] }) {
-  const { givenColumns } = GROUP_PAGE;
-  return (
-    <div className="xr-table-wrap xw-table-flush">
-      <table className="xr-table">
-        <caption className="xr-sr">{GROUP_PAGE.givenCaption}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{givenColumns.experiment}</th>
-            <th scope="col">{givenColumns.formats}</th>
-            <th scope="col">{givenColumns.given}</th>
-            <th scope="col">{givenColumns.status}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.grant.id}>
-              <td className="is-primary">
-                <strong>{row.experimentName}</strong>
-                {row.courseCode ? <span className="xr-sub">{row.courseCode}</span> : null}
-              </td>
-              <td data-label={givenColumns.formats}>
-                <FormatSet compact formats={formatCodes(row.formats)} />
-                <span className="xr-sub">{fromPlanWords(row.grant.accessPlanId)}</span>
-              </td>
-              <td data-label={givenColumns.given}>
-                {givenOnWords(dayMonthYear(row.grant.givenAt))}
-                <span className="xr-id">{row.grant.id}</span>
-              </td>
-              <td data-label={givenColumns.status}>
-                {row.status === 'active' ? (
-                  <StatusPill tone="ok">{GROUP_PAGE.grantActive}</StatusPill>
-                ) : (
-                  // Undrawn on B2-08 (state-copy `IA-14.grant-words`).
-                  <StatusPill tone="off">{OTHER_GRANT_WORDS[row.status]}</StatusPill>
-                )}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }

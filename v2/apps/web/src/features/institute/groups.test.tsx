@@ -98,65 +98,107 @@ async function pauseGodavari(sample: Parameters<typeof asPersonId>[0]) {
   if (!paused.ok) throw new Error('pause');
 }
 
-// ---- IA-13 People › Groups (B2-08 f0 … f2) ----------------------------------------------------
+// ---- IA-13 People › Groups (V3 IA-v1 IA-13; B2-08 f0 … f2) ------------------------------------
 
 function openGroupsTab(runtime: PlatformRuntime) {
   return inInstitute(runtime, '/institute/people', <People />, '?tab=groups');
 }
 
-const groupCount = () => main().querySelector('p.xr-meta[role="status"]');
+/** The Groups tab's count, as the People tabs say it to screen readers (", 2 groups"). */
+const groupCount = () =>
+  within(screen.getByRole('navigation', { name: 'People' }))
+    .getByRole('link', { name: /^Groups/ })
+    .querySelector('.xr-sr');
+
+/** A record's internal reference: none in any People word (the identifier rule). */
+const PEOPLE_REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|GRP|FMAP)-\d+/;
+
+/**
+ * No internal reference in the document's words (hidden and screen-reader-only words and the
+ * announcements included), in any `aria-label`, `title` or `placeholder`, or in the tab's title.
+ */
+function expectNoPeopleReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(PEOPLE_REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        PEOPLE_REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(PEOPLE_REFERENCE);
+}
+
+const GROUPS_TABLE = 'Groups at your institution';
 
 describe('IA-13 — the groups are the port’s answer (B2-08 f0, f2)', () => {
   it('after setup: one group, its members and nothing given yet, opening IA-14', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     openGroupsTab(runtime);
-    const table = await screen.findByRole('table', { name: 'Groups' });
-    expect([...table.querySelectorAll('thead th')].map((cell) => cell.textContent)).toEqual([
-      'Group',
-      'Members',
-      'Experiments given to the group',
-    ]);
+    const table = await screen.findByRole('table', { name: GROUPS_TABLE });
+    expect(
+      within(table)
+        .getAllByRole('columnheader')
+        .map((cell) => cell.textContent),
+    ).toEqual(['Group', 'Members', 'Experiments given to the group']);
     const rows = bodyRows(table);
     expect(rows).toHaveLength(1);
-    expect(cellsOf(rows[0]!)).toEqual([`${GROUP_NAME}${GRP}`, '7 members', 'None yet']);
-    expect(rows[0]!.querySelector('.xr-sub.xr-id')).toHaveTextContent(GRP);
+    // Named by its name, never by its reference (the identifier rule); the third cell carries its
+    // label for the phone rows.
+    expect(cellsOf(rows[0]!)).toEqual([GROUP_NAME, '7 members', 'Experiments givenNone yet']);
     expect(screen.getByRole('link', { name: `Open group ${GROUP_NAME}` })).toHaveAttribute(
       'href',
       `/institute/people/groups/${GRP}`,
     );
-    // The count, singular as the register writes it (state-copy IA-13.count-one).
-    expect(groupCount()).toHaveTextContent(/^1 group$/);
+    // The whole row is a link.
+    expect(rows[0]).toHaveClass('is-link');
+    // The count is the tab's, singular as the register writes it (state-copy IA-13.count-one).
+    await waitFor(() => expect(groupCount()).toHaveTextContent(/^, 1 group$/));
     expect(screen.getByRole('button', { name: 'Create group' })).toHaveAttribute(
       'id',
       'groups-create',
     );
-    await waitFor(() =>
-      expect(document.querySelector('.xr-crumbs')).toHaveTextContent('People/Groups'),
+    expect(main()).toHaveTextContent(
+      'Giving a group access gives it to the group’s current members, through the same Give students access steps.',
     );
-    // Labelled cells for the narrow layout.
-    expect(rows[0]!.querySelector('td[data-label="Members"]')).not.toBeNull();
-    expect(
-      rows[0]!.querySelector('td[data-label="Experiments given to the group"]'),
-    ).not.toBeNull();
+    await waitFor(() => expect(document.title).toMatch(/^Groups · /));
+    expectNoPeopleReferences();
   });
 
   it('later sample: the experiment the group grant gives, with its formats (f2)', async () => {
     const { runtime } = await tabPlatform(MEERA, 'later-sample');
     openGroupsTab(runtime);
-    const table = await screen.findByRole('table', { name: 'Groups' });
+    const table = await screen.findByRole('table', { name: GROUPS_TABLE });
     const [row] = bodyRows(table);
-    expect(cellsOf(row!)[2]).toBe('Shell-and-Tube Heat ExchangerWEBVR');
-    expect(
-      [...row!.querySelectorAll('.xr-fmt.xr-fmt--compact')].map((chip) => chip.textContent),
-    ).toEqual(['WEB', 'VR']);
+    expect(cellsOf(row!)[2]).toBe('Experiments givenShell-and-Tube Heat ExchangerWEBVR');
+    const badges = row!.querySelector('.rk-fmts')!;
+    expect(badges).toHaveAttribute('role', 'img');
+    expect(badges).toHaveAccessibleName('Formats from your plan: WEB, VR');
+    expect([...badges.querySelectorAll('.xr-fmt')].map((chip) => chip.textContent)).toEqual([
+      'WEB',
+      'VR',
+    ]);
+    expectNoPeopleReferences();
   });
 
-  it('no groups yet: the count says so and the header’s “Create group” is the way in', async () => {
+  it('no groups yet: the count says so; “Create group” in the head and in the empty state', async () => {
     const { runtime } = await tabPlatform(PAUSED_INSTITUTE_ADMIN, 'after-setup');
+    const user = userEvent.setup();
     openGroupsTab(runtime);
-    expect(await screen.findByRole('heading', { name: 'No groups yet' })).toBeVisible();
-    expect(groupCount()).toHaveTextContent('0 groups');
-    expect(screen.queryByRole('table', { name: 'Groups' })).toBeNull();
+    expect(await screen.findByRole('heading', { level: 2, name: 'No groups yet' })).toBeVisible();
+    expect(main()).toHaveTextContent(
+      'A group is another way to choose who gets an experiment, for example a section or a lab batch.',
+    );
+    await waitFor(() => expect(groupCount()).toHaveTextContent(', 0 groups'));
+    expect(screen.queryByRole('table', { name: GROUPS_TABLE })).toBeNull();
+    const creates = screen.getAllByRole('button', { name: 'Create group' });
+    expect(creates.map((button) => button.id)).toEqual(['groups-create', 'pg-create-empty']);
+    // The empty state's button opens the same dialog, and Cancel gives focus back to it.
+    await user.click(creates[1]!);
+    const dialog = await screen.findByRole('dialog', { name: 'Create group' });
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    expect(creates[1]).toHaveFocus();
   });
 
   it('loading is announced; a failure has “Try again”', async () => {
@@ -165,12 +207,11 @@ describe('IA-13 — the groups are the port’s answer (B2-08 f0, f2)', () => {
     faults(sample).failNext('GroupService.listGroups');
     openGroupsTab(runtime);
     expect(await screen.findByText('Loading groups')).toHaveAttribute('role', 'status');
-    expect(
-      await screen.findByRole('heading', { name: 'We couldn’t load the groups' }),
-    ).toBeVisible();
-    expect(screen.getByText('Nothing has changed. Try again.')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(bodyRows(await screen.findByRole('table', { name: 'Groups' }))).toHaveLength(1);
+    const failed = await screen.findByRole('alert');
+    expect(failed).toHaveTextContent('We couldn’t load the groups');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
+    expect(bodyRows(await screen.findByRole('table', { name: GROUPS_TABLE }))).toHaveLength(1);
   });
 });
 
@@ -179,49 +220,61 @@ describe('IA-13 — Create group (B2-08 f1, DL-3)', () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     openGroupsTab(runtime);
-    await screen.findByRole('table', { name: 'Groups' });
+    await screen.findByRole('table', { name: GROUPS_TABLE });
     const version = sample.worldVersion();
 
     await user.click(screen.getByRole('button', { name: 'Create group' }));
     const dialog = await screen.findByRole('dialog', { name: 'Create group' });
     const field = within(dialog).getByRole('textbox', { name: 'Group name' });
-    expect(field).toHaveFocus();
-    expect(dialog).toHaveTextContent('For example a section or lab batch. You add students next.');
+    await waitFor(() => expect(field).toHaveFocus());
+    expect(field).toHaveAccessibleDescription(
+      'For example a section or lab batch. You add students next.',
+    );
 
     await user.click(within(dialog).getByRole('button', { name: 'Create group' }));
     await waitFor(() => expect(dialog).toHaveTextContent('Enter a name for the group'));
-    expect(dialog.querySelector('.xw-ferr')).not.toBeNull();
+    expect(dialog.querySelector('.rk-ferr')).not.toBeNull();
     expect(field).toHaveAttribute('aria-invalid', 'true');
     await waitFor(() => expect(field).toHaveFocus());
 
     await user.type(field, 'me zg523 — sem ii');
     expect(field).not.toHaveAttribute('aria-invalid');
-    await user.click(within(dialog).getByRole('button', { name: 'Create group' }));
+    // Enter in the name confirms.
+    await user.keyboard('{Enter}');
     await waitFor(() => expect(dialog).toHaveTextContent(/A group called “.+” already exists/));
     await waitFor(() => expect(field).toHaveFocus());
     expect(sample.worldVersion()).toBe(version);
     expect(await groupsOf(runtime)).toHaveLength(1);
+    expectNoPeopleReferences();
 
     await user.clear(field);
     await user.type(field, 'Lab batch B');
     await user.click(within(dialog).getByRole('button', { name: 'Create group' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    const flash = main().querySelector('.xr-notice--ok');
-    expect(flash).toHaveTextContent('Group “Lab batch B” created. Add students to it next.');
-    await waitFor(() => expect(document.getElementById('groups-flash')).toHaveFocus());
-    expect(groupCount()).toHaveTextContent('2 groups');
+    const flash = document.getElementById('groups-flash')!;
+    expect(flash).toHaveClass('rk-notice', 'rk-notice--ok');
+    expect(flash).toHaveAttribute('role', 'status');
+    expect(flash).toHaveTextContent('SavedGroup “Lab batch B” created. Add students to it next.');
+    await waitFor(() => expect(flash).toHaveFocus());
+    await waitFor(() => expect(groupCount()).toHaveTextContent(', 2 groups'));
     const created = (await groupsOf(runtime)).find((entry) => entry.group.name === 'Lab batch B')!;
-    const row = bodyRows(screen.getByRole('table', { name: 'Groups' })).find((candidate) =>
+    // The flash's way on: the new group's page.
+    expect(within(flash).getByRole('link', { name: 'Open the group' })).toHaveAttribute(
+      'href',
+      `/institute/people/groups/${created.group.id}`,
+    );
+    const row = bodyRows(screen.getByRole('table', { name: GROUPS_TABLE })).find((candidate) =>
       candidate.textContent?.startsWith('Lab batch B'),
     )!;
-    expect(cellsOf(row)).toEqual([`Lab batch B${created.group.id}`, '0 members', 'None yet']);
+    expect(cellsOf(row)).toEqual(['Lab batch B', 'No members yet', 'Experiments givenNone yet']);
+    expectNoPeopleReferences();
   });
 
-  it('Cancel and Close change nothing and give focus back to “Create group”', async () => {
+  it('Cancel and Esc change nothing and give focus back to “Create group”', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     openGroupsTab(runtime);
-    await screen.findByRole('table', { name: 'Groups' });
+    await screen.findByRole('table', { name: GROUPS_TABLE });
     const version = sample.worldVersion();
     const open = screen.getByRole('button', { name: 'Create group' });
 
@@ -235,7 +288,7 @@ describe('IA-13 — Create group (B2-08 f1, DL-3)', () => {
     await user.click(open);
     dialog = await screen.findByRole('dialog', { name: 'Create group' });
     expect(within(dialog).getByRole('textbox')).toHaveValue('');
-    await user.click(within(dialog).getByRole('button', { name: 'Close' }));
+    await user.keyboard('{Escape}');
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
     expect(open).toHaveFocus();
     expect(sample.worldVersion()).toBe(version);
@@ -245,15 +298,15 @@ describe('IA-13 — Create group (B2-08 f1, DL-3)', () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     openGroupsTab(runtime);
-    await screen.findByRole('table', { name: 'Groups' });
+    await screen.findByRole('table', { name: GROUPS_TABLE });
     await user.click(screen.getByRole('button', { name: 'Create group' }));
     const dialog = await screen.findByRole('dialog', { name: 'Create group' });
     await user.type(within(dialog).getByRole('textbox'), 'Lab batch B');
     faults(sample).failNext('GroupService.createGroup');
     await user.click(within(dialog).getByRole('button', { name: 'Create group' }));
     await waitFor(() =>
-      expect(within(dialog).getByRole('button', { name: 'Create group' })).not.toHaveClass(
-        'is-busy',
+      expect(within(dialog).getByRole('button', { name: 'Create group' })).not.toHaveAttribute(
+        'aria-disabled',
       ),
     );
     expect(screen.getByRole('dialog')).toBeVisible();
@@ -265,7 +318,7 @@ describe('IA-13 — Create group (B2-08 f1, DL-3)', () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     openGroupsTab(runtime);
-    await screen.findByRole('table', { name: 'Groups' });
+    await screen.findByRole('table', { name: GROUPS_TABLE });
     await user.click(screen.getByRole('button', { name: 'Create group' }));
     const dialog = await screen.findByRole('dialog', { name: 'Create group' });
     await user.type(within(dialog).getByRole('textbox'), 'Lab batch B');
@@ -278,7 +331,7 @@ describe('IA-13 — Create group (B2-08 f1, DL-3)', () => {
       expect(main()).toHaveTextContent('Read-only while your institution’s access is paused'),
     );
     expect(screen.queryByRole('button', { name: 'Create group' })).toBeNull();
-    expect(main().querySelector('.xr-notice--ok')).toBeNull();
+    expect(main().querySelector('.rk-notice--ok')).toBeNull();
   });
 
   it('paused: the list only — no “Create group”, and the read-only notice', async () => {
@@ -286,16 +339,19 @@ describe('IA-13 — Create group (B2-08 f1, DL-3)', () => {
     await pauseGodavari(sample);
     await runtime.session.refresh();
     openGroupsTab(runtime);
-    await screen.findByRole('table', { name: 'Groups' });
+    await screen.findByRole('table', { name: GROUPS_TABLE });
     await waitFor(() =>
-      expect(main()).toHaveTextContent('Read-only while your institution’s access is paused'),
+      expect(main()).toHaveTextContent(
+        'Read-only while your institution’s access is pausedYou can create and change groups again when BITS lifts the pause.',
+      ),
     );
     expect(screen.queryByRole('button', { name: 'Create group' })).toBeNull();
     expect(screen.queryByRole('dialog')).toBeNull();
+    expectNoPeopleReferences();
   });
 });
 
-// ---- IA-14 Group (B2-08 f3 … f10) -------------------------------------------------------------
+// ---- IA-14 Group (V3 IA-v1 IA-14; B2-08 f3 … f10) ----------------------------------------------
 
 async function openGroup(runtime: PlatformRuntime, id = GRP) {
   const rendered = inInstitute(
@@ -307,45 +363,59 @@ async function openGroup(runtime: PlatformRuntime, id = GRP) {
   return rendered;
 }
 
-const membersTable = () => within(region('Members')).getByRole('table', { name: 'Members' });
+/** Every internal record reference the Institute Admin's pages keep out of their words. */
+const GROUP_REFERENCE = /\b(?:REQ|ACC|SACC|GRP|FMAP|UPD|DTR|SUP|SUB)-\d+/;
+
+function expectNoGroupReferences() {
+  expect(main().textContent).not.toMatch(GROUP_REFERENCE);
+  for (const element of main().querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '').not.toMatch(GROUP_REFERENCE);
+    }
+  }
+}
+
+const membersTable = () => within(region('Members')).getByRole('table', { name: /^Members of / });
 
 function memberRow(name: string): HTMLTableRowElement {
   const row = bodyRows(membersTable()).find((candidate) =>
-    candidate.querySelector('td.is-primary')?.textContent?.startsWith(name),
+    candidate.querySelector('td.ia-lt-main')?.textContent?.startsWith(name),
   );
   if (!row) throw new Error(`No member row for ${name}`);
   return row;
 }
 
-const statusOf = (name: string) =>
-  memberRow(name).querySelector('td[data-label="Status"]')!.textContent;
+const statusOf = (name: string) => memberRow(name).cells[1]!.textContent;
+const meta = () => main().querySelector('.rk-meta');
+const okFlash = () => main().querySelector('.rk-notice--ok');
+/** The head's "Add students", which opens and closes the panel (`#gd-add`). */
+const addToggle = () => main().querySelector<HTMLButtonElement>('#gd-add')!;
+const addPanel = () => screen.getByRole('region', { name: 'Add students to this group' });
 
-describe('IA-14 — the group as it is (B2-08 f3, f4, f8)', () => {
-  it('after setup: who is in it, each Active or Inactive, nothing given yet (f3)', async () => {
+describe('IA-14 — the group as it is (V3 IA-v1 IA-14)', () => {
+  it('after setup: who is in it, each Active or Inactive, nothing given yet', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     await openGroup(runtime);
-    expect(main().querySelector('.xr-overline')).toHaveTextContent(`Group · ${GRP}`);
-    expect(main().querySelector('a.xr-back')).toHaveAttribute(
+    expect(main().querySelector('.rk-eyebrow')).toHaveTextContent(/^Group$/);
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(crumbs).toHaveTextContent(`Groups${GROUP_NAME}`);
+    expect(within(crumbs).getByRole('link', { name: 'Groups' })).toHaveAttribute(
       'href',
       '/institute/people?tab=groups',
     );
-    expect(main().querySelector('a.xr-back')).toHaveTextContent('Groups');
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('7 membersRename');
-    await waitFor(() =>
-      expect(document.querySelector('.xr-crumbs')).toHaveTextContent(`People/Groups/${GROUP_NAME}`),
-    );
+    expect(meta()).toHaveTextContent('7 membersRename');
     const give = screen.getAllByRole('link', { name: 'Give this group access' });
     expect(give).toHaveLength(2);
     for (const link of give)
       expect(link).toHaveAttribute('href', `/institute/student-access/give?group=${GRP}`);
-    expect(screen.getByRole('button', { name: 'Add students' })).toBeVisible();
+    expect(give[0]).toHaveClass('rb-btn--primary');
+    expect(addToggle()).toHaveTextContent('Add students');
+    expect(addToggle()).toHaveAttribute('aria-expanded', 'false');
+    expect(addToggle()).toHaveAttribute('aria-controls', 'gd-addpanel');
 
-    expect(region('Members').querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
-      '7 members',
-    );
     const view = await groupOf(runtime);
     const rows = bodyRows(membersTable());
-    expect(rows.map((row) => row.querySelector('td.is-primary a')!.textContent)).toEqual(
+    expect(rows.map((row) => row.querySelector('td.ia-lt-main a')!.textContent)).toEqual(
       view.members.map((member) => member.student.fullName),
     );
     expect(cellsOf(memberRow('Rahul Verma'))).toEqual([
@@ -358,49 +428,47 @@ describe('IA-14 — the group as it is (B2-08 f3, f4, f8)', () => {
       `/institute/people/students/${RAHUL}`,
     );
     const sneha = memberRow('Sneha Reddy');
-    expect(sneha.querySelector('.xr-status.xr-status--off')).toHaveTextContent('Inactive');
-    expect(statusOf('Sneha Reddy')).toBe('InactiveCan’t open experiments while inactive');
+    expect(sneha.querySelector('.xr-st.rk-st-ended')).toHaveTextContent('Inactive');
+    // Nothing is given yet, so the inactive line has nothing to say.
+    expect(statusOf('Sneha Reddy')).toBe('Inactive');
     expect(
       screen.getByRole('button', { name: 'Remove Priya Natarajan from this group' }),
     ).toHaveTextContent('Remove…');
 
     const given = region('Experiments given to this group');
-    expect(
-      within(given).getByRole('heading', { name: 'Nothing given to this group yet' }),
-    ).toBeVisible();
+    expect(given).toHaveTextContent('Nothing given to this group yet');
     expect(given).toHaveTextContent(
       'Give this group an experiment, and its current members get it.',
     );
+    expectNoGroupReferences();
   });
 
-  it('later sample: each member’s standing in words, and the group grant SACC-0311 (f4)', async () => {
+  it('later sample: each member’s standing in words, and the group’s grant', async () => {
     const { runtime } = await tabPlatform(MEERA, 'later-sample');
     await openGroup(runtime);
-    expect(statusOf('Rahul Verma')).toBe('Has it individually · SACC-0310');
-    expect(memberRow('Arun Kumar').querySelector('.xr-status.xr-status--wait')).toHaveTextContent(
+    expect(statusOf('Rahul Verma')).toBe('Has it individuallyGiven 9 Oct 2026');
+    expect(memberRow('Arun Kumar').querySelector('.xr-st.xr-st--warn')).toHaveTextContent(
       'Waiting for a licence',
     );
     expect(statusOf('Sneha Reddy')).toBe('InactiveCan’t open experiments while inactive');
     expect(statusOf('Priya Natarajan')).toBe('Can open it');
 
-    const given = within(region('Experiments given to this group')).getByRole('table', {
-      name: 'Experiments given to this group',
-    });
-    const [row] = bodyRows(given);
-    expect(cellsOf(row!)).toEqual([
-      'Shell-and-Tube Heat ExchangerME ZG523',
-      'WEBVRFrom access plan ACC-0107',
-      '12 Oct 2026 · SACC-0311',
-      'Active',
+    const given = region('Experiments given to this group');
+    const list = within(given).getByRole('list', { name: `Experiments given to ${GROUP_NAME}` });
+    const items = within(list).getAllByRole('listitem');
+    expect(items.map((item) => item.textContent)).toEqual([
+      'Shell-and-Tube Heat ExchangerME ZG523WEBVRActiveGiven 12 Oct 2026',
     ]);
-    expect(row!.querySelector('.xr-status.xr-status--ok')).toHaveTextContent('Active');
-    // Labelled cells for the narrow layout (f10).
     expect(
-      [...row!.querySelectorAll('td[data-label]')].map((cell) => cell.getAttribute('data-label')),
-    ).toEqual(['Formats', 'Given', 'Status']);
-    expect(memberRow('Arun Kumar').querySelector('td[data-label="Status"]')).not.toBeNull();
-    // Only one “Give this group access” now: the header's.
+      within(items[0]!).getByRole('img', { name: 'Formats from your plan: WEB, VR' }),
+    ).toBeVisible();
+    expect(items[0]!.querySelector('.xr-st--ok')).toHaveTextContent('Active');
+    expect(given).toHaveTextContent(
+      'A group grant is recorded for the members the group has when access is given. Each member’s status is shown in Members, in words.',
+    );
+    // Only one “Give this group access” now: the head's.
     expect(screen.getAllByRole('link', { name: 'Give this group access' })).toHaveLength(1);
+    expectNoGroupReferences();
   });
 
   it('the undecided overlap: Rahul’s own grant withdrawn — no can / can’t-open words (OD-B2-01)', async () => {
@@ -415,9 +483,12 @@ describe('IA-14 — the group as it is (B2-08 f3, f4, f8)', () => {
     });
     expect(withdrawn.ok).toBe(true);
     await openGroup(runtime);
-    expect(statusOf('Rahul Verma')).toBe(stateWords('IA-14.policy-open'));
+    expect(statusOf('Rahul Verma')).toBe(
+      `Individual grant withdrawn${stateWords('IA-14.policy-open')}`,
+    );
     expect(statusOf('Rahul Verma')).not.toMatch(/Can open it|Has it individually|Can’t open/);
     expect(statusOf('Priya Natarajan')).toBe('Can open it');
+    expectNoGroupReferences();
   });
 
   it('an unknown group, or another institution’s, is the in-shell not-found page', async () => {
@@ -441,7 +512,7 @@ describe('IA-14 — the group as it is (B2-08 f3, f4, f8)', () => {
   });
 });
 
-describe('IA-14 — Add students (B2-08 f7, f8, f9)', () => {
+describe('IA-14 — Add students (V3 IA-v1 IA-14 add panel)', () => {
   it('the panel offers the students not in the group; picked, added, the flash takes focus', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
@@ -450,12 +521,17 @@ describe('IA-14 — Add students (B2-08 f7, f8, f9)', () => {
     const offered = (await studentsOf(runtime)).filter((row) => !memberIds.has(row.student.id));
     expect(offered).toHaveLength(5);
 
-    await user.click(screen.getByRole('button', { name: 'Add students' }));
-    const heading = screen.getByRole('heading', { level: 3, name: 'Add students to this group' });
+    await user.click(addToggle());
+    expect(addToggle()).toHaveAttribute('aria-expanded', 'true');
+    const heading = screen.getByRole('heading', { level: 2, name: 'Add students to this group' });
     await waitFor(() => expect(heading).toHaveFocus());
-    // The header's "Add students" is hidden while the panel is open (B2-08 `notAdding`).
-    expect(main().querySelector('.xr-phead-actions')).not.toHaveTextContent('Add students');
-    const panel = heading.closest<HTMLElement>('.xw-inline-panel')!;
+    const panel = addPanel();
+    expect(panel).toHaveAttribute('id', 'gd-addpanel');
+    expect(panel).toHaveTextContent(
+      'Choose the students to add. Being in a group doesn’t give anyone experiments by itself.',
+    );
+    // Five to choose from: no search (the export offers one from nine).
+    expect(within(panel).queryByRole('searchbox')).toBeNull();
     const boxes = within(panel).getAllByRole('checkbox');
     expect(boxes.map((box) => box.closest('label')!.textContent)).toEqual(
       offered.map((row) => `${row.student.fullName}${row.student.institutionStudentId}`),
@@ -470,13 +546,11 @@ describe('IA-14 — Add students (B2-08 f7, f8, f9)', () => {
     await user.click(within(panel).getByRole('button', { name: 'Add 2 students' }));
 
     await waitFor(() =>
-      expect(main().querySelector('.xr-notice--ok')).toHaveTextContent(
-        '2 students added to the group.',
-      ),
+      expect(okFlash()).toHaveTextContent('Saved2 students were added to the group.'),
     );
-    await waitFor(() => expect(document.getElementById('group-flash')).toHaveFocus());
-    expect(main().querySelector('.xw-inline-panel')).toBeNull();
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('9 members');
+    await waitFor(() => expect(document.getElementById('ia-flash')).toHaveFocus());
+    expect(screen.queryByRole('region', { name: 'Add students to this group' })).toBeNull();
+    expect(meta()).toHaveTextContent('9 members');
     expect(statusOf('Vikram Joshi')).toBe('Active');
     expect((await groupOf(runtime)).members).toHaveLength(9);
   });
@@ -486,65 +560,76 @@ describe('IA-14 — Add students (B2-08 f7, f8, f9)', () => {
     const user = userEvent.setup();
     await openGroup(runtime);
     const version = sample.worldVersion();
-    await user.click(screen.getByRole('button', { name: 'Add students' }));
-    const panel = screen
-      .getByRole('heading', { name: 'Add students to this group' })
-      .closest<HTMLElement>('.xw-inline-panel')!;
+    await user.click(addToggle());
+    const panel = addPanel();
     await user.click(within(panel).getByRole('checkbox', { name: /Ananya Das/ }));
     await user.click(within(panel).getByRole('button', { name: 'Cancel' }));
-    expect(main().querySelector('.xw-inline-panel')).toBeNull();
-    await waitFor(() => expect(screen.getByRole('button', { name: 'Add students' })).toHaveFocus());
+    expect(screen.queryByRole('region', { name: 'Add students to this group' })).toBeNull();
+    await waitFor(() => expect(addToggle()).toHaveFocus());
+    expect(addToggle()).toHaveAttribute('aria-expanded', 'false');
     expect(sample.worldVersion()).toBe(version);
   });
 
-  it('an inactive student is offered with “ · inactive”; an empty group says so (f8)', async () => {
+  it('an inactive student is offered with “Inactive”; an empty group says so; nine or more come with a search', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     const created = await runtime.ports.groups.createGroup({ name: 'Lab batch B' });
     if (!created.ok) throw new Error('create');
     await openGroup(runtime, created.value.id);
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('0 members');
+    expect(meta()).toHaveTextContent('No members yet');
     const members = region('Members');
-    expect(within(members).getByRole('heading', { name: 'No members yet' })).toBeVisible();
+    expect(
+      within(members).getByRole('heading', { level: 3, name: 'No members yet' }),
+    ).toBeVisible();
     expect(members).toHaveTextContent(
       'Add students to this group. Nothing is given to them until the group has experiments.',
     );
     expect(within(members).queryByRole('table')).toBeNull();
+    // No members: nothing to give the group yet.
+    expect(screen.queryByRole('link', { name: 'Give this group access' })).toBeNull();
 
-    await user.click(screen.getByRole('button', { name: 'Add students' }));
-    // The empty state is hidden while the panel is open (B2-08 `isEmpty && notAdding`).
-    expect(within(members).queryByRole('heading', { name: 'No members yet' })).toBeNull();
-    const sneha = within(members).getByRole('checkbox', { name: /Sneha Reddy/ });
-    expect(sneha.closest('label')).toHaveTextContent('Sneha ReddyGIT-2026-0352 · inactive');
-    expect(within(members).getAllByRole('checkbox')).toHaveLength(12);
-    await user.click(sneha);
-    await user.click(within(members).getByRole('button', { name: 'Add 1 student' }));
-    await waitFor(() =>
-      expect(main().querySelector('.xr-notice--ok')).toHaveTextContent(
-        '1 student added to the group.',
-      ),
+    await user.click(within(members).getByRole('button', { name: 'Add students' }));
+    const panel = addPanel();
+    const search = within(panel).getByRole('searchbox', { name: 'Search students' });
+    await waitFor(() => expect(search).toHaveFocus());
+    const sneha = within(panel).getByRole('checkbox', { name: /Sneha Reddy/ });
+    expect(sneha.closest('label')).toHaveTextContent(
+      'Sneha ReddyGIT-2026-0352 · ME ZG523 — Sem IIInactive',
     );
-    expect(statusOf('Sneha Reddy')).toBe('InactiveCan’t open experiments while inactive');
+    expect(within(panel).getAllByRole('checkbox')).toHaveLength(12);
+    await user.type(search, 'GIT-2026-0352');
+    expect(within(panel).getAllByRole('checkbox')).toHaveLength(1);
+    await user.clear(search);
+    await user.type(search, 'Nobody by that name');
+    expect(panel).toHaveTextContent('No student matches that search.');
+    await user.clear(search);
+    await user.click(within(panel).getByRole('checkbox', { name: /Sneha Reddy/ }));
+    await user.click(within(panel).getByRole('button', { name: 'Add 1 student' }));
+    await waitFor(() =>
+      expect(okFlash()).toHaveTextContent('SavedSneha Reddy was added to the group.'),
+    );
+    expect(statusOf('Sneha Reddy')).toBe('Inactive');
   });
 
-  it('later sample: a student added after the group grant is only that — no promise (f9; OD-B2-02)', async () => {
+  it('later sample: a student added after the group grant is only that — no promise (OD-B2-02)', async () => {
     const { runtime } = await tabPlatform(MEERA, 'later-sample');
     const user = userEvent.setup();
     await openGroup(runtime);
-    await user.click(screen.getByRole('button', { name: 'Add students' }));
+    await user.click(addToggle());
+    expect(addPanel()).toHaveTextContent(
+      'This group already has Shell-and-Tube Heat Exchanger. Students you add now are shown as “Added after the group grant”; whether that grant reaches them isn’t decided yet.',
+    );
     await user.click(screen.getByRole('checkbox', { name: /Vikram Joshi/ }));
     await user.click(screen.getByRole('button', { name: 'Add 1 student' }));
     await waitFor(() =>
-      expect(main().querySelector('.xr-notice--ok')).toHaveTextContent(
-        /^1 student added to the group\.$/,
-      ),
+      expect(okFlash()).toHaveTextContent(/^SavedVikram Joshi was added to the group\.$/),
     );
-    expect(statusOf('Vikram Joshi')).toBe('Added after the group grant');
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('8 members');
+    expect(statusOf('Vikram Joshi')).toBe('Added after the group grantGiven 12 Oct 2026');
+    expect(meta()).toHaveTextContent('8 members');
   });
 });
 
-describe('IA-14 — Remove a member (B2-08 f5, DL-1)', () => {
+describe('IA-14 — Remove a member (DL-1, destructive)', () => {
   it('says only what is certain; the member leaves, every grant stays, their record stays', async () => {
     const { runtime } = await tabPlatform(MEERA, 'later-sample');
     const user = userEvent.setup();
@@ -554,25 +639,26 @@ describe('IA-14 — Remove a member (B2-08 f5, DL-1)', () => {
     await user.click(
       screen.getByRole('button', { name: 'Remove Priya Natarajan from this group' }),
     );
-    const dialog = await screen.findByRole('dialog', {
+    const dialog = await screen.findByRole('alertdialog', {
       name: 'Remove Priya Natarajan from this group?',
     });
     expect(dialog).toHaveTextContent(
       `Priya will no longer be a member of ${GROUP_NAME}. Their student record stays in People.`,
     );
-    expect(dialog.querySelector('strong')).toHaveTextContent(GROUP_NAME);
-    // Board 10 (VD-07): a destructive DL-1 opens with focus on Cancel.
-    expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus();
+    // A destructive DL-1 opens with focus on Cancel.
+    await waitFor(() =>
+      expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus(),
+    );
     const confirm = within(dialog).getByRole('button', { name: 'Remove from group' });
-    expect(confirm).toHaveClass('xr-btn--danger');
+    expect(confirm).toHaveClass('ia-btn--danger');
 
     await user.click(confirm);
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(main().querySelector('.xr-notice--ok')).toHaveTextContent(
-      'Priya Natarajan was removed from the group.',
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    expect(okFlash()).toHaveTextContent(
+      'Priya Natarajan was removed from the group. Their student record stays in People.',
     );
-    await waitFor(() => expect(document.getElementById('group-flash')).toHaveFocus());
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('6 members');
+    await waitFor(() => expect(document.getElementById('ia-flash')).toHaveFocus());
+    expect(meta()).toHaveTextContent('6 members');
     expect(() => memberRow('Priya Natarajan')).toThrow();
     expect(await grantsOf(runtime)).toEqual(grants);
     const record = await runtime.ports.people.getStudent(PRIYA as never);
@@ -586,9 +672,9 @@ describe('IA-14 — Remove a member (B2-08 f5, DL-1)', () => {
     const version = sample.worldVersion();
     const open = screen.getByRole('button', { name: 'Remove Priya Natarajan from this group' });
     await user.click(open);
-    const dialog = await screen.findByRole('dialog');
+    const dialog = await screen.findByRole('alertdialog');
     await user.click(within(dialog).getByRole('button', { name: 'Cancel' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(open).toHaveFocus();
     expect(sample.worldVersion()).toBe(version);
   });
@@ -600,7 +686,7 @@ describe('IA-14 — Remove a member (B2-08 f5, DL-1)', () => {
     await user.click(
       screen.getByRole('button', { name: 'Remove Priya Natarajan from this group' }),
     );
-    const dialog = await screen.findByRole('dialog');
+    const dialog = await screen.findByRole('alertdialog');
     const lakshmi = (await studentsOf(runtime)).find(
       (row) => row.student.fullName === 'Lakshmi Prasad',
     )!;
@@ -614,12 +700,10 @@ describe('IA-14 — Remove a member (B2-08 f5, DL-1)', () => {
     expect(added.ok).toBe(true);
     const version = sample.worldVersion();
     await user.click(within(dialog).getByRole('button', { name: 'Remove from group' }));
-    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
     expect(sample.worldVersion()).toBe(version);
-    expect(main().querySelector('.xr-notice--ok')).toBeNull();
-    await waitFor(() =>
-      expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('8 members'),
-    );
+    expect(okFlash()).toBeNull();
+    await waitFor(() => expect(meta()).toHaveTextContent('8 members'));
     expect(statusOf('Priya Natarajan')).toBe('Active');
     await waitFor(() =>
       expect(screen.getByRole('heading', { level: 1, name: GROUP_NAME })).toHaveFocus(),
@@ -627,17 +711,18 @@ describe('IA-14 — Remove a member (B2-08 f5, DL-1)', () => {
   });
 });
 
-describe('IA-14 — Rename (B2-08 f6, DL-3)', () => {
+describe('IA-14 — Rename (DL-3)', () => {
   it('the name as it is; empty refused in words; renamed, said in the flash', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-setup');
     const user = userEvent.setup();
     await openGroup(runtime);
     const rename = screen.getByRole('button', { name: 'Rename' });
+    expect(rename).toHaveClass('rb-btn--ghost');
     await user.click(rename);
     const dialog = await screen.findByRole('dialog', { name: 'Rename group' });
     const field = within(dialog).getByRole('textbox', { name: 'Group name' });
     expect(field).toHaveValue(GROUP_NAME);
-    expect(field).toHaveFocus();
+    await waitFor(() => expect(field).toHaveFocus());
 
     await user.clear(field);
     await user.click(within(dialog).getByRole('button', { name: 'Save name' }));
@@ -649,7 +734,7 @@ describe('IA-14 — Rename (B2-08 f6, DL-3)', () => {
     await user.type(field, 'ME ZG523 — Sem II (A)');
     await user.click(within(dialog).getByRole('button', { name: 'Save name' }));
     await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
-    expect(main().querySelector('.xr-notice--ok')).toHaveTextContent('Group renamed.');
+    expect(okFlash()).toHaveTextContent('SavedGroup renamed.');
     expect(
       await screen.findByRole('heading', { level: 1, name: 'ME ZG523 — Sem II (A)' }),
     ).toBeVisible();
@@ -669,7 +754,9 @@ describe('IA-14 — Rename (B2-08 f6, DL-3)', () => {
     faults(sample).failNext('GroupService.renameGroup');
     await user.click(within(dialog).getByRole('button', { name: 'Save name' }));
     await waitFor(() =>
-      expect(within(dialog).getByRole('button', { name: 'Save name' })).not.toHaveClass('is-busy'),
+      expect(within(dialog).getByRole('button', { name: 'Save name' })).not.toHaveAttribute(
+        'aria-disabled',
+      ),
     );
     expect(screen.getByRole('dialog')).toBeVisible();
     expect(field).toHaveValue('Section A');
@@ -677,24 +764,28 @@ describe('IA-14 — Rename (B2-08 f6, DL-3)', () => {
   });
 });
 
-describe('IA-14 while the institution is paused: read-only (B2-01 f5)', () => {
+describe('IA-14 while the institution is paused: read-only', () => {
   it('no Rename, no Give this group access, no Add students, no Remove…; the reads stay', async () => {
     const { runtime, sample } = await tabPlatform(MEERA, 'later-sample');
     await pauseGodavari(sample);
     await runtime.session.refresh();
     await openGroup(runtime);
     await waitFor(() =>
-      expect(main()).toHaveTextContent('Read-only while your institution’s access is paused'),
+      expect(main()).toHaveTextContent(
+        'Read-only while your institution’s access is pausedYou can change this group again when BITS lifts the pause.',
+      ),
     );
     expect(screen.queryByRole('button', { name: 'Rename' })).toBeNull();
     expect(screen.queryByRole('link', { name: 'Give this group access' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Add students' })).toBeNull();
     expect(screen.queryByRole('button', { name: /^Remove / })).toBeNull();
-    expect(membersTable().querySelectorAll('thead th')).toHaveLength(2);
-    // No standing is computed while paused: members read their account status.
-    expect(statusOf('Priya Natarajan')).toBe('Active');
+    expect(within(membersTable()).queryAllByRole('button')).toHaveLength(0);
+    // While paused members read “Paused” (an inactive member stays Inactive).
+    expect(statusOf('Priya Natarajan')).toBe('Paused');
     expect(statusOf('Sneha Reddy')).toBe('InactiveCan’t open experiments while inactive');
-    expect(region('Experiments given to this group')).toHaveTextContent('SACC-0311');
+    const given = region('Experiments given to this group');
+    expect(given).toHaveTextContent('Shell-and-Tube Heat Exchanger');
+    expect(given.querySelector('.xr-st--paused')).toHaveTextContent('Paused');
   });
 
   it('paused meanwhile in another session: Rename is refused, nothing written, the page turns read-only', async () => {
@@ -716,7 +807,7 @@ describe('IA-14 while the institution is paused: read-only (B2-01 f5)', () => {
     );
     expect(screen.queryByRole('button', { name: 'Rename' })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Add students' })).toBeNull();
-    expect(main().querySelector('.xr-notice--ok')).toBeNull();
+    expect(okFlash()).toBeNull();
     await waitFor(() =>
       expect(screen.getByRole('heading', { level: 1, name: GROUP_NAME })).toHaveFocus(),
     );
@@ -736,11 +827,10 @@ describe('IA-14 — every student already in the group', () => {
     });
     expect(added.ok).toBe(true);
     await openGroup(runtime, created.value.id);
-    await user.click(screen.getByRole('button', { name: 'Add students' }));
-    const panel = screen
-      .getByRole('heading', { name: 'Add students to this group' })
-      .closest<HTMLElement>('.xw-inline-panel')!;
+    await user.click(addToggle());
+    const panel = addPanel();
     expect(panel).toHaveTextContent(stateWords('IA-14.add.none'));
+    expect(panel).toHaveTextContent('Everyone in People is already in this group.');
     expect(within(panel).queryByRole('checkbox')).toBeNull();
     expect(within(panel).getByRole('button', { name: 'Add students' })).toBeDisabled();
   });

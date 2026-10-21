@@ -849,6 +849,67 @@ const RV_CASES = [
   },
 ];
 
+// The fresh sample world's Institute Admins: Malnad (an active plan, ending soon), Deccan (paused by
+// BITS), Konark. Godavari (Meera Iyer) only exists after the sample journey onboards it.
+const HEGDE = 'v.hegde@malnad.example';
+
+/** V. Hegde (Institute Admin, Malnad, an active plan) at a page of their workspace, reached client-side after sign-in. */
+async function instituteAdmin(page, path) {
+  await signIn(page, HEGDE);
+  if (path !== '/institute') await go(page, path);
+  await settledPage(page);
+}
+
+/** One Institute Admin page in its first state (the fresh sample world). */
+const iaPage = (name, id, state, path) => ({
+  name,
+  id,
+  state,
+  tall: true,
+  reach: async (page) => instituteAdmin(page, path),
+});
+
+/** The Institute Admin cases (IA-v1): every rail destination and the pages the walk reaches. */
+const IA_CASES = [
+  iaPage(
+    'ia01-overview',
+    'IA-01',
+    'Overview: attention, the plan card, Overview · date',
+    '/institute',
+  ),
+  iaPage(
+    'ia02-content-access',
+    'IA-02',
+    'Content access: experiments in the plan',
+    '/institute/content-access',
+  ),
+  iaPage(
+    'ia04-student-access',
+    'IA-04',
+    'Student access: grants by experiment',
+    '/institute/student-access',
+  ),
+  iaPage('ia05-give', 'IA-05', 'Give students access: step 1', '/institute/student-access/give'),
+  iaPage('ia06-people', 'IA-06', 'People: students', '/institute/people'),
+  iaPage('ia10-add', 'IA-10', 'Add a student', '/institute/people/add'),
+  iaPage('ia11-import', 'IA-11', 'Import students: choose a file', '/institute/people/import'),
+  iaPage('ia17-requests', 'IA-17', 'Requests to BITS', '/institute/requests'),
+  iaPage('ia20-usage', 'IA-20', 'Usage', '/institute/usage'),
+  {
+    name: 'ia-drawer',
+    id: 'IA-shell',
+    state: 'The Menu drawer below 1024 px (at 1440 and 1024 the rail is shown)',
+    reach: async (page) => {
+      await instituteAdmin(page, '/institute');
+      const menu = page.getByRole('button', { name: /^(Open menu|Menu)$/ });
+      if (await menu.isVisible()) {
+        await menu.click();
+        await page.getByRole('dialog', { name: 'Menu' }).waitFor();
+      }
+    },
+  },
+];
+
 async function measure(page) {
   return page.evaluate(async () => {
     // No internal reference in the words or the accessible names (SA-v1 rule).
@@ -885,7 +946,14 @@ async function measure(page) {
 
 const browser = await chromium.launch();
 const results = [];
-for (const testCase of [...CASES, ...SA_CASES, ...VE_CASES, ...CM_CASES, ...RV_CASES].filter(
+for (const testCase of [
+  ...CASES,
+  ...SA_CASES,
+  ...VE_CASES,
+  ...CM_CASES,
+  ...RV_CASES,
+  ...IA_CASES,
+].filter(
   (c) =>
     !values.only ||
     values.only

@@ -20,6 +20,9 @@
  * - the committed `v3/rv-scoped.css` is the same for the Academic Reviewer role sheet of the
  *   owner-approved Academic Reviewer export (design/v3-refined-b/roles/RV-v1), less the borrowed
  *   XS surfaces the delivered XS export replaces;
+ * - the committed `v3/ia-scoped.css` is the same for the Institute Admin role sheet of the
+ *   owner-approved Institute Admin export (design/v3-refined-b/roles/IA-v1), less its preview
+ *   chrome and the borrowed XS surfaces the delivered XS export replaces;
  * - the central patches (`v3/patch.css`) are confined the same way and use only allow-listed
  *   product classes — except V3P-09's container name on the v46 app root that holds a V3 region;
  * - the entry puts both in `xr.v3`, nothing reaches `:root`, `html` or `body`, nothing loads a URL,
@@ -52,6 +55,7 @@ import {
   scopeStylesheet,
   splitTopLevel,
 } from '../../scripts/generate-v3-scoped-css.mjs';
+import { IA_PATCHED_STYLES } from '../testing/index.js';
 import { FOUNDATION_ID, FOUNDATION_SOURCES } from '../v3/provenance.js';
 
 const V3_STYLES = join(import.meta.dirname, 'v3');
@@ -116,6 +120,9 @@ const cmDerived = readFileSync(cmRole.output, 'utf8');
 const rvRole = ROLE_SHEETS.find((role) => role.role === 'RV')!;
 const rvSource = readFileSync(join(rvRole.directory, rvRole.sheet), 'utf8');
 const rvDerived = readFileSync(rvRole.output, 'utf8');
+const iaRole = ROLE_SHEETS.find((role) => role.role === 'IA')!;
+const iaSource = readFileSync(join(iaRole.directory, iaRole.sheet), 'utf8');
+const iaDerived = readFileSync(iaRole.output, 'utf8');
 
 /** The top-level grouping at-rules of `css`, each with the style rules directly inside it. */
 function groupsOf(css: string): { readonly prelude: string; readonly rules: Rule[] }[] {
@@ -236,7 +243,7 @@ describe('generated rb-scoped.css', () => {
 
 describe('generated xs-scoped.css (the XS export, design/v3-refined-b/roles/XS-v6)', () => {
   it('is exactly what the generator writes from the locked extension sheet', () => {
-    expect(ROLE_SHEETS.map((role) => role.role)).toEqual(['XS', 'SA', 'VE', 'CM', 'RV']);
+    expect(ROLE_SHEETS.map((role) => role.role)).toEqual(['XS', 'SA', 'VE', 'CM', 'RV', 'IA']);
     expect(xsDerived).toBe(renderRoleCss(readRoleInput(xsRole)));
   });
 
@@ -609,7 +616,7 @@ describe('patch.css (V3P-nn)', () => {
     expect([...product].sort()).toEqual([...V3_PRODUCT_CLASS_ALLOW_LIST].sort());
   });
 
-  it('numbers its patches V3P-01 … V3P-15 in order; V3P-06 and V3P-07 are retired, not reused', () => {
+  it('numbers its patches V3P-01 … V3P-16 in order; V3P-06 and V3P-07 are retired, not reused', () => {
     expect([...patch.matchAll(/V3P-(\d\d) ·/g)].map((match) => match[1])).toEqual([
       '01',
       '02',
@@ -626,6 +633,7 @@ describe('patch.css (V3P-nn)', () => {
       '13',
       '14',
       '15',
+      '16',
     ]);
     for (const retired of ['06', '07']) {
       expect(patch).toMatch(new RegExp(`V3P-${retired} · retired`));
@@ -1063,13 +1071,165 @@ describe('patch.css (V3P-nn)', () => {
     const start = patch.indexOf('V3P-15 ·');
     expect(start).toBeGreaterThan(0);
     expect(
-      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2, patch.indexOf('/*\n * V3P-16 ·')))
         .flatMap((rule) => splitTopLevel(rule.prelude, ','))
         .map((part) => part.trim())
         .sort(),
     ).toEqual(
       CASCADE.map((restoration) => `${SCOPE_PREFIX}${restoration.patch}${ISLAND_EXCLUSION}`).sort(),
     );
+  });
+
+  it("V3P-16: the Institute Admin export's inline sizes, on the element it styles, as it writes them", () => {
+    const main = readFileSync(join(iaRole.directory, 'project', 'Main.dc.html'), 'utf8');
+    /** The export's template: the markup before its logic script. */
+    const template = main.slice(0, main.indexOf('<script type="text/x-dc"'));
+    /**
+     * Patched element (its export class + the product class) → the declarations as the export writes
+     * them inline. Each value maps to one product class (`IA_PATCHED_STYLES`, which the component
+     * tests use to read the export's markup with the classes in place of the styles).
+     */
+    const SIZES: Record<string, string> = {
+      '.rk-surface.rk-x-surface-msg': 'max-width: 760px',
+      '.rk-state-ico.rk-x-state-ico-flush': 'margin: 0',
+      '.rk-field.rk-x-field-select': 'max-width: 520px',
+      '.rk-field.rk-x-field-count': 'max-width: 320px',
+      '.ia-row.rk-x-row-end': 'align-items: flex-end',
+      '.rk-search.rk-x-search-grow': 'flex: 1 1 320px',
+      '.rk-count.rk-x-count-low': 'margin-bottom: 10px',
+      '.rk-search.rk-x-search-panel': 'max-width: 420px',
+      '.ia-row.rk-x-row-center': 'justify-content: center',
+      '.ia-row.rk-x-row-tight': 'gap: 6px 8px',
+      '.rk-choice.rk-x-choice-plain': 'grid-template-columns: minmax(0, 1fr)',
+      '.ia-row.rk-x-row-snug': 'gap: 6px 10px',
+      '.xr-ico.rk-x-ico-lead': 'vertical-align: -4px; margin-right: 6px',
+      '.xr-ico.rk-x-ico-file': 'color: #3B49B8',
+      '.rk-next.rk-x-next-lead': 'font-size: 17px; line-height: 26px; color: #141B5E',
+      '.rk-h3.rk-x-h3-above': 'margin-bottom: 12px',
+      '.rk-ferr.rk-x-ferr-group': 'margin-top: 8px',
+      '.rk-label.rk-x-label-above': 'margin-bottom: 8px',
+    };
+    /** One earlier patch's: the badges' `margin-top: 0` is V3P-14's `rk-x-fmts-flush`. */
+    const REUSED: Record<string, string> = { '.rk-fmts.rk-x-fmts-flush': 'margin-top: 0' };
+    /** Declarations compared as written (prettier writes a hex colour in lower case). */
+    const declared = (css: string) => declarations(css.toLowerCase()).join('; ');
+    const rules = rulesOf(patch);
+    for (const [element, style] of Object.entries({ ...SIZES, ...REUSED })) {
+      const found = rules.filter(
+        (rule) => rule.prelude === `${SCOPE_PREFIX}${element}${ISLAND_EXCLUSION}`,
+      );
+      expect(found, element).toHaveLength(1);
+      expect(declared(found[0]!.block), element).toBe(declared(style));
+    }
+    expect([...patchClasses('16')].sort()).toEqual(
+      Object.keys(SIZES)
+        .map((element) => element.split('.').at(-1)!)
+        .sort(),
+    );
+    // The component tests read the export with the same classes in place of the same styles.
+    expect(
+      Object.fromEntries(
+        Object.entries({ ...SIZES, ...REUSED }).map(([element, style]) => [
+          style,
+          element.split('.').at(-1)!,
+        ]),
+      ),
+    ).toEqual(IA_PATCHED_STYLES);
+    /*
+     * The `style=` the product does not patch, each with why: the nine term-bar lengths only the
+     * plan's dates decide (the recorded `inline-style` scan exception, `IaTermBar`); the hidden icon
+     * sprite (the product draws each icon inline); the preview start page and handoff pages, the
+     * in-page preview notes and the preview's sample-file chooser (`ia-pv*`; the product opens the
+     * browser's own chooser); the borrowed XS surfaces (Help & support's "Report a problem"
+     * screenshot field, "Report sent", a report's detail; the signed-out page) and the drawer
+     * brand's `padding-top: 0` (the shell's); and what the product does not draw — the not-found
+     * cards (IA-07, IA-09, IA-17, IA-19 keep the in-shell not-found page), IA-17's refused form
+     * (the product does not offer the form while paused or without a plan), IA-14's "Create group"
+     * page (a dialog in the product, decision D-06) and IA-05 step 1's "Already given to …" line.
+     */
+    const NOT_PATCHED = [
+      '<svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">',
+      '<span class="ia-tt-fill" style="width: {{ V.T2.fill }}">',
+      '<span class="ia-tt-rest" style="width: {{ V.T2.rest }}">',
+      '<span class="ia-tt-today" style="left: {{ V.T2.fill }}">',
+      '<div class="rb" style="display: block">\n  <div class="ia-pv">',
+      '<div class="rk-sec" style="padding-top: 0; border-top: 0"><p class="ia-pv-note">',
+      '<p class="ia-pv-note" style="margin-top: 14px">',
+      '<button type="button" class="rk-choice" id="{{ f.id }}" style="text-align: left; font: inherit" onClick="{{ f.pick }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true" style="grid-row: 1 / span 2; color: #3B49B8">',
+      '<input id="ia-dlg-file" class="rk-input" type="file" accept=".csv,text/csv" style="height: auto; padding: 9px 12px"',
+      '<input id="hp-shot" class="rk-input" type="file" accept="image/*" style="height: auto; padding: 9px 12px"',
+      '<section class="rk-surface" aria-labelledby="ia-h1" style="max-width: 760px">\n          <div class="rk-sec ia-stack ia-stack--tight">\n            <span class="rk-state-ico" aria-hidden="true" style="margin: 0"><svg viewBox="0 0 24 24"><use href="#rki-check"></use></svg></span>\n            <h1 class="rb-h2" id="ia-h1" tabindex="-1">Report',
+      '<div class="rk-surface" style="max-width: 860px">\n          <section class="rk-sec" aria-labelledby="hd-w-h">\n            <h2 class="rb-h2" id="hd-w-h" style="margin-bottom: 14px">',
+      '<h2 class="rb-h2" id="hd-h-h" style="margin-bottom: 14px">History</h2>',
+      '<button type="button" class="rk-clear" style="padding: 0" onClick="{{ V.toForm }}">Report a problem</button>',
+      '<div class="rb" style="display: block">\n  <div class="ia-out">',
+      '<span class="rk-state-ico" aria-hidden="true" style="margin: 0"><svg viewBox="0 0 24 24"><use href="#rki-out"></use></svg></span>',
+      '<div class="rb-brand" style="padding-top: 0">',
+      '<h2 class="rb-h2" id="hf-h" style="margin-bottom: 14px">What happens there</h2>',
+      '<h2 class="rb-h2" style="margin-bottom: 10px">Why it isn’t live here</h2>',
+      '<section class="rk-surface" aria-labelledby="ia-h1" style="max-width: 760px">\n          <div class="rk-sec ia-stack ia-stack--tight">\n            <h1 class="rb-h2" id="ia-h1" tabindex="-1">This student isn’t in People</h1>',
+      '<section class="rk-surface" aria-labelledby="ia-h1" style="max-width: 760px">\n          <div class="rk-sec ia-stack ia-stack--tight">\n            <h1 class="rb-h2" id="ia-h1" tabindex="-1">This faculty member isn’t in People</h1>',
+      '<section class="rk-surface" aria-labelledby="ia-h1" style="max-width: 760px"><div class="rk-sec ia-stack ia-stack--tight"><h1 class="rb-h2" id="ia-h1" tabindex="-1">We can’t find that request</h1>',
+      '<section class="rk-surface" aria-labelledby="ia-h1" style="max-width: 760px"><div class="rk-sec ia-stack ia-stack--tight"><h1 class="rb-h2" id="ia-h1" tabindex="-1">No device request to review</h1>',
+      '<section class="rk-surface" aria-labelledby="ia-h1" style="max-width: 760px">\n          <div class="rk-sec ia-stack ia-stack--tight">\n            <span class="rk-state-ico" aria-hidden="true" style="margin: 0"><sc-if value="{{ V.refPaused }}"',
+      '<div class="rk-field" style="max-width: 520px">\n              <label class="rk-label" for="gn-name">Group name</label>',
+      '<span class="rk-choice-d" style="grid-column: 2">{{ e.why }}</span>',
+    ];
+    /** Where in the template each not-patched markup is (it never overlaps another). */
+    const spans: [number, number][] = [];
+    for (const markup of NOT_PATCHED) {
+      expect(template, markup).toContain(markup);
+      for (let at = template.indexOf(markup); at >= 0; at = template.indexOf(markup, at + 1)) {
+        expect(
+          spans.some(([from, to]) => at < to && at + markup.length > from),
+          markup,
+        ).toBe(false);
+        spans.push([at, at + markup.length]);
+      }
+    }
+    // Every other `style=` of the template is on a product element: one of the sizes above, on an
+    // element that carries the patch rule's export class.
+    const tag = /<([a-z][\w-]*)([^<>]*?)\sstyle="([^"]*)"([^<>]*)>/g;
+    let patched = 0;
+    let notPatched = 0;
+    for (const match of template.matchAll(tag)) {
+      const at = match.index + match[0].indexOf(' style="');
+      if (spans.some(([from, to]) => at >= from && at < to)) {
+        notPatched += 1;
+        continue;
+      }
+      const style = match[3]!;
+      const element = Object.entries({ ...SIZES, ...REUSED }).find(([, css]) => css === style);
+      expect(
+        element,
+        `${match[0].slice(0, 100)} is patched or recorded as not patched`,
+      ).toBeDefined();
+      const exportClass = element![0].split('.')[1]!;
+      const classes = /\sclass="([^"]*)"/.exec(`${match[2]!}${match[4]!}`)?.[1]?.split(/\s+/) ?? [];
+      expect(classes, `${match[0].slice(0, 100)} carries .${exportClass}`).toContain(exportClass);
+      patched += 1;
+    }
+    const styled = [...template.matchAll(/style="[^"]*"/g)].length;
+    expect(styled).toBe(73);
+    expect(patched).toBe(35);
+    expect(patched + notPatched, 'each export style= is patched or recorded as not patched').toBe(
+      styled,
+    );
+    // V3P-16 holds these rules and no other, and restores nothing: comparing the export's unlayered
+    // cascade with the product's layered one on every Institute Admin state found no `ia-` rule
+    // that wins only by its layer (a restoration would be listed and checked as V3P-15's).
+    const start = patch.indexOf('V3P-16 ·');
+    expect(start).toBeGreaterThan(0);
+    expect(
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+        .map((rule) => rule.prelude)
+        .sort(),
+    ).toEqual(
+      Object.keys(SIZES)
+        .map((element) => `${SCOPE_PREFIX}${element}${ISLAND_EXCLUSION}`)
+        .sort(),
+    );
+    expect(patch.slice(start)).toContain('finds no element where they differ');
   });
 
   it('leaves no v46 declaration on a shared class name inside a V3 root (V3P-08)', () => {
@@ -1442,6 +1602,167 @@ describe('generated rv-scoped.css (the Academic Reviewer export, design/v3-refin
   });
 });
 
+describe('generated ia-scoped.css (the Institute Admin export, design/v3-refined-b/roles/IA-v1)', () => {
+  /**
+   * What the export says is preview chrome or borrowed from the shared surfaces, never its product
+   * UI (its COMPONENT-EXTENSIONS.md "Notices, shared and preview parts").
+   */
+  const LEFT_OUT =
+    /\.ia-(?:pv(?:-[\w-]+)?|lt--pv|acctwrap|menu(?:-[\w-]+)?|out(?:-[\w-]+)?)(?![\w-])/;
+
+  it('is exactly what the generator writes from the locked role sheet', () => {
+    expect(iaDerived).toBe(renderRoleCss(readRoleInput(iaRole)));
+  });
+
+  it("is built on this foundation: the export's three base sheets are the locked bytes", () => {
+    // The sixth lock layout: `byteIdenticalCopies["project/core.css"]`, and the local additions
+    // as an array of `{ path, sha256 }`.
+    const exportLock = JSON.parse(
+      readFileSync(join(iaRole.directory, 'FOUNDATION-LOCK.json'), 'utf8'),
+    ) as {
+      foundationId: string;
+      byteIdenticalCopies: Record<
+        string,
+        { copiedFrom: string; sha256: string; matchesLock: boolean; bytes: number }
+      >;
+      localAdditions: readonly { path: string; sha256: string; bytes: number }[];
+    };
+    expect(exportLock.foundationId).toBe(FOUNDATION_ID);
+    for (const sheet of SHEETS) {
+      const copied = exportLock.byteIdenticalCopies[`project/${sheet}`];
+      expect(copied?.sha256, sheet).toBe(lock.baseFiles[`references/v3/project/${sheet}`]);
+      expect(copied?.copiedFrom, sheet).toBe(`references/v3/project/${sheet}`);
+      expect(copied?.matchesLock, sheet).toBe(true);
+      expect(sha256(readFileSync(join(iaRole.directory, 'project', sheet))), sheet).toBe(
+        lock.baseFiles[`references/v3/project/${sheet}`],
+      );
+    }
+    expect(Array.isArray(exportLock.localAdditions)).toBe(true);
+    const sheet = exportLock.localAdditions.filter((entry) => entry.path === 'project/ia-role.css');
+    expect(sheet).toHaveLength(1);
+    expect(sheet[0]!.sha256).toBe(sha256(iaSource));
+    expect(sheet[0]!.bytes).toBe(Buffer.byteLength(iaSource));
+  });
+
+  it('leaves out only the preview chrome and the borrowed XS surfaces', () => {
+    const left = rulesOf(iaSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && previewOnlyRule(iaRole, rule.prelude),
+    );
+    expect(left.length).toBeGreaterThan(0);
+    for (const rule of left) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector.trim(), rule.prelude).toMatch(LEFT_OUT);
+      }
+    }
+    expect(iaDerived).not.toMatch(LEFT_OUT);
+    // The 25 classes of those families, and no other.
+    const classes = (css: string) =>
+      new Set(rulesOf(css).flatMap((rule) => rule.prelude.match(/\.ia-[\w-]+/g) ?? []));
+    const dropped = [...classes(iaSource)].filter((name) => !classes(iaDerived).has(name));
+    expect(dropped.sort()).toEqual(
+      [
+        '.ia-acctwrap',
+        '.ia-lt--pv',
+        '.ia-menu',
+        '.ia-menu-head',
+        '.ia-menu-item',
+        '.ia-menu-meta',
+        '.ia-menu-name',
+        '.ia-menu-sep',
+        '.ia-out',
+        '.ia-out-head',
+        '.ia-out-logo',
+        '.ia-out-main',
+        '.ia-pv',
+        '.ia-pv-btn',
+        '.ia-pv-card',
+        '.ia-pv-fab',
+        '.ia-pv-grid',
+        '.ia-pv-id',
+        '.ia-pv-meta',
+        '.ia-pv-note',
+        '.ia-pv-space',
+        '.ia-pv-steps',
+        '.ia-pv-tag',
+        '.ia-pv-type',
+        '.ia-pv-wrap',
+      ].sort(),
+    );
+    // The role's own components stay, those whose names start alike among them.
+    for (const kept of [
+      '.ia-ov-head',
+      '.ia-plan',
+      '.ia-pick',
+      '.ia-pick-row',
+      '.ia-lt',
+      '.ia-ltwrap',
+      '.ia-lt--rq',
+      '.ia-lt--dv',
+      '.ia-lt--stats',
+      '.ia-rec-grid',
+      '.ia-gm',
+      '.ia-steps',
+      '.ia-tt-fill',
+      '.ia-btn--danger',
+      '.ia-lead--paused',
+    ]) {
+      expect(iaDerived, kept).toContain(kept);
+      expect(previewOnlyRule(iaRole, kept)).toBe(false);
+    }
+    expect(previewOnlyRule(iaRole, '.ia-menu,.ia-plan')).toBe(false);
+    expect(previewOnlyRule(iaRole, '.ia-lt--pv .ia-pv-id')).toBe(true);
+  });
+
+  it('keeps every other declaration block and at-rule in order and changes only selectors', () => {
+    // A grouping at-rule whose every rule is left out goes with them: the start page's narrow
+    // padding and the account menu's narrow width.
+    const groups = groupsOf(iaSource);
+    const dropped = groups.filter(
+      (group) =>
+        group.rules.length > 0 &&
+        group.rules.every((rule) => previewOnlyRule(iaRole, rule.prelude)),
+    );
+    expect(dropped.length).toBe(2);
+    for (const group of dropped) {
+      for (const rule of group.rules) expect(rule.prelude, group.prelude).toMatch(LEFT_OUT);
+    }
+    expect(groupsOf(iaDerived).map((group) => group.prelude)).toEqual(
+      groups.filter((group) => !dropped.includes(group)).map((group) => group.prelude),
+    );
+    const expected = rulesOf(iaSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && !previewOnlyRule(iaRole, rule.prelude),
+    );
+    const scoped = rulesOf(iaDerived).filter((rule) => !rule.prelude.startsWith('@'));
+    expect(scoped.length).toBe(expected.length);
+    scoped.forEach((rule, index) => {
+      const source = expected[index]!;
+      expect(rule.block, source.prelude).toBe(source.block);
+      const before = splitTopLevel(source.prelude, ',').map((part) => part.trim());
+      const after = splitTopLevel(rule.prelude, ',').map((part) => part.trim());
+      after.forEach((selector, position) => {
+        expect(selector).toContain(ISLAND_EXCLUSION);
+        expect(selector.replace(SCOPE_PREFIX, '').replace(ISLAND_EXCLUSION, '')).toBe(
+          before[position],
+        );
+      });
+    });
+  });
+
+  it('selects only ia- classes (shared classes only under a role parent), no root, URL, keyframes or token', () => {
+    for (const rule of rulesOf(iaSource).filter(
+      (candidate) => !candidate.prelude.startsWith('@'),
+    )) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector, selector).toMatch(/\.ia-/);
+      }
+    }
+    expect(iaDerived).not.toMatch(/url\(|@import|@keyframes|[{;]\s*--[\w-]+\s*:/);
+    expect(
+      rulesOf(iaDerived).filter((rule) => /(^|[\s,])(:root|html|body)\b/.test(rule.prelude)),
+    ).toEqual([]);
+  });
+});
+
 describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
   it('reserves xr.v3 after xr.product and imports the derivatives, then the patches', () => {
     const statements = entry
@@ -1449,15 +1770,16 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
       .trim()
       .split(';')
       .map((part) => part.trim());
-    expect(statements.slice(0, 9)).toEqual([
+    expect(statements.slice(0, 10)).toEqual([
       '@layer properties, theme, xr.v46, xr.product, xr.v3, utilities',
-      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.patch',
+      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.ia, xr.v3.patch',
       "@import './rb-scoped.css' layer(xr.v3.rb)",
       "@import './xs-scoped.css' layer(xr.v3.xs)",
       "@import './sa-scoped.css' layer(xr.v3.sa)",
       "@import './ve-scoped.css' layer(xr.v3.ve)",
       "@import './cm-scoped.css' layer(xr.v3.cm)",
       "@import './rv-scoped.css' layer(xr.v3.rv)",
+      "@import './ia-scoped.css' layer(xr.v3.ia)",
       "@import './patch.css' layer(xr.v3.patch)",
     ]);
   });
@@ -1479,5 +1801,6 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/ve-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/cm-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/rv-scoped.css');
+    expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/ia-scoped.css');
   });
 });

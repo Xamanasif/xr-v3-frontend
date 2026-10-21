@@ -14,7 +14,7 @@ import type {
   ProductPorts,
 } from '@xr/contracts/draft';
 import type { CourseId, PersonId } from '@xr/domain';
-import type { SelectOption } from '@xr/ui';
+import type { SelectOption } from '@xr/ui/v3';
 
 import { courseCode, courseOptionWords, FACULTY_COURSES } from '@/copy/faculty';
 
@@ -29,6 +29,8 @@ export interface TaughtCourse {
   readonly courseId: CourseId;
   /** "ME ZG523" (the course's name without a code). */
   readonly code: string;
+  /** The course's name: the code chip's hover title ("Thermodynamics & Heat Transfer"). */
+  readonly name: string;
   /** The current mapping, as `FacultyCourseService.list` answers it (`null` until it does). */
   readonly mapping: { readonly id: FacultyCourseMapping['id']; readonly rev: number } | null;
 }
@@ -67,6 +69,7 @@ export function facultyCourseRows(
       return {
         courseId,
         code: course ? courseCode(course) : courseId,
+        name: course?.name ?? '',
         mapping: mapping ? { id: mapping.id, rev: mapping.rev } : null,
       };
     }),

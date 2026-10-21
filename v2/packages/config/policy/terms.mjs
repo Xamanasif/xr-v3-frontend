@@ -205,6 +205,18 @@ export const CANVAS_CLASS_PATTERNS = [
   /^rv-file$/,
   /^rv-formact$/,
   /^rv-solo(?:-[\w-]*)?$/,
+  // The Institute Admin export's preview chrome and borrowed XS surfaces (design/v3-refined-b/roles/
+  // IA-v1/COMPONENT-EXTENSIONS.md "Notices, shared and preview parts"): the role start page, the
+  // floating "Preview IA-xx" button, the handoff pages and the in-page handoff notes (`ia-pv*`, and
+  // `ia-lt--pv`, the start page's preview index: "not product UI … must not be implemented in the
+  // app"); the account menu ("Borrowed XS-05 contract"), the signed-out page ("Borrowed XS-03") and
+  // the borrowed Help pages' list (`ia-lt--hp`, XS-07): replaced by the XS components at assembly.
+  /^ia-pv(?:-[\w-]*)?$/,
+  /^ia-lt--pv$/,
+  /^ia-lt--hp$/,
+  /^ia-acctwrap$/,
+  /^ia-menu(?:-[\w-]*)?$/,
+  /^ia-out(?:-[\w-]*)?$/,
 ];
 
 /**
@@ -250,6 +262,9 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
  *   under a table or a definition list, SA-07's lines and list, SA-01's head and loading queue).
  * - V3P-13: the Vendor export's inline spacings (the formats' error, the learning outcomes' line,
  *   the refusal's eyebrow).
+ * - V3P-14: the Content Manager export's inline spacings and column widths.
+ * - V3P-16: the Institute Admin export's inline sizes (the message cards, IA-05's step lines and
+ *   fields, IA-11's glyphs and lead line, IA-17's form and detail, IA-19's format line).
  * (V3P-06 `rk-x-skip` and V3P-07 `rk-x-acct` were retired with the XS export: the shell now draws
  * its skip link and account wrapper with the XS classes `xs-skip`, `xs-acct-slot`, `xs-acct`.)
  */
@@ -290,6 +305,26 @@ export const V3_PRODUCT_CLASS_ALLOW_LIST = [
   'rk-x-errsum-retry',
   'rk-x-hold-d-flush',
   'rk-x-dlg-body-tight',
+  // V3P-16: the Institute Admin export's (IA-v1) inline sizes, each on the element it styles
+  // (`rk-x-fmts-flush` above is reused for its badges).
+  'rk-x-surface-msg',
+  'rk-x-state-ico-flush',
+  'rk-x-field-select',
+  'rk-x-field-count',
+  'rk-x-search-grow',
+  'rk-x-search-panel',
+  'rk-x-row-end',
+  'rk-x-count-low',
+  'rk-x-row-center',
+  'rk-x-row-tight',
+  'rk-x-row-snug',
+  'rk-x-choice-plain',
+  'rk-x-ico-lead',
+  'rk-x-ico-file',
+  'rk-x-next-lead',
+  'rk-x-h3-above',
+  'rk-x-ferr-group',
+  'rk-x-label-above',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

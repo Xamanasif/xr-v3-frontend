@@ -8,14 +8,14 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, iaExport } from '@/test-support/boards';
 
 import {
   COURSE_CODES_TAB,
   missingCountWords,
   savedLine,
-  semesterLabel,
-  yourCodeLabel,
+  saveWords,
+  fieldNameEnd,
 } from './course-codes';
 import { fieldWords } from './field-words';
 import { CONTENT_ACCESS_WORDS, OVERVIEW_WORDS } from './institute-home';
@@ -37,7 +37,6 @@ function words(file: string): string {
 
 const B2_01 = words('B2-01-IA-Overview.dc.html');
 const B2_02 = words('B2-02-Content-Access.dc.html');
-const B2_03 = words('B2-03-Access-Plan-and-Course-Codes.dc.html');
 const B2_04 = words('B2-04-Student-Access.dc.html');
 const B2_05 = words('B2-05-Give-Students-Access.dc.html');
 const B2_06 = words('B2-06-People.dc.html');
@@ -51,29 +50,54 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-describe('IA-16 Course codes (B2-03 f6 … f10)', () => {
-  it.each(strings(COURSE_CODES_TAB))('“%s” is on B2-03', (phrase) => {
-    expect(B2_03).toContain(phrase);
+describe('IA-16 Course codes (the V3 export IA-v1, `Main.dc.html` IA-16, `vm16core`, `vm16`)', () => {
+  const IA = iaExport('Main.dc.html');
+  const IA_WORDS = `${IA.slice(0, IA.indexOf('<script type="text/x-dc"'))
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&amp;/g, '&')}\n${IA}`;
+
+  it.each(strings(COURSE_CODES_TAB))('“%s” is in the export', (phrase) => {
+    expect(IA_WORDS).toContain(phrase);
   });
 
-  it('the composed words take the board’s form for its sample', () => {
-    expect(missingCountWords(1, 1)).toBe('1 of 1 course has no code from your institution');
-    expect(B2_03).toContain(missingCountWords(1, 1));
-    expect(missingCountWords(0, 1)).toBe('Every course has a code from your institution');
+  it('the composed words take the script’s form for its sample', () => {
+    expect(missingCountWords(0, 1)).toBe('Your institution’s code is added');
+    expect(missingCountWords(1, 1)).toBe('Your institution’s code isn’t added yet');
+    expect(IA).toContain(
+      "const countText = one ? (c0.own ? 'Your institution’s code is added' : 'Your institution’s code isn’t added yet') : V.countText;",
+    );
+    expect(saveWords(1)).toBe('Save course code');
+    expect(saveWords(2)).toBe('Save course codes');
+    expect(IA).toContain("saveText: one ? 'Save course code' : 'Save course codes'");
     expect(savedLine([{ code: 'MEC-523', course: 'Thermodynamics & Heat Transfer' }])).toBe(
-      'Students and faculty at your institution see MEC-523 with Thermodynamics & Heat Transfer.',
+      'Course codes saved. Students and faculty at your institution see MEC-523 with Thermodynamics & Heat Transfer.',
     );
-    expect(B2_03).toContain(
-      'Students and faculty at your institution see {{ k.savedCode }} with Thermodynamics &amp; Heat Transfer.',
+    expect(savedLine([])).toBe(
+      'Course codes saved. No course has a code from your institution now.',
     );
-    expect(B2_03).toContain(yourCodeLabel('Thermodynamics & Heat Transfer'));
-    expect(B2_03).toContain(semesterLabel('Thermodynamics & Heat Transfer'));
+    expect(IA).toContain(
+      "const msg = named.length ? 'Course codes saved. Students and faculty at your institution see ' + this.listText(named) + '.' : 'Course codes saved. No course has a code from your institution now.';",
+    );
+    expect(IA).toContain(
+      "label: 'Your course code for ' + cur.name, semLabel: 'Semester for ' + cur.name + ' (optional)'",
+    );
+    expect(`Your course code ${fieldNameEnd('Thermodynamics & Heat Transfer')}`).toBe(
+      'Your course code for Thermodynamics & Heat Transfer',
+    );
+    expect(`Semester ${fieldNameEnd('Thermodynamics & Heat Transfer')} (optional)`).toBe(
+      'Semester for Thermodynamics & Heat Transfer (optional)',
+    );
   });
 
-  it('the plural count is provisional (IA-16.count-plural)', () => {
+  it('the plural count is the script’s; the field names are provisional (IA-16.count-plural, IA-16.field-names)', () => {
     expect(missingCountWords(2, 3)).toBe('2 of 3 courses have no code from your institution');
     expect(missingCountWords(1, 3)).toBe('1 of 3 courses has no code from your institution');
+    expect(missingCountWords(0, 3)).toBe('Every course has a code from your institution');
+    expect(IA).toContain(
+      "countText: nMiss ? nMiss + ' of ' + this.plural(rows.length, 'course') + (nMiss === 1 ? ' has' : ' have') + ' no code from your institution' : 'Every course has a code from your institution'",
+    );
     expect(STATE_COPY_PACKAGE_2B['IA-16.count-plural'].status).toBe('provisional');
+    expect(STATE_COPY_PACKAGE_2B['IA-16.field-names'].status).toBe('provisional');
   });
 });
 

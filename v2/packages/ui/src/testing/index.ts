@@ -31,5 +31,9 @@ export {
   CM_EXPORT_DIRECTORY,
   rvExportText,
   RV_EXPORT_DIRECTORY,
+  iaExportText,
+  IA_EXPORT_DIRECTORY,
+  IA_PATCHED_STYLES,
+  iaPatchedMarkup,
   v3Canonical,
 } from './v3.js';

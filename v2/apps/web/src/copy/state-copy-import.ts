@@ -39,6 +39,25 @@ export const STATE_COPY_IMPORT = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'IA-11.template.example': {
+    screen: 'IA-11',
+    state: 'Step 1’s line: the course-code example',
+    words: null,
+    rule: 'The example is the institution’s first course in content access (its BITS code, else its name) with the institution’s own code for it — “… the BITS code (for example ME ZG523) or your institution’s code (MEC-523).” — or, without an own code, “… or your institution’s own code for the course.” (`InstitutionCourseCodeService.list`, read once for the page). Never a fixed sample code.',
+    basis:
+      'IA-v1 Main.dc.html IA-11 template line and `vm11` (`exCode`, `exOwn`); the export’s fallback to its sample course when none is held is a preview stand-in',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'IA-11.template.no-course': {
+    screen: 'IA-11',
+    state: 'Step 1’s line before any course is in content access (or before the list has answered)',
+    words: 'the BITS code or your institution’s own code for the course.',
+    basis:
+      'IA-v1 Main.dc.html `vm11` `exOwn` (“ or your institution’s own code for the course”) without a course to name; the export never draws an institution with no course here',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
   'IA-11.file.columns': {
     screen: 'IA-11',
     state: 'A file whose first line is not the template’s six columns',
@@ -186,7 +205,7 @@ export const STATE_COPY_IMPORT = {
     screen: 'IA-11',
     state: 'A row with an empty name or student ID',
     words: null,
-    rule: '“Student” shows what the row gives — the name, then the student ID under it (`xr-sub xr-id`); an empty one is left out. “What to fix” says which is missing.',
+    rule: '“Student” shows what the row gives — the name, then the student ID under it (`ia-cell-sub ia-nowrap`); an empty one is left out. “What to fix” says which is missing.',
     basis: 'B2-07 f6 (“Imran S.” · GIT-2026-0409, as the file gives them)',
     status: 'provisional',
     decisions: ['VD-12'],
@@ -197,7 +216,7 @@ export const STATE_COPY_IMPORT = {
     screen: 'IA-11',
     state: 'A file with one row, or one student to import',
     words: null,
-    rule: '“1 row checked”; “1 student will be added to People from <file>.”; “Import 1 student”; “1 student imported”; “1 student was added to People from <file>. They don’t have any experiments yet.” The noun follows the number. “1 row with an error” is drawn.',
+    rule: '“1 row checked”; “1 student will be added to People from <file>.”; “Import 1 student”; “1 student imported”; “1 student was added to People from <file>. They don’t have any experiments yet.”; with no problem in a one-row file, “The 1 row has every required column, and nobody in the file is already in People.” The noun follows the number. “1 row with an error” is drawn.',
     basis:
       "B2-07 `imView` (“13 rows checked”, “Import 12 students”, “12 students imported”; `rep.errors === 1 ? ' row with an error' : ' rows with errors'`)",
     status: 'provisional',
@@ -238,9 +257,9 @@ export const STATE_COPY_IMPORT = {
     screen: 'IA-11',
     state: 'Checking or importing failed for now (service unavailable)',
     words: null,
-    rule: 'Nothing changes: the step, the chosen file and the report stay, and the action can be sent again; no message is shown.',
+    rule: 'Nothing changes: the step, the chosen file and the report stay, and the action can be sent again. A check failed for now shows no message; an import failed for now shows the V3 export’s “The import didn’t finish — Nothing was added. Try again.” on step 3, which takes focus (it goes on Back or a new try).',
     basis:
-      'Appendix F §6.6 “command unavailable → nothing changes … answers kept”; B2-07 draws no failure (as `IA-10.unavailable`)',
+      'Appendix F §6.6 “command unavailable → nothing changes … answers kept”; IA-v1 Main.dc.html IA-11 step 3 `hasFail` (`im-fail`); the export draws no check failure',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -248,9 +267,9 @@ export const STATE_COPY_IMPORT = {
     screen: 'IA-11',
     state: 'Import students while the institution’s access is paused',
     words: null,
-    rule: 'The page is titled “Import students” with no steps, and the People paused notice (`IA-06.paused.title`, `IA-06.paused.line`) shows instead of the flow. A check or an import refused `institution-paused` meanwhile shows the same.',
+    rule: 'The V3 refusal replaces the flow (no steps): “You can’t import students while your institution’s access is paused”, “People and their work are kept. You can import again when BITS lifts the pause.”, “Back to Students” and Help. A check or an import refused `institution-paused` meanwhile shows the same, its heading focused.',
     basis:
-      'B2-01 f5 “no actions while paused”; PeopleService refuses every write `institution-paused`; B2-07 draws no paused frame',
+      'IA-v1 Main.dc.html IA-11 `V.refuse`; B2-01 f5 “no actions while paused”; PeopleService refuses every write `institution-paused`',
     status: 'provisional',
     decisions: ['VD-12'],
   },

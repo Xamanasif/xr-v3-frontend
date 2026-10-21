@@ -1,0 +1,984 @@
+{
+ "foundationId": "XR-V3-RB-1.0",
+ "role": "Institute Admin",
+ "date": "2026-10-21",
+ "lockSource": "pack FOUNDATION-LOCK.json (baseFiles hashes copied unchanged below)",
+ "baseFiles": {
+  "references/v3/HANDOFF-original.md": "3598572e00da8148a47f5abda743eb868c3020d8405ac8f4530581f8e49cae67",
+  "references/v3/design-tokens.json": "98b94673f7363b4bf64f7e9dde24fd29ecde9eb0cc3889e230caf4c497b1d5a3",
+  "references/v3/project/IA01.dc.html": "f06c6e3e2fd8900a2a9f34360e11363f6ab506fb1d5676e4d4e0b0265a524b92",
+  "references/v3/project/IA02.dc.html": "71280219faa1f3910cff66ed65b9b2a7ee3664afc97398dc630bb5614c98a54f",
+  "references/v3/project/SA01.dc.html": "3cdd6a194b3441d628b335d254782009bc8cecea92dda48667474ccf258e91fc",
+  "references/v3/project/SA02.dc.html": "4d88600e819c3b89b14efdfaf37914e23c57414e23fb947f1386ff5cda1d0496",
+  "references/v3/project/canvas.json": "2131cfa9fcd0fb2a1889ed30ec943ada2c31638cca9f13cb17a91447233ff030",
+  "references/v3/project/core.css": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+  "references/v3/project/rb-kit.css": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+  "references/v3/project/rb.css": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2"
+ },
+ "byteIdenticalCopies": {
+  "project/core.css": {
+   "copiedFrom": "references/v3/project/core.css",
+   "sha256": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+   "matchesLock": true,
+   "bytes": 4839
+  },
+  "project/rb.css": {
+   "copiedFrom": "references/v3/project/rb.css",
+   "sha256": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+   "matchesLock": true,
+   "bytes": 24478
+  },
+  "project/rb-kit.css": {
+   "copiedFrom": "references/v3/project/rb-kit.css",
+   "sha256": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+   "matchesLock": true,
+   "bytes": 36748
+  }
+ },
+ "seedReferences": {
+  "references/v3/project/IA01.dc.html": {
+   "sha256": "f06c6e3e2fd8900a2a9f34360e11363f6ab506fb1d5676e4d4e0b0265a524b92",
+   "use": "visual and behaviour reference for IA-01 / IA-02; not copied, integrated into project/Main.dc.html"
+  },
+  "references/v3/project/IA02.dc.html": {
+   "sha256": "71280219faa1f3910cff66ed65b9b2a7ee3664afc97398dc630bb5614c98a54f",
+   "use": "visual and behaviour reference for IA-01 / IA-02; not copied, integrated into project/Main.dc.html"
+  }
+ },
+ "localAdditions": [
+  {
+   "path": "project/Main.dc.html",
+   "role": "role preview root: shell, the 19 IA views in their final design, borrowed XS surfaces, sample worlds, 74 named states",
+   "sha256": "6718071f75698b39918c4dbc367b78cffa0ed475e5009cd7df41e0a8cefd821c",
+   "bytes": 391173
+  },
+  {
+   "path": "project/ia-role.css",
+   "role": "the one role extension stylesheet, ia- prefix only, foundation tokens only (COMPONENT-EXTENSIONS.md). R1 and R2 styles are merged into it; ia-role-r1.css and ia-role-r2.css no longer exist",
+   "sha256": "8014894a289b96e6060abc369928785f857d66adfc1b1fdc705116aeb5210a22",
+   "bytes": 49151
+  },
+  {
+   "path": "project/canvas.json",
+   "role": "final role canvas index (4 pages, 137 boards)",
+   "sha256": "20835fb465ba73013a5ef215e3815a1d84642450f5e1135f31c258c0ce4bbe61",
+   "bytes": 37082
+  },
+  {
+   "path": "project/coverage.dc.html",
+   "role": "coverage register board (static, reads core.css only)",
+   "sha256": "f877bd9757cf6cb2348452e0dd8bb85093df85ac7aec45dae2fa491ea05d9595",
+   "bytes": 21624
+  },
+  {
+   "path": "project/scr-ia01.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 Overview · populated · Thu 22 Oct 2026",
+   "sha256": "538fd12623d84a536d4741bbdce6ad1f0a36c807dfb9ab12c5c9cbfebfa5ffaf",
+   "bytes": 726
+  },
+  {
+   "path": "project/scr-ia02.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 Content access › Experiments · populated",
+   "sha256": "51558b88cea1384f3e38ead6625202d8f37cdaac4da54bb77ee52918dc2db520",
+   "bytes": 729
+  },
+  {
+   "path": "project/scr-ia16.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-16 Content access › Course codes · populated",
+   "sha256": "b19defe21340f8367f72c12acd2973f5624288b20e5079565fd9f57e674650a5",
+   "bytes": 730
+  },
+  {
+   "path": "project/scr-ia03.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 Access plan ACC-0107 · populated",
+   "sha256": "94001f75a69ee054a60018b8f9319c61beed48f3d58d9cd6008f67da188e21d8",
+   "bytes": 721
+  },
+  {
+   "path": "project/scr-ia04.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 Student access · populated",
+   "sha256": "a60e4266ace0564dde1fbe8e2e361f80f443039faf476b1134768a41ec5148f9",
+   "bytes": 715
+  },
+  {
+   "path": "project/scr-ia05.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 Give students access · step 1 · populated",
+   "sha256": "da413071645b6620f88fcfd91d68aa67baa87d7cc25b593a884354d86c5e1782",
+   "bytes": 729
+  },
+  {
+   "path": "project/scr-ia06.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-06 People › Students · populated",
+   "sha256": "413a4a02664f85a1bddc5baf92863838bf3bf7519751bdb33ecbc0f5b727b514",
+   "bytes": 720
+  },
+  {
+   "path": "project/scr-ia07.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-07 Student record · Rahul Verma · populated",
+   "sha256": "46e0b9cceeaefadc85dc0ba851d12978e9b8523491c015f426f9e7d22565a969",
+   "bytes": 728
+  },
+  {
+   "path": "project/scr-ia10.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-10 Add student · populated",
+   "sha256": "a0a146b7271a38f16f4b12292666b7e62fc55fb79f26187ac01d1cec91f7c17c",
+   "bytes": 710
+  },
+  {
+   "path": "project/scr-ia11.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-11 Import students · step 1 · populated",
+   "sha256": "874e6467e40f134365e5ef68427c2bc13e9ca739a48c8aae275e36c7468bf2ec",
+   "bytes": 724
+  },
+  {
+   "path": "project/scr-ia08.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-08 People › Faculty · populated",
+   "sha256": "9fdc666d9203c885d2c40cc1752bbfca8acf5f4059ea1bbdaff742c9a6818c85",
+   "bytes": 717
+  },
+  {
+   "path": "project/scr-ia09.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-09 Faculty record · Dr S. Ranganathan · populated",
+   "sha256": "476cf135ecf08ef8d3b6930763caba3c352aa66823a86b88efd72ae5f821a37b",
+   "bytes": 734
+  },
+  {
+   "path": "project/scr-ia15.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-15 People › Faculty courses · populated",
+   "sha256": "66793ece619541b34f0874d03f2b8bdbf6bc8c0b1d52300fc01e42ab398b6400",
+   "bytes": 725
+  },
+  {
+   "path": "project/scr-ia13.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-13 People › Groups · populated",
+   "sha256": "9f1df58324fb735e0d1d1d7b61fde8fb0ddb7fbbb7feb9fc0a940da2fdafa20d",
+   "bytes": 716
+  },
+  {
+   "path": "project/scr-ia14.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 Group · ME ZG523 — Sem II · populated",
+   "sha256": "d6b44fcd80a34a6d29f198e68b0b084c8c60c321c8248fde2e69ca49483268b3",
+   "bytes": 727
+  },
+  {
+   "path": "project/scr-ia17.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 Requests to BITS · populated",
+   "sha256": "d06b77972a565653555a61cace4d1a06b99a8bc0dd6ababa0add65edd93b2b14",
+   "bytes": 715
+  },
+  {
+   "path": "project/scr-ia18.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-18 Device requests · populated",
+   "sha256": "36c3e204ee50dbd21d59833f684f3e361a0255877ffb8521c2594665ba788797",
+   "bytes": 714
+  },
+  {
+   "path": "project/scr-ia19.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-19 Device request DTR-0018 · review & forward · populated",
+   "sha256": "d0e20a9ba25c9acb10a4e239d5f3dc72e187a2718a3f7be362832b2ca0db78b4",
+   "bytes": 746
+  },
+  {
+   "path": "project/scr-ia20.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-20 Usage · populated",
+   "sha256": "8fa8d48d8e9839c3fd9def8873f5cc441c58e8c6797ee2e534106dd80fa758b2",
+   "bytes": 704
+  },
+  {
+   "path": "project/scr-xs07.dc.html",
+   "role": "screen board (derivative wrapper of Main.dc.html, not a recovered V3 original): XS-07 Help & support · borrowed shared surface · populated",
+   "sha256": "c7a9d46652f527219701785821a901c354f6c5ae2b3f533e517a85aa569cda9c",
+   "bytes": 744
+  },
+  {
+   "path": "project/st-ia01-ending.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 · plan ending soon · Wed 22 Sep 2027 (approved seed state)",
+   "sha256": "338c14f71461b86ba84f8e0530b5748f3acc00b571b72da8311b9fa3cb6206d7",
+   "bytes": 743
+  },
+  {
+   "path": "project/st-ia01-calm.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 · calm: nothing needs attention",
+   "sha256": "67da9b866e424bf0fc4e3ade7b74a56ab0605ca2eb7a49e825f545d9d0dbe7af",
+   "bytes": 697
+  },
+  {
+   "path": "project/st-ia01-fresh.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 · new active institution · Thu 8 Oct 2026",
+   "sha256": "d96c80ba35473634a44a09de158d1cc82cc97b00a33ef7adf5608c4878f989ab",
+   "bytes": 725
+  },
+  {
+   "path": "project/st-ia01-paused.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 · access paused · read-only",
+   "sha256": "b59868002d6d416fb7cacdeb9f1a1f42b11b5b86e7f1ce8c779490184844eafd",
+   "bytes": 712
+  },
+  {
+   "path": "project/st-ia01-ended.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 · plan ended",
+   "sha256": "709dcba69b30e5207c4642d3a29176c44db8547596dda7565a2a163e29a71d06",
+   "bytes": 695
+  },
+  {
+   "path": "project/st-ia01-awaiting.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 · approved — payment required, no plan",
+   "sha256": "51c89a9ac1defc49d0f3bc805b4de3eb189d740b1c55b67161dac6a42d1f81d0",
+   "bytes": 726
+  },
+  {
+   "path": "project/st-ia02-ending.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 · plan ending soon (approved seed state)",
+   "sha256": "296ac85062ae3d3c91c36a6a60f4a2194d67ddcc00657ab469723a9e0c1d4bc9",
+   "bytes": 724
+  },
+  {
+   "path": "project/st-ia02-search.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 · search “Shell” with its chip",
+   "sha256": "41e3c70034d4e31224343c83a75ea26c4b1d4351d54687e8e262db7d4ce95008",
+   "bytes": 707
+  },
+  {
+   "path": "project/st-ia02-nomatch.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 · no experiment matches",
+   "sha256": "5a5587536de0b6959da73c3b790406fff44db82ada370221c40743cfcf1c830d",
+   "bytes": 697
+  },
+  {
+   "path": "project/st-ia02-loading.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 · loading",
+   "sha256": "2405534e7f58d94182c2a03ef22f7c0dc00df282f437beb2485b7db2e3f96dd8",
+   "bytes": 683
+  },
+  {
+   "path": "project/st-ia02-failed.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 · couldn’t load, Try again",
+   "sha256": "732a302be7aa94d81da36d1610b77006b7eb085d9511cd9c63577e2d6fb92741",
+   "bytes": 701
+  },
+  {
+   "path": "project/st-ia02-awaiting.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 · no plan yet (payment required)",
+   "sha256": "ab57a7f561b3e48684d79ff395775a013deeb3cb46e67046c62be2edffe89b00",
+   "bytes": 718
+  },
+  {
+   "path": "project/st-ia16-missing.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-16 · course code missing · new institution",
+   "sha256": "e903646e44bb469b2f70b41d5c9cc6c7dd03c9e00eef1d5ec8e7a49ac07e1da1",
+   "bytes": 723
+  },
+  {
+   "path": "project/st-ia16-error.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-16 · semester without a code · validation",
+   "sha256": "6adb8652b2f160c88794578a5770871c3b475a14b62d29af5e35190611ea2843",
+   "bytes": 711
+  },
+  {
+   "path": "project/st-ia03-fresh.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 · just activated: nobody given access, course code missing",
+   "sha256": "c2d68591fd3cf8b22d8e3e28d47b19e28c5aa73c0ba4de78e4fcb7a8ce8ef16d",
+   "bytes": 743
+  },
+  {
+   "path": "project/st-ia03-ending.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 · ending soon · renewal note",
+   "sha256": "53e8d2fd38c158b902385cf4c0e1482447b95fc49986c05630c709c6fb18eef3",
+   "bytes": 715
+  },
+  {
+   "path": "project/st-ia03-paused.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 · paused by BITS · read-only",
+   "sha256": "1b0d888e9f11e3c88064962dadc2d9226ab719e55a7348c19aef2c5d2029630d",
+   "bytes": 715
+  },
+  {
+   "path": "project/st-ia03-ended.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 · plan ended",
+   "sha256": "94b760f2e654602d0bc6d6ba333c4df93decdfff7a3c1861a507749f12a737c0",
+   "bytes": 697
+  },
+  {
+   "path": "project/st-ia03-awaiting.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 · no access plan yet",
+   "sha256": "0a914334338f6a89942a079f5b781996acb9baecf8335e8da257c2f28555fa8c",
+   "bytes": 706
+  },
+  {
+   "path": "project/st-ia04-waiting.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 · status: waiting for a licence",
+   "sha256": "b98749e461e972a3f351ee86a157b55df09b57f7d16faadc858cca4220e5cb6a",
+   "bytes": 705
+  },
+  {
+   "path": "project/st-ia04-withdraw-dialog.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 · withdraw an individual grant (DL-2)",
+   "sha256": "978974a93af556032a3673e2a0093d15c1ef2a3c74d316a8cc93e1c5d2f128ac",
+   "bytes": 715
+  },
+  {
+   "path": "project/st-ia04-after-withdraw.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 · after withdrawing SACC-0310 · group grant unchanged",
+   "sha256": "17fa94f8a0a181e26cf1d4f031b13442e16746cc726c7cc611711e64fe58d28d",
+   "bytes": 731
+  },
+  {
+   "path": "project/st-ia04-ended.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 · plan ended · rows read Access ended",
+   "sha256": "a3c4517d464c8625da525faa9623ed75d5af0f1e7e8635ba95b8449f1d9db5ae",
+   "bytes": 723
+  },
+  {
+   "path": "project/st-ia05-step2.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 · step 2 · choose students",
+   "sha256": "74ed070a2c3c1cf6e57937b4d6dde8717dd440198f4cfc013f12ef58ebfc17e4",
+   "bytes": 701
+  },
+  {
+   "path": "project/st-ia05-review.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 · review · one active, one waiting for a licence",
+   "sha256": "0e7319e663c6a9fa09f888814da7b05b2ee7d556eb79bea5eb2ccd86a818e55f",
+   "bytes": 722
+  },
+  {
+   "path": "project/st-ia05-group-review.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 · review · giving a group access",
+   "sha256": "25c053a4ce876b192dc5e3748e2085a883199aeb0aaaaff94944f917f581ea7e",
+   "bytes": 714
+  },
+  {
+   "path": "project/st-ia05-result.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 · access given · result",
+   "sha256": "3a795efa87d0b2beddf3a0d3f3854f35c3eb915563453de8048479c6233cf1ef",
+   "bytes": 697
+  },
+  {
+   "path": "project/st-ia05-fail.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 · giving access failed · nothing changed",
+   "sha256": "e323e880f8da1b946dd2698b2819788bab4c3ae82720fd0ef5c048d00eac2eaa",
+   "bytes": 712
+  },
+  {
+   "path": "project/st-ia05-paused.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 · refused while access is paused",
+   "sha256": "9b7f08f6bf3c873b79d34398757768266e468a72410e1082d6962e2aeada6578",
+   "bytes": 716
+  },
+  {
+   "path": "project/st-ia06-filtered.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-06 · filtered by status and group",
+   "sha256": "aad3cb44cbd93464ce103c070bf38647bea5df1fab0d0f9a30284d0e8475157b",
+   "bytes": 705
+  },
+  {
+   "path": "project/st-ia06-nomatch.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-06 · no student matches",
+   "sha256": "8a822f796873931ad75e01285db23f7996ad56c9b1f940f89bd97c20af48c207",
+   "bytes": 694
+  },
+  {
+   "path": "project/st-ia06-empty.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-06 · no students yet · new institution",
+   "sha256": "dc7e772949452941c65d6e13c58b49c89e3a95dabb441252e35cdcc62a8673b6",
+   "bytes": 719
+  },
+  {
+   "path": "project/st-ia07-none.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-07 · just added · no experiments yet",
+   "sha256": "34174f1d32c5db05814bc2ed276a579feec62ba11731116f85b1eb11014d9314",
+   "bytes": 712
+  },
+  {
+   "path": "project/st-ia07-inactive.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-07 · inactive student · Sneha Reddy",
+   "sha256": "2ed6e612958fc7f4959e69ed60d8cae8093a2798aa915b6286255e27b32f585c",
+   "bytes": 707
+  },
+  {
+   "path": "project/st-ia07-overlap.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-07 · individual grant withdrawn, group grant unchanged",
+   "sha256": "2e9c1b152ffabf6d8a085389c7d177062fba460f234a8584799d17310c333bcc",
+   "bytes": 727
+  },
+  {
+   "path": "project/st-ia07-deact.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-07 · deactivate account (DL-2)",
+   "sha256": "ca2fdcb42773a13e76022c21ce23778803351e16efcb9871c0598a185d506400",
+   "bytes": 699
+  },
+  {
+   "path": "project/st-ia10-errors.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-10 · validation: e-mail format and duplicate student ID",
+   "sha256": "b1135b31154d2a83117dbaf2aa2c23f95fec5c6736aa9b74787bf26ce0ab354d",
+   "bytes": 727
+  },
+  {
+   "path": "project/st-ia10-dup.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-10 · e-mail already used · refused",
+   "sha256": "4ad49156776c572bb87d7f853657beb54f5a9b0f92706f8a86f2fe72e5ccba11",
+   "bytes": 710
+  },
+  {
+   "path": "project/st-ia10-added.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-10 · student added · no experiments yet",
+   "sha256": "e882c98fa399068aeea09dce26a5865fbfbb3baff9b4c132759e9ba45a842a60",
+   "bytes": 708
+  },
+  {
+   "path": "project/st-ia10-faculty.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-10 · add a faculty member",
+   "sha256": "5e9e24a125c9f95522ad7dc078e281ca7875ca15146456db6889237c6a1068ba",
+   "bytes": 692
+  },
+  {
+   "path": "project/st-ia11-file.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-11 · file chosen, ready to check",
+   "sha256": "796d385adc1575aa6d4c2868bec1e24137f4a8b8428dc27aca43f01db8e31be0",
+   "bytes": 700
+  },
+  {
+   "path": "project/st-ia11-errors.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-11 · row errors block the import",
+   "sha256": "e3179ce552374af3f01977d0865a130b697b31b5606ae2d50b8d11e599a3b98f",
+   "bytes": 704
+  },
+  {
+   "path": "project/st-ia11-duplicates.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-11 · everyone already in People · refused, nothing changed",
+   "sha256": "7968cf1a2d24e11ecbaf10ce80426180ce3766e4c949d8b6b95c35449215b359",
+   "bytes": 729
+  },
+  {
+   "path": "project/st-ia11-confirm.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-11 · confirm import",
+   "sha256": "88c2584cdd4be2691a0aa439de7aa2a3b0f13fdc2d77fe56866c97d9e8977815",
+   "bytes": 690
+  },
+  {
+   "path": "project/st-ia11-done.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-11 · import finished",
+   "sha256": "b94d802a5913e1b60e90f283d8e6cd4dc8e8f2248fb6329d37b6300e5cb5c4fe",
+   "bytes": 688
+  },
+  {
+   "path": "project/st-ia08-empty.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-08 · no faculty members yet",
+   "sha256": "1a4c6b6301fe7decb665da003074a019a1f27a5f2c1150be59ce047e60be8749",
+   "bytes": 707
+  },
+  {
+   "path": "project/st-ia09-none.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-09 · no courses yet · Dr Anita Desai",
+   "sha256": "2f49a74541749e91b951045e1d71f227ad0ca3da9abea938de6414febdd1fca2",
+   "bytes": 706
+  },
+  {
+   "path": "project/st-ia09-inactive.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-09 · inactive faculty member",
+   "sha256": "a68493601cc3e7274a23fbb49a1cfaa26425b73911d7122f5da9173c84d2038d",
+   "bytes": 696
+  },
+  {
+   "path": "project/st-ia15-assigned.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-15 · course assigned",
+   "sha256": "0babc8b52605bb5f917058e5a8f02b5cda2ae8942ad67fdff673922356d4ae96",
+   "bytes": 692
+  },
+  {
+   "path": "project/st-ia15-error.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-15 · already teaches this course · refused",
+   "sha256": "fa21ada0dfe983dcf9417c25ce987461a87e41965a0c9ba3666fde73068d2661",
+   "bytes": 712
+  },
+  {
+   "path": "project/st-ia15-warn.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-15 · remove the last marker of a course (warning)",
+   "sha256": "33cd6950474f152a19cb9025774e7322ae4e447888f33d8a5fb0b58ad1a991dc",
+   "bytes": 717
+  },
+  {
+   "path": "project/st-ia13-create.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-13 · create group (DL-3)",
+   "sha256": "75a417aec948775b86d54eae4761e2a701ff5ac61e45193ec5b0bce24e3c2fbd",
+   "bytes": 694
+  },
+  {
+   "path": "project/st-ia13-empty.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-13 · no groups yet",
+   "sha256": "b147ac31c67269650b3993ecdd2a7650e38d39bcbb56ef92bc9d69274445b6f3",
+   "bytes": 698
+  },
+  {
+   "path": "project/st-ia14-adding.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 · add students to the group",
+   "sha256": "90e7324e0996b0789397a56d77a8d4d5bfbf175e6f9c5dcb89a29c49d91ed9a1",
+   "bytes": 702
+  },
+  {
+   "path": "project/st-ia14-late.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 · member added after the group grant",
+   "sha256": "ce00b4ab7b29b67f9f2fb33760735f0f09433057fce6e5cd27e1077d17faddc1",
+   "bytes": 709
+  },
+  {
+   "path": "project/st-ia14-remove.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 · remove a member (DL-1, destructive)",
+   "sha256": "769eca68af373b7aef451a40d02e37aca08b9783ce5f864b1f05b606b0b3d765",
+   "bytes": 710
+  },
+  {
+   "path": "project/st-ia14-rename.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 · rename (DL-3)",
+   "sha256": "0601f89ff0bdfbb580e985c4c3d1faa138d72afd751a7ce83fd43936b6eec836",
+   "bytes": 688
+  },
+  {
+   "path": "project/st-ia14-empty.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 · group with no members",
+   "sha256": "321af4dc5f6dd95d1e47e5e505fd88bc5854883acd1d43412bab794c647f0199",
+   "bytes": 695
+  },
+  {
+   "path": "project/st-ia17-form.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · ask BITS for more licences",
+   "sha256": "f06195d7c0a5d289d38e9c96272c3f9cefdf30170af62625bdedbb97136f347c",
+   "bytes": 701
+  },
+  {
+   "path": "project/st-ia17-form-errors.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · more licences · validation",
+   "sha256": "ee232e5da4ff6df068746f2646a841611f9d2745aca40212a15cafd9e1e43b25",
+   "bytes": 709
+  },
+  {
+   "path": "project/st-ia17-renew.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · renew the access plan",
+   "sha256": "45d074728b3764f70795df77855eb32c8e0087e1846ebc5e2dec5b75e9aee954",
+   "bytes": 702
+  },
+  {
+   "path": "project/st-ia17-sent.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · request sent",
+   "sha256": "5adea7e213670f96bd0ee2893e947c2a736fc081d3def9be594c5861bd51f46f",
+   "bytes": 685
+  },
+  {
+   "path": "project/st-ia17-review.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · request REQ-0058 · under review",
+   "sha256": "e142da77ffeee24380bc3488b281cb87219f4dce47f9131e6027b078fe90242a",
+   "bytes": 707
+  },
+  {
+   "path": "project/st-ia17-info.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · information requested (no reply form)",
+   "sha256": "34066247d1d1ee703fe6811d221d229d52fe2b76c5c6eec0a7ae8de89546f40e",
+   "bytes": 712
+  },
+  {
+   "path": "project/st-ia17-pay.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · approved — payment required · plan unchanged",
+   "sha256": "3bcaf1fd7ba46234b87464ca58ef591eefbfb38cac716938ec22fb0f7ced693a",
+   "bytes": 721
+  },
+  {
+   "path": "project/st-ia17-active.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 · REQ-0042 · access active",
+   "sha256": "c53e15b71765f27f33433a2fb2343de343de110c6cbbb137df1e0649f726e840",
+   "bytes": 702
+  },
+  {
+   "path": "project/st-ia18-empty.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-18 · no device request yet",
+   "sha256": "578b037d79818302418d6ba7996c56786dc4a9a259f8e87067dd291b6cd19604",
+   "bytes": 706
+  },
+  {
+   "path": "project/st-ia19-dialog.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-19 · forward to BITS (DL-1)",
+   "sha256": "ba04887358ddb84791db1511f2b13aae67307f20fd70f4cc673a8c1bf7d0a344",
+   "bytes": 697
+  },
+  {
+   "path": "project/st-ia19-forwarded.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-19 · forwarded to BITS",
+   "sha256": "feb48887ea556e31b4f0da7045e020938d98780a053f6bf8a2202a74e5027519",
+   "bytes": 695
+  },
+  {
+   "path": "project/st-ia19-decided.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-19 · decided · approved by BITS",
+   "sha256": "52a38861acabc1b5d3f1d8b1ad62bc3940420047204d8e18160de2051dbf74e0",
+   "bytes": 703
+  },
+  {
+   "path": "project/st-ia19-paused.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-19 · can’t forward while paused",
+   "sha256": "00a509f14f87a282bcce0006f45b7352423dee4bac03ef3b21391c2915beebab",
+   "bytes": 703
+  },
+  {
+   "path": "project/st-ia20-course.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-20 · by course",
+   "sha256": "53d5cf9b422ed87188e6f6710a4251e66413a93b97883ec9b1a5f54ef679e5ba",
+   "bytes": 684
+  },
+  {
+   "path": "project/st-ia20-empty.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-20 · no activity yet",
+   "sha256": "86ed354b54313551dafa2a8c501d6d9b03cb51e6946bddaf732d638bef7f28d2",
+   "bytes": 700
+  },
+  {
+   "path": "project/st-ia20-paused.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-20 · access paused",
+   "sha256": "5c4c2d6aaf31a7e4c57298b3ee6cc6c15fae0329459961697460f7e8293873ec",
+   "bytes": 699
+  },
+  {
+   "path": "project/st-account-menu.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): Account menu open (borrowed XS-05 contract)",
+   "sha256": "c7c5d198c90b26be81f48bf2364021c26399e021b9efd369d2489cfea462c39c",
+   "bytes": 707
+  },
+  {
+   "path": "project/st-xs07-form-error.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): XS-07 · report a problem · validation (borrowed)",
+   "sha256": "63c6fdf69d9ee549f71cbae9c40a0d531810f35d0ee954fa5e73a8b40ea5eb31",
+   "bytes": 720
+  },
+  {
+   "path": "project/st-xs07-detail.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): XS-07 · report detail (borrowed)",
+   "sha256": "75cc75e1ca901f87ba9c80e4c4098e07a1bea3582b797e91445f620bb4044be9",
+   "bytes": 699
+  },
+  {
+   "path": "project/st-xs03-signed-out.dc.html",
+   "role": "state board (derivative wrapper of Main.dc.html, not a recovered V3 original): XS-03 · signed out (borrowed)",
+   "sha256": "aa464377b8aaf7767a5bed529ae1ce9a84bb6c6c628d794c5e5b4b684e015033",
+   "bytes": 710
+  },
+  {
+   "path": "project/rsp-ia01-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 Overview · 375",
+   "sha256": "9fe62d8696c0c6c09b84721ba54a211a59169479f428c6fc920ed387471de08f",
+   "bytes": 702
+  },
+  {
+   "path": "project/rsp-ia02-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 Content access · 375",
+   "sha256": "7bd5ce475ae2ac5caa03b2c90f3febd4f37ad43ba088b63c98c5c448cbd29229",
+   "bytes": 708
+  },
+  {
+   "path": "project/rsp-ia16-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-16 Course codes · 375",
+   "sha256": "1e40b291db8778d251d666f570ad8561a54c2d746bc33a3496b8a35bbea13887",
+   "bytes": 706
+  },
+  {
+   "path": "project/rsp-ia03-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 Access plan · 375",
+   "sha256": "c48e320743faba1f0b0d95dff19812c54d28c3994a709e74f4da792de0603bce",
+   "bytes": 705
+  },
+  {
+   "path": "project/rsp-ia04-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 Student access · 375",
+   "sha256": "60f10d9301d1ef82315c1f9e1a9750c33492d2faeb059699ed4ae679055f6a73",
+   "bytes": 708
+  },
+  {
+   "path": "project/rsp-ia05-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-05 step 2 · selection folded · 375",
+   "sha256": "5e4b91c4e18509c287d20c69026d0529d0d8baf7f79a7f6239ca49fe4ef59688",
+   "bytes": 705
+  },
+  {
+   "path": "project/rsp-ia06-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-06 Students · 375",
+   "sha256": "ed0ff197695062b76de2dc4cd1ff600f75b6c31fd6b113bcfaa7e1bab9ee170b",
+   "bytes": 702
+  },
+  {
+   "path": "project/rsp-ia07-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-07 Student record · 375",
+   "sha256": "686f71de528caac04712403a5f1cb9d8eb6116db12eda29a5909d26b9352ef20",
+   "bytes": 708
+  },
+  {
+   "path": "project/rsp-ia10-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-10 Add student · 375",
+   "sha256": "b1d291d4b7cb8f31b0dd5bd1adf1a3631c97a113f500d0a99e9262f553013968",
+   "bytes": 705
+  },
+  {
+   "path": "project/rsp-ia11-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-11 row errors · 375",
+   "sha256": "98b5029778f3d9bcb10628757143474327ecf77040416243ffd4b311c2d3049e",
+   "bytes": 690
+  },
+  {
+   "path": "project/rsp-ia08-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-08 Faculty · 375",
+   "sha256": "f73116e39ef6913b6f01a4d4722452942ec9c1bb6904e59f462f1a29d6cf4766",
+   "bytes": 701
+  },
+  {
+   "path": "project/rsp-ia09-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-09 Faculty record · 375",
+   "sha256": "fe7f3a7bce825ee21be963c0659892312fffd83e9053135c44fe7a27c4c0e0b6",
+   "bytes": 706
+  },
+  {
+   "path": "project/rsp-ia15-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-15 Faculty courses · 375",
+   "sha256": "98a85e3dbe5a9094663341e2638e36e2c5d3c6f53e9f767ddccd34d6cac2b853",
+   "bytes": 709
+  },
+  {
+   "path": "project/rsp-ia13-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-13 Groups · 375",
+   "sha256": "e7babcf31ddace264d7d69c423e5bb467d92cffe6a8683ea1a777ccb7df66687",
+   "bytes": 698
+  },
+  {
+   "path": "project/rsp-ia14-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 Group · 375",
+   "sha256": "66ceda9a77d10345fa9fa790eb97a3ad8c320f9998cd728087b0fdd254e3c7df",
+   "bytes": 699
+  },
+  {
+   "path": "project/rsp-ia17-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 Requests · 375",
+   "sha256": "7143115cf126b34b6afedd957f3743be5b28bb4dc54a81f151297a6febcd024c",
+   "bytes": 700
+  },
+  {
+   "path": "project/rsp-ia17d-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-17 payment required · 375",
+   "sha256": "cf0dc5745dfc6ffa9e7616783d38b196f6837bc02e2004bd3e2d5b9ddfad64ee",
+   "bytes": 693
+  },
+  {
+   "path": "project/rsp-ia18-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-18 Device requests · 375",
+   "sha256": "49ea60addbed1259c5566b7c8699e738746a4d7b981f774e6365e7896cab0b06",
+   "bytes": 707
+  },
+  {
+   "path": "project/rsp-ia19-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-19 Device request · 375",
+   "sha256": "d33905a1b4fb75c22baaaabfe2afebe0d3a2b08b6175edb73dcb07b04b9b8528",
+   "bytes": 708
+  },
+  {
+   "path": "project/rsp-ia20-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-20 Usage · 375",
+   "sha256": "ad5bc695277edd116c82f57fba56e90928b0fe5cc76f96b499ef0019d99c1d3c",
+   "bytes": 699
+  },
+  {
+   "path": "project/rsp-xs07-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): XS-07 Help & support · 375",
+   "sha256": "a1db3a3a7c77d94c1f5e8785ee3c1b567dd4f8d33c266c7e5e7fb29406698804",
+   "bytes": 710
+  },
+  {
+   "path": "project/rsp-dialog-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): Withdraw dialog (DL-2) · 375",
+   "sha256": "66f6589fc1f9e82cb53143f2b2a7f29a56413edcf6adc5d20ab614f7c77478a0",
+   "bytes": 697
+  },
+  {
+   "path": "project/rsp-menu-375.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): Menu drawer · 375",
+   "sha256": "8293989d8b5a32a493e5f6b76814187e355346404d1879016eeeb3c422881a91",
+   "bytes": 681
+  },
+  {
+   "path": "project/rsp-ia01-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 Overview · 768",
+   "sha256": "ff279b6accc0f87b6c8fae26430dbc371b38467760d1e2f43051e51ce02b42cc",
+   "bytes": 702
+  },
+  {
+   "path": "project/rsp-ia02-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 Content access · 768",
+   "sha256": "1d440b484901df6fac0a35ed9b78ab8c9667473b32ba806edaeff13b5510d4bc",
+   "bytes": 706
+  },
+  {
+   "path": "project/rsp-ia03-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 Access plan · 768",
+   "sha256": "4aea327b4f1bae509ce9d46743e22a044c6fedcecca6f8a050c1329a598b0c4f",
+   "bytes": 705
+  },
+  {
+   "path": "project/rsp-ia04-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 Student access · 768",
+   "sha256": "d5a72b642be898c71ae63d79a0d3b647900a5dc49ba42d14a52779f556ea3560",
+   "bytes": 708
+  },
+  {
+   "path": "project/rsp-ia06-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-06 Students · 768",
+   "sha256": "c0941c75ff1bbfa0a3e5a808556e19120bfd87d3f9ecacbad83c125b554e7c6c",
+   "bytes": 702
+  },
+  {
+   "path": "project/rsp-ia07-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-07 Student record · 768",
+   "sha256": "090ce0dfbff0e60acfe96cf07bfdc50b34f1d47e4ef8b3dc70e84e974c25cc4a",
+   "bytes": 708
+  },
+  {
+   "path": "project/rsp-ia15-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-15 Faculty courses · 768",
+   "sha256": "8098aef84285e8334bdc23cc2500c9f9726fd3f66d721c7b0bafe88d83236baa",
+   "bytes": 707
+  },
+  {
+   "path": "project/rsp-ia14-768.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-14 Group · 768",
+   "sha256": "3554eae3f1810890fabf1bbf6a5a1dc4f649d3651b02268b77dff19ec45cdd77",
+   "bytes": 699
+  },
+  {
+   "path": "project/rsp-ia01-1024.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-01 Overview · 1024",
+   "sha256": "a1cdf73336691f9ebc161037a1e149ccc21f3931845eaed06f2a63f90d89ea8e",
+   "bytes": 704
+  },
+  {
+   "path": "project/rsp-ia02-1024.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-02 Content access · 1024",
+   "sha256": "87dc18347c3985af2974ed5ad5410534bd8d954ca83631871cb2f4df51f3f216",
+   "bytes": 708
+  },
+  {
+   "path": "project/rsp-ia03-1024.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-03 Access plan · 1024",
+   "sha256": "8fd5537064e4ec5317586c2856a285ac203fb7c0a9f9eb6b3fd3ff6e982de4e5",
+   "bytes": 707
+  },
+  {
+   "path": "project/rsp-ia04-1024.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-04 Student access · 1024",
+   "sha256": "492a7fa9e1a27748bbdb9a1f6dbb2acdca0f9d33f8bdd9e7469012b8d0b02a98",
+   "bytes": 710
+  },
+  {
+   "path": "project/rsp-ia15-1024.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-15 Faculty courses · 1024",
+   "sha256": "0f06c527cc402a69557a4db795277ba03ba648ff68c81cacf1d5ddd42ba074c0",
+   "bytes": 709
+  },
+  {
+   "path": "project/rsp-ia20-1024.dc.html",
+   "role": "responsive board (derivative wrapper of Main.dc.html, not a recovered V3 original): IA-20 Usage · 1024",
+   "sha256": "13385734bf5fd0009f567417e1251889a185dc468438b9862fcc3ab9bf6b3dcb",
+   "bytes": 699
+  }
+ ],
+ "retiredSinceLastExport": {
+  "note": "Files of the earlier canvas versions (reference boards of the delivered role, R1 and R2 comparison boards, and the separate R1/R2 stylesheets) that are no longer part of the design. Removed from the canvas so old and new designs are never mixed.",
+  "files": [
+   "ia-role-r1.css",
+   "ia-role-r2.css",
+   "r-dialog-375.dc.html",
+   "r-ia01-1024.dc.html",
+   "r-ia01-375.dc.html",
+   "r-ia01-768.dc.html",
+   "r-ia04-1024.dc.html",
+   "r-ia04-375.dc.html",
+   "r-ia05-375.dc.html",
+   "r-ia06-375.dc.html",
+   "r-ia11-375.dc.html",
+   "r-ia14-768.dc.html",
+   "r-ia17-375.dc.html",
+   "r-ia19-375.dc.html",
+   "r-menu-375.dc.html",
+   "r1-assessment.dc.html",
+   "r1-ia01-1440.dc.html",
+   "r1-ia01-375.dc.html",
+   "r1-ia01-before.dc.html",
+   "r1-ia01-ending-1440.dc.html",
+   "r1-ia01-fresh-1440.dc.html",
+   "r1-ia01-fresh-375.dc.html",
+   "r1-ia04-1440.dc.html",
+   "r1-ia04-375.dc.html",
+   "r1-ia04-before.dc.html",
+   "r1-ia04-fresh-1440.dc.html",
+   "r1-ia04-one-1440.dc.html",
+   "r1-ia04-one-375.dc.html",
+   "r1-ia04-withdrawn-1440.dc.html",
+   "r1-ia06-1440.dc.html",
+   "r1-ia06-375.dc.html",
+   "r1-ia06-before.dc.html",
+   "r1-ia06-fresh-1440.dc.html",
+   "r1-ia06-fresh-375.dc.html",
+   "r1-ia06-noaccess-1440.dc.html",
+   "r1-ia16-1440.dc.html",
+   "r1-ia16-375.dc.html",
+   "r1-ia16-before.dc.html",
+   "r1-ia16-error-1440.dc.html",
+   "r1-ia16-fresh-1440.dc.html",
+   "r1-ia16-fresh-375.dc.html",
+   "r1-preview.dc.html",
+   "r2-ia02-1024.dc.html",
+   "r2-ia02-1440.dc.html",
+   "r2-ia02-375.dc.html",
+   "r2-ia02-awaiting-1440.dc.html",
+   "r2-ia02-current-1440.dc.html",
+   "r2-ia02-current-375.dc.html",
+   "r2-ia02-ended-1440.dc.html",
+   "r2-ia02-ending-1440.dc.html",
+   "r2-ia02-ending-375.dc.html",
+   "r2-ia02-ending-768.dc.html",
+   "r2-ia02-ending-current-1440.dc.html",
+   "r2-ia02-failed-1440.dc.html",
+   "r2-ia02-fresh-1440.dc.html",
+   "r2-ia02-fresh-375.dc.html",
+   "r2-ia02-fresh-current-1440.dc.html",
+   "r2-ia02-loading-1440.dc.html",
+   "r2-ia02-nomatch-1440.dc.html",
+   "r2-ia02-nomatch-375.dc.html",
+   "r2-ia02-paused-1440.dc.html",
+   "r2-ia02-paused-375.dc.html",
+   "r2-ia02-search-1440.dc.html",
+   "r2-preview.dc.html",
+   "s-ia01-overview.dc.html",
+   "s-ia02-content-access.dc.html",
+   "s-ia03-access-plan.dc.html",
+   "s-ia04-student-access.dc.html",
+   "s-ia05-give-access.dc.html",
+   "s-ia06-students.dc.html",
+   "s-ia07-student-record.dc.html",
+   "s-ia08-faculty.dc.html",
+   "s-ia09-faculty-record.dc.html",
+   "s-ia10-add-student.dc.html",
+   "s-ia11-import.dc.html",
+   "s-ia13-groups.dc.html",
+   "s-ia14-group.dc.html",
+   "s-ia15-faculty-courses.dc.html",
+   "s-ia16-course-codes.dc.html",
+   "s-ia17-requests.dc.html",
+   "s-ia18-device-requests.dc.html",
+   "s-ia19-device-review.dc.html",
+   "s-ia20-usage.dc.html",
+   "s-xs07-help.dc.html",
+   "st-xs07-report-error.dc.html"
+  ]
+ },
+ "notIncluded": {
+  "project/support.js": "Claude Design runtime, supplied by the design host; never ship it in the React app",
+  "fonts": "Public Sans loads from Google Fonts as in the seed files; no font binaries are packaged"
+ },
+ "rules": [
+  "Base files unchanged (hashes above); no global token, shell or navigation override",
+  "Role styles only in ia-role.css (ia- prefix); no xr-, rb- or rk- rule is redefined",
+  "No other role's files are included or changed",
+  "Shared base patches require a central version update (pack FOUNDATION-LOCK allowedExtensions)"
+ ]
+}

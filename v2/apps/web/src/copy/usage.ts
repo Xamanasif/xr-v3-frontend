@@ -1,35 +1,34 @@
 /**
- * The words of IA-20 Usage (board B3-10 f0 … f4), written from the facts `OperationsService.getUsage`
- * answers (per experiment × format: students with access, started, completed, sessions; the
- * "figures up to" instant) and the course and plan facts of `listContentAccess`. Every phrase is
- * the frozen board's own, found verbatim in its markup (`usage.test.ts`); what B3-10 does not word
- * is a provisional entry of the state-copy register (`state-copy-usage.ts`, VD-12). The board's
- * sample counts, course and dates are never copied: they come from the records.
+ * The words of IA-20 Usage in the owner-approved V3 design (design/v3-refined-b/roles/IA-v1,
+ * `project/Main.dc.html` IA-20 and its script's `vm20`), written from the facts
+ * `OperationsService.getUsage` answers (per experiment × format: students with access, started,
+ * completed, sessions; the "figures up to" instant) and the course and plan facts of
+ * `listContentAccess`. Every phrase is the export's own (`usage.test.ts` finds it); what the export
+ * does not word is a provisional entry of the state-copy register (`state-copy-usage.ts`, VD-12).
+ * The export's sample counts, course and dates are never copied: they come from the records. No
+ * internal reference (ACC-, REQ-) is written (state-copy `IA-plan.no-reference`).
  */
+import { REQUEST_APPROVED } from './institute-home';
 
 export const USAGE_PAGE = {
-  /** `span.xr-top-title`, the crumb and the H1. */
+  /** The H1, the tab title. */
   title: 'Usage',
-  /** The segmented control's group name (`div.xr-seg[aria-label]`). */
-  viewLabel: 'View',
+  /** The view switch's group name (`div.rb-switch[aria-label]`). */
+  viewLabel: 'View usage',
   byExperiment: 'By experiment and format',
   byCourse: 'By course',
 } as const;
 
-/** B3-10 `div.xr-phead-meta`: "How your content is being used · figures up to 24 Oct 2026". */
+/** The line under the title: "How your content is being used · figures up to 22 Oct 2026". */
 export const USAGE_META = 'How your content is being used';
 
-/** The meta line with the service's "figures up to" date ("24 Oct 2026", `copy/dates`). */
+/** The line with the service's "figures up to" date ("22 Oct 2026", `copy/dates`). */
 export function usageMetaLine(figuresUpTo: string): string {
   return `${USAGE_META} · figures up to ${figuresUpTo}`;
 }
 
-/** The experiment section's head (f0, f3, f4). */
+/** An experiment's surface. */
 export const EXPERIMENT_SECTION = {
-  /** "ME ZG523 · access plan ACC-0107": the words before the plan's ID. */
-  accessPlan: 'access plan',
-  /** "5 students with access" after the `xl-num` count. */
-  studentsWithAccess: 'students with access',
   columns: {
     format: 'Format',
     started: 'Started',
@@ -38,55 +37,42 @@ export const EXPERIMENT_SECTION = {
   },
 } as const;
 
-/**
- * "access plan ACC-0107". PROVISIONAL with more than one plan (`IA-20.plans-several`): "access
- * plans ACC-0107 · ACC-0212" — B3-10 draws an experiment held by one plan.
- */
-export function accessPlanWords(planIds: readonly string[]): string {
-  return planIds.length === 1
-    ? `${EXPERIMENT_SECTION.accessPlan} ${planIds[0]}`
-    : `access plans ${planIds.join(' · ')}`;
-}
-
-/**
- * The words after the count: "students with access". PROVISIONAL in the singular
- * (`IA-20.students-one`): "student with access" — B3-10 draws five.
- */
+/** "5 students with access", "1 student with access" (the export's `withText`). */
 export function studentsWithAccessWords(count: number): string {
-  return count === 1 ? 'student with access' : EXPERIMENT_SECTION.studentsWithAccess;
+  return `${count} ${count === 1 ? 'student' : 'students'} with access`;
 }
 
-/** `caption.xr-sr`: "Usage by format for Shell-and-Tube Heat Exchanger". */
+/** The figures table's name: "Usage by format for Shell-and-Tube Heat Exchanger". */
 export function experimentTableCaption(name: string): string {
   return `Usage by format for ${name}`;
 }
 
-/** The "By course" table (f1). */
+/** "By course". */
 export const COURSE_TABLE = {
-  caption: 'Usage by course',
+  /** The surface's heading, read only (`h2.xr-sr`). */
+  title: 'Usage by course',
+  caption: 'Usage by course. Started and completed stay per format and are not added up.',
   columns: {
     course: 'Course',
     experimentsGiven: 'Experiments given',
     studentsWithAccess: 'Students with access',
+    sessions: 'Sessions by format',
   },
   /**
    * PROVISIONAL (`IA-20.course-several`): a course holding more than one experiment — its students
    * with access and sessions are not added up across experiments; they are read by experiment.
    */
   perExperiment: 'Shown per experiment',
-  /** PROVISIONAL (`IA-20.course-format-not-held`): the course holds no such format. */
-  notHeld: '–',
 } as const;
 
-/**
- * "Sessions (WEB · VR)": the formats of the table in display order. PROVISIONAL beyond WEB · VR
- * (`IA-20.course-sessions-formats`): the formats the institution's usage rows carry.
- */
-export function courseSessionsHeader(formats: readonly string[]): string {
-  return `Sessions (${formats.join(' · ')})`;
+/** "WEB 11 · VR 4": a course's sessions per format, never added up (the export's `sessions`). */
+export function sessionsByFormat(
+  parts: readonly { readonly code: string; readonly sessions: number }[],
+): string {
+  return parts.map((part) => `${part.code} ${part.sessions}`).join(' · ');
 }
 
-/** "What the figures mean" (f0, f1, f3, f4): each figure defined in one line. */
+/** "What the figures mean": each figure defined in one line. */
 export const DEFINITIONS = {
   title: 'What the figures mean',
   terms: [
@@ -111,9 +97,29 @@ export const DEFINITIONS = {
   ],
 } as const;
 
-/** "No activity yet" (f2). */
+/** "No activity yet" (an experiment no student has opened; by course, the whole sessions cell). */
 export const NO_ACTIVITY = {
   title: 'No activity yet',
   line: 'Figures appear when students open the experiments you’ve given them.',
   openStudentAccess: 'Open Student access',
 } as const;
+
+/** Before access is active: "No usage yet". */
+export const NO_USAGE = {
+  title: 'No usage yet',
+  line: `Usage appears after BITS activates your access and you give students experiments. ${REQUEST_APPROVED}`,
+} as const;
+
+/** The notices that explain why nobody counts as having access today. */
+export const USAGE_NOTICES = {
+  pausedTitle: 'Your institution’s access is paused',
+  pausedLine:
+    'No student can open your experiments while the pause lasts, so nobody counts as having access today. Earlier activity stays in the figures.',
+  endedLine:
+    'No student can open its experiments now, so nobody counts as having access today. Earlier activity stays in the figures.',
+} as const;
+
+/** "Your access plan ended on 7 Oct 2027" (the ended notice). */
+export function endedNoticeTitle(endedOn: string): string {
+  return `Your access plan ended on ${endedOn}`;
+}

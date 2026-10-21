@@ -464,3 +464,134 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 :where(.xr) .rv-lo-msg:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
   border-radius: 6px;
 }
+
+/*
+ * V3P-16 · The Institute Admin export's inline sizes (design/v3-refined-b/roles/IA-v1,
+ * `project/Main.dc.html`). The export sets these with `style=`; product code takes no inline style,
+ * so each is a product class on the element the export styles, set by its component. Values
+ * exactly as the export writes them:
+ * - `section.rk-surface.rk-x-surface-msg` `max-width: 760px` and `.rk-state-ico.rk-x-state-ico-flush`
+ *   `margin: 0` — the message cards (IA-05 refused, the plan ended, nothing to give; IA-10 and IA-11
+ *   paused; IA-17 sent). `IaMessageCard` (ia.tsx).
+ * - `.rk-field.rk-x-field-select` `max-width: 520px` — IA-05 step 1 "Course"; and
+ *   `.rk-field.rk-x-field-count` `max-width: 320px` — IA-17 "Licences requested". `IaField`
+ *   `width` (ia.tsx).
+ * - `.ia-row.rk-x-row-end` `align-items: flex-end`, `.rk-search.rk-x-search-grow`
+ *   `flex: 1 1 320px` and `.rk-count.rk-x-count-low` `margin-bottom: 10px` — IA-05 step 2's search
+ *   with the selected count beside it; `.rk-search.rk-x-search-panel` `max-width: 420px` — IA-14's
+ *   add panel search. `IaPickSearch` (ia-access.tsx).
+ * - `.ia-row.rk-x-row-center` `justify-content: center` — IA-05 "No students yet"'s two buttons.
+ *   `IaRow` `center` (ia.tsx).
+ * - `.ia-row.rk-x-row-tight` `gap: 6px 8px` — the line under each experiment of IA-05 step 1, in the
+ *   plan and not in it; `.rk-choice.rk-x-choice-plain` `grid-template-columns: minmax(0, 1fr)` —
+ *   an experiment not in the plan, which has no control. `IaExperimentChoices`, `IaNotInPlanList`
+ *   (ia-access.tsx).
+ * - `.ia-row.rk-x-row-snug` `gap: 6px 10px` — IA-05's review "Formats" with its words, IA-19's
+ *   format line. `IaFormatsWith` (ia-access.tsx), `IaRqFormatFor` (ia-requests.tsx).
+ * - `.xr-ico.rk-x-ico-lead` `vertical-align: -4px; margin-right: 6px` — the arrow of IA-11
+ *   "Download the template (CSV)"; `.xr-ico.rk-x-ico-file` `color: #3B49B8` — IA-11's file glyph;
+ *   `.rk-next.rk-x-next-lead` `font-size: 17px; line-height: 26px; color: #141B5E` — IA-11 step 3's
+ *   lead line. `IaImportTemplate`, `IaFileChooser`, `IaImportLead` (ia-people.tsx).
+ * - `.rk-h3.rk-x-h3-above` `margin-bottom: 12px` — IA-17's "What you need" and "The plan you’re
+ *   renewing"; `.rk-ferr.rk-x-ferr-group` `margin-top: 8px` — the errors under its choices;
+ *   `.rk-label.rk-x-label-above` `margin-bottom: 8px` — a request's "Message to BITS".
+ *   `IaRqFormSection`, `IaRqChoices`, `IaRqMessage` (ia-requests.tsx).
+ * The badges' `margin-top: 0` (IA-05's choices and review, IA-17's plan and request facts) is
+ * V3P-14's `rk-x-fmts-flush` (`IaFormatBadges` `flush`). The rest of the export's `style=` is not
+ * product: the nine term-bar lengths only the plan's dates decide (the recorded `inline-style` scan
+ * exception, `IaTermBar`), the hidden icon sprite (the product draws each icon inline), the preview
+ * start page, notes and handoff pages (`ia-pv*`), the preview's sample-file chooser (the product
+ * opens the browser's own), the borrowed XS surfaces (Help & support's reports, the signed-out
+ * page) and the drawer brand's `padding-top: 0` (the shell's); and three states the product does
+ * not draw: the not-found cards (IA-07, IA-09, IA-17, IA-19 keep the in-shell not-found page, so an
+ * address never reveals whether a record exists), IA-14's "Create group" page (a dialog in the
+ * product, decision D-06) and IA-05 step 1's "Already given to …" line (the product shows who
+ * already has it in step 2).
+ *
+ * And the export's cascade, checked as for V3P-13: the export loads core.css, rb.css, rb-kit.css,
+ * then ia-role.css unlayered, so where a Refined B rule and an `ia-` rule set the same property on
+ * one element the more specific one wins there, while the product's `xr.v3.ia` layer wins whatever
+ * the specificity. Comparing both cascades on every element and longhand an `ia-` rule sets, on
+ * every Institute Admin screen state reached through the product (IA-01 … IA-20 with their tabs,
+ * filters, chips, no match, empty and calm states, the steps of IA-05 and IA-11 with their errors
+ * and results, the add panel, the dialogs and their errors, read-only while paused, ending soon,
+ * ended and without a course code: 148 states on the after-setup, after-flow-b, after-flow-c,
+ * later-sample and state-coverage worlds as Meera Iyer, V. Hegde, S. Kulkarni and R. Bhatt, at
+ * 1440, 1024, 768 and 375, at rest and with hover / focus forced)
+ * finds no element where they differ: the export raises its selectors to `.rb .ia-…`, so no
+ * Refined B rule outranks them and no declaration is restored here.
+ */
+:where(.xr) .rk-surface.rk-x-surface-msg:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  max-width: 760px;
+}
+
+:where(.xr) .rk-state-ico.rk-x-state-ico-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin: 0;
+}
+
+:where(.xr) .rk-field.rk-x-field-select:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  max-width: 520px;
+}
+
+:where(.xr) .rk-field.rk-x-field-count:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  max-width: 320px;
+}
+
+:where(.xr) .ia-row.rk-x-row-end:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  align-items: flex-end;
+}
+
+:where(.xr) .rk-search.rk-x-search-grow:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  flex: 1 1 320px;
+}
+
+:where(.xr) .rk-count.rk-x-count-low:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 10px;
+}
+
+:where(.xr) .rk-search.rk-x-search-panel:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  max-width: 420px;
+}
+
+:where(.xr) .ia-row.rk-x-row-center:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  justify-content: center;
+}
+
+:where(.xr) .ia-row.rk-x-row-tight:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  gap: 6px 8px;
+}
+
+:where(.xr) .rk-choice.rk-x-choice-plain:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+:where(.xr) .ia-row.rk-x-row-snug:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  gap: 6px 10px;
+}
+
+:where(.xr) .xr-ico.rk-x-ico-lead:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  vertical-align: -4px;
+  margin-right: 6px;
+}
+
+:where(.xr) .xr-ico.rk-x-ico-file:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  color: #3b49b8;
+}
+
+:where(.xr) .rk-next.rk-x-next-lead:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  font-size: 17px;
+  line-height: 26px;
+  color: #141b5e;
+}
+
+:where(.xr) .rk-h3.rk-x-h3-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 12px;
+}
+
+:where(.xr) .rk-ferr.rk-x-ferr-group:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 8px;
+}
+
+:where(.xr) .rk-label.rk-x-label-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 8px;
+}

@@ -1,0 +1,3930 @@
+{
+ "note": "Illustrative sample worlds for the Institute Admin design preview only. They are not application data, not canonical records and not service contracts. In the app keep the shared world's facts and reproduce the layout (common/03). Generated from project/Main.dc.html (Component.scenario, presetDefs, CSV), so this file matches what the canvas runs. The seven worlds are byte-for-byte the same data as the delivered complete role (18 Oct 2026); the final design changed presentation only.",
+ "generatedFrom": {
+  "file": "project/Main.dc.html",
+  "sha256": "6718071f75698b39918c4dbc367b78cffa0ed475e5009cd7df41e0a8cefd821c"
+ },
+ "sampleIdentity": {
+  "institution": "Godavari Institute of Technology (v46 sample world, T-36)",
+  "signedInAs": "Meera Iyer, Institute Admin",
+  "emailDomain": "godavari.edu.in is this sample institution's domain; form examples use the institution's own domain, never a fixed one"
+ },
+ "knownSignIns": {
+  "purpose": "Fixture for the identity-collision rule: these e-mails already sign in to the platform, so Add student and Import refuse them",
+  "emails": [
+   "meera.iyer@godavari.edu.in",
+   "arjun.mehta@wilp.example",
+   "kavya.nair@wilp.example",
+   "a.menon@wilp.example",
+   "anil.shetty@northline.example"
+  ]
+ },
+ "scenarios": [
+  {
+   "scenarioId": "populated",
+   "title": "Populated institution",
+   "asOf": "2026-10-22T10:05",
+   "dateShown": "Thu 22 Oct 2026",
+   "summary": "Twelve students, three faculty members, two groups, a group grant with a waiting licence, a request under review and a device request to forward.",
+   "sourcedFacts": [
+    "oct9 facts plus v46 later samples up to 22 Oct 2026:",
+    "v46 B2-06: Sneha Reddy deactivated 10 Oct 2026 (\"On leave this semester.\")",
+    "v46 B2-08: groups GRP-0012 \"ME ZG523 — Sem II\" (7 members) and GRP-0013 \"Lab batch B\" (empty); group grant SACC-0311 12 Oct 2026 11:05 with Arun Kumar waiting for a licence",
+    "v46 B2-04: SACC-0312 Nikhil Bose withdrawn 12 Oct 2026 (\"Given by mistake — Nikhil is not in ME ZG523 this semester.\")",
+    "v46 B3-08: REQ-0058, 60 more licences for Shell-and-Tube Heat Exchanger, sent 21 Oct 2026 16:05, under review",
+    "v46 B3-09: DTR-0018 Rahul Verma, VR, GIT-VR-03 → GIT-VR-07, 22 Oct 2026 09:10, waiting on the Institute Admin; DTR-0015 Karthik Rao decided (approved) 13 Oct 2026",
+    "v46 B3-10: usage counts (WEB started 4, completed 2, sessions 11; VR 2, 1, 4)",
+    "v46 B2-09: 1 written answer waiting for marking in ME ZG523",
+    "v46 B2-05: Fatima Begum gets \"Waiting for a licence\" when given access"
+   ],
+   "illustrativeAdditions": [
+    "As-of 22 Oct 2026 10:05.",
+    "Usage counts were labelled \"up to 24 Oct 2026\" in v46; here they read \"figures up to\" the world date.",
+    "DTR-0015 is a partial record: from/to device, note and dates the source does not give show \"Not recorded in this sample\".",
+    "\"Waiting for a licence\" is a service outcome fixture (fx.waitFor), not computed from licence numbers."
+   ],
+   "snapshot": {
+    "inst": {
+     "name": "Godavari Institute of Technology",
+     "domain": "godavari.edu.in"
+    },
+    "me": {
+     "n": "Meera Iyer",
+     "ini": "MI",
+     "email": "meera.iyer@godavari.edu.in"
+    },
+    "cat": {
+     "ste": {
+      "t": "Shell-and-Tube Heat Exchanger",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR",
+       "VR"
+      ]
+     },
+     "ftb": {
+      "t": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "VR"
+      ]
+     },
+     "cwc": {
+      "t": "Composite Wall Conduction",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR"
+      ]
+     }
+    },
+    "courses": {
+     "ME ZG523": {
+      "name": "Thermodynamics & Heat Transfer",
+      "own": "MEC-523",
+      "sem": "Sem II",
+      "ownAt": "2026-10-09"
+     }
+    },
+    "plan": {
+     "id": "ACC-0107",
+     "req": "REQ-0042",
+     "lic": 120,
+     "term": "Yearly",
+     "start": "2026-10-08",
+     "end": "2027-10-07",
+     "since": "2026-10-08T15:05",
+     "items": [
+      {
+       "exp": "ste",
+       "fmts": [
+        "WEB",
+        "VR"
+       ]
+      }
+     ],
+     "paused": null
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "email": "rahul.verma@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0377",
+      "n": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0352",
+      "n": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "inactive",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": [
+       {
+        "k": "deact",
+        "at": "2026-10-10",
+        "by": "Meera Iyer",
+        "reason": "On leave this semester."
+       }
+      ]
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0421",
+      "n": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0426",
+      "n": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0430",
+      "n": "Fatima Begum",
+      "email": "fatima.begum@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0436",
+      "n": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0440",
+      "n": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     }
+    ],
+    "faculty": [
+     {
+      "id": "f0",
+      "n": "Dr S. Ranganathan",
+      "email": "s.ranganathan@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f1",
+      "n": "Dr Anita Desai",
+      "email": "anita.desai@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f2",
+      "n": "Prof. Ravi Shankar",
+      "email": "ravi.shankar@godavari.edu.in",
+      "st": "inactive",
+      "added": null
+     }
+    ],
+    "fmaps": [
+     {
+      "id": "FMAP-0021",
+      "fid": "f0",
+      "course": "ME ZG523",
+      "at": "2026-10-09",
+      "by": "Meera Iyer"
+     }
+    ],
+    "groups": [
+     {
+      "id": "GRP-0012",
+      "name": "ME ZG523 — Sem II",
+      "members": [
+       {
+        "sid": "GIT-2026-0418",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0431",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0377",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0352",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0409",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0411",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0415",
+        "at": null,
+        "by": null
+       }
+      ],
+      "log": []
+     },
+     {
+      "id": "GRP-0013",
+      "name": "Lab batch B",
+      "members": [],
+      "log": []
+     }
+    ],
+    "grants": [
+     {
+      "id": "SACC-0310",
+      "kind": "ind",
+      "sid": "GIT-2026-0418",
+      "exp": "ste",
+      "at": "2026-10-09T10:20",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": null
+     },
+     {
+      "id": "SACC-0311",
+      "kind": "grp",
+      "gid": "GRP-0012",
+      "exp": "ste",
+      "at": "2026-10-12T11:05",
+      "by": "Meera Iyer",
+      "members": [
+       "GIT-2026-0418",
+       "GIT-2026-0431",
+       "GIT-2026-0377",
+       "GIT-2026-0352",
+       "GIT-2026-0409",
+       "GIT-2026-0411",
+       "GIT-2026-0415"
+      ],
+      "waiting": [
+       "GIT-2026-0377"
+      ],
+      "wd": null
+     },
+     {
+      "id": "SACC-0312",
+      "kind": "ind",
+      "sid": "GIT-2026-0436",
+      "exp": "ste",
+      "at": "2026-10-12",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": {
+       "at": "2026-10-12",
+       "by": "Meera Iyer",
+       "reason": "Given by mistake — Nikhil is not in ME ZG523 this semester."
+      }
+     }
+    ],
+    "reqs": [
+     {
+      "id": "REQ-0058",
+      "kind": "more",
+      "plan": "ACC-0107",
+      "what": "60 more licences · Shell-and-Tube Heat Exchanger",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [],
+      "lic": "60",
+      "msg": "Sem II has a larger batch than planned.",
+      "sent": "2026-10-21T16:05",
+      "st": "review",
+      "hist": [
+       {
+        "at": "2026-10-21T16:05",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "60 more licences · Shell-and-Tube Heat Exchanger"
+       }
+      ]
+     },
+     {
+      "id": "REQ-0042",
+      "kind": "new",
+      "what": "Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [
+       "WEB",
+       "VR"
+      ],
+      "lic": "120",
+      "msg": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "sent": "2026-10-02T10:14",
+      "st": "active",
+      "hist": [
+       {
+        "at": "2026-10-02T10:14",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "New access · Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly"
+       },
+       {
+        "at": "2026-10-08T11:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked (external). Access starts when the payment is confirmed."
+       },
+       {
+        "at": "2026-10-08T15:05",
+        "w": "Access active",
+        "by": "BITS",
+        "n": "Payment confirmed. Access plan ACC-0107 created."
+       }
+      ]
+     }
+    ],
+    "dtrs": [
+     {
+      "id": "DTR-0018",
+      "sid": "GIT-2026-0418",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": "ME lab VR headset, asset tag GIT-VR-03",
+      "to": "ME lab VR headset, asset tag GIT-VR-07",
+      "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+      "at": "2026-10-22T09:10",
+      "st": "sent",
+      "fwd": null,
+      "appr": null
+     },
+     {
+      "id": "DTR-0015",
+      "sid": "GIT-2026-0415",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": null,
+      "to": null,
+      "note": null,
+      "at": "2026-10-13",
+      "st": "appr",
+      "fwd": null,
+      "appr": null,
+      "partial": true
+     }
+    ],
+    "reports": [],
+    "usage": {
+     "ste": {
+      "WEB": {
+       "started": 4,
+       "completed": 2,
+       "sessions": 11
+      },
+      "VR": {
+       "started": 2,
+       "completed": 1,
+       "sessions": 4
+      }
+     }
+    },
+    "fx": {
+     "waitFor": [
+      "GIT-2026-0377",
+      "GIT-2026-0430"
+     ],
+     "written": {
+      "ME ZG523": 1
+     }
+    },
+    "known": [
+     "meera.iyer@godavari.edu.in",
+     "arjun.mehta@wilp.example",
+     "kavya.nair@wilp.example",
+     "a.menon@wilp.example",
+     "anil.shetty@northline.example"
+    ],
+    "seq": {
+     "SACC": 312,
+     "GRP": 13,
+     "FMAP": 21,
+     "REQ": 58,
+     "SUP": 212,
+     "F": 2
+    },
+    "now": "2026-10-22T10:05"
+   }
+  },
+  {
+   "scenarioId": "fresh",
+   "title": "New active institution",
+   "asOf": "2026-10-08T15:20",
+   "dateShown": "Thu 8 Oct 2026",
+   "summary": "Access plan ACC-0107 was activated at 15:05. Nobody is in People yet, there is no institution course code and no student has access.",
+   "sourcedFacts": [
+    "v46 B1-13 / B2-01: access plan ACC-0107 active since 8 Oct 2026 15:05 (120 licences, yearly, ends 7 Oct 2027; Shell-and-Tube Heat Exchanger with WEB and VR)",
+    "v46 B2-03 state \"course code not added\"",
+    "v46 B2-06 empty People"
+   ],
+   "illustrativeAdditions": [
+    "As-of time 15:20 chosen 15 minutes after activation."
+   ],
+   "snapshot": {
+    "inst": {
+     "name": "Godavari Institute of Technology",
+     "domain": "godavari.edu.in"
+    },
+    "me": {
+     "n": "Meera Iyer",
+     "ini": "MI",
+     "email": "meera.iyer@godavari.edu.in"
+    },
+    "cat": {
+     "ste": {
+      "t": "Shell-and-Tube Heat Exchanger",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR",
+       "VR"
+      ]
+     },
+     "ftb": {
+      "t": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "VR"
+      ]
+     },
+     "cwc": {
+      "t": "Composite Wall Conduction",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR"
+      ]
+     }
+    },
+    "courses": {
+     "ME ZG523": {
+      "name": "Thermodynamics & Heat Transfer",
+      "own": "",
+      "sem": "",
+      "ownAt": null
+     }
+    },
+    "plan": {
+     "id": "ACC-0107",
+     "req": "REQ-0042",
+     "lic": 120,
+     "term": "Yearly",
+     "start": "2026-10-08",
+     "end": "2027-10-07",
+     "since": "2026-10-08T15:05",
+     "items": [
+      {
+       "exp": "ste",
+       "fmts": [
+        "WEB",
+        "VR"
+       ]
+      }
+     ],
+     "paused": null
+    },
+    "students": [],
+    "faculty": [],
+    "fmaps": [],
+    "groups": [],
+    "grants": [],
+    "reqs": [
+     {
+      "id": "REQ-0042",
+      "kind": "new",
+      "what": "Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [
+       "WEB",
+       "VR"
+      ],
+      "lic": "120",
+      "msg": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "sent": "2026-10-02T10:14",
+      "st": "active",
+      "hist": [
+       {
+        "at": "2026-10-02T10:14",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "New access · Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly"
+       },
+       {
+        "at": "2026-10-08T11:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked (external). Access starts when the payment is confirmed."
+       },
+       {
+        "at": "2026-10-08T15:05",
+        "w": "Access active",
+        "by": "BITS",
+        "n": "Payment confirmed. Access plan ACC-0107 created."
+       }
+      ]
+     }
+    ],
+    "dtrs": [],
+    "reports": [],
+    "usage": null,
+    "fx": {
+     "waitFor": [],
+     "written": {}
+    },
+    "known": [
+     "meera.iyer@godavari.edu.in",
+     "arjun.mehta@wilp.example",
+     "kavya.nair@wilp.example",
+     "a.menon@wilp.example",
+     "anil.shetty@northline.example"
+    ],
+    "seq": {
+     "SACC": 309,
+     "GRP": 11,
+     "FMAP": 20,
+     "REQ": 57,
+     "SUP": 212,
+     "F": 2
+    },
+    "now": "2026-10-08T15:20"
+   }
+  },
+  {
+   "scenarioId": "oct9",
+   "title": "After the first grant",
+   "asOf": "2026-10-09T11:00",
+   "dateShown": "Fri 9 Oct 2026",
+   "summary": "Twelve students imported, course code MEC-523 added and Rahul Verma given Shell-and-Tube Heat Exchanger. No groups yet.",
+   "sourcedFacts": [
+    "v46 B2-07: 12 students imported 8 Oct 2026 16:10 from godavari-me-zg523.csv",
+    "v46 B2-03: course code MEC-523 with Sem II added 9 Oct 2026",
+    "v46 B2-09 / B2-06: FMAP-0021 Dr S. Ranganathan teaches ME ZG523 (9 Oct 2026)",
+    "v46 B2-04 / B2-05 / B2-13: SACC-0310 Rahul Verma given Shell-and-Tube Heat Exchanger individually 9 Oct 2026 10:20",
+    "V3 HANDOFF-original.md open record 3: MEC-523 is used from 9 Oct 2026 on"
+   ],
+   "illustrativeAdditions": [
+    "As-of time 11:00.",
+    "Faculty Dr Anita Desai and Prof. Ravi Shankar (inactive) are present from 8 Oct 2026 as in v46 B2-06; their add dates are sample values."
+   ],
+   "snapshot": {
+    "inst": {
+     "name": "Godavari Institute of Technology",
+     "domain": "godavari.edu.in"
+    },
+    "me": {
+     "n": "Meera Iyer",
+     "ini": "MI",
+     "email": "meera.iyer@godavari.edu.in"
+    },
+    "cat": {
+     "ste": {
+      "t": "Shell-and-Tube Heat Exchanger",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR",
+       "VR"
+      ]
+     },
+     "ftb": {
+      "t": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "VR"
+      ]
+     },
+     "cwc": {
+      "t": "Composite Wall Conduction",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR"
+      ]
+     }
+    },
+    "courses": {
+     "ME ZG523": {
+      "name": "Thermodynamics & Heat Transfer",
+      "own": "MEC-523",
+      "sem": "Sem II",
+      "ownAt": "2026-10-09"
+     }
+    },
+    "plan": {
+     "id": "ACC-0107",
+     "req": "REQ-0042",
+     "lic": 120,
+     "term": "Yearly",
+     "start": "2026-10-08",
+     "end": "2027-10-07",
+     "since": "2026-10-08T15:05",
+     "items": [
+      {
+       "exp": "ste",
+       "fmts": [
+        "WEB",
+        "VR"
+       ]
+      }
+     ],
+     "paused": null
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "email": "rahul.verma@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0377",
+      "n": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0352",
+      "n": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0421",
+      "n": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0426",
+      "n": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0430",
+      "n": "Fatima Begum",
+      "email": "fatima.begum@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0436",
+      "n": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0440",
+      "n": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     }
+    ],
+    "faculty": [
+     {
+      "id": "f0",
+      "n": "Dr S. Ranganathan",
+      "email": "s.ranganathan@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f1",
+      "n": "Dr Anita Desai",
+      "email": "anita.desai@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f2",
+      "n": "Prof. Ravi Shankar",
+      "email": "ravi.shankar@godavari.edu.in",
+      "st": "inactive",
+      "added": null
+     }
+    ],
+    "fmaps": [
+     {
+      "id": "FMAP-0021",
+      "fid": "f0",
+      "course": "ME ZG523",
+      "at": "2026-10-09",
+      "by": "Meera Iyer"
+     }
+    ],
+    "groups": [],
+    "grants": [
+     {
+      "id": "SACC-0310",
+      "kind": "ind",
+      "sid": "GIT-2026-0418",
+      "exp": "ste",
+      "at": "2026-10-09T10:20",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": null
+     }
+    ],
+    "reqs": [
+     {
+      "id": "REQ-0042",
+      "kind": "new",
+      "what": "Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [
+       "WEB",
+       "VR"
+      ],
+      "lic": "120",
+      "msg": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "sent": "2026-10-02T10:14",
+      "st": "active",
+      "hist": [
+       {
+        "at": "2026-10-02T10:14",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "New access · Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly"
+       },
+       {
+        "at": "2026-10-08T11:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked (external). Access starts when the payment is confirmed."
+       },
+       {
+        "at": "2026-10-08T15:05",
+        "w": "Access active",
+        "by": "BITS",
+        "n": "Payment confirmed. Access plan ACC-0107 created."
+       }
+      ]
+     }
+    ],
+    "dtrs": [],
+    "reports": [],
+    "usage": null,
+    "fx": {
+     "waitFor": [
+      "GIT-2026-0377"
+     ],
+     "written": {}
+    },
+    "known": [
+     "meera.iyer@godavari.edu.in",
+     "arjun.mehta@wilp.example",
+     "kavya.nair@wilp.example",
+     "a.menon@wilp.example",
+     "anil.shetty@northline.example"
+    ],
+    "seq": {
+     "SACC": 310,
+     "GRP": 11,
+     "FMAP": 21,
+     "REQ": 57,
+     "SUP": 212,
+     "F": 2
+    },
+    "now": "2026-10-09T11:00"
+   }
+  },
+  {
+   "scenarioId": "ending",
+   "title": "Plan ending soon",
+   "asOf": "2027-09-22T10:00",
+   "dateShown": "Wed 22 Sep 2027",
+   "summary": "The approved V3 seed state: 15 days left with the renewal reminder due, students waiting for a licence, a device request and an open report.",
+   "sourcedFacts": [
+    "ended-world facts up to 22 Sep 2027 (plan still active)",
+    "V3 seed IA01.dc.html / IA02.dc.html: \"Wed 22 Sep 2027\", 15 days left, renewal reminder due, 2 students waiting, 1 device request to forward, 3 students with no access yet, 1 open problem report",
+    "v46 B2-01 / 07-Help-Support: SUP-0213"
+   ],
+   "illustrativeAdditions": [
+    "DTR-0031 (Imran Shaikh, VR, GIT-VR-05 → GIT-VR-09, 18 Sep 2027 16:40) stands in for the seed's unnamed device request.",
+    "SUP-0213 is open on 20 Sep 2027 with no content in the sources (\"Not recorded in this sample\"); v46 names two different SUP-0213 reports (V3 handoff open record 6).",
+    "The seed says the students with no access were \"Added on 15 September\"; the connected world computes \"Added on 8 October\" from the import record."
+   ],
+   "snapshot": {
+    "inst": {
+     "name": "Godavari Institute of Technology",
+     "domain": "godavari.edu.in"
+    },
+    "me": {
+     "n": "Meera Iyer",
+     "ini": "MI",
+     "email": "meera.iyer@godavari.edu.in"
+    },
+    "cat": {
+     "ste": {
+      "t": "Shell-and-Tube Heat Exchanger",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR",
+       "VR"
+      ]
+     },
+     "ftb": {
+      "t": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "VR"
+      ]
+     },
+     "cwc": {
+      "t": "Composite Wall Conduction",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR"
+      ]
+     }
+    },
+    "courses": {
+     "ME ZG523": {
+      "name": "Thermodynamics & Heat Transfer",
+      "own": "MEC-523",
+      "sem": "Sem II",
+      "ownAt": "2026-10-09"
+     }
+    },
+    "plan": {
+     "id": "ACC-0107",
+     "req": "REQ-0042",
+     "lic": 120,
+     "term": "Yearly",
+     "start": "2026-10-08",
+     "end": "2027-10-07",
+     "since": "2026-10-08T15:05",
+     "items": [
+      {
+       "exp": "ste",
+       "fmts": [
+        "WEB",
+        "VR"
+       ]
+      }
+     ],
+     "paused": null
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "email": "rahul.verma@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0377",
+      "n": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0352",
+      "n": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "inactive",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": [
+       {
+        "k": "deact",
+        "at": "2026-10-10",
+        "by": "Meera Iyer",
+        "reason": "On leave this semester."
+       }
+      ]
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0421",
+      "n": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0426",
+      "n": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0430",
+      "n": "Fatima Begum",
+      "email": "fatima.begum@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0436",
+      "n": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0440",
+      "n": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     }
+    ],
+    "faculty": [
+     {
+      "id": "f0",
+      "n": "Dr S. Ranganathan",
+      "email": "s.ranganathan@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f1",
+      "n": "Dr Anita Desai",
+      "email": "anita.desai@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f2",
+      "n": "Prof. Ravi Shankar",
+      "email": "ravi.shankar@godavari.edu.in",
+      "st": "inactive",
+      "added": null
+     }
+    ],
+    "fmaps": [
+     {
+      "id": "FMAP-0021",
+      "fid": "f0",
+      "course": "ME ZG523",
+      "at": "2026-10-09",
+      "by": "Meera Iyer"
+     }
+    ],
+    "groups": [
+     {
+      "id": "GRP-0012",
+      "name": "ME ZG523 — Sem II",
+      "members": [
+       {
+        "sid": "GIT-2026-0418",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0431",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0377",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0352",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0409",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0411",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0415",
+        "at": null,
+        "by": null
+       }
+      ],
+      "log": []
+     },
+     {
+      "id": "GRP-0013",
+      "name": "Lab batch B",
+      "members": [],
+      "log": []
+     }
+    ],
+    "grants": [
+     {
+      "id": "SACC-0310",
+      "kind": "ind",
+      "sid": "GIT-2026-0418",
+      "exp": "ste",
+      "at": "2026-10-09T10:20",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": null
+     },
+     {
+      "id": "SACC-0311",
+      "kind": "grp",
+      "gid": "GRP-0012",
+      "exp": "ste",
+      "at": "2026-10-12T11:05",
+      "by": "Meera Iyer",
+      "members": [
+       "GIT-2026-0418",
+       "GIT-2026-0431",
+       "GIT-2026-0377",
+       "GIT-2026-0352",
+       "GIT-2026-0409",
+       "GIT-2026-0411",
+       "GIT-2026-0415"
+      ],
+      "waiting": [
+       "GIT-2026-0377"
+      ],
+      "wd": null
+     },
+     {
+      "id": "SACC-0312",
+      "kind": "ind",
+      "sid": "GIT-2026-0436",
+      "exp": "ste",
+      "at": "2026-10-12",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": {
+       "at": "2026-10-12",
+       "by": "Meera Iyer",
+       "reason": "Given by mistake — Nikhil is not in ME ZG523 this semester."
+      }
+     },
+     {
+      "id": "SACC-0313",
+      "kind": "ind",
+      "sid": "GIT-2026-0421",
+      "exp": "ste",
+      "at": "2026-11-02T11:30",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": null
+     },
+     {
+      "id": "SACC-0314",
+      "kind": "ind",
+      "sid": "GIT-2026-0430",
+      "exp": "ste",
+      "at": "2026-11-02T11:30",
+      "by": "Meera Iyer",
+      "wait": true,
+      "wd": null
+     }
+    ],
+    "reqs": [
+     {
+      "id": "REQ-0058",
+      "kind": "more",
+      "plan": "ACC-0107",
+      "what": "60 more licences · Shell-and-Tube Heat Exchanger",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [],
+      "lic": "60",
+      "msg": "Sem II has a larger batch than planned.",
+      "sent": "2026-10-21T16:05",
+      "st": "pay",
+      "hist": [
+       {
+        "at": "2026-10-21T16:05",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "60 more licences · Shell-and-Tube Heat Exchanger"
+       },
+       {
+        "at": "2026-10-25T15:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked: 60 licences. Nothing changes until the payment is confirmed."
+       }
+      ]
+     },
+     {
+      "id": "REQ-0042",
+      "kind": "new",
+      "what": "Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [
+       "WEB",
+       "VR"
+      ],
+      "lic": "120",
+      "msg": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "sent": "2026-10-02T10:14",
+      "st": "active",
+      "hist": [
+       {
+        "at": "2026-10-02T10:14",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "New access · Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly"
+       },
+       {
+        "at": "2026-10-08T11:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked (external). Access starts when the payment is confirmed."
+       },
+       {
+        "at": "2026-10-08T15:05",
+        "w": "Access active",
+        "by": "BITS",
+        "n": "Payment confirmed. Access plan ACC-0107 created."
+       }
+      ]
+     }
+    ],
+    "dtrs": [
+     {
+      "id": "DTR-0031",
+      "sid": "GIT-2026-0409",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": "ME lab VR headset, asset tag GIT-VR-05",
+      "to": "ME lab VR headset, asset tag GIT-VR-09",
+      "note": "",
+      "at": "2027-09-18T16:40",
+      "st": "sent",
+      "fwd": null,
+      "appr": null,
+      "illus": true
+     },
+     {
+      "id": "DTR-0018",
+      "sid": "GIT-2026-0418",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": "ME lab VR headset, asset tag GIT-VR-03",
+      "to": "ME lab VR headset, asset tag GIT-VR-07",
+      "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+      "at": "2026-10-22T09:10",
+      "st": "appr",
+      "fwd": {
+       "at": "2026-10-23T10:00",
+       "by": "Meera Iyer"
+      },
+      "appr": {
+       "at": "2026-10-24T12:30"
+      }
+     },
+     {
+      "id": "DTR-0015",
+      "sid": "GIT-2026-0415",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": null,
+      "to": null,
+      "note": null,
+      "at": "2026-10-13",
+      "st": "appr",
+      "fwd": null,
+      "appr": null,
+      "partial": true
+     }
+    ],
+    "reports": [
+     {
+      "id": "SUP-0213",
+      "title": "",
+      "at": "2027-09-20",
+      "st": "open",
+      "what": "",
+      "where": "",
+      "shot": "",
+      "illus": true
+     }
+    ],
+    "usage": {
+     "ste": {
+      "WEB": {
+       "started": 4,
+       "completed": 2,
+       "sessions": 11
+      },
+      "VR": {
+       "started": 2,
+       "completed": 1,
+       "sessions": 4
+      }
+     }
+    },
+    "fx": {
+     "waitFor": [
+      "GIT-2026-0377",
+      "GIT-2026-0430"
+     ],
+     "written": {
+      "ME ZG523": 1
+     }
+    },
+    "known": [
+     "meera.iyer@godavari.edu.in",
+     "arjun.mehta@wilp.example",
+     "kavya.nair@wilp.example",
+     "a.menon@wilp.example",
+     "anil.shetty@northline.example"
+    ],
+    "seq": {
+     "SACC": 314,
+     "GRP": 13,
+     "FMAP": 21,
+     "REQ": 58,
+     "SUP": 213,
+     "F": 2
+    },
+    "now": "2027-09-22T10:00"
+   }
+  },
+  {
+   "scenarioId": "paused",
+   "title": "Access paused by BITS",
+   "asOf": "2027-03-02T09:00",
+   "dateShown": "Tue 2 Mar 2027",
+   "summary": "Read-only everywhere: no giving, withdrawing, forwarding or new requests until BITS lifts the pause.",
+   "sourcedFacts": [
+    "populated facts (no later samples)",
+    "V3 HANDOFF-original.md sample dates: \"IA-02 paused — Tue 2 Mar 2027\"",
+    "v46 B2-01: \"Pages are read-only until BITS lifts the pause\""
+   ],
+   "illustrativeAdditions": [
+    "Paused by BITS on 2 Mar 2027 09:00; DTR-0018 is still waiting, so forwarding is shown as unavailable."
+   ],
+   "snapshot": {
+    "inst": {
+     "name": "Godavari Institute of Technology",
+     "domain": "godavari.edu.in"
+    },
+    "me": {
+     "n": "Meera Iyer",
+     "ini": "MI",
+     "email": "meera.iyer@godavari.edu.in"
+    },
+    "cat": {
+     "ste": {
+      "t": "Shell-and-Tube Heat Exchanger",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR",
+       "VR"
+      ]
+     },
+     "ftb": {
+      "t": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "VR"
+      ]
+     },
+     "cwc": {
+      "t": "Composite Wall Conduction",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR"
+      ]
+     }
+    },
+    "courses": {
+     "ME ZG523": {
+      "name": "Thermodynamics & Heat Transfer",
+      "own": "MEC-523",
+      "sem": "Sem II",
+      "ownAt": "2026-10-09"
+     }
+    },
+    "plan": {
+     "id": "ACC-0107",
+     "req": "REQ-0042",
+     "lic": 120,
+     "term": "Yearly",
+     "start": "2026-10-08",
+     "end": "2027-10-07",
+     "since": "2026-10-08T15:05",
+     "items": [
+      {
+       "exp": "ste",
+       "fmts": [
+        "WEB",
+        "VR"
+       ]
+      }
+     ],
+     "paused": {
+      "at": "2027-03-02",
+      "by": "BITS"
+     }
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "email": "rahul.verma@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0377",
+      "n": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0352",
+      "n": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "inactive",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": [
+       {
+        "k": "deact",
+        "at": "2026-10-10",
+        "by": "Meera Iyer",
+        "reason": "On leave this semester."
+       }
+      ]
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0421",
+      "n": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0426",
+      "n": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0430",
+      "n": "Fatima Begum",
+      "email": "fatima.begum@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0436",
+      "n": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0440",
+      "n": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     }
+    ],
+    "faculty": [
+     {
+      "id": "f0",
+      "n": "Dr S. Ranganathan",
+      "email": "s.ranganathan@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f1",
+      "n": "Dr Anita Desai",
+      "email": "anita.desai@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f2",
+      "n": "Prof. Ravi Shankar",
+      "email": "ravi.shankar@godavari.edu.in",
+      "st": "inactive",
+      "added": null
+     }
+    ],
+    "fmaps": [
+     {
+      "id": "FMAP-0021",
+      "fid": "f0",
+      "course": "ME ZG523",
+      "at": "2026-10-09",
+      "by": "Meera Iyer"
+     }
+    ],
+    "groups": [
+     {
+      "id": "GRP-0012",
+      "name": "ME ZG523 — Sem II",
+      "members": [
+       {
+        "sid": "GIT-2026-0418",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0431",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0377",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0352",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0409",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0411",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0415",
+        "at": null,
+        "by": null
+       }
+      ],
+      "log": []
+     },
+     {
+      "id": "GRP-0013",
+      "name": "Lab batch B",
+      "members": [],
+      "log": []
+     }
+    ],
+    "grants": [
+     {
+      "id": "SACC-0310",
+      "kind": "ind",
+      "sid": "GIT-2026-0418",
+      "exp": "ste",
+      "at": "2026-10-09T10:20",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": null
+     },
+     {
+      "id": "SACC-0311",
+      "kind": "grp",
+      "gid": "GRP-0012",
+      "exp": "ste",
+      "at": "2026-10-12T11:05",
+      "by": "Meera Iyer",
+      "members": [
+       "GIT-2026-0418",
+       "GIT-2026-0431",
+       "GIT-2026-0377",
+       "GIT-2026-0352",
+       "GIT-2026-0409",
+       "GIT-2026-0411",
+       "GIT-2026-0415"
+      ],
+      "waiting": [
+       "GIT-2026-0377"
+      ],
+      "wd": null
+     },
+     {
+      "id": "SACC-0312",
+      "kind": "ind",
+      "sid": "GIT-2026-0436",
+      "exp": "ste",
+      "at": "2026-10-12",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": {
+       "at": "2026-10-12",
+       "by": "Meera Iyer",
+       "reason": "Given by mistake — Nikhil is not in ME ZG523 this semester."
+      }
+     }
+    ],
+    "reqs": [
+     {
+      "id": "REQ-0058",
+      "kind": "more",
+      "plan": "ACC-0107",
+      "what": "60 more licences · Shell-and-Tube Heat Exchanger",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [],
+      "lic": "60",
+      "msg": "Sem II has a larger batch than planned.",
+      "sent": "2026-10-21T16:05",
+      "st": "review",
+      "hist": [
+       {
+        "at": "2026-10-21T16:05",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "60 more licences · Shell-and-Tube Heat Exchanger"
+       }
+      ]
+     },
+     {
+      "id": "REQ-0042",
+      "kind": "new",
+      "what": "Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [
+       "WEB",
+       "VR"
+      ],
+      "lic": "120",
+      "msg": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "sent": "2026-10-02T10:14",
+      "st": "active",
+      "hist": [
+       {
+        "at": "2026-10-02T10:14",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "New access · Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly"
+       },
+       {
+        "at": "2026-10-08T11:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked (external). Access starts when the payment is confirmed."
+       },
+       {
+        "at": "2026-10-08T15:05",
+        "w": "Access active",
+        "by": "BITS",
+        "n": "Payment confirmed. Access plan ACC-0107 created."
+       }
+      ]
+     }
+    ],
+    "dtrs": [
+     {
+      "id": "DTR-0018",
+      "sid": "GIT-2026-0418",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": "ME lab VR headset, asset tag GIT-VR-03",
+      "to": "ME lab VR headset, asset tag GIT-VR-07",
+      "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+      "at": "2026-10-22T09:10",
+      "st": "sent",
+      "fwd": null,
+      "appr": null
+     },
+     {
+      "id": "DTR-0015",
+      "sid": "GIT-2026-0415",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": null,
+      "to": null,
+      "note": null,
+      "at": "2026-10-13",
+      "st": "appr",
+      "fwd": null,
+      "appr": null,
+      "partial": true
+     }
+    ],
+    "reports": [],
+    "usage": {
+     "ste": {
+      "WEB": {
+       "started": 4,
+       "completed": 2,
+       "sessions": 11
+      },
+      "VR": {
+       "started": 2,
+       "completed": 1,
+       "sessions": 4
+      }
+     }
+    },
+    "fx": {
+     "waitFor": [
+      "GIT-2026-0377",
+      "GIT-2026-0430"
+     ],
+     "written": {
+      "ME ZG523": 1
+     }
+    },
+    "known": [
+     "meera.iyer@godavari.edu.in",
+     "arjun.mehta@wilp.example",
+     "kavya.nair@wilp.example",
+     "a.menon@wilp.example",
+     "anil.shetty@northline.example"
+    ],
+    "seq": {
+     "SACC": 312,
+     "GRP": 13,
+     "FMAP": 21,
+     "REQ": 58,
+     "SUP": 212,
+     "F": 2
+    },
+    "now": "2027-03-02T09:00"
+   }
+  },
+  {
+   "scenarioId": "ended",
+   "title": "Plan ended",
+   "asOf": "2027-10-08T09:00",
+   "dateShown": "Fri 8 Oct 2027",
+   "summary": "The yearly term ended on 7 Oct 2027. History stays readable and giving access is replaced by Request renewal.",
+   "sourcedFacts": [
+    "populated facts plus the later samples below",
+    "V3 HANDOFF-original.md sample dates: \"IA-02 ended — Fri 8 Oct 2027\"",
+    "v46 B3-09: DTR-0018 forwarded 23 Oct 2026 10:00, approved 24 Oct 2026 12:30",
+    "v46 B3-08: REQ-0058 approved — payment required 25 Oct 2026 15:20",
+    "v46 B2-05 result sample: SACC-0313 Lakshmi Prasad active, SACC-0314 Fatima Begum waiting for a licence"
+   ],
+   "illustrativeAdditions": [
+    "SACC-0313 and SACC-0314 dated 2 Nov 2026 11:30 (the source gives no date)."
+   ],
+   "snapshot": {
+    "inst": {
+     "name": "Godavari Institute of Technology",
+     "domain": "godavari.edu.in"
+    },
+    "me": {
+     "n": "Meera Iyer",
+     "ini": "MI",
+     "email": "meera.iyer@godavari.edu.in"
+    },
+    "cat": {
+     "ste": {
+      "t": "Shell-and-Tube Heat Exchanger",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR",
+       "VR"
+      ]
+     },
+     "ftb": {
+      "t": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "VR"
+      ]
+     },
+     "cwc": {
+      "t": "Composite Wall Conduction",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR"
+      ]
+     }
+    },
+    "courses": {
+     "ME ZG523": {
+      "name": "Thermodynamics & Heat Transfer",
+      "own": "MEC-523",
+      "sem": "Sem II",
+      "ownAt": "2026-10-09"
+     }
+    },
+    "plan": {
+     "id": "ACC-0107",
+     "req": "REQ-0042",
+     "lic": 120,
+     "term": "Yearly",
+     "start": "2026-10-08",
+     "end": "2027-10-07",
+     "since": "2026-10-08T15:05",
+     "items": [
+      {
+       "exp": "ste",
+       "fmts": [
+        "WEB",
+        "VR"
+       ]
+      }
+     ],
+     "paused": null
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "email": "rahul.verma@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0377",
+      "n": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0352",
+      "n": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "inactive",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": [
+       {
+        "k": "deact",
+        "at": "2026-10-10",
+        "by": "Meera Iyer",
+        "reason": "On leave this semester."
+       }
+      ]
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0421",
+      "n": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0426",
+      "n": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0430",
+      "n": "Fatima Begum",
+      "email": "fatima.begum@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0436",
+      "n": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     },
+     {
+      "id": "GIT-2026-0440",
+      "n": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "prog": "B.Tech Mechanical",
+      "course": "ME ZG523",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08T16:10",
+       "by": "Meera Iyer",
+       "how": "import",
+       "file": "godavari-me-zg523.csv"
+      },
+      "acct": []
+     }
+    ],
+    "faculty": [
+     {
+      "id": "f0",
+      "n": "Dr S. Ranganathan",
+      "email": "s.ranganathan@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f1",
+      "n": "Dr Anita Desai",
+      "email": "anita.desai@godavari.edu.in",
+      "st": "active",
+      "added": {
+       "at": "2026-10-08",
+       "by": "Meera Iyer"
+      }
+     },
+     {
+      "id": "f2",
+      "n": "Prof. Ravi Shankar",
+      "email": "ravi.shankar@godavari.edu.in",
+      "st": "inactive",
+      "added": null
+     }
+    ],
+    "fmaps": [
+     {
+      "id": "FMAP-0021",
+      "fid": "f0",
+      "course": "ME ZG523",
+      "at": "2026-10-09",
+      "by": "Meera Iyer"
+     }
+    ],
+    "groups": [
+     {
+      "id": "GRP-0012",
+      "name": "ME ZG523 — Sem II",
+      "members": [
+       {
+        "sid": "GIT-2026-0418",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0431",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0377",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0352",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0409",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0411",
+        "at": null,
+        "by": null
+       },
+       {
+        "sid": "GIT-2026-0415",
+        "at": null,
+        "by": null
+       }
+      ],
+      "log": []
+     },
+     {
+      "id": "GRP-0013",
+      "name": "Lab batch B",
+      "members": [],
+      "log": []
+     }
+    ],
+    "grants": [
+     {
+      "id": "SACC-0310",
+      "kind": "ind",
+      "sid": "GIT-2026-0418",
+      "exp": "ste",
+      "at": "2026-10-09T10:20",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": null
+     },
+     {
+      "id": "SACC-0311",
+      "kind": "grp",
+      "gid": "GRP-0012",
+      "exp": "ste",
+      "at": "2026-10-12T11:05",
+      "by": "Meera Iyer",
+      "members": [
+       "GIT-2026-0418",
+       "GIT-2026-0431",
+       "GIT-2026-0377",
+       "GIT-2026-0352",
+       "GIT-2026-0409",
+       "GIT-2026-0411",
+       "GIT-2026-0415"
+      ],
+      "waiting": [
+       "GIT-2026-0377"
+      ],
+      "wd": null
+     },
+     {
+      "id": "SACC-0312",
+      "kind": "ind",
+      "sid": "GIT-2026-0436",
+      "exp": "ste",
+      "at": "2026-10-12",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": {
+       "at": "2026-10-12",
+       "by": "Meera Iyer",
+       "reason": "Given by mistake — Nikhil is not in ME ZG523 this semester."
+      }
+     },
+     {
+      "id": "SACC-0313",
+      "kind": "ind",
+      "sid": "GIT-2026-0421",
+      "exp": "ste",
+      "at": "2026-11-02T11:30",
+      "by": "Meera Iyer",
+      "wait": false,
+      "wd": null
+     },
+     {
+      "id": "SACC-0314",
+      "kind": "ind",
+      "sid": "GIT-2026-0430",
+      "exp": "ste",
+      "at": "2026-11-02T11:30",
+      "by": "Meera Iyer",
+      "wait": true,
+      "wd": null
+     }
+    ],
+    "reqs": [
+     {
+      "id": "REQ-0058",
+      "kind": "more",
+      "plan": "ACC-0107",
+      "what": "60 more licences · Shell-and-Tube Heat Exchanger",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [],
+      "lic": "60",
+      "msg": "Sem II has a larger batch than planned.",
+      "sent": "2026-10-21T16:05",
+      "st": "pay",
+      "hist": [
+       {
+        "at": "2026-10-21T16:05",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "60 more licences · Shell-and-Tube Heat Exchanger"
+       },
+       {
+        "at": "2026-10-25T15:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked: 60 licences. Nothing changes until the payment is confirmed."
+       }
+      ]
+     },
+     {
+      "id": "REQ-0042",
+      "kind": "new",
+      "what": "Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [
+       "WEB",
+       "VR"
+      ],
+      "lic": "120",
+      "msg": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "sent": "2026-10-02T10:14",
+      "st": "active",
+      "hist": [
+       {
+        "at": "2026-10-02T10:14",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "New access · Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly"
+       },
+       {
+        "at": "2026-10-08T11:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked (external). Access starts when the payment is confirmed."
+       },
+       {
+        "at": "2026-10-08T15:05",
+        "w": "Access active",
+        "by": "BITS",
+        "n": "Payment confirmed. Access plan ACC-0107 created."
+       }
+      ]
+     }
+    ],
+    "dtrs": [
+     {
+      "id": "DTR-0018",
+      "sid": "GIT-2026-0418",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": "ME lab VR headset, asset tag GIT-VR-03",
+      "to": "ME lab VR headset, asset tag GIT-VR-07",
+      "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+      "at": "2026-10-22T09:10",
+      "st": "appr",
+      "fwd": {
+       "at": "2026-10-23T10:00",
+       "by": "Meera Iyer"
+      },
+      "appr": {
+       "at": "2026-10-24T12:30"
+      }
+     },
+     {
+      "id": "DTR-0015",
+      "sid": "GIT-2026-0415",
+      "fmt": "VR",
+      "exp": "ste",
+      "from": null,
+      "to": null,
+      "note": null,
+      "at": "2026-10-13",
+      "st": "appr",
+      "fwd": null,
+      "appr": null,
+      "partial": true
+     }
+    ],
+    "reports": [],
+    "usage": {
+     "ste": {
+      "WEB": {
+       "started": 4,
+       "completed": 2,
+       "sessions": 11
+      },
+      "VR": {
+       "started": 2,
+       "completed": 1,
+       "sessions": 4
+      }
+     }
+    },
+    "fx": {
+     "waitFor": [
+      "GIT-2026-0377",
+      "GIT-2026-0430"
+     ],
+     "written": {
+      "ME ZG523": 1
+     }
+    },
+    "known": [
+     "meera.iyer@godavari.edu.in",
+     "arjun.mehta@wilp.example",
+     "kavya.nair@wilp.example",
+     "a.menon@wilp.example",
+     "anil.shetty@northline.example"
+    ],
+    "seq": {
+     "SACC": 314,
+     "GRP": 13,
+     "FMAP": 21,
+     "REQ": 58,
+     "SUP": 212,
+     "F": 2
+    },
+    "now": "2027-10-08T09:00"
+   }
+  },
+  {
+   "scenarioId": "awaiting",
+   "title": "Approved — payment required",
+   "asOf": "2026-10-08T11:30",
+   "dateShown": "Thu 8 Oct 2026",
+   "summary": "Request REQ-0042 is approved and waits for payment. There is no access plan and no content yet.",
+   "sourcedFacts": [
+    "v46 B1-08 / B1-11 request REQ-0042 (sent 2 Oct 2026 10:14, approved — payment required 8 Oct 2026 11:20)",
+    "V3 HANDOFF-original.md sample dates: \"IA-02 new institution, no plan yet — Thu 8 Oct 2026\""
+   ],
+   "illustrativeAdditions": [
+    "As-of time 11:30 chosen so the approval (11:20) is in the past."
+   ],
+   "snapshot": {
+    "inst": {
+     "name": "Godavari Institute of Technology",
+     "domain": "godavari.edu.in"
+    },
+    "me": {
+     "n": "Meera Iyer",
+     "ini": "MI",
+     "email": "meera.iyer@godavari.edu.in"
+    },
+    "cat": {
+     "ste": {
+      "t": "Shell-and-Tube Heat Exchanger",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR",
+       "VR"
+      ]
+     },
+     "ftb": {
+      "t": "Fin-Tube Bundle",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "VR"
+      ]
+     },
+     "cwc": {
+      "t": "Composite Wall Conduction",
+      "course": "ME ZG523",
+      "pub": [
+       "WEB",
+       "AR"
+      ]
+     }
+    },
+    "courses": {
+     "ME ZG523": {
+      "name": "Thermodynamics & Heat Transfer",
+      "own": "",
+      "sem": "",
+      "ownAt": null
+     }
+    },
+    "plan": null,
+    "students": [],
+    "faculty": [],
+    "fmaps": [],
+    "groups": [],
+    "grants": [],
+    "reqs": [
+     {
+      "id": "REQ-0042",
+      "kind": "new",
+      "what": "Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly",
+      "exps": [
+       "ste"
+      ],
+      "fmts": [
+       "WEB",
+       "VR"
+      ],
+      "lic": "120",
+      "msg": "We would like to start with the heat exchanger lab for our ME ZG523 cohort this term, in the browser and in VR.",
+      "sent": "2026-10-02T10:14",
+      "st": "pay",
+      "hist": [
+       {
+        "at": "2026-10-02T10:14",
+        "w": "Sent to BITS",
+        "by": "Meera Iyer",
+        "n": "New access · Shell-and-Tube Heat Exchanger · WEB and VR · 120 licences · Yearly"
+       },
+       {
+        "at": "2026-10-08T11:20",
+        "w": "Approved — payment required",
+        "by": "BITS",
+        "n": "Approved as asked (external). Access starts when the payment is confirmed."
+       }
+      ]
+     }
+    ],
+    "dtrs": [],
+    "reports": [],
+    "usage": null,
+    "fx": {
+     "waitFor": [],
+     "written": {}
+    },
+    "known": [
+     "meera.iyer@godavari.edu.in",
+     "arjun.mehta@wilp.example",
+     "kavya.nair@wilp.example",
+     "a.menon@wilp.example",
+     "anil.shetty@northline.example"
+    ],
+    "seq": {
+     "SACC": 309,
+     "GRP": 11,
+     "FMAP": 20,
+     "REQ": 57,
+     "SUP": 212,
+     "F": 2
+    },
+    "now": "2026-10-08T11:30"
+   }
+  }
+ ],
+ "presets": {
+  "note": "Named inspection states (74). Each starts from a sample world and applies the same operations the UI uses. Open one with ?ia-preset=<name> or the preset prop on the role board.",
+  "items": {
+   "calm": {
+    "scenario": "fresh",
+    "route": "IA-01",
+    "params": {},
+    "mutates": true,
+    "description": "Journey 1 done: student added, course code set, grant given; Overview has nothing to attend to"
+   },
+   "calm-ia02": {
+    "scenario": "fresh",
+    "route": "IA-02",
+    "params": {},
+    "mutates": true,
+    "description": "Journey 1 done; Content access counts the same students as Student access"
+   },
+   "calm-ia04": {
+    "scenario": "fresh",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Journey 1 done; Student access shows the new grant"
+   },
+   "ia02-nomatch": {
+    "scenario": "populated",
+    "route": "IA-02",
+    "params": {},
+    "mutates": true,
+    "description": "Content access search with no match"
+   },
+   "ia02-loading": {
+    "scenario": "populated",
+    "route": "IA-02",
+    "params": {},
+    "mutates": true,
+    "description": "Content access loading"
+   },
+   "ia02-failed": {
+    "scenario": "populated",
+    "route": "IA-02",
+    "params": {},
+    "mutates": true,
+    "description": "Content access failed to load, Try again"
+   },
+   "ia04-waiting": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Student access filtered to Waiting for a licence"
+   },
+   "ia04-withdrawn": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Student access showing withdrawn rows"
+   },
+   "ia04-nomatch": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Student access search with no match"
+   },
+   "ia04-wd-dialog": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Withdraw Rahul Verma's individual grant SACC-0310 (DL-2), group grant noted"
+   },
+   "ia04-wd-error": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Withdraw dialog with the reason missing"
+   },
+   "ia04-after-wd": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "After withdrawing SACC-0310; the group grant SACC-0311 is unchanged"
+   },
+   "ia05-step1-error": {
+    "scenario": "populated",
+    "route": "IA-05",
+    "params": {},
+    "mutates": true,
+    "description": "Give access step 1 with no experiment chosen"
+   },
+   "ia05-step2": {
+    "scenario": "populated",
+    "route": "IA-05",
+    "params": {},
+    "mutates": true,
+    "description": "Give access step 2 with two students chosen"
+   },
+   "ia05-review": {
+    "scenario": "populated",
+    "route": "IA-05",
+    "params": {},
+    "mutates": true,
+    "description": "Give access review: one active, one waiting for a licence"
+   },
+   "ia05-group-review": {
+    "scenario": "oct9",
+    "route": "IA-05",
+    "params": {},
+    "mutates": true,
+    "description": "Give access review for a group (after the first grant world, new group of 7)"
+   },
+   "ia05-result": {
+    "scenario": "populated",
+    "route": "IA-05",
+    "params": {},
+    "mutates": true,
+    "description": "Access given: SACC per student with status"
+   },
+   "ia05-fail": {
+    "scenario": "populated",
+    "route": "IA-05",
+    "params": {},
+    "mutates": true,
+    "description": "Give access failed, nothing changed"
+   },
+   "ia06-filtered": {
+    "scenario": "populated",
+    "route": "IA-06",
+    "params": {},
+    "mutates": true,
+    "description": "Students filtered to No access yet"
+   },
+   "ia06-nomatch": {
+    "scenario": "populated",
+    "route": "IA-06",
+    "params": {},
+    "mutates": true,
+    "description": "Students search with no match"
+   },
+   "ia06-loading": {
+    "scenario": "populated",
+    "route": "IA-06",
+    "params": {},
+    "mutates": true,
+    "description": "Students loading"
+   },
+   "ia06-failed": {
+    "scenario": "populated",
+    "route": "IA-06",
+    "params": {},
+    "mutates": true,
+    "description": "Students failed to load"
+   },
+   "ia07-fresh-added": {
+    "scenario": "fresh",
+    "route": "IA-07",
+    "params": {
+     "sid": "GIT-2026-0418"
+    },
+    "mutates": true,
+    "description": "Student record with no experiments yet"
+   },
+   "ia07-arun": {
+    "scenario": "populated",
+    "route": "IA-07",
+    "params": {
+     "sid": "GIT-2026-0377"
+    },
+    "mutates": false,
+    "description": "Student record: waiting for a licence through the group"
+   },
+   "ia07-sneha": {
+    "scenario": "populated",
+    "route": "IA-07",
+    "params": {
+     "sid": "GIT-2026-0352"
+    },
+    "mutates": false,
+    "description": "Student record: inactive account with reason"
+   },
+   "ia07-nikhil": {
+    "scenario": "populated",
+    "route": "IA-07",
+    "params": {
+     "sid": "GIT-2026-0436"
+    },
+    "mutates": false,
+    "description": "Student record: withdrawn individual grant"
+   },
+   "ia07-overlap": {
+    "scenario": "populated",
+    "route": "IA-07",
+    "params": {
+     "sid": "GIT-2026-0418"
+    },
+    "mutates": true,
+    "description": "Student record: individual grant withdrawn, group grant unchanged"
+   },
+   "ia07-deact": {
+    "scenario": "populated",
+    "route": "IA-07",
+    "params": {
+     "sid": "GIT-2026-0418"
+    },
+    "mutates": true,
+    "description": "Deactivate account dialog with the reason missing"
+   },
+   "ia09-desai": {
+    "scenario": "populated",
+    "route": "IA-09",
+    "params": {
+     "fid": "f1"
+    },
+    "mutates": false,
+    "description": "Faculty record with no courses yet"
+   },
+   "ia09-ravi": {
+    "scenario": "populated",
+    "route": "IA-09",
+    "params": {
+     "fid": "f2"
+    },
+    "mutates": false,
+    "description": "Inactive faculty record"
+   },
+   "ia10-errors": {
+    "scenario": "populated",
+    "route": "IA-10",
+    "params": {
+     "kind": "stu"
+    },
+    "mutates": true,
+    "description": "Add student validation: e-mail format and duplicate student ID"
+   },
+   "ia10-dup-email": {
+    "scenario": "populated",
+    "route": "IA-10",
+    "params": {
+     "kind": "stu"
+    },
+    "mutates": true,
+    "description": "Add student refused: e-mail already belongs to someone in People"
+   },
+   "ia10-done": {
+    "scenario": "populated",
+    "route": "IA-10",
+    "params": {
+     "kind": "stu"
+    },
+    "mutates": true,
+    "description": "Student added, no experiments yet"
+   },
+   "ia10-fac": {
+    "scenario": "populated",
+    "route": "IA-10",
+    "params": {
+     "kind": "fac"
+    },
+    "mutates": false,
+    "description": "Add faculty member form"
+   },
+   "ia11-file": {
+    "scenario": "fresh",
+    "route": "IA-11",
+    "params": {},
+    "mutates": true,
+    "description": "Import step 1 with the sample file chosen"
+   },
+   "ia11-errors": {
+    "scenario": "fresh",
+    "route": "IA-11",
+    "params": {},
+    "mutates": true,
+    "description": "Import check: 4 row errors block the import"
+   },
+   "ia11-clean": {
+    "scenario": "fresh",
+    "route": "IA-11",
+    "params": {},
+    "mutates": true,
+    "description": "Import check: no problems"
+   },
+   "ia11-confirm": {
+    "scenario": "fresh",
+    "route": "IA-11",
+    "params": {},
+    "mutates": true,
+    "description": "Import confirm step"
+   },
+   "ia11-done": {
+    "scenario": "fresh",
+    "route": "IA-11",
+    "params": {},
+    "mutates": true,
+    "description": "Import finished: 12 students added"
+   },
+   "ia11-dups": {
+    "scenario": "populated",
+    "route": "IA-11",
+    "params": {},
+    "mutates": true,
+    "description": "Import check where everyone is already in People: refused, nothing changed"
+   },
+   "ia13-create": {
+    "scenario": "populated",
+    "route": "IA-13",
+    "params": {},
+    "mutates": true,
+    "description": "Create group dialog (DL-3)"
+   },
+   "ia13-created": {
+    "scenario": "oct9",
+    "route": "IA-13",
+    "params": {},
+    "mutates": true,
+    "description": "Group created, flash links to the group"
+   },
+   "ia14-adding": {
+    "scenario": "populated",
+    "route": "IA-14",
+    "params": {
+     "gid": "GRP-0012"
+    },
+    "mutates": true,
+    "description": "Group page adding members"
+   },
+   "ia14-late": {
+    "scenario": "populated",
+    "route": "IA-14",
+    "params": {
+     "gid": "GRP-0012"
+    },
+    "mutates": true,
+    "description": "Member added after the group grant"
+   },
+   "ia14-empty": {
+    "scenario": "populated",
+    "route": "IA-14",
+    "params": {
+     "gid": "GRP-0013"
+    },
+    "mutates": false,
+    "description": "Group with no members and nothing given"
+   },
+   "ia14-remove": {
+    "scenario": "populated",
+    "route": "IA-14",
+    "params": {
+     "gid": "GRP-0012"
+    },
+    "mutates": true,
+    "description": "Remove a member dialog (DL-1, destructive)"
+   },
+   "ia14-rename": {
+    "scenario": "populated",
+    "route": "IA-14",
+    "params": {
+     "gid": "GRP-0012"
+    },
+    "mutates": true,
+    "description": "Rename group dialog (DL-3)"
+   },
+   "ia14-new": {
+    "scenario": "populated",
+    "route": "IA-14",
+    "params": {
+     "gid": ""
+    },
+    "mutates": false,
+    "description": "Create group page"
+   },
+   "ia15-assigned": {
+    "scenario": "populated",
+    "route": "IA-15",
+    "params": {},
+    "mutates": true,
+    "description": "Course assigned, flash"
+   },
+   "ia15-error": {
+    "scenario": "populated",
+    "route": "IA-15",
+    "params": {},
+    "mutates": true,
+    "description": "Assign a course error: already teaches it"
+   },
+   "ia15-warn": {
+    "scenario": "populated",
+    "route": "IA-15",
+    "params": {},
+    "mutates": true,
+    "description": "Remove the last marker of a course: written-answer warning"
+   },
+   "ia17-form": {
+    "scenario": "populated",
+    "route": "IA-17",
+    "params": {},
+    "mutates": true,
+    "description": "More licences request form"
+   },
+   "ia17-form-errors": {
+    "scenario": "populated",
+    "route": "IA-17",
+    "params": {},
+    "mutates": true,
+    "description": "Request form validation"
+   },
+   "ia17-renew-form": {
+    "scenario": "ending",
+    "route": "IA-17",
+    "params": {},
+    "mutates": true,
+    "description": "Renewal request form (ending world)"
+   },
+   "ia17-sent": {
+    "scenario": "ending",
+    "route": "IA-17",
+    "params": {},
+    "mutates": true,
+    "description": "Renewal request sent (REQ-0059 in the ending world)"
+   },
+   "ia17-review": {
+    "scenario": "populated",
+    "route": "IA-17",
+    "params": {
+     "req": "REQ-0058"
+    },
+    "mutates": false,
+    "description": "REQ-0058 under review"
+   },
+   "ia17-info": {
+    "scenario": "populated",
+    "route": "IA-17",
+    "params": {
+     "req": "REQ-0058"
+    },
+    "mutates": true,
+    "description": "REQ-0058 information requested (v46 later sample, 22 Oct 2026 11:00)"
+   },
+   "ia17-pay": {
+    "scenario": "ending",
+    "route": "IA-17",
+    "params": {
+     "req": "REQ-0058"
+    },
+    "mutates": false,
+    "description": "REQ-0058 approved — payment required, plan unchanged"
+   },
+   "ia17-active": {
+    "scenario": "populated",
+    "route": "IA-17",
+    "params": {
+     "req": "REQ-0042"
+    },
+    "mutates": false,
+    "description": "REQ-0042 access active"
+   },
+   "ia19-dialog": {
+    "scenario": "populated",
+    "route": "IA-19",
+    "params": {
+     "dtr": "DTR-0018"
+    },
+    "mutates": true,
+    "description": "Forward DTR-0018 confirmation"
+   },
+   "ia19-forwarded": {
+    "scenario": "populated",
+    "route": "IA-19",
+    "params": {
+     "dtr": "DTR-0018"
+    },
+    "mutates": true,
+    "description": "DTR-0018 forwarded to BITS"
+   },
+   "ia19-decided": {
+    "scenario": "ended",
+    "route": "IA-19",
+    "params": {
+     "dtr": "DTR-0018"
+    },
+    "mutates": false,
+    "description": "DTR-0018 decided, approved by BITS (ended world)"
+   },
+   "ia19-paused": {
+    "scenario": "paused",
+    "route": "IA-19",
+    "params": {
+     "dtr": "DTR-0018"
+    },
+    "mutates": false,
+    "description": "DTR-0018 can't be forwarded while paused"
+   },
+   "ia20-course": {
+    "scenario": "populated",
+    "route": "IA-20",
+    "params": {},
+    "mutates": true,
+    "description": "Usage by course"
+   },
+   "acct-open": {
+    "scenario": "populated",
+    "route": "IA-01",
+    "params": {},
+    "mutates": true,
+    "description": "Account menu open (borrowed XS-05)"
+   },
+   "menu-open": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Phone menu drawer open"
+   },
+   "xs07-form": {
+    "scenario": "populated",
+    "route": "XS-07",
+    "params": {
+     "view": "form"
+    },
+    "mutates": true,
+    "description": "Report a problem form (borrowed XS-07)"
+   },
+   "xs07-form-error": {
+    "scenario": "populated",
+    "route": "XS-07",
+    "params": {
+     "view": "form"
+    },
+    "mutates": true,
+    "description": "Report a problem validation"
+   },
+   "xs07-sent": {
+    "scenario": "populated",
+    "route": "XS-07",
+    "params": {
+     "view": "sent"
+    },
+    "mutates": true,
+    "description": "Report sent (SUP-0213 in the populated world)"
+   },
+   "xs07-detail": {
+    "scenario": "ending",
+    "route": "XS-07",
+    "params": {
+     "view": "detail",
+     "id": "SUP-0213"
+    },
+    "mutates": false,
+    "description": "SUP-0213 report detail (ending world)"
+   },
+   "ia04-one": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Student access narrowed to one record (search “Arun”)"
+   },
+   "ia04-seg-withdrawn": {
+    "scenario": "populated",
+    "route": "IA-04",
+    "params": {},
+    "mutates": true,
+    "description": "Student access on the Withdrawn status, with the withdrawn grant muted and no Withdraw button"
+   },
+   "ia16-error": {
+    "scenario": "populated",
+    "route": "IA-16",
+    "params": {},
+    "mutates": true,
+    "description": "Course codes: a semester entered without a course code, validation shown"
+   },
+   "ia02-search": {
+    "scenario": "populated",
+    "route": "IA-02",
+    "params": {},
+    "mutates": true,
+    "description": "Content access searched for “Shell”, with its search chip"
+   }
+  }
+ },
+ "csvFixtures": {
+  "note": "Sample files offered by the Import file chooser. Row numbers count from the first student row.",
+  "files": {
+   "bad": {
+    "key": "bad",
+    "name": "godavari-me-zg523.csv",
+    "d": "13 rows · has rows with errors",
+    "rows": [
+     {
+      "student_id": "GIT-2026-0418",
+      "full_name": "Rahul Verma",
+      "email": "rahul.verma@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0431",
+      "full_name": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0409",
+      "full_name": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0377",
+      "full_name": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0352",
+      "full_name": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0409",
+      "full_name": "Imran S.",
+      "email": "imran.s@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0411",
+      "full_name": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0415",
+      "full_name": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0426",
+      "full_name": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "programme": "",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0421",
+      "full_name": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0430",
+      "full_name": "Fatima Begum",
+      "email": "fatima.begum@godavari",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0436",
+      "full_name": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": ""
+     },
+     {
+      "student_id": "GIT-2026-0440",
+      "full_name": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     }
+    ]
+   },
+   "good": {
+    "key": "good",
+    "name": "godavari-me-zg523-corrected.csv",
+    "d": "12 rows · the same file, corrected",
+    "rows": [
+     {
+      "student_id": "GIT-2026-0418",
+      "full_name": "Rahul Verma",
+      "email": "rahul.verma@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0431",
+      "full_name": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0377",
+      "full_name": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0352",
+      "full_name": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0409",
+      "full_name": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0411",
+      "full_name": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0415",
+      "full_name": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0421",
+      "full_name": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0426",
+      "full_name": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0430",
+      "full_name": "Fatima Begum",
+      "email": "fatima.begum@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0436",
+      "full_name": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0440",
+      "full_name": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     }
+    ]
+   },
+   "rest": {
+    "key": "rest",
+    "name": "godavari-me-zg523-without-rahul.csv",
+    "d": "11 rows · the corrected file without Rahul Verma",
+    "rows": [
+     {
+      "student_id": "GIT-2026-0431",
+      "full_name": "Priya Natarajan",
+      "email": "priya.natarajan@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0377",
+      "full_name": "Arun Kumar",
+      "email": "arun.kumar@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0352",
+      "full_name": "Sneha Reddy",
+      "email": "sneha.reddy@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0409",
+      "full_name": "Imran Shaikh",
+      "email": "imran.shaikh@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0411",
+      "full_name": "Divya Menon",
+      "email": "divya.menon@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0415",
+      "full_name": "Karthik Rao",
+      "email": "karthik.rao@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0421",
+      "full_name": "Lakshmi Prasad",
+      "email": "lakshmi.prasad@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0426",
+      "full_name": "Vikram Joshi",
+      "email": "vikram.joshi@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0430",
+      "full_name": "Fatima Begum",
+      "email": "fatima.begum@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0436",
+      "full_name": "Nikhil Bose",
+      "email": "nikhil.bose@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     },
+     {
+      "student_id": "GIT-2026-0440",
+      "full_name": "Ananya Das",
+      "email": "ananya.das@godavari.edu.in",
+      "programme": "B.Tech Mechanical",
+      "course": "Thermodynamics & Heat Transfer",
+      "course_code": "ME ZG523"
+     }
+    ]
+   }
+  },
+  "expectedErrors": {
+   "godavari-me-zg523.csv": [
+    "Row 6: student ID GIT-2026-0409 also in row 3 (\"Imran S.\")",
+    "Row 9: Vikram Joshi, programme empty",
+    "Row 11: Fatima Begum, e-mail \"fatima.begum@godavari\" is not a full address",
+    "Row 12: Nikhil Bose, course code empty"
+   ]
+  }
+ },
+ "journeys": [
+  {
+   "id": "j1",
+   "t": "Add a student and give access",
+   "sc": "fresh",
+   "start": "IA-01",
+   "d": "New active institution → add a student → add the course code → give the eligible experiment → Student access and Content access agree.",
+   "steps": [
+    {
+     "t": "Add a student in People (for example Rahul Verma, GIT-2026-0418)",
+     "k": "stuAdded"
+    },
+    {
+     "t": "Add your course code for ME ZG523 on Content access › Course codes",
+     "k": "codeSet"
+    },
+    {
+     "t": "Give the student Shell-and-Tube Heat Exchanger and confirm",
+     "k": "granted"
+    },
+    {
+     "t": "Open Student access and Content access: both count the same students",
+     "k": "agree"
+    }
+   ]
+  },
+  {
+   "id": "j2",
+   "t": "Import students from a CSV file",
+   "sc": "fresh",
+   "start": "IA-11",
+   "d": "Invalid file → row errors block the import → corrected file → import → a duplicate e-mail is refused and nothing existing changes.",
+   "steps": [
+    {
+     "t": "Choose godavari-me-zg523.csv and check it: rows with errors stop the import",
+     "k": "impErrors"
+    },
+    {
+     "t": "Choose the corrected file and check it again",
+     "k": "impClean"
+    },
+    {
+     "t": "Import the students",
+     "k": "imported"
+    },
+    {
+     "t": "Try to add a student whose e-mail is already in People: it is refused",
+     "k": "dupRefused"
+    }
+   ]
+  },
+  {
+   "id": "j3",
+   "t": "Create a group and give it access",
+   "sc": "oct9",
+   "start": "IA-13",
+   "d": "Create a group → manage its members → give it an experiment → withdraw one identified individual grant.",
+   "steps": [
+    {
+     "t": "Create a group",
+     "k": "grpCreated"
+    },
+    {
+     "t": "Add students to the group",
+     "k": "grpMembers"
+    },
+    {
+     "t": "Give the group Shell-and-Tube Heat Exchanger",
+     "k": "grpGranted"
+    },
+    {
+     "t": "Withdraw Rahul Verma’s individual grant on Student access",
+     "k": "withdrawn"
+    }
+   ]
+  },
+  {
+   "id": "j4",
+   "t": "Add a faculty member and assign a course",
+   "sc": "populated",
+   "start": "IA-08",
+   "d": "Add faculty → assign a course in Faculty courses → the faculty record and Faculty courses agree.",
+   "steps": [
+    {
+     "t": "Add a faculty member",
+     "k": "facAdded"
+    },
+    {
+     "t": "Assign them ME ZG523 in Faculty courses",
+     "k": "facAssigned"
+    },
+    {
+     "t": "Open their faculty record: it lists the course",
+     "k": "facRecord"
+    }
+   ]
+  },
+  {
+   "id": "j5",
+   "t": "Ask BITS and forward a device request",
+   "sc": "populated",
+   "start": "IA-17",
+   "d": "Request a renewal or more licences and inspect its status → forward Rahul Verma’s device transfer.",
+   "steps": [
+    {
+     "t": "Ask BITS for a renewal or more licences",
+     "k": "reqSent"
+    },
+    {
+     "t": "Open the request and check where it stands",
+     "k": "reqOpened"
+    },
+    {
+     "t": "Forward Rahul Verma’s device request to BITS",
+     "k": "forwarded"
+    }
+   ]
+  }
+ ]
+}

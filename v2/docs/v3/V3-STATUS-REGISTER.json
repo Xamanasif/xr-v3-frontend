@@ -17,7 +17,7 @@
     "v3SeedSource": 5,
     "lockedLanding": 2,
     "pendingDesign": 116,
-    "migrated": 50
+    "migrated": 69
   },
   "designedByType": {
     "action": 1,
@@ -1280,14 +1280,17 @@
       "v46ProposedRoute": "/institute",
       "specimens": ["v3-ia-01"],
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-01-overview"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-01-overview",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
-      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
-      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
-      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
-      "openIssue": "The calm board (IA01-calm) was not supplied: CalmState is derived from rb.css. The institution's code chip differs between IA01 and the HANDOFF rule (O-3)."
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the attention list, the plan card with its term bar, Overview · date; paused, ending, ended, awaiting payment, calm",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Items no read holds are left out (written answers without a marker, open problem reports, renewal requested band)."
     },
     {
       "id": "IA-02",
@@ -1309,14 +1312,17 @@
         "v3-ia-02-failed"
       ],
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-02-content-access"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-02-content-access",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "v3-seed-source (XR-V3-RB-1.0 board)",
-      "ownerApproved": "approved reference screen (Refined B selection); the complete SA / IA role is not yet approved",
-      "implementationComplete": "not migrated — V3 specimen only (apps/specimens); the normal route keeps the v46 presentation",
-      "browserChecked": "specimens at 1440/1024/768/375 (e2e/v3-foundation.spec.ts); against the board: same page size at every width, pixel-identical or text-rasterisation differences only (≤0.5%), V3-COMPARISON-MAP.json",
-      "openIssue": "D7 open: no used/free licence counts. Course-code scenarios conflict across boards (HANDOFF open record 3). Keep listContentAccess multi-plan semantics; IA keeps ACC-/REQ- references as v46 does."
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — experiments in the plan by course with format badges, the plan strip, search, no match, loading, failed",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": ""
     },
     {
       "id": "IA-03",
@@ -1327,13 +1333,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/content-access/plans/[planId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-03-access-plan"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-03-access-plan",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the access plan record, experiments and who has them, history; active, ending, ended, paused",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1345,14 +1354,17 @@
       "designed": true,
       "v46ProposedRoute": "/institute/student-access",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-04-student-access"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-04-student-access",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — grants by experiment with the status switch, withdraw (confirmation), after withdraw, ended",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "“Removed from the group” and “Joined a group after its grant” are not held by any read."
     },
     {
       "id": "IA-05",
@@ -1363,13 +1375,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/student-access/give?step=1…",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-05-give-access"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-05-give-access",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the guided steps with your selection beside them, review, group review, result, failure, paused",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1381,14 +1396,17 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people?tab=students",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-06-people"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-06-people",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the students roster with filters and counts, no match, empty",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Only the directory’s three statuses (the others are not in listStudents)."
     },
     {
       "id": "IA-07",
@@ -1399,13 +1417,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people/students/[studentId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-07-student-record"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-07-student-record",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the student record: access, groups, devices; none, inactive, overlap, deactivated",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1417,13 +1438,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people?tab=faculty",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-08-faculty"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-08-faculty",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the faculty list, empty",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1435,13 +1459,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people/faculty/[facultyId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-09-faculty-record"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-09-faculty-record",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the faculty record with courses taught; none, inactive",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1453,13 +1480,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people/add",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-10-add-person"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-10-add-person",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — add a student or faculty member: errors, duplicates, added, paused",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1471,13 +1501,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people/import",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-11-import-students"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-11-import-students",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — import students from a CSV: file, problems, confirm, done, failed",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1506,13 +1539,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people?tab=groups",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-13-groups"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-13-groups",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — groups, create, empty",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1524,14 +1560,17 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people/groups/[groupId] · /new",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-14-group"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-14-group",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the group: members and access; add, remove, rename, give access",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The create page is not built (groups are created with the IA-13 dialog, decision D-06)."
     },
     {
       "id": "IA-15",
@@ -1542,13 +1581,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/people?tab=faculty-courses",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-15-faculty-courses"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-15-faculty-courses",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — who teaches what: assign, remove (confirmation), error, warning",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1560,13 +1602,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/content-access?tab=course-codes",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/institute/ia-16-course-codes"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-16-course-codes",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — institution course codes: missing, added, errors, saved, read-only while paused",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1578,14 +1623,17 @@
       "designed": true,
       "v46ProposedRoute": "/institute/requests",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/institute/ia-17-requests"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-17-requests",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — requests to BITS: list, form, renew, sent, detail and where it stands",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Not-found pages keep the product behaviour; the form and result stay on the list page."
     },
     {
       "id": "IA-18",
@@ -1596,13 +1644,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/requests?tab=devices",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/institute/ia-18-device-requests"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-18-device-requests",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — device requests: list, empty",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1614,13 +1665,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/requests/devices/[transferId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/institute/ia-19-device-request"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-19-device-request",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — review and forward a device request: dialog, forwarded, decided, paused",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1632,13 +1686,16 @@
       "designed": true,
       "v46ProposedRoute": "/institute/usage",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/institute/ia-20-usage"]
+        "status": "V3 presentation (Institute Admin export IA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/institute/ia-20-usage",
+          "apps/web/src/features/institute/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export IA-v1 (design/v3-refined-b/roles/IA-v1; archive XR-V3-IA-Final-source.zip, SHA-256 05551108…87e, FINAL — OWNER APPROVED 21 Oct 2026, canvas Version 15)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — usage by experiment and by course, no activity, paused, ended, loading, failed",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {

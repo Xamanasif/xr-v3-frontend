@@ -7,7 +7,7 @@ import type { StateCopyEntry } from './state-copy';
  * register (`state-copy.ts`, VD-12).
  */
 export const STATE_COPY_PACKAGE_2B = {
-  // ---- IA-16 Content access › Course codes (B2-03 f6 … f10) ----
+  // ---- IA-16 Content access › Course codes (B2-03 f6 … f10; V3: IA-v1 `vm16core`, `vm16`) ----
   'IA-16.tab-address': {
     screen: 'IA-16',
     state: 'The Content access address with a `tab` other than `course-codes`',
@@ -21,8 +21,9 @@ export const STATE_COPY_PACKAGE_2B = {
     screen: 'IA-16',
     state: 'Course codes while the codes load',
     words: 'Loading course codes',
+    rule: 'The kit’s loading rows in a busy surface under the tabs, announced politely.',
     basis:
-      'B2-03 draws no loading frame; board 04 loading formula (“Loading <what>”, as B2-02 f8 “Loading content access”)',
+      'IA-v1 draws no loading frame for IA-16; its IA-02 loading formula (“Loading content access…”)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -30,26 +31,27 @@ export const STATE_COPY_PACKAGE_2B = {
     screen: 'IA-16',
     state: 'Course codes could not be read',
     words: 'We couldn’t load the course codes',
-    rule: 'With B2-02 f9’s line “Nothing has changed. Try again.” and “Try again”.',
-    basis: 'B2-03 draws no failed frame; B2-02 f9 formula (“We couldn’t load content access”)',
+    rule: 'The kit’s failed state with “Nothing has changed. Try again.” and “Try again”, which reads again and moves focus to the title.',
+    basis:
+      'IA-v1 draws no failed frame for IA-16; its IA-02 formula (“We couldn’t load content access”)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'IA-16.saving': {
     screen: 'IA-16',
-    state: '“Save course codes” while the codes are sent',
+    state: '“Save course code(s)” while the codes are sent',
     words: 'Saving…',
     basis:
-      'B2-03 saves at once (its script has no busy state); board 03 busy-button formula (“Adding…”, “Importing…”)',
+      'IA-v1 saves at once (its script has no busy state); board 03 busy-button formula (“Adding…”, “Importing…”)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'IA-16.count-plural': {
     screen: 'IA-16',
-    state: 'The count with more than one course in content access',
+    state: 'The count above the courses',
     words: null,
-    rule: '“2 of 3 courses have no code from your institution”, “1 of 3 courses has no code from your institution”; none missing: “Every course has a code from your institution”.',
-    basis: 'B2-03 `countText` draws one course (“1 of 1 course has no code from your institution”)',
+    rule: 'One course: “Your institution’s code is added” / “Your institution’s code isn’t added yet” (the export’s `vm16`). Several: “2 of 3 courses have no code from your institution”, “1 of 3 courses has no code from your institution”; none missing: “Every course has a code from your institution”. “Show missing codes only” and “Save course codes” (plural) appear with more than one course.',
+    basis: 'IA-v1 `vm16core` `countText`, `vm16` (`one`, `hasMany`, `saveText`)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -57,9 +59,9 @@ export const STATE_COPY_PACKAGE_2B = {
     screen: 'IA-16',
     state: 'Saving with several courses changed',
     words: null,
-    rule: 'Every changed row is checked first by the contract’s own rule (a semester needs a code); while one fails nothing is sent, each failing row shows its error and focus goes to the first. Then the rows are sent one by one, each with the revision the page read; an unchanged row is not sent. “Course codes saved” names each saved code with its course (“… see MEC-523 with Thermodynamics & Heat Transfer, …”); a code cleared to empty is saved without being named; with nothing changed, Save sends nothing and shows nothing.',
+    rule: 'Every changed row is checked first by the contract’s own rule (a semester needs a code); while one fails nothing is sent, each failing row shows its error and focus goes to the first. Then the rows are sent one by one, each with the revision the page read; an unchanged row is not sent. The flash “Saved” · “Course codes saved. Students and faculty at your institution see MEC-523 with Thermodynamics & Heat Transfer.” names each saved code with its course and takes focus; with no code left, “Course codes saved. No course has a code from your institution now.”; a code cleared to empty is saved without being named; with nothing changed, Save sends nothing and shows nothing. Undo changes drops every change and moves focus to the first course’s code.',
     basis:
-      'B2-03 draws one course (`save`: one row, one check); “Validation: Only one rule is designed: a semester needs a code. No code format is invented.”',
+      'IA-v1 `vm16core` (`save`, `undo`; one course); “Validation: Only one rule is designed: a semester needs a code. No code format is invented.”',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -80,7 +82,7 @@ export const STATE_COPY_PACKAGE_2B = {
     words: null,
     rule: 'Nothing more is sent; every unsaved change stays in its field and can be saved again; no message.',
     basis:
-      'B2-03 draws no failure; Appendix F §6.6 “command unavailable → nothing changes … answers kept”',
+      'IA-v1 draws no failure; Appendix F §6.6 “command unavailable → nothing changes … answers kept”',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -88,17 +90,27 @@ export const STATE_COPY_PACKAGE_2B = {
     screen: 'IA-16',
     state: '“Show missing codes only” when every course has a code',
     words: null,
-    rule: 'The row “No course is missing a code.” spans all five columns (B2-03 draws `colspan="4"` in a five-column table).',
-    basis: 'B2-03 f6 `hideAll` row; table accessibility (a cell spans the whole row)',
+    rule: 'The export’s state “No course is missing a code” · “Every course in your content access has a code from your institution.” with “Show all courses”, which turns the toggle off.',
+    basis: 'IA-v1 IA-16 `noneShown`',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'IA-16.field-names': {
+    screen: 'IA-16',
+    state: 'The code and semester fields of several courses',
+    words: null,
+    rule: 'Each field keeps the drawn label (“Your course code”, “Semester (optional)”) and adds the course for screen readers only, so that each has its own name: “Your course code for Thermodynamics & Heat Transfer”, “Semester for Thermodynamics & Heat Transfer (optional)”.',
+    basis:
+      'IA-v1 `vm16core` (`label`, `semLabel`: the names the script writes but the template does not use)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'IA-16.give-access': {
     screen: 'IA-16',
-    state: 'The header’s “Give students access” on the Course codes tab',
+    state: 'The head’s “Give students access” on the Course codes tab',
     words: null,
-    rule: 'Shown as on Experiments (IA-02): while something can be given and the institution is not paused (B2-03 f6 draws it; f9, paused, does not).',
-    basis: 'B2-03 f6, f9; IA-02 `anyGivable`',
+    rule: 'Shown as on Experiments (IA-02): while something can be given and the institution is not paused.',
+    basis: 'IA-v1 `vm16core` (`canGive`); IA-02 `anyGivable`',
     status: 'provisional',
     decisions: ['VD-12'],
   },

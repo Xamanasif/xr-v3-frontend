@@ -44,6 +44,22 @@ export const RECORDED_SCAN_EXCEPTIONS: readonly ScanException[] = [
       'typed CSS attr() (or another style-free way to set a data-driven length) is supported by every browser the product supports, or the owner approves another rendering of the term timeline',
   },
   {
+    // V3 (IA-v1), the same data-driven length in the Institute Admin export's term bar (the TermTrack
+    // precedent above): the elapsed fill, the gold remainder while the plan ends soon and today's
+    // marker are placed by the share of the plan's term that has passed — a value only the plan's
+    // dates decide, which the owner-approved export draws as `style="width: {{ V.T2.fill }}"` /
+    // `left: …` (IA-01, IA-02, IA-03: nine values in all). Isolated in `IaTermBar`, the one place in
+    // the Institute Admin's V3 layer that sets an inline style; the look stays in the frozen
+    // ia-role.css rules (`ia-tt-fill`, `ia-tt-rest`, `ia-tt-today`).
+    rule: 'inline-style',
+    file: 'packages/ui/src/v3/ia-plan.tsx',
+    found: 'style={…}',
+    evidence:
+      'design/v3-refined-b/roles/IA-v1/project/Main.dc.html lines 256 (IA-01 plan card), 312 (IA-02 plan strip), 527 (IA-03 plan head): `span.ia-tt-fill` style="width: {{ V.T2.fill }}", `span.ia-tt-rest` style="width: {{ V.T2.rest }}", `span.ia-tt-today` style="left: {{ V.T2.fill }}"',
+    removal:
+      'typed CSS attr() (or another style-free way to set a data-driven length) is supported by every browser the product supports, or the owner approves another rendering of the term bar',
+  },
+  {
     // Phase 7. The owner authorised TE-6 browser persistence for the local prototype build with
     // "an explicit, safe “Reset demo data” action", naming it in those words. The phrase is kept
     // once, as the action's label on the prototype's own support page (`/prototype/reset`, not a

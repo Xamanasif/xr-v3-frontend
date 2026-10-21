@@ -1,144 +1,152 @@
 'use client';
 
-import type { DeviceTransfer } from '@xr/domain';
-import { EmptyState, Link, LoadingState, StatusPill } from '@xr/ui';
+import {
+  Button,
+  IaManageSurface,
+  IaRqDeviceTable,
+  ListState,
+  LoadingRows,
+  Notice,
+  RecordLine,
+  StatusPill,
+} from '@xr/ui/v3';
 
 import {
   DEVICE_REQUESTS,
+  openTransferLabel,
+  REQUESTS_PAGE,
   reviewLabel,
   transferDateWords,
   transferKindWords,
 } from '@/copy/institute-requests';
 import { stateWords } from '@/copy/state-copy';
+import { studentRecordAddress } from '@/nav/institute';
 import { deviceRequestAddress } from '@/nav/institute-requests';
 import { useDeviceRequests } from '@/queries/devices';
 
-import { LoadFailed } from '../ia-02-content-access/institute-parts';
-import {
-  newestFirst,
-  type StudentNames,
-  studentOf,
-  TRANSFER_TONE,
-  transferStatusWords,
-} from './transfer-view';
-import { useStudentNames } from './use-student-names';
+import { newestFirst, studentOf, transferStatusWords } from '../shared/transfer-view';
+import { useStudentNames } from '../shared/use-student-names';
+import { TRANSFER_V3_TONE } from './transfer-tone';
+
+const LIST_HEADING_ID = 'device-requests-h';
 
 /**
- * IA-18 Device requests — the Requests page's second tab (`/institute/requests?tab=devices`;
- * board B3-09 f0): "Which device requests need me?" The institution's device requests
- * (`OperationsService.listDeviceRequests`), newest first, one row each — the student (their name
- * opens the request) with their institution student id, "VR device transfer" with its reference
- * and date, the status in the Institute Admin's words (Waiting on you · Forwarded to BITS ·
- * Decided · approved by BITS — the Student reads the same record on My device, B3-07) and
- * "Review" on a request waiting on the Institute Admin while the institution is not paused
- * (B3-09 `canForward`). Decided requests stay listed. The Institute Admin forwards on IA-19;
- * BITS decides — there is no approve or decline here (T-32). No request yet: "No device request
- * yet" (B3-09 none; state-copy `IA-18.empty.line`).
+ * IA-18 Device requests — the Requests page's second tab in V3 (`/institute/requests?tab=devices`;
+ * the owner-approved Institute Admin export, IA-v1 `Main.dc.html` "IA-18 Device requests tab",
+ * `vm18`): "Which device requests need me?" One explanation ("You forward device requests to BITS.
+ * BITS decides."), the paused notice while the institution is paused, then the institution's
+ * device requests (`OperationsService.listDeviceRequests`), newest first, in the role's list
+ * table — the student (their name opens their record) with their institution student id, "VR
+ * device transfer" (opening the request, named by its format, student and date — never by its
+ * reference: state-copy `IA-17.no-reference`) with the date it was asked, the status in the
+ * Institute Admin's words (Waiting on you · Forwarded to BITS · Decided · approved by BITS — the
+ * Student reads the same record on My device) and "Review" on a request waiting on the Institute
+ * Admin while the institution is not paused. Decided requests stay listed. The Institute Admin
+ * forwards on IA-19; BITS decides — there is no approve or decline here (T-32). No request yet:
+ * "No device request yet". Loading and a failed read draw the V3 list states in the surface.
  */
-export function DeviceRequestsTab({ paused }: { readonly paused: boolean }) {
+export function DeviceRequestsTab({
+  paused,
+  onRetry,
+}: {
+  readonly paused: boolean;
+  /** After "Try again": focus to the page's H1. */
+  readonly onRetry: () => void;
+}) {
   const requests = useDeviceRequests();
   const students = useStudentNames();
   const answer = requests.data;
-  if (requests.isError || (answer && !answer.ok)) {
-    return (
-      <LoadFailed
+  const failed = requests.isError || (answer !== undefined && !answer.ok);
+  const loading = !failed && (!answer || students.pending);
+
+  let body;
+  if (failed) {
+    body = (
+      <ListState
+        kind="failed"
+        titleAs="h2"
         title={stateWords('IA-18.failed')}
-        onRetry={() => {
-          void requests.refetch();
-        }}
+        action={
+          <Button
+            onClick={() => {
+              void requests.refetch();
+              onRetry();
+            }}
+          >
+            {REQUESTS_PAGE.tryAgain}
+          </Button>
+        }
+      >
+        {REQUESTS_PAGE.failedLine}
+      </ListState>
+    );
+  } else if (loading || !answer?.ok) {
+    body = <LoadingRows message={stateWords('IA-18.loading')} cells={[2, 2, 1, 1]} />;
+  } else if (answer.value.length === 0) {
+    body = (
+      <ListState kind="empty" roomy titleAs="h2" icon="device" title={DEVICE_REQUESTS.emptyTitle}>
+        {stateWords('IA-18.empty.line')}
+      </ListState>
+    );
+  } else {
+    body = (
+      <IaRqDeviceTable
+        caption={DEVICE_REQUESTS.caption}
+        headers={DEVICE_REQUESTS.columns}
+        rows={newestFirst(answer.value).map((transfer) => {
+          const student = studentOf(transfer, students.byId);
+          const href = deviceRequestAddress(transfer.id);
+          return {
+            key: transfer.id,
+            student: {
+              name: student.fullName,
+              href: studentRecordAddress(transfer.studentId),
+            },
+            studentId: student.institutionStudentId,
+            request: {
+              label: transferKindWords(transfer.format),
+              href,
+              accessibleName: openTransferLabel(
+                transfer.format,
+                student.fullName,
+                transfer.requestedAt,
+              ),
+            },
+            date: transferDateWords(transfer.requestedAt),
+            status: (
+              <StatusPill tone={TRANSFER_V3_TONE[transfer.state]}>
+                {transferStatusWords(transfer.state)}
+              </StatusPill>
+            ),
+            review:
+              transfer.state === 'with-institute-admin' && !paused
+                ? {
+                    label: DEVICE_REQUESTS.review,
+                    href,
+                    accessibleName: reviewLabel(student.fullName),
+                  }
+                : null,
+          };
+        })}
       />
     );
   }
-  if (!answer || students.pending) {
-    return <LoadingState label={stateWords('IA-18.loading')} surface="section" />;
-  }
-  if (answer.value.length === 0) {
-    return (
-      <div className="xr-section">
-        <EmptyState icon="myDevice" title={DEVICE_REQUESTS.emptyTitle}>
-          {stateWords('IA-18.empty.line')}
-        </EmptyState>
-      </div>
-    );
-  }
-  const { columns } = DEVICE_REQUESTS;
+
   return (
     <>
-      <p className="xl-meta mx-0 mt-0 mb-3">{DEVICE_REQUESTS.line}</p>
-      <div className="xr-table-wrap">
-        <table className="xr-table">
-          <caption className="xr-sr">{DEVICE_REQUESTS.caption}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{columns.student}</th>
-              <th scope="col">{columns.request}</th>
-              <th scope="col">{columns.status}</th>
-              <th scope="col">
-                <span className="xr-sr">{columns.action}</span>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {newestFirst(answer.value).map((transfer) => (
-              <TransferRow
-                key={transfer.id}
-                transfer={transfer}
-                students={students.byId}
-                paused={paused}
-              />
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <RecordLine>{DEVICE_REQUESTS.line}</RecordLine>
+      {paused ? (
+        <Notice tone="paused" icon="lock" role="status" title={DEVICE_REQUESTS.pausedTitle}>
+          {DEVICE_REQUESTS.pausedLine}
+        </Notice>
+      ) : null}
+      <IaManageSurface
+        labelledBy={LIST_HEADING_ID}
+        hiddenTitle={DEVICE_REQUESTS.heading}
+        busy={loading}
+      >
+        {body}
+      </IaManageSurface>
     </>
-  );
-}
-
-function TransferRow({
-  transfer,
-  students,
-  paused,
-}: {
-  readonly transfer: DeviceTransfer;
-  readonly students: StudentNames;
-  readonly paused: boolean;
-}) {
-  const student = studentOf(transfer, students);
-  const href = deviceRequestAddress(transfer.id);
-  const { columns } = DEVICE_REQUESTS;
-  return (
-    <tr>
-      <td className="is-primary">
-        <Link href={href} className="font-[700]">
-          {student.fullName}
-        </Link>
-        {student.institutionStudentId ? (
-          <span className="xr-sub xr-id">{student.institutionStudentId}</span>
-        ) : null}
-      </td>
-      <td data-label={columns.request}>
-        {transferKindWords(transfer.format)}
-        <span className="xr-sub">
-          <span className="xr-id">{transfer.id}</span>
-          {transferDateWords(transfer.requestedAt)}
-        </span>
-      </td>
-      <td data-label={columns.status}>
-        <StatusPill tone={TRANSFER_TONE[transfer.state]}>
-          {transferStatusWords(transfer.state)}
-        </StatusPill>
-      </td>
-      <td>
-        {transfer.state === 'with-institute-admin' && !paused ? (
-          <Link
-            className="xr-btn xr-btn--secondary xr-btn--sm"
-            href={href}
-            aria-label={reviewLabel(student.fullName)}
-          >
-            {DEVICE_REQUESTS.review}
-          </Link>
-        ) : null}
-      </td>
-    </tr>
   );
 }

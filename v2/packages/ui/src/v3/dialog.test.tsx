@@ -7,11 +7,13 @@
  * their confirm button; a refusal or failure shows as a notice in the body (SA-11, SA-13, SA-14,
  * SA-15, SA-17, SA-21 Reopen). The SA-03 confirmation (focus on the title) is in
  * `structure.test.tsx`. The Vendor export's dialogs (VE-v1) add the navy confirm and a dialog
- * without a body; the Content Manager export's (CM-v1) the hold while busy and the tight body.
+ * without a body; the Content Manager export's (CM-v1) the hold while busy and the tight body; the
+ * Institute Admin export's (IA-v1) the destructive alertdialog with its red confirm, focus on
+ * Cancel, the busy look and the name dialogs without a line.
  * jsdom's stand-ins for the native dialog; the browser behaviour (top layer,
  * inert page) is proven in apps/specimens/e2e/v3-foundation.spec.ts.
  */
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { useState } from 'react';
 import { describe, expect, it, vi } from 'vitest';
 
@@ -20,6 +22,7 @@ import {
   cmExportText,
   expectNoInternalReferences,
   expectV3ClassesOnly,
+  iaExportText,
   saExportText,
   veExportText,
 } from '../testing/index.js';
@@ -557,5 +560,153 @@ describe('the Content Manager export’s dialogs (CM-v1 `Main.dc.html` DL-1 Publ
     );
     rerender(<Publish />);
     expect(dialog.querySelector('div.rk-dlg-body')!.className).toBe('rk-dlg-body');
+  });
+});
+
+describe('the Institute Admin export’s dialogs (IA-v1 `Main.dc.html` `G.*`, DL-1, DL-2, DL-3)', () => {
+  const MAIN = iaExportText('Main.dc.html');
+  const TEMPLATE = MAIN.slice(0, MAIN.indexOf('<script type="text/x-dc"'));
+
+  /** IA-14 "Remove … from this group?", IA-04 Withdraw (with its reason field). */
+  function Remove({
+    destructive,
+    initialFocus,
+    busy = false,
+    withField = false,
+  }: {
+    readonly destructive?: boolean;
+    readonly initialFocus?: 'field' | 'cancel' | 'confirm' | 'title';
+    readonly busy?: boolean;
+    readonly withField?: boolean;
+  }) {
+    const [open, setOpen] = useState(false);
+    return (
+      <div className="xr rb">
+        <button type="button" onClick={() => setOpen(true)}>
+          Remove…
+        </button>
+        <ConfirmDialog
+          open={open}
+          destructive={destructive}
+          initialFocus={initialFocus}
+          title="Remove Priya Natarajan from this group?"
+          description="Priya will no longer be a member of ME ZG523 — Sem II. Their student record stays in People."
+          confirmLabel="Remove from group"
+          busy={busy}
+          busyLabel="Removing…"
+          busyLook
+          onConfirm={() => undefined}
+          onCancel={() => setOpen(false)}
+        >
+          {withField ? (
+            <Field id="ia-dlg-f" label="Reason (required)">
+              <Textarea />
+            </Field>
+          ) : undefined}
+        </ConfirmDialog>
+      </div>
+    );
+  }
+
+  it('destructive: an alertdialog, the red confirm, focus on Cancel; Esc returns focus', async () => {
+    for (const piece of [
+      '<div class="rk-dialog" role="{{ G.role }}" aria-modal="true" aria-labelledby="ia-dlg-t" aria-describedby="{{ G.descBy }}"',
+      '<div class="rk-dlg-head"><h2 id="ia-dlg-t" tabindex="-1">{{ G.title }}</h2>',
+      '<button type="button" class="rb-btn rb-btn--lg" id="ia-dlg-cancel"',
+    ]) {
+      expect(TEMPLATE).toContain(piece);
+    }
+    expect(MAIN).toContain(
+      "danger = 'rb-btn ia-btn--danger rb-btn--lg' + (d.busy ? ' ia-btn--busy' : '')",
+    );
+    expect(MAIN).toContain(
+      "openDlg({ kind: 'rmMember', gid, sid: S.id, ret: 'gd-rm-' + S.id }, 'ia-dlg-cancel')",
+    );
+    const { container } = render(<Remove destructive initialFocus="cancel" />);
+    const trigger = screen.getByRole('button', { name: 'Remove…' });
+    trigger.focus();
+    fireEvent.click(trigger);
+    const dialog = await screen.findByRole('alertdialog', {
+      name: 'Remove Priya Natarajan from this group?',
+    });
+    expect(dialog).toHaveClass('rk-dialog');
+    expect(dialog).toHaveAccessibleDescription(
+      'Priya will no longer be a member of ME ZG523 — Sem II. Their student record stays in People.',
+    );
+    const confirm = within(dialog).getByRole('button', { name: 'Remove from group' });
+    expect(confirm.className).toBe('rb-btn rb-btn--lg ia-btn--danger');
+    await waitFor(() =>
+      expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus(),
+    );
+    expect(dialog.querySelector('.rk-dlg-body')).toBeNull();
+    expectV3ClassesOnly(container);
+    expectNoInternalReferences(container);
+    fireEvent.keyDown(dialog, { key: 'Escape' });
+    fireEvent(dialog, new Event('cancel'));
+    await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
+    expect(trigger).toHaveFocus();
+  });
+
+  it('a reason dialog opens on its field; busy: the confirm says so, ia-btn--busy and aria-disabled', async () => {
+    const { container } = render(<Remove destructive initialFocus="field" withField busy />);
+    fireEvent.click(screen.getByRole('button', { name: 'Remove…' }));
+    const dialog = await screen.findByRole('alertdialog');
+    await waitFor(() => expect(within(dialog).getByLabelText('Reason (required)')).toHaveFocus());
+    const confirm = within(dialog).getByRole('button', { name: 'Removing…' });
+    expect(confirm).toHaveClass('ia-btn--danger', 'ia-btn--busy');
+    expect(confirm).toHaveAttribute('aria-disabled', 'true');
+    expect(dialog.querySelector('.rk-dlg-body')).not.toBeNull();
+    expectV3ClassesOnly(container);
+    await assertNoAxeViolations(dialog);
+  });
+
+  it('not destructive: a dialog with the gold confirm, and no line or description where there is none (Rename)', async () => {
+    expect(MAIN).toContain("V.hasBody = !!V.body; V.descBy = V.hasBody ? 'ia-dlg-d' : undefined;");
+    render(
+      <div className="xr rb">
+        <ConfirmDialog
+          open
+          initialFocus="confirm"
+          title="Rename group"
+          confirmLabel="Save name"
+          busyLook
+          onConfirm={() => undefined}
+          onCancel={() => undefined}
+        />
+      </div>,
+    );
+    const dialog = await screen.findByRole('dialog', { name: 'Rename group' });
+    expect(dialog).not.toHaveAttribute('role');
+    expect(dialog).not.toHaveAttribute('aria-describedby');
+    expect(dialog.querySelector('.rk-dlg-head > p')).toBeNull();
+    expect(within(dialog).getByRole('button', { name: 'Save name' }).className).toBe(
+      'rb-btn rb-btn--primary rb-btn--lg',
+    );
+    await waitFor(() =>
+      expect(within(dialog).getByRole('button', { name: 'Save name' })).toHaveFocus(),
+    );
+  });
+
+  it('every other role’s dialog is unchanged: a dialog (no role), its line, no IA class while busy', () => {
+    render(
+      <ConfirmDialog
+        open
+        title="Publish Transient Cooling?"
+        description="Check what publishing does now."
+        confirmLabel="Publish"
+        busy
+        busyLabel="Publishing…"
+        onConfirm={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    const dialog = dialogOf();
+    expect(dialog).not.toHaveAttribute('role');
+    expect(dialog).toHaveAttribute(
+      'aria-describedby',
+      `${dialog.getAttribute('aria-labelledby')!.slice(0, -2)}-d`,
+    );
+    const confirm = within(dialog).getAllByRole('button', { hidden: true })[1]!;
+    expect(confirm.className).toBe('rb-btn rb-btn--primary rb-btn--lg');
   });
 });

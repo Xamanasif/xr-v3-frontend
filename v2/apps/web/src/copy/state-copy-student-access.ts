@@ -141,10 +141,22 @@ export const STATE_COPY_STUDENT_ACCESS = {
   },
   'IA-05.nothing-held.request': {
     screen: 'IA-05',
-    state: 'No experiments held yet (f17): the request sentence',
+    state: 'No experiments held yet: the request sentence',
+    words: 'Your request is approved — payment required.',
+    rule: 'Follows the first sentence only while the institution’s own status is “approved, payment required”; otherwise the first sentence stands alone. The request is named by content, never by its id (identifier rule).',
+    basis:
+      'IA-v1 Main.dc.html IA-05 refusal (`V.rNone`: “Request REQ-0042 is approved — payment required.”) without the request’s id',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'IA-04.no-reference': {
+    screen: 'IA-04',
+    state:
+      'A line of the access screens (IA-04, IA-05, IA-07, IA-14) where the V3 export still names a record by its id',
     words: null,
-    rule: '“Request <REQ> is approved — payment required.” follows only while the institution’s own status is “approved, payment required”; otherwise the first sentence stands alone.',
-    basis: 'B2-05 f17 “No experiments held yet” (its sample request REQ-0042)',
+    rule: 'No access plan, request, grant or group id is shown: “No licence is available for <first name> on your access plan right now.”; “Your access plan has ended”; step 1 “<status> · <n> licences · ends <date>”; the selection “Your access plan · <course code>”; step 3 “Licences: Your access plan · …”; the review “<name> already has it individually. That grant isn’t changed.”; the result lists who → what → status (no grant id); IA-07 “Formats come from your access plan; …” and “Your access plan ended on <date>.”; IA-14 “Has it individually” with “Given <date>”. Ids stay in addresses, keys and the commands; Student access’s search still matches a typed grant id.',
+    basis:
+      'Owner identifier rule for every role (IA lead decision 2; CM record §5.11); IA-v1 HANDOFF §9 (grant, faculty-course and group ids already out of labels)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

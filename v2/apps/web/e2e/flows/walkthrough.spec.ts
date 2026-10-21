@@ -80,6 +80,11 @@ const RELEASED_NAME = 'Shell-and-Tube Heat Exchanger Performance';
 const RELEASED_SUMMARY =
   'Run counter-flow and parallel-flow tests and find the overall heat-transfer coefficient from your own readings.';
 const GIT_VR_07 = 'ME lab VR headset, asset tag GIT-VR-07';
+/**
+ * The identifier rule (owner, every V3 role; IA-v1 for the Institute Admin): no internal reference
+ * in the Institute Admin's words — the references stay in addresses, keys and services.
+ */
+const REFERENCE = /\b(?:SACC|ACC|REQ|GRP|DTR|FMAP)-\d+/;
 const RETURN_REASON = 'Please name the VR headsets it runs on.';
 const REVISED_DEVICE = 'Meta Quest 3 standalone headset — no PC needed.';
 const OUTCOMES = [
@@ -224,18 +229,24 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await assignMeera(admin);
     await desk.goto('/sign-in');
     await as(desk, EMAIL.meera, '/institute');
-    await expect(main(desk).locator('.xw-statusline')).toContainText('Access active');
+    await expect(main(desk).locator('.ia-ov-status')).toContainText('Access active');
     await checkState(desk, 'Overview');
   });
 
   await test.step(stepTitle('B2'), async () => {
     await sidebar(desk, '/institute/content-access');
-    await expect(main(desk)).toContainText('Access plan ACC-0107');
-    await expect(main(desk)).toContainText('Active');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: 'View access plan ACC-0107' }));
+    // V3 (IA-v1 identifier rule): the plan is named by its content; ACC-0107 is only in the
+    // address its link leads to.
+    const planBand = desk.getByRole('region', { name: 'Access plan', exact: true });
+    await expect(planBand).toContainText('Active');
+    const viewPlan = planBand.getByRole('link', { name: /^View access plan, / });
+    await expect(viewPlan).toHaveAttribute('href', '/institute/content-access/plans/ACC-0107');
+    await expect(main(desk)).not.toContainText(REFERENCE);
+    await reachAndClick(desk, viewPlan);
     await desk.waitForURL('**/institute/content-access/plans/ACC-0107');
-    await expect(main(desk)).toContainText('Active');
-    await checkState(desk, 'Access plan ACC-0107');
+    await expect(main(desk).locator('.rk-head .rk-meta')).toContainText('Active');
+    await expect(main(desk)).not.toContainText(REFERENCE);
+    await checkState(desk, 'Your access plan');
   });
 
   await test.step(stepTitle('B3'), async () => {
@@ -388,10 +399,15 @@ test('Flows A–F and the device chain on one shared sample world, through the p
 
   await test.step(stepTitle('Device 2'), async () => {
     await reachAndClick(desk, button(desk, 'Forward to BITS'));
-    const forward = desk.getByRole('dialog', { name: `Forward ${transfer} to BITS?` });
+    // IA-19 in the V3 design (IA-v1): the dialog is named by the request's content, never its
+    // reference; the forward's flash says what happened.
+    const forward = desk.getByRole('dialog', {
+      name: 'Forward Rahul Verma’s device request to BITS?',
+    });
     await reachAndClick(desk, forward.getByRole('button', { name: 'Forward to BITS' }));
     await expect(forward).toBeHidden();
-    await expect(desk.locator('#device-request-status')).toContainText('Forwarded to BITS');
+    await expect(desk.locator('#device-request-flash')).toContainText('Forwarded to BITS');
+    await expect(main(desk)).not.toContainText(transfer);
     await signOut(desk, ACCOUNT.meera);
     await as(desk, EMAIL.rahul, '/student');
     await myDevice(desk);
@@ -443,11 +459,12 @@ test('Flows A–F and the device chain on one shared sample world, through the p
       desk,
       desk
         .getByRole('navigation', { name: 'People' })
-        .getByRole('link', { name: 'Faculty', exact: true }),
+        // V3 (IA-v1) names the tab with its count: "Faculty, 3 faculty members".
+        .getByRole('link', { name: /^Faculty\s*(,|$)/ }),
     );
     await reachAndClick(
       desk,
-      main(desk).locator('.xr-phead').getByRole('link', { name: 'Add faculty member' }),
+      main(desk).locator('.rk-head-act').getByRole('link', { name: 'Add faculty member' }),
     );
     await desk.waitForURL('**/institute/people/add?type=faculty');
     await desk.getByLabel('Full name', { exact: true }).fill('Dr S. Ranganathan');
@@ -455,7 +472,7 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await reachAndClick(desk, button(desk, 'Add faculty member'));
     await reachAndClick(desk, main(desk).getByRole('link', { name: 'Assign a course' }));
     await desk.waitForURL('**/institute/people?tab=faculty-courses&faculty=**');
-    const assignCourse = desk.getByRole('complementary', { name: 'Assign a course' });
+    const assignCourse = desk.getByRole('region', { name: 'Assign a course' });
     await assignCourse
       .getByRole('combobox', { name: /^Course/ })
       .selectOption({ label: `ME ZG523 — ${THERMO}` });

@@ -2,7 +2,7 @@ import type { ContentAccessRow } from '@xr/contracts/draft';
 import { inDisplayOrder, type Technology, type UsageRow } from '@xr/domain';
 
 /**
- * IA-20 Usage (board B3-10) as the screen draws it, from two reads: `OperationsService.getUsage`
+ * IA-20 Usage (board B3-10; in V3 the IA-v1 export's `vm20`) as the screen draws it, from two reads: `OperationsService.getUsage`
  * (per experiment × format: students with access, started, completed, sessions — P3-04
  * provisional, computed by the service) and `InstitutionService.listContentAccess` (each
  * experiment's name, its course and the course's platform code, the plans that hold it). Nothing
@@ -28,6 +28,8 @@ export interface ExperimentUsageView {
   readonly planIds: readonly string[];
   readonly studentsWithAccess: number;
   readonly formats: readonly FormatFigures[];
+  /** Whether any of its figures is above zero; none: its own "No activity yet" (V3). */
+  readonly hasActivity: boolean;
 }
 
 /** One "By course" row (B3-10 f1). */
@@ -111,6 +113,7 @@ export function usageScreenView(
       courseCode: known?.course.platformCode ?? null,
       planIds: known?.planIds ?? [],
       studentsWithAccess: row.studentsWithAccess,
+      hasActivity: hasActivity([row]),
       formats: order.map((format) => {
         const figures = row.perFormat.find((candidate) => candidate.format === format)!;
         return {
