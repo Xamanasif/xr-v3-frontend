@@ -318,22 +318,40 @@ test.describe('Student', () => {
     page,
   }) => {
     await open(page, 'after-flow-b', RAHUL, '/student/courses?tab=experiments');
-    await expect(main(page).locator('.xw-erow')).toHaveCount(1);
-    await expect(main(page).locator('.xw-erow')).toContainText(SHELL);
+    // V3 (ST-v1 `xcard` in `sv-xpanel`): one row per given experiment, its formats' words.
+    const rows = main(page).locator('.sv-xpanel li.sv-xli');
+    await expect(rows).toHaveCount(1);
+    await expect(rows).toContainText(SHELL);
+    await expect(rows.getByRole('list', { name: `Your formats for ${SHELL}` })).toBeVisible();
+    await expect(main(page).locator('.sv-toolbar-s .rk-count')).toHaveText(
+      '1 experiment in 1 course',
+    );
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/courses');
     await checkState(page, 'My courses');
+    await expectNoIaReferences(page);
     await page.getByRole('searchbox', { name: 'Search' }).fill('Fin-Tube');
-    await expect(page.getByRole('heading', { name: 'No experiments match' })).toBeVisible();
+    await expect(main(page).locator('.sv-pstate')).toContainText('No experiments match');
+    await expect(
+      page.getByRole('button', { name: 'Remove filter Search: “Fin-Tube”' }),
+    ).toBeVisible();
     await checkState(page, 'My courses');
+    await reachAndClick(
+      page,
+      main(page).locator('.sv-pstate').getByRole('button', { name: 'Clear filters' }),
+    );
+    await expect(rows).toHaveCount(1);
+    await expect(page.getByRole('searchbox', { name: 'Search' })).toBeFocused();
   });
 
-  test('ST-04 for a Student waiting for a licence: named, still opens (later sample)', async ({
+  test('ST-04 for a Student waiting for a licence: named by content, still opens (later sample)', async ({
     page,
   }) => {
     await open(page, 'later-sample', ARUN, '/student/courses?tab=experiments');
-    await expect(main(page).locator('.xw-erow').first()).toContainText(
-      /No licence is available for you on ACC-\d{4} right now\./,
-    );
+    const row = main(page).locator('.sv-xpanel li.sv-xli').first();
+    await expect(row.locator('.sv-xli-f')).toContainText('Waiting for a licence');
+    await expect(row.getByRole('link', { name: /^Open experiment / })).toBeVisible();
     await checkState(page, 'My courses');
+    // Lead decision 3: the wait never names the plan (no ACC- reference anywhere on the page).
+    await expectNoIaReferences(page);
   });
 });

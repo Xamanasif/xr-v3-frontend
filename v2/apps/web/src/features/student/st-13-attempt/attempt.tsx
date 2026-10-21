@@ -3,45 +3,55 @@
 import type {
   AssessmentIntro as IntroAnswer,
   AttemptSheet,
-  PinnedRelease,
+  StudentAttemptFacts,
 } from '@xr/contracts/draft';
-import { type AnswerValue, type ChoiceKey, ROLE_LABEL } from '@xr/domain';
+import type { AnswerValue, ChoiceKey } from '@xr/domain';
 import {
-  BackLink,
-  Button,
+  ButtonLink,
   ConfirmDialog,
-  Icon,
-  Link,
-  LoadingState,
-  Notice,
-  PageHeader,
-  SkipLink,
-} from '@xr/ui';
-import { type MouseEvent, type ReactNode, useEffect, useRef, useState } from 'react';
+  StAttemptAllAnswered,
+  StAttemptChoices,
+  StAttemptDone,
+  StAttemptFrame,
+  StAttemptHead,
+  StAttemptLayout,
+  StAttemptPending,
+  StAttemptQuestion,
+  StAttemptSave,
+  StAttemptStrip,
+  StAttemptSubmit,
+  StAttemptWritten,
+  StLoading,
+  StMessage,
+} from '@xr/ui/v3';
+import { type ReactNode, useEffect, useId, useRef, useState } from 'react';
 
 import {
+  allAnsweredWords,
   answeredCountWords,
   ATTEMPT_PAGE,
+  ATTEMPT_V3,
   attemptDocumentTitle,
   attemptMetaLine,
-  attemptOverline,
+  attemptOfWords,
+  pendingWords,
   questionLabel,
   questionMarks,
   stripLinkLabel,
   submittedLine,
-  unansweredWords,
 } from '@/copy/attempt';
+import { ST_STATE_WORDS } from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
 import { useAppNavigation } from '@/nav/navigation';
-import { experimentAddress, studentAssessmentAddress } from '@/nav/student-assessments';
+import { hubAssessmentAddress, studentAssessmentAddress } from '@/nav/student-assessments';
 import { useAssessmentIntro } from '@/queries/student-assessments';
 import { useCommand } from '@/queries/use-command';
 
 import { DocumentTitle } from '../../shared/document-title';
 import { MAIN_ID } from '../../shared/workspace-frame/route-focus';
-import { useShellPerson, useWorkspaceIdentity } from '../../shared/workspace-frame/shell-page';
-import { StudentFailed } from '../shared/student-states';
+import { useShellPerson } from '../../shared/workspace-frame/shell-page';
 import { notAvailableKind } from '../shared/student-view';
+import { STATE_TONE, statusOf } from '../st-11-assessments/assessment-rows';
 import { type AnswerSaver, isAnswered, type SaveStatus, useAnswerSaver } from './answer-saver';
 
 /** The board's id prefix (`Ta-main`, `Ta-q1`, `Ta-suberr`, `Ta-done` …; B4-12 f0). */
@@ -135,12 +145,9 @@ export function AssessmentAttempt({ assessmentId }: { readonly assessmentId: str
   if (submitted && held) {
     const facts = intro?.attempts.find((attempt) => attempt.attemptId === submitted.attemptId);
     return (
-      <AttemptFrame held={held} status="idle" title={attemptDocumentTitle(held.name, true)}>
-        <SubmittedMessage
-          held={held}
-          submittedAt={submitted.submittedAt}
-          release={facts?.release ?? null}
-        />
+      <AttemptFrame held={held} title={attemptDocumentTitle(held.name, true)}>
+        <AttemptHead held={held} />
+        <SubmittedMessage held={held} submittedAt={submitted.submittedAt} facts={facts ?? null} />
       </AttemptFrame>
     );
   }
@@ -157,70 +164,72 @@ export function AssessmentAttempt({ assessmentId }: { readonly assessmentId: str
   }
   if (read.isError) {
     return (
-      <AttemptFrame held={null} status="idle" title="">
-        <StudentFailed title={stateWords('ST-13.failed')} onRetry={() => void read.refetch()} />
+      <AttemptFrame held={null} title="">
+        <StMessage
+          icon="cloudAlert"
+          tone="err"
+          alert
+          title={stateWords('ST-13.failed')}
+          titleId={`${PREFIX}-failed`}
+          description={ST_STATE_WORDS.failedLine}
+          retry={{ label: ST_STATE_WORDS.tryAgain, onRetry: () => void read.refetch() }}
+        />
       </AttemptFrame>
     );
   }
   return (
-    <AttemptFrame held={null} status="idle" title="">
-      <LoadingState label={stateWords('ST-13.loading')} surface="section" />
+    <AttemptFrame held={null} title="">
+      <StLoading variant="card" label={stateWords('ST-13.loading')} />
     </AttemptFrame>
   );
 }
 
 /**
- * The focused frame (B4-12 f0): `div.xr-app` with the skip link, `header.xa-bar` (the way out,
- * the save state, the avatar) and `main.xr-page` holding `div.xr-wrap--form.xr-content`.
+ * The focused frame (ST-v1 `is.att`): its own V3 root with the skip link, the bar (`st-focusbar`:
+ * the way out to Before you start, named by the assessment; the save state while the questions are
+ * on show; the avatar) and `main.st-focuspage#main`.
  */
 function AttemptFrame({
   held,
-  status,
-  onRetry,
+  save,
   title,
   overlay,
   children,
 }: {
   readonly held: Held | null;
-  readonly status: SaveStatus;
-  readonly onRetry?: () => void;
+  /** The save state, while the questions are on show. */
+  readonly save?: { readonly status: SaveStatus; readonly onRetry?: () => void };
   readonly title: string;
-  /** The DL-1 dialog: inside `main`, after the content (the board's scrim). */
+  /** The DL-1 dialog: inside `main`, after the content. */
   readonly overlay?: ReactNode;
   readonly children: ReactNode;
 }) {
   const person = useShellPerson();
-  const identity = useWorkspaceIdentity();
   return (
-    <div className="xr-app">
-      <SkipLink targetId={MAIN_ID} />
+    <StAttemptFrame
+      skipLabel={ATTEMPT_V3.skip}
+      mainId={MAIN_ID}
+      initials={person.initials}
+      exit={
+        held ? { href: studentAssessmentAddress(held.assessmentId), label: held.name } : undefined
+      }
+      save={save ? <SaveState status={save.status} onRetry={save.onRetry} /> : undefined}
+      overlay={overlay}
+    >
       <DocumentTitle title={title} />
-      <header className="xa-bar">
-        {held ? (
-          <BackLink href={experimentAddress(held.experimentId)}>{held.experimentName}</BackLink>
-        ) : (
-          <span />
-        )}
-        <div className="xa-bar-end">
-          <SaveState status={status} onRetry={onRetry} />
-          <span
-            className="xr-avatar"
-            role="img"
-            aria-label={`${person.name}, ${ROLE_LABEL[identity.role]}`}
-          >
-            {person.initials}
-          </span>
-        </div>
-      </header>
-      <main className="xr-page [padding-top:28px]" id={MAIN_ID} tabIndex={-1}>
-        <div className="xr-wrap--form xr-content">{children}</div>
-        {overlay}
-      </main>
-    </div>
+      {children}
+    </StAttemptFrame>
   );
 }
 
-/** The bar's save state (B4-12 f0 idle, "Saving…", f3 saved, f2 failed with Try again). */
+const SAVE_WORDS: Readonly<Record<SaveStatus, string>> = {
+  idle: ATTEMPT_PAGE.saveIdle,
+  saving: ATTEMPT_PAGE.saving,
+  saved: ATTEMPT_PAGE.saved,
+  failed: ATTEMPT_PAGE.saveFailed,
+};
+
+/** The bar's save state ("Answers save automatically", "Saving…", "All answers saved", f2). */
 function SaveState({
   status,
   onRetry,
@@ -228,80 +237,73 @@ function SaveState({
   readonly status: SaveStatus;
   readonly onRetry: (() => void) | undefined;
 }) {
-  switch (status) {
-    case 'idle':
-      return (
-        <span className="xa-save">
-          <Icon name="done" />
-          {ATTEMPT_PAGE.saveIdle}
-        </span>
-      );
-    case 'saving':
-      return (
-        <span className="xa-save" role="status">
-          <span className="xr-spin" aria-hidden="true" />
-          {ATTEMPT_PAGE.saving}
-        </span>
-      );
-    case 'saved':
-      return (
-        <span className="xa-save is-ok" role="status">
-          <Icon name="done" />
-          {ATTEMPT_PAGE.saved}
-        </span>
-      );
-    case 'failed':
-      return (
-        <span className="xa-save is-err" role="alert">
-          <Icon name="failed" />
-          {ATTEMPT_PAGE.saveFailed}
-          <button type="button" className="xr-btn xr-btn--text min-h-8" onClick={onRetry}>
-            {ATTEMPT_PAGE.tryAgain}
-          </button>
-        </span>
-      );
-  }
+  return (
+    <StAttemptSave
+      state={status}
+      words={SAVE_WORDS[status]}
+      retryLabel={ATTEMPT_PAGE.tryAgain}
+      onRetry={onRetry}
+    />
+  );
 }
 
-/** f4 "Answers submitted" (`div.xr-msg#Ta-done`, focused when it shows). */
+/** The attempt's head (`div.sv-focushead`): experiment · attempt, the name, its facts. */
+function AttemptHead({ held }: { readonly held: Held }) {
+  const { sheet } = held;
+  return (
+    <StAttemptHead
+      experiment={held.experimentName}
+      attempt={attemptOfWords(sheet.attemptNumber, sheet.attemptsAllowed)}
+      title={held.name}
+      meta={attemptMetaLine(sheet.questions.length, sheet.totalMarks, sheet.deadline)}
+    />
+  );
+}
+
+/** "Answers submitted" (`section.sv-card.sv-act-card#Ta-done`, focused when it shows). */
 function SubmittedMessage({
   held,
   submittedAt,
-  release,
+  facts,
 }: {
   readonly held: Held;
   readonly submittedAt: string;
-  readonly release: PinnedRelease | null;
+  readonly facts: StudentAttemptFacts | null;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLElement>(null);
+  const titleId = useId();
   useEffect(() => {
     ref.current?.focus();
   }, []);
   const hasWritten = held.sheet.questions.some((question) => question.type === 'written');
+  const kind = facts?.result.kind;
   return (
-    <div
-      ref={ref}
-      className="xr-msg [margin:24px_0] [text-align:left]"
+    <StAttemptDone
       id={`${PREFIX}-done`}
-      tabIndex={-1}
-    >
-      <span className="xr-msg-icon xr-x-msg-icon--ok">
-        <Icon name="done" />
-      </span>
-      <h1 className="xr-msg-title">{ATTEMPT_PAGE.submittedTitle}</h1>
-      <p className="xr-lead m-0">{submittedLine(submittedAt, hasWritten, release)}</p>
-      <div className="xr-msg-actions">
-        <Link className="xr-btn xr-btn--primary" href={experimentAddress(held.experimentId)}>
-          {ATTEMPT_PAGE.backToExperiment}
-        </Link>
-        <Link
-          className="xr-btn xr-btn--text"
-          href={studentAssessmentAddress(held.assessmentId, 'result')}
-        >
-          {ATTEMPT_PAGE.seeResultPage}
-        </Link>
-      </div>
-    </div>
+      titleId={titleId}
+      cardRef={ref}
+      status={
+        kind && kind !== 'in-progress'
+          ? statusOf(kind)
+          : { tone: STATE_TONE['waiting-for-marking'], words: ATTEMPT_V3.waiting }
+      }
+      title={ATTEMPT_PAGE.submittedTitle}
+      text={submittedLine(submittedAt, hasWritten, facts?.release ?? null)}
+      actions={
+        <>
+          <ButtonLink
+            variant="primary"
+            size="lg"
+            href={studentAssessmentAddress(held.assessmentId, 'result')}
+          >
+            {ATTEMPT_PAGE.seeResultPage}
+          </ButtonLink>
+          <ButtonLink size="lg" href={hubAssessmentAddress(held.experimentId)}>
+            {ATTEMPT_PAGE.backToExperiment}
+          </ButtonLink>
+        </>
+      }
+    />
   );
 }
 
@@ -395,25 +397,14 @@ function AttemptForm({
   return (
     <AttemptFrame
       held={held}
-      status={saver.status}
-      onRetry={saver.retry}
+      save={{ status: saver.status, onRetry: saver.retry }}
       title={attemptDocumentTitle(held.name, false)}
       overlay={
         <ConfirmDialog
           open={dialogOpen}
           idPrefix={`${PREFIX}-s`}
-          align="end"
           title={ATTEMPT_PAGE.dialogTitle}
-          effect={
-            missing.length > 0 ? (
-              <span className="block [margin:0_0_8px]">
-                <strong>{unansweredWords(missing)}</strong> {ATTEMPT_PAGE.stillSubmit}
-              </span>
-            ) : (
-              ATTEMPT_PAGE.dialogEffect
-            )
-          }
-          notice={missing.length > 0 ? <p>{ATTEMPT_PAGE.dialogEffect}</p> : undefined}
+          description={ATTEMPT_PAGE.dialogEffect}
           cancelLabel={ATTEMPT_PAGE.keepAnswering}
           confirmLabel={ATTEMPT_PAGE.submitAnswers}
           busyLabel={ATTEMPT_PAGE.submitting}
@@ -422,91 +413,79 @@ function AttemptForm({
           onCancel={() => {
             if (!busy) setDialogOpen(false);
           }}
-        />
+        >
+          {missing.length > 0 ? (
+            <StAttemptPending>{pendingWords(missing)}</StAttemptPending>
+          ) : (
+            <StAttemptAllAnswered>{allAnsweredWords(questions.length)}</StAttemptAllAnswered>
+          )}
+        </ConfirmDialog>
       }
     >
-      <PageHeader
-        className="[margin:0_0_16px]"
-        overline={attemptOverline(held.experimentName, sheet.attemptNumber, sheet.attemptsAllowed)}
-        title={held.name}
-        meta={
-          <span className="xl-meta">
-            {attemptMetaLine(questions.length, sheet.totalMarks, sheet.deadline)}
-          </span>
+      <AttemptHead held={held} />
+      <StAttemptLayout
+        questionsLabel={ATTEMPT_V3.questionsLabel}
+        questions={questions.map((question) => (
+          <StAttemptQuestion
+            key={question.questionId}
+            id={`${PREFIX}-q${question.number}`}
+            headingId={`${PREFIX}-q${question.number}-h`}
+            number={question.number}
+            done={isAnswered(saver.answers[question.questionId])}
+            label={questionLabel(question.number, questions.length, question.type)}
+            marks={questionMarks(question.marks)}
+          >
+            <QuestionAnswer question={question} saver={saver} />
+          </StAttemptQuestion>
+        ))}
+        side={
+          <>
+            <StAttemptStrip
+              title={ATTEMPT_PAGE.stripLabel}
+              titleId={`${PREFIX}-strip-h`}
+              count={answeredCountWords(answered.length, questions.length)}
+              items={questions.map((question) => {
+                const done = isAnswered(saver.answers[question.questionId]);
+                return {
+                  number: question.number,
+                  targetId: `${PREFIX}-q${question.number}`,
+                  done,
+                  label: stripLinkLabel(question.number, done),
+                };
+              })}
+              next={
+                missing.length > 0
+                  ? { label: ATTEMPT_PAGE.nextUnanswered, onNext: () => focusQuestion(missing[0]!) }
+                  : undefined
+              }
+            />
+            <StAttemptSubmit
+              titleId={`${PREFIX}-sub-h`}
+              title={ATTEMPT_V3.submitTitle}
+              failure={
+                failures > 0
+                  ? {
+                      id: `${PREFIX}-suberr`,
+                      ref: failedRef,
+                      title: ATTEMPT_PAGE.submitFailedTitle,
+                      line: ATTEMPT_PAGE.submitFailedLine,
+                    }
+                  : undefined
+              }
+              note={ATTEMPT_PAGE.footNote}
+              submitLabel={ATTEMPT_PAGE.submit}
+              onSubmit={() => setDialogOpen(true)}
+            />
+          </>
         }
       />
-      {failures > 0 ? (
-        <div id={`${PREFIX}-suberr`} tabIndex={-1} ref={failedRef} className="mb-4">
-          <Notice tone="err" title={ATTEMPT_PAGE.submitFailedTitle}>
-            {ATTEMPT_PAGE.submitFailedLine}
-          </Notice>
-        </div>
-      ) : null}
-      <div className="mb-5">
-        <nav className="xa-strip" aria-label={ATTEMPT_PAGE.stripLabel}>
-          <span className="xa-strip-text" role="status">
-            {answeredCountWords(answered.length, questions.length)}
-          </span>
-          <ol>
-            {questions.map((question) => {
-              const done = isAnswered(saver.answers[question.questionId]);
-              return (
-                <li key={question.questionId}>
-                  <a
-                    href={`#${PREFIX}-q${question.number}`}
-                    className={done ? 'is-done' : undefined}
-                    aria-label={stripLinkLabel(question.number, done)}
-                    onClick={(event: MouseEvent<HTMLAnchorElement>) => {
-                      event.preventDefault();
-                      focusQuestion(question.number);
-                    }}
-                  >
-                    {question.number}
-                  </a>
-                </li>
-              );
-            })}
-          </ol>
-          {missing.length > 0 ? (
-            <Button variant="secondary" size="sm" onClick={() => focusQuestion(missing[0]!)}>
-              {ATTEMPT_PAGE.nextUnanswered}
-            </Button>
-          ) : null}
-        </nav>
-      </div>
-      <ol className="xa-qs">
-        {questions.map((question) => (
-          <li
-            key={question.questionId}
-            className="xa-q"
-            id={`${PREFIX}-q${question.number}`}
-            tabIndex={-1}
-          >
-            <div className="xa-q-head">
-              <span className="xa-q-n">
-                {questionLabel(question.number, questions.length, question.type)}
-              </span>
-              <span className="xr-meta">{questionMarks(question.marks)}</span>
-            </div>
-            <QuestionAnswer question={question} saver={saver} />
-          </li>
-        ))}
-      </ol>
-      <div className="xw-flow-foot mt-6">
-        <p className="xl-meta m-0 max-w-[440px]">{ATTEMPT_PAGE.footNote}</p>
-        <div className="xw-actions">
-          <Button variant="primary" onClick={() => setDialogOpen(true)}>
-            {ATTEMPT_PAGE.submit}
-          </Button>
-        </div>
-      </div>
     </AttemptFrame>
   );
 }
 
 type SheetQuestion = AttemptSheet['questions'][number];
 
-/** A question's answer: the choices (`fieldset` of `label.xr-choice`) or the written field. */
+/** A question's answer: the choices (`fieldset.st-qfs`, radios) or the written field. */
 function QuestionAnswer({
   question,
   saver,
@@ -517,24 +496,15 @@ function QuestionAnswer({
   const value: AnswerValue | undefined = saver.answers[question.questionId];
   const name = `${PREFIX}-q${question.number}`;
   if (question.type === 'written') {
-    const id = `${PREFIX}-t${question.number}`;
     return (
-      <div className="xr-field">
-        <label className="xa-q-text" htmlFor={id}>
-          {question.text}
-        </label>
-        <span className="xr-hint" id={`${id}-h`}>
-          {ATTEMPT_PAGE.writtenHint}
-        </span>
-        <textarea
-          id={id}
-          className="xr-textarea"
-          aria-describedby={`${id}-h`}
-          value={value?.type === 'written' ? value.text : ''}
-          onChange={(event) => saver.write(question.questionId, event.target.value)}
-          onBlur={() => saver.leave(question.questionId)}
-        />
-      </div>
+      <StAttemptWritten
+        id={`${PREFIX}-t${question.number}`}
+        label={question.text}
+        hint={ATTEMPT_PAGE.writtenHint}
+        value={value?.type === 'written' ? value.text : ''}
+        onChange={(event) => saver.write(question.questionId, event.target.value)}
+        onBlur={() => saver.leave(question.questionId)}
+      />
     );
   }
   const options: readonly {
@@ -561,26 +531,20 @@ function QuestionAnswer({
       return value.value === option.value;
     return false;
   };
+  const idOf = (key: string) => `${name}-${key}`;
   return (
-    <fieldset className="xr-fieldset">
-      <legend className="xa-q-text">{question.text}</legend>
-      <div className="xr-choice-list">
-        {options.map((option) => {
-          const id = `${name}-${option.key}`;
-          return (
-            <label key={option.key} className="xr-choice" htmlFor={id}>
-              <input
-                type="radio"
-                id={id}
-                name={name}
-                checked={checked(option.value)}
-                onChange={() => saver.choose(question.questionId, option.value)}
-              />
-              <span>{option.label}</span>
-            </label>
-          );
-        })}
-      </div>
-    </fieldset>
+    <StAttemptChoices
+      legend={question.text}
+      name={name}
+      options={options.map((option) => ({
+        id: idOf(option.key),
+        label: option.label,
+        checked: checked(option.value),
+      }))}
+      onChoose={(id) => {
+        const option = options.find((entry) => idOf(entry.key) === id);
+        if (option) saver.choose(question.questionId, option.value);
+      }}
+    />
   );
 }

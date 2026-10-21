@@ -1,14 +1,15 @@
 /**
- * Phase 3, the experiment hub's tabs, on the real composition root and the sample world: ST-05's
- * tab strip, Next step and card actions (B2-12, B3-12), ST-06 Resources and ST-10 Progress for
- * this experiment (B3-01), ST-07 Simulation — choose a format (B3-02). Every row, status and
- * action is the ports' answer for the signed-in Student; mid-flow states (WEB in progress, WEB
- * completed without feedback) come from the CI-only runtime-report stand-ins, never from a page.
- * The safeguards: opening a resource or launching WEB completes nothing (T-12, T-13); feedback is
- * offered per format, only on that format's own completion (BC5); no percentage, no
- * experiment-level verdict. The strip carries the Assessment tab since Phase 4B (B4-11 f7; the
- * tab itself: student-assessments.test.tsx); the Overview's and Progress's assessment words keep
- * no action.
+ * The experiment hub, on the real composition root and the sample world, as the V3 Student export
+ * draws it (ST-v1 `StudentFinal.dc.html`): the hub's head and five section tabs, ST-05 Overview
+ * (about, what you learn, your formats with the one next step, Learning resources and Assessment
+ * beside), ST-06 Resources, ST-07 Simulation — choose a format, ST-10 Progress for this
+ * experiment. Every row, status and action is the ports' answer for the signed-in Student;
+ * mid-flow states (WEB in progress, WEB completed without feedback) come from the CI-only
+ * runtime-report stand-ins, never from a page. The safeguards: opening a resource or launching
+ * WEB completes nothing (T-12, T-13); feedback is offered per format, only on that format's own
+ * completion (BC5); no percentage, no experiment-level verdict; no stage (lead decision 1); no
+ * record reference in any word, name or title (lead decision 3). The Assessment tab itself:
+ * student-assessments.test.tsx.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -43,6 +44,16 @@ import { ExperimentHub, nextStepOf } from './st-05-experiment-hub/experiment-hub
 import { Resources } from './st-06-resources/resources';
 import { SimulationChooser } from './st-07-simulation/simulation-chooser';
 import { ExperimentProgress } from './st-10-experiment-progress/experiment-progress';
+
+/**
+ * Text as it reads: the export's no-break spaces that keep a date on one line (`nbd`) read as
+ * spaces (in a string, or in each string of a row).
+ */
+function plain<T>(value: T): T {
+  if (typeof value === 'string') return value.replace(/\u00a0/g, ' ') as T;
+  if (Array.isArray(value)) return value.map((item: unknown) => plain(item)) as T;
+  return value;
+}
 
 let opened: MockInstance<typeof window.open>;
 /** The blank tab the page opens in the click (`openPendingTab`), then points or closes. */
@@ -83,21 +94,24 @@ function inStudent(runtime: PlatformRuntime, path: string, page: ReactNode) {
 }
 
 const main = () => screen.getByRole('main');
-const topTitle = () => document.querySelector('.xr-top-title');
+const COURSE_NAME = 'Thermodynamics & Heat Transfer';
+
+/** The page's breadcrumbs (`nav.rk-crumbs`) as [words, href] — the current one without a link. */
 const crumbs = () =>
-  [...document.querySelectorAll('.xr-crumbs li')].map((li) => [
-    li.textContent?.replace('/', '').trim(),
-    li.querySelector('a')?.getAttribute('href') ?? null,
-  ]);
+  [
+    ...screen
+      .getByRole('navigation', { name: 'Breadcrumb' })
+      .querySelectorAll('a, [aria-current="page"]'),
+  ].map((item) => [item.textContent?.trim(), item.getAttribute('href')]);
 
 async function hubReady() {
   return screen.findByRole('heading', { level: 1, name: SHELL_NAME }, { timeout: 5000 });
 }
 
-/** The tab strip's links as [words, href, current]. */
+/** The section tabs' links as [words, href, current] (`nav.rk-tabs.sv-tabs.sv-tabs--chips`). */
 function tabStrip() {
-  const strip = screen.getByRole('navigation', { name: SHELL_NAME });
-  expect(strip).toHaveClass('xr-tabs', 'xr-tabs--on-white', 'xw-hubtabs');
+  const strip = screen.getByRole('navigation', { name: `${SHELL_NAME} sections` });
+  expect(strip).toHaveClass('rk-tabs', 'sv-tabs', 'sv-tabs--chips');
   return within(strip)
     .getAllByRole('link')
     .map((link) => [
@@ -116,6 +130,66 @@ function stripWith(current: string) {
     ['Progress', `${HUB}/progress`, current === 'Progress'],
   ];
 }
+
+/** The hub's head (`div.rk-head`): the code chip and the course, the H1, the pill and its line. */
+function hubHead() {
+  const head = main().querySelector<HTMLElement>('.rk-head')!;
+  return {
+    eyebrow: head.querySelector('.st-eyecode')?.textContent,
+    meta: head.querySelector('.rk-meta')?.textContent ?? null,
+  };
+}
+
+/** Student words never carry an internal record reference (lead decision 3, the identifier rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT)-\d+/;
+
+function expectNoReferences() {
+  const root = main();
+  expect(root.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of root.querySelectorAll('[aria-label], [title]')) {
+    expect(`${element.getAttribute('aria-label')} ${element.getAttribute('title')}`).not.toMatch(
+      REFERENCE,
+    );
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
+
+/** The action links of an element as "words → href", "(primary)" for the view's gold one. */
+function actionsOf(element: Element | null | undefined): string[] {
+  return [...(element?.querySelectorAll('a.rb-btn') ?? [])].map(
+    (link) =>
+      `${link.textContent} → ${link.getAttribute('href')}${link.classList.contains('rb-btn--primary') ? ' (primary)' : ''}`,
+  );
+}
+
+/** The Overview's "Your formats" rows as [name, access, next tag, status, fact, actions]. */
+function overviewRows() {
+  const list = screen.getByRole('list', { name: 'Your formats' });
+  return [...list.querySelectorAll<HTMLElement>(':scope > li.sv-frow')].map((row) => [
+    row.querySelector('.sv-frow-t b')?.textContent,
+    row.querySelector('.sv-frow-acc')?.textContent,
+    row.querySelector('.sv-tag')?.textContent ?? null,
+    row.querySelector('.xr-st')?.textContent,
+    row.querySelector('.sv-frow-f')?.textContent ?? null,
+    actionsOf(row),
+  ]);
+}
+
+/** The "Not available to you" rows as "code name · reason". */
+function offRows(): string[] {
+  return [...main().querySelectorAll('li.sv-xrow')].map(
+    (row) =>
+      `${row.querySelector('.xr-fmt')?.textContent} ${row.querySelector('b')?.textContent} · ${row.querySelector('.sv-xrow-r')?.textContent}`,
+  );
+}
+
+const OFF = [
+  'AR Augmented reality · Published for this experiment, not included in your institution’s access',
+  'MR Mixed reality · Not published for this experiment',
+];
+
+/** The Overview's aside section named `name` (Learning resources, Assessment). */
+const side = (name: string) => screen.getByRole('region', { name });
 
 /** The CI-only runtime report (the simulation or the headset), as the walk's C2 steps send it. */
 function report(
@@ -194,120 +268,210 @@ async function fatima() {
   return tabPlatform(rows.value[0]!.student.id, 'later-sample');
 }
 
-// ---- ST-05: the Phase-3 additions (B2-12 f0 … f3, f5; B3-12) ----------------------------------
+// ---- ST-05 Overview and the hub's head ---------------------------------------------------------
 
-describe('ST-05 Overview — the tabs, the one Next step and the cards’ actions', () => {
-  it('first visit: the tab strip with Assessment; “open the resources”; the cards open the tabs (B2-12 f0)', async () => {
+const WEB_PAGE = `${HUB}/simulation/web`;
+const VR_PAGE = `${HUB}/simulation/vr`;
+
+describe('ST-05 Overview — the head, the tabs, the formats and the one next step', () => {
+  it('first visit: the head, the five tabs, about and outcomes; “Next step” on Learning resources', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     await hubReady();
+    await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
     expect(tabStrip()).toEqual(stripWith('Overview'));
-    // The Assessment tab (Phase 4B, B4-11 f7) is the only assessment link: none is set yet.
+    expect(crumbs()).toEqual([
+      ['My courses', '/student/courses'],
+      [COURSE_NAME, COURSE],
+      [SHELL_NAME, null],
+    ]);
+    expect(hubHead()).toEqual({ eyebrow: `MEC-523${COURSE_NAME}`, meta: null });
+    const about = screen.getByRole('region', { name: 'About this experiment' });
+    expect(about.querySelector('.sv-meta')).toHaveTextContent(
+      'Mechanical & ManufacturingBITS course codeME ZG523',
+    );
+    expect(screen.getByRole('region', { name: 'What you’ll learn' })).toHaveTextContent(
+      'The same in every format',
+    );
+    expect(overviewRows()).toEqual([
+      [
+        'Browser',
+        'Available to you',
+        null,
+        'Not started',
+        'Runs in your browser on a laptop or desktop',
+        [`Open WEB → ${WEB_PAGE}`],
+      ],
+      [
+        'Virtual reality',
+        'Available to you',
+        null,
+        'Not started',
+        'Needs a supported VR headset',
+        [`Open VR → ${VR_PAGE}`],
+      ],
+    ]);
+    expect(offRows()).toEqual(OFF);
+    // Nothing opened, nothing started: the resources are the next step, the page's one gold action.
+    const resources = side('Learning resources');
+    expect(resources).toHaveClass('is-next');
+    expect(resources).toHaveTextContent('Next step');
+    expect(resources).toHaveTextContent('None opened yet.');
+    expect(actionsOf(resources)).toEqual([`Open resources → ${HUB}/resources (primary)`]);
+    expect(within(resources).getByRole('link')).toHaveAccessibleName(
+      `Open resources, ${SHELL_NAME}`,
+    );
+    expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(1);
+    // None set: the Assessment tab is the only assessment link.
+    expect(side('Assessment')).toHaveTextContent(
+      'Your faculty hasn’t set an assessment for this experiment yet.',
+    );
     expect(
       within(main())
         .getAllByRole('link', { name: /Assessment/ })
         .map((link) => link.getAttribute('href')),
     ).toEqual([`${HUB}/assessment`]);
-    const head = main().querySelector('.xw-hubhead')!;
-    expect(head).not.toHaveClass('xl-hubhead');
-    const row = head.querySelector('.xw-hubrow')!;
-    expect(row).toHaveTextContent('Next step: open the resources');
-    const next = within(row as HTMLElement).getByRole('link', { name: 'Open resources' });
-    expect(next).toHaveClass('xr-btn', 'xr-btn--primary');
-    expect(next).toHaveAttribute('href', `${HUB}/resources`);
-    const cards = [...main().querySelectorAll<HTMLElement>('.xw-scard')];
-    expect(within(cards[0]!).getByRole('link', { name: 'Open resources' })).toHaveAttribute(
-      'href',
-      `${HUB}/resources`,
-    );
-    expect(within(cards[1]!).getByRole('link', { name: 'Choose a format' })).toHaveAttribute(
-      'href',
-      `${HUB}/simulation`,
-    );
-    // Assessment: words only (Phase 4).
-    expect(within(cards[2]!).queryByRole('link')).toBeNull();
-    expect(main().querySelectorAll('.xr-btn--primary')).toHaveLength(1);
+    await waitFor(() => expect(document.title).toBe(`${SHELL_NAME} · XR Learning Platform`));
+    expectNoReferences();
   });
 
-  it('WEB in progress: “continue in your browser”, Continue WEB to the WEB page (B2-12 f1)', async () => {
+  it('WEB in progress: the WEB row is the next step — Continue WEB, its last save (the hub rule)', async () => {
     const { runtime } = await webInProgress();
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
-    await hubReady();
-    const row = main().querySelector<HTMLElement>('.xw-hubrow')!;
-    expect(row).toHaveTextContent('Next step: continue in your browser');
-    expect(within(row).getByRole('link', { name: 'Continue WEB' })).toHaveAttribute(
-      'href',
-      `${HUB}/simulation/web`,
-    );
-    const simulation = main().querySelectorAll<HTMLElement>('.xw-scard')[1]!;
-    expect(simulation).toHaveTextContent(
-      'WEB in progress · VR not started. Each format has its own progress.',
-    );
-    expect(within(simulation).getByRole('link', { name: 'Continue WEB' })).toHaveAttribute(
-      'href',
-      `${HUB}/simulation/web`,
-    );
+    await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    expect(plain(overviewRows())).toEqual([
+      [
+        'Browser',
+        'Available to you',
+        'Next step',
+        'In progress',
+        'Last saved 12 Oct 2026, 11:20',
+        [`Continue WEB → ${WEB_PAGE} (primary)`],
+      ],
+      [
+        'Virtual reality',
+        'Available to you',
+        null,
+        'Not started',
+        'Needs a supported VR headset',
+        [`Open VR → ${VR_PAGE}`],
+      ],
+    ]);
+    expect(within(main()).getByRole('link', { name: `Continue WEB, ${SHELL_NAME}` })).toBeVisible();
+    expect(side('Learning resources')).not.toHaveClass('is-next');
+    expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(1);
     expect(main()).not.toHaveTextContent('%');
+    expect(main()).not.toHaveTextContent(/stage/i);
   });
 
-  it('a resource opened, nothing started: the provisional “choose a format” (T-16, nothing locked)', async () => {
+  it('a resource opened, nothing started: “choose a format” tags the first format to open (T-16)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     const answer = await runtime.ports.learning.openResource({
       resourceId: 'res-shell-brief' as never,
     });
     expect(answer.ok).toBe(true);
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
-    await hubReady();
-    const row = main().querySelector<HTMLElement>('.xw-hubrow')!;
-    expect(row).toHaveTextContent('Next step: choose a format');
-    expect(within(row).getByRole('link', { name: 'Choose a format' })).toHaveAttribute(
-      'href',
-      `${HUB}/simulation`,
-    );
+    await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    const rows = overviewRows();
+    expect(rows[0]).toEqual([
+      'Browser',
+      'Available to you',
+      'Next step',
+      'Not started',
+      'Runs in your browser on a laptop or desktop',
+      [`Open WEB → ${WEB_PAGE} (primary)`],
+    ]);
     // Opening a resource is not progress (T-13).
-    expect(main().querySelectorAll('.xw-scard')[1]).toHaveTextContent(
-      'WEB not started · VR not started.',
-    );
+    expect(rows[1]?.[3]).toBe('Not started');
+    expect(side('Learning resources')).toHaveTextContent('1 of 3 opened.');
+    expect(actionsOf(side('Learning resources'))).toEqual([`Open resources → ${HUB}/resources`]);
   });
 
-  it('both formats completed: no Next step is left, the cards still open the tabs (B3-12)', async () => {
+  it('both formats completed, feedback sent: no next step, no gold action, no verdict (B3-12)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-c');
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
-    await hubReady();
+    await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    expect(plain(overviewRows())).toEqual([
+      [
+        'Browser',
+        'Available to you',
+        null,
+        'Completed 14 Oct 2026',
+        'Feedback sent 14 Oct 2026',
+        [],
+      ],
+      [
+        'Virtual reality',
+        'Available to you',
+        null,
+        'Completed 20 Oct 2026',
+        'Feedback sent 20 Oct 2026',
+        [],
+      ],
+    ]);
     expect(main()).not.toHaveTextContent('Next step');
-    expect(main().querySelector('.xw-hubrow .xr-btn')).toBeNull();
-    expect(main().querySelectorAll('.xw-scard')[1]).toHaveTextContent(
-      'WEB completed · VR completed. Each format has its own progress.',
-    );
-    expect(screen.getAllByRole('link', { name: 'Choose a format' })).toHaveLength(1);
+    expect(main().querySelector('.rb-btn--primary')).toBeNull();
+    expect(actionsOf(side('Learning resources'))).toEqual([`Open resources → ${HUB}/resources`]);
     expect(main()).not.toHaveTextContent(/experiment completed/i);
   });
 
-  it('paused: the tabs stay; no Next step and no card action (B2-12 f3)', async () => {
+  it('WEB completed without feedback: “Give feedback on WEB” is the next step (BC5)', async () => {
+    const { runtime } = await webCompleted();
+    inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
+    await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    expect(plain(overviewRows()[0])).toEqual([
+      'Browser',
+      'Available to you',
+      'Next step',
+      'Completed 14 Oct 2026',
+      'Feedback not given yet',
+      [`Give feedback on WEB → ${HUB}/feedback/web (primary)`],
+    ]);
+    expect(within(main()).queryByRole('link', { name: /Give feedback on VR/ })).toBeNull();
+  });
+
+  it('paused: the tabs stay; every format reads Paused with its progress; nothing opens (B2-12 f3)', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     await pauseGodavari(sample, runtime);
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     await hubReady();
-    await waitFor(() => expect(main()).toHaveTextContent('Not available while'));
+    await waitFor(() => expect(overviewRows()[0]?.[1]).toBe('Paused'));
     expect(tabStrip()).toEqual(stripWith('Overview'));
+    expect(overviewRows()).toEqual([
+      ['Browser', 'Paused', null, 'Not started', null, []],
+      ['Virtual reality', 'Paused', null, 'Not started', null, []],
+    ]);
+    expect(main().querySelector('.sv-frow-b .xr-fmt')).toHaveClass('sv-fmt--held');
     expect(main()).not.toHaveTextContent('Next step');
-    expect(main().querySelectorAll('.xw-scard a')).toHaveLength(0);
+    expect(side('Learning resources')).toHaveTextContent(
+      'They open again when the pause is lifted.',
+    );
+    expect(within(side('Learning resources')).queryByRole('link')).toBeNull();
   });
 
-  it('a licence wait: no Next step, no card action; the header keeps “Available to you” (B3-02 f4)', async () => {
+  it('a licence wait: the head’s pill says it once, without the plan; nothing opens (B3-02 f4)', async () => {
     const { runtime } = await fatima();
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     await hubReady();
-    expect(main()).toHaveTextContent('No licence is available for you on ACC-0107 right now.');
+    await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    expect(hubHead().meta).toBe('Waiting for a licenceYour institution can tell you more.');
+    expect(main().querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--warn');
+    expect(overviewRows().map((row) => [row[1], row[5]])).toEqual([
+      ['Waiting for a licence', []],
+      ['Waiting for a licence', []],
+    ]);
     expect(main()).not.toHaveTextContent('Next step');
-    expect(main().querySelectorAll('.xw-scard a')).toHaveLength(0);
+    expect(side('Learning resources')).toHaveTextContent('They open when you have a licence.');
+    expect(within(side('Learning resources')).queryByRole('link')).toBeNull();
+    expectNoReferences();
   }, 30_000);
 
-  it('nextStepOf follows the real position only', () => {
+  it('nextStepOf follows the real position only (the export’s one rule for Home and the hub)', () => {
     const hub = (
       formats: readonly (readonly [string, string, string])[],
       opened = 0,
       closure: unknown = null,
+      assessment: unknown = { kind: 'none-set' },
     ) =>
       ({
         row: {
@@ -319,16 +483,38 @@ describe('ST-05 Overview — the tabs, the one Next step and the cards’ action
           closure,
         },
         resourceSummary: { total: 3, opened },
+        assessment,
       }) as never;
     const both = (web: string, vr: string) =>
       [
         ['web', 'available-to-you', web],
         ['vr', 'available-to-you', vr],
       ] as const;
+    const offered = (format: string) => [{ format, feedback: 'offered' }] as never;
     expect(nextStepOf(hub(both('not-started', 'not-started')), null)).toBe('open-resources');
     expect(nextStepOf(hub(both('in-progress', 'not-started'), 1), null)).toBe('continue-web');
     expect(nextStepOf(hub(both('not-started', 'not-started'), 1), null)).toBe('choose-format');
-    expect(nextStepOf(hub(both('completed', 'in-progress'), 1), null)).toBe('choose-format');
+    // VR in progress → continue it on the headset ("Open VR", the hub rule).
+    expect(nextStepOf(hub(both('completed', 'in-progress'), 1), null)).toBe('continue-vr');
+    // A completed format whose feedback the service offers.
+    expect(nextStepOf(hub(both('completed', 'not-started'), 1), null, offered('web'))).toBe(
+      'feedback-web',
+    );
+    // Then the assessment, then a format not started yet.
+    const toDo = { id: 'asm-1', result: { kind: 'to-do' } };
+    expect(nextStepOf(hub(both('completed', 'not-started'), 1, null, toDo), null)).toBe(
+      'assessment-to-do',
+    );
+    expect(
+      nextStepOf(
+        hub(both('completed', 'completed'), 1, null, {
+          id: 'asm-1',
+          result: { kind: 'in-progress' },
+        }),
+        null,
+      ),
+    ).toBe('assessment-in-progress');
+    expect(nextStepOf(hub(both('completed', 'not-started'), 1), null)).toBe('set-up-vr');
     expect(nextStepOf(hub(both('completed', 'completed'), 3), null)).toBeNull();
     expect(nextStepOf(hub(both('not-started', 'not-started')), 'paused')).toBeNull();
     expect(nextStepOf(hub(both('not-started', 'not-started')), 'inactive')).toBeNull();
@@ -344,58 +530,66 @@ describe('ST-05 Overview — the tabs, the one Next step and the cards’ action
   });
 });
 
-// ---- ST-06 Resources (B3-01 f0 … f7) --------------------------------------------------------
+// ---- ST-06 Resources -----------------------------------------------------------------------------
+
+/** The reading list's rows (`li.sv-li`) as [title, kind and length, status]. */
+function resourceRows(section: HTMLElement) {
+  return [...section.querySelectorAll<HTMLElement>('li.sv-li')].map((row) => [
+    row.querySelector('.sv-li-t')?.textContent,
+    [...row.querySelectorAll('.sv-res-m > span')].map((span) => span.textContent).join(' · '),
+    row.querySelector('.sv-res-st')?.textContent,
+  ]);
+}
 
 describe('ST-06 Resources', () => {
-  it('first visit: the compact header, Resources current, three rows not opened yet (B3-01 f2)', async () => {
+  it('first visit: the head, Resources current, three rows not opened yet, the aside', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     await hubReady();
-    const head = main().querySelector('.xw-hubhead')!;
-    expect(head).toHaveClass('xr-dark', 'xl-hubhead');
-    expect(head.querySelector('p')).toBeNull();
-    expect(head.querySelector('.xr-overline')).toHaveTextContent(
-      'MEC-523 · Thermodynamics & Heat Transfer',
-    );
+    expect(hubHead().eyebrow).toBe(`MEC-523${COURSE_NAME}`);
     expect(tabStrip()).toEqual(stripWith('Resources'));
     const section = await screen.findByRole('region', { name: 'Resources' });
-    expect(section.querySelector('.xr-section-head .xr-meta')).toHaveTextContent('3 resources');
-    const rows = [...section.querySelectorAll<HTMLElement>('li.xr-row')];
-    expect(rows.map((row) => row.querySelector('.xr-row-title')?.textContent)).toEqual([
-      BRIEF,
-      'Pre-lab reading — the effectiveness–NTU method',
-      'Readings sheet',
+    expect(section.querySelector('.sv-card-h .sv-sh-note')).toHaveTextContent(
+      '3 resources · each opens in a new tab',
+    );
+    expect(resourceRows(section)).toEqual([
+      [BRIEF, 'PDF document · 6 pages', 'Not opened yet'],
+      [
+        'Pre-lab reading — the effectiveness–NTU method',
+        'Web page · About 10 minutes',
+        'Not opened yet',
+      ],
+      ['Readings sheet', 'Spreadsheet · 1 sheet', 'Not opened yet'],
     ]);
-    expect(rows.map((row) => row.querySelector('.xr-row-sub')?.textContent)).toEqual([
-      'PDF document · 6 pages',
-      'Web page · About 10 minutes',
-      'Spreadsheet · 1 sheet',
-    ]);
-    for (const row of rows) expect(row).toHaveTextContent('Not opened yet');
     expect(
-      within(rows[0]!).getByRole('button', { name: `Open ${BRIEF} in a new tab` }),
+      within(section).getByRole('button', { name: `Open ${BRIEF} in a new tab` }),
     ).toHaveTextContent('Open');
-    await waitFor(() => expect(topTitle()).toHaveTextContent('Resources'));
+    const aside = screen.getByRole('complementary', { name: 'How resources fit in' });
+    expect(within(aside).getByRole('region', { name: 'Opened isn’t progress' })).toHaveTextContent(
+      'None opened yet',
+    );
+    expect(
+      within(aside).getByRole('region', { name: 'Before you run a simulation' }),
+    ).toBeVisible();
+    await waitFor(() => expect(document.title).toBe('Resources · XR Learning Platform'));
     expect(crumbs()).toEqual([
       ['My courses', '/student/courses'],
-      ['MEC-523', COURSE],
-      [SHELL_NAME, HUB],
-      ['Resources', null],
+      [COURSE_NAME, COURSE],
+      [SHELL_NAME, null],
     ]);
+    expectNoReferences();
   });
 
-  it('Open: “Opening…”, the link in a new tab, “Opened in a new tab just now” — and no progress (B3-01 f0; T-13)', async () => {
+  it('Open: “Opening…”, the link in a new tab, “Opened in a new tab just now” — and no progress (T-13)', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const open = await screen.findByRole('button', { name: `Open ${BRIEF} in a new tab` });
     await user.click(open);
-    const row =
-      open.closest('li') ??
-      screen.getAllByRole('listitem').find((li) => li.textContent?.includes(BRIEF))!;
     await waitFor(() =>
       expect(document.activeElement).toHaveTextContent('Opened in a new tab just now'),
     );
+    expect(document.activeElement).toHaveAttribute('role', 'status');
     expect(opened).toHaveBeenCalledTimes(1);
     expect(opened).toHaveBeenCalledWith('', '_blank');
     // The new page gets no handle on this one; the tab gets the resource's link.
@@ -403,7 +597,6 @@ describe('ST-06 Resources', () => {
     expect(tab.location.replace).toHaveBeenCalledTimes(1);
     expect(String(tab.location.replace.mock.calls[0]![0]).length).toBeGreaterThan(0);
     expect(tab.close).not.toHaveBeenCalled();
-    expect(row).toBeDefined();
     // The service keeps the first opening; nothing else changes (T-13).
     const list = await runtime.ports.learning.listResources(SHELL as never);
     expect(
@@ -413,28 +606,35 @@ describe('ST-06 Resources', () => {
     expect(chooser.ok && chooser.value.map((view) => view.status)).toEqual(
       chooser.ok ? chooser.value.map(() => 'not-started') : [],
     );
+    await waitFor(() =>
+      expect(screen.getByRole('region', { name: 'Opened isn’t progress' })).toHaveTextContent(
+        '1 of 3 opened',
+      ),
+    );
   });
 
-  it('couldn’t open: said in words, nothing lost; “Try again” opens it (B3-01 f1)', async () => {
+  it('couldn’t open: said in the row, nothing lost; “Try again” opens it', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const open = await screen.findByRole('button', { name: `Open ${BRIEF} in a new tab` });
     faults(sample).failNext('LearningService.openResource');
     await user.click(open);
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent('It didn’t open. Nothing was lost — try again.');
+    const failed = await screen.findByText('It didn’t open. Nothing was lost — try again.');
+    expect(failed).toHaveClass('sv-res-s', 'sv-res-s--err');
     // The blank tab opened in the click is closed again; it never got a link.
     expect(tab.close).toHaveBeenCalledTimes(1);
     expect(tab.location.replace).not.toHaveBeenCalled();
-    await waitFor(() => expect(document.activeElement).toContainElement(alert));
-    await user.click(screen.getByRole('button', { name: `Try opening ${BRIEF} again` }));
+    // Focus lands on the row's status region, which carries the words.
+    await waitFor(() => expect(document.activeElement).toContainElement(failed));
+    expect(document.activeElement).toHaveAttribute('role', 'status');
+    await user.click(screen.getByRole('button', { name: `Try opening ${BRIEF} in a new tab` }));
     await waitFor(() =>
       expect(document.activeElement).toHaveTextContent('Opened in a new tab just now'),
     );
     expect(opened).toHaveBeenCalledTimes(2);
     expect(tab.location.replace).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.queryByText('It didn’t open. Nothing was lost — try again.')).toBeNull();
   });
 
   it('a browser that refuses the new tab: “It didn’t open”, never “Opened” (review finding 1)', async () => {
@@ -444,22 +644,25 @@ describe('ST-06 Resources', () => {
     await userEvent
       .setup()
       .click(await screen.findByRole('button', { name: `Open ${BRIEF} in a new tab` }));
-    expect(await screen.findByRole('alert')).toHaveTextContent(
-      'It didn’t open. Nothing was lost — try again.',
-    );
+    expect(await screen.findByText('It didn’t open. Nothing was lost — try again.')).toBeVisible();
     expect(screen.queryByText('Opened in a new tab just now')).toBeNull();
   });
 
-  it('after Flow C: the lab brief reads the first opening the service kept (B3-01 f0)', async () => {
+  it('after Flow C: the lab brief reads the first opening the service kept', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-c');
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const section = await screen.findByRole('region', { name: 'Resources' });
-    const rows = section.querySelectorAll('li.xr-row');
-    expect(rows[0]).toHaveTextContent('Opened 12 Oct 2026, 09:40');
-    expect(rows[1]).toHaveTextContent('Not opened yet');
+    await waitFor(() => expect(resourceRows(section)).toHaveLength(3));
+    const rows = resourceRows(section);
+    expect(plain(rows[0]?.[2])).toBe('Opened 12 Oct 2026, 09:40');
+    expect(section.querySelector('.sv-res-s--ok')).toHaveTextContent('Opened 12 Oct 2026, 09:40');
+    expect(rows[1]?.[2]).toBe('Not opened yet');
+    expect(screen.getByRole('region', { name: 'Opened isn’t progress' })).toHaveTextContent(
+      '1 of 3 opened',
+    );
   });
 
-  it('none attached: the empty state, and the other tabs don’t wait (B3-01 f3)', async () => {
+  it('none attached: the state row, and the other tabs don’t wait', async () => {
     const world = await fixtureWorld('after-flow-b');
     const shell = world.records.experiments[SHELL]!;
     const { runtime } = await worldPlatform(RAHUL, {
@@ -471,29 +674,40 @@ describe('ST-06 Resources', () => {
     });
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const title = await screen.findByRole('heading', {
-      level: 2,
+      level: 3,
       name: 'No resources are attached to this experiment yet',
     });
-    expect(title.closest('.xr-empty')).toHaveTextContent(
-      'When resources are added, they appear here. The simulation and its other tabs don’t depend on them.',
+    const state = title.closest('.sv-pstate')!;
+    expect(state).toHaveAttribute('role', 'status');
+    expect(state).toHaveTextContent(
+      'When resources are added, they appear here. The simulation and the other tabs don’t depend on them.',
+    );
+    expect(screen.getByRole('region', { name: 'Resources' })).toHaveTextContent(
+      'Each resource opens in a new tab',
     );
     expect(tabStrip()).toEqual(stripWith('Resources'));
   });
 
-  it('loading is announced; the list failed says nothing changed; “Try again” reads again (B3-01 f4, f5)', async () => {
+  it('the list failed says nothing changed; “Try again” reads again and focuses “Resources”', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     faults(sample).failNext('LearningService.listResources');
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const failed = await screen.findByRole('heading', { name: 'We couldn’t load the resources' });
-    expect(failed.closest('.xr-empty')).toHaveTextContent('Nothing has changed. Try again.');
-    // The header and the tabs stay (f5).
+    expect(failed.closest('.sv-pstate')).toHaveAttribute('role', 'alert');
+    expect(failed.closest('.sv-pstate')).toHaveTextContent('Nothing has changed. Try again.');
+    // The head and the tabs stay.
     expect(tabStrip()).toEqual(stripWith('Resources'));
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByRole('button', { name: `Open ${BRIEF} in a new tab` })).toBeVisible();
+    await waitFor(() =>
+      expect(document.activeElement).toBe(
+        screen.getByRole('heading', { level: 2, name: 'Resources' }),
+      ),
+    );
   });
 
-  it('the list loading frame: the label in a status region (B3-01 f4)', async () => {
+  it('the list loading: the label in a status region, the block busy', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     // The hub answers first; the list is held back.
     let release: () => void = () => undefined;
@@ -507,35 +721,42 @@ describe('ST-06 Resources', () => {
     });
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     await hubReady();
-    const status = await screen.findByText('Loading resources');
+    const status = await screen.findByText('Loading resources…');
     expect(status).toHaveAttribute('role', 'status');
-    expect(status.closest('.xr-table-wrap')).toHaveAttribute('aria-busy', 'true');
+    expect(status.closest('.sv-loading')).toHaveAttribute('aria-busy', 'true');
     release();
-    expect(await screen.findByRole('region', { name: 'Resources' })).toBeVisible();
+    expect(await screen.findByRole('button', { name: `Open ${BRIEF} in a new tab` })).toBeVisible();
   });
 
-  it('paused: listed, not openable — the Paused chip in place of Open (B3-01 f6)', async () => {
+  it('paused: listed, not openable — the pause said once above the list', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     await pauseGodavari(sample, runtime);
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const section = await screen.findByRole('region', { name: 'Resources' });
-    await waitFor(() => expect(section.querySelectorAll('.xr-status--paused')).toHaveLength(3));
+    await waitFor(() =>
+      expect(section.querySelector('.sv-res-held')).toHaveTextContent(
+        'They can’t be opened while your institution’s access is paused.',
+      ),
+    );
+    expect(resourceRows(section)).toHaveLength(3);
     expect(within(section).queryByRole('button')).toBeNull();
-    expect(section).not.toHaveTextContent('Not opened yet');
-    const formats = screen.getByRole('list', { name: 'Formats for you' });
-    expect(formats).toHaveTextContent('WEBPaused');
   });
 
-  it('a licence wait: listed, not openable, said in words (`ST-06.closed`)', async () => {
+  it('a licence wait: listed, not openable, said once in words (`ST-06.closed`)', async () => {
     const { runtime } = await fatima();
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const section = await screen.findByRole('region', { name: 'Resources' }, { timeout: 5000 });
-    expect(section.querySelectorAll('.xr-status--wait')).toHaveLength(3);
-    expect(section).toHaveTextContent('Waiting for a licence');
+    await waitFor(() =>
+      expect(section.querySelector('.sv-res-held')).toHaveTextContent(
+        'They open when you have a licence.',
+      ),
+    );
+    expect(hubHead().meta).toBe('Waiting for a licenceYour institution can tell you more.');
     expect(within(section).queryByRole('button')).toBeNull();
+    expectNoReferences();
   }, 30_000);
 
-  it('a withdrawn grant: the tab is ST-19 “no longer given”, placed “My courses / Not available”', async () => {
+  it('a withdrawn grant: the tab is ST-19 “no longer given”, placed “Not available”', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     await meeraWithdrawsRahulsGrant(sample, runtime);
     inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
@@ -545,117 +766,144 @@ describe('ST-06 Resources', () => {
         name: 'This experiment is no longer given to you',
       }),
     ).toBeVisible();
-    await waitFor(() => expect(topTitle()).toHaveTextContent('Not available'));
+    await waitFor(() => expect(document.title).toBe('Not available · XR Learning Platform'));
   });
 });
 
-// ---- ST-07 Simulation — choose a format (B3-02 f0 … f7) -------------------------------------
+// ---- ST-07 Simulation — choose a format ---------------------------------------------------------
 
-/** The chooser's rows as [code, meta, status, actions as "words → href"]. */
-function chooserRows() {
-  const section = screen.getByRole('region', { name: 'Choose a format' });
-  return [...section.querySelectorAll<HTMLElement>('li.xl-frow')].map((row) => [
-    row.querySelector('.xl-frow-title')?.textContent,
-    row.querySelector('.xl-frow-meta')?.textContent ?? null,
-    row.querySelector('.xr-status')?.textContent,
-    [...row.querySelectorAll('.xl-frow-end > a, .xl-frow-end > .xl-inline')].map((node) =>
-      node.tagName === 'A'
-        ? `${node.textContent} → ${node.getAttribute('href')}${node.classList.contains('xr-btn--primary') ? ' (primary)' : ''}`
-        : node.textContent,
-    ),
+/** The chooser's cards (`li.sv-fcard`) as [title, access, next tag, status, facts, actions]. */
+function chooserCards() {
+  const list = screen.getByRole('list', { name: 'Your formats' });
+  return [...list.querySelectorAll<HTMLElement>(':scope > li.sv-fcard')].map((card) => [
+    card.querySelector('.sv-fcard-t')?.textContent,
+    card.querySelector('.sv-fcard-acc')?.textContent,
+    card.querySelector('.sv-tag')?.textContent ?? null,
+    card.querySelector('.xr-st')?.textContent,
+    [...card.querySelectorAll('.sv-fcard-facts > li')].map((fact) => fact.textContent),
+    actionsOf(card),
   ]);
 }
 
-const AR_ROW = [
-  'AR',
-  'Published for this experiment; your institution’s access doesn’t include it.',
-  'Not included for your institution',
-  [],
-];
-const MR_ROW = [
-  'MR',
-  'This experiment isn’t made for MR.',
-  'Not available for this experiment',
-  [],
-];
+async function chooserReady() {
+  return screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+}
 
 describe('ST-07 Simulation — choose a format', () => {
-  it('first visit: one row per format, one status, one action; Open WEB the one primary (B3-02 f1)', async () => {
+  it('first visit: a card per format you can use, its need and progress; Open WEB the one gold action', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    await screen.findByRole('region', { name: 'Choose a format' }, { timeout: 5000 });
-    expect(main()).toHaveTextContent(
+    await chooserReady();
+    const chooser = screen.getByRole('region', { name: 'Choose a format' });
+    expect(chooser).toHaveTextContent(
       'Formats come from your institution’s access. Each one has its own progress.',
     );
     expect(tabStrip()).toEqual(stripWith('Simulation'));
-    expect(chooserRows()).toEqual([
+    expect(chooserCards()).toEqual([
       [
-        'WEB',
-        'Opens in your browser',
+        'Browser (WEB)',
+        'Available to you',
+        null,
         'Not started',
-        [`Open WEB → ${HUB}/simulation/web (primary)`],
+        ['Not opened yet'],
+        [`Open WEB → ${WEB_PAGE} (primary)`],
       ],
-      ['VR', 'Needs a VR headset', 'Not started', [`Open VR → ${HUB}/simulation/vr`]],
-      AR_ROW,
-      MR_ROW,
+      [
+        'Virtual reality (VR)',
+        'Available to you',
+        null,
+        'Not started',
+        ['No headset session reported yet'],
+        [`Open VR → ${VR_PAGE}`],
+      ],
     ]);
-    expect(main().querySelectorAll('.xr-btn--primary')).toHaveLength(1);
-    await waitFor(() => expect(topTitle()).toHaveTextContent('Simulation'));
+    const cards = screen
+      .getByRole('list', { name: 'Your formats' })
+      .querySelectorAll('li.sv-fcard');
+    expect(cards[0]).toHaveTextContent(
+      'Runs in your browser on a laptop or desktop. This page keeps your place between visits.',
+    );
+    await waitFor(() =>
+      expect(cards[1]?.querySelector('.sv-fcard-dev')).toHaveTextContent(
+        'Your headset: ME lab VR headset, asset tag GIT-VR-03',
+      ),
+    );
+    expect(offRows()).toEqual(OFF);
+    expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(1);
+    expect(main()).not.toHaveTextContent(/stage/i);
+    await waitFor(() => expect(document.title).toBe('Simulation · XR Learning Platform'));
+    expectNoReferences();
   });
 
-  it('WEB in progress with its last save: Continue WEB (B3-02 f0; B3-12 f0)', async () => {
+  it('WEB in progress with its last save: Continue WEB, the next step', async () => {
     const { runtime } = await webInProgress();
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    await screen.findByRole('region', { name: 'Choose a format' }, { timeout: 5000 });
-    expect(chooserRows().slice(0, 2)).toEqual([
-      [
-        'WEB',
-        'Last saved 12 Oct 2026, 11:20',
-        'In progress',
-        [`Continue WEB → ${HUB}/simulation/web (primary)`],
-      ],
-      ['VR', 'Needs a VR headset', 'Not started', [`Open VR → ${HUB}/simulation/vr`]],
+    await chooserReady();
+    expect(plain(chooserCards()[0])).toEqual([
+      'Browser (WEB)',
+      'Available to you',
+      'Next step',
+      'In progress',
+      ['Last saved 12 Oct 2026, 11:20'],
+      [`Continue WEB → ${WEB_PAGE} (primary)`],
     ]);
+    expect(chooserCards()[1]?.[5]).toEqual([`Open VR → ${VR_PAGE}`]);
   });
 
-  it('WEB completed: Give feedback on WEB only on WEB, its own completion (B3-02 f2; BC5)', async () => {
+  it('WEB completed: Give feedback on WEB only on WEB, its own completion — the gold action (BC5)', async () => {
     const { runtime } = await webCompleted();
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    await screen.findByRole('link', { name: 'Give feedback on WEB' }, { timeout: 5000 });
-    expect(chooserRows().slice(0, 2)).toEqual([
+    await screen.findByRole(
+      'link',
+      { name: `Give feedback on WEB, ${SHELL_NAME}` },
+      { timeout: 5000 },
+    );
+    expect(plain(chooserCards())).toEqual([
       [
-        'WEB',
-        null,
+        'Browser (WEB)',
+        'Available to you',
+        'Next step',
         'Completed 14 Oct 2026',
-        [`Give feedback on WEB → ${HUB}/feedback/web`, `Open WEB → ${HUB}/simulation/web`],
+        ['Reported by the simulation at 15:30', 'Feedback not given yet'],
+        [`Give feedback on WEB → ${HUB}/feedback/web (primary)`, `Open WEB → ${WEB_PAGE}`],
       ],
-      ['VR', 'Needs a VR headset', 'Not started', [`Open VR → ${HUB}/simulation/vr`]],
+      [
+        'Virtual reality (VR)',
+        'Available to you',
+        null,
+        'Not started',
+        ['No headset session reported yet'],
+        [`Open VR → ${VR_PAGE}`],
+      ],
     ]);
-    expect(main().querySelector('.xr-btn--primary')).toBeNull();
-    expect(screen.queryByRole('link', { name: 'Give feedback on VR' })).toBeNull();
+    expect(screen.queryByRole('link', { name: /Give feedback on VR/ })).toBeNull();
   });
 
-  it('both completed, feedback sent: no experiment-level “completed” (B3-02 f3)', async () => {
+  it('both completed, feedback sent: no experiment-level “completed”, no gold action', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-c');
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    await screen.findByText('Feedback sent 20 Oct 2026', undefined, { timeout: 5000 });
-    expect(chooserRows()).toEqual([
+    await chooserReady();
+    expect(plain(chooserCards())).toEqual([
       [
-        'WEB',
+        'Browser (WEB)',
+        'Available to you',
         null,
         'Completed 14 Oct 2026',
-        ['Feedback sent 14 Oct 2026', `Open WEB → ${HUB}/simulation/web`],
+        ['Reported by the simulation at 15:30', 'Feedback sent 14 Oct 2026'],
+        [`Open WEB → ${WEB_PAGE}`],
       ],
       [
-        'VR',
+        'Virtual reality (VR)',
+        'Available to you',
         null,
         'Completed 20 Oct 2026',
-        ['Feedback sent 20 Oct 2026', `Open VR → ${HUB}/simulation/vr`],
+        ['Reported from the headset at 11:15', 'Feedback sent 20 Oct 2026'],
+        [`Open VR → ${VR_PAGE}`],
       ],
-      AR_ROW,
-      MR_ROW,
     ]);
+    expect(offRows()).toEqual(OFF);
     expect(screen.queryByRole('link', { name: /Give feedback/ })).toBeNull();
+    expect(main().querySelector('.rb-btn--primary')).toBeNull();
     expect(main()).not.toHaveTextContent(/experiment completed|%/i);
   });
 
@@ -664,40 +912,39 @@ describe('ST-07 Simulation — choose a format', () => {
     const launched = await runtime.ports.learning.launchWebFormat({ experimentId: SHELL as never });
     expect(launched.ok).toBe(true);
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    await screen.findByRole('region', { name: 'Choose a format' }, { timeout: 5000 });
-    expect(chooserRows()[0]?.[2]).toBe('Not started');
+    await chooserReady();
+    expect(chooserCards()[0]?.[3]).toBe('Not started');
   });
 
-  it('waiting for a licence: the reason in words, no counting, nothing opens (B3-02 f4)', async () => {
+  it('waiting for a licence: said once in the note, without the plan; nothing opens (D7)', async () => {
     const { runtime } = await fatima();
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    await screen.findByRole('region', { name: 'Choose a format' }, { timeout: 5000 });
-    const waiting = 'No licence is available for you on ACC-0107 right now.';
-    expect(chooserRows()).toEqual([
-      ['WEB', waiting, 'Waiting for a licence', []],
-      ['VR', waiting, 'Waiting for a licence', []],
-      AR_ROW,
-      MR_ROW,
-    ]);
-    expect(screen.getByRole('list', { name: 'Formats for you' })).toHaveTextContent(
-      'WEBAvailable to you',
+    await chooserReady();
+    expect(screen.getByRole('region', { name: 'Choose a format' })).toHaveTextContent(
+      'No licence is available for you right now.',
     );
+    expect(chooserCards().map((card) => [card[1], card[5]])).toEqual([
+      ['Waiting for a licence', []],
+      ['Waiting for a licence', []],
+    ]);
+    expect(main().querySelector('.sv-fcard-why')).toBeNull();
+    expect(hubHead().meta).toBe('Waiting for a licenceYour institution can tell you more.');
+    expectNoReferences();
   }, 30_000);
 
-  it('paused: rows stay, nothing opens, progress kept (B3-02 f5)', async () => {
+  it('paused: the cards stay with the progress kept; nothing opens', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     await pauseGodavari(sample, runtime);
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    await screen.findByRole('region', { name: 'Choose a format' }, { timeout: 5000 });
-    await waitFor(() => expect(chooserRows()[0]?.[2]).toBe('Paused'));
-    const paused =
-      'Not available while your institution’s access is paused. Your progress is kept.';
-    expect(chooserRows()).toEqual([
-      ['WEB', paused, 'Paused', []],
-      ['VR', paused, 'Paused', []],
-      AR_ROW,
-      MR_ROW,
+    await chooserReady();
+    await waitFor(() => expect(chooserCards()[0]?.[1]).toBe('Paused'));
+    expect(plain(chooserCards().map((card) => [card[1], card[3], card[5]]))).toEqual([
+      ['Paused', 'Completed 14 Oct 2026', []],
+      ['Paused', 'Completed 20 Oct 2026', []],
     ]);
+    expect(
+      within(screen.getByRole('region', { name: 'Choose a format' })).queryByRole('link'),
+    ).toBeNull();
   });
 
   it('the progress read failed: said so, with Try again (`ST-07.failed`)', async () => {
@@ -705,11 +952,10 @@ describe('ST-07 Simulation — choose a format', () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     faults(sample).failNext('LearningService.getSimulationChooser');
     inStudent(runtime, `${HUB}/simulation`, <SimulationChooser experimentId={SHELL} />);
-    expect(
-      await screen.findByRole('heading', { name: 'We couldn’t load the formats' }),
-    ).toBeVisible();
+    const failed = await screen.findByRole('heading', { name: 'We couldn’t load the formats' });
+    expect(failed.closest('.sv-pstate')).toHaveAttribute('role', 'alert');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(await screen.findByRole('region', { name: 'Choose a format' })).toBeVisible();
+    expect(await chooserReady()).toBeVisible();
   });
 
   it('an experiment that isn’t given: ST-19, never a chooser', async () => {
@@ -731,14 +977,25 @@ describe('an inactive Student — every tab lists, nothing opens (`ST-05.inactiv
     const { runtime } = await tabPlatform('per-0005', 'later-sample');
     const hub = inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     await hubReady();
-    expect(screen.getByRole('list', { name: 'Formats for you' })).toHaveTextContent('WEBInactive');
+    await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    expect(overviewRows().map((row) => [row[1], row[5]])).toEqual([
+      ['Inactive', []],
+      ['Inactive', []],
+    ]);
     expect(main()).not.toHaveTextContent('Next step');
-    expect(main().querySelectorAll('.xw-scard a')).toHaveLength(0);
+    expect(side('Learning resources')).toHaveTextContent(
+      'Not available while your account is inactive.',
+    );
+    expect(within(side('Learning resources')).queryByRole('link')).toBeNull();
     hub.unmount();
 
     const resources = inStudent(runtime, `${HUB}/resources`, <Resources experimentId={SHELL} />);
     const section = await screen.findByRole('region', { name: 'Resources' });
-    expect(section.querySelectorAll('.xr-status--off')).toHaveLength(3);
+    await waitFor(() =>
+      expect(section.querySelector('.sv-res-held')).toHaveTextContent(
+        'Not available while your account is inactive.',
+      ),
+    );
     expect(within(section).queryByRole('button')).toBeNull();
     resources.unmount();
 
@@ -747,107 +1004,152 @@ describe('an inactive Student — every tab lists, nothing opens (`ST-05.inactiv
       `${HUB}/simulation`,
       <SimulationChooser experimentId={SHELL} />,
     );
-    await screen.findByRole('region', { name: 'Choose a format' });
-    const inactive = 'Not available while your account is inactive. Your progress is kept.';
-    expect(chooserRows()).toEqual([
-      ['WEB', inactive, 'Inactive', []],
-      ['VR', inactive, 'Inactive', []],
-      AR_ROW,
-      MR_ROW,
+    await chooserReady();
+    expect(chooserCards().map((card) => [card[1], card[3], card[5]])).toEqual([
+      ['Inactive', 'Not started', []],
+      ['Inactive', 'Not started', []],
     ]);
     chooser.unmount();
 
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    await screen.findByRole('list', { name: 'Progress by format' });
-    expect(progressRows().slice(0, 2)).toEqual([
-      ['WEBWEB', 'Not started', [], ''],
-      ['VRVR', 'Not started', [], ''],
+    await progressReady();
+    expect(progressRows().map((row) => [row[1], row[2], row[4]])).toEqual([
+      ['Inactive', 'Not started', []],
+      ['Inactive', 'Not started', []],
     ]);
   }, 30_000);
 });
 
-// ---- ST-10 Progress for this experiment (B3-01 f8 … f12) -------------------------------------
+// ---- ST-10 Progress for this experiment ---------------------------------------------------------
 
-/** The Progress tab's rows as [code, state words, action words → href]. */
+/** The table's rows (`table.sv-ptable`) as [name, access, status, facts, actions]. */
 function progressRows() {
-  const list = screen.getByRole('list', { name: 'Progress by format' });
-  return [...list.querySelectorAll<HTMLElement>(':scope > li')].map((row) => [
-    row.querySelector('.xl-fl-fmt')?.textContent,
-    row.querySelector('.xl-fl-state')?.textContent,
-    [...row.querySelectorAll('.xl-fl-act > *')].map((node) =>
-      node.tagName === 'A'
-        ? `${node.textContent} → ${node.getAttribute('href')}${node.classList.contains('xr-btn') ? ' (button)' : ''}`
-        : node.textContent,
-    ),
-    row.className,
+  const table = screen.getByRole('table', {
+    name: `Your formats for ${SHELL_NAME}: progress and actions`,
+  });
+  return [...table.querySelectorAll<HTMLElement>('tbody > tr')].map((row) => [
+    row.querySelector('.sv-pc-name b')?.textContent,
+    row.querySelector('.sv-pc-acc')?.textContent,
+    row.querySelector('.sv-pc-p')?.textContent,
+    [...row.querySelectorAll('.sv-pc-fact')].map((fact) => fact.textContent),
+    actionsOf(row),
   ]);
 }
 
-const AR_PROGRESS = ['ARAR', 'Not included for your institution', [], 'is-off'];
-const MR_PROGRESS = ['MRMR', 'Not available for this experiment', [], 'is-off'];
-const NO_ASSESSMENT = 'Your faculty hasn’t set an assessment for this experiment yet.';
+async function progressReady() {
+  return screen.findByRole(
+    'table',
+    { name: `Your formats for ${SHELL_NAME}: progress and actions` },
+    { timeout: 5000 },
+  );
+}
+
+const assessmentLine = () => main().querySelector('.sv-pas');
 
 describe('ST-10 Progress for this experiment', () => {
-  it('first visit: one row per format, the assessment in words, no verdict', async () => {
+  it('first visit: one row per given format, the formats not yours, the assessment in words', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    await screen.findByRole('list', { name: 'Progress by format' }, { timeout: 5000 });
+    await progressReady();
     expect(tabStrip()).toEqual(stripWith('Progress'));
-    expect(screen.getByRole('region', { name: 'Your progress, format by format' })).toBeVisible();
+    const card = screen.getByRole('region', { name: 'Your progress, format by format' });
+    expect(card).toHaveTextContent(
+      'Each format has its own progress, with no overall percentage. Opening resources isn’t counted here.',
+    );
+    expect(card.querySelector('.sv-card-h .sv-sh-note')).toHaveTextContent(
+      'Given by your institution',
+    );
     expect(progressRows()).toEqual([
-      ['WEBWEB', 'Not started', [`Open WEB → ${HUB}/simulation/web`], ''],
-      ['VRVR', 'Not started', [`Open VR → ${HUB}/simulation/vr`], ''],
-      AR_PROGRESS,
-      MR_PROGRESS,
+      [
+        'Browser',
+        'Available to you',
+        'Not started',
+        ['Not opened yet'],
+        [`Open WEB → ${WEB_PAGE} (primary)`],
+      ],
+      [
+        'Virtual reality',
+        'Available to you',
+        'Not started',
+        ['No headset session reported yet'],
+        [`Open VR → ${VR_PAGE}`],
+      ],
     ]);
-    const assessment = screen.getByRole('region', { name: 'Assessment' });
-    expect(assessment).toHaveTextContent(NO_ASSESSMENT);
-    expect(within(assessment).queryByRole('link')).toBeNull();
+    expect(offRows()).toEqual(OFF);
+    expect(assessmentLine()).toHaveTextContent('AssessmentNot set by your faculty yet');
+    expect(assessmentLine()?.querySelector('a')).toBeNull();
     expect(main()).not.toHaveTextContent('%');
-    await waitFor(() => expect(topTitle()).toHaveTextContent('Progress'));
+    await waitFor(() => expect(document.title).toBe('Progress · XR Learning Platform'));
+    expectNoReferences();
   });
 
-  it('WEB in progress with its last save (B3-01 f9)', async () => {
+  it('WEB in progress: first opened and the last save; Continue WEB', async () => {
     const { runtime } = await webInProgress();
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    await screen.findByRole('list', { name: 'Progress by format' }, { timeout: 5000 });
-    expect(progressRows()[0]).toEqual([
-      'WEBWEB',
-      'In progressLast saved 12 Oct 2026, 11:20',
-      [`Continue WEB → ${HUB}/simulation/web`],
-      '',
+    await progressReady();
+    expect(plain(progressRows()[0])).toEqual([
+      'Browser',
+      'Available to you',
+      'In progress',
+      ['First opened 12 Oct 2026, 10:05', 'Last saved 12 Oct 2026, 11:20'],
+      [`Continue WEB → ${WEB_PAGE} (primary)`],
     ]);
   });
 
-  it('WEB completed, reported by the simulation → Give feedback on WEB; VR not started (B3-01 f8)', async () => {
+  it('WEB completed, reported by the simulation → Give feedback on WEB; VR → Open VR', async () => {
     const { runtime } = await webCompleted();
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    await screen.findByRole('link', { name: 'Give feedback on WEB' }, { timeout: 5000 });
-    expect(progressRows().slice(0, 2)).toEqual([
+    await progressReady();
+    expect(plain(progressRows())).toEqual([
       [
-        'WEBWEB',
+        'Browser',
+        'Available to you',
         'Completed 14 Oct 2026',
-        [`Give feedback on WEB → ${HUB}/feedback/web (button)`],
-        '',
+        ['First opened 12 Oct 2026, 10:05', 'Reported by the simulation at 15:30'],
+        [`Give feedback on WEB → ${HUB}/feedback/web (primary)`],
       ],
-      ['VRVR', 'Not started', [`Open VR → ${HUB}/simulation/vr`], ''],
+      [
+        'Virtual reality',
+        'Available to you',
+        'Not started',
+        ['No headset session reported yet'],
+        [`Open VR → ${VR_PAGE}`],
+      ],
     ]);
   });
 
-  it('both completed, feedback sent: still no “experiment completed” (B3-01 f10; B3-12 f2)', async () => {
+  it('both completed, feedback sent: still no “experiment completed” (B3-12 f2)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-c');
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    await screen.findByText('Feedback sent 20 Oct 2026', undefined, { timeout: 5000 });
-    expect(progressRows()).toEqual([
-      ['WEBWEB', 'Completed 14 Oct 2026', ['Feedback sent 14 Oct 2026'], ''],
-      ['VRVR', 'Completed 20 Oct 2026', ['Feedback sent 20 Oct 2026'], ''],
-      AR_PROGRESS,
-      MR_PROGRESS,
+    await progressReady();
+    expect(plain(progressRows())).toEqual([
+      [
+        'Browser',
+        'Available to you',
+        'Completed 14 Oct 2026',
+        [
+          'First opened 12 Oct 2026, 10:05',
+          'Reported by the simulation at 15:30',
+          'Feedback sent 14 Oct 2026',
+        ],
+        [],
+      ],
+      [
+        'Virtual reality',
+        'Available to you',
+        'Completed 20 Oct 2026',
+        [
+          'First session reported 16 Oct 2026, 14:10',
+          'Reported from the headset at 11:15',
+          'Feedback sent 20 Oct 2026',
+        ],
+        [],
+      ],
     ]);
     expect(main()).not.toHaveTextContent(/experiment completed|%/i);
   });
 
-  it('VR completed, its feedback not sent: Give feedback on VR only (B3-01 f12)', async () => {
+  it('VR completed, its feedback not sent: Give feedback on VR only', async () => {
     const { runtime, sample } = await webCompleted();
     const sent = await runtime.ports.feedback.sendFeedback({
       experimentId: SHELL as never,
@@ -859,38 +1161,51 @@ describe('ST-10 Progress for this experiment', () => {
     report(sample, 'vr', 'session', '2026-10-16 14:10');
     report(sample, 'vr', 'completed', '2026-10-20 11:15');
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    await screen.findByRole('link', { name: 'Give feedback on VR' }, { timeout: 5000 });
-    expect(progressRows().slice(0, 2)).toEqual([
-      ['WEBWEB', 'Completed 14 Oct 2026', [expect.stringMatching(/^Feedback sent /)], ''],
-      ['VRVR', 'Completed 20 Oct 2026', [`Give feedback on VR → ${HUB}/feedback/vr (button)`], ''],
-    ]);
+    await progressReady();
+    const rows = progressRows();
+    expect(rows[0]?.[3]).toContainEqual(expect.stringMatching(/^Feedback sent /));
+    expect(rows[0]?.[4]).toEqual([]);
+    expect(plain(rows[1]?.[2])).toBe('Completed 20 Oct 2026');
+    expect(rows[1]?.[4]).toEqual([`Give feedback on VR → ${HUB}/feedback/vr (primary)`]);
   });
 
-  it('paused: progress kept, shown as before the pause, no action (B3-01 f11)', async () => {
+  it('paused: the progress kept, each format Paused, no action', async () => {
     const { runtime, sample } = await webCompleted();
     await pauseGodavari(sample, runtime);
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    await screen.findByRole('list', { name: 'Progress by format' }, { timeout: 5000 });
-    await waitFor(() => expect(progressRows()[0]?.[1]).toMatch(/^Paused/));
-    expect(progressRows()).toEqual([
-      ['WEBWEB', 'PausedCompleted 14 Oct 2026 before the pause', [], ''],
-      ['VRVR', 'PausedNot started before the pause', [], ''],
-      AR_PROGRESS,
-      MR_PROGRESS,
+    await progressReady();
+    await waitFor(() => expect(progressRows()[0]?.[1]).toBe('Paused'));
+    expect(plain(progressRows().map((row) => [row[1], row[2], row[4]]))).toEqual([
+      ['Paused', 'Completed 14 Oct 2026', []],
+      ['Paused', 'Not started', []],
     ]);
+    expect(main().querySelector('.sv-holdnote')).toBeNull();
   });
+
+  it('a licence wait: said once above the table, without the plan; nothing opens', async () => {
+    const { runtime } = await fatima();
+    inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
+    await progressReady();
+    expect(main().querySelector('.sv-holdnote')).toHaveTextContent(
+      'No licence is available for you right now.',
+    );
+    expect(progressRows().map((row) => [row[1], row[4]])).toEqual([
+      ['Waiting for a licence', []],
+      ['Waiting for a licence', []],
+    ]);
+    expectNoReferences();
+  }, 30_000);
 
   it('the progress read failed: said so, with Try again; the assessment still shows (`ST-10.failed`)', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     faults(sample).failNext('LearningService.getSimulationChooser');
     inStudent(runtime, `${HUB}/progress`, <ExperimentProgress experimentId={SHELL} />);
-    expect(
-      await screen.findByRole('heading', { name: 'We couldn’t load your progress' }),
-    ).toBeVisible();
-    expect(screen.getByRole('region', { name: 'Assessment' })).toHaveTextContent(NO_ASSESSMENT);
+    const failed = await screen.findByRole('heading', { name: 'We couldn’t load your progress' });
+    expect(failed.closest('.sv-pstate')).toHaveAttribute('role', 'alert');
+    expect(assessmentLine()).toHaveTextContent('Not set by your faculty yet');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(await screen.findByRole('list', { name: 'Progress by format' })).toBeVisible();
+    expect(await progressReady()).toBeVisible();
   });
 });
 
@@ -912,7 +1227,7 @@ describe('the hub’s registers', () => {
         resolveAddress(target).kind,
       );
     }
-    // Each tab page's strip lists the Assessment tab.
+    // Each tab page's section tabs list the Assessment tab.
     for (const on of ['', '/resources', '/simulation', '/assessment', '/progress']) {
       expect(
         mine.some(

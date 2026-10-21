@@ -251,12 +251,19 @@ test('one tab, the product build: approval → the Institute Admin’s plan, peo
   await expect(page.getByRole('button', { name: RAHUL, exact: true })).toBeVisible();
   await expect(page.getByRole('heading', { level: 1, name: 'Hello, Rahul' })).toBeVisible();
   await checkState(page, 'Hello, Rahul');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Open ${SHELL}` }));
+  await reachAndClick(
+    page,
+    main(page)
+      .getByRole('link', { name: `Open experiment, ${SHELL}`, exact: true })
+      .filter({ visible: true }),
+  );
   await page.waitForURL('**/student/experiments/shell-and-tube-heat-exchanger');
 
   // 9. The experiment (ST-05): WEB and VR available to him; AR not included for his institution.
   await expect(page.getByRole('heading', { level: 1, name: SHELL })).toBeVisible();
-  await expect(main(page)).toContainText('Not included for your institution');
+  await expect(main(page)).toContainText(
+    'Published for this experiment, not included in your institution’s access',
+  );
   await checkState(page, SHELL);
   // My courses (ST-02) → the course (ST-03) → the experiment again.
   await sidebar(page, '/student/courses');
@@ -269,7 +276,10 @@ test('one tab, the product build: approval → the Institute Admin’s plan, peo
   );
   await page.waitForURL('**/student/courses/**');
   await checkState(page, 'Thermodynamics & Heat Transfer');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Open ${SHELL}` }));
+  await reachAndClick(
+    page,
+    main(page).getByRole('link', { name: `Open experiment ${SHELL}`, exact: true }),
+  );
   await page.waitForURL('**/student/experiments/shell-and-tube-heat-exchanger');
   await signOut(page, RAHUL);
 
@@ -298,7 +308,10 @@ test('one tab, the product build: approval → the Institute Admin’s plan, peo
   //     his earlier address of the experiment, through the app router.
   await signIn(page, RAHUL_EMAIL);
   await page.waitForURL((url) => url.pathname === '/student');
-  await expect(main(page)).not.toContainText(`Open ${SHELL}`);
+  // ST-01 (ST-v1): the open link reads "Open experiment" (named with the experiment) — none now.
+  await expect(main(page).getByRole('heading', { level: 1, name: 'Hello, Rahul' })).toBeVisible();
+  await expect(main(page)).not.toContainText('Open experiment');
+  await expect(main(page).getByRole('link', { name: new RegExp(SHELL) })).toHaveCount(0);
   await page.evaluate(() => {
     (window as unknown as { next: { router: { push(href: string): void } } }).next.router.push(
       '/student/experiments/shell-and-tube-heat-exchanger',

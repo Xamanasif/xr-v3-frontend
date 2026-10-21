@@ -1,0 +1,10 @@
+[
+[
+"const V = { is, shell, S, R, H: {}, C: {},",
+"const V = { is, shell, S, R, H: {}, HO: {}, SM: {}, PT: {}, AT1: {}, C: {},"
+],
+[
+"      V.HB = this.hubVM(w, r, u);\n",
+"      V.HB = this.hubVM(w, r, u);\n      if (V.HB.hasPill && V.HB.isOverview) V.HB.pillText = 'No licence is available for you right now. Your institution can tell you more.';\n      V.HB.isSim = r.tab === 'simulation'; V.HB.isPT = r.tab === 'progress';\n      if (V.HB.isOverview) V.HO = this.overviewVM(w);\n      if (V.HB.isSim) V.SM = this.simVM(w);\n      if (V.HB.isPT) V.PT = this.progTabVM(w);\n      if (V.HB.isAssessment) V.AT1 = this.asmtTabVM(w);\n"
+]
+]

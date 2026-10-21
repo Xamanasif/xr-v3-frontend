@@ -33,7 +33,7 @@ const RAHUL = roleEntry('student');
 
 test('XS-07 My reports, with reports', async ({ page }) => {
   await openAs(page, RAHUL.person, '/student/help');
-  await expect(page.locator('main.xr-page ul.xs-reports > li')).toHaveCount(1);
+  await expect(page.locator('main#main ul.xs-reports > li')).toHaveCount(1);
   await checkState(page, 'Help & support');
   // XS: rows open the report; status in words and shape; under 560 px the status moves under the
   // title (the rows' own container query).
@@ -129,44 +129,50 @@ test('the drawer below 1024 px: focus to Close menu, background inert, Esc back 
   test.skip((viewport?.width ?? 0) >= 1024, 'The drawer is the sidebar below 1024 px.');
   await openAs(page, RAHUL.person, '/student/help');
   await waitForShell(page);
-  const menu = page.getByRole('button', { name: 'Open menu' });
+  // The Student's V3 shell (ST-v1): the top bar's "Menu" opens the drawer; the page behind
+  // (`div.rb-main`) is inert.
+  const menu = page.getByRole('button', { name: 'Menu', exact: true });
   await menu.click();
   await expect(page.getByRole('button', { name: 'Close menu' })).toBeFocused();
-  await expect(page.locator('div.xr-main')).toHaveAttribute('inert', '');
+  await expect(page.locator('div.rb-main')).toHaveAttribute('inert', '');
   await expectNoAxeViolations(page);
   await page.keyboard.press('Escape');
   await expect(menu).toBeFocused();
   await expect(page.locator('[inert]')).toHaveCount(0);
 });
 
-/** The app-width bands (board 05; WP-0.8): drawer < 1024 ≤ rail < 1280 ≤ full sidebar. */
+/**
+ * The app-width bands. Every workspace is in the V3 shell now (the Student's ST-v1 last; Refined B
+ * `rb.css`): below 1024 px of app width the rail is "Menu" and a drawer; from 1024 px the 248 px
+ * rail. The v46 shell's 72 px collapsed rail (1024–1279, "Expand menu" / "Collapse menu") is not
+ * part of the V3 design; the four widths still prove both sides of each former boundary.
+ */
 for (const [width, band] of [
   [1023, 'drawer'],
   [1024, 'rail'],
   [1279, 'rail'],
-  [1280, 'full'],
+  [1280, 'rail'],
 ] as const) {
   test(`shell boundary at ${width} px: ${band}`, async ({ page }) => {
     test.skip(test.info().project.name !== 'chromium-1440x900', 'Sets its own width.');
     await page.setViewportSize({ width, height: 900 });
     await openAs(page, RAHUL.person, '/student/help');
     await waitForShell(page);
+    // The shell root (`div.xr.rb`, the rail's parent; the XS page inside it is a V3 root too).
     const appWidth = await page
-      .locator('.xr-app')
+      .locator('aside.rb-rail')
+      .locator('xpath=..')
       .evaluate((element) => element.getBoundingClientRect().width);
     expect(appWidth).toBe(width);
-    const menuShown = await page.getByRole('button', { name: 'Open menu' }).isVisible();
-    const sideWidth = await page
-      .locator('aside.xr-side')
-      .evaluate((element) => element.getBoundingClientRect().width);
+    const menu = page.getByRole('button', { name: 'Menu', exact: true });
+    const rail = page.locator('aside.rb-rail');
     if (band === 'drawer') {
-      expect(menuShown).toBe(true);
+      await expect(menu).toBeVisible();
+      await expect(rail).toBeHidden();
     } else {
-      expect(menuShown).toBe(false);
-      expect(sideWidth).toBe(band === 'rail' ? 72 : 248);
-      await expect(
-        page.getByRole('button', { name: band === 'rail' ? 'Expand menu' : 'Collapse menu' }),
-      ).toBeVisible();
+      await expect(menu).toBeHidden();
+      await expect(rail).toBeVisible();
+      expect(await rail.evaluate((element) => element.getBoundingClientRect().width)).toBe(248);
     }
     await expectNoInvisibleFocusTargets(page);
     await expectNoAxeViolations(page);

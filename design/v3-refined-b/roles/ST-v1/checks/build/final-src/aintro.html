@@ -1,0 +1,39 @@
+      <!-- ══════════ ST-12 Assessment — before you start: one card. The state and the one action first (with the three
+           rules while you can still answer), then the deadline as a date block beside the key facts. ══════════ -->
+      <sc-if value="{{ is.aintro }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ AI.crumb.href }}" onClick="{{ AI.crumb.go }}">Assessments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ AI.name }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow"><a class="st-eyelink" href="{{ AI.expLink.href }}" onClick="{{ AI.expLink.go }}">{{ AI.exp }}</a> · assessment</p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ AI.name }}</h1>
+          <p class="rk-sub">{{ AI.desc }}</p>
+        </div>
+      </div>
+      <section class="sv-card sv-ai" aria-labelledby="st-ai-state">
+        <div class="sv-ai-state">
+          <p><span class="{{ AI.pillCls }}"><i></i>{{ AI.pill }}</span></p>
+          <h2 class="sv-sec-t" id="st-ai-state">{{ AI.st.t }}</h2>
+          <sc-if value="{{ AI.st.hasD }}" hint-placeholder-val="{{ false }}"><p class="sv-ai-d" role="status">{{ AI.st.d }}</p></sc-if>
+          <sc-if value="{{ AI.rules }}" hint-placeholder-val="{{ true }}">
+          <ul class="sv-rules" aria-label="How answering works">
+            <li><span class="sv-rules-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clock"></use></svg></span><p><b>No time limit</b></p></li>
+            <li><span class="sv-rules-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></span><p><b>Answers save as you go</b></p></li>
+            <li><span class="sv-rules-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-lock"></use></svg></span><p><b>Nothing is submitted until you choose Submit</b><span>You can’t change answers after submitting.</span></p></li>
+          </ul>
+          </sc-if>
+          <div class="sv-ai-act">
+            <sc-for list="{{ AI.acts }}" as="a" hint-placeholder-count="2"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}">{{ a.label }}</a></sc-for>
+          </div>
+        </div>
+        <div class="sv-ai-facts" role="group" aria-labelledby="st-ai-facts">
+          <h2 class="xr-sr" id="st-ai-facts">Key facts, as set for this assessment</h2>
+          <div class="sv-ai-when"><p class="sv-eyebrow">Deadline</p><div class="{{ AI.when.cls }}"><p class="sv-when-d">{{ AI.when.d }}</p><p class="sv-when-t">{{ AI.when.t }}</p></div><p class="xr-sr">{{ AI.deadline }}</p></div>
+          <dl class="sv-ai-dl">
+            <sc-for list="{{ AI.facts }}" as="f" hint-placeholder-count="5"><div><dt>{{ f.k }}</dt><dd>{{ f.v }}<sc-if value="{{ f.hasS }}" hint-placeholder-val="{{ true }}"><small>{{ f.s }}</small></sc-if></dd></div></sc-for>
+            <div><dt>Set by</dt><dd>{{ AI.setBy }}</dd></div>
+          </dl>
+        </div>
+      </section>
+      </sc-if>
+

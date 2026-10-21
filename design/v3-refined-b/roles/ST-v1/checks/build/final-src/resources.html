@@ -1,0 +1,58 @@
+      <!-- ST-06 Resources: a reading list with each item's type, length and when you opened it; how resources relate
+           to the simulation beside it. A pause or a licence wait is said once above the list. -->
+      <sc-if value="{{ HB.isResources }}" hint-placeholder-val="{{ false }}">
+      <div class="sv-ov">
+        <section class="sv-card sv-res" aria-labelledby="st-res-h">
+          <div class="sv-card-h"><h2 class="sv-sec-t" id="st-res-h" tabindex="-1">Resources</h2><p class="sv-sh-note">{{ RS.note }}</p></div>
+          <sc-if value="{{ RS.held }}" hint-placeholder-val="{{ false }}"><p class="sv-res-held"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-lock"></use></svg><span>{{ RS.heldText }}</span></p></sc-if>
+          <sc-if value="{{ RS.has }}" hint-placeholder-val="{{ true }}">
+          <ul class="sv-list">
+            <sc-for list="{{ RS.rows }}" as="r" hint-placeholder-count="3">
+            <li class="sv-li">
+              <div class="sv-li-lead"><span class="sv-res-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ r.ico }}"></use></svg></span></div>
+              <div class="sv-li-main">
+                <h3 class="sv-li-t">{{ r.t }}</h3>
+                <p class="sv-res-m"><span>{{ r.kind }}</span><span>{{ r.size }}</span></p>
+                <div class="sv-res-st" id="{{ r.stId }}" tabindex="-1" role="status">
+                  <sc-if value="{{ r.isNot }}" hint-placeholder-val="{{ true }}"><p class="sv-res-s">Not opened yet</p></sc-if>
+                  <sc-if value="{{ r.isOpened }}" hint-placeholder-val="{{ false }}"><p class="sv-res-s sv-res-s--ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg>{{ r.openedText }}</p></sc-if>
+                  <sc-if value="{{ r.isBusy }}" hint-placeholder-val="{{ false }}"><p class="sv-res-s">Opening…</p></sc-if>
+                  <sc-if value="{{ r.isFailed }}" hint-placeholder-val="{{ false }}"><p class="sv-res-s sv-res-s--err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>It didn’t open. Nothing was lost — try again.</p></sc-if>
+                </div>
+              </div>
+              <sc-if value="{{ r.canOpen }}" hint-placeholder-val="{{ true }}"><div class="sv-li-end"><button type="button" class="rb-btn" aria-label="{{ r.aria }}" disabled="{{ r.isBusy }}" onClick="{{ r.open }}">{{ r.btn }}<svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-ext"></use></svg></button></div></sc-if>
+            </li>
+            </sc-for>
+          </ul>
+          </sc-if>
+          <sc-if value="{{ RS.none }}" hint-placeholder-val="{{ false }}">
+          <div class="sv-pstate sv-pstate--row" role="status">
+            <span class="sv-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-res"></use></svg></span>
+            <div><h3 class="sv-msg-t">No resources are attached to this experiment yet</h3><p class="sv-msg-d">When resources are added, they appear here. The simulation and the other tabs don’t depend on them.</p></div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ RS.loading }}" hint-placeholder-val="{{ false }}">
+          <div class="sv-loading" aria-busy="true"><p class="rk-loading-msg" role="status">Loading resources…</p><div class="sv-skel" aria-hidden="true"><span class="rk-skel"></span><span class="rk-skel"></span><span class="rk-skel"></span></div></div>
+          </sc-if>
+          <sc-if value="{{ RS.failed }}" hint-placeholder-val="{{ false }}">
+          <div class="sv-pstate sv-pstate--row" role="alert">
+            <span class="sv-msg-ico sv-msg-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-cloud"></use></svg></span>
+            <div><h3 class="sv-msg-t">We couldn’t load the resources</h3><p class="sv-msg-d">Nothing has changed. Try again.</p></div>
+            <button type="button" class="rb-btn" onClick="{{ RS.retry }}">Try again</button>
+          </div>
+          </sc-if>
+        </section>
+        <aside class="sv-card sv-ov-side" aria-label="How resources fit in">
+          <section class="sv-sec sv-side-sec" aria-labelledby="st-res-a1">
+            <h2 class="sv-h3" id="st-res-a1">Before you run a simulation</h2>
+            <p class="sv-side-d">Read these first if you can. Nothing is locked: every format you have opens at any time.</p>
+          </section>
+          <section class="sv-sec sv-side-sec" aria-labelledby="st-res-a2">
+            <h2 class="sv-h3" id="st-res-a2">Opened isn’t progress</h2>
+            <p class="sv-side-d">Opening a resource is recorded with the time. Your progress is counted per format, in the Progress tab.</p>
+            <p class="sv-res-count">{{ RS.openedText }}</p>
+          </section>
+        </aside>
+      </div>
+      </sc-if>
+

@@ -1,66 +1,85 @@
 'use client';
 
 import type { MyAssessmentRow } from '@xr/contracts/draft';
-import { EmptyState, Link, LoadingState, Row, StatusPill } from '@xr/ui';
+import { StAssessmentCard, StLoading, StMessage } from '@xr/ui/v3';
 import { useId } from 'react';
 
+import { ST_STATE_WORDS } from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
-import {
-  answersSavedLine,
-  HUB_ASSESSMENT_TAB,
-  hubDueLine,
-  hubSubmittedLine,
-  releasedLine,
-  releaseTermsLine,
-} from '@/copy/student-assessments';
-import { studentAssessmentAddress } from '@/nav/student-assessments';
+import { HUB_ASSESSMENT_TAB, ST_HUB_ASSESSMENT_V3 } from '@/copy/student-assessments';
 import { useMyAssessments } from '@/queries/student-assessments';
 
 import { HubFallback, HubTabPage, useHubPage } from '../shared/hub-frame';
-import { StudentFailed } from '../shared/student-states';
-import { rowAction, STATE_TONE, stateWordsOf } from '../st-11-assessments/assessment-rows';
+import { useStudentToday } from '../shared/use-today';
+import {
+  hubAction,
+  hubFacts,
+  hubStateLine,
+  hubWhen,
+  statusOf,
+} from '../st-11-assessments/assessment-rows';
 
 /**
- * The experiment hub's Assessment tab (ST-05; board B4-11 f7 … f9), at
- * `/student/experiments/[experimentId]/assessment`: the hub's compact header and tab strip
- * (Assessment current), then this experiment's assessment for the Student.
+ * The experiment hub's Assessment tab — the owner-approved V3 export (ST-v1 `StudentFinal.dc.html`
+ * `HB.isAssessment`, `asmtTabVM`), at `/student/experiments/[experimentId]/assessment`: the hub's
+ * header and section tabs (the hub's, through `HubTabPage`), then this experiment's assessment.
  *
  * - **Reads**: the hub (`getExperimentHub`, through the hub frame — its refusals are ST-19 in place)
  *   and the Student's own assessments (`listMyAssessments`), of which this experiment's: the name,
- *   deadline, size and the latest attempt as the service answers it (figure-free until released).
- * - **As B4-11 draws it**: "Assessment" with one row — To do: "Due … · 4 questions · 16 marks · no
- *   time limit", "To do" and the primary "Open assessment" (ST-12, f7); Waiting for marking:
- *   "Submitted … · your result appears after the deadline", "View" (ST-14, f9). None set yet: the
- *   empty state "Your faculty hasn’t set an assessment for this experiment yet" (f8). The other
- *   states take ST-11's status, line and action (state-copy `ST-05.assessment-tab.states`).
- * - **Undrawn**: loading and failed (`ST-05.assessment-tab.loading`, `.failed`).
+ *   introduction, deadline, size and rules, and the latest attempt as the service answers it
+ *   (figure-free until released).
+ * - **As drawn**: one card per assessment (`sv-atab`) — the deadline as a date block ("Due" while
+ *   it can be answered, then "Deadline"), "Assessment", the name, what it covers, the status and
+ *   its words, the key facts ("4 questions · 16 marks · pass mark 50% · 2 attempts · no time
+ *   limit") and one action: "Open assessment" (ST-12) or ST-11's action for the state; the gold
+ *   primary while it can be answered. None set yet: the compact message "Your faculty hasn’t set
+ *   an assessment for this experiment yet".
+ * - **Undrawn**: loading and failed (`ST-05.assessment-tab.loading`, `.failed`) in the export's
+ *   loading block and compact failure.
  */
 export function HubAssessmentTab({ experimentId }: { readonly experimentId: string }) {
   const read = useMyAssessments();
   const state = useHubPage(experimentId, 'assessment');
+  const today = useStudentToday();
+  const noneId = useId();
+  const failedId = useId();
   if (state.kind !== 'ready') return <HubFallback state={state} />;
   const answer = read.data;
   let body;
   if (read.isError || (answer !== undefined && !answer.ok)) {
     body = (
-      <StudentFailed
+      <StMessage
+        icon="cloudAlert"
+        tone="err"
+        alert
         title={stateWords('ST-05.assessment-tab.failed')}
-        onRetry={() => void read.refetch()}
+        titleId={failedId}
+        description={ST_STATE_WORDS.failedLine}
+        retry={{ label: ST_STATE_WORDS.tryAgain, onRetry: () => void read.refetch() }}
       />
     );
   } else if (answer === undefined) {
-    body = <LoadingState label={stateWords('ST-05.assessment-tab.loading')} surface="section" />;
+    body = (
+      <StLoading
+        variant="card"
+        label={stateWords('ST-05.assessment-tab.loading')}
+        name={HUB_ASSESSMENT_TAB.heading}
+      />
+    );
   } else {
     const mine = answer.value.filter((row) => row.assessment.experimentId === experimentId);
     body =
       mine.length === 0 ? (
-        <div className="xr-section">
-          <EmptyState icon="assessments" title={HUB_ASSESSMENT_TAB.noneTitle}>
-            {HUB_ASSESSMENT_TAB.noneLine}
-          </EmptyState>
-        </div>
+        <StMessage
+          icon="assessments"
+          title={HUB_ASSESSMENT_TAB.noneTitle}
+          titleId={noneId}
+          description={HUB_ASSESSMENT_TAB.noneLine}
+        />
       ) : (
-        <AssessmentSection rows={mine} />
+        mine.map((row) => (
+          <AssessmentCard key={row.assessment.id} row={row} today={today?.now ?? null} />
+        ))
       );
   }
   return (
@@ -70,62 +89,28 @@ export function HubAssessmentTab({ experimentId }: { readonly experimentId: stri
   );
 }
 
-function AssessmentSection({ rows }: { readonly rows: readonly MyAssessmentRow[] }) {
-  const headingId = useId();
+/** One assessment of this experiment (`section.sv-card.sv-atab`). */
+function AssessmentCard({
+  row,
+  today,
+}: {
+  readonly row: MyAssessmentRow;
+  readonly today: string | null;
+}) {
+  const titleId = useId();
+  const when = hubWhen(row, today);
   return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {HUB_ASSESSMENT_TAB.heading}
-        </h2>
-      </div>
-      <ul className="xr-rows">
-        {rows.map((row) => (
-          <AssessmentRow key={row.assessment.id} row={row} />
-        ))}
-      </ul>
-    </section>
+    <StAssessmentCard
+      titleId={titleId}
+      whenKicker={when.kicker}
+      when={when.when ?? undefined}
+      kicker={ST_HUB_ASSESSMENT_V3.kicker}
+      name={row.assessment.name}
+      description={row.assessment.introduction}
+      status={statusOf(row.result.kind)}
+      state={hubStateLine(row)}
+      facts={hubFacts(row)}
+      action={hubAction(row)}
+    />
   );
-}
-
-/** f7, f9: `li.xr-row` — name, one line, the status and one action (primary while to do). */
-function AssessmentRow({ row }: { readonly row: MyAssessmentRow }) {
-  const state = row.result.kind;
-  const action = rowAction(row.assessment.id, state);
-  const primary = state === 'to-do' || state === 'in-progress';
-  return (
-    <Row icon="assessments" title={row.assessment.name} sub={hubLine(row)}>
-      <div className="xw-actions flex-none">
-        <StatusPill tone={STATE_TONE[state]}>{stateWordsOf(state)}</StatusPill>
-        <Link
-          className={primary ? 'xr-btn xr-btn--primary' : 'xr-btn xr-btn--secondary'}
-          href={state === 'to-do' ? studentAssessmentAddress(row.assessment.id) : action.href}
-        >
-          {state === 'to-do' ? HUB_ASSESSMENT_TAB.open : action.words}
-        </Link>
-      </div>
-    </Row>
-  );
-}
-
-/** The row's line (f7, f9; the other states ST-11's, `ST-05.assessment-tab.states`). */
-function hubLine(row: MyAssessmentRow): string {
-  const deadline = row.assessment.rules.deadline;
-  const latest = row.latest;
-  switch (row.result.kind) {
-    case 'to-do':
-      return hubDueLine(deadline, row.questionCount, row.totalMarks);
-    case 'in-progress':
-      // The attempt's own version's deadline (Phase 4B review: as ST-13 shows it).
-      return answersSavedLine(latest?.pinned.deadline ?? deadline);
-    case 'waiting-for-marking':
-      return hubSubmittedLine(
-        latest?.submittedAt ?? null,
-        latest?.release ?? { option: row.assessment.rules.release?.option ?? null, on: deadline },
-      );
-    case 'not-released-yet':
-      return releaseTermsLine(latest?.release ?? { option: row.result.releaseRule, on: deadline });
-    case 'released':
-      return releasedLine(row.result.releasedAt);
-  }
 }

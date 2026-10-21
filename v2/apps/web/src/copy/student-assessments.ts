@@ -7,8 +7,10 @@
  */
 import type { PinnedRelease } from '@xr/contracts/draft';
 
-import { dateTime } from './dates';
+import { questionsAndMarks } from './assessment-words';
+import { dateTime, dayMonthYear } from './dates';
 import { stateWords } from './state-copy';
+import { stDateTime } from './st-shared';
 
 /** The release terms an attempt pins (`PinnedRelease`; `on` an instant, or none). */
 type ReleaseTerms = { readonly option: PinnedRelease['option']; readonly on: string | null };
@@ -72,27 +74,16 @@ export function questionCountWords(count: number): string {
   return plural(count, 'question');
 }
 
-/** f0: "Due 14 Nov 2026, 23:59 · 4 questions · no time limit" (no deadline: `ST-11.lines`). */
-export function dueLine(deadline: string | null, questionCount: number): string {
-  return [
-    deadline === null ? null : `Due ${dateTime(deadline)}`,
-    questionCountWords(questionCount),
-    'no time limit',
-  ]
-    .filter((part): part is string => part !== null)
-    .join(' · ');
-}
-
 /** f1: "Answers saved · due 14 Nov 2026, 23:59" (no deadline: "Answers saved"). */
 export function answersSavedLine(deadline: string | null): string {
-  return deadline === null ? 'Answers saved' : `Answers saved · due ${dateTime(deadline)}`;
+  return deadline === null ? 'Answers saved' : `Answers saved · due ${stDateTime(deadline)}`;
 }
 
 /** f2: "Submitted 5 Nov 2026, 18:52 · your faculty marks written answers". */
 export function submittedLine(submittedAt: string | null): string {
   return submittedAt === null
     ? 'Your faculty marks written answers'
-    : `Submitted ${dateTime(submittedAt)} · your faculty marks written answers`;
+    : `Submitted ${stDateTime(submittedAt)} · your faculty marks written answers`;
 }
 
 /**
@@ -102,15 +93,15 @@ export function submittedLine(submittedAt: string | null): string {
  */
 export function releaseTermsLine(release: ReleaseTerms): string {
   if (release.option === 'after-deadline' && release.on)
-    return `Released after the deadline: ${dateTime(release.on)}`;
+    return `Released after the deadline: ${stDateTime(release.on)}`;
   if (release.option === 'on-date' && release.on)
-    return stateWords('ST-11.release-on-date').replace('{on}', dateTime(release.on));
+    return stateWords('ST-11.release-on-date').replace('{on}', stDateTime(release.on));
   return stateWords('ST-11.release-immediately');
 }
 
 /** f4: "Released 14 Nov 2026, 23:59". */
 export function releasedLine(releasedAt: string): string {
-  return `Released ${dateTime(releasedAt)}`;
+  return `Released ${stDateTime(releasedAt)}`;
 }
 
 // ---- the hub's Assessment tab (B4-11 f7 … f9) ---------------------------------------------------
@@ -128,27 +119,13 @@ export const HUB_ASSESSMENT_TAB = {
 /** f7: "Due 14 Nov 2026, 23:59 · 4 questions · 16 marks · no time limit". */
 export function hubDueLine(deadline: string | null, questionCount: number, totalMarks: number) {
   return [
-    deadline === null ? null : `Due ${dateTime(deadline)}`,
+    deadline === null ? null : `Due ${stDateTime(deadline)}`,
     questionCountWords(questionCount),
     plural(totalMarks, 'mark'),
     'no time limit',
   ]
     .filter((part): part is string => part !== null)
     .join(' · ');
-}
-
-/**
- * f9: "Submitted 5 Nov 2026, 18:52 · your result appears after the deadline" — the attempt's own
- * release terms; the other two options are the register's (`ST-05.assessment-tab.appears-*`).
- */
-export function hubSubmittedLine(submittedAt: string | null, release: ReleaseTerms): string {
-  const appears =
-    release.option === 'after-deadline'
-      ? 'your result appears after the deadline'
-      : release.option === 'on-date' && release.on
-        ? stateWords('ST-05.assessment-tab.appears-on-date').replace('{on}', dateTime(release.on))
-        : stateWords('ST-05.assessment-tab.appears-immediately');
-  return submittedAt === null ? appears : `Submitted ${dateTime(submittedAt)} · ${appears}`;
 }
 
 // ---- Home's "Up next" (B4-11 f10) ---------------------------------------------------------------
@@ -162,8 +139,136 @@ export function upNextAssessmentTitle(assessmentName: string): string {
 export function upNextAssessmentSub(experimentName: string, deadline: string | null): string {
   return deadline === null
     ? `${experimentName} · assessment`
-    : `${experimentName} · assessment · due ${dateTime(deadline)}`;
+    : `${experimentName} · assessment · due ${stDateTime(deadline)}`;
 }
 
 /** f10: `a.xr-btn--secondary.xr-btn--sm`. */
 export const UP_NEXT_OPEN_ASSESSMENT = 'Open assessment';
+
+// ---- V3 (the owner-approved Student export ST-v1, `StudentFinal.dc.html`) -------------------------
+// ST-11 Assessments (`alistVM`), the hub's Assessment tab (`asmtTabVM`) and the date block they and
+// ST-12 lead with (`whenOf`). Each string is the export's own (`student-assessments.test.ts` finds
+// it there); what the export does not word is the register's (`state-copy-student-assessments.ts`).
+
+/** ST-11's fixed words (`is.alist`). */
+export const ST_ASSESSMENTS_V3 = {
+  /** `nav.rk-tabs.sv-tabs aria-label`. */
+  tabsLabel: 'Assessments',
+  /** `p.rk-loading-msg`. */
+  loading: 'Loading your assessments…',
+  /** `div.sv-pstate h3.sv-msg-t`. */
+  failedTitle: 'We couldn’t load your assessments',
+  /** The empty state (`AL.noneD`) when the Student has no experiment yet. */
+  noneLineNoExperiment:
+    'When your institution gives you an experiment and your faculty sets an assessment for it, it appears here.',
+  /** `ul.sv-facts aria-label`. */
+  experimentsLabel: 'Your experiments',
+  /** Each experiment's fact in the empty state (`AL.exps[].s`). */
+  noAssessmentSet: 'No assessment set yet',
+} as const;
+
+/** A row's or the tab's action with the assessment's name: "Open, Heat Exchanger — post-lab". */
+export function assessmentActionName(action: string, assessmentName: string): string {
+  return `${action}, ${assessmentName}`;
+}
+
+/** Where the Student's assessment is when this tab has none (`AL.emptyD`). */
+export function elsewhereWords(tabs: readonly string[], rows: number): string {
+  if (rows === 1 && tabs.length === 1) return `Your assessment is under ${tabs[0]}.`;
+  const named =
+    tabs.length === 1 ? tabs[0]! : `${tabs.slice(0, -1).join(', ')} and ${tabs[tabs.length - 1]}`;
+  return stateWords('ST-11.elsewhere').replace('{tabs}', named);
+}
+
+/** The date block's kicker (`r.whenK`, `AT1.whenK`, ST-12 "Deadline"). */
+export const WHEN_KICKERS = {
+  due: 'Due',
+  resultAfter: 'Result after',
+  released: 'Released',
+  deadline: 'Deadline',
+} as const;
+
+const DAY_MS = 86_400_000;
+
+/** The calendar day of an instant in Indian time, as a day number (`dayNum`). */
+function dayNumber(instant: string): number {
+  const ist = new Date(new Date(instant).getTime() + 330 * 60_000);
+  return Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate()) / DAY_MS;
+}
+
+/** "today", "tomorrow", "in 13 days", "yesterday", "2 days ago" (`whenOf`'s `rel`). */
+function relativeDay(diff: number): string {
+  if (diff === 0) return 'today';
+  if (diff === 1) return 'tomorrow';
+  if (diff > 1) return `in ${diff} days`;
+  if (diff === -1) return 'yesterday';
+  return `${-diff} days ago`;
+}
+
+/**
+ * A date block (`whenOf`): "14 Nov" over "23:59 · in 13 days", counted from the session's today;
+ * `soon` (the ivory block) when it is due within two days. `soon` is for deadlines only: a release
+ * or a result date is never drawn ivory.
+ */
+export function whenWords(
+  instant: string,
+  today: string | null,
+  deadline = true,
+): { readonly day: string; readonly time: string; readonly soon: boolean } {
+  const time = dateTime(instant).split(', ')[1] ?? '';
+  const day = dayMonthYear(instant).split(' ').slice(0, 2).join(' ');
+  if (today === null) return { day, time, soon: false };
+  const diff = dayNumber(instant) - dayNumber(today);
+  return {
+    day,
+    time: [time, relativeDay(diff)].filter((part) => part !== '').join(' · '),
+    soon: deadline && diff >= 0 && diff <= 2,
+  };
+}
+
+/** ST-11's row line under the status (`alistVM` `sub`), by the row's state. */
+export const ST_ROW_LINES = {
+  /** "4 questions · 16 marks · no time limit". */
+  toDo: (questionCount: number, totalMarks: number) =>
+    `${questionsAndMarks(questionCount, totalMarks)} · no time limit`,
+  inProgress: 'Your answers are saved · no time limit',
+  /** "Submitted 5 Nov 2026, 18:52 · your faculty marks written answers". */
+  waiting: (submittedAt: string | null) => submittedLine(submittedAt),
+  released: 'Your result and answers are ready',
+} as const;
+
+/**
+ * "Marked · released after the deadline" (`alistVM` / `asmtTabVM` for a result marked but not
+ * released): the attempt's own release terms; a date is the register's (`ST-11.marked-on-date`).
+ */
+export function markedReleaseLine(release: ReleaseTerms): string {
+  if (release.option === 'on-date' && release.on)
+    return stateWords('ST-11.marked-on-date').replace('{on}', stDateTime(release.on));
+  if (release.option === 'immediately-after-marking') return stateWords('ST-11.marked-when-marked');
+  return 'Marked · released after the deadline';
+}
+
+/** The hub's Assessment tab (`asmtTabVM`). */
+export const ST_HUB_ASSESSMENT_V3 = {
+  /** `p.sv-eyebrow` over the name. */
+  kicker: 'Assessment',
+  /** In progress: the words after the status. */
+  inProgress: 'Your answers are saved',
+} as const;
+
+/** "4 questions · 16 marks · pass mark 50% · 2 attempts · no time limit" (`AT1.facts`). */
+export function hubFactsLine(facts: {
+  readonly questionCount: number;
+  readonly totalMarks: number;
+  readonly passMarkPercent: number | null;
+  readonly attemptsAllowed: number | null;
+}): string {
+  return [
+    questionsAndMarks(facts.questionCount, facts.totalMarks),
+    facts.passMarkPercent === null ? null : `pass mark ${facts.passMarkPercent}%`,
+    facts.attemptsAllowed === null ? null : plural(facts.attemptsAllowed, 'attempt'),
+    'no time limit',
+  ]
+    .filter((part): part is string => part !== null)
+    .join(' · ');
+}

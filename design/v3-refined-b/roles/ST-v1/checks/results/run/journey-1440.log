@@ -1,0 +1,64 @@
+PASS J1 Home: Hello, Rahul with the stage tracker and one gold action (Continue WEB)
+PASS J1 course link → ST-03 Course, focus on the H1
+PASS J1 Open experiment → ST-05 Overview
+PASS J1 Resources tab → ST-06, three items listed
+PASS J1 opening a resource records the time; progress is not touched
+PASS J1 Simulation tab → ST-07: two format cards, WEB marked Next step, gold Continue WEB
+PASS J1 Continue WEB → ST-08 launch page with the stage tracker
+PASS J1 Continue WEB opens the sample activity (ST-08a), stage 2 is now
+PASS J1 stage 2 finished → stage 3 now, place saved
+PASS J1 activity complete: WEB recorded as completed, focus on the done card
+PASS J1 back on ST-08: Completed, recorded by the platform, gold Give feedback on WEB
+PASS J1 Progress (ST-15) agrees: WEB completed by the platform, gold Give feedback on WEB
+PASS J2 → ST-16 rating sheet: five statements, scale named once
+PASS J2 submitting with nothing rated: error summary focused, five ratings missing
+PASS J2 error link moves focus to the first rating of statement 1
+PASS J2 all five rated: the errors clear
+PASS J2 sent (ST-17): thank-you band, answers read-only on the same scale
+PASS J2 Home next step moves on to VR
+PASS J3 ST-11: the row is led by its due date, gold Open
+PASS J3 Open → ST-12: Before you start, three rules, deadline block and key facts
+PASS J3 Start assessment → ST-13 attempt: one sheet, four questions, focus on the H1
+PASS J3 three answered: count, numbers and strip agree
+PASS J3 Next unanswered → question 4
+PASS J3 all four answered
+PASS J3 Submit opens the confirmation dialog, focus inside it
+PASS J3 Escape closes the dialog, focus back on Submit
+PASS J3 submitted: done card focused, waiting for marking
+PASS J3 result page withheld (compact message): Submitted — waiting for marking
+PASS J3 ST-11: To do is empty and says where the assessment is; Submitted holds it
+PASS J3 Submitted tab: the row is led by "Result after"
+PASS J3 released result: score panel 11 of 16, Passed, marks by question
+PASS J3 marks-by-question link jumps to question 2
+PASS J3 answer review: correct answer shown only where it differs
+PASS J3 not passed: Try again in the score panel, the one gold action
+PASS J4 Open VR → ST-09: Set up VR, setup steps open, authorised headset shown
+PASS J4 My device → ST-18 with the authorised headset and one gold action
+PASS J4 Request a device transfer opens the form, focus on New device
+PASS J4 empty request: field error and focus on the field
+PASS J4 request sent: status with your Institute Admin, three dated steps; no reference, as in the baseline for this scenario
+PASS J4 device scenario: the new request shows its status, its three dated steps and From / To, and no internal record identifier
+PASS J4 forwarded: two steps done, BITS decides now
+PASS J4 VR in progress: Continue on your headset, last session in the header
+PASS J4 VR completed: gold Give feedback on VR
+PASS J5 paused Home: no gold, the pause said in the banner
+PASS J5 paused WEB page: no launch, the student’s completion kept in the header
+PASS J5 waiting for a licence: Not available to you yet, no launch
+PASS J5 VR not available right now: said once, WEB still opens
+PASS J5 AR refusal: compact card with the formats you can use
+PASS J5 AR refusal → Continue WEB → ST-08
+PASS J5 MR refusal
+PASS J5 ST-19 not given: experiments you can open
+PASS J5 ST-19 → Open experiment → ST-05
+PASS J5 withdrawn: no longer given, your work as recorded
+PASS J5 withdrawn → See your earlier work → ST-15
+PASS J5 ended: access ended with the date
+PASS J5 My device when not eligible: refusal
+PASS J5 feedback before completion: refusal with Back to VR
+PASS J5 assessment not set: refusal
+PASS J5 inactive account: the borrowed XS-08 message, unchanged form
+PASS J6 Tab from the H1 on ST-08: Continue WEB, then Report a problem
+PASS J6 page checks on every page visited (one H1, ≤ 1 gold, no # links)
+PASS J6 no console errors
+
+62 / 62 passed at 1440 · pages checked: 23

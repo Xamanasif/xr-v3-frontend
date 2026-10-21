@@ -1,0 +1,2118 @@
+{
+ "note": "Illustrative sample worlds for the Student design preview (Main.dc.html). They are design fixtures, not application data or service contracts. Each scenario is internally coherent and dated; facts come from the v46 boards where cited, otherwise they are marked illustrative. The React app keeps its own shared world.",
+ "foundation": "XR-V3-RB-1.0",
+ "role": "Student",
+ "common": {
+  "people": {
+   "rahul": {
+    "name": "Rahul Verma",
+    "first": "Rahul",
+    "ini": "RV"
+   },
+   "arun": {
+    "name": "Arun Kumar",
+    "first": "Arun",
+    "ini": "AK"
+   },
+   "imran": {
+    "name": "Imran Shaikh",
+    "first": "Imran",
+    "ini": "IS"
+   },
+   "vikram": {
+    "name": "Vikram Joshi",
+    "first": "Vikram",
+    "ini": "VJ"
+   }
+  },
+  "institution": "Godavari Institute of Technology",
+  "course": {
+   "own": "MEC-523",
+   "bits": "ME ZG523",
+   "name": "Thermodynamics & Heat Transfer",
+   "area": "Mechanical & Manufacturing"
+  },
+  "experiments": {
+   "ste": {
+    "id": "ste",
+    "slug": "shell-and-tube",
+    "t": "Shell-and-Tube Heat Exchanger",
+    "desc": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+    "outcomes": [
+     "Determine log mean temperature difference from measured inlet and outlet conditions",
+     "Compare countercurrent and cocurrent arrangements at matched duty"
+    ]
+   },
+   "fin": {
+    "id": "fin",
+    "slug": "fin-tube-bundle",
+    "t": "Fin-Tube Bundle"
+   }
+  },
+  "formatNames": {
+   "WEB": "Browser",
+   "AR": "Augmented reality",
+   "VR": "Virtual reality",
+   "MR": "Mixed reality"
+  },
+  "resources": [
+   {
+    "id": "r1",
+    "t": "Lab brief — Shell-and-Tube Heat Exchanger",
+    "short": "Lab brief",
+    "kind": "PDF document",
+    "size": "6 pages",
+    "ico": "sti-doc"
+   },
+   {
+    "id": "r2",
+    "t": "Pre-lab reading — the effectiveness–NTU method",
+    "short": "Pre-lab reading",
+    "kind": "Web page",
+    "size": "About 10 minutes",
+    "ico": "sti-web"
+   },
+   {
+    "id": "r3",
+    "t": "Readings sheet",
+    "short": "Readings sheet",
+    "kind": "Spreadsheet",
+    "size": "1 sheet",
+    "ico": "sti-sheet"
+   }
+  ],
+  "assessment": {
+   "name": "Heat Exchanger — post-lab",
+   "desc": "Four short questions on what you measured in the Shell-and-Tube Heat Exchanger simulation. One answer is written; your faculty marks it.",
+   "total": 16,
+   "passm": 8,
+   "passpct": "50%",
+   "attempts": 2,
+   "deadline": "14 Nov 2026, 23:59",
+   "fac": "Dr S. Ranganathan",
+   "mix": "2 multiple choice · 1 true or false · 1 written answer",
+   "qs": [
+    {
+     "n": 1,
+     "type": "mc",
+     "tname": "Multiple choice",
+     "marks": 2,
+     "text": "What does the effectiveness (ε) of a heat exchanger compare?",
+     "opts": [
+      "The actual heat transfer with the largest heat transfer possible",
+      "The hot-side flow rate with the cold-side flow rate",
+      "The overall heat transfer coefficient with the surface area",
+      "The hot fluid’s inlet temperature with its outlet temperature"
+     ],
+     "correct": 0,
+     "expl": "ε = q ÷ q_max, where q_max = C_min (T_h,in − T_c,in)."
+    },
+    {
+     "n": 2,
+     "type": "mc",
+     "tname": "Multiple choice",
+     "marks": 2,
+     "text": "How is the number of transfer units (NTU) defined?",
+     "opts": [
+      "UA ÷ C_min",
+      "C_min ÷ C_max",
+      "q ÷ q_max",
+      "UA ÷ C_max"
+     ],
+     "correct": 0,
+     "expl": "NTU = UA ÷ C_min — the exchanger’s size measured against the smaller heat-capacity rate."
+    },
+    {
+     "n": 3,
+     "type": "tf",
+     "tname": "True or false",
+     "marks": 2,
+     "text": "Fouling on the tube surfaces lowers the overall heat transfer coefficient U.",
+     "opts": [
+      "True",
+      "False"
+     ],
+     "correct": 0,
+     "expl": "Fouling adds a thermal resistance in series, so U falls."
+    },
+    {
+     "n": 4,
+     "type": "written",
+     "tname": "Written answer",
+     "marks": 10,
+     "text": "Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.",
+     "opts": [],
+     "correct": null,
+     "expl": "Fouling adds a resistance, so U and the heat duty fall at the same flow rates: the hot fluid leaves hotter and the cold fluid leaves cooler."
+    }
+   ],
+   "rahul4": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area.",
+   "rahulFb": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab.",
+   "imran4": "Fouling makes the tubes dirty so the exchanger works less well. It should be cleaned.",
+   "imranFb": "You named the cause. Explain what changes — U, the heat duty and the outlet temperatures — and use your readings."
+  },
+  "feedbackStatements": [
+   "This experience helped me understand the concept.",
+   "The instructions were clear and easy to follow.",
+   "The simulation was easy to use and interact with.",
+   "This experience worked smoothly without technical issues.",
+   "Overall, I was satisfied with this learning experience."
+  ],
+  "ratingScale": [
+   "Strongly disagree",
+   "Disagree",
+   "Neither agree nor disagree",
+   "Agree",
+   "Strongly agree"
+  ],
+  "device": {
+   "old": "ME lab VR headset, asset tag GIT-VR-03",
+   "nw": "ME lab VR headset, asset tag GIT-VR-07",
+   "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+   "ia": "Meera Iyer",
+   "t": {
+    "dtr": "22 Oct 2026, 09:10",
+    "fwd": "23 Oct 2026, 10:00",
+    "appr": "24 Oct 2026, 12:30"
+   }
+  }
+ },
+ "sources": {
+  "person.rahul": "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+  "person.arun": "v46 B3-02 “Waiting for a licence · Arun Kumar (later sample)”",
+  "person.imran": "v46 B4-13 “Not passed · 1 attempt left (later sample) · Imran Shaikh, 15 Nov: 6 of 16”",
+  "person.vikram": "v46 B3-07 “Entry hidden · no AR / VR / MR formats · Vikram has no experiments yet”",
+  "grant": "v46 B2-10…B2-13: access only from SACC-0310 (given by Meera Iyer), formats WEB + VR from ACC-0107",
+  "course": "v46 B2-11 / B2-12: Thermodynamics & Heat Transfer, BITS code ME ZG523, institution code MEC-523 (T-17 open, as in V3 open record #3)",
+  "experiment": "v46 B2-12: Shell-and-Tube Heat Exchanger description, outcomes and engineering area (Batch-1 catalogue data); Fin-Tube Bundle published in the course but not given (B2-11)",
+  "formats": "v46 B3-02: WEB and VR available; AR published but not in ACC-0107; MR not published",
+  "resources": "v46 B3-01: resource names are sample data; Lab brief opened 12 Oct 2026, 09:40",
+  "web": "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+  "web.stage": "Illustrative: the local sample activity has three stages; the in-progress run is at stage 1 of 3 (TE-3 interim, stages to be bound to the real activity)",
+  "vr": "v46 B3-04 / B3-05: VR first session reported 16 Oct 2026, 14:10 · completed 20 Oct 2026, 11:15 (reported from the headset)",
+  "feedback": "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative",
+  "assessment": "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12",
+  "attempt": "v46 B4-14: ATT-0450 submitted 5 Nov 2026, 18:52 · marked 7 Nov 2026, 10:15 · released 14 Nov 2026, 23:59 · 11 of 16 · passed. Start time 18:20 is illustrative",
+  "attempt.imran": "v46 B4-13: Imran Shaikh 6 of 16, not passed, 1 attempt left; his answers and the written-answer feedback are illustrative",
+  "device": "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative",
+  "device.authorised": "Local-prototype interim P3-03: a pre-authorised sample device for Rahul enables the transfer chain",
+  "ended": "v46 B2-10 / B2-12: access ended on 7 Oct 2027"
+ },
+ "scenarios": [
+  {
+   "scenarioId": "learn",
+   "label": "Learning · Rahul · Mon 12 Oct 2026",
+   "group": "Main journeys",
+   "title": "Main journey · learning",
+   "asOf": "Monday 12 October 2026, 16:05",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B2-10…B2-13: access only from SACC-0310 (given by Meera Iyer), formats WEB + VR from ACC-0107",
+    "v46 B2-11 / B2-12: Thermodynamics & Heat Transfer, BITS code ME ZG523, institution code MEC-523 (T-17 open, as in V3 open record #3)",
+    "v46 B2-12: Shell-and-Tube Heat Exchanger description, outcomes and engineering area (Batch-1 catalogue data); Fin-Tube Bundle published in the course but not given (B2-11)",
+    "v46 B3-02: WEB and VR available; AR published but not in ACC-0107; MR not published",
+    "v46 B3-01: resource names are sample data; Lab brief opened 12 Oct 2026, 09:40",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "Illustrative: the local sample activity has three stages; the in-progress run is at stage 1 of 3 (TE-3 interim, stages to be bound to the real activity)"
+   ],
+   "notes": "Date chosen so WEB is in progress (v46 B2-12 “Later sample · WEB in progress”, 12 Oct).",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "prog",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "12 Oct 2026, 11:20",
+      "done": "",
+      "by": "",
+      "stage": 1
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "assess",
+   "label": "Assessment due · Rahul · Sun 1 Nov 2026",
+   "group": "Main journeys",
+   "title": "Main journey · assessment due",
+   "asOf": "Sunday 1 November 2026, 10:30",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B2-10…B2-13: access only from SACC-0310 (given by Meera Iyer), formats WEB + VR from ACC-0107",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "v46 B3-04 / B3-05: VR first session reported 16 Oct 2026, 14:10 · completed 20 Oct 2026, 11:15 (reported from the headset)",
+    "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative",
+    "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12",
+    "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative",
+    "Local-prototype interim P3-03: a pre-authorised sample device for Rahul enables the transfer chain"
+   ],
+   "notes": "Sun 1 Nov 2026 is illustrative: after VR (20 Oct) and before the submission (5 Nov). Device shows the approved DTR-0018 state.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "todo",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "appr",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "device",
+   "label": "Device transfer · Rahul · Thu 22 Oct 2026",
+   "group": "Main journeys",
+   "title": "Main journey · device transfer",
+   "asOf": "Thursday 22 October 2026, 09:09",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B2-10…B2-13: access only from SACC-0310 (given by Meera Iyer), formats WEB + VR from ACC-0107",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "v46 B3-04 / B3-05: VR first session reported 16 Oct 2026, 14:10 · completed 20 Oct 2026, 11:15 (reported from the headset)",
+    "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative",
+    "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative",
+    "Local-prototype interim P3-03: a pre-authorised sample device for Rahul enables the transfer chain"
+   ],
+   "notes": "Clock 09:09 so that the request sent in the preview lands at 09:10, the v46 DTR-0018 time.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "granted",
+   "label": "Given, nothing started · Rahul · Fri 9 Oct 2026",
+   "group": "Learning states",
+   "title": "Given, nothing started",
+   "asOf": "Friday 9 October 2026, 10:45",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B2-10…B2-13: access only from SACC-0310 (given by Meera Iyer), formats WEB + VR from ACC-0107",
+    "v46 B3-02: WEB and VR available; AR published but not in ACC-0107; MR not published"
+   ],
+   "notes": "v46 B2-10 “first time · after SACC-0310 (9 Oct 2026)”.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {},
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "newst",
+   "label": "New student, no access yet · Rahul · Thu 8 Oct 2026",
+   "group": "Learning states",
+   "title": "New student, no access yet",
+   "asOf": "Thursday 8 October 2026, 09:30",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)"
+   ],
+   "notes": "v46 B2-10 “before access · 8 Oct 2026”.",
+   "snapshot": {
+    "grant": "none",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {},
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "vrnow",
+   "label": "VR not available right now · Rahul · Fri 9 Oct 2026",
+   "group": "Learning states",
+   "title": "VR not available right now",
+   "asOf": "Friday 9 October 2026, 11:00",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B2-10…B2-13: access only from SACC-0310 (given by Meera Iyer), formats WEB + VR from ACC-0107",
+    "v46 B3-02: WEB and VR available; AR published but not in ACC-0107; MR not published"
+   ],
+   "notes": "v46 B2-12 “A format not available right now”; date illustrative (9 Oct 2026). Also the “missing runtime” state.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": false,
+    "runs": {
+     "WEB": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {},
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "vrprog",
+   "label": "VR in progress · Rahul · Fri 16 Oct 2026",
+   "group": "Learning states",
+   "title": "VR in progress",
+   "asOf": "Friday 16 October 2026, 15:00",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "v46 B3-04 / B3-05: VR first session reported 16 Oct 2026, 14:10 · completed 20 Oct 2026, 11:15 (reported from the headset)",
+    "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative"
+   ],
+   "notes": "v46 B3-04 “in progress · 16 Oct 2026”.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "prog",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "16 Oct 2026, 14:10",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "vrdone",
+   "label": "VR completed, feedback to give · Rahul · Tue 20 Oct 2026",
+   "group": "Learning states",
+   "title": "VR completed, feedback to give",
+   "asOf": "Tuesday 20 October 2026, 11:20",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "v46 B3-04 / B3-05: VR first session reported 16 Oct 2026, 14:10 · completed 20 Oct 2026, 11:15 (reported from the headset)",
+    "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative"
+   ],
+   "notes": "v46 B3-04 “VR completed · 20 Oct → Give feedback on VR”. VR feedback is not yet sent in this scenario.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "licence",
+   "label": "Waiting for a licence · Arun Kumar · Wed 22 Sep 2027",
+   "group": "Learning states",
+   "title": "Waiting for a licence",
+   "asOf": "Wednesday 22 September 2027, 10:00",
+   "person": "Arun Kumar",
+   "provenance": [
+    "v46 B3-02 “Waiting for a licence · Arun Kumar (later sample)”",
+    "v46 B2-10…B2-13: access only from SACC-0310 (given by Meera Iyer), formats WEB + VR from ACC-0107",
+    "v46 B3-02: WEB and VR available; AR published but not in ACC-0107; MR not published"
+   ],
+   "notes": "Date Wed 22 Sep 2027 is illustrative (the V3 IA-02 ending-soon date).",
+   "snapshot": {
+    "grant": "waiting",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {},
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "paused",
+   "label": "Institution paused · Rahul · Tue 2 Mar 2027",
+   "group": "Access states",
+   "title": "Institution paused",
+   "asOf": "Tuesday 2 March 2027, 10:00",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative"
+   ],
+   "notes": "Date Tue 2 Mar 2027 is illustrative; v46 paused frames carry no date. WEB completed before the pause.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "paused",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "ended",
+   "label": "Access ended · Rahul · Fri 8 Oct 2027",
+   "group": "Access states",
+   "title": "Access ended",
+   "asOf": "Friday 8 October 2027, 10:00",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "v46 B3-04 / B3-05: VR first session reported 16 Oct 2026, 14:10 · completed 20 Oct 2026, 11:15 (reported from the headset)",
+    "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative",
+    "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12",
+    "v46 B4-14: ATT-0450 submitted 5 Nov 2026, 18:52 · marked 7 Nov 2026, 10:15 · released 14 Nov 2026, 23:59 · 11 of 16 · passed. Start time 18:20 is illustrative",
+    "v46 B2-10 / B2-12: access ended on 7 Oct 2027",
+    "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative"
+   ],
+   "notes": "Fri 8 Oct 2027, the day after access ended. The released result stays readable (recorded Phase-4B limitation, open).",
+   "snapshot": {
+    "grant": "ended",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "7 Oct 2027",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "ready",
+     "attempt": 1,
+     "used": 1,
+     "ans": {
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area."
+     },
+     "started": "5 Nov 2026, 18:20",
+     "submitted": "5 Nov 2026, 18:52",
+     "marked": "7 Nov 2026, 10:15",
+     "released": "14 Nov 2026, 23:59",
+     "mark": 7,
+     "fbText": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab.",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "appr",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "withdrawn",
+   "label": "Access withdrawn · Rahul · Thu 15 Oct 2026",
+   "group": "Access states",
+   "title": "Access withdrawn",
+   "asOf": "Thursday 15 October 2026, 10:00",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)",
+    "v46 B3-06: WEB feedback sent 14 Oct 2026, 15:42; VR feedback sent 20 Oct 2026, 11:30. Ratings and the WEB comment are illustrative"
+   ],
+   "notes": "Withdrawal date 15 Oct 2026 is illustrative (v46 B2-11 “Access withdrawn → earlier work”, undated).",
+   "snapshot": {
+    "grant": "withdrawn",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "inactive",
+   "label": "Account inactive · Rahul · Mon 12 Oct 2026",
+   "group": "Access states",
+   "title": "Account inactive",
+   "asOf": "Monday 12 October 2026, 16:05",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-03 / B3-05: WEB first opened 12 Oct 2026, 10:05 · last saved 11:20 · completed 14 Oct 2026, 15:30 (reported by the simulation)"
+   ],
+   "notes": "v46 B2-10 “Student inactive” (XS-08 notice); date as the learning scenario.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "inactive",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "prog",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "12 Oct 2026, 11:20",
+      "done": "",
+      "by": "",
+      "stage": 1
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "nodevice",
+   "label": "No AR / VR / MR formats · Vikram Joshi · Thu 8 Oct 2026",
+   "group": "Access states",
+   "title": "No AR / VR / MR formats",
+   "asOf": "Thursday 8 October 2026, 09:30",
+   "person": "Vikram Joshi",
+   "provenance": [
+    "v46 B3-07 “Entry hidden · no AR / VR / MR formats · Vikram has no experiments yet”"
+   ],
+   "notes": "v46 B3-07: no My device entry in the account menu, no disabled entry.",
+   "snapshot": {
+    "grant": "none",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {},
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "inprog",
+   "label": "Attempt in progress · Rahul · Thu 5 Nov 2026",
+   "group": "Assessment states",
+   "title": "Attempt in progress",
+   "asOf": "Thursday 5 November 2026, 18:30",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12"
+   ],
+   "notes": "Two answers saved; illustrative start 5 Nov 2026, 18:20.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "prog",
+     "attempt": 1,
+     "used": 0,
+     "ans": {
+      "1": 0,
+      "3": 0
+     },
+     "started": "5 Nov 2026, 18:20",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "appr",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "waitmark",
+   "label": "Submitted, waiting for marking · Rahul · Thu 5 Nov 2026",
+   "group": "Assessment states",
+   "title": "Submitted, waiting for marking",
+   "asOf": "Thursday 5 November 2026, 19:05",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12",
+    "v46 B4-14: ATT-0450 submitted 5 Nov 2026, 18:52 · marked 7 Nov 2026, 10:15 · released 14 Nov 2026, 23:59 · 11 of 16 · passed. Start time 18:20 is illustrative"
+   ],
+   "notes": "v46 B4-12 submission 5 Nov 2026, 18:52.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "wait",
+     "attempt": 1,
+     "used": 1,
+     "ans": {
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area."
+     },
+     "started": "5 Nov 2026, 18:20",
+     "submitted": "5 Nov 2026, 18:52",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "appr",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "notrel",
+   "label": "Marked, result not released yet · Rahul · Sat 7 Nov 2026",
+   "group": "Assessment states",
+   "title": "Marked, result not released yet",
+   "asOf": "Saturday 7 November 2026, 12:00",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12",
+    "v46 B4-14: ATT-0450 submitted 5 Nov 2026, 18:52 · marked 7 Nov 2026, 10:15 · released 14 Nov 2026, 23:59 · 11 of 16 · passed. Start time 18:20 is illustrative"
+   ],
+   "notes": "v46 B4-14 marked 7 Nov 2026, 10:15; released only after the deadline.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "notrel",
+     "attempt": 1,
+     "used": 1,
+     "ans": {
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area."
+     },
+     "started": "5 Nov 2026, 18:20",
+     "submitted": "5 Nov 2026, 18:52",
+     "marked": "7 Nov 2026, 10:15",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "appr",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "released",
+   "label": "Result released, passed · Rahul · Sun 15 Nov 2026",
+   "group": "Assessment states",
+   "title": "Result released, passed",
+   "asOf": "Sunday 15 November 2026, 09:30",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12",
+    "v46 B4-14: ATT-0450 submitted 5 Nov 2026, 18:52 · marked 7 Nov 2026, 10:15 · released 14 Nov 2026, 23:59 · 11 of 16 · passed. Start time 18:20 is illustrative"
+   ],
+   "notes": "v46 B4-13: 11 of 16, passed, released 14 Nov 2026, 23:59.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "ready",
+     "attempt": 1,
+     "used": 1,
+     "ans": {
+      "1": 0,
+      "2": 1,
+      "3": 0,
+      "4": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area."
+     },
+     "started": "5 Nov 2026, 18:20",
+     "submitted": "5 Nov 2026, 18:52",
+     "marked": "7 Nov 2026, 10:15",
+     "released": "14 Nov 2026, 23:59",
+     "mark": 7,
+     "fbText": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab.",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "appr",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "notpassed",
+   "label": "Not passed, 1 attempt left · Imran Shaikh · Sun 15 Nov 2026",
+   "group": "Assessment states",
+   "title": "Not passed, 1 attempt left",
+   "asOf": "Sunday 15 November 2026, 09:30",
+   "person": "Imran Shaikh",
+   "provenance": [
+    "v46 B4-13 “Not passed · 1 attempt left (later sample) · Imran Shaikh, 15 Nov: 6 of 16”",
+    "v46 B4-11…B4-14: ASMT-0009 Heat Exchanger — post-lab, 4 questions, 16 marks, pass 50 % (8), 2 attempts, deadline 14 Nov 2026, 23:59, set by Dr S. Ranganathan; question texts from B4-12",
+    "v46 B4-13: Imran Shaikh 6 of 16, not passed, 1 attempt left; his answers and the written-answer feedback are illustrative"
+   ],
+   "notes": "v46 B4-13 later sample. Imran’s formats not started and no authorised device are illustrative.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     },
+     "VR": {
+      "st": "none",
+      "first": "",
+      "saved": "",
+      "done": "",
+      "by": "",
+      "stage": 0
+     }
+    },
+    "opened": {},
+    "fb": {
+     "WEB": null,
+     "VR": null
+    },
+    "asmt": {
+     "st": "ready",
+     "attempt": 1,
+     "used": 1,
+     "ans": {
+      "1": 1,
+      "2": 0,
+      "3": 1,
+      "4": "Fouling makes the tubes dirty so the exchanger works less well. It should be cleaned."
+     },
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "14 Nov 2026, 23:59",
+     "mark": 4,
+     "fbText": "You named the cause. Explain what changes — U, the heat duty and the outlet temperatures — and use your readings.",
+     "prior": null
+    },
+    "dev": {
+     "dev": null,
+     "stage": "none",
+     "newDev": "",
+     "note": "",
+     "t": {},
+     "noIA": false,
+     "ref": "",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "dtrsent",
+   "label": "Transfer with your Institute Admin · Rahul · Thu 22 Oct 2026",
+   "group": "Device chain · documented handoffs",
+   "title": "Transfer with your Institute Admin",
+   "asOf": "Thursday 22 October 2026, 09:20",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative",
+    "Local-prototype interim P3-03: a pre-authorised sample device for Rahul enables the transfer chain"
+   ],
+   "notes": "Handoff scenario: state right after the student’s request (v46 B3-07 “With your Institute Admin · 22 Oct”).",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "sent",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "dtrfwd",
+   "label": "Transfer forwarded to BITS · Rahul · Fri 23 Oct 2026",
+   "group": "Device chain · documented handoffs",
+   "title": "Transfer forwarded to BITS",
+   "asOf": "Friday 23 October 2026, 10:05",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative"
+   ],
+   "notes": "Handoff scenario: the Institute Admin action happens in the IA preview (IA-18 / IA-19).",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "fwd",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "dtrappr",
+   "label": "Transfer approved · Rahul · Sat 24 Oct 2026",
+   "group": "Device chain · documented handoffs",
+   "title": "Transfer approved",
+   "asOf": "Saturday 24 October 2026, 12:35",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative"
+   ],
+   "notes": "Handoff scenario: BITS approval happens in the Super Admin preview (SA-18 / SA-19).",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "appr",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": false,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  },
+  {
+   "scenarioId": "dtrnoia",
+   "label": "Can’t be forwarded yet, no Institute Admin · Rahul · Thu 22 Oct 2026",
+   "group": "Device chain · documented handoffs",
+   "title": "Can’t be forwarded yet, no Institute Admin",
+   "asOf": "Thursday 22 October 2026, 09:20",
+   "person": "Rahul Verma",
+   "provenance": [
+    "v46 B2-10 (Rahul Verma · GIT-2026-0418 · Godavari Institute of Technology)",
+    "v46 B3-07: DTR-0018 GIT-VR-03 → GIT-VR-07, requested 22 Oct 2026, 09:10 · forwarded 23 Oct 2026, 10:00 by Meera Iyer · approved 24 Oct 2026, 12:30. The transfer note text is illustrative"
+   ],
+   "notes": "v46 B3-07 “Can’t be forwarded yet · no Institute Admin”.",
+   "snapshot": {
+    "grant": "active",
+    "inst": "active",
+    "acct": "active",
+    "endedOn": "",
+    "vrNow": true,
+    "runs": {
+     "WEB": {
+      "st": "done",
+      "first": "12 Oct 2026, 10:05",
+      "saved": "14 Oct 2026, 15:30",
+      "done": "14 Oct 2026, 15:30",
+      "by": "sim",
+      "stage": 3
+     },
+     "VR": {
+      "st": "done",
+      "first": "16 Oct 2026, 14:10",
+      "saved": "20 Oct 2026, 11:15",
+      "done": "20 Oct 2026, 11:15",
+      "by": "headset",
+      "stage": 0
+     }
+    },
+    "opened": {
+     "r1": "12 Oct 2026, 09:40"
+    },
+    "fb": {
+     "WEB": {
+      "when": "14 Oct 2026, 15:42",
+      "ans": {
+       "1": 4,
+       "2": 5,
+       "3": 4,
+       "4": 5,
+       "5": 4
+      },
+      "comments": "The counter-flow run was easy to follow."
+     },
+     "VR": {
+      "when": "20 Oct 2026, 11:30",
+      "ans": {
+       "1": 5,
+       "2": 4,
+       "3": 4,
+       "4": 4,
+       "5": 5
+      },
+      "comments": ""
+     }
+    },
+    "asmt": {
+     "st": "none",
+     "attempt": 1,
+     "used": 0,
+     "ans": {},
+     "started": "",
+     "submitted": "",
+     "marked": "",
+     "released": "",
+     "mark": null,
+     "fbText": "",
+     "prior": null
+    },
+    "dev": {
+     "dev": "ME lab VR headset, asset tag GIT-VR-03",
+     "stage": "sent",
+     "newDev": "ME lab VR headset, asset tag GIT-VR-07",
+     "note": "GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.",
+     "t": {
+      "dtr": "22 Oct 2026, 09:10",
+      "fwd": "23 Oct 2026, 10:00",
+      "appr": "24 Oct 2026, 12:30"
+     },
+     "noIA": true,
+     "ref": "DTR-0018",
+     "prev": null
+    }
+   }
+  }
+ ]
+}

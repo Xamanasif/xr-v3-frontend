@@ -4,10 +4,10 @@ import { pageRows } from './rows';
 const FEEDBACK_PAGE = '/student/experiments/{experimentId}/feedback/{format}';
 
 /**
- * Phase 3 link targets: ST-15 Progress, ST-16 Format feedback and ST-17 Feedback sent, with the
- * ST-01 / ST-02 actions they enable (B3-05, B3-06). ST-01's Up next "Give feedback" is its row of
- * the main ledger (B2-10 f5 → B3-06, the frozen Batch-2 link B3-00 names); ST-01's "See earlier
- * work" and ST-02's "View earlier work" stay unrendered there while SACC-14 is open.
+ * Phase 3 link targets: ST-15 Progress, ST-16 Format feedback and ST-17 Feedback sent, in the
+ * owner-approved V3 Student design (ST-v1 LINK-MAP; `progress`, `feedback`, `msg('fb-not')`).
+ * ST-01's Up next "Give feedback" is its row of the main ledger (B2-10 f5 → ST-16); ST-01's "See
+ * earlier work" and ST-02's "View earlier work" stay unrendered there while SACC-14 is open.
  */
 export const P3_PROGRESS_FEEDBACK_LINK_TARGETS: readonly LedgerEntry[] = [
   {
@@ -23,68 +23,78 @@ export const P3_PROGRESS_FEEDBACK_LINK_TARGETS: readonly LedgerEntry[] = [
   },
   ...pageRows('ST-15', '/student/progress', [
     [
-      'Toolbar',
-      'Status · Course · Remove (chip) · Clear filters',
+      'Filters',
+      'Status · Course · Remove filter (chip) · Clear filters',
       'secondary',
       null,
       'in-page',
-      'B3-05 f0, f3',
-      'Filters apply at once; nothing is stored (`ProgressToolbar`).',
+      'ST-v1 LINK-MAP · StudentFinal.dc.html `progress` (`sv-ptools`)',
+      'Filters apply at once; nothing is stored (`StProgressTools`).',
     ],
     [
-      'Experiment',
-      '<experiment name>',
+      'Experiment head',
+      'Open experiment',
       'secondary',
       '/student/experiments/{experimentId}',
       'built',
-      'B3-05 f0, f2, f9 (`h3.xl-exp-title a` → B2-12 ST-05)',
+      'ST-v1 LINK-MAP · `progExp` (`hasOpen`; → ST-05)',
+      'Not while the institution is paused.',
     ],
     [
-      'Format line (WEB in progress)',
-      'Continue WEB',
-      'secondary',
-      '/student/experiments/{experimentId}/simulation/web',
-      'built',
-      'B3-05 f1 (→ B3-03 ST-08)',
-    ],
-    [
-      'Format line (WEB not started)',
-      'Open WEB',
-      'secondary',
-      '/student/experiments/{experimentId}/simulation/web',
-      'built',
-      'B3-02 f0 words (→ B3-03 ST-08; state-copy `ST-15.actions`)',
-    ],
-    [
-      'Format line (AR · VR · MR not completed)',
-      'Open VR',
+      'Format row (in progress)',
+      'Continue WEB · Continue VR',
       'secondary',
       '/student/experiments/{experimentId}/simulation/{format}',
       'built',
-      'B3-05 f0, f1 (→ B3-04 ST-09)',
+      'ST-v1 LINK-MAP · `progExp` (`cont`; → ST-08 / ST-09)',
+      'The page’s one gold action is the first of the chosen kind: continue, then feedback, then open.',
     ],
     [
-      'Format line (completed, feedback offered for that format)',
+      'Format row (not started)',
+      'Open WEB · Open VR',
+      'secondary',
+      '/student/experiments/{experimentId}/simulation/{format}',
+      'built',
+      'ST-v1 LINK-MAP · `progExp` (`open`; → ST-08 / ST-09)',
+    ],
+    [
+      'Format row (completed, feedback offered for that format)',
       'Give feedback on WEB · Give feedback on VR',
       'secondary',
       FEEDBACK_PAGE,
       'built',
-      'B3-05 f0, f9 (→ B3-06 ST-16)',
+      'ST-v1 LINK-MAP · `progExp` (`fb`; → ST-16)',
       'Only where the service’s feedback entry for that format offers it (its own completion, BC5).',
     ],
-    ['Experiment', 'Show details', 'secondary', null, 'in-page', 'B3-05 f0 (`details.xl-more`)'],
-    ['No match', 'Clear filters', 'secondary', null, 'in-page', 'B3-05 f3'],
-    ['Nothing yet', 'Help', 'secondary', '/student/help', 'built', 'B3-05 f4'],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B3-05 f8'],
+    [
+      'Assessment line',
+      'Open assessment · Continue attempt · See result',
+      'secondary',
+      '/student/assessments/{assessmentId}',
+      'built',
+      'ST-v1 LINK-MAP · `progExp` (`asmtLink`; → ST-12 / ST-13 / ST-14)',
+      'From `listMyAssessments`; “Continue attempt” opens `…/attempt`, “See result” `…/result`.',
+    ],
+    ['No match', 'Clear filters', 'secondary', null, 'in-page', 'ST-v1 `progVM` (`nomatch`)'],
+    [
+      'Nothing yet',
+      'Help & support',
+      'secondary',
+      '/student/help',
+      'built',
+      'ST-v1 `progress` (`P.nothing`)',
+    ],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'ST-v1 `progVM` (`retry`)'],
   ]),
   ...pageRows('ST-16', FEEDBACK_PAGE, [
     [
-      'Back link',
-      'VR · WEB (the format)',
+      'Breadcrumb',
+      '<experiment> · VR · WEB (the format)',
       'secondary',
       '/student/experiments/{experimentId}/simulation/{format}',
       'built',
-      'B3-06 f0 (“VR” → B3-04 ST-09), f3 (“WEB” → B3-03 ST-08)',
+      'ST-v1 LINK-MAP · `fbVM` (`crumbExp` → ST-05, `crumbFmt` → ST-08 / ST-09)',
+      'The experiment crumb opens the hub; the format crumb its page.',
     ],
     [
       'Error summary',
@@ -92,25 +102,34 @@ export const P3_PROGRESS_FEEDBACK_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '#feedback-q<n>',
       'in-page',
-      'B3-06 f1',
-      'Moves focus to that statement’s scale.',
+      'ST-v1 `fbVM` (`errList`)',
+      'Moves focus to that statement’s first radio (or its chosen one).',
     ],
     [
-      'Form',
+      'Rating sheet',
       'Submit feedback',
       'primary',
       null,
       'in-page',
-      'B3-06 f0, f1, f2, f6',
-      'FeedbackService.sendFeedback; the sent record (ST-17) replaces the form and takes focus.',
+      'ST-v1 `fbVM` (`submit`)',
+      'FeedbackService.sendFeedback; the sent record (ST-17) replaces the sheet and the H1 takes focus.',
     ],
     [
-      'Form',
+      'Rating sheet',
       'Cancel',
       'secondary',
       '/student/experiments/{experimentId}/simulation/{format}',
       'built',
-      'B3-06 f0 (→ B3-04 ST-09)',
+      'ST-v1 LINK-MAP · `fbVM` (`crumbFmt` → ST-08 / ST-09)',
+    ],
+    [
+      'Not open yet (the format not completed)',
+      'Back to WEB · Back to VR',
+      'primary',
+      '/student/experiments/{experimentId}/simulation/{format}',
+      'built',
+      'ST-v1 LINK-MAP · `msg(fb-not)` (→ ST-08 / ST-09)',
+      'State-copy `ST-16.not-eligible`: only for a given format not completed, nothing holding it.',
     ],
   ]),
   ...pageRows('ST-17', FEEDBACK_PAGE, [
@@ -120,7 +139,7 @@ export const P3_PROGRESS_FEEDBACK_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       '/student/experiments/{experimentId}',
       'built',
-      'B3-06 f3, f4 (→ B2-12 ST-05)',
+      'ST-v1 LINK-MAP · `fbVM` sent (→ ST-05)',
     ],
     [
       'Feedback sent',
@@ -128,7 +147,7 @@ export const P3_PROGRESS_FEEDBACK_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/student/progress',
       'built',
-      'B3-06 f3, f4 (→ B3-05 ST-15)',
+      'ST-v1 LINK-MAP · `fbVM` sent (→ ST-15)',
     ],
   ]),
 ];

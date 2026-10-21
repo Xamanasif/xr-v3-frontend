@@ -12,7 +12,7 @@ export type PageRow = readonly [
 ];
 
 /**
- * A Phase-3 page's drawn actions, one row each (as the Package-2A `workspacePage` rows). A drawn
+ * A Phase-3 page's drawn actions, one row each (as the Package-2A rows were). A drawn
  * action whose screen is not built is not rendered (DEV-21): its note names that screen.
  */
 export function pageRows(

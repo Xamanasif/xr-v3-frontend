@@ -232,7 +232,7 @@ test('A · support across roles: Student reports on XS-07, the Super Admin resol
   expect(back.cachedSessionKeys.every((key) => !key.includes(ADMIN.person.personId))).toBe(true);
 
   // 7–8. The report detail: Resolved, with the exact note.
-  const row = page.locator('main.xr-page ul.xs-reports a.xs-report', { hasText: reference });
+  const row = page.locator('main#main ul.xs-reports a.xs-report', { hasText: reference });
   await expect(row).toContainText('Resolved');
   await row.click();
   await page.waitForURL(`**/student/help/reports/${reference}`);
@@ -420,7 +420,7 @@ test('D · identity continuity: a change made as one role is there for the next,
   // And back: the Student's report is still in the one world.
   await switchTo(page, STUDENT, ADMIN);
   await expect(
-    page.locator('main.xr-page ul.xs-reports a.xs-report', { hasText: reference }),
+    page.locator('main#main ul.xs-reports a.xs-report', { hasText: reference }),
   ).toContainText('Open');
   await expectSameTab(page, tab);
 });

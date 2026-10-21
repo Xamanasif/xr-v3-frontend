@@ -1,0 +1,805 @@
+[
+ {
+  "case": "01-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-newst",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-vrnow",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-vrprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-licence",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-ended",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-withdrawn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-inactive",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-nodevice",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-inprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-waitmark",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-released",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-device",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-learn-menu",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "01-learn-acct",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-newst",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-licence",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-ended",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-withdrawn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-learn-loading",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "02-learn-failed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "03-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "03-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "03-licence",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "03-ended",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "03-newst",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "04-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "04-learn-x-nomatch",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "04-ended",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "04-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-newst",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-vrnow",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-licence",
+  "baseline": [
+   "ACC-0107"
+  ],
+  "final": []
+ },
+ {
+  "case": "05-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-ended",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05-withdrawn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "06-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "06-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "06-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "06-licence",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "06-learn-res-fail",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "07-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "07-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "07-vrnow",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "07-vrprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "07-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "07-licence",
+  "baseline": [
+   "ACC-0107"
+  ],
+  "final": []
+ },
+ {
+  "case": "07-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05as-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05as-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05as-inprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05as-waitmark",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05as-notrel",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05as-released",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "05as-notpassed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "10-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "10-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "10-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "10-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08-licence",
+  "baseline": [
+   "ACC-0107"
+  ],
+  "final": []
+ },
+ {
+  "case": "08-learn-launch-fail",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08a-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08a-learn-act-done",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "08a-granted",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09-vrprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09-vrnow",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09-licence",
+  "baseline": [
+   "ACC-0107"
+  ],
+  "final": []
+ },
+ {
+  "case": "09-learn-setup-open",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09-nodevice",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09ar-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "09mr-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11-newst",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11-inprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11-assess-loading",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11-assess-failed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11sub-waitmark",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11sub-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11res-released",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "11res-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "12-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "12-inprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "12-waitmark",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "12-notrel",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "12-released",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "12-notpassed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "12-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "13-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "13-inprog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "13-assess-att-two",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "13-inprog-att-savefail",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "13-inprog-att-subfail",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "13-waitmark",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "14-released",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "14-notpassed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "14-waitmark",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "14-notrel",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "14-assess",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "15-learn",
+  "baseline": [
+   "SACC-0310"
+  ],
+  "final": []
+ },
+ {
+  "case": "15-vrdone",
+  "baseline": [
+   "SACC-0310"
+  ],
+  "final": []
+ },
+ {
+  "case": "15-granted",
+  "baseline": [
+   "SACC-0310"
+  ],
+  "final": []
+ },
+ {
+  "case": "15-newst",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "15-paused",
+  "baseline": [
+   "SACC-0310"
+  ],
+  "final": []
+ },
+ {
+  "case": "15-ended",
+  "baseline": [
+   "SACC-0310"
+  ],
+  "final": []
+ },
+ {
+  "case": "15-learn-p-filter",
+  "baseline": [
+   "SACC-0310"
+  ],
+  "final": []
+ },
+ {
+  "case": "15-learn-p-nomatch",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "15-learn-loading",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "15-learn-failed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "16v-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "16v-vrdone-fb-fail",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "16v-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "16w-vrdone",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "16w-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "18-device",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "18-device-dev-form",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "18-device-dev-error",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "18-dtrsent",
+  "baseline": [
+   "DTR-0018"
+  ],
+  "final": []
+ },
+ {
+  "case": "18-dtrfwd",
+  "baseline": [
+   "DTR-0018"
+  ],
+  "final": []
+ },
+ {
+  "case": "18-dtrappr",
+  "baseline": [
+   "DTR-0018"
+  ],
+  "final": []
+ },
+ {
+  "case": "18-dtrnoia",
+  "baseline": [
+   "DTR-0018"
+  ],
+  "final": []
+ },
+ {
+  "case": "18-nodevice",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "18-paused",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "19-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "19-withdrawn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "19-ended",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "xs05-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "xs07-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "xs07f-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "xs03-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "xs06-learn",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "04-learn-loading",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "04-learn-failed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "06-learn-loading",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "06-learn-failed",
+  "baseline": [],
+  "final": []
+ },
+ {
+  "case": "XS07f-learn-help-error",
+  "baseline": [],
+  "final": []
+ }
+]

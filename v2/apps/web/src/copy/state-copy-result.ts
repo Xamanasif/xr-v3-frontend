@@ -163,6 +163,14 @@ export const STATE_COPY_RESULT = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'ST-14.earlier-stay': {
+    screen: 'ST-14',
+    state: 'Not passed with an attempt left, after a later attempt (V3 score panel)',
+    words: 'Your earlier results stay here.',
+    basis: 'ST-v1 `resultVM` `leftText` “You have 1 attempt left. Your first result stays here.”',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
   'ST-14.starting': {
     screen: 'ST-14',
     state: '“Try again” while the new attempt is being started (busy button)',

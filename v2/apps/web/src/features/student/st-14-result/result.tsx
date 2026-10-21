@@ -6,24 +6,35 @@ import type {
   ServiceError,
   StudentAttemptFacts,
 } from '@xr/contracts/draft';
-import { Icon, type IconName, Link, LoadingState, PageContent } from '@xr/ui';
-import type { ReactNode } from 'react';
+import {
+  Breadcrumbs,
+  ButtonLink,
+  StLoading,
+  StMessage,
+  StRefuse,
+  type V3IconName,
+} from '@xr/ui/v3';
+import { type ReactNode, useId } from 'react';
 
-import { notReleasedLine, RESULT_PAGE, waitingLine } from '@/copy/result';
+import { notReleasedLine, RESULT_PAGE, resultOverline, waitingLine } from '@/copy/result';
+import { ST_STATE_WORDS } from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
 import { useAppNavigation } from '@/nav/navigation';
 import { notAvailablePlacement } from '@/nav/student';
 import {
-  experimentAddress,
+  hubAssessmentAddress,
+  STUDENT_ASSESSMENTS_ADDRESS,
+  STUDENT_ASSESSMENTS_TITLE,
   studentAssessmentAddress,
   studentResultPlacement,
 } from '@/nav/student-assessments';
 import { useAssessmentIntro, useAttemptResult } from '@/queries/student-assessments';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { StudentFailed, useRetryFocus } from '../shared/student-states';
+import { useRetryFocus } from '../shared/student-states';
+import { useStudentToday } from '../shared/use-today';
 import { notAvailableKind } from '../shared/student-view';
-import { NOT_AVAILABLE_TITLE, NotAvailable } from '../st-19-not-available/not-available';
+import { NOT_AVAILABLE_TITLE, NotAvailable } from '../shared/not-available';
 import { ReleasedResult } from './released-result';
 
 /** The Student's latest submitted attempt (`ST-14.attempt-shown`); `null` when none is submitted. */
@@ -86,6 +97,8 @@ export function AssessmentResult({ assessmentId }: { readonly assessmentId: stri
 
   const settled = introValue !== null && (attempt === null || resultAnswer !== undefined);
   const retried = useRetryFocus(settled);
+  const today = useStudentToday();
+  const failedId = useId();
 
   if (introError && isNotFound(introError)) return navigation.notFound();
   if (resultError && isNotFound(resultError)) return navigation.notFound();
@@ -95,32 +108,50 @@ export function AssessmentResult({ assessmentId }: { readonly assessmentId: stri
   }
   if (intro.isError || result.isError || resultError) {
     return (
-      <PageContent wrap="read">
-        <StudentFailed
-          title={stateWords('ST-14.failed')}
-          onRetry={() => {
+      <StMessage
+        icon="cloudAlert"
+        tone="err"
+        alert
+        title={stateWords('ST-14.failed')}
+        titleId={failedId}
+        description={ST_STATE_WORDS.failedLine}
+        retry={{
+          label: ST_STATE_WORDS.tryAgain,
+          onRetry: () => {
             retried();
             if (intro.isError) void intro.refetch();
             if (result.isError || resultError) void result.refetch();
-          }}
-        />
-      </PageContent>
+          },
+        }}
+      />
     );
   }
   if (!introValue || (attempt !== null && !resultAnswer?.ok)) {
     return (
-      <PageContent wrap="read">
-        <LoadingState label={stateWords('ST-14.loading')} surface="section" />
-      </PageContent>
+      <StLoading variant="card" label={stateWords('ST-14.loading')} name={RESULT_PAGE.title} />
     );
   }
 
-  const hub = experimentAddress(introValue.assessment.experimentId);
+  const name = introValue.assessment.name;
+  const crumbs = (
+    <Breadcrumbs
+      levels={[
+        { label: STUDENT_ASSESSMENTS_TITLE, href: STUDENT_ASSESSMENTS_ADDRESS },
+        { label: name, href: studentAssessmentAddress(assessmentId) },
+      ]}
+      current={RESULT_PAGE.title}
+    />
+  );
+  const tab = hubAssessmentAddress(introValue.assessment.experimentId);
   const view: AttemptResultView | null = resultAnswer?.ok ? resultAnswer.value : null;
   if (attempt === null || view === null || view.result.kind === 'in-progress') {
     return (
       <ResultMessage
+        crumbs={crumbs}
+        date={today?.line}
+        name={name}
         icon="assessments"
+        off
         title={RESULT_PAGE.notSubmittedTitle}
         action={{
           href: studentAssessmentAddress(assessmentId),
@@ -134,10 +165,12 @@ export function AssessmentResult({ assessmentId }: { readonly assessmentId: stri
   if (view.result.kind === 'waiting-for-marking') {
     return (
       <ResultMessage
+        crumbs={crumbs}
+        date={today?.line}
+        name={name}
         icon="clock"
-        tone="wait"
         title={RESULT_PAGE.waitingTitle}
-        action={{ href: hub, label: RESULT_PAGE.backToExperiment }}
+        action={{ href: tab, label: RESULT_PAGE.backToExperiment }}
       >
         {waitingLine(view.submittedAt, view.release, attempt.pinned.questionTypes.written > 0)}
       </ResultMessage>
@@ -146,9 +179,13 @@ export function AssessmentResult({ assessmentId }: { readonly assessmentId: stri
   if (view.result.kind === 'not-released-yet') {
     return (
       <ResultMessage
-        icon="readOnly"
+        crumbs={crumbs}
+        date={today?.line}
+        name={name}
+        icon="clock"
+        off
         title={RESULT_PAGE.notReleasedTitle}
-        action={{ href: hub, label: RESULT_PAGE.backToExperiment }}
+        action={{ href: tab, label: RESULT_PAGE.backToExperiment }}
       >
         {notReleasedLine(view.release)}
       </ResultMessage>
@@ -160,43 +197,55 @@ export function AssessmentResult({ assessmentId }: { readonly assessmentId: stri
       view={view}
       released={view.result}
       canStart={introValue.canStart}
-      hub={hub}
+      crumbs={crumbs}
+      date={today?.line}
+      hub={tab}
     />
   );
 }
 
 /**
- * B4-13 f1, f2 (and `r.notSub`): `div.xr-msg` in the read width, left-aligned near the top
- * (`margin:8px 0 24px`) — the icon (amber while waiting for marking), the page's one H1, the lead
- * and one primary action.
+ * A result withheld (`AR.withheld`: not submitted yet, waiting for marking, not released yet): the
+ * crumbs, then the compact message card (`sv-refuse`) — "<assessment> · result", the page's one
+ * H1, the line and one way on. No figure.
  */
 function ResultMessage({
+  crumbs,
+  date,
+  name,
   icon,
-  tone = 'neutral',
+  off = false,
   title,
   children,
   action,
 }: {
-  readonly icon: IconName;
-  readonly tone?: 'neutral' | 'wait';
+  readonly crumbs: ReactNode;
+  readonly date: string | undefined;
+  readonly name: string;
+  readonly icon: V3IconName;
+  readonly off?: boolean;
   readonly title: string;
   readonly children: ReactNode;
   readonly action: { readonly href: string; readonly label: string };
 }) {
+  const titleId = useId();
   return (
-    <PageContent wrap="read">
-      <div className="xr-msg [margin:8px_0_24px]">
-        <span className={tone === 'wait' ? 'xr-msg-icon bg-warn-bg text-warn' : 'xr-msg-icon'}>
-          <Icon name={icon} />
-        </span>
-        <h1 className="xr-msg-title">{title}</h1>
-        <p className="xr-lead m-0">{children}</p>
-        <div className="xr-msg-actions">
-          <Link className="xr-btn xr-btn--primary" href={action.href}>
+    <>
+      {crumbs}
+      <StRefuse
+        date={date}
+        icon={icon}
+        off={off}
+        kicker={resultOverline(name)}
+        title={title}
+        titleId={titleId}
+        description={children}
+        actions={
+          <ButtonLink size="lg" href={action.href}>
             {action.label}
-          </Link>
-        </div>
-      </div>
-    </PageContent>
+          </ButtonLink>
+        }
+      />
+    </>
   );
 }

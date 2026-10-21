@@ -86,9 +86,9 @@ describe('My reports — the person’s own reports (board 07 "State 2")', () =>
       'href',
       '/student/help/report',
     );
-    // Help is current in the sidebar foot; the top bar reads "Help & support".
+    // Help & support is current in the Student's V3 rail foot (ST-v1); the tab reads "Help & support".
     await waitFor(() =>
-      expect(document.querySelector('.xr-side-foot a')).toHaveAttribute('aria-current', 'page'),
+      expect(document.querySelector('.rb-rail-foot a')).toHaveAttribute('aria-current', 'page'),
     );
     expect(document.title).toBe('Help & support · XR Learning Platform');
   });

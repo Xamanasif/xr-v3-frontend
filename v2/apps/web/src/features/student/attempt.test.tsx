@@ -157,10 +157,24 @@ function text(element: Element | null): string {
 }
 const heading = (name: string) =>
   screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
-const noticeTitle = () => text(main().querySelector('.xr-notice .xr-notice-title'));
-const facts = () => [...main().querySelectorAll('dl.xa-facts > div')].map((item) => text(item));
-const actions = () => [...main().querySelectorAll('.xw-actions > *')].map((item) => text(item));
-const saveState = () => text(document.querySelector('header.xa-bar .xa-save'));
+/** "Answers submitted" (`h2` in `section.sv-act-card#Ta-done`; the H1 stays the assessment's). */
+const submittedHeading = () =>
+  screen.findByRole('heading', { level: 2, name: 'Answers submitted' }, { timeout: 5000 });
+/** The card's state (`section.sv-ai`): its heading, line, status, facts and actions. */
+const stateTitle = () => text(main().querySelector('.sv-ai-state h2.sv-sec-t'));
+const stateLine = () => text(main().querySelector('.sv-ai-state .sv-ai-d'));
+const statusPill = () => main().querySelector('.sv-ai-state .xr-st');
+const facts = () => [...main().querySelectorAll('dl.sv-ai-dl > div')].map((item) => text(item));
+const actions = () => [...main().querySelectorAll('.sv-ai-act > *')].map((item) => text(item));
+const saveState = () => text(document.querySelector('header.st-focusbar .st-save'));
+/** No assessment, attempt or record id in any word, name or the tab title (decision 3). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT|Q)-\d+/;
+function expectNoReference() {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.querySelectorAll('[aria-label]'))
+    expect(element.getAttribute('aria-label') ?? '').not.toMatch(REFERENCE);
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 async function attemptOf(sample: Sample, id: string) {
   const intro = ok(await rahul(sample).getAssessmentIntro(id as AssessmentId));
@@ -169,33 +183,62 @@ async function attemptOf(sample: Sample, id: string) {
 
 // ---- ST-12 -------------------------------------------------------------------------------------
 
-describe('ST-12 Before you start (B4-11 f11 … f16)', () => {
-  it('to do: the six key facts exactly as configured, the introduction, Start assessment (f11)', async () => {
+describe('ST-12 Before you start (ST-v1 `is.aintro`)', () => {
+  it('to do: the crumbs, the head, "Before you start" with the rules, the key facts as configured, Start assessment', async () => {
     const { runtime, id } = await world({ introduction: INTRODUCTION });
     showIntro(runtime, id);
-    await heading(NAME);
+    const h1 = await heading(NAME);
+    expect(h1).toHaveAttribute('class', 'rk-title');
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    const back = main().querySelector('a.xr-back')!;
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(text(crumbs)).toBe(`Assessments ${NAME}`);
+    expect(within(crumbs).getByRole('link', { name: 'Assessments' })).toHaveAttribute(
+      'href',
+      '/student/assessments',
+    );
+    const back = main().querySelector('.rk-head .rk-eyebrow a.st-eyelink')!;
     expect(text(back)).toBe('Shell-and-Tube Heat Exchanger');
-    expect(back).toHaveAttribute('href', `/student/experiments/${SHELL}`);
-    expect(text(main().querySelector('.xr-phead .xr-overline'))).toBe(
+    expect(back).toHaveAttribute('href', `/student/experiments/${SHELL}/assessment`);
+    expect(text(main().querySelector('.rk-head .rk-eyebrow'))).toBe(
       'Shell-and-Tube Heat Exchanger · assessment',
     );
-    expect(text(main().querySelector('p.xr-lead'))).toBe(INTRODUCTION);
+    expect(text(main().querySelector('.rk-head .rk-sub'))).toBe(INTRODUCTION);
+    const card = screen.getByRole('region', { name: 'Before you start' });
+    expect(card).toHaveClass('sv-card', 'sv-ai');
+    expect(statusPill()).toHaveClass('xr-st--info');
+    expect(text(statusPill())).toBe('To do');
+    expect(main().querySelector('.sv-ai-d')).toBeNull();
+    const rules = within(card).getByRole('list', { name: 'How answering works' });
+    expect([...rules.querySelectorAll('li')].map((rule) => text(rule))).toEqual([
+      'No time limit',
+      'Answers save as you go',
+      'Nothing is submitted until you choose Submit You can’t change answers after submitting.',
+    ]);
+    const keyFacts = within(card).getByRole('group', {
+      name: 'Key facts, as set for this assessment',
+    });
+    expect(text(keyFacts.querySelector('.sv-ai-when'))).toBe(
+      'Deadline 14 Nov 23:59 · in 18 days 14 Nov 2026, 23:59',
+    );
     expect(facts()).toEqual([
       'Questions 4 2 multiple choice · 1 true or false · 1 written answer',
       'Total marks 16',
       'Pass mark 50% 8 of 16 marks',
       'Attempts allowed 2 You have used none',
-      'Deadline 14 Nov 2026, 23:59',
       'Result and answers After the deadline Your faculty marks written answers',
+      'Set by Dr S. Ranganathan',
     ]);
-    expect(text(main().querySelector('p.xl-open'))).toBe(
-      'No time limit. Answers save as you go, and nothing is submitted until you choose Submit.',
-    );
-    expect(main().querySelector('.xr-notice')).toBeNull();
     expect(actions()).toEqual(['Start assessment', 'Back to experiment']);
+    expect(screen.getByRole('button', { name: 'Start assessment' })).toHaveAttribute(
+      'class',
+      'rb-btn rb-btn--primary rb-btn--lg',
+    );
+    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute(
+      'href',
+      `/student/experiments/${SHELL}/assessment`,
+    );
     expect(document.body.textContent).not.toMatch(KEY_WORDS);
+    expectNoReference();
   });
 
   it('Start assessment starts attempt 1 and opens the attempt', async () => {
@@ -223,7 +266,7 @@ describe('ST-12 Before you start (B4-11 f11 … f16)', () => {
     expect((await attemptOf(sample, id)).attempts).toHaveLength(0);
   });
 
-  it('an attempt in progress: “Attempt 1 in progress · Two of four questions answered.” (f12)', async () => {
+  it('an attempt in progress: “Attempt 1 in progress · 2 questions of 4 answered.”', async () => {
     const { runtime, sample, id } = await world();
     let attempt = await attemptAs(sample, id, false);
     for (const [questionId, answer] of [
@@ -241,35 +284,33 @@ describe('ST-12 Before you start (B4-11 f11 … f16)', () => {
     }
     showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('Attempt 1 in progress'));
-    expect(text(main().querySelector('.xr-notice'))).toContain(
-      'Your answers are saved. Two of four questions answered.',
-    );
-    expect(main().querySelector('.xr-notice')).toHaveAttribute('class', 'xr-notice');
+    await waitFor(() => expect(stateTitle()).toBe('Attempt 1 in progress'));
+    expect(stateLine()).toBe('Your answers are saved. 2 questions of 4 answered.');
+    expect(main().querySelector('.sv-ai-d')).toHaveAttribute('role', 'status');
+    expect(statusPill()).toHaveClass('xr-st--warn');
+    expect(text(statusPill())).toBe('Attempt in progress');
+    expect(main().querySelector('.sv-rules')).not.toBeNull();
     expect(facts()[3]).toBe('Attempts allowed 2 You have used none');
     expect(actions()).toEqual(['Continue attempt', 'Back to experiment']);
     expect(screen.getByRole('link', { name: 'Continue attempt' })).toHaveAttribute(
       'href',
       `/student/assessments/${id}/attempt`,
     );
-    expect(main().querySelector('p.xr-lead')).toBeNull();
+    expect(main().querySelector('.rk-head .rk-sub')).toBeNull();
   });
 
-  it('submitted: “Submitted — waiting for marking”, no figure (f13)', async () => {
+  it('submitted: “Submitted — waiting for marking”, no figure', async () => {
     const { runtime, sample, id } = await world();
     await attemptAs(sample, id, true);
     showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('Submitted — waiting for marking'));
-    const notice = main().querySelector('.xr-notice')!;
-    expect(notice).toHaveClass('xr-notice--warn');
-    expect(notice.querySelector('svg path')).toHaveAttribute(
-      'd',
-      'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2',
+    await waitFor(() => expect(stateTitle()).toBe('Submitted — waiting for marking'));
+    expect(statusPill()).toHaveClass('xr-st--warn');
+    expect(text(statusPill())).toBe('Waiting for marking');
+    expect(stateLine()).toBe(
+      'You submitted on 27 Oct 2026, 10:00. Your result appears after the deadline: 14 Nov 2026, 23:59.',
     );
-    expect(text(notice)).toContain(
-      'You submitted on 27 Oct 2026, 10:00. Your result appears after the deadline.',
-    );
+    expect(main().querySelector('.sv-rules')).toBeNull();
     expect(facts()[3]).toBe('Attempts allowed 2 You have used 1');
     expect(actions()).toEqual(['See result page', 'Back to experiment']);
     expect(screen.getByRole('link', { name: 'See result page' })).toHaveAttribute(
@@ -303,49 +344,52 @@ describe('ST-12 Before you start (B4-11 f11 … f16)', () => {
     expect(changed.newVersion).toBe(true);
     showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('Submitted — waiting for marking'));
-    expect(text(main().querySelector('.xr-notice'))).toContain(
-      'Your result appears after the deadline.',
-    );
+    await waitFor(() => expect(stateTitle()).toBe('Submitted — waiting for marking'));
+    expect(stateLine()).toContain('Your result appears after the deadline: 14 Nov 2026, 23:59.');
+    expect(text(main().querySelector('.sv-ai-when .xr-sr'))).toBe('14 Nov 2026, 23:59');
     expect(facts()).toEqual(
       expect.arrayContaining([
         'Pass mark 50% 8 of 16 marks',
-        'Deadline 14 Nov 2026, 23:59',
         'Result and answers After the deadline Your faculty marks written answers',
       ]),
     );
   });
 
-  it('marked, not released yet: “Result not released yet”, still no figure', async () => {
+  it('marked, not released yet: “Marked — result not released yet”, still no figure', async () => {
     const { runtime, sample, id } = await world();
     const attempt = await attemptAs(sample, id, true);
     await markAndConfirm(sample, attempt.id, '5');
     showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('Result not released yet'));
-    expect(text(main().querySelector('.xr-notice'))).toContain(
-      'Your answers have been marked. Results for this assessment are released after the deadline: 14 Nov 2026, 23:59.',
+    await waitFor(() => expect(stateTitle()).toBe('Marked — result not released yet'));
+    expect(stateLine()).toBe(
+      'Results for this assessment are released after the deadline: 14 Nov 2026, 23:59.',
     );
+    expect(statusPill()).toHaveAttribute('class', 'xr-st');
+    expect(text(statusPill())).toBe('Result not released yet');
     expect(actions()).toEqual(['See result page', 'Back to experiment']);
     expect(main().textContent).not.toMatch(/Passed|Not passed/);
   });
 
-  it('not passed, 1 attempt left: Try again starts attempt 2 (f14)', async () => {
+  it('not passed, 1 attempt left: the rules again; Try again starts attempt 2', async () => {
     const { runtime, sample, id } = await world({ release: 'immediately-after-marking' });
     const attempt = await attemptAs(sample, id, true);
     await markAndConfirm(sample, attempt.id, '3');
     const { navigation } = showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('Not passed on attempt 1 · 1 attempt left'));
-    expect(main().querySelector('.xr-notice')).toHaveClass('xr-notice--quiet');
-    expect(text(main().querySelector('.xr-notice'))).toContain(
-      'You can try once more. Your first result stays on your result page.',
-    );
-    expect(facts()[5]).toBe(
+    await waitFor(() => expect(stateTitle()).toBe('Not passed on attempt 1 · 1 attempt left'));
+    expect(stateLine()).toBe('You can try once more. Your first result stays on your result page.');
+    expect(statusPill()).toHaveClass('xr-st--ok');
+    expect(text(statusPill())).toBe('Result ready');
+    expect(main().querySelector('.sv-rules')).not.toBeNull();
+    expect(facts()[4]).toBe(
       'Result and answers Immediately after marking Your faculty marks written answers',
     );
     expect(actions()).toEqual(['Try again', 'See result']);
-    expect(screen.getByRole('link', { name: 'See result' })).toHaveClass('xr-btn--secondary');
+    expect(screen.getByRole('link', { name: 'See result' })).toHaveAttribute(
+      'class',
+      'rb-btn rb-btn--lg',
+    );
     await userEvent.click(screen.getByRole('button', { name: 'Try again' }));
     await waitFor(() =>
       expect(navigation.navigate).toHaveBeenCalledWith(`/student/assessments/${id}/attempt`),
@@ -353,13 +397,16 @@ describe('ST-12 Before you start (B4-11 f11 … f16)', () => {
     expect((await attemptOf(sample, id)).sheet?.attemptNumber).toBe(2);
   });
 
-  it('released and passed: “Passed on attempt 1” (after Flow D)', async () => {
+  it('released and passed: “Result released — you passed” (after Flow D)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-d');
     showIntro(runtime, 'ASMT-0009');
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('Passed on attempt 1'));
-    expect(main().querySelector('.xr-notice')).toHaveClass('xr-notice--ok');
+    await waitFor(() => expect(stateTitle()).toBe('Result released — you passed'));
+    expect(stateLine()).toBe('Released 14 Nov 2026, 23:59, after the deadline.');
+    expect(statusPill()).toHaveClass('xr-st--ok');
     expect(actions()).toEqual(['See result', 'Back to experiment']);
+    expect(screen.getByRole('link', { name: 'See result' })).toHaveClass('rb-btn--primary');
+    expectNoReference();
     expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
   });
 
@@ -380,30 +427,30 @@ describe('ST-12 Before you start (B4-11 f11 … f16)', () => {
     };
     const first = showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('This assessment can’t be started yet'));
-    expect(text(main().querySelector('.xr-notice'))).toContain(
+    await waitFor(() => expect(stateTitle()).toBe('This assessment can’t be started yet'));
+    expect(stateLine()).toBe(
       'It has no questions yet. It appears ready to start when your faculty has added them.',
     );
+    expect(text(statusPill())).toBe('Can’t be started yet');
     expect(actions()).toEqual(['Back to experiment']);
-    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveClass('xr-btn--primary');
+    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveClass('rb-btn--primary');
     first.view.unmount();
     runtime.queryClient.clear();
     mix = { multipleChoice: 2, trueFalse: 1, written: 1 };
     showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('This assessment can’t be started yet'));
-    expect(text(main().querySelector('.xr-notice'))).toContain(
-      STATE_COPY['ST-12.cant-start-line'].words,
-    );
+    await waitFor(() => expect(stateTitle()).toBe('This assessment can’t be started yet'));
+    expect(stateLine()).toBe(STATE_COPY['ST-12.cant-start-line'].words);
   });
 
-  it('no attempt left: “Not passed on attempt 2 · no attempts left”, See result', async () => {
+  it('no attempt left: “Result released”, when it was released, See result', async () => {
     const { runtime, sample, id } = await world({ release: 'immediately-after-marking' });
     await markAndConfirm(sample, (await attemptAs(sample, id, true)).id, '0');
     await markAndConfirm(sample, (await attemptAs(sample, id, true)).id, '0');
     showIntro(runtime, id);
     await heading(NAME);
-    await waitFor(() => expect(noticeTitle()).toBe('Not passed on attempt 2 · no attempts left'));
+    await waitFor(() => expect(stateTitle()).toBe('Result released'));
+    expect(stateLine()).toBe('Released 27 Oct 2026, 10:00, when marked.');
     expect(facts()[3]).toBe('Attempts allowed 2 You have used 2');
     expect(actions()).toEqual(['See result', 'Back to experiment']);
   });
@@ -453,28 +500,37 @@ describe('ST-12 Before you start (B4-11 f11 … f16)', () => {
 
 // ---- ST-13 -------------------------------------------------------------------------------------
 
-describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
-  it('the focused page: its own bar, the questions without a key, the strip (f0)', async () => {
+describe('ST-13 the attempt (ST-v1 `is.att`, focused)', () => {
+  it('the focused page: its own V3 root and bar, the questions without a key, the panel', async () => {
     const { runtime, sample, id } = await world();
     await attemptAs(sample, id, false);
     showAttempt(runtime, id);
     await heading(NAME);
+    // No rail: the focused task keeps none (neither the v46 sidebar nor the V3 rail).
     expect(document.querySelector('aside.xr-side')).toBeNull();
-    const bar = document.querySelector('header.xa-bar')!;
-    expect(text(bar.querySelector('a.xr-back'))).toBe('Shell-and-Tube Heat Exchanger');
+    expect(document.querySelector('aside.rb-rail')).toBeNull();
+    expect(document.querySelector('.st-focus')!.parentElement).toHaveAttribute('class', 'xr rb');
+    const bar = document.querySelector('header.st-focusbar')!;
+    const exit = within(bar as HTMLElement).getByRole('link', { name: NAME });
+    expect(exit).toHaveAttribute('class', 'st-exit st-exit--compact');
+    expect(exit).toHaveAttribute('href', `/student/assessments/${id}`);
     expect(saveState()).toBe('Answers save automatically');
-    expect(
-      within(bar as HTMLElement).getByRole('img', { name: 'Rahul Verma, Student' }),
-    ).toHaveTextContent('RV');
-    expect(document.querySelector('main.xr-page#main')).toHaveAttribute('tabindex', '-1');
-    expect(text(main().querySelector('.xr-phead .xr-overline'))).toBe(
+    const avatar = bar.querySelector('.xr-avatar')!;
+    expect(avatar).toHaveTextContent('RV');
+    expect(avatar).toHaveAttribute('aria-hidden', 'true');
+    expect(document.querySelector('main.st-focuspage.st-main#main')).toHaveAttribute(
+      'tabindex',
+      '-1',
+    );
+    expect(text(main().querySelector('.sv-focushead .sv-act-k'))).toBe(
       'Shell-and-Tube Heat Exchanger · Attempt 1 of 2',
     );
-    expect(text(main().querySelector('.xr-phead .xl-meta'))).toBe(
+    expect(text(main().querySelector('.sv-focushead .sv-focus-sub'))).toBe(
       '4 questions · 16 marks · due 14 Nov 2026, 23:59 · no time limit',
     );
-    const strip = screen.getByRole('navigation', { name: 'Your answers' });
-    expect(text(strip.querySelector('.xa-strip-text'))).toBe('0 of 4 answered');
+    expect(screen.getByRole('list', { name: 'Questions' })).toHaveClass('sv-card', 'sv-qs');
+    const strip = screen.getByRole('region', { name: 'Your answers' });
+    expect(text(strip.querySelector('.sv-attcount'))).toBe('0 of 4 answered');
     expect([...strip.querySelectorAll('a')].map((link) => link.getAttribute('aria-label'))).toEqual(
       [
         'Question 1, not answered',
@@ -483,7 +539,7 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
         'Question 4, not answered',
       ],
     );
-    expect([...main().querySelectorAll('.xa-q-n')].map((label) => text(label))).toEqual([
+    expect([...main().querySelectorAll('h2.sv-q-k')].map((label) => text(label))).toEqual([
       'Question 1 of 4 · Multiple choice',
       'Question 2 of 4 · Multiple choice',
       'Question 3 of 4 · True or false',
@@ -498,11 +554,12 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
     expect(
       screen.getByRole('textbox', { name: /Explain how fouling changes/ }),
     ).toHaveAccessibleDescription('Your faculty marks written answers.');
-    expect(text(main().querySelector('.xw-flow-foot p'))).toBe(
+    expect(text(main().querySelector('.st-att-submit .sv-attnote'))).toBe(
       'Nothing is submitted until you choose Submit. You can’t change answers after submitting.',
     );
     expect(document.body.textContent).not.toMatch(KEY_WORDS);
     expect(document.title).toBe(`${NAME} · XR Learning Platform`);
+    expectNoReference();
   });
 
   it('a choice saves at once; the strip counts it; Next unanswered moves focus', async () => {
@@ -516,9 +573,10 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
       }),
     );
     await waitFor(() => expect(saveState()).toBe('All answers saved'));
-    expect(document.querySelector('.xa-save')).toHaveClass('is-ok');
-    expect(text(document.querySelector('.xa-strip-text'))).toBe('1 of 4 answered');
+    expect(document.querySelector('.st-save')).toHaveClass('st-save--ok');
+    expect(text(document.querySelector('.sv-attcount'))).toBe('1 of 4 answered');
     expect(screen.getByRole('link', { name: 'Question 1, answered' })).toHaveClass('is-done');
+    expect(document.querySelector('#Ta-q1 .sv-q-n')).toHaveClass('is-done');
     const saved = await attemptOf(sample, id);
     expect(saved.sheet?.answers[Q1]).toEqual({ type: 'multiple-choice', choice: 'A' });
     await userEvent.click(screen.getByRole('button', { name: 'Next unanswered' }));
@@ -566,14 +624,14 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
     );
     const alert = await screen.findByRole('alert');
     expect(text(alert)).toBe('Your last answer didn’t save Try again');
-    expect(alert).toHaveClass('xa-save', 'is-err');
+    expect(alert.firstElementChild).toHaveAttribute('class', 'st-save st-save--err');
     // The answer stays on the page and in the strip; the service has none yet.
     expect(
       screen.getByRole('radio', {
         name: 'The actual heat transfer with the largest heat transfer possible',
       }),
     ).toBeChecked();
-    expect(text(document.querySelector('.xa-strip-text'))).toBe('1 of 4 answered');
+    expect(text(document.querySelector('.sv-attcount'))).toBe('1 of 4 answered');
     expect((await attemptOf(sample, id)).sheet?.answers[Q1]).toBeUndefined();
     await userEvent.click(within(alert).getByRole('button', { name: 'Try again' }));
     await waitFor(() => expect(saveState()).toBe('All answers saved'));
@@ -634,11 +692,11 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
         name: 'Submit answers',
       }),
     );
-    await heading('Answers submitted');
+    await submittedHeading();
     expect((await attemptOf(sample, id)).sheet).toBeNull();
   });
 
-  it('DL-1 names the unanswered questions; Keep answering closes it, nothing sent (f1)', async () => {
+  it('DL-1 names the unanswered questions; Keep answering closes it, nothing sent', async () => {
     const { runtime, sample, id } = await world();
     await attemptAs(sample, id, false);
     showAttempt(runtime, id);
@@ -652,13 +710,13 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
     await waitFor(() => expect(saveState()).toBe('All answers saved'));
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
     const dialog = screen.getByRole('dialog', { name: 'Submit your answers?' });
-    expect(text(dialog.querySelector('.xr-dialog-body'))).toBe(
-      '2 questions aren’t answered (3, 4). You can still submit. You can’t change your answers after submitting.',
+    expect(dialog).toHaveAccessibleDescription('You can’t change your answers after submitting.');
+    expect(text(dialog.querySelector('.rk-dlg-body'))).toBe(
+      '2 questions aren’t answered (3, 4). You can still submit.',
     );
-    expect(dialog.querySelector('.xr-dialog-body strong')).toHaveTextContent(
-      '2 questions aren’t answered (3, 4).',
-    );
-    expect(within(dialog).getByRole('button', { name: 'Submit answers' })).toHaveFocus();
+    expect(dialog.querySelector('.rk-dlg-body p')).toHaveClass('rk-pending');
+    // Opening focuses the dialog's title (the export's `focusId('st-dlg-t')`).
+    expect(screen.getByRole('heading', { name: 'Submit your answers?' })).toHaveFocus();
     await userEvent.click(within(dialog).getByRole('button', { name: 'Keep answering' }));
     expect(dialog).not.toHaveAttribute('open');
     expect((await attemptOf(sample, id)).sheet).not.toBeNull();
@@ -674,7 +732,7 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
     faults(sample).failNext('AssessmentService.submitAttempt');
     await userEvent.click(screen.getByRole('button', { name: 'Submit' }));
     const dialog = screen.getByRole('dialog', { name: 'Submit your answers?' });
-    expect(text(dialog.querySelector('.xr-dialog-body'))).toContain(
+    expect(text(dialog.querySelector('.rk-dlg-body'))).toContain(
       '3 questions aren’t answered (1, 2, 3).',
     );
     await userEvent.click(within(dialog).getByRole('button', { name: 'Submit answers' }));
@@ -682,6 +740,8 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
     expect(text(document.getElementById('Ta-suberr'))).toBe(
       'Your answers weren’t submitted They’re still saved here. Try again.',
     );
+    expect(document.getElementById('Ta-suberr')).toHaveAttribute('role', 'alert');
+    expect(document.getElementById('Ta-suberr')!.closest('section')).toHaveClass('st-att-submit');
     // The pending written answer was saved before the submit was sent; nothing was submitted.
     const kept = await attemptOf(sample, id);
     expect(kept.sheet?.answers[WRITTEN]).toEqual({ type: 'written', text: 'Fouling lowers U.' });
@@ -693,17 +753,22 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
         name: 'Submit answers',
       }),
     );
-    const done = await heading('Answers submitted');
+    const done = await submittedHeading();
     const message = document.getElementById('Ta-done')!;
     expect(message).toContainElement(done);
+    expect(message).toHaveClass('sv-card', 'sv-act-card');
     await waitFor(() => expect(message).toHaveFocus());
-    expect(text(message.querySelector('p'))).toBe(
+    expect(text(message.querySelector('.xr-st'))).toBe('Waiting for marking');
+    expect(message.querySelector('.xr-st')).toHaveClass('xr-st--warn', 'rk-st-lg');
+    expect(text(message.querySelector('p.sv-act-d'))).toBe(
       'Submitted 27 Oct 2026, 10:00. Your faculty marks written answers. Your result appears after the deadline: 14 Nov 2026, 23:59.',
     );
-    expect(saveState()).toBe('Answers save automatically');
+    // The questions are gone: no save state, the head and the way out stay.
+    expect(document.querySelector('.st-save')).toBeNull();
+    expect(screen.getByRole('heading', { level: 1, name: NAME })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute(
       'href',
-      `/student/experiments/${SHELL}`,
+      `/student/experiments/${SHELL}/assessment`,
     );
     expect(screen.getByRole('link', { name: 'See your result page' })).toHaveAttribute(
       'href',
@@ -755,6 +820,6 @@ describe('the link targets of ST-12 and ST-13', () => {
       P4B_ATTEMPT_LINK_TARGETS.filter(
         (entry) => entry.screen === 'ST-13' && entry.role === 'primary',
       ).map((entry) => entry.action),
-    ).toEqual(['Submit', 'Submit answers', 'Back to experiment']);
+    ).toEqual(['Submit', 'Submit answers', 'See your result page']);
   });
 });

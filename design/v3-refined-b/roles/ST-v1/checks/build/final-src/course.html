@@ -1,0 +1,29 @@
+      <!-- ══════════ ST-03 Course (student view) ══════════
+           The course's identity and codes once in the header; the experiments given to you as rows with your formats. -->
+      <sc-if value="{{ is.course }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ CO.back.href }}" onClick="{{ CO.back.go }}">My courses</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ CO.name }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="rk-owncode">{{ CO.code }}</span><span>Course · {{ CO.area }}</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ CO.name }}</h1>
+          <div class="rk-meta sv-head-meta"><sc-if value="{{ CO.hasPill }}" hint-placeholder-val="{{ false }}"><span class="{{ CO.pillCls }}"><i></i>{{ CO.pill }}</span></sc-if><span>BITS course code <span class="rb-code">{{ CO.bits }}</span></span><span>{{ CO.meta }}</span></div>
+        </div>
+      </div>
+      <section class="sv-card" aria-labelledby="st-co-h">
+        <div class="sv-card-h"><h2 class="sv-sec-t" id="st-co-h">Experiments given to you</h2><p class="sv-sh-note">Only experiments given to you are listed</p></div>
+        <ul class="sv-list">
+          <sc-for list="{{ CO.rows }}" as="e" hint-placeholder-count="1">
+          <li class="sv-li sv-xli">
+            <div class="sv-li-main">
+              <h3 class="sv-li-t" id="{{ e.hid }}">{{ e.t }}</h3>
+              <p class="sv-li-d">{{ e.desc }}</p>
+              <ul class="sv-xli-f" aria-label="{{ e.fAria }}"><sc-for list="{{ e.fmts }}" as="f" hint-placeholder-count="2"><li><span class="{{ f.fmtCls }}" aria-hidden="true">{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ f.glyph }}"></use></svg></sc-if></span><span class="sv-xli-ft"><span class="xr-sr">{{ f.name }}: </span>{{ f.text }}</span></li></sc-for></ul>
+            </div>
+            <sc-if value="{{ e.canOpen }}" hint-placeholder-val="{{ true }}"><div class="sv-li-end"><a class="rb-btn" href="{{ e.href }}" onClick="{{ e.go }}" aria-label="{{ e.aria }}">Open experiment</a></div></sc-if>
+          </li>
+          </sc-for>
+        </ul>
+      </section>
+      </sc-if>
+

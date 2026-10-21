@@ -1,0 +1,16 @@
+primary · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+secondary · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+link · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+nav · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+tab · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+crumb · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+open · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+select · focus-visible true · differs {"hover":true,"focus":true}
+input · focus-visible true · differs {"hover":true,"focus":true}
+choice · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+qnum · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+rating · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+textarea · focus-visible true · differs {"hover":true,"focus":true}
+byq · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+disclose · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}
+acct · focus-visible true · differs {"hover":true,"focus":true,"pressed":true}

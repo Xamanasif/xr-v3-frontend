@@ -66,6 +66,35 @@ export const STATE_COPY_STUDENT_ASSESSMENTS = {
     decisions: ['VD-12', 'PC-54'],
   },
 
+  'ST-11.elsewhere': {
+    screen: 'ST-11',
+    state: 'A tab with no row, when the Student has more than one assessment elsewhere (V3)',
+    words: 'Your assessments are under {tabs}.',
+    rule: '{tabs} names the tabs that hold the Student’s assessments, in tab order (“To do and Results”). One assessment reads the export’s “Your assessment is under To do.”',
+    basis: 'ST-v1 `alistVM` `emptyD` (“Your assessment is under To do.”, one assessment)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'ST-11.marked-on-date': {
+    screen: 'ST-11',
+    state: 'Marked, not released yet, for an assessment released on a date (V3 row and hub tab)',
+    words: 'Marked · released on {on}',
+    rule: '{on} is the attempt’s pinned release date and time (“20 Nov 2026, 09:00”).',
+    basis: 'ST-v1 `alistVM` / `asmtTabVM` “Marked · released after the deadline”',
+    status: 'provisional',
+    decisions: ['VD-12', 'PC-54'],
+  },
+  'ST-11.marked-when-marked': {
+    screen: 'ST-11',
+    state:
+      'Marked, not released yet, for an assessment released immediately after marking (V3; the service answers it only until the confirmed marks release)',
+    words: 'Marked · released once your answers are marked',
+    basis:
+      'ST-v1 `alistVM` “Marked · released after the deadline”; B4-04 “Immediately after marking”',
+    status: 'provisional',
+    decisions: ['VD-12', 'PC-54'],
+  },
+
   // ---- the hub’s Assessment tab (B4-11 f7 … f9) ----
   'ST-05.assessment-tab.loading': {
     screen: 'ST-05',
@@ -94,25 +123,6 @@ export const STATE_COPY_STUDENT_ASSESSMENTS = {
     basis: 'B4-11 f1, f3, f4 (ST-11’s rows) in the f7 / f9 row; f7 “Open assessment” the primary',
     status: 'provisional',
     decisions: ['VD-12'],
-  },
-  'ST-05.assessment-tab.appears-on-date': {
-    screen: 'ST-05',
-    state: 'The hub’s Assessment tab, waiting for marking, for an assessment released on a date',
-    words: 'your result appears on {on}',
-    rule: '{on} is the attempt’s pinned release date and time; after “Submitted <date, time> · ”.',
-    basis: 'B4-11 f9 “your result appears after the deadline” with the release date',
-    status: 'provisional',
-    decisions: ['VD-12', 'PC-54'],
-  },
-  'ST-05.assessment-tab.appears-immediately': {
-    screen: 'ST-05',
-    state:
-      'The hub’s Assessment tab, waiting for marking, for an assessment released immediately after marking',
-    words: 'your result appears once your answers are marked',
-    basis:
-      'B4-11 f9 “your result appears after the deadline”; B4-04 “Each student sees their result once their answers are marked.”',
-    status: 'provisional',
-    decisions: ['VD-12', 'PC-54'],
   },
 
   // ---- Home’s “Up next” (B4-11 f10) ----

@@ -1,0 +1,39 @@
+  <sc-if value="{{ is.act }}" hint-placeholder-val="{{ false }}">
+  <!-- ST-08a · simulated sample activity: a calm focused layout — where you are in three stages, one stage at a time -->
+  <div class="st-focus">
+    <header class="st-focusbar">
+      <a class="st-exit" href="{{ A.exit.href }}" onClick="{{ A.exit.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-left"></use></svg><span>WEB simulation</span></a>
+      <div class="st-focusbar-mid"></div>
+      <div class="st-focusbar-end">
+        <p class="{{ A.saveCls }}" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ A.saveIco }}"></use></svg>{{ A.saveText }}</p>
+        <span class="xr-avatar" aria-hidden="true">{{ S.ini }}</span>
+      </div>
+    </header>
+    <main class="st-focuspage st-main sv-focuspage" id="st-main" tabindex="-1">
+      <div class="sv-focushead">
+        <p class="sv-act-k"><span class="st-simtag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-info"></use></svg>Simulated for this prototype</span><span>Shell-and-Tube Heat Exchanger · WEB</span></p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">Sample activity</h1>
+        <p class="sv-focus-sub">{{ A.sub }}</p>
+      </div>
+      <ol class="sv-steps sv-steps--lg" aria-label="Stages of the sample activity">
+        <sc-for list="{{ A.stages }}" as="s" hint-placeholder-count="3"><li class="{{ s.cls }}" aria-label="{{ s.aria }}"><p class="sv-steps-k" aria-hidden="true">{{ s.k }}<sc-if value="{{ s.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></sc-if></p><p class="sv-steps-s" aria-hidden="true">{{ s.s }}</p></li></sc-for>
+      </ol>
+      <sc-if value="{{ A.working }}" hint-placeholder-val="{{ true }}">
+      <section class="sv-card sv-act-card" id="st-act-stage" tabindex="-1" aria-labelledby="st-act-h">
+        <h2 class="sv-sec-t" id="st-act-h">{{ A.stageTitle }}</h2>
+        <p class="sv-act-d">{{ A.stageText }}</p>
+        <div class="sv-act-go"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" aria-busy="{{ A.busyAria }}" disabled="{{ A.busy }}" onClick="{{ A.finish }}">{{ A.finishLabel }}</button><a class="rb-btn rb-btn--lg" href="{{ A.exit.href }}" onClick="{{ A.exit.go }}">Leave and keep my place</a></div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ A.complete }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-card sv-act-card sv-act-card--done" id="st-act-done" tabindex="-1" aria-labelledby="st-act-done-h">
+        <p><span class="xr-st xr-st--ok rk-st-lg"><i></i>{{ A.doneLabel }}</span></p>
+        <h2 class="sv-sec-t" id="st-act-done-h">WEB is recorded as completed</h2>
+        <p class="sv-act-d">{{ A.doneText }}</p>
+        <div class="sv-act-go"><sc-if value="{{ A.canFb }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ A.fb.href }}" onClick="{{ A.fb.go }}">Give feedback on WEB</a></sc-if><a class="rb-btn rb-btn--lg" href="{{ A.exit.href }}" onClick="{{ A.exit.go }}">Back to WEB simulation</a></div>
+      </section>
+      </sc-if>
+    </main>
+  </div>
+  </sc-if>
+

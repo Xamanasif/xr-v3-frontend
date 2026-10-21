@@ -122,7 +122,7 @@ test('Sign out: the session service ends the session, the cache is cleared, the 
   test.skip(test.info().project.name !== 'chromium-1440x900', 'One width proves the flow.');
   const rahul = roleEntry('student');
   await openAs(page, rahul.person, '/student/help');
-  await expect(page.locator('main.xr-page ul.xs-reports > li')).toHaveCount(1);
+  await expect(page.locator('main#main ul.xs-reports > li')).toHaveCount(1);
   const before = await inspectWorld(page);
   expect(before.session).toMatchObject({ status: 'signed-in', personId: 'per-0002' });
   expect(before.cachedQueries).toBeGreaterThan(0);

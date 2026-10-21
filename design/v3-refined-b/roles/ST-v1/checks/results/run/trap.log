@@ -1,0 +1,30 @@
+PASS dialog @1440: focus moves into the dialog on open
+PASS dialog @1440: Tab ×8 stays inside
+PASS dialog @1440: Shift+Tab ×8 stays inside
+PASS dialog @1440: Escape closes it and focus returns to Submit
+PASS account menu @1440: opens, aria-expanded true
+PASS account menu @1440: Tab reaches its first item
+PASS account menu @1440: Escape closes it, focus back on the account button
+PASS dialog @768: focus moves into the dialog on open
+PASS dialog @768: Tab ×8 stays inside
+PASS dialog @768: Shift+Tab ×8 stays inside
+PASS dialog @768: Escape closes it and focus returns to Submit
+PASS drawer @768: focus on Close when it opens
+PASS drawer @768: Tab ×10 stays inside
+PASS drawer @768: Shift+Tab ×10 stays inside
+PASS drawer @768: Escape closes it, focus back on Menu
+PASS account menu @768: opens, aria-expanded true
+PASS account menu @768: Tab reaches its first item
+PASS account menu @768: Escape closes it, focus back on the account button
+PASS dialog @375: focus moves into the dialog on open
+PASS dialog @375: Tab ×8 stays inside
+PASS dialog @375: Shift+Tab ×8 stays inside
+PASS dialog @375: Escape closes it and focus returns to Submit
+PASS drawer @375: focus on Close when it opens
+PASS drawer @375: Tab ×10 stays inside
+PASS drawer @375: Shift+Tab ×10 stays inside
+PASS drawer @375: Escape closes it, focus back on Menu
+PASS account menu @375: opens, aria-expanded true
+PASS account menu @375: Tab reaches its first item
+PASS account menu @375: Escape closes it, focus back on the account button
+29 / 29 passed

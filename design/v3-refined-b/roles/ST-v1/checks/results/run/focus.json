@@ -1,0 +1,1642 @@
+[
+ {
+  "case": "01-learn",
+  "w": 1440,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started"
+  ]
+ },
+ {
+  "case": "01-learn",
+  "w": 768,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started"
+  ]
+ },
+ {
+  "case": "01-learn",
+  "w": 375,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started"
+  ]
+ },
+ {
+  "case": "02-learn",
+  "w": 1440,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Open course Thermodynamics & Heat Transf",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "02-learn",
+  "w": 768,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Open course Thermodynamics & Heat Transf",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "02-learn",
+  "w": 375,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Open course Thermodynamics & Heat Transf",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "03-learn",
+  "w": 1440,
+  "stops": 9,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "03-learn",
+  "w": 768,
+  "stops": 5,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "03-learn",
+  "w": 375,
+  "stops": 5,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "04-learn",
+  "w": 1440,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Search",
+   "All formatsWEBVR",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "04-learn",
+  "w": 768,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Search",
+   "All formatsWEBVR",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "04-learn",
+  "w": 375,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Search",
+   "All formatsWEBVR",
+   "Open experiment Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "05-learn",
+  "w": 1440,
+  "stops": 17,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger",
+   "Open resources, Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "05-learn",
+  "w": 768,
+  "stops": 13,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger",
+   "Open resources, Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "05-learn",
+  "w": 375,
+  "stops": 13,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger",
+   "Open resources, Shell-and-Tube Heat Exch"
+  ]
+ },
+ {
+  "case": "06-learn",
+  "w": 1440,
+  "stops": 17,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Open Lab brief — Shell-and-Tube Heat Exc",
+   "Open Pre-lab reading — the effectiveness",
+   "Open Readings sheet in a new tab"
+  ]
+ },
+ {
+  "case": "06-learn",
+  "w": 768,
+  "stops": 13,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Open Lab brief — Shell-and-Tube Heat Exc",
+   "Open Pre-lab reading — the effectiveness",
+   "Open Readings sheet in a new tab"
+  ]
+ },
+ {
+  "case": "06-learn",
+  "w": 375,
+  "stops": 13,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Open Lab brief — Shell-and-Tube Heat Exc",
+   "Open Pre-lab reading — the effectiveness",
+   "Open Readings sheet in a new tab"
+  ]
+ },
+ {
+  "case": "07-learn",
+  "w": 1440,
+  "stops": 16,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "07-learn",
+  "w": 768,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "07-learn",
+  "w": 375,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "05as-assess",
+  "w": 1440,
+  "stops": 15,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Open assessment, Heat Exchanger — post-l"
+  ]
+ },
+ {
+  "case": "05as-assess",
+  "w": 768,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Open assessment, Heat Exchanger — post-l"
+  ]
+ },
+ {
+  "case": "05as-assess",
+  "w": 375,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Open assessment, Heat Exchanger — post-l"
+  ]
+ },
+ {
+  "case": "08-learn",
+  "w": 1440,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "Continue WEB",
+   "Report a problem"
+  ]
+ },
+ {
+  "case": "08-learn",
+  "w": 768,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "Continue WEB",
+   "Report a problem"
+  ]
+ },
+ {
+  "case": "08-learn",
+  "w": 375,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "Continue WEB",
+   "Report a problem"
+  ]
+ },
+ {
+  "case": "08a-learn",
+  "w": 1440,
+  "stops": 4,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "WEB simulation",
+   "Finish stage 2",
+   "Leave and keep my place"
+  ]
+ },
+ {
+  "case": "08a-learn",
+  "w": 768,
+  "stops": 4,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "WEB simulation",
+   "Finish stage 2",
+   "Leave and keep my place"
+  ]
+ },
+ {
+  "case": "08a-learn",
+  "w": 375,
+  "stops": 4,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "WEB simulation",
+   "Finish stage 2",
+   "Leave and keep my place"
+  ]
+ },
+ {
+  "case": "09-learn",
+  "w": 1440,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "My device",
+   "Hide setup steps",
+   "Report a problem"
+  ]
+ },
+ {
+  "case": "09-learn",
+  "w": 768,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "My device",
+   "Hide setup steps",
+   "Report a problem"
+  ]
+ },
+ {
+  "case": "09-learn",
+  "w": 375,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "My device",
+   "Hide setup steps",
+   "Report a problem"
+  ]
+ },
+ {
+  "case": "09ar-learn",
+  "w": 1440,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger",
+   "Back to Simulation"
+  ]
+ },
+ {
+  "case": "09ar-learn",
+  "w": 768,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger",
+   "Back to Simulation"
+  ]
+ },
+ {
+  "case": "09ar-learn",
+  "w": 375,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "Simulation",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger",
+   "Back to Simulation"
+  ]
+ },
+ {
+  "case": "10-learn",
+  "w": 1440,
+  "stops": 16,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "10-learn",
+  "w": 768,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "10-learn",
+  "w": 375,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Thermodynamics & Heat Transfer",
+   "Overview",
+   "Resources",
+   "Simulation",
+   "Assessment",
+   "Progress",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "11-assess",
+  "w": 1440,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "To do1, 1",
+   "Submitted0, 0",
+   "Results0, 0",
+   "Open, Heat Exchanger — post-lab"
+  ]
+ },
+ {
+  "case": "11-assess",
+  "w": 768,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "To do1, 1",
+   "Submitted0, 0",
+   "Results0, 0",
+   "Open, Heat Exchanger — post-lab"
+  ]
+ },
+ {
+  "case": "11-assess",
+  "w": 375,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "To do1, 1",
+   "Submitted0, 0",
+   "Results0, 0",
+   "Open, Heat Exchanger — post-lab"
+  ]
+ },
+ {
+  "case": "12-assess",
+  "w": 1440,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Assessments",
+   "Shell-and-Tube Heat Exchanger",
+   "Start assessment",
+   "Back to experiment"
+  ]
+ },
+ {
+  "case": "12-assess",
+  "w": 768,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Assessments",
+   "Shell-and-Tube Heat Exchanger",
+   "Start assessment",
+   "Back to experiment"
+  ]
+ },
+ {
+  "case": "12-assess",
+  "w": 375,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Assessments",
+   "Shell-and-Tube Heat Exchanger",
+   "Start assessment",
+   "Back to experiment"
+  ]
+ },
+ {
+  "case": "13-inprog",
+  "w": 1440,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Heat Exchanger — post-lab",
+   "The actual heat transfer with the larges",
+   "UA ÷ C_min",
+   "True",
+   "Explain how fouling changes the exchange",
+   "Question 1, answered",
+   "Question 2, not answered",
+   "Question 3, answered",
+   "Question 4, not answered",
+   "Next unanswered",
+   "Submit"
+  ]
+ },
+ {
+  "case": "13-inprog",
+  "w": 768,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Heat Exchanger — post-lab",
+   "The actual heat transfer with the larges",
+   "UA ÷ C_min",
+   "True",
+   "Explain how fouling changes the exchange",
+   "Question 1, answered",
+   "Question 2, not answered",
+   "Question 3, answered",
+   "Question 4, not answered",
+   "Next unanswered",
+   "Submit"
+  ]
+ },
+ {
+  "case": "13-inprog",
+  "w": 375,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Heat Exchanger — post-lab",
+   "The actual heat transfer with the larges",
+   "UA ÷ C_min",
+   "True",
+   "Explain how fouling changes the exchange",
+   "Question 1, answered",
+   "Question 2, not answered",
+   "Question 3, answered",
+   "Question 4, not answered",
+   "Next unanswered",
+   "Submit"
+  ]
+ },
+ {
+  "case": "14-released",
+  "w": 1440,
+  "stops": 15,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Assessments",
+   "Heat Exchanger — post-lab",
+   "Question 1: 2 of 2 marks",
+   "Question 2: 0 of 2 marks",
+   "Question 3: 2 of 2 marks",
+   "Question 4: 7 of 10 marks",
+   "Back to experiment",
+   "See your progress"
+  ]
+ },
+ {
+  "case": "14-released",
+  "w": 768,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Assessments",
+   "Heat Exchanger — post-lab",
+   "Question 1: 2 of 2 marks",
+   "Question 2: 0 of 2 marks",
+   "Question 3: 2 of 2 marks",
+   "Question 4: 7 of 10 marks",
+   "Back to experiment",
+   "See your progress"
+  ]
+ },
+ {
+  "case": "14-released",
+  "w": 375,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Assessments",
+   "Heat Exchanger — post-lab",
+   "Question 1: 2 of 2 marks",
+   "Question 2: 0 of 2 marks",
+   "Question 3: 2 of 2 marks",
+   "Question 4: 7 of 10 marks",
+   "Back to experiment",
+   "See your progress"
+  ]
+ },
+ {
+  "case": "15-learn",
+  "w": 1440,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "All statusesIn progressCompletedNot star",
+   "All coursesMEC-523 · Thermodynamics & He",
+   "Open experiment Shell-and-Tube Heat Exch",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "15-learn",
+  "w": 768,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "All statusesIn progressCompletedNot star",
+   "All coursesMEC-523 · Thermodynamics & He",
+   "Open experiment Shell-and-Tube Heat Exch",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "15-learn",
+  "w": 375,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "All statusesIn progressCompletedNot star",
+   "All coursesMEC-523 · Thermodynamics & He",
+   "Open experiment Shell-and-Tube Heat Exch",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open VR, Shell-and-Tube Heat Exchanger"
+  ]
+ },
+ {
+  "case": "16v-vrdone",
+  "w": 1440,
+  "stops": 17,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "VR",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "Additional comments (optional)",
+   "Cancel",
+   "Submit feedback"
+  ]
+ },
+ {
+  "case": "16v-vrdone",
+  "w": 768,
+  "stops": 13,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "VR",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "Additional comments (optional)",
+   "Cancel",
+   "Submit feedback"
+  ]
+ },
+ {
+  "case": "16v-vrdone",
+  "w": 375,
+  "stops": 13,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "VR",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "Additional comments (optional)",
+   "Cancel",
+   "Submit feedback"
+  ]
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "w": 1440,
+  "stops": 20,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "VR",
+   "Choose a rating for statement 2",
+   "Choose a rating for statement 4",
+   "Choose a rating for statement 5",
+   "4Agree",
+   "1Strongly disagree",
+   "5Strongly agree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "Additional comments (optional)",
+   "Cancel",
+   "Submit feedback"
+  ]
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "w": 768,
+  "stops": 16,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "VR",
+   "Choose a rating for statement 2",
+   "Choose a rating for statement 4",
+   "Choose a rating for statement 5",
+   "4Agree",
+   "1Strongly disagree",
+   "5Strongly agree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "Additional comments (optional)",
+   "Cancel",
+   "Submit feedback"
+  ]
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "w": 375,
+  "stops": 16,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "VR",
+   "Choose a rating for statement 2",
+   "Choose a rating for statement 4",
+   "Choose a rating for statement 5",
+   "4Agree",
+   "1Strongly disagree",
+   "5Strongly agree",
+   "1Strongly disagree",
+   "1Strongly disagree",
+   "Additional comments (optional)",
+   "Cancel",
+   "Submit feedback"
+  ]
+ },
+ {
+  "case": "16w-vrdone",
+  "w": 1440,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "WEB",
+   "Back to experiment",
+   "See your progress"
+  ]
+ },
+ {
+  "case": "16w-vrdone",
+  "w": 768,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "WEB",
+   "Back to experiment",
+   "See your progress"
+  ]
+ },
+ {
+  "case": "16w-vrdone",
+  "w": 375,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Shell-and-Tube Heat Exchanger",
+   "WEB",
+   "Back to experiment",
+   "See your progress"
+  ]
+ },
+ {
+  "case": "18-device-dev-error",
+  "w": 1440,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "New device",
+   "Anything your Institute Admin should kno",
+   "Cancel",
+   "Send request"
+  ]
+ },
+ {
+  "case": "18-device-dev-error",
+  "w": 768,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "New device",
+   "Anything your Institute Admin should kno",
+   "Cancel",
+   "Send request"
+  ]
+ },
+ {
+  "case": "18-device-dev-error",
+  "w": 375,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "New device",
+   "Anything your Institute Admin should kno",
+   "Cancel",
+   "Send request"
+  ]
+ },
+ {
+  "case": "18-dtrfwd",
+  "w": 1440,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda"
+  ]
+ },
+ {
+  "case": "18-dtrfwd",
+  "w": 768,
+  "stops": 3,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda"
+  ]
+ },
+ {
+  "case": "18-dtrfwd",
+  "w": 375,
+  "stops": 3,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda"
+  ]
+ },
+ {
+  "case": "19-learn",
+  "w": 1440,
+  "stops": 11,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Open experiment Shell-and-Tube Heat Exch",
+   "Back to My courses",
+   "Help & support"
+  ]
+ },
+ {
+  "case": "19-learn",
+  "w": 768,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Open experiment Shell-and-Tube Heat Exch",
+   "Back to My courses",
+   "Help & support"
+  ]
+ },
+ {
+  "case": "19-learn",
+  "w": 375,
+  "stops": 7,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "My courses",
+   "Open experiment Shell-and-Tube Heat Exch",
+   "Back to My courses",
+   "Help & support"
+  ]
+ },
+ {
+  "case": "01-learn-menu",
+  "w": 1440,
+  "stops": 13,
+  "problems": [
+   "no visible focus: A#.|Home",
+   "no visible focus: A#.|My courses",
+   "no visible focus: A#.|Assessments",
+   "no visible focus: A#.|Progress",
+   "no visible focus: A#.|Help & support"
+  ],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started",
+   "Close menu"
+  ]
+ },
+ {
+  "case": "01-learn-menu",
+  "w": 768,
+  "stops": 14,
+  "problems": [
+   "no visible focus: BUTTON#st-menu.rb-menu|Menu"
+  ],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started",
+   "Close menu",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support"
+  ]
+ },
+ {
+  "case": "01-learn-menu",
+  "w": 375,
+  "stops": 14,
+  "problems": [
+   "no visible focus: BUTTON#st-menu.rb-menu|Menu",
+   "no visible focus: A#.sv-now-clink|Thermodynamics & Heat Transfer, open cou"
+  ],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started",
+   "Close menu",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support"
+  ]
+ },
+ {
+  "case": "01-learn-acct",
+  "w": 1440,
+  "stops": 12,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started"
+  ]
+ },
+ {
+  "case": "01-learn-acct",
+  "w": 768,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started"
+  ]
+ },
+ {
+  "case": "01-learn-acct",
+  "w": 375,
+  "stops": 8,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Thermodynamics & Heat Transfer, open cou",
+   "Continue WEB, Shell-and-Tube Heat Exchan",
+   "Open experiment, Shell-and-Tube Heat Exc",
+   "Resources1 of 3 opened",
+   "VRVirtual realityNot started"
+  ]
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "w": 1440,
+  "stops": 14,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Heat Exchanger — post-lab",
+   "The actual heat transfer with the larges",
+   "C_min ÷ C_max",
+   "True",
+   "Explain how fouling changes the exchange",
+   "Question 1, answered",
+   "Question 2, answered",
+   "Question 3, not answered",
+   "Question 4, not answered",
+   "Next unanswered",
+   "Submit",
+   "Keep answering",
+   "Submit answers"
+  ]
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "w": 768,
+  "stops": 14,
+  "problems": [
+   "no visible focus: INPUT#st-q-1-o0.|The actual heat transfer with the larges",
+   "no visible focus: INPUT#st-q-2-o1.|C_min ÷ C_max"
+  ],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Heat Exchanger — post-lab",
+   "The actual heat transfer with the larges",
+   "C_min ÷ C_max",
+   "True",
+   "Explain how fouling changes the exchange",
+   "Question 1, answered",
+   "Question 2, answered",
+   "Question 3, not answered",
+   "Question 4, not answered",
+   "Next unanswered",
+   "Submit",
+   "Keep answering",
+   "Submit answers"
+  ]
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "w": 375,
+  "stops": 14,
+  "problems": [
+   "no visible focus: INPUT#st-q-2-o1.|C_min ÷ C_max",
+   "no visible focus: A#.is-done|Question 1, answered",
+   "no visible focus: A#.is-done|Question 2, answered",
+   "no visible focus: A#.|Question 3, not answered",
+   "no visible focus: A#.|Question 4, not answered",
+   "no visible focus: BUTTON#.rb-btn sv-attnext|Next unanswered"
+  ],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Heat Exchanger — post-lab",
+   "The actual heat transfer with the larges",
+   "C_min ÷ C_max",
+   "True",
+   "Explain how fouling changes the exchange",
+   "Question 1, answered",
+   "Question 2, answered",
+   "Question 3, not answered",
+   "Question 4, not answered",
+   "Next unanswered",
+   "Submit",
+   "Keep answering",
+   "Submit answers"
+  ]
+ },
+ {
+  "case": "02-learn-failed",
+  "w": 1440,
+  "stops": 10,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Home",
+   "My courses",
+   "Assessments",
+   "Progress",
+   "Help & support",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Try again"
+  ]
+ },
+ {
+  "case": "02-learn-failed",
+  "w": 768,
+  "stops": 6,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Try again"
+  ]
+ },
+ {
+  "case": "02-learn-failed",
+  "w": 375,
+  "stops": 6,
+  "problems": [],
+  "errors": [],
+  "order": [
+   "Skip to main content",
+   "Menu",
+   "Account menu, Rahul Verma, Student, Goda",
+   "Courses",
+   "All experiments",
+   "Try again"
+  ]
+ }
+]

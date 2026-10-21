@@ -946,6 +946,46 @@ const FA_CASES = [
   ['fa20-students', 'FA-20', 'Students', '/faculty/students'],
 ].map(([name, id, state, path]) => bootedPage(name, id, state, 'after-flow-c', 'per-0014', path));
 
+/** The Student cases (ST-v1), as Rahul Verma (per-0002) after Flow C. */
+const ST_CASES = [
+  ['st01-home', 'ST-01', 'Home', '/student'],
+  ['st02-courses', 'ST-02', 'My courses', '/student/courses'],
+  ['st04-experiments', 'ST-04', 'All experiments', '/student/courses?tab=experiments'],
+  [
+    'st05-hub',
+    'ST-05',
+    'Experiment · Overview',
+    '/student/experiments/shell-and-tube-heat-exchanger',
+  ],
+  [
+    'st06-resources',
+    'ST-06',
+    'Resources',
+    '/student/experiments/shell-and-tube-heat-exchanger/resources',
+  ],
+  [
+    'st07-simulation',
+    'ST-07',
+    'Simulation',
+    '/student/experiments/shell-and-tube-heat-exchanger/simulation',
+  ],
+  [
+    'st08-web',
+    'ST-08',
+    'WEB simulation',
+    '/student/experiments/shell-and-tube-heat-exchanger/simulation/web',
+  ],
+  [
+    'st10-progress-tab',
+    'ST-10',
+    'Progress tab',
+    '/student/experiments/shell-and-tube-heat-exchanger/progress',
+  ],
+  ['st11-assessments', 'ST-11', 'Assessments', '/student/assessments'],
+  ['st15-progress', 'ST-15', 'Progress', '/student/progress'],
+  ['st18-device', 'ST-18', 'My device', '/student/device'],
+].map(([name, id, state, path]) => bootedPage(name, id, state, 'after-flow-c', 'per-0002', path));
+
 async function measure(page) {
   return page.evaluate(async () => {
     // No internal reference in the words or the accessible names (SA-v1 rule).
@@ -990,6 +1030,7 @@ for (const testCase of [
   ...RV_CASES,
   ...IA_CASES,
   ...FA_CASES,
+  ...ST_CASES,
 ].filter(
   (c) =>
     !values.only ||

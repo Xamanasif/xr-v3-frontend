@@ -1,0 +1,2118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student — XR Learning Platform</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./v3-student.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr st-root">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="sti-home" viewBox="0 0 24 24"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z"></path></symbol>
+    <symbol id="sti-book" viewBox="0 0 24 24"><path d="M5 5.5A1.5 1.5 0 0 1 6.5 4H19v13H6.5A1.5 1.5 0 0 0 5 18.5zM5 18.5A1.5 1.5 0 0 0 6.5 20H19M9 8h6"></path></symbol>
+    <symbol id="sti-clip" viewBox="0 0 24 24"><path d="M9 3.5h6v3H9zM15 5h3a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3M8.5 13.5l2.5 2.5 4.5-5"></path></symbol>
+    <symbol id="sti-bars" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-4M12 16V7M17 16v-6"></path></symbol>
+    <symbol id="sti-help" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></symbol>
+    <symbol id="sti-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"></path></symbol>
+    <symbol id="sti-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></symbol>
+    <symbol id="sti-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"></path></symbol>
+    <symbol id="sti-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"></path></symbol>
+    <symbol id="sti-left" viewBox="0 0 24 24"><path d="M14.5 6l-6 6 6 6"></path></symbol>
+    <symbol id="sti-search" viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM16 16l5 5"></path></symbol>
+    <symbol id="sti-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></symbol>
+    <symbol id="sti-clock" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></symbol>
+    <symbol id="sti-pause" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 9v6M14 9v6"></path></symbol>
+    <symbol id="sti-bars2" viewBox="0 0 24 24"><path d="M9 6v12M15 6v12"></path></symbol>
+    <symbol id="sti-lock" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2.5"></path></symbol>
+    <symbol id="sti-alert" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></symbol>
+    <symbol id="sti-info" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 11v5.5M12 7.5h.01"></path></symbol>
+    <symbol id="sti-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.5 4.5 0 0 0 7 18zM12 11v4M12 17.5h.01"></path></symbol>
+    <symbol id="sti-ended" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12h8"></path></symbol>
+    <symbol id="sti-dash" viewBox="0 0 24 24"><path d="M7 12h10"></path></symbol>
+    <symbol id="sti-block" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM5.6 5.6l12.8 12.8"></path></symbol>
+    <symbol id="sti-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h6"></path></symbol>
+    <symbol id="sti-web" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3.5 9h17M3.5 15h17M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9M12 3C9.5 5.6 8.3 8.6 8.3 12s1.2 6.4 3.7 9"></path></symbol>
+    <symbol id="sti-sheet" viewBox="0 0 24 24"><path d="M4 5h16v14H4zM4 10h16M4 15h16M10 5v14"></path></symbol>
+    <symbol id="sti-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></symbol>
+    <symbol id="sti-vr" viewBox="0 0 24 24"><path d="M3 9.5A2.5 2.5 0 0 1 5.5 7h13A2.5 2.5 0 0 1 21 9.5v5a2.5 2.5 0 0 1-2.5 2.5h-3.3a2 2 0 0 1-1.7-1l-.7-1.2a1 1 0 0 0-1.7 0l-.7 1.2a2 2 0 0 1-1.7 1H5.5A2.5 2.5 0 0 1 3 14.5z"></path></symbol>
+    <symbol id="sti-signout" viewBox="0 0 24 24"><path d="M10 4H6a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h4M15 8l4 4-4 4M19 12H9"></path></symbol>
+    <symbol id="sti-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"></path></symbol>
+    <symbol id="sti-sim" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 8.5v7l6-3.5z"></path></symbol>
+    <symbol id="sti-res" viewBox="0 0 24 24"><path d="M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z"></path></symbol>
+    <symbol id="sti-chat" viewBox="0 0 24 24"><path d="M4 5h16v11H9l-5 4zM8 9.5h8M8 12.5h5"></path></symbol>
+    <symbol id="sti-swap" viewBox="0 0 24 24"><path d="M7 7h12M15 3l4 4-4 4M17 17H5M9 13l-4 4 4 4"></path></symbol>
+    <symbol id="sti-box" viewBox="0 0 24 24"><path d="M12 3 4 7v10l8 4 8-4V7zM4 7l8 4 8-4M12 11v10"></path></symbol>
+    <symbol id="sti-user" viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4.5 20.5a7.5 7.5 0 0 1 15 0"></path></symbol>
+    <symbol id="sti-cal" viewBox="0 0 24 24"><path d="M8 3v3M16 3v3M4 9h16M20 11V6a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v13a1 1 0 0 0 1 1h6M17.5 21a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7zM17.5 16v1.6l1 .9"></path></symbol>
+    <symbol id="sti-refresh" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"></path></symbol>
+    <symbol id="sti-filter" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M16 4v4M4 12h3M11 12h9M9 10v4M4 18h11M19 18h1M17 16v4"></path></symbol>
+  </svg>
+
+  <!-- Review controls: preview harness only, never product UI (screen-ID navigation, scenarios, data state) -->
+  <sc-if value="{{ R.show }}" hint-placeholder-val="{{ false }}">
+  <div class="st-review" role="region" aria-label="Review controls, not part of the product">
+    <div class="st-review-in">
+      <span class="st-review-tag">Review controls · not product UI</span>
+      <button type="button" class="st-review-toggle" aria-expanded="{{ R.openExp }}" aria-controls="st-review-body" onClick="{{ R.toggle }}">Scenario and screen<svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></button>
+      <div class="{{ R.bodyCls }}" id="st-review-body">
+        <label class="st-review-f st-review-f--sc" for="st-rv-sc">Scenario
+          <select id="st-rv-sc" value="{{ R.sc }}" onChange="{{ R.onSc }}">
+            <sc-for list="{{ R.groups }}" as="g" hint-placeholder-count="5"><optgroup label="{{ g.label }}"><sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="4"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></optgroup></sc-for>
+          </select>
+        </label>
+        <label class="st-review-f st-review-f--scr" for="st-rv-scr">Go to screen (direct address)
+          <select id="st-rv-scr" value="{{ R.scr }}" onChange="{{ R.onScr }}">
+            <sc-for list="{{ R.screens }}" as="o" hint-placeholder-count="20"><option value="{{ o.v }}">{{ o.t }}</option></sc-for>
+          </select>
+        </label>
+        <label class="st-review-f st-review-f--data" for="st-rv-data">List data
+          <select id="st-rv-data" value="{{ R.data }}" onChange="{{ R.onData }}"><option value="ok">Loaded</option><option value="loading">Loading</option><option value="failed">Couldn’t load</option></select>
+        </label>
+        <p class="st-review-route"><b>{{ R.id }}</b> {{ R.name }} · {{ R.path }}</p>
+        <button type="button" onClick="{{ R.restart }}"><svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-refresh"></use></svg>Restart scenario</button>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <div class="rb">
+  <a class="st-skip" href="#st-main" onClick="{{ S.skip }}">Skip to main content</a>
+
+  <!-- ══════════ Workspace shell (rail, top bar) ══════════ -->
+  <sc-if value="{{ shell }}" hint-placeholder-val="{{ true }}">
+  <aside class="rb-rail" aria-label="Student workspace">
+    <div class="rb-brand">
+      <div class="rb-logo">Official WILP logo</div>
+      <p class="rb-product">XR Learning Platform</p>
+      <p class="rb-ws"><span class="rb-ws-role">Student</span><span class="rb-ws-inst">{{ S.inst }}</span></p>
+    </div>
+    <nav class="rb-nav" aria-label="Student navigation">
+      <sc-for list="{{ S.nav }}" as="n" hint-placeholder-count="4"><a href="{{ n.href }}" aria-current="{{ n.cur }}" onClick="{{ n.go }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ n.ico }}"></use></svg><span>{{ n.t }}</span></a></sc-for>
+    </nav>
+    <div class="rb-rail-foot">
+      <nav class="rb-nav" aria-label="Help"><a href="{{ S.help.href }}" aria-current="{{ S.help.cur }}" onClick="{{ S.help.go }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-help"></use></svg><span>Help &amp; support</span></a></nav>
+    </div>
+  </aside>
+
+  <div class="rb-main">
+    <div class="rb-top">
+      <button type="button" class="rb-menu" id="st-menu" aria-expanded="{{ S.menuExp }}" onClick="{{ S.openMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-menu"></use></svg>Menu</button>
+      <p class="rb-top-date">{{ S.dateLong }}</p>
+      <div class="xsb-acct" onKeyDown="{{ S.acctKey }}" onBlur="{{ S.acctBlur }}">
+        <button type="button" class="rb-acct" id="st-acct" aria-expanded="{{ S.acctExp }}" aria-controls="{{ S.acctCtl }}" aria-label="{{ S.acctAria }}" onClick="{{ S.toggleAcct }}"><span class="xr-avatar" aria-hidden="true">{{ S.ini }}</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">{{ S.name }}</span><span class="rb-acct-role">Student</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></button>
+        <sc-if value="{{ S.acctOpen }}" hint-placeholder-val="{{ false }}">
+        <div class="xsb-menu" id="st-acct-menu">
+          <div class="xsb-menu-who"><p class="xsb-menu-name">{{ S.name }}</p><p class="xsb-menu-line">Student</p><p class="xsb-menu-line">{{ S.inst }}</p></div>
+          <ul aria-label="Account">
+            <sc-for list="{{ S.acctItems }}" as="m" hint-placeholder-count="2"><li><a href="{{ m.href }}" id="{{ m.id }}" onClick="{{ m.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ m.ico }}"></use></svg>{{ m.t }}</a></li></sc-for>
+            <li class="xsb-menu-sep" aria-hidden="true"></li>
+            <li><button type="button" id="st-signout" onClick="{{ S.signOut }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-signout"></use></svg>Sign out</button></li>
+          </ul>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <main class="rb-page st-main" id="st-main" tabindex="-1">
+      <sc-if value="{{ S.banner.paused }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-banner" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-pause"></use></svg><p>Your institution’s access is paused — your work is kept.</p><a class="rb-link" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a></div>
+      </sc-if>
+      <sc-if value="{{ S.banner.inactive }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-banner" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-user"></use></svg><p>Your account is inactive. Contact your institution administrator.</p><a class="rb-link" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a></div>
+      </sc-if>
+
+      <!-- ══════════ ST-01 Home ══════════ -->
+      <sc-if value="{{ is.home }}" hint-placeholder-val="{{ true }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow">{{ S.inst }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">Hello, {{ H.first }}</h1>
+        </div>
+      </div>
+
+      <sc-if value="{{ H.msg.show }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-home-msg">
+        <div class="rk-state rk-state--roomy">
+          <span class="{{ H.msg.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ H.msg.ico }}"></use></svg></span>
+          <h2 class="rk-state-t" id="st-home-msg">{{ H.msg.t }}</h2>
+          <p class="rk-state-d">{{ H.msg.d }}</p>
+          <a class="rb-btn" href="{{ H.msg.act.href }}" onClick="{{ H.msg.act.go }}">{{ H.msg.act.label }}</a>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ H.lead.show }}" hint-placeholder-val="{{ true }}">
+      <section class="st-lead" aria-labelledby="st-lead-t">
+        <div class="st-lead-top">
+          <div class="st-lead-text">
+            <p class="st-lead-k">{{ H.lead.k }}</p>
+            <p class="st-lead-course"><span class="rk-owncode">{{ H.lead.code }}</span><span>{{ H.lead.course }}</span></p>
+            <h2 class="st-lead-t" id="st-lead-t">{{ H.lead.t }}</h2>
+            <ul class="st-fstats" aria-label="Your formats">
+              <sc-for list="{{ H.lead.fstats }}" as="f" hint-placeholder-count="2"><li class="st-fstat"><span class="{{ f.cls }}">{{ f.code }}</span><span><b>{{ f.b }}</b>{{ f.s }}</span></li></sc-for>
+            </ul>
+          </div>
+          <div class="st-lead-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ H.lead.act.href }}" onClick="{{ H.lead.act.go }}">{{ H.lead.act.label }}</a></div>
+        </div>
+        <nav class="rb-go" aria-label="{{ H.lead.goAria }}">
+          <span class="rb-go-label">Go to</span>
+          <sc-for list="{{ H.lead.go }}" as="g" hint-placeholder-count="4"><a href="{{ g.href }}" onClick="{{ g.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ g.ico }}"></use></svg>{{ g.t }}</a></sc-for>
+        </nav>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ H.split }}" hint-placeholder-val="{{ true }}">
+      <div class="{{ H.splitCls }}">
+        <sc-if value="{{ H.showNext }}" hint-placeholder-val="{{ true }}">
+        <section class="rb-panel rb-att" aria-labelledby="st-next-h">
+          <div class="rb-att-head"><h2 class="rb-h2" id="st-next-h">Up next</h2><p class="rb-note">{{ H.next.countText }}</p></div>
+          <sc-if value="{{ H.next.none }}" hint-placeholder-val="{{ false }}">
+          <div class="rb-calm"><span class="rb-calm-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></span><p class="rb-calm-t">Nothing else is waiting for you right now</p><p class="rb-calm-d">{{ H.next.calmD }}</p></div>
+          </sc-if>
+          <sc-if value="{{ H.next.has }}" hint-placeholder-val="{{ true }}">
+          <ul>
+            <sc-for list="{{ H.next.items }}" as="i" hint-placeholder-count="2"><li class="rb-ai"><span class="rb-ai-n" aria-hidden="true"><span class="rb-ico-tile"><svg viewBox="0 0 24 24"><use href="#{{ i.ico }}"></use></svg></span></span><p class="rb-ai-t">{{ i.t }}</p><p class="rb-ai-d">{{ i.d }}</p><div class="rb-ai-act"><a class="{{ i.cls }}" href="{{ i.href }}" onClick="{{ i.go }}" aria-label="{{ i.aria }}">{{ i.act }}</a></div></li></sc-for>
+          </ul>
+          </sc-if>
+        </section>
+        </sc-if>
+        <section class="rb-panel rb-plan" aria-labelledby="st-crs-h">
+          <div class="rb-plan-head"><h2 class="rb-h2" id="st-crs-h">My courses</h2><a class="rb-link" href="{{ H.allCourses.href }}" onClick="{{ H.allCourses.go }}">View all courses</a></div>
+          <ul class="st-rows st-courses">
+            <sc-for list="{{ H.courses }}" as="c" hint-placeholder-count="1"><li class="st-row st-row--flush"><div class="st-row-main"><p class="st-eyecode"><span class="rk-owncode">{{ c.code }}</span></p><h3 class="st-row-t" style="margin-top: 8px">{{ c.name }}</h3><p class="st-row-d">{{ c.line }}</p></div><sc-if value="{{ c.canOpen }}" hint-placeholder-val="{{ true }}"><div class="st-row-act"><a class="rb-btn" href="{{ c.href }}" onClick="{{ c.go }}" aria-label="{{ c.aria }}">Open course</a></div></sc-if></li></sc-for>
+          </ul>
+        </section>
+      </div>
+      </sc-if>
+      </sc-if>
+
+      <!-- ══════════ ST-02 My courses · ST-04 All my experiments (tab) ══════════ -->
+      <sc-if value="{{ is.courses }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">My courses</h1>
+          <p class="rk-sub">Courses with experiments your institution has given you</p>
+        </div>
+      </div>
+      <nav class="rk-tabs" aria-label="My courses">
+        <a class="rk-tab" href="{{ C.tabC.href }}" aria-current="{{ C.tabC.cur }}" onClick="{{ C.tabC.go }}">Courses</a>
+        <a class="rk-tab" href="{{ C.tabX.href }}" aria-current="{{ C.tabX.cur }}" onClick="{{ C.tabX.go }}">All experiments</a>
+      </nav>
+
+      <sc-if value="{{ C.loading }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-busy="true" aria-label="My courses">
+        <p class="rk-loading-msg" role="status">{{ C.loadingText }}</p>
+        <div class="rk-skel-ca" aria-hidden="true"><div class="rk-skel-band"><span class="rk-skel"></span><span class="rk-skel"></span></div><div class="rk-skel-band"><span class="rk-skel"></span><span class="rk-skel"></span></div></div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ C.failed }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-c-fail">
+        <div class="rk-state" role="alert">
+          <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-cloud"></use></svg></span>
+          <h2 class="rk-state-t" id="st-c-fail">{{ C.failText }}</h2>
+          <p class="rk-state-d">Nothing has changed. Try again.</p>
+          <button type="button" class="rb-btn" onClick="{{ C.retry }}">Try again</button>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ C.none }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-c-none">
+        <div class="rk-state rk-state--roomy">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-book"></use></svg></span>
+          <h2 class="rk-state-t" id="st-c-none">Your institution hasn’t given you access yet</h2>
+          <p class="rk-state-d">{{ C.noneText }}</p>
+          <a class="rb-btn" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ C.earlier.show }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-c-earlier">
+        <div class="rk-sec">
+          <h2 class="rk-state-t" id="st-c-earlier">No experiments are given to you right now</h2>
+          <p class="rk-state-d" style="margin-top: 4px">Your earlier work is kept below.</p>
+        </div>
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h3 class="rb-h2">Earlier work</h3></div>
+          <div class="st-xlist" style="padding: 0">
+            <article class="st-xcard" aria-labelledby="st-c-ew-t">
+              <div class="st-xcard-main"><h4 class="st-xcard-t" id="st-c-ew-t">{{ C.earlier.t }}</h4><p class="st-xcard-c"><span class="rk-owncode">{{ C.earlier.code }}</span><span>{{ C.earlier.course }}</span></p></div>
+              <div class="st-xcard-act"><a class="rb-btn" href="{{ C.earlier.view.href }}" onClick="{{ C.earlier.view.go }}" aria-label="{{ C.earlier.view.aria }}">View earlier work</a></div>
+              <p class="st-xcard-note">{{ C.earlier.note }}</p>
+            </article>
+          </div>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ C.showCourses }}" hint-placeholder-val="{{ true }}">
+      <section class="rk-surface" aria-labelledby="st-c-list-h">
+        <h2 class="xr-sr" id="st-c-list-h">Your courses</h2>
+        <ul>
+          <sc-for list="{{ C.rows }}" as="c" hint-placeholder-count="1"><li class="st-crow"><div class="st-crow-in"><div><p class="st-eyecode"><span class="rk-owncode">{{ c.code }}</span></p><h3 class="st-crow-t">{{ c.name }}</h3><p class="st-crow-d">{{ c.line }}</p></div><a class="rb-btn" href="{{ c.href }}" onClick="{{ c.go }}" aria-label="{{ c.aria }}">Open course</a></div></li></sc-for>
+        </ul>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ C.showX }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface rk-listsurface" aria-labelledby="st-x-h">
+        <h2 class="xr-sr" id="st-x-h">All the experiments given to you</h2>
+        <div class="rk-toolbar rk-toolbar--ca">
+          <div class="rk-tools" role="search" aria-label="Filter your experiments">
+            <div class="rk-field rk-search">
+              <label class="rk-label" for="st-x-q">Search</label>
+              <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-search"></use></svg><input id="st-x-q" class="rk-input" type="search" placeholder="Experiment or course" autocomplete="off" value="{{ X.q }}" onChange="{{ X.onQ }}"></div>
+            </div>
+            <div class="rk-field rk-field--st">
+              <label class="rk-label" for="st-x-f">Format</label>
+              <div class="rk-selwrap"><select id="st-x-f" class="rk-select" value="{{ X.f }}" onChange="{{ X.onF }}"><option value="all">All formats</option><sc-for list="{{ X.fopts }}" as="o" hint-placeholder-count="2"><option value="{{ o }}">{{ o }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></div>
+            </div>
+          </div>
+          <div class="rk-statusline">
+            <p class="rk-count" role="status">{{ X.count }}</p>
+            <sc-for list="{{ X.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-close"></use></svg></button></span></sc-for>
+            <sc-if value="{{ X.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ X.clear }}">Clear filters</button></sc-if>
+          </div>
+        </div>
+        <sc-if value="{{ X.has }}" hint-placeholder-val="{{ true }}">
+        <div class="st-xlist">
+          <sc-for list="{{ X.rows }}" as="e" hint-placeholder-count="1">
+          <article class="st-xcard" aria-labelledby="{{ e.hid }}">
+            <div class="st-xcard-main"><h3 class="st-xcard-t" id="{{ e.hid }}">{{ e.t }}</h3><p class="st-xcard-c"><span class="rk-owncode">{{ e.code }}</span><span>{{ e.course }}</span></p></div>
+            <sc-if value="{{ e.canOpen }}" hint-placeholder-val="{{ true }}"><div class="st-xcard-act"><a class="rb-btn" href="{{ e.href }}" onClick="{{ e.go }}" aria-label="{{ e.aria }}">Open</a></div></sc-if>
+            <ul class="st-xcard-f" aria-label="{{ e.fAria }}"><sc-for list="{{ e.fstats }}" as="f" hint-placeholder-count="2"><li class="st-fstat"><span class="{{ f.cls }}">{{ f.code }}</span><span><b>{{ f.b }}</b>{{ f.s }}</span></li></sc-for></ul>
+          </article>
+          </sc-for>
+        </div>
+        </sc-if>
+        <sc-if value="{{ X.nomatch }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-search"></use></svg></span>
+          <p class="rk-state-t">No experiments match</p>
+          <p class="rk-state-d">Only experiments your institution has given you are listed. Try fewer filters or a different spelling.</p>
+          <button type="button" class="rb-btn" onClick="{{ X.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+      </section>
+      </sc-if>
+      </sc-if>
+
+      <!-- ══════════ ST-03 Course (student view) ══════════ -->
+      <sc-if value="{{ is.course }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ CO.back.href }}" onClick="{{ CO.back.go }}">My courses</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ CO.name }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="rk-owncode">{{ CO.code }}</span><span>Course</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ CO.name }}</h1>
+          <div class="rk-meta"><sc-if value="{{ CO.hasPill }}" hint-placeholder-val="{{ false }}"><span class="{{ CO.pillCls }}"><i></i>{{ CO.pill }}</span></sc-if><span>{{ CO.meta }}</span></div>
+        </div>
+      </div>
+      <sc-if value="{{ CO.paused }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-notice rk-notice--paused" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-pause"></use></svg><p class="rk-notice-t">Your institution’s access is paused</p><p class="rk-notice-d">You can’t open experiments right now. Your work is kept.</p></div>
+      </sc-if>
+      <section class="rk-surface" aria-labelledby="st-co-h">
+        <div class="rk-sec" style="padding-bottom: 0"><div class="rk-sec-h"><h2 class="rb-h2" id="st-co-h">Your experiments in this course</h2><p class="st-sec-note">Only experiments given to you are listed</p></div></div>
+        <div class="st-xlist">
+          <sc-for list="{{ CO.rows }}" as="e" hint-placeholder-count="1">
+          <article class="st-xcard" aria-labelledby="{{ e.hid }}">
+            <div class="st-xcard-main"><h3 class="st-xcard-t" id="{{ e.hid }}">{{ e.t }}</h3><p class="st-xcard-c"><span class="rk-owncode">{{ e.code }}</span><span>{{ e.course }}</span></p></div>
+            <sc-if value="{{ e.canOpen }}" hint-placeholder-val="{{ true }}"><div class="st-xcard-act"><a class="rb-btn" href="{{ e.href }}" onClick="{{ e.go }}" aria-label="{{ e.aria }}">Open</a></div></sc-if>
+            <ul class="st-xcard-f" aria-label="{{ e.fAria }}"><sc-for list="{{ e.fstats }}" as="f" hint-placeholder-count="2"><li class="st-fstat"><span class="{{ f.cls }}">{{ f.code }}</span><span><b>{{ f.b }}</b>{{ f.s }}</span></li></sc-for></ul>
+          </article>
+          </sc-for>
+        </div>
+      </section>
+      </sc-if>
+
+      <!-- ══════════ Message pages: ST-19 not available, ST-09 AR/MR, refusals, borrowed XS-06 / XS-08 ══════════ -->
+      <sc-if value="{{ is.msg }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ M.hasCrumbs }}" hint-placeholder-val="{{ true }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><sc-for list="{{ M.crumbs }}" as="c" hint-placeholder-count="2"><a href="{{ c.href }}" onClick="{{ c.go }}">{{ c.t }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></sc-for><span aria-current="page">{{ M.crumb }}</span></nav>
+      </sc-if>
+      <div class="xsb-msg">
+        <span class="{{ M.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ M.ico }}"></use></svg></span>
+        <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">{{ M.t }}</h1>
+        <p class="xsb-msg-d">{{ M.d }}</p>
+        <div class="xsb-msg-act">
+          <sc-for list="{{ M.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}">{{ a.label }}</a></sc-for>
+          <sc-if value="{{ M.help }}" hint-placeholder-val="{{ true }}"><a class="rb-link" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a></sc-if>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ══════════ ST-05 Experiment hub · tabs ST-06 Resources · ST-07 Simulation · Assessment · ST-10 Progress ══════════ -->
+      <sc-if value="{{ is.hub }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ HB.crumbCourses.href }}" onClick="{{ HB.crumbCourses.go }}">My courses</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ HB.crumbCourse.href }}" onClick="{{ HB.crumbCourse.go }}">{{ HB.course }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ HB.t }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="rk-owncode">{{ HB.code }}</span><span>{{ HB.course }}</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ HB.t }}</h1>
+          <sc-if value="{{ HB.hasPill }}" hint-placeholder-val="{{ false }}"><div class="rk-meta"><span class="{{ HB.pillCls }}"><i></i>{{ HB.pill }}</span><span>{{ HB.pillText }}</span></div></sc-if>
+        </div>
+      </div>
+      <nav class="rk-tabs" aria-label="{{ HB.tabsAria }}">
+        <sc-for list="{{ HB.tabs }}" as="t" hint-placeholder-count="5"><a class="rk-tab" href="{{ t.href }}" aria-current="{{ t.cur }}" onClick="{{ t.go }}">{{ t.t }}</a></sc-for>
+      </nav>
+
+      <!-- Overview -->
+      <sc-if value="{{ HB.isOverview }}" hint-placeholder-val="{{ true }}">
+      <section class="st-band" aria-labelledby="st-band-h">
+        <h2 class="xr-sr" id="st-band-h">This experiment and your formats</h2>
+        <div class="st-band-grid">
+          <div><p class="st-band-k">In this experiment</p><p class="st-band-desc">{{ HB.desc }}</p></div>
+          <div class="st-fstrips">
+            <p class="st-band-k" id="st-band-fk" style="margin-bottom: 8px">Formats for you</p>
+            <ul class="st-fstrip" aria-labelledby="st-band-fk">
+              <sc-for list="{{ HB.cells }}" as="f" hint-placeholder-count="4"><li class="{{ f.cls }}"><b>{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ f.glyph }}"></use></svg></sc-if></b><span class="rk-fcell-n">{{ f.name }}</span><span class="rk-fcell-s">{{ f.state }}</span></li></sc-for>
+            </ul>
+          </div>
+        </div>
+        <sc-if value="{{ HB.next.show }}" hint-placeholder-val="{{ true }}">
+        <div class="st-band-next">
+          <div><p class="st-band-next-k">Next step</p><p class="st-band-next-t">{{ HB.next.t }}</p><sc-if value="{{ HB.next.hasD }}" hint-placeholder-val="{{ true }}"><p class="st-band-next-d">{{ HB.next.d }}</p></sc-if></div>
+          <sc-if value="{{ HB.next.hasAct }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ HB.next.href }}" onClick="{{ HB.next.go }}">{{ HB.next.label }}</a></sc-if>
+        </div>
+        </sc-if>
+        <sc-if value="{{ HB.note.show }}" hint-placeholder-val="{{ false }}">
+        <div class="{{ HB.note.cls }}" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ HB.note.ico }}"></use></svg><p class="st-band-note-t">{{ HB.note.t }}</p><p class="st-band-note-d">{{ HB.note.d }}</p></div>
+        </sc-if>
+      </section>
+
+      <section class="rk-surface" aria-labelledby="st-steps-h">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="st-steps-h">Your next steps</h2></div>
+          <ol class="st-steps">
+            <sc-for list="{{ HB.steps }}" as="s" hint-placeholder-count="3"><li class="st-step"><span class="st-step-n" aria-hidden="true">{{ s.n }}</span><h3 class="st-step-t"><span class="xr-sr">Step {{ s.n }} of 3: </span>{{ s.t }}</h3><p class="st-step-d">{{ s.d }}</p><sc-if value="{{ s.hasAct }}" hint-placeholder-val="{{ true }}"><div class="st-step-act"><a class="rb-btn" href="{{ s.href }}" onClick="{{ s.go }}">{{ s.label }}</a></div></sc-if></li></sc-for>
+          </ol>
+          <p class="st-steps-note">Suggested order: resources, then a simulation, then the assessment. Nothing is locked.</p>
+        </div>
+      </section>
+
+      <div class="st-split">
+        <section class="rk-surface" aria-labelledby="st-lo-h">
+          <div class="rk-sec">
+            <div class="rk-sec-h"><h2 class="rb-h2" id="st-lo-h">Learning outcomes</h2><p class="st-sec-note">The same for every format</p></div>
+            <ol class="st-outcomes"><sc-for list="{{ HB.outcomes }}" as="o" hint-placeholder-count="2"><li>{{ o }}</li></sc-for></ol>
+          </div>
+        </section>
+        <section class="rk-surface" aria-labelledby="st-ab-h">
+          <div class="rk-sec">
+            <div class="rk-sec-h"><h2 class="rb-h2" id="st-ab-h">About this experiment</h2></div>
+            <dl class="rk-dl st-dl-stack">
+              <dt>Course</dt><dd>{{ HB.code }} · {{ HB.course }}<span class="rk-small">BITS course code {{ HB.bits }}</span></dd>
+              <dt>Engineering area</dt><dd>{{ HB.area }}</dd>
+              <dt>What you need</dt><dd><ul class="st-need"><sc-for list="{{ HB.need }}" as="n" hint-placeholder-count="2"><li><span class="xr-fmt">{{ n.code }}</span><span>{{ n.t }}</span></li></sc-for></ul></dd>
+            </dl>
+          </div>
+        </section>
+      </div>
+      </sc-if>
+
+      <!-- ST-06 Resources -->
+      <sc-if value="{{ HB.isResources }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-res-h">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="st-res-h">Resources</h2><p class="st-sec-note">{{ RS.note }}</p></div>
+        </div>
+        <sc-if value="{{ RS.has }}" hint-placeholder-val="{{ true }}">
+        <ul class="st-rows" style="border-top: 1px solid var(--rb-line)">
+          <sc-for list="{{ RS.rows }}" as="r" hint-placeholder-count="3">
+          <li class="st-row">
+            <div class="st-row-ico"><span class="rb-ico-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ r.ico }}"></use></svg></span></div>
+            <div class="st-row-main">
+              <h3 class="st-row-t">{{ r.t }}</h3>
+              <p class="st-row-d">{{ r.kind }} · {{ r.size }}</p>
+              <div id="{{ r.stId }}" tabindex="-1" role="status">
+                <sc-if value="{{ r.isNot }}" hint-placeholder-val="{{ true }}"><p class="st-row-s">Not opened yet</p></sc-if>
+                <sc-if value="{{ r.isOpened }}" hint-placeholder-val="{{ false }}"><p class="st-row-s"><span class="st-row-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg>{{ r.openedText }}</span></p></sc-if>
+                <sc-if value="{{ r.isBusy }}" hint-placeholder-val="{{ false }}"><p class="st-row-s">Opening…</p></sc-if>
+                <sc-if value="{{ r.isFailed }}" hint-placeholder-val="{{ false }}"><p class="st-row-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>It didn’t open. Nothing was lost — try again.</p></sc-if>
+              </div>
+            </div>
+            <sc-if value="{{ r.hasPill }}" hint-placeholder-val="{{ false }}"><div class="st-row-st"><span class="{{ r.pillCls }}"><i></i>{{ r.pill }}</span></div></sc-if>
+            <sc-if value="{{ r.canOpen }}" hint-placeholder-val="{{ true }}"><div class="st-row-act"><button type="button" class="rb-btn" aria-label="{{ r.aria }}" disabled="{{ r.isBusy }}" onClick="{{ r.open }}">{{ r.btn }}<svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-ext"></use></svg></button></div></sc-if>
+          </li>
+          </sc-for>
+        </ul>
+        </sc-if>
+        <sc-if value="{{ RS.none }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" style="border-top: 1px solid var(--rb-line)">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-res"></use></svg></span>
+          <h3 class="rk-state-t">No resources are attached to this experiment yet</h3>
+          <p class="rk-state-d">When resources are added, they appear here. The simulation and the other tabs don’t depend on them.</p>
+        </div>
+        </sc-if>
+        <sc-if value="{{ RS.loading }}" hint-placeholder-val="{{ false }}">
+        <div aria-busy="true" style="border-top: 1px solid var(--rb-line)"><p class="rk-loading-msg" role="status">Loading resources…</p><div class="rk-skel-ca" aria-hidden="true"><div class="rk-skel-band"><span class="rk-skel"></span><span class="rk-skel"></span></div><div class="rk-skel-band"><span class="rk-skel"></span><span class="rk-skel"></span></div></div></div>
+        </sc-if>
+        <sc-if value="{{ RS.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="alert" style="border-top: 1px solid var(--rb-line)">
+          <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-cloud"></use></svg></span>
+          <h3 class="rk-state-t">We couldn’t load the resources</h3>
+          <p class="rk-state-d">Nothing has changed. Try again.</p>
+          <button type="button" class="rb-btn" onClick="{{ RS.retry }}">Try again</button>
+        </div>
+        </sc-if>
+      </section>
+      </sc-if>
+
+      <!-- ST-07 Simulation — choose a format · ST-10 Progress for this experiment -->
+      <sc-if value="{{ HB.isFormats }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-fr-h">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="st-fr-h">{{ FR.title }}</h2></div>
+          <p class="st-note">{{ FR.intro }}</p>
+        </div>
+        <ul class="st-fmtrows" style="border-top: 1px solid var(--rb-line)" aria-label="{{ FR.listAria }}">
+          <sc-for list="{{ FR.rows }}" as="f" hint-placeholder-count="4">
+          <li class="st-fmtrow">
+            <div class="st-fmtrow-code st-ftile" aria-hidden="true"><div class="{{ f.cellCls }}"><b>{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ f.glyph }}"></use></svg></sc-if></b></div></div>
+            <div class="st-fmtrow-main">
+              <h3 class="st-fmtrow-t">{{ f.title }}</h3>
+              <span class="{{ f.pillCls }}"><i></i>{{ f.pill }}</span>
+              <sc-if value="{{ f.hasD }}" hint-placeholder-val="{{ true }}"><p class="st-fmtrow-d">{{ f.d }}</p></sc-if>
+              <sc-if value="{{ f.hasFacts }}" hint-placeholder-val="{{ false }}"><dl class="st-pfacts"><sc-for list="{{ f.facts }}" as="x" hint-placeholder-count="2"><div><dt>{{ x.k }}</dt><dd>{{ x.v }}</dd></div></sc-for></dl></sc-if>
+            </div>
+            <div class="st-fmtrow-act">
+              <sc-if value="{{ f.hasSent }}" hint-placeholder-val="{{ false }}"><p class="st-fmtrow-sent"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg>{{ f.sent }}</p></sc-if>
+              <sc-for list="{{ f.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}" aria-label="{{ a.aria }}">{{ a.label }}</a></sc-for>
+            </div>
+          </li>
+          </sc-for>
+        </ul>
+      </section>
+      <sc-if value="{{ FR.showAsmt }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-fr-as">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="st-fr-as">Assessment</h2></div>
+          <sc-if value="{{ AS1.none }}" hint-placeholder-val="{{ true }}"><p class="st-row-d">Your faculty hasn’t set an assessment for this experiment yet.</p></sc-if>
+          <sc-if value="{{ AS1.has }}" hint-placeholder-val="{{ false }}">
+          <div class="st-rows"><div class="st-row st-row--flush" style="padding-top: 0; padding-bottom: 0"><div class="st-row-ico"><span class="rb-ico-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span></div><div class="st-row-main"><h3 class="st-row-t">{{ AS1.name }}</h3><p class="st-row-d">{{ AS1.sub }}</p></div><div class="st-row-st"><span class="{{ AS1.pillCls }}"><i></i>{{ AS1.pill }}</span></div><div class="st-row-act"><a class="rb-btn" href="{{ AS1.href }}" onClick="{{ AS1.go }}" aria-label="{{ AS1.aria }}">{{ AS1.act }}</a></div></div></div>
+          </sc-if>
+        </div>
+      </section>
+      </sc-if>
+      </sc-if>
+
+      <!-- Hub · Assessment tab -->
+      <sc-if value="{{ HB.isAssessment }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-ha-h">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="st-ha-h">Assessment</h2></div>
+          <sc-if value="{{ AS1.none }}" hint-placeholder-val="{{ true }}">
+          <p class="st-row-t" style="color: var(--navy)">Your faculty hasn’t set an assessment for this experiment yet</p>
+          <p class="st-row-d">When they do, it appears here and in Assessments.</p>
+          </sc-if>
+          <sc-if value="{{ AS1.has }}" hint-placeholder-val="{{ false }}">
+          <div class="st-rows"><div class="st-row st-row--flush" style="padding-top: 0; padding-bottom: 0"><div class="st-row-ico"><span class="rb-ico-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span></div><div class="st-row-main"><h3 class="st-row-t">{{ AS1.name }}</h3><p class="st-row-d">{{ AS1.sub }}</p></div><div class="st-row-st"><span class="{{ AS1.pillCls }}"><i></i>{{ AS1.pill }}</span></div><div class="st-row-act"><a class="{{ AS1.btnCls }}" href="{{ AS1.href }}" onClick="{{ AS1.go }}" aria-label="{{ AS1.aria }}">{{ AS1.act }}</a></div></div></div>
+          </sc-if>
+        </div>
+      </section>
+      </sc-if>
+      </sc-if>
+
+      <!-- ══════════ ST-08 WEB simulation · ST-09 AR / VR / MR format ══════════ -->
+      <sc-if value="{{ is.fpage }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ FP.crumbExp.href }}" onClick="{{ FP.crumbExp.go }}">{{ FP.exp }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ FP.crumbSim.href }}" onClick="{{ FP.crumbSim.go }}">Simulation</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ FP.code }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="xr-fmt">{{ FP.code }}</span><span>{{ FP.exp }}</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ FP.title }}</h1>
+          <div class="rk-meta"><span class="{{ FP.pillCls }}"><i></i>{{ FP.pill }}</span><sc-if value="{{ FP.hasMeta }}" hint-placeholder-val="{{ true }}"><span>{{ FP.meta }}</span></sc-if></div>
+        </div>
+      </div>
+      <div class="rk-detailwrap">
+        <div class="rk-detail">
+          <div class="rk-surface rk-mainsheet">
+            <div class="st-launch">
+              <h2 class="st-launch-t" id="st-launch-t" tabindex="-1">{{ FP.h2 }}</h2>
+              <p class="st-launch-d">{{ FP.d }}</p>
+              <sc-if value="{{ FP.fail }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-notice rk-notice--warn" id="st-launch-err" tabindex="-1" role="alert" style="width: 100%"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg><p class="rk-notice-t">The simulation didn’t open</p><p class="rk-notice-d">Nothing was lost. Try again, or report a problem if it keeps happening.</p></div>
+              </sc-if>
+              <sc-if value="{{ FP.hasGo }}" hint-placeholder-val="{{ true }}">
+              <div class="st-launch-go">
+                <sc-if value="{{ FP.goIsLink }}" hint-placeholder-val="{{ false }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ FP.goLink.href }}" onClick="{{ FP.goLink.go }}">{{ FP.goLabel }}</a></sc-if>
+                <sc-if value="{{ FP.goIsBtn }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-launch-go" aria-busy="{{ FP.busyAria }}" disabled="{{ FP.busy }}" onClick="{{ FP.launch }}">{{ FP.goLabel }}</button></sc-if>
+                <sc-if value="{{ FP.hasHint }}" hint-placeholder-val="{{ true }}"><p class="st-launch-hint">{{ FP.hint }}</p></sc-if>
+              </div>
+              </sc-if>
+              <sc-if value="{{ FP.hasSecond }}" hint-placeholder-val="{{ false }}"><a class="rb-btn" href="{{ FP.second.href }}" onClick="{{ FP.second.go }}">{{ FP.second.label }}</a></sc-if>
+              <sc-if value="{{ FP.hasDevice }}" hint-placeholder-val="{{ false }}">
+              <div class="st-device"><div><p class="st-device-k">Your authorised device</p><p class="st-device-v">{{ FP.device }}</p></div><a class="rb-link" href="{{ FP.devLink.href }}" onClick="{{ FP.devLink.go }}">My device</a></div>
+              </sc-if>
+              <sc-if value="{{ FP.hasSetup }}" hint-placeholder-val="{{ false }}">
+              <div style="width: 100%">
+                <button type="button" class="st-disclose" aria-expanded="{{ FP.setupExp }}" aria-controls="{{ FP.setupCtl }}" onClick="{{ FP.toggleSetup }}">{{ FP.setupLabel }}<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></button>
+                <sc-if value="{{ FP.setupOpen }}" hint-placeholder-val="{{ true }}">
+                <ol class="st-steps-list" id="st-setup">
+                  <sc-for list="{{ FP.setup }}" as="s" hint-placeholder-count="4"><li><span class="st-step-n" aria-hidden="true">{{ s.n }}</span><b>{{ s.t }}</b><span class="st-sl-d">{{ s.d }}</span></li></sc-for>
+                </ol>
+                </sc-if>
+              </div>
+              </sc-if>
+              <div class="st-launch-more">
+                <a class="rb-btn" href="{{ FP.report.href }}" onClick="{{ FP.report.go }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-flag"></use></svg>Report a problem</a>
+                <a class="rb-btn rb-btn--ghost" href="{{ FP.crumbSim.href }}" onClick="{{ FP.crumbSim.go }}">Back to Simulation</a>
+              </div>
+            </div>
+          </div>
+          <aside class="rk-aside" aria-labelledby="st-about-h">
+            <div class="rk-surface st-about">
+              <h2 class="rb-h2" id="st-about-h" style="margin-bottom: 14px">About {{ FP.code }}</h2>
+              <dl class="rk-dl"><sc-for list="{{ FP.about }}" as="a" hint-placeholder-count="3"><dt>{{ a.k }}</dt><dd>{{ a.v }}</dd></sc-for></dl>
+            </div>
+          </aside>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ══════════ ST-15 Progress (all experiments) ══════════ -->
+      <sc-if value="{{ is.prog }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">Progress</h1>
+          <p class="rk-sub">What you’ve started and finished, format by format</p>
+        </div>
+      </div>
+      <sc-if value="{{ P.nothing }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-p-none">
+        <div class="rk-state rk-state--roomy">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-bars"></use></svg></span>
+          <h2 class="rk-state-t" id="st-p-none">Nothing to show yet</h2>
+          <p class="rk-state-d">Your progress appears here when your institution gives you an experiment and you start a format.</p>
+          <a class="rb-btn" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ P.showList }}" hint-placeholder-val="{{ true }}">
+      <section class="rk-surface rk-listsurface" aria-labelledby="st-p-h">
+        <h2 class="xr-sr" id="st-p-h">Your progress by course</h2>
+        <sc-if value="{{ P.showTools }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-toolbar">
+          <div class="rk-tools" role="search" aria-label="Filter your progress">
+            <div class="rk-field rk-field--st">
+              <label class="rk-label" for="st-p-st">Status</label>
+              <div class="rk-selwrap"><select id="st-p-st" class="rk-select" value="{{ P.st }}" onChange="{{ P.onSt }}"><option value="all">All statuses</option><option value="prog">In progress</option><option value="done">Completed</option><option value="none">Not started</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></div>
+            </div>
+            <div class="rk-field rk-field--route">
+              <label class="rk-label" for="st-p-c">Course</label>
+              <div class="rk-selwrap"><select id="st-p-c" class="rk-select" value="{{ P.crs }}" onChange="{{ P.onCrs }}"><option value="all">All courses</option><option value="mec-523">{{ P.crsLabel }}</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></div>
+            </div>
+          </div>
+          <div class="rk-statusline">
+            <p class="rk-count" role="status">{{ P.count }}</p>
+            <sc-for list="{{ P.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-close"></use></svg></button></span></sc-for>
+            <sc-if value="{{ P.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ P.clear }}">Clear filters</button></sc-if>
+          </div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ P.loading }}" hint-placeholder-val="{{ false }}">
+        <div aria-busy="true"><p class="rk-loading-msg" role="status">Loading your progress…</p><div class="rk-skel-ca" aria-hidden="true"><div class="rk-skel-card"><span class="rk-skel"></span><div class="rk-skel-cells"><span></span><span></span><span></span><span></span></div></div></div></div>
+        </sc-if>
+        <sc-if value="{{ P.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="alert">
+          <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-cloud"></use></svg></span>
+          <h3 class="rk-state-t">We couldn’t load your progress</h3>
+          <p class="rk-state-d">Nothing has changed. Try again.</p>
+          <button type="button" class="rb-btn" onClick="{{ P.retry }}">Try again</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ P.nomatch }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-search"></use></svg></span>
+          <p class="rk-state-t">No experiments match these filters</p>
+          <p class="rk-state-d">Try a different status or course.</p>
+          <button type="button" class="rb-btn" onClick="{{ P.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+        <sc-for list="{{ P.groups }}" as="g" hint-placeholder-count="1">
+        <div class="st-group" role="group" aria-labelledby="{{ g.hid }}">
+          <div class="st-group-h"><span class="rk-owncode">{{ g.code }}</span><h3 class="st-group-t" id="{{ g.hid }}">{{ g.title }}</h3><span class="st-group-d">{{ g.d }}</span></div>
+          <sc-if value="{{ g.hasNote }}" hint-placeholder-val="{{ false }}"><p class="st-sec-note" style="margin-bottom: 8px">{{ g.note }}</p></sc-if>
+          <sc-for list="{{ g.exps }}" as="e" hint-placeholder-count="1">
+          <article class="st-xcard" style="margin: 12px 0 18px" aria-labelledby="{{ e.hid }}">
+            <div class="st-xcard-main"><h4 class="st-xcard-t" id="{{ e.hid }}">{{ e.t }}</h4><p class="st-xcard-c">{{ e.given }}</p></div>
+            <sc-if value="{{ e.hasOpen }}" hint-placeholder-val="{{ true }}"><div class="st-xcard-act"><a class="rb-link" href="{{ e.href }}" onClick="{{ e.go }}" aria-label="{{ e.aria }}">Open experiment</a></div></sc-if>
+            <div style="grid-area: fmts; min-width: 0">
+              <ul class="st-fmtrows" style="border-top: 1px solid var(--rb-line)" aria-label="{{ e.fAria }}">
+                <sc-for list="{{ e.rows }}" as="f" hint-placeholder-count="4">
+                <li class="st-fmtrow st-fmtrow--flush">
+                  <div class="st-fmtrow-code st-ftile" aria-hidden="true"><div class="{{ f.cellCls }}"><b>{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ f.glyph }}"></use></svg></sc-if></b></div></div>
+                  <div class="st-fmtrow-main">
+                    <h5 class="st-fmtrow-t">{{ f.title }}</h5>
+                    <span class="{{ f.pillCls }}"><i></i>{{ f.pill }}</span>
+                    <sc-if value="{{ f.hasD }}" hint-placeholder-val="{{ false }}"><p class="st-fmtrow-d">{{ f.d }}</p></sc-if>
+                    <sc-if value="{{ f.hasFacts }}" hint-placeholder-val="{{ false }}"><dl class="st-pfacts"><sc-for list="{{ f.facts }}" as="x" hint-placeholder-count="2"><div><dt>{{ x.k }}</dt><dd>{{ x.v }}</dd></div></sc-for></dl></sc-if>
+                  </div>
+                  <div class="st-fmtrow-act">
+                    <sc-if value="{{ f.hasSent }}" hint-placeholder-val="{{ false }}"><p class="st-fmtrow-sent"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg>{{ f.sent }}</p></sc-if>
+                    <sc-for list="{{ f.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}" aria-label="{{ a.aria }}">{{ a.label }}</a></sc-for>
+                  </div>
+                </li>
+                </sc-for>
+              </ul>
+              <p class="st-row-s" style="margin: 0; padding-top: 14px; border-top: 1px solid var(--rb-line)"><b style="color: var(--ink-2)">Assessment</b><span>{{ e.asmt }}</span><sc-if value="{{ e.hasAsmtLink }}" hint-placeholder-val="{{ false }}"><a class="rb-link" href="{{ e.asmtLink.href }}" onClick="{{ e.asmtLink.go }}">{{ e.asmtLink.label }}</a></sc-if></p>
+            </div>
+          </article>
+          </sc-for>
+        </div>
+        </sc-for>
+      </section>
+      </sc-if>
+      </sc-if>
+
+      <!-- ══════════ ST-16 Format feedback · ST-17 Feedback sent ══════════ -->
+      <sc-if value="{{ is.fb }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ FB.crumbExp.href }}" onClick="{{ FB.crumbExp.go }}">{{ FB.exp }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ FB.crumbFmt.href }}" onClick="{{ FB.crumbFmt.go }}">{{ FB.code }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">Feedback</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="xr-fmt">{{ FB.code }}</span><span>{{ FB.exp }}</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ FB.h1 }}</h1>
+          <sc-if value="{{ FB.form }}" hint-placeholder-val="{{ true }}"><p class="rk-sub">Your feedback helps improve this experience. Rate all five statements; additional comments are optional.</p></sc-if>
+        </div>
+      </div>
+
+      <sc-if value="{{ FB.form }}" hint-placeholder-val="{{ true }}">
+      <section class="rk-surface st-form" aria-label="{{ FB.formAria }}">
+        <sc-if value="{{ FB.hasErr }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-errsum" id="st-fb-errs" tabindex="-1" role="alert" style="margin-bottom: 20px">
+          <p class="rk-errsum-t">{{ FB.errTitle }}</p>
+          <ul><sc-for list="{{ FB.errList }}" as="e" hint-placeholder-count="1"><li><a href="{{ e.href }}" onClick="{{ e.go }}">{{ e.t }}</a></li></sc-for></ul>
+        </div>
+        </sc-if>
+        <sc-if value="{{ FB.fail }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-notice rk-notice--warn" id="st-fb-fail" tabindex="-1" role="alert" style="margin-bottom: 20px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg><p class="rk-notice-t">Your feedback wasn’t sent</p><p class="rk-notice-d">Nothing was lost — your answers are still here. Try again.</p></div>
+        </sc-if>
+        <sc-for list="{{ FB.qs }}" as="q" hint-placeholder-count="5">
+        <fieldset class="{{ q.cls }}" id="{{ q.fsId }}" tabindex="-1" aria-describedby="{{ q.desc }}">
+          <legend>{{ q.t }}</legend>
+          <div class="st-scale">
+            <sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="5"><label for="{{ o.id }}"><input type="radio" name="{{ q.name }}" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.pick }}"><span class="st-scale-n">{{ o.v }}</span><span class="st-scale-l">{{ o.lab }}</span></label></sc-for>
+          </div>
+          <sc-if value="{{ q.err }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ q.errId }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>{{ q.errText }}</p></sc-if>
+        </fieldset>
+        </sc-for>
+        <div class="rk-field" style="margin-top: 22px">
+          <label class="rk-label" for="st-fb-c">Additional comments (optional)</label>
+          <textarea id="st-fb-c" class="rk-textarea" value="{{ FB.comments }}" onChange="{{ FB.onComments }}"></textarea>
+        </div>
+        <div class="st-form-foot">
+          <a class="rb-btn rb-btn--lg" href="{{ FB.crumbFmt.href }}" onClick="{{ FB.crumbFmt.go }}">Cancel</a>
+          <button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-fb-go" aria-busy="{{ FB.busyAria }}" disabled="{{ FB.busy }}" onClick="{{ FB.submit }}">{{ FB.goLabel }}</button>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ FB.sent }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-notice rk-notice--ok" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg><p class="rk-notice-t">Thank you</p><p class="rk-notice-d">Sent {{ FB.when }}. Feedback can’t be changed after it’s sent.</p><div class="rk-notice-act"><a class="rb-btn rb-btn--primary" href="{{ FB.crumbExp.href }}" onClick="{{ FB.crumbExp.go }}">Back to experiment</a><a class="rb-btn" href="{{ FB.progress.href }}" onClick="{{ FB.progress.go }}">See your progress</a></div></div>
+      <section class="rk-surface st-sent" aria-labelledby="st-fb-ans">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="st-fb-ans">Your answers · {{ FB.code }}</h2><p class="st-sec-note">Read-only</p></div>
+          <dl class="rk-dl"><sc-for list="{{ FB.answers }}" as="a" hint-placeholder-count="5"><dt>{{ a.t }}</dt><dd>{{ a.v }}</dd></sc-for><dt>Additional comments</dt><dd>{{ FB.commentText }}</dd></dl>
+        </div>
+      </section>
+      </sc-if>
+      </sc-if>
+
+      <!-- ══════════ ST-11 Assessments ══════════ -->
+      <sc-if value="{{ is.alist }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">Assessments</h1>
+          <p class="rk-sub">Assessments for the experiments you have</p>
+        </div>
+      </div>
+      <sc-if value="{{ AL.noneAtAll }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface" aria-labelledby="st-al-none">
+        <div class="rk-state rk-state--roomy">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span>
+          <h2 class="rk-state-t" id="st-al-none">No assessments yet</h2>
+          <p class="rk-state-d">When your faculty sets an assessment for an experiment you have, it appears here.</p>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ AL.showTabs }}" hint-placeholder-val="{{ true }}">
+      <nav class="rk-tabs" aria-label="Assessments">
+        <sc-for list="{{ AL.tabs }}" as="t" hint-placeholder-count="3"><a class="rk-tab" href="{{ t.href }}" aria-current="{{ t.cur }}" onClick="{{ t.go }}">{{ t.t }}<sc-if value="{{ t.hasN }}" hint-placeholder-val="{{ true }}"><span class="st-tabn" aria-hidden="true">{{ t.n }}</span><span class="xr-sr">, {{ t.n }}</span></sc-if></a></sc-for>
+      </nav>
+      <section class="rk-surface" aria-labelledby="st-al-h">
+        <h2 class="xr-sr" id="st-al-h">{{ AL.tabTitle }}</h2>
+        <sc-if value="{{ AL.loading }}" hint-placeholder-val="{{ false }}"><div aria-busy="true"><p class="rk-loading-msg" role="status">Loading your assessments…</p><div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div></div></sc-if>
+        <sc-if value="{{ AL.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="alert">
+          <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-cloud"></use></svg></span>
+          <h3 class="rk-state-t">We couldn’t load your assessments</h3>
+          <p class="rk-state-d">Nothing has changed. Try again.</p>
+          <button type="button" class="rb-btn" onClick="{{ AL.retry }}">Try again</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ AL.empty }}" hint-placeholder-val="{{ false }}"><div class="rk-state"><span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span><p class="rk-state-t">{{ AL.emptyText }}</p></div></sc-if>
+        <sc-if value="{{ AL.has }}" hint-placeholder-val="{{ true }}">
+        <ul class="st-rows">
+          <sc-for list="{{ AL.rows }}" as="r" hint-placeholder-count="1"><li class="st-row"><div class="st-row-ico"><span class="rb-ico-tile" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span></div><div class="st-row-main"><h3 class="st-row-t">{{ r.name }}</h3><p class="st-row-d">{{ r.exp }}</p><p class="st-row-s">{{ r.sub }}</p></div><div class="st-row-st"><span class="{{ r.pillCls }}"><i></i>{{ r.pill }}</span></div><div class="st-row-act"><a class="{{ r.btnCls }}" href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}">{{ r.act }}</a></div></li></sc-for>
+        </ul>
+        </sc-if>
+      </section>
+      </sc-if>
+      </sc-if>
+
+      <!-- ══════════ ST-12 Assessment — before you start ══════════ -->
+      <sc-if value="{{ is.aintro }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ AI.crumb.href }}" onClick="{{ AI.crumb.go }}">Assessments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ AI.name }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow"><a class="st-eyelink" href="{{ AI.expLink.href }}" onClick="{{ AI.expLink.go }}">{{ AI.exp }}</a> · assessment</p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ AI.name }}</h1>
+          <p class="rk-sub">{{ AI.desc }}</p>
+        </div>
+      </div>
+      <sc-if value="{{ AI.notice.show }}" hint-placeholder-val="{{ false }}">
+      <div class="{{ AI.notice.cls }}" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ AI.notice.ico }}"></use></svg><p class="rk-notice-t">{{ AI.notice.t }}</p><p class="rk-notice-d">{{ AI.notice.d }}</p></div>
+      </sc-if>
+      <section class="rk-surface rk-mainsheet" aria-labelledby="st-ai-facts">
+        <h2 class="xr-sr" id="st-ai-facts">Key facts, as set for this assessment</h2>
+        <dl class="rk-factstrip st-facts">
+          <sc-for list="{{ AI.facts }}" as="f" hint-placeholder-count="6"><div class="rk-fact"><dt>{{ f.k }}</dt><dd>{{ f.v }}<sc-if value="{{ f.hasS }}" hint-placeholder-val="{{ true }}"><span class="st-fact-sub">{{ f.s }}</span></sc-if></dd></div></sc-for>
+        </dl>
+        <div class="rk-sec">
+          <p class="rk-next">No time limit. Answers save as you go, and nothing is submitted until you choose Submit.</p>
+          <p class="st-note" style="margin-top: 6px">{{ AI.setBy }}</p>
+          <div class="st-actions" style="margin-top: 20px">
+            <sc-for list="{{ AI.acts }}" as="a" hint-placeholder-count="2"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}">{{ a.label }}</a></sc-for>
+          </div>
+        </div>
+      </section>
+      </sc-if>
+
+      <!-- ══════════ ST-14 Result ══════════ -->
+      <sc-if value="{{ is.ares }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ AR.crumbList.href }}" onClick="{{ AR.crumbList.go }}">Assessments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ AR.crumbIntro.href }}" onClick="{{ AR.crumbIntro.go }}">{{ AR.name }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">Result</span></nav>
+      <sc-if value="{{ AR.withheld }}" hint-placeholder-val="{{ false }}">
+      <div class="xsb-msg">
+        <span class="{{ AR.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ AR.ico }}"></use></svg></span>
+        <p class="rk-eyebrow">{{ AR.name }} · result</p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">{{ AR.h1 }}</h1>
+        <p class="xsb-msg-d">{{ AR.d }}</p>
+        <div class="xsb-msg-act"><a class="rb-btn" href="{{ AR.back.href }}" onClick="{{ AR.back.go }}">{{ AR.back.label }}</a></div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ AR.released }}" hint-placeholder-val="{{ true }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow">{{ AR.name }} · result</p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ AR.h1 }}</h1>
+        </div>
+      </div>
+      <section class="rk-surface st-score" aria-label="Your score">
+        <div><p class="st-score-n">{{ AR.score }}<small>marks</small></p><p style="margin-top: 8px"><span class="{{ AR.pillCls }}"><i></i>{{ AR.pill }}</span></p></div>
+        <div class="st-score-facts"><p>Pass mark {{ AR.passText }}</p><p>{{ AR.attemptText }}</p><p>{{ AR.releasedText }}</p></div>
+      </section>
+      <section class="rk-surface" aria-labelledby="st-ar-ans">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="st-ar-ans">Your answers</h2></div>
+          <ol>
+            <sc-for list="{{ AR.answers }}" as="a" hint-placeholder-count="4">
+            <li class="st-ans">
+              <div class="st-ans-h"><p class="st-ans-k">{{ a.head }}</p><span class="{{ a.pillCls }}"><i></i>{{ a.markText }}</span></div>
+              <p class="st-ans-q">{{ a.text }}</p>
+              <dl class="rk-dl">
+                <dt>Your answer</dt><dd>{{ a.yours }}</dd>
+                <sc-if value="{{ a.isChoice }}" hint-placeholder-val="{{ true }}"><dt>Correct answer</dt><dd>{{ a.correct }}</dd></sc-if>
+                <dt>Explanation</dt><dd>{{ a.expl }}</dd>
+                <sc-if value="{{ a.hasFb }}" hint-placeholder-val="{{ false }}"><dt>Feedback from {{ AR.fac }}</dt><dd><p class="rk-quote">{{ a.fb }}</p></dd></sc-if>
+              </dl>
+            </li>
+            </sc-for>
+          </ol>
+        </div>
+        <div class="rk-sec">
+          <div class="st-actions">
+            <sc-if value="{{ AR.canRetry }}" hint-placeholder-val="{{ false }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ AR.retry.href }}" onClick="{{ AR.retry.go }}">Try again</a></sc-if>
+            <a class="rb-btn rb-btn--lg" href="{{ AR.back.href }}" onClick="{{ AR.back.go }}">Back to experiment</a>
+            <a class="rb-btn rb-btn--ghost rb-btn--lg" href="{{ AR.progress.href }}" onClick="{{ AR.progress.go }}">See your progress</a>
+          </div>
+          <sc-if value="{{ AR.canRetry }}" hint-placeholder-val="{{ false }}"><p class="st-note" style="margin-top: 10px">You have {{ AR.left }} attempt left. Your first result stays here.</p></sc-if>
+        </div>
+      </section>
+      </sc-if>
+      </sc-if>
+
+      <!-- ══════════ ST-18 My device ══════════ -->
+      <sc-if value="{{ is.dev }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">My device</h1>
+          <p class="rk-sub">The device authorised for your headset formats</p>
+        </div>
+      </div>
+      <div class="rk-detailwrap">
+        <div class="rk-detail">
+          <div class="rk-surface rk-mainsheet">
+            <section class="rk-sec" aria-labelledby="st-dev-h">
+              <sc-if value="{{ D.hasDevice }}" hint-placeholder-val="{{ true }}">
+              <div class="st-dev">
+                <div style="min-width: 0"><p class="st-dev-k"><span class="xr-fmt">VR</span>Authorised device</p><h2 class="st-dev-name" id="st-dev-h">{{ D.device }}</h2><p class="st-dev-d">Used for VR · Shell-and-Tube Heat Exchanger</p></div>
+                <sc-if value="{{ D.canRequest }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-dev-req" onClick="{{ D.openForm }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-swap"></use></svg>Request a device transfer</button></sc-if>
+              </div>
+              </sc-if>
+              <sc-if value="{{ D.noDevice }}" hint-placeholder-val="{{ false }}">
+              <h2 class="rb-h2" id="st-dev-h">No authorised device is recorded for you</h2>
+              <p class="rk-next" style="margin-top: 6px">Your institution can tell you more. When a device is authorised for you, it appears here.</p>
+              </sc-if>
+              <sc-if value="{{ D.pausedNote }}" hint-placeholder-val="{{ false }}"><p class="rk-locked" style="margin-top: 16px"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-lock"></use></svg><span>You can’t request a transfer while your institution’s access is paused.</span></p></sc-if>
+            </section>
+
+            <sc-if value="{{ D.showForm }}" hint-placeholder-val="{{ false }}">
+            <section class="rk-sec" aria-labelledby="st-dtf-h">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="st-dtf-h">Request a device transfer</h2></div>
+              <div class="st-formstack">
+                <dl class="rk-dl"><dt>Moving from</dt><dd>{{ D.device }}</dd></dl>
+                <div class="rk-field">
+                  <label class="rk-label" for="st-dev-new">New device</label>
+                  <p class="rk-hint" id="st-dev-new-h">Describe it the way your lab or institution labels it — for example, its asset tag.</p>
+                  <input id="st-dev-new" class="rk-input" type="text" autocomplete="off" value="{{ D.f.dev }}" aria-invalid="{{ D.f.inv }}" aria-describedby="{{ D.f.desc }}" onChange="{{ D.onDev }}">
+                  <sc-if value="{{ D.f.hasErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="st-dev-new-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>{{ D.f.err }}</p></sc-if>
+                </div>
+                <div class="rk-field">
+                  <label class="rk-label" for="st-dev-note">Anything your Institute Admin should know (optional)</label>
+                  <textarea id="st-dev-note" class="rk-textarea" value="{{ D.f.note }}" onChange="{{ D.onNote }}"></textarea>
+                </div>
+                <p class="rk-hint">Your Institute Admin forwards the request to BITS, and BITS decides.</p>
+                <div class="st-actions"><button type="button" class="rb-btn rb-btn--lg" onClick="{{ D.cancelForm }}">Cancel</button><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" aria-busy="{{ D.busyAria }}" disabled="{{ D.busy }}" onClick="{{ D.send }}">{{ D.sendLabel }}</button></div>
+              </div>
+            </section>
+            </sc-if>
+
+            <section class="rk-sec" aria-labelledby="st-dtr-h">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="st-dtr-h">{{ D.reqTitle }}</h2><sc-if value="{{ D.hasRef }}" hint-placeholder-val="{{ false }}"><span class="rk-code rk-code--plain">{{ D.ref }}</span></sc-if></div>
+              <sc-if value="{{ D.noReq }}" hint-placeholder-val="{{ true }}"><p class="rk-next">No transfer requests yet.</p></sc-if>
+              <sc-if value="{{ D.hasReq }}" hint-placeholder-val="{{ false }}">
+              <div id="st-dtr-st" tabindex="-1">
+                <p><span class="{{ D.pillCls }}"><i></i>{{ D.words }}</span></p>
+                <p class="rk-next" style="margin-top: 10px">{{ D.explain }}</p>
+              </div>
+              <sc-if value="{{ D.noIA }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-notice rk-notice--warn" style="margin-top: 16px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg><p class="rk-notice-t">This request can’t be forwarded yet</p><p class="rk-notice-d">Your institution has no Institute Admin right now. It stays here until one is assigned.</p></div>
+              </sc-if>
+              <dl class="rk-dl" style="margin-top: 18px"><dt>From</dt><dd>{{ D.from }}</dd><dt>To</dt><dd>{{ D.to }}</dd><sc-if value="{{ D.hasNote }}" hint-placeholder-val="{{ false }}"><dt>Your note</dt><dd>{{ D.note }}</dd></sc-if></dl>
+              <h3 class="rk-h3" style="margin: 22px 0 14px">Request history</h3>
+              <ol class="rk-tl"><sc-for list="{{ D.hist }}" as="h" hint-placeholder-count="1"><li class="{{ h.cls }}"><p class="rk-tl-w">{{ h.what }}</p><p class="rk-tl-t">{{ h.when }}</p><sc-if value="{{ h.hasNote }}" hint-placeholder-val="{{ false }}"><p class="rk-tl-n">{{ h.note }}</p></sc-if></li></sc-for></ol>
+              <sc-if value="{{ D.hasPrev }}" hint-placeholder-val="{{ false }}"><p class="st-note" style="margin-top: 16px">{{ D.prevText }}</p></sc-if>
+              </sc-if>
+            </section>
+          </div>
+          <aside class="rk-aside" aria-labelledby="st-dev-how">
+            <div class="rk-surface st-about">
+              <h2 class="rb-h2" id="st-dev-how" style="margin-bottom: 16px">How a transfer works</h2>
+              <ol class="st-flow">
+                <li><span class="st-step-n" aria-hidden="true">1</span><b>You ask for the transfer</b><span class="st-sl-d">Name the new device and add a note if it helps.</span></li>
+                <li><span class="st-step-n" aria-hidden="true">2</span><b>Your Institute Admin forwards it</b><span class="st-sl-d">The request goes to BITS.</span></li>
+                <li><span class="st-step-n" aria-hidden="true">3</span><b>BITS approves it</b><span class="st-sl-d">Your authorised device changes here.</span></li>
+              </ol>
+              <p class="st-note" style="margin-top: 18px">A transfer only changes which device is authorised for your headset formats. Your progress stays with you.</p>
+            </div>
+          </aside>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- ══════════ Help & support · borrowed XS-07 contract ══════════ -->
+      <sc-if value="{{ is.help }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">Help &amp; support</h1>
+          <p class="rk-sub">Something isn’t working? Report it here and follow what happens.</p>
+        </div>
+        <sc-if value="{{ HP.has }}" hint-placeholder-val="{{ false }}"><div class="rk-head-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ HP.report.href }}" onClick="{{ HP.report.go }}">Report a problem</a></div></sc-if>
+      </div>
+      <section class="rk-surface" aria-labelledby="st-hp-h">
+        <div class="rk-sec" style="padding-bottom: 12px"><div class="rk-sec-h" style="margin-bottom: 0"><h2 class="rb-h2" id="st-hp-h">My reports</h2><p class="st-sec-note">{{ HP.count }}</p></div></div>
+        <sc-if value="{{ HP.none }}" hint-placeholder-val="{{ true }}"><div class="rk-state" style="border-top: 1px solid var(--rb-line)"><span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-flag"></use></svg></span><h3 class="rk-state-t">No reports yet</h3><p class="rk-state-d">If something isn’t working, report it and follow it here.</p><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ HP.report.href }}" onClick="{{ HP.report.go }}">Report a problem</a></div></sc-if>
+        <sc-if value="{{ HP.has }}" hint-placeholder-val="{{ false }}"><ul style="border-top: 1px solid var(--rb-line)"><sc-for list="{{ HP.rows }}" as="r" hint-placeholder-count="1"><li class="xsb-help-row"><div><p class="xsb-help-t">{{ r.t }}</p><p class="xsb-help-d">{{ r.d }}</p></div><span class="xr-st xr-st--info"><i></i>{{ r.st }}</span></li></sc-for></ul></sc-if>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ is.helpform }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ HP.crumb.href }}" onClick="{{ HP.crumb.go }}">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">Report a problem</span></nav>
+      <div class="rk-head"><div class="rk-head-text"><p class="rb-eyebrow-date">{{ S.dateLong }}</p><h1 class="rk-title" id="st-h1" tabindex="-1">Report a problem</h1><p class="rk-sub">Describe what went wrong. You can follow your report in My reports.</p></div></div>
+      <section class="rk-surface st-form" aria-label="Report a problem">
+        <div class="st-formstack">
+          <sc-if value="{{ HP.f.hasErr }}" hint-placeholder-val="{{ false }}"><div class="rk-errsum" id="st-hp-errs" tabindex="-1" role="alert"><p class="rk-errsum-t">One thing needs fixing</p><ul><li><a href="#st-hp-what" onClick="{{ HP.f.goErr }}">Say what happened</a></li></ul></div></sc-if>
+          <div class="rk-field">
+            <label class="rk-label" for="st-hp-what">What happened?</label>
+            <p class="rk-hint" id="st-hp-what-h">Say what you were doing and what you saw.</p>
+            <textarea id="st-hp-what" class="rk-textarea" value="{{ HP.f.what }}" aria-invalid="{{ HP.f.inv }}" aria-describedby="{{ HP.f.desc }}" onChange="{{ HP.f.onWhat }}"></textarea>
+            <sc-if value="{{ HP.f.hasErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="st-hp-what-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>Say what happened, so it can be looked into</p></sc-if>
+          </div>
+          <div class="rk-field">
+            <label class="rk-label" for="st-hp-where">Where did it happen?</label>
+            <p class="rk-hint" id="st-hp-where-h">Filled in from the page you came from. Change it if needed.</p>
+            <input id="st-hp-where" class="rk-input" type="text" value="{{ HP.f.where }}" aria-describedby="st-hp-where-h" onChange="{{ HP.f.onWhere }}">
+          </div>
+          <div class="rk-field">
+            <label class="rk-label" for="st-hp-shot">Screenshot (optional)</label>
+            <p class="rk-hint" id="st-hp-shot-h">A picture of the screen can help.</p>
+            <input id="st-hp-shot" class="st-file" type="file" accept="image/*" aria-describedby="st-hp-shot-h">
+          </div>
+          <div class="st-actions"><a class="rb-btn rb-btn--lg" href="{{ HP.crumb.href }}" onClick="{{ HP.crumb.go }}">Cancel</a><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" aria-busy="{{ HP.f.busyAria }}" disabled="{{ HP.f.busy }}" onClick="{{ HP.f.send }}">{{ HP.f.sendLabel }}</button></div>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ is.helpsent }}" hint-placeholder-val="{{ false }}">
+      <div class="xsb-msg">
+        <span class="xsb-msg-ico xsb-msg-ico--ok" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></span>
+        <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">Report sent</h1>
+        <p class="xsb-msg-d">You can follow it in My reports.</p>
+        <div class="xsb-msg-act"><a class="rb-btn rb-btn--primary" href="{{ HP.crumb.href }}" onClick="{{ HP.crumb.go }}">View my reports</a><a class="rb-link" href="{{ HP.home.href }}" onClick="{{ HP.home.go }}">Back to Home</a></div>
+      </div>
+      </sc-if>
+    </main>
+  </div>
+  </sc-if>
+
+  <!-- ══════════ Focused task layouts (no rail): ST-13 attempt · ST-08 sample activity · borrowed XS-03 signed out ══════════ -->
+  <sc-if value="{{ is.att }}" hint-placeholder-val="{{ false }}">
+  <div class="st-focus">
+    <header class="st-focusbar">
+      <a class="st-exit st-exit--compact" href="{{ AT.exit.href }}" onClick="{{ AT.exit.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-left"></use></svg><span>{{ AT.exitLabel }}</span></a>
+      <div class="st-focusbar-mid"></div>
+      <div class="st-focusbar-end">
+        <sc-if value="{{ AT.showSave }}" hint-placeholder-val="{{ true }}">
+        <div role="status">
+          <sc-if value="{{ AT.saveIdle }}" hint-placeholder-val="{{ true }}"><p class="st-save"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-info"></use></svg>Answers save automatically</p></sc-if>
+          <sc-if value="{{ AT.saving }}" hint-placeholder-val="{{ false }}"><p class="st-save"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-clock"></use></svg>Saving…</p></sc-if>
+          <sc-if value="{{ AT.saved }}" hint-placeholder-val="{{ false }}"><p class="st-save st-save--ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg>All answers saved</p></sc-if>
+          <sc-if value="{{ AT.saveErr }}" hint-placeholder-val="{{ false }}"><p class="st-save st-save--err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>Your last answer didn’t save<button type="button" onClick="{{ AT.retrySave }}">Try again</button></p></sc-if>
+        </div>
+        </sc-if>
+        <span class="xr-avatar" aria-hidden="true">{{ S.ini }}</span>
+      </div>
+    </header>
+    <main class="st-focuspage st-main" id="st-main" tabindex="-1">
+      <div class="st-focushead">
+        <p class="rk-eyebrow">{{ AT.exp }} · {{ AT.attemptText }}</p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">{{ AT.name }}</h1>
+        <p class="rk-meta" style="margin-top: 10px">{{ AT.meta }}</p>
+      </div>
+      <sc-if value="{{ AT.form }}" hint-placeholder-val="{{ true }}">
+      <div class="st-att">
+        <div class="st-att-qs">
+          <sc-for list="{{ AT.qs }}" as="q" hint-placeholder-count="4">
+          <section class="st-q" id="{{ q.anchor }}" tabindex="-1" aria-labelledby="{{ q.hid }}">
+            <div class="st-q-h"><h2 class="st-q-k" id="{{ q.hid }}">{{ q.label }}</h2><p class="st-q-m">{{ q.marksText }}</p></div>
+            <sc-if value="{{ q.isChoice }}" hint-placeholder-val="{{ true }}">
+            <fieldset class="st-qfs"><legend>{{ q.text }}</legend>
+              <div class="rk-choices"><sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="4"><label class="rk-choice" for="{{ o.id }}"><input type="radio" name="{{ q.name }}" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.pick }}"><span class="rk-choice-t">{{ o.lab }}</span></label></sc-for></div>
+            </fieldset>
+            </sc-if>
+            <sc-if value="{{ q.isW }}" hint-placeholder-val="{{ false }}">
+            <div class="st-q-w"><label for="{{ q.tid }}">{{ q.text }}</label><p class="rk-hint" id="{{ q.hintId }}">Your faculty marks written answers.</p><textarea id="{{ q.tid }}" class="rk-textarea" aria-describedby="{{ q.hintId }}" value="{{ q.val }}" onChange="{{ q.onText }}"></textarea></div>
+            </sc-if>
+          </section>
+          </sc-for>
+        </div>
+        <div class="st-att-side">
+          <section class="rk-surface st-att-panel st-att-strip" aria-labelledby="st-strip-h">
+            <h2 class="st-att-panel-t" id="st-strip-h">Your answers</h2>
+            <p class="st-att-count" role="status">{{ AT.countText }}</p>
+            <ol class="st-strip"><sc-for list="{{ AT.strip }}" as="s" hint-placeholder-count="4"><li><a href="{{ s.href }}" class="{{ s.cls }}" aria-label="{{ s.aria }}" onClick="{{ s.go }}">{{ s.n }}</a></li></sc-for></ol>
+            <sc-if value="{{ AT.hasMissing }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn" onClick="{{ AT.nextUn }}">Next unanswered</button></sc-if>
+          </section>
+          <section class="rk-surface st-att-panel st-att-submit" aria-labelledby="st-sub-h">
+            <h2 class="xr-sr" id="st-sub-h">Submit your answers</h2>
+            <sc-if value="{{ AT.subErr }}" hint-placeholder-val="{{ false }}"><div class="rk-errsum" id="st-suberr" tabindex="-1" role="alert" style="margin-bottom: 14px"><p class="rk-errsum-t">Your answers weren’t submitted</p><p class="st-errsum-d">They’re still saved here. Try again.</p></div></sc-if>
+            <p class="st-att-note">Nothing is submitted until you choose Submit. You can’t change answers after submitting.</p>
+            <button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-submit" onClick="{{ AT.submit }}">Submit</button>
+          </section>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ AT.done }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface st-act-card" id="st-att-done" tabindex="-1" aria-labelledby="st-att-done-h">
+        <p><span class="xr-st xr-st--warn rk-st-lg"><i></i>Waiting for marking</span></p>
+        <h2 class="rb-h2" id="st-att-done-h" style="margin-top: 14px">Answers submitted</h2>
+        <p class="rk-next">{{ AT.doneText }}</p>
+        <div class="st-actions" style="margin-top: 18px"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ AT.result.href }}" onClick="{{ AT.result.go }}">See your result page</a><a class="rb-btn rb-btn--lg" href="{{ AT.backExp.href }}" onClick="{{ AT.backExp.go }}">Back to experiment</a></div>
+      </section>
+      </sc-if>
+    </main>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ is.act }}" hint-placeholder-val="{{ false }}">
+  <div class="st-focus">
+    <header class="st-focusbar">
+      <a class="st-exit" href="{{ A.exit.href }}" onClick="{{ A.exit.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-left"></use></svg><span>WEB simulation</span></a>
+      <div class="st-focusbar-mid"></div>
+      <div class="st-focusbar-end">
+        <p class="{{ A.saveCls }}" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ A.saveIco }}"></use></svg>{{ A.saveText }}</p>
+        <span class="xr-avatar" aria-hidden="true">{{ S.ini }}</span>
+      </div>
+    </header>
+    <main class="st-focuspage st-main" id="st-main" tabindex="-1">
+      <div class="st-focushead">
+        <p class="st-eyecode" style="margin-bottom: 10px"><span class="st-simtag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-info"></use></svg>Simulated for this prototype</span><span class="rk-eyebrow" style="margin: 0">Shell-and-Tube Heat Exchanger · WEB</span></p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">Sample activity</h1>
+        <p class="rk-sub">This local sample stands in for the WEB simulation. Finish each stage to move on. The platform records WEB as completed only after the last stage — opening this page doesn’t complete it.</p>
+      </div>
+      <ol class="st-stages" aria-label="Stages of the sample activity">
+        <sc-for list="{{ A.stages }}" as="s" hint-placeholder-count="3"><li class="{{ s.cls }}"><p class="st-stage-k">{{ s.k }}<sc-if value="{{ s.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg></sc-if></p><p class="st-stage-s">{{ s.s }}</p></li></sc-for>
+      </ol>
+      <sc-if value="{{ A.working }}" hint-placeholder-val="{{ true }}">
+      <section class="rk-surface st-act-card" id="st-act-stage" tabindex="-1" aria-labelledby="st-act-h">
+        <h2 class="rb-h2" id="st-act-h">{{ A.stageTitle }}</h2>
+        <p class="rk-next">{{ A.stageText }}</p>
+        <div class="st-actions" style="margin-top: 18px"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" aria-busy="{{ A.busyAria }}" disabled="{{ A.busy }}" onClick="{{ A.finish }}">{{ A.finishLabel }}</button><a class="rb-btn rb-btn--lg" href="{{ A.exit.href }}" onClick="{{ A.exit.go }}">Leave and keep my place</a></div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ A.complete }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface st-act-card" id="st-act-done" tabindex="-1" aria-labelledby="st-act-done-h">
+        <p><span class="xr-st xr-st--ok rk-st-lg"><i></i>{{ A.doneLabel }}</span></p>
+        <h2 class="rb-h2" id="st-act-done-h" style="margin-top: 14px">WEB is recorded as completed</h2>
+        <p class="rk-next">{{ A.doneText }}</p>
+        <div class="st-actions" style="margin-top: 18px"><sc-if value="{{ A.canFb }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ A.fb.href }}" onClick="{{ A.fb.go }}">Give feedback on WEB</a></sc-if><a class="rb-btn rb-btn--lg" href="{{ A.exit.href }}" onClick="{{ A.exit.go }}">Back to WEB simulation</a></div>
+      </section>
+      </sc-if>
+    </main>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ is.out }}" hint-placeholder-val="{{ false }}">
+  <div class="st-focus">
+    <header class="xsb-public"><span class="xr-logo">Official WILP logo</span><span class="xsb-public-name">XR Learning Platform</span></header>
+    <main class="st-focuspage st-main" id="st-main" tabindex="-1">
+      <div class="xsb-msg">
+        <span class="xsb-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-signout"></use></svg></span>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">You’re signed out</h1>
+        <p class="xsb-msg-d">Sign in again to continue. Your work is kept.</p>
+        <div class="xsb-msg-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ OUT.signIn.href }}" onClick="{{ OUT.signIn.go }}">Sign in</a></div>
+      </div>
+    </main>
+  </div>
+  </sc-if>
+
+  <!-- ══════════ Dialog: submit answers (DL-1 pattern, rk-dialog) ══════════ -->
+  <sc-if value="{{ AT.dlg }}" hint-placeholder-val="{{ false }}">
+  <div class="rk-scrim" aria-hidden="true"></div>
+  <div class="rk-dialog" role="dialog" aria-modal="true" aria-labelledby="st-dlg-t" aria-describedby="st-dlg-d" onKeyDown="{{ AT.dlgKey }}">
+    <div class="rk-dlg-head"><h2 id="st-dlg-t" tabindex="-1">Submit your answers?</h2><p id="st-dlg-d">You can’t change your answers after submitting.</p></div>
+    <div class="rk-dlg-body">
+      <sc-if value="{{ AT.hasMissing }}" hint-placeholder-val="{{ true }}"><p class="rk-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg><span>{{ AT.missText }} You can still submit.</span></p></sc-if>
+      <sc-if value="{{ AT.allAnswered }}" hint-placeholder-val="{{ false }}"><p class="rk-next">All {{ AT.nq }} questions are answered.</p></sc-if>
+    </div>
+    <div class="rk-dlg-foot"><button type="button" class="rb-btn rb-btn--lg" id="st-dlg-cancel" onClick="{{ AT.cancel }}">Keep answering</button><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-dlg-ok" aria-busy="{{ AT.busyAria }}" disabled="{{ AT.busy }}" onClick="{{ AT.doSubmit }}">{{ AT.okLabel }}</button></div>
+  </div>
+  </sc-if>
+
+  <!-- ══════════ Menu drawer below 1024 px (V3 pattern) ══════════ -->
+  <sc-if value="{{ S.menuOpen }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ S.closeMenu }}"></button>
+  <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ S.drawerKey }}">
+    <div class="rb-drawer-head">
+      <p class="rb-product">XR Learning Platform</p>
+      <button type="button" class="rb-close" id="st-menu-close" aria-label="Close menu" onClick="{{ S.closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-close"></use></svg></button>
+    </div>
+    <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">Student</span><span class="rb-ws-inst">{{ S.inst }}</span></p></div>
+    <nav class="rb-nav" aria-label="Student navigation">
+      <sc-for list="{{ S.nav }}" as="n" hint-placeholder-count="4"><a href="{{ n.href }}" aria-current="{{ n.cur }}" onClick="{{ n.go }}"><span>{{ n.t }}</span></a></sc-for>
+    </nav>
+    <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="{{ S.help.href }}" aria-current="{{ S.help.cur }}" onClick="{{ S.help.go }}"><span>Help &amp; support</span></a></nav></div>
+  </div>
+  </sc-if>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"scenario":{"editor":"enum","options":["learn","assess","device","granted","newst","vrnow","vrprog","vrdone","licence","paused","ended","withdrawn","inactive","nodevice","inprog","waitmark","notrel","released","notpassed","dtrsent","dtrfwd","dtrappr","dtrnoia"],"default":"learn","section":"Scenario"},"screen":{"editor":"enum","options":["ST-01","ST-02","ST-03","ST-04","ST-05","ST-06","ST-07","ST-05as","ST-10","ST-08","ST-08a","ST-09","ST-09ar","ST-09mr","ST-11","ST-11sub","ST-11res","ST-12","ST-13","ST-14","ST-15","ST-16w","ST-16v","ST-18","ST-19","XS-05","XS-07","XS-07f","XS-03","XS-06"],"default":"ST-01","section":"Scenario"},"preset":{"editor":"enum","options":["","menu","acct","review-open","res-fail","launch-fail","setup-open","act-done","x-nomatch","p-filter","p-nomatch","fb-errors","fb-fail","att-two","att-dialog","att-savefail","att-subfail","dev-form","dev-error","help-error"],"default":"","section":"State"},"dataState":{"editor":"enum","options":["ok","loading","failed"],"default":"ok","section":"State"},"chrome":{"editor":"enum","options":["review","none"],"default":"review","section":"Preview"},"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  // ── Sample world. Illustrative fixtures from the v46 boards (B2-10…B4-14) plus the documented
+  //    local-prototype interims (TE-3 sample WEB activity, P3-03 authorised sample device).
+  //    Provenance and dates: SCENARIOS.json. Not the application's data model.
+  static get WD() { return ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']; }
+  static get MO() { return ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']; }
+  static get MS() { return ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']; }
+  static get PEOPLE() {
+    return { rahul: { name: 'Rahul Verma', first: 'Rahul', ini: 'RV' }, arun: { name: 'Arun Kumar', first: 'Arun', ini: 'AK' },
+      imran: { name: 'Imran Shaikh', first: 'Imran', ini: 'IS' }, vikram: { name: 'Vikram Joshi', first: 'Vikram', ini: 'VJ' } };
+  }
+  static get INST() { return 'Godavari Institute of Technology'; }
+  static get CRS() { return { own: 'MEC-523', bits: 'ME ZG523', name: 'Thermodynamics & Heat Transfer', area: 'Mechanical & Manufacturing' }; }
+  static get EXP() {
+    return {
+      ste: { id: 'ste', slug: 'shell-and-tube', t: 'Shell-and-Tube Heat Exchanger',
+        desc: 'Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.',
+        outcomes: ['Determine log mean temperature difference from measured inlet and outlet conditions', 'Compare countercurrent and cocurrent arrangements at matched duty'] },
+      fin: { id: 'fin', slug: 'fin-tube-bundle', t: 'Fin-Tube Bundle' }
+    };
+  }
+  static get FN() { return { WEB: 'Browser', AR: 'Augmented reality', VR: 'Virtual reality', MR: 'Mixed reality' }; }
+  static get RES() {
+    return [
+      { id: 'r1', t: 'Lab brief — Shell-and-Tube Heat Exchanger', short: 'Lab brief', kind: 'PDF document', size: '6 pages', ico: 'sti-doc' },
+      { id: 'r2', t: 'Pre-lab reading — the effectiveness–NTU method', short: 'Pre-lab reading', kind: 'Web page', size: 'About 10 minutes', ico: 'sti-web' },
+      { id: 'r3', t: 'Readings sheet', short: 'Readings sheet', kind: 'Spreadsheet', size: '1 sheet', ico: 'sti-sheet' }
+    ];
+  }
+  static get ASM() {
+    return { name: 'Heat Exchanger — post-lab', desc: 'Four short questions on what you measured in the Shell-and-Tube Heat Exchanger simulation. One answer is written; your faculty marks it.',
+      total: 16, passm: 8, passpct: '50%', attempts: 2, deadline: '14 Nov 2026, 23:59', fac: 'Dr S. Ranganathan', mix: '2 multiple choice · 1 true or false · 1 written answer',
+      qs: [
+        { n: 1, type: 'mc', tname: 'Multiple choice', marks: 2, text: 'What does the effectiveness (ε) of a heat exchanger compare?', opts: ['The actual heat transfer with the largest heat transfer possible', 'The hot-side flow rate with the cold-side flow rate', 'The overall heat transfer coefficient with the surface area', 'The hot fluid’s inlet temperature with its outlet temperature'], correct: 0, expl: 'ε = q ÷ q_max, where q_max = C_min (T_h,in − T_c,in).' },
+        { n: 2, type: 'mc', tname: 'Multiple choice', marks: 2, text: 'How is the number of transfer units (NTU) defined?', opts: ['UA ÷ C_min', 'C_min ÷ C_max', 'q ÷ q_max', 'UA ÷ C_max'], correct: 0, expl: 'NTU = UA ÷ C_min — the exchanger’s size measured against the smaller heat-capacity rate.' },
+        { n: 3, type: 'tf', tname: 'True or false', marks: 2, text: 'Fouling on the tube surfaces lowers the overall heat transfer coefficient U.', opts: ['True', 'False'], correct: 0, expl: 'Fouling adds a thermal resistance in series, so U falls.' },
+        { n: 4, type: 'written', tname: 'Written answer', marks: 10, text: 'Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.', opts: [], correct: null, expl: 'Fouling adds a resistance, so U and the heat duty fall at the same flow rates: the hot fluid leaves hotter and the cold fluid leaves cooler.' }
+      ],
+      rahul4: 'In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area.',
+      rahulFb: 'Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab.',
+      imran4: 'Fouling makes the tubes dirty so the exchanger works less well. It should be cleaned.',
+      imranFb: 'You named the cause. Explain what changes — U, the heat duty and the outlet temperatures — and use your readings.' };
+  }
+  static get FBQ() { return ['This experience helped me understand the concept.', 'The instructions were clear and easy to follow.', 'The simulation was easy to use and interact with.', 'This experience worked smoothly without technical issues.', 'Overall, I was satisfied with this learning experience.']; }
+  static get SCALE() { return ['Strongly disagree', 'Disagree', 'Neither agree nor disagree', 'Agree', 'Strongly agree']; }
+  static get DEV() { return { old: 'ME lab VR headset, asset tag GIT-VR-03', nw: 'ME lab VR headset, asset tag GIT-VR-07', note: 'GIT-VR-03 has gone for repair; the lab gave me GIT-VR-07.', ia: 'Meera Iyer', t: { dtr: '22 Oct 2026, 09:10', fwd: '23 Oct 2026, 10:00', appr: '24 Oct 2026, 12:30' } }; }
+  static get SC() {
+    const D = Component.DEV, A = Component.ASM;
+    const webProg = { st: 'prog', first: '12 Oct 2026, 10:05', saved: '12 Oct 2026, 11:20', stage: 1 };
+    const webDone = { st: 'done', first: '12 Oct 2026, 10:05', saved: '14 Oct 2026, 15:30', done: '14 Oct 2026, 15:30', by: 'sim', stage: 3 };
+    const vrDone = { st: 'done', first: '16 Oct 2026, 14:10', saved: '20 Oct 2026, 11:15', done: '20 Oct 2026, 11:15', by: 'headset' };
+    const fbWeb = { when: '14 Oct 2026, 15:42', ans: { 1: 4, 2: 5, 3: 4, 4: 5, 5: 4 }, comments: 'The counter-flow run was easy to follow.' };
+    const fbVr = { when: '20 Oct 2026, 11:30', ans: { 1: 5, 2: 4, 3: 4, 4: 4, 5: 5 }, comments: '' };
+    const r1 = { r1: '12 Oct 2026, 09:40' };
+    const appr = { stage: 'appr', dev: D.old, newDev: D.nw, note: D.note, t: D.t };
+    const RA = { 1: 0, 2: 1, 3: 0, 4: A.rahul4 };
+    const sub = { started: '5 Nov 2026, 18:20', submitted: '5 Nov 2026, 18:52', used: 1 };
+    const all = o => Object.assign({ grant: 'active', runs: { WEB: webDone, VR: vrDone }, fb: { WEB: fbWeb, VR: fbVr }, opened: r1 }, o);
+    return {
+      learn: { lab: 'Learning · Rahul · Mon 12 Oct 2026', d: [2026, 10, 12], clock: '16:05', grant: 'active', runs: { WEB: webProg }, opened: r1 },
+      assess: all({ lab: 'Assessment due · Rahul · Sun 1 Nov 2026', d: [2026, 11, 1], clock: '10:30', asmt: { st: 'todo' }, dev: appr }),
+      device: all({ lab: 'Device transfer · Rahul · Thu 22 Oct 2026', d: [2026, 10, 22], clock: '09:09' }),
+      granted: { lab: 'Given, nothing started · Rahul · Fri 9 Oct 2026', d: [2026, 10, 9], clock: '10:45', grant: 'active' },
+      newst: { lab: 'New student, no access yet · Rahul · Thu 8 Oct 2026', d: [2026, 10, 8], clock: '09:30', grant: 'none' },
+      vrnow: { lab: 'VR not available right now · Rahul · Fri 9 Oct 2026', d: [2026, 10, 9], clock: '11:00', grant: 'active', vrNow: false },
+      vrprog: { lab: 'VR in progress · Rahul · Fri 16 Oct 2026', d: [2026, 10, 16], clock: '15:00', grant: 'active', runs: { WEB: webDone, VR: { st: 'prog', first: '16 Oct 2026, 14:10', saved: '16 Oct 2026, 14:10' } }, fb: { WEB: fbWeb }, opened: r1 },
+      vrdone: { lab: 'VR completed, feedback to give · Rahul · Tue 20 Oct 2026', d: [2026, 10, 20], clock: '11:20', grant: 'active', runs: { WEB: webDone, VR: vrDone }, fb: { WEB: fbWeb }, opened: r1 },
+      licence: { lab: 'Waiting for a licence · Arun Kumar · Wed 22 Sep 2027', p: 'arun', d: [2027, 9, 22], clock: '10:00', grant: 'waiting' },
+      paused: { lab: 'Institution paused · Rahul · Tue 2 Mar 2027', d: [2027, 3, 2], clock: '10:00', grant: 'active', inst: 'paused', runs: { WEB: webDone }, fb: { WEB: fbWeb }, opened: r1 },
+      ended: all({ lab: 'Access ended · Rahul · Fri 8 Oct 2027', d: [2027, 10, 8], clock: '10:00', grant: 'ended', endedOn: '7 Oct 2027', asmt: Object.assign({ st: 'ready', ans: RA, marked: '7 Nov 2026, 10:15', released: '14 Nov 2026, 23:59', mark: 7, fbText: A.rahulFb }, sub), dev: appr }),
+      withdrawn: { lab: 'Access withdrawn · Rahul · Thu 15 Oct 2026', d: [2026, 10, 15], clock: '10:00', grant: 'withdrawn', runs: { WEB: webDone }, fb: { WEB: fbWeb }, opened: r1 },
+      inactive: { lab: 'Account inactive · Rahul · Mon 12 Oct 2026', d: [2026, 10, 12], clock: '16:05', grant: 'active', acct: 'inactive', runs: { WEB: webProg }, opened: r1 },
+      nodevice: { lab: 'No AR / VR / MR formats · Vikram Joshi · Thu 8 Oct 2026', p: 'vikram', d: [2026, 10, 8], clock: '09:30', grant: 'none' },
+      inprog: all({ lab: 'Attempt in progress · Rahul · Thu 5 Nov 2026', d: [2026, 11, 5], clock: '18:30', asmt: { st: 'prog', ans: { 1: 0, 3: 0 }, started: '5 Nov 2026, 18:20' }, dev: appr }),
+      waitmark: all({ lab: 'Submitted, waiting for marking · Rahul · Thu 5 Nov 2026', d: [2026, 11, 5], clock: '19:05', asmt: Object.assign({ st: 'wait', ans: RA }, sub), dev: appr }),
+      notrel: all({ lab: 'Marked, result not released yet · Rahul · Sat 7 Nov 2026', d: [2026, 11, 7], clock: '12:00', asmt: Object.assign({ st: 'notrel', ans: RA, marked: '7 Nov 2026, 10:15' }, sub), dev: appr }),
+      released: all({ lab: 'Result released, passed · Rahul · Sun 15 Nov 2026', d: [2026, 11, 15], clock: '09:30', asmt: Object.assign({ st: 'ready', ans: RA, marked: '7 Nov 2026, 10:15', released: '14 Nov 2026, 23:59', mark: 7, fbText: A.rahulFb }, sub), dev: appr }),
+      notpassed: { lab: 'Not passed, 1 attempt left · Imran Shaikh · Sun 15 Nov 2026', p: 'imran', d: [2026, 11, 15], clock: '09:30', grant: 'active', asmt: { st: 'ready', ans: { 1: 1, 2: 0, 3: 1, 4: A.imran4 }, released: '14 Nov 2026, 23:59', mark: 4, fbText: A.imranFb, used: 1 }, dev: { dev: null } },
+      dtrsent: all({ lab: 'Transfer with your Institute Admin · Rahul · Thu 22 Oct 2026', d: [2026, 10, 22], clock: '09:20', dev: { stage: 'sent', dev: D.old, newDev: D.nw, note: D.note, t: D.t } }),
+      dtrfwd: all({ lab: 'Transfer forwarded to BITS · Rahul · Fri 23 Oct 2026', d: [2026, 10, 23], clock: '10:05', dev: { stage: 'fwd', dev: D.old, newDev: D.nw, note: D.note, t: D.t } }),
+      dtrappr: all({ lab: 'Transfer approved · Rahul · Sat 24 Oct 2026', d: [2026, 10, 24], clock: '12:35', dev: appr }),
+      dtrnoia: all({ lab: 'Can’t be forwarded yet, no Institute Admin · Rahul · Thu 22 Oct 2026', d: [2026, 10, 22], clock: '09:20', dev: { stage: 'sent', dev: D.old, newDev: D.nw, note: D.note, t: D.t, noIA: true } })
+    };
+  }
+  static get GROUPS() {
+    return [['Main journeys', ['learn', 'assess', 'device']], ['Learning states', ['granted', 'newst', 'vrnow', 'vrprog', 'vrdone', 'licence']],
+      ['Access states', ['paused', 'ended', 'withdrawn', 'inactive', 'nodevice']], ['Assessment states', ['inprog', 'waitmark', 'notrel', 'released', 'notpassed']],
+      ['Device chain · documented handoffs', ['dtrsent', 'dtrfwd', 'dtrappr', 'dtrnoia']]];
+  }
+  static get SCREENS() {
+    return [
+      ['ST-01', 'Home', '/student'], ['ST-02', 'My courses', '/student/courses'], ['ST-03', 'Course (student view)', '/student/courses/[courseId]'],
+      ['ST-04', 'All my experiments', '/student/courses?tab=experiments'], ['ST-05', 'Experiment · Overview', '/student/experiments/[experimentId]'],
+      ['ST-06', 'Resources', '/student/experiments/[experimentId]/resources'], ['ST-07', 'Simulation — choose a format', '/student/experiments/[experimentId]/simulation'],
+      ['ST-05as', 'Experiment · Assessment tab', '/student/experiments/[experimentId] · Assessment tab'], ['ST-10', 'Progress for this experiment', '/student/experiments/[experimentId]/progress'],
+      ['ST-08', 'WEB simulation (launch / resume)', '/student/experiments/[experimentId]/simulation/web'], ['ST-08a', 'WEB · simulated sample activity', 'local prototype activity (the app keeps its route)'],
+      ['ST-09', 'VR format (setup & progress)', '/student/experiments/[experimentId]/simulation/[format]'], ['ST-09ar', 'AR format · not included', '/student/experiments/[experimentId]/simulation/ar'],
+      ['ST-09mr', 'MR format · not available', '/student/experiments/[experimentId]/simulation/mr'], ['ST-11', 'Assessments · To do', '/student/assessments'],
+      ['ST-11sub', 'Assessments · Submitted', '/student/assessments?tab=submitted'], ['ST-11res', 'Assessments · Results', '/student/assessments?tab=results'],
+      ['ST-12', 'Assessment — before you start', '/student/assessments/[assessmentId]'], ['ST-13', 'Assessment attempt', '/student/assessments/[assessmentId]/attempt'],
+      ['ST-14', 'Result', '/student/assessments/[assessmentId]/result'], ['ST-15', 'Progress (all experiments)', '/student/progress'],
+      ['ST-16w', 'Format feedback · WEB (ST-17 once sent)', '/student/experiments/[experimentId]/feedback/web'], ['ST-16v', 'Format feedback · VR (ST-17 once sent)', '/student/experiments/[experimentId]/feedback/vr'],
+      ['ST-18', 'My device', '/student/device'], ['ST-19', 'Experiment not available · Fin-Tube Bundle', '/student/experiments/[experimentId] · not-available state'],
+      ['XS-05', 'Account menu · shared, borrowed', 'top bar'], ['XS-07', 'Help & support · shared, borrowed', '/student/help'], ['XS-07f', 'Report a problem · shared, borrowed', '/student/help · report'],
+      ['XS-03', 'Signed out · shared, borrowed', '/signed-out'], ['XS-06', 'Not your workspace · shared, borrowed', '/[workspace]/not-allowed']
+    ];
+  }
+  static get NAMES() {
+    const n = {}; Component.SCREENS.forEach(s => { n[s[0]] = [s[1], s[2]]; });
+    n['ST-17'] = ['Feedback sent (confirmation, read-only)', '/student/experiments/[experimentId]/feedback/[format] · sent state'];
+    n['ST-19'] = ['Experiment not available (refusal page)', '/student/experiments/[experimentId] · not-available state'];
+    n['ST-16'] = ['Format feedback · not open yet', '/student/experiments/[experimentId]/feedback/[format]'];
+    n['ST-03'] = ['Course (student view)', '/student/courses/[courseId]'];
+    n['ST-09'] = ['AR / VR / MR format', '/student/experiments/[experimentId]/simulation/[format]'];
+    n['XS-08'] = ['Account inactive · shared notice, borrowed', 'shell notice'];
+    n['XS-07s'] = ['Report sent · shared, borrowed', '/student/help'];
+    return n;
+  }
+
+  state = { sc: null, route: null, world: null, ui: null };
+
+  // ── seeding ──────────────────────────────────────────────────────────────────────────────
+  clone(x) { return JSON.parse(JSON.stringify(x)); }
+  scKey() { const k = this.state.sc || this.props.scenario; return Component.SC[k] ? k : 'learn'; }
+  seed(k, preset) {
+    const S = Component.SC[k], D = Component.DEV, y = S.d[0], m = S.d[1], d = S.d[2];
+    const dt = new Date(Date.UTC(y, m - 1, d)), hm = (S.clock || '10:00').split(':');
+    const run = r => Object.assign({ st: 'none', first: '', saved: '', done: '', by: '', stage: 0 }, r || {});
+    const runs = S.runs || {};
+    const w = {
+      k, p: S.p || 'rahul', date: d + ' ' + Component.MS[m - 1] + ' ' + y, dateLong: Component.WD[dt.getUTCDay()] + ' ' + d + ' ' + Component.MO[m - 1] + ' ' + y,
+      c0: Number(hm[0]) * 60 + Number(hm[1]), tick: 0, inst: S.inst || 'active', acct: S.acct || 'active', grant: S.grant || 'none', endedOn: S.endedOn || '', vrNow: S.vrNow !== false,
+      runs: { WEB: run(runs.WEB), VR: run(runs.VR) }, opened: Object.assign({}, S.opened || {}), fb: { WEB: null, VR: null },
+      asmt: Object.assign({ st: 'none', attempt: 1, used: 0, ans: {}, started: '', submitted: '', marked: '', released: '', mark: null, fbText: '', prior: null }, this.clone(S.asmt || {})),
+      dev: Object.assign({ dev: D.old, stage: 'none', newDev: '', note: '', t: {}, noIA: false, ref: S.dev && S.dev.stage ? 'DTR-0018' : '', prev: null }, this.clone(S.dev || {})),
+      reports: []
+    };
+    if (S.fb) { if (S.fb.WEB) w.fb.WEB = this.clone(S.fb.WEB); if (S.fb.VR) w.fb.VR = this.clone(S.fb.VR); }
+    if (w.asmt.st === 'ready' && w.p === 'imran') w.asmt.used = 1;
+    const a = w.asmt;
+    if (preset === 'att-two') { a.st = 'prog'; a.ans = { 1: 0, 3: 0 }; a.started = a.started || w.date + ', 10:20'; }
+    if (preset === 'att-dialog') { a.st = 'prog'; a.ans = { 1: 0, 2: 1 }; a.started = a.started || w.date + ', 10:20'; }
+    if (preset === 'att-savefail') { a.st = 'prog'; a.ans = { 1: 0 }; a.started = a.started || w.date + ', 10:20'; }
+    if (preset === 'act-done') { const r = w.runs.WEB, t1 = w.date + ', ' + this.clockAdd(S.clock, 3), t2 = w.date + ', ' + this.clockAdd(S.clock, 6); w.opened = Object.assign({}, w.opened); Object.assign(r, { st: 'done', stage: 3, saved: t2, done: t2, by: 'platform' }); if (!r.first) r.first = t1; w.tick = 6; }
+    if (preset === 'att-subfail') { a.st = 'prog'; a.ans = { 1: 0, 2: 1, 3: 0, 4: Component.ASM.rahul4 }; a.started = a.started || w.date + ', 10:20'; }
+    return w;
+  }
+  world() { return this.state.world || this.seed(this.scKey(), this.state.sc ? '' : (this.props.preset || '')); }
+  baseUi() {
+    return { menu: false, acct: false, review: false, data: 'ok', xq: '', xf: 'all', pst: 'all', pcrs: 'all', resBusy: null, resFail: {}, resFailOnce: false,
+      launch: 'idle', launchFailOnce: false, setup: null, fbd: {}, att: { save: 'idle', saveFailOnce: false, dlg: false, busy: false, subErr: false, subFailOnce: false },
+      devf: { form: false, dev: '', note: '', err: '', busy: false }, help: { what: '', where: null, err: false, busy: false }, actBusy: false };
+  }
+  uiSeed() {
+    const u = this.baseUi(), p = this.props.preset || '';
+    u.data = this.props.dataState || 'ok';
+    const full = { 1: 4, 2: 4, 3: 5, 4: 3, 5: 4 };
+    const draft = o => Object.assign({ ans: {}, comments: '', errs: [], busy: false, fail: false, failOnce: false }, o);
+    if (p === 'menu') u.menu = true;
+    if (p === 'acct' || this.props.screen === 'XS-05') u.acct = true;
+    if (p === 'review-open') u.review = true;
+    if (p === 'res-fail') u.resFail = { r2: true };
+    if (p === 'launch-fail') u.launch = 'fail';
+    if (p === 'setup-open') u.setup = true;
+    if (p === 'x-nomatch') u.xq = 'Fin-Tube';
+    if (p === 'p-filter') u.pst = 'none';
+    if (p === 'p-nomatch') u.pst = 'done';
+    if (p === 'fb-errors') u.fbd = { WEB: draft({ ans: { 1: 4, 3: 5 }, errs: [2, 4, 5] }), VR: draft({ ans: { 1: 4, 3: 5 }, errs: [2, 4, 5] }) };
+    if (p === 'fb-fail') u.fbd = { WEB: draft({ ans: full, fail: true }), VR: draft({ ans: full, fail: true }) };
+    if (p === 'att-dialog') u.att.dlg = true;
+    if (p === 'att-two') u.att.save = 'saved';
+    if (p === 'att-savefail') u.att.save = 'err';
+    if (p === 'att-subfail') u.att.subErr = true;
+    if (p === 'dev-form') u.devf.form = true;
+    if (p === 'dev-error') { u.devf.form = true; u.devf.err = 'Describe the new device'; }
+    if (p === 'help-error') u.help.err = true;
+    return u;
+  }
+  ui() { return this.state.ui || this.uiSeed(); }
+  routeFor(key) {
+    const M = { 'ST-01': { s: 'home' }, 'ST-02': { s: 'courses', tab: 'courses' }, 'ST-03': { s: 'course' }, 'ST-04': { s: 'courses', tab: 'experiments' },
+      'ST-05': { s: 'hub', exp: 'ste', tab: 'overview' }, 'ST-06': { s: 'hub', exp: 'ste', tab: 'resources' }, 'ST-07': { s: 'hub', exp: 'ste', tab: 'simulation' },
+      'ST-05as': { s: 'hub', exp: 'ste', tab: 'assessment' }, 'ST-10': { s: 'hub', exp: 'ste', tab: 'progress' }, 'ST-08': { s: 'web', exp: 'ste' }, 'ST-08a': { s: 'act', exp: 'ste' },
+      'ST-09': { s: 'fmt', exp: 'ste', fmt: 'VR' }, 'ST-09ar': { s: 'fmt', exp: 'ste', fmt: 'AR' }, 'ST-09mr': { s: 'fmt', exp: 'ste', fmt: 'MR' },
+      'ST-11': { s: 'alist', tab: 'todo' }, 'ST-11sub': { s: 'alist', tab: 'sub' }, 'ST-11res': { s: 'alist', tab: 'res' }, 'ST-12': { s: 'aintro' }, 'ST-13': { s: 'att' }, 'ST-14': { s: 'ares' },
+      'ST-15': { s: 'prog' }, 'ST-16w': { s: 'fb', exp: 'ste', fmt: 'WEB' }, 'ST-16v': { s: 'fb', exp: 'ste', fmt: 'VR' }, 'ST-18': { s: 'dev' }, 'ST-19': { s: 'hub', exp: 'fin', tab: 'overview' },
+      'XS-05': { s: 'home' }, 'XS-07': { s: 'help' }, 'XS-07f': { s: 'helpform' }, 'XS-03': { s: 'out' }, 'XS-06': { s: 'nyw' } };
+    return Object.assign({}, M[key] || M['ST-01']);
+  }
+  route() { return this.state.route || this.routeFor(this.props.screen || 'ST-01'); }
+  screenKey(r) {
+    switch (r.s) {
+      case 'home': return 'ST-01';
+      case 'courses': return r.tab === 'experiments' ? 'ST-04' : 'ST-02';
+      case 'course': return 'ST-03';
+      case 'hub': return r.exp === 'fin' ? 'ST-19' : ({ overview: 'ST-05', resources: 'ST-06', simulation: 'ST-07', assessment: 'ST-05as', progress: 'ST-10' }[r.tab || 'overview']);
+      case 'web': return 'ST-08';
+      case 'act': return 'ST-08a';
+      case 'fmt': return r.fmt === 'AR' ? 'ST-09ar' : r.fmt === 'MR' ? 'ST-09mr' : 'ST-09';
+      case 'alist': return r.tab === 'sub' ? 'ST-11sub' : r.tab === 'res' ? 'ST-11res' : 'ST-11';
+      case 'aintro': return 'ST-12';
+      case 'att': return 'ST-13';
+      case 'ares': return 'ST-14';
+      case 'prog': return 'ST-15';
+      case 'fb': return r.fmt === 'VR' ? 'ST-16v' : 'ST-16w';
+      case 'dev': return 'ST-18';
+      case 'help': case 'helpsent': return 'XS-07';
+      case 'helpform': return 'XS-07f';
+      case 'out': return 'XS-03';
+      case 'nyw': return 'XS-06';
+      default: return 'ST-01';
+    }
+  }
+  path(r) {
+    const e = '/student/experiments/' + (r.exp === 'fin' ? 'fin-tube-bundle' : 'shell-and-tube');
+    switch (r.s) {
+      case 'home': return '/student';
+      case 'courses': return r.tab === 'experiments' ? '/student/courses?tab=experiments' : '/student/courses';
+      case 'course': return '/student/courses/mec-523';
+      case 'hub': return e + (r.tab && r.tab !== 'overview' && r.tab !== 'assessment' ? '/' + r.tab : '') + (r.tab === 'assessment' ? '?tab=assessment' : '');
+      case 'web': return e + '/simulation/web';
+      case 'act': return e + '/simulation/web/activity';
+      case 'fmt': return e + '/simulation/' + String(r.fmt || 'VR').toLowerCase();
+      case 'alist': return '/student/assessments' + (r.tab === 'sub' ? '?tab=submitted' : r.tab === 'res' ? '?tab=results' : '');
+      case 'aintro': return '/student/assessments/asmt-0009';
+      case 'att': return '/student/assessments/asmt-0009/attempt';
+      case 'ares': return '/student/assessments/asmt-0009/result';
+      case 'prog': return '/student/progress';
+      case 'fb': return e + '/feedback/' + String(r.fmt || 'WEB').toLowerCase();
+      case 'dev': return '/student/device';
+      case 'help': case 'helpsent': return '/student/help';
+      case 'helpform': return '/student/help/report';
+      case 'out': return '/signed-out';
+      default: return '/student';
+    }
+  }
+
+  // ── small helpers ────────────────────────────────────────────────────────────────────────
+  clockAdd(hhmm, add) { const p = String(hhmm || '10:00').split(':'), t = Number(p[0]) * 60 + Number(p[1]) + add, h = Math.floor(t / 60) % 24, m = t % 60; return (h < 10 ? '0' : '') + h + ':' + (m < 10 ? '0' : '') + m; }
+  dOnly(s) { return String(s || '').split(',')[0]; }
+  tOnly(s) { const p = String(s || '').split(', '); return p[1] || ''; }
+  plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+  now(w) { w.tick += 1; const t = w.c0 + w.tick, hh = Math.floor(t / 60) % 24, mm = t % 60; return w.date + ', ' + (hh < 10 ? '0' : '') + hh + ':' + (mm < 10 ? '0' : '') + mm; }
+  focusId(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) { el.focus({ preventScroll: false }); if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } }, 60); }
+  toTop() { try { window.scrollTo(0, 0); } catch (e) {} }
+  navUi(u) { return Object.assign({}, u, { menu: false, acct: false, launch: 'idle', resBusy: null, att: Object.assign({}, u.att, { dlg: false, busy: false }), devf: Object.assign({}, u.devf, { busy: false }), help: Object.assign({}, u.help, { busy: false }) }); }
+  apply(o) {
+    const st = {};
+    if (o.world) { const w = this.clone(this.world()); o.world(w); st.world = w; }
+    let u = this.ui();
+    if (o.route) u = this.navUi(u);
+    if (o.ui) u = Object.assign({}, u, o.ui);
+    st.ui = u;
+    if (o.route) st.route = o.route;
+    this.setState(st);
+    if (o.route) { this.toTop(); this.focusId(o.focus || 'st-h1'); } else if (o.focus) this.focusId(o.focus);
+  }
+  L(r, extra) {
+    return { href: '#' + this.path(r), go: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.apply(Object.assign({ route: r }, extra || {})); } };
+  }
+  act(label, r, cls, extra) { return Object.assign({ label, cls: cls || 'rb-btn' }, this.L(r, extra)); }
+
+  // ── facts the student is allowed to read ─────────────────────────────────────────────────
+  person(w) { return Component.PEOPLE[w.p] || Component.PEOPLE.rahul; }
+  current(w) { return w.grant === 'active' || w.grant === 'waiting'; }
+  devEligible(w) { return w.grant === 'active'; }
+  avail(w, f) {
+    if (f === 'AR') return { kind: 'pub', label: 'Not included for your institution' };
+    if (f === 'MR') return { kind: 'none', label: 'Not available for this experiment' };
+    if (w.grant === 'ended') return { kind: 'ended', label: 'Access ended' };
+    if (w.grant === 'withdrawn') return { kind: 'ended', label: 'No longer given to you' };
+    if (w.inst === 'paused') return { kind: 'held', label: 'Paused', glyph: 'sti-bars2' };
+    if (w.grant === 'waiting') return { kind: 'held', label: 'Waiting for a licence', glyph: 'sti-clock' };
+    if (f === 'VR' && !w.vrNow) return { kind: 'held', label: 'Not available right now', glyph: 'sti-alert' };
+    return { kind: 'on', label: 'Available to you' };
+  }
+  canLaunch(w, f) { return w.acct === 'active' && this.avail(w, f).kind === 'on'; }
+  cellOf(a) {
+    const m = { on: ['rk-fcell rk-fcell--on', 'sti-check'], pub: ['rk-fcell rk-fcell--pub', ''], none: ['rk-fcell rk-fcell--none', ''], held: ['rk-fcell st-fcell--held', a.glyph || ''], ended: ['rk-fcell st-fcell--ended', 'sti-dash'] }[a.kind];
+    return { cls: m[0], glyph: m[1], hasGlyph: !!m[1] };
+  }
+  runPill(w, f) {
+    const r = w.runs[f] || { st: 'none' }, a = this.avail(w, f);
+    if (a.kind === 'pub') return ['xr-st', 'Not included for your institution'];
+    if (a.kind === 'none') return ['xr-st', 'Not available for this experiment'];
+    if (w.inst === 'paused') return ['xr-st xr-st--paused', 'Paused'];
+    if (w.grant === 'ended') return ['xr-st rk-st-ended', 'Access ended'];
+    if (w.grant === 'withdrawn') return ['xr-st rk-st-ended', 'No longer given to you'];
+    if (w.grant === 'waiting') return ['xr-st xr-st--warn', 'Waiting for a licence'];
+    if (f === 'VR' && !w.vrNow) return ['xr-st', 'Not available right now'];
+    if (r.st === 'done') return ['xr-st xr-st--ok', 'Completed ' + this.dOnly(r.done)];
+    if (r.st === 'prog') return ['xr-st xr-st--warn', 'In progress'];
+    return ['xr-st', 'Not started'];
+  }
+  runFacts(w, f) {
+    const r = w.runs[f], x = [];
+    if (!r || r.st === 'none') return x;
+    if (f === 'WEB') {
+      x.push({ k: 'First opened', v: r.first });
+      if (r.st === 'prog' && r.saved) x.push({ k: 'Last saved', v: r.saved });
+      if (r.st === 'done') x.push({ k: 'Completed', v: r.done + (r.by === 'platform' ? ', recorded by the platform' : ', reported by the simulation') });
+    } else {
+      x.push({ k: 'First session reported', v: r.first });
+      if (r.st === 'prog' && r.saved && r.saved !== r.first) x.push({ k: 'Last session reported', v: r.saved });
+      if (r.st === 'done') x.push({ k: 'Completed', v: r.done + ', reported from the headset' });
+    }
+    return x;
+  }
+  fstat(w, f, start) {
+    const a = this.avail(w, f), r = w.runs[f];
+    let b = '', s = '';
+    if (a.kind !== 'on') b = a.label;
+    else if (r.st === 'prog') { b = 'In progress'; s = r.saved ? (f === 'WEB' ? ' · last saved ' : ' · last session ') + r.saved : ''; }
+    else if (r.st === 'done') { b = 'Completed'; s = ' · ' + this.dOnly(r.done); }
+    else b = start ? 'Available to you' : 'Not started';
+    return { code: f, cls: a.kind === 'ended' ? 'xr-fmt xr-fmt--none' : 'xr-fmt', b, s };
+  }
+  fmtRows(w, mode) {
+    const FN = Component.FN, E = Component.EXP.ste;
+    const odd = w.inst === 'paused' || w.grant === 'ended' || w.grant === 'withdrawn';
+    const rows = ['WEB', 'AR', 'VR', 'MR'].map(f => {
+      const a = this.avail(w, f), r = w.runs[f] || { st: 'none' }, pill = this.runPill(w, f), cell = this.cellOf(a);
+      const row = { code: f, title: f + ' · ' + FN[f], cellCls: cell.cls, glyph: cell.glyph, hasGlyph: cell.hasGlyph, pillCls: pill[0], pill: pill[1], d: '', facts: [], acts: [], sent: '', hasSent: false, given: f === 'WEB' || f === 'VR', st: r.st };
+      if (a.kind === 'pub') row.d = 'Published for this experiment; your institution’s access doesn’t include it.';
+      else if (a.kind === 'none') row.d = 'This experiment isn’t made for MR.';
+      else if (odd) {
+        row.d = w.inst === 'paused' ? (r.st === 'done' ? 'Completed ' + this.dOnly(r.done) + ' before the pause. Your progress is kept.' : r.st === 'prog' ? 'In progress before the pause. Your progress is kept.' : 'Not started before the pause.')
+          : w.grant === 'ended' ? (r.st === 'done' ? 'Completed ' + this.dOnly(r.done) + '. ' : r.st === 'prog' ? 'In progress when access ended. ' : 'Not started. ') + 'Your progress is kept.'
+          : (r.st === 'done' ? 'Completed ' + this.dOnly(r.done) + '. ' : r.st === 'prog' ? 'In progress when it was withdrawn. ' : 'Not started. ') + 'Your progress is kept.';
+        row.facts = this.runFacts(w, f);
+        if (w.fb[f]) { row.hasSent = true; row.sent = 'Feedback sent ' + this.dOnly(w.fb[f].when); }
+      } else if (w.grant === 'waiting') row.d = 'No licence is available for you on ACC-0107 right now.';
+      else if (f === 'VR' && !w.vrNow) row.d = 'VR can’t be used at the moment. WEB still opens.';
+      else {
+        if (mode === 'sim') row.d = f === 'WEB' ? 'Opens in your browser' : 'Needs a VR headset';
+        row.facts = this.runFacts(w, f);
+        const fb = w.fb[f], pr = f === 'WEB' ? { s: 'web', exp: 'ste' } : { s: 'fmt', exp: 'ste', fmt: f };
+        if (r.st === 'done') {
+          if (fb) { row.hasSent = true; row.sent = 'Feedback sent ' + this.dOnly(fb.when); }
+          else row.acts.push(Object.assign({ label: 'Give feedback on ' + f, aria: 'Give feedback on ' + f + ', ' + E.t, kind: 'fb' }, this.L({ s: 'fb', exp: 'ste', fmt: f })));
+        }
+        if (mode === 'sim' || r.st !== 'done') {
+          const lab = r.st === 'prog' ? 'Continue ' + f : 'Open ' + f;
+          row.acts.push(Object.assign({ label: lab, aria: lab + ', ' + E.t, kind: r.st === 'prog' ? 'cont' : r.st === 'none' ? 'open' : 'view' }, this.L(pr)));
+        }
+      }
+      row.hasD = !!row.d; row.hasFacts = row.facts.length > 0;
+      return row;
+    });
+    const has = k => rows.some(x => x.acts.some(a => a.kind === k));
+    const pick = has('cont') ? 'cont' : has('fb') ? 'fb' : 'open';
+    let marked = false;
+    rows.forEach(x => x.acts.forEach(a => { a.cls = 'rb-btn'; if (!marked && a.kind === pick) { a.cls = 'rb-btn rb-btn--primary'; marked = true; } }));
+    return rows;
+  }
+  asmtRow(w) {
+    const a = w.asmt, A = Component.ASM, E = Component.EXP.ste;
+    if (a.st === 'none') return { none: true, has: false };
+    const passed = this.score(w) >= A.passm;
+    const M = {
+      todo: ['xr-st xr-st--info', 'To do', 'Due ' + A.deadline + ' · 4 questions · no time limit', 'Open', { s: 'aintro' }],
+      noq: ['xr-st', 'Can’t be started yet', 'It has no questions yet · due ' + A.deadline, 'Open', { s: 'aintro' }],
+      prog: ['xr-st xr-st--warn', 'Attempt in progress', 'Answers saved · due ' + A.deadline, 'Continue attempt', { s: 'att' }],
+      wait: ['xr-st xr-st--warn', 'Waiting for marking', 'Submitted ' + a.submitted + ' · your faculty marks written answers', 'View', { s: 'ares' }],
+      notrel: ['xr-st', 'Result not released yet', 'Released after the deadline: ' + A.deadline, 'View', { s: 'ares' }],
+      ready: ['xr-st xr-st--ok', 'Result ready', 'Released ' + a.released, 'See result', { s: 'ares' }]
+    }[a.st];
+    return Object.assign({ has: true, none: false, name: A.name, exp: E.t + ' · MEC-523', sub: M[2], pillCls: M[0], pill: M[1], act: M[3], aria: M[3] + ', ' + A.name,
+      btnCls: a.st === 'todo' || a.st === 'prog' ? 'rb-btn rb-btn--primary' : 'rb-btn', tab: a.st === 'wait' || a.st === 'notrel' ? 'sub' : a.st === 'ready' ? 'res' : 'todo', passed }, this.L(M[4]));
+  }
+  score(w) {
+    const a = w.asmt, A = Component.ASM;
+    let s = 0;
+    A.qs.forEach(q => { if (q.type === 'written') s += Number(a.mark || 0); else if (a.ans[q.n] === q.correct) s += q.marks; });
+    return s;
+  }
+  answered(a, n) { const v = a.ans[n]; return v !== undefined && v !== null && String(v).trim() !== ''; }
+
+  // ── mutations ────────────────────────────────────────────────────────────────────────────
+  openRes(r) {
+    const u = this.ui();
+    if (u.resBusy) return;
+    this.apply({ ui: { resBusy: r.id, resFail: Object.assign({}, u.resFail, { [r.id]: false }) } });
+    window.setTimeout(() => {
+      const c = this.ui();
+      if (c.resFailOnce) { this.apply({ ui: { resBusy: null, resFailOnce: false, resFail: Object.assign({}, c.resFail, { [r.id]: true }) }, focus: 'st-res-st-' + r.id }); return; }
+      this.apply({ world: w => { w.opened[r.id] = this.now(w); }, ui: { resBusy: null }, focus: 'st-res-st-' + r.id });
+    }, 700);
+  }
+  launchWeb() {
+    if (!this.canLaunch(this.world(), 'WEB') || this.ui().launch === 'busy') return;
+    this.apply({ ui: { launch: 'busy' } });
+    window.setTimeout(() => {
+      if (this.ui().launchFailOnce) { this.apply({ ui: { launch: 'fail', launchFailOnce: false }, focus: 'st-launch-err' }); return; }
+      this.apply({ world: w => { const r = w.runs.WEB; if (r.st === 'none') { r.st = 'prog'; r.first = this.now(w); } }, route: { s: 'act', exp: 'ste' } });
+    }, 700);
+  }
+  finishStage(n) {
+    if (this.ui().actBusy) return;
+    this.apply({ ui: { actBusy: true } });
+    window.setTimeout(() => {
+      this.apply({ world: w => { const r = w.runs.WEB, t = this.now(w); if (r.st === 'none') { r.st = 'prog'; r.first = t; } r.stage = n; r.saved = t; if (n >= 3) { r.st = 'done'; r.done = t; r.by = 'platform'; } }, ui: { actBusy: false }, focus: n >= 3 ? 'st-act-done' : 'st-act-stage' });
+    }, 500);
+  }
+  fbDraft(f) { const d = this.ui().fbd[f]; return Object.assign({ ans: {}, comments: '', errs: [], busy: false, fail: false, failOnce: false }, d || {}); }
+  setFb(f, patch, focus) { const u = this.ui(); this.apply({ ui: { fbd: Object.assign({}, u.fbd, { [f]: Object.assign({}, this.fbDraft(f), patch) }) }, focus }); }
+  sendFb(f) {
+    const d = this.fbDraft(f);
+    if (d.busy) return;
+    const missing = [1, 2, 3, 4, 5].filter(n => !d.ans[n]);
+    if (missing.length) { this.setFb(f, { errs: missing, fail: false }, 'st-fb-errs'); return; }
+    this.setFb(f, { busy: true, fail: false });
+    window.setTimeout(() => {
+      const c = this.fbDraft(f);
+      if (c.failOnce) { this.setFb(f, { busy: false, failOnce: false, fail: true }, 'st-fb-fail'); return; }
+      const u = this.ui(), rest = Object.assign({}, u.fbd); delete rest[f];
+      this.apply({ world: w => { if (!w.fb[f]) w.fb[f] = { when: this.now(w), ans: Object.assign({}, c.ans), comments: String(c.comments || '').trim() }; }, ui: { fbd: rest }, focus: 'st-h1' });
+      this.toTop();
+    }, 800);
+  }
+  setAtt(patch, focus) { this.apply({ ui: { att: Object.assign({}, this.ui().att, patch) }, focus }); }
+  startAttempt() { this.apply({ world: w => { const a = w.asmt; if (a.st === 'todo') { a.st = 'prog'; a.started = this.now(w); a.ans = {}; } }, route: { s: 'att' } }); }
+  retryAttempt() {
+    this.apply({ world: w => { const a = w.asmt; if (a.st !== 'ready' || a.used >= Component.ASM.attempts) return;
+      a.prior = { ans: a.ans, mark: a.mark, fbText: a.fbText, released: a.released, score: this.score(w) };
+      a.st = 'prog'; a.attempt = a.used + 1; a.ans = {}; a.mark = null; a.fbText = ''; a.started = this.now(w); a.submitted = ''; a.released = ''; }, route: { s: 'att' } });
+  }
+  answer(n, val) {
+    const u = this.ui();
+    this.apply({ world: w => { const a = w.asmt; if (a.st === 'todo') { a.st = 'prog'; a.started = this.now(w); } a.ans[n] = val; }, ui: { att: Object.assign({}, u.att, { save: 'saving' }) } });
+    window.clearTimeout(this.saveT);
+    this.saveT = window.setTimeout(() => { const c = this.ui().att; if (c.saveFailOnce) this.setAtt({ save: 'err', saveFailOnce: false }); else this.setAtt({ save: 'saved' }); }, 600);
+  }
+  doSubmit() {
+    const c = this.ui().att;
+    if (c.busy) return;
+    this.setAtt({ busy: true });
+    window.setTimeout(() => {
+      const cur = this.ui().att;
+      if (cur.subFailOnce) { this.setAtt({ busy: false, dlg: false, subErr: true, subFailOnce: false }, 'st-suberr'); return; }
+      this.apply({ world: w => { const a = w.asmt; a.st = 'wait'; a.submitted = this.now(w); a.used = (a.used || 0) + 1; }, ui: { att: Object.assign({}, cur, { busy: false, dlg: false, subErr: false }) }, focus: 'st-att-done' });
+    }, 800);
+  }
+  sendDev() {
+    const f = this.ui().devf;
+    if (f.busy) return;
+    if (!String(f.dev).trim()) { this.apply({ ui: { devf: Object.assign({}, f, { err: 'Describe the new device' }) }, focus: 'st-dev-new' }); return; }
+    this.apply({ ui: { devf: Object.assign({}, f, { busy: true, err: '' }) } });
+    window.setTimeout(() => {
+      const c = this.ui().devf;
+      this.apply({ world: w => { const d = w.dev; if (d.stage === 'appr') { d.prev = { ref: d.ref, when: d.t.appr }; d.dev = d.newDev; } d.ref = w.k === 'device' && d.stage === 'none' ? 'DTR-0018' : ''; d.stage = 'sent'; d.newDev = String(c.dev).trim(); d.note = String(c.note || '').trim(); d.t = { dtr: this.now(w) }; d.noIA = false; },
+        ui: { devf: { form: false, dev: '', note: '', err: '', busy: false } }, focus: 'st-dtr-st' });
+    }, 700);
+  }
+  sendHelp() {
+    const h = this.ui().help;
+    if (h.busy) return;
+    if (!String(h.what).trim()) { this.apply({ ui: { help: Object.assign({}, h, { err: true }) }, focus: 'st-hp-errs' }); return; }
+    this.apply({ ui: { help: Object.assign({}, h, { busy: true, err: false }) } });
+    window.setTimeout(() => {
+      const c = this.ui().help;
+      this.apply({ world: w => { const t = String(c.what).trim(); w.reports.unshift({ t: t.length > 90 ? t.slice(0, 88) + '…' : t, where: String(c.where === null ? 'Help & support' : c.where).trim(), when: this.now(w) }); },
+        ui: { help: { what: '', where: null, err: false, busy: false } }, route: { s: 'helpsent' } });
+    }, 700);
+  }
+  trapKey(ev, close, firstId, lastId) {
+    if (ev.key === 'Escape') { ev.preventDefault(); close(); return; }
+    if (ev.key !== 'Tab') return;
+    let first, last;
+    if (firstId) { first = document.getElementById(firstId); last = document.getElementById(lastId); }
+    else { const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled]), input, textarea, select')); first = items[0]; last = items[items.length - 1]; }
+    const a = document.activeElement;
+    if (ev.shiftKey && (a === first || (a && a.tagName === 'H2'))) { ev.preventDefault(); if (last) last.focus(); }
+    else if (!ev.shiftKey && a === last) { ev.preventDefault(); if (first) first.focus(); }
+  }
+
+  // ── guards: which designed state a route resolves to ─────────────────────────────────────
+  resolve(r, w) {
+    const E = Component.EXP, exp = r.exp === 'fin' ? E.fin : E.ste;
+    const freeWhenInactive = { home: 1, help: 1, helpform: 1, helpsent: 1, out: 1 };
+    if (w.acct === 'inactive' && !freeWhenInactive[r.s]) return { view: 'msg', id: 'XS-08', M: this.msg('inactive', r, w, exp) };
+    if (r.s === 'nyw') return { view: 'msg', id: 'XS-06', M: this.msg('nyw', r, w, exp) };
+    if ({ hub: 1, web: 1, act: 1, fmt: 1, fb: 1 }[r.s]) {
+      if (r.exp === 'fin' || w.grant === 'none') return { view: 'msg', id: 'ST-19', M: this.msg('notgiven', r, w, exp) };
+      if (w.grant === 'withdrawn') return { view: 'msg', id: 'ST-19', M: this.msg('withdrawn', r, w, exp) };
+      if (w.grant === 'ended') return { view: 'msg', id: 'ST-19', M: this.msg('ended', r, w, exp) };
+    }
+    if (r.s === 'course' && !this.current(w)) return { view: 'msg', id: 'ST-03', M: this.msg('course-none', r, w, exp) };
+    if (r.s === 'fmt' && (r.fmt === 'AR' || r.fmt === 'MR')) return { view: 'msg', id: 'ST-09', M: this.msg(r.fmt === 'AR' ? 'ar' : 'mr', r, w, exp) };
+    if (r.s === 'act' && !this.canLaunch(w, 'WEB') && w.runs.WEB.st !== 'done') return { view: 'fpage', id: 'ST-08', fmt: 'WEB' };
+    if (r.s === 'fb') {
+      const run = w.runs[r.fmt];
+      if (!run || run.st !== 'done' || (r.fmt !== 'WEB' && r.fmt !== 'VR')) return { view: 'msg', id: 'ST-16', M: this.msg('fb-not', r, w, exp) };
+      return { view: 'fb', id: w.fb[r.fmt] ? 'ST-17' : 'ST-16' };
+    }
+    if (r.s === 'dev' && !this.devEligible(w)) return { view: 'msg', id: 'ST-18', M: this.msg('dev-not', r, w, exp) };
+    if ((r.s === 'aintro' || r.s === 'att' || r.s === 'ares') && w.asmt.st === 'none') return { view: 'msg', id: this.screenKey(r), M: this.msg('asmt-none', r, w, exp) };
+    if (r.s === 'att' && w.asmt.st === 'noq') return { view: 'aintro', id: 'ST-12' };
+    const v = { home: 'home', courses: 'courses', course: 'course', hub: 'hub', web: 'fpage', fmt: 'fpage', act: 'act', alist: 'alist', aintro: 'aintro', att: 'att', ares: 'ares', prog: 'prog', dev: 'dev', help: 'help', helpform: 'helpform', helpsent: 'helpsent', out: 'out' }[r.s] || 'home';
+    return { view: v, id: r.s === 'helpsent' ? 'XS-07s' : this.screenKey(r), fmt: r.s === 'web' ? 'WEB' : r.fmt };
+  }
+  msg(kind, r, w, exp) {
+    const C = Component.CRS, E = Component.EXP.ste;
+    const p = (label, rt) => this.act(label, rt, 'rb-btn rb-btn--primary rb-btn--lg');
+    const s = (label, rt) => this.act(label, rt, 'rb-btn rb-btn--lg');
+    const crumbC = [Object.assign({ t: 'My courses' }, this.L({ s: 'courses', tab: 'courses' }))];
+    const crumbX = [Object.assign({ t: E.t }, this.L({ s: 'hub', exp: 'ste', tab: 'overview' })), Object.assign({ t: 'Simulation' }, this.L({ s: 'hub', exp: 'ste', tab: 'simulation' }))];
+    const ico = (i, tone) => ({ ico: i, icoCls: 'xsb-msg-ico' + (tone ? ' xsb-msg-ico--' + tone : '') });
+    const earlier = [p('See your earlier work', { s: 'prog' }), s('Back to My courses', { s: 'courses', tab: 'courses' })];
+    const M = {
+      notgiven: Object.assign({ crumbs: crumbC, crumb: 'Not available', t: 'This experiment isn’t available to you', d: 'Your institution hasn’t given you ' + exp.t + '. Experiments you can open are in My courses.', acts: [p('Back to My courses', { s: 'courses', tab: 'courses' })], help: true }, ico('sti-block', 'off')),
+      withdrawn: Object.assign({ crumbs: crumbC, crumb: 'Not available', t: 'This experiment is no longer given to you', d: 'Your institution no longer gives you ' + exp.t + '. Your work is kept.', acts: earlier, help: true }, ico('sti-ended', 'off')),
+      ended: Object.assign({ crumbs: crumbC, crumb: 'Not available', t: 'Your access to ' + exp.t + ' has ended', d: 'It ended on ' + w.endedOn + '. Your earlier work is kept.', acts: earlier, help: true }, ico('sti-ended', 'off')),
+      'course-none': Object.assign({ crumbs: crumbC, crumb: C.name, t: w.grant === 'none' ? 'This course isn’t available to you' : 'This course has no experiments for you right now', d: w.grant === 'none' ? 'Courses appear in My courses when your institution gives you an experiment in them.' : 'Your earlier work in it is kept in Progress.', acts: w.grant === 'none' ? [p('Back to My courses', { s: 'courses', tab: 'courses' })] : earlier, help: true }, ico('sti-book', 'off')),
+      ar: Object.assign({ crumbs: crumbX, crumb: 'AR', t: 'AR isn’t included for your institution', d: 'AR is published for this experiment, but your institution’s access includes WEB and VR only.', acts: [p('Back to Simulation', { s: 'hub', exp: 'ste', tab: 'simulation' })], help: false }, ico('sti-box')),
+      mr: Object.assign({ crumbs: crumbX, crumb: 'MR', t: 'This experiment isn’t available in MR', d: E.t + ' is made for WEB, AR and VR.', acts: [p('Back to Simulation', { s: 'hub', exp: 'ste', tab: 'simulation' })], help: false }, ico('sti-box', 'off')),
+      'fb-not': Object.assign({ crumbs: [crumbX[0], Object.assign({ t: r.fmt || 'WEB' }, this.L(r.fmt === 'VR' ? { s: 'fmt', exp: 'ste', fmt: 'VR' } : { s: 'web', exp: 'ste' }))], crumb: 'Feedback',
+        t: (r.fmt === 'WEB' || r.fmt === 'VR') ? 'Feedback on ' + r.fmt + ' isn’t open yet' : 'There’s no feedback for ' + r.fmt,
+        d: (r.fmt === 'WEB' || r.fmt === 'VR') ? 'You can give feedback on ' + r.fmt + ' once ' + r.fmt + ' is recorded as completed. Each format has its own feedback.' : r.fmt + ' isn’t one of your formats for this experiment.',
+        acts: [p('Back to ' + (r.fmt === 'VR' ? 'VR' : 'WEB'), r.fmt === 'VR' ? { s: 'fmt', exp: 'ste', fmt: 'VR' } : { s: 'web', exp: 'ste' })], help: false }, ico('sti-chat')),
+      'dev-not': Object.assign({ crumbs: [], crumb: '', t: 'My device isn’t available to you', d: 'It’s for students who use AR, VR or MR formats. None of your experiments uses them right now.', acts: [p('Back to Home', { s: 'home' })], help: true }, ico('sti-vr', 'off')),
+      'asmt-none': Object.assign({ crumbs: [Object.assign({ t: 'Assessments' }, this.L({ s: 'alist', tab: 'todo' }))], crumb: 'Not available', t: 'There’s no assessment here yet', d: 'Your faculty hasn’t set an assessment for this experiment yet. When they do, it appears in Assessments.', acts: [p('Back to Assessments', { s: 'alist', tab: 'todo' })], help: false }, ico('sti-clip', 'off')),
+      inactive: Object.assign({ crumbs: [], crumb: '', t: 'Your account is inactive', d: 'You can’t open experiments until your institution reactivates your account. Your work is kept.', acts: [p('Back to Home', { s: 'home' })], help: true }, ico('sti-user', 'paused')),
+      nyw: Object.assign({ crumbs: [], crumb: '', t: 'This page isn’t part of your workspace', d: 'You’re signed in to the Student workspace. This address belongs to a different workspace.', acts: [p('Back to Home', { s: 'home' })], help: true }, ico('sti-lock', 'off'))
+    }[kind];
+    M.hasCrumbs = M.crumbs.length > 0;
+    return M;
+  }
+
+  // ── view models ──────────────────────────────────────────────────────────────────────────
+  homeVM(w) {
+    const P = this.person(w), E = Component.EXP.ste, C = Component.CRS, A = Component.ASM;
+    const H = { first: P.first, msg: { show: false, act: {} }, lead: { show: false, act: {}, go: [], fstats: [] }, split: false, showNext: false, next: { items: [], has: false, none: true, countText: '', calmD: '' }, courses: [], allCourses: this.L({ s: 'courses', tab: 'courses' }), splitCls: 'rb-split' };
+    const help = Object.assign({ label: 'Help & support' }, this.L({ s: 'help' }));
+    const msg = (ico, t, d, act, tone) => ({ show: true, ico, icoCls: 'rk-state-ico' + (tone ? ' st-ico--' + tone : ''), t, d, act });
+    if (w.acct === 'inactive') { H.msg = msg('sti-user', 'Your account is inactive', 'You can’t open experiments until your institution reactivates your account. Your work is kept.', help); return H; }
+    if (w.grant === 'none') { H.msg = msg('sti-book', 'Your institution hasn’t given you access yet', 'When it gives you an experiment, it appears here and in My courses.', help); return H; }
+    if (w.grant === 'withdrawn') { H.msg = msg('sti-ended', E.t + ' is no longer given to you', 'Your institution withdrew it. Your work is kept, and you can look back at it.', Object.assign({ label: 'See earlier work' }, this.L({ s: 'courses', tab: 'courses' }))); return H; }
+    const courses = [{ code: C.own, name: C.name, line: this.courseLine(w), aria: 'Open course ' + C.name, canOpen: this.current(w) }].map(c => Object.assign(c, this.L({ s: 'course' })));
+    if (w.grant === 'ended') { H.msg = msg('sti-ended', 'Your access to ' + E.t + ' ended on ' + w.endedOn, 'Your earlier work is kept. You can still look back at it.', Object.assign({ label: 'See earlier work' }, this.L({ s: 'courses', tab: 'courses' }))); H.split = true; H.splitCls = 'rb-split rb-split--calm'; H.courses = courses; return H; }
+    H.split = true; H.courses = courses;
+    if (w.inst === 'paused') { H.msg = msg('sti-pause', 'You can’t open experiments right now', 'Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted.', help); H.splitCls = 'rb-split rb-split--calm'; return H; }
+    // continue band
+    const runs = w.runs, prog = ['WEB', 'VR'].filter(f => runs[f].st === 'prog' && this.avail(w, f).kind === 'on'), started = ['WEB', 'VR'].some(f => runs[f].st !== 'none');
+    if (w.grant === 'waiting' || prog.length || !started) {
+      const cont = prog.length > 0;
+      H.lead = { show: true, k: cont ? 'Continue where you left off' : 'Start here', code: C.own, course: C.name, t: E.t,
+        fstats: ['WEB', 'VR'].map(f => this.fstat(w, f, !cont)), act: Object.assign({ label: (cont ? 'Continue ' : 'Open ') + E.t }, this.L({ s: 'hub', exp: 'ste', tab: 'overview' })),
+        goAria: 'Go to, in ' + E.t,
+        go: [['resources', 'Resources', 'sti-res'], ['simulation', 'Simulation', 'sti-sim'], ['assessment', 'Assessment', 'sti-clip'], ['progress', 'Progress', 'sti-bars']].map(g => Object.assign({ t: g[1], ico: g[2] }, this.L({ s: 'hub', exp: 'ste', tab: g[0] }))) };
+    }
+    // up next (at most three; the three v46 item types)
+    const items = [], a = w.asmt;
+    if (a.st === 'todo') items.push(Object.assign({ ico: 'sti-clip', t: A.name + ' is ready', d: E.t + ' · assessment · due ' + A.deadline, act: 'Open assessment', aria: 'Open assessment ' + A.name }, this.L({ s: 'aintro' })));
+    if (a.st === 'prog') items.push(Object.assign({ ico: 'sti-clip', t: A.name + ' · attempt in progress', d: 'Your answers are saved · due ' + A.deadline, act: 'Continue attempt', aria: 'Continue attempt, ' + A.name }, this.L({ s: 'att' })));
+    ['WEB', 'VR'].forEach(f => { if (runs[f].st === 'done' && !w.fb[f]) items.push(Object.assign({ ico: 'sti-chat', t: 'Give feedback on ' + f, d: E.t + ' · you completed ' + f, act: 'Give feedback', aria: 'Give feedback on ' + f + ', ' + E.t }, this.L({ s: 'fb', exp: 'ste', fmt: f }))); });
+    ['WEB', 'VR'].forEach(f => { if (runs[f].st === 'none' && this.canLaunch(w, f) && ['WEB', 'VR'].some(g => g !== f && runs[g].st === 'done')) items.push(Object.assign({ ico: 'sti-sim', t: f + ' is waiting for you', d: E.t + ' · ' + f + ' not started', act: 'Open experiment', aria: 'Open experiment ' + E.t }, this.L({ s: 'hub', exp: 'ste', tab: 'overview' }))); });
+    const top = items.slice(0, 3);
+    // one obvious next action: without a continue band, the first Up next item carries the primary button
+    top.forEach((x, i) => { x.cls = i === 0 && !H.lead.show ? 'rb-btn rb-btn--primary' : 'rb-btn'; });
+    H.showNext = true;
+    H.next = { items: top, has: top.length > 0, none: top.length === 0, countText: top.length ? this.plural(top.length, 'item') : '', calmD: 'Assessments, feedback you can give and formats waiting for you appear here.' };
+    return H;
+  }
+  courseLine(w) {
+    if (w.inst === 'paused') return 'Paused — your institution’s access is paused';
+    if (w.grant === 'ended') return 'Access ended on ' + w.endedOn + ' · earlier work kept';
+    if (w.grant === 'withdrawn') return 'No longer given to you · earlier work kept';
+    if (w.grant === 'waiting') return '1 experiment given to you · waiting for a licence';
+    return '1 experiment given to you · ' + (this.avail(w, 'VR').kind === 'on' ? 'WEB and VR available' : 'WEB available · VR not available right now');
+  }
+  xcard(w, hidPrefix) {
+    const E = Component.EXP.ste, C = Component.CRS;
+    return Object.assign({ hid: hidPrefix + '-ste', t: E.t, code: C.own, course: C.name, canOpen: this.current(w) && w.inst !== 'paused', aria: 'Open ' + E.t, fAria: 'Your formats for ' + E.t,
+      fstats: ['WEB', 'VR'].map(f => this.fstat(w, f, false)) }, this.L({ s: 'hub', exp: 'ste', tab: 'overview' }));
+  }
+  coursesVM(w, r, u) {
+    const E = Component.EXP.ste, C = Component.CRS, isX = r.tab === 'experiments';
+    const V = { tabC: Object.assign({ cur: isX ? undefined : 'page' }, this.L({ s: 'courses', tab: 'courses' })), tabX: Object.assign({ cur: isX ? 'page' : undefined }, this.L({ s: 'courses', tab: 'experiments' })),
+      loading: false, failed: false, none: false, earlier: { show: false, view: {} }, showCourses: false, showX: false, rows: [],
+      loadingText: isX ? 'Loading your experiments…' : 'Loading your courses…', failText: isX ? 'We couldn’t load your experiments' : 'We couldn’t load your courses',
+      noneText: isX ? 'Experiments appear here when your institution gives them to you.' : 'Courses appear here when your institution gives you an experiment in them.',
+      retry: () => this.apply({ ui: { data: 'ok' }, focus: 'st-h1' }) };
+    const X = { q: u.xq, f: u.xf, fopts: [], chips: [], hasChips: false, rows: [], has: false, nomatch: false, count: '' };
+    if (w.grant === 'none') { V.none = true; return { C: V, X }; }
+    if (w.grant === 'ended' || w.grant === 'withdrawn') {
+      V.earlier = { show: true, t: E.t, code: C.own, course: C.name, note: w.grant === 'ended' ? 'Access ended on ' + w.endedOn + '. Your earlier work is kept.' : 'No longer given to you. Your work is kept.',
+        view: Object.assign({ aria: 'View earlier work on ' + E.t }, this.L({ s: 'prog' })) };
+      return { C: V, X };
+    }
+    if (u.data === 'loading') { V.loading = true; return { C: V, X }; }
+    if (u.data === 'failed') { V.failed = true; return { C: V, X }; }
+    if (!isX) { V.showCourses = true; V.rows = [Object.assign({ code: C.own, name: C.name, line: this.courseLine(w), aria: 'Open course ' + C.name }, this.L({ s: 'course' }))]; return { C: V, X }; }
+    V.showX = true;
+    const all = [this.xcard(w, 'st-x')], q = String(u.xq || '').trim().toLowerCase(), fopts = ['WEB', 'VR'];
+    const list = all.filter(e => (!q || (e.t + ' ' + e.course + ' ' + e.code + ' ' + C.bits).toLowerCase().includes(q)) && (u.xf === 'all' || fopts.includes(u.xf)));
+    const chips = [];
+    if (q) chips.push({ label: 'Search: “' + String(u.xq).trim() + '”', rm: () => this.apply({ ui: { xq: '' }, focus: 'st-x-q' }) });
+    if (u.xf !== 'all') chips.push({ label: 'Format: ' + u.xf, rm: () => this.apply({ ui: { xf: 'all' }, focus: 'st-x-f' }) });
+    chips.forEach(c => { c.aria = 'Remove filter ' + c.label; });
+    Object.assign(X, { onQ: ev => this.apply({ ui: { xq: ev.target.value } }), onF: ev => this.apply({ ui: { xf: ev.target.value } }), fopts, chips, hasChips: chips.length > 0,
+      clear: () => this.apply({ ui: { xq: '', xf: 'all' }, focus: 'st-x-q' }), rows: list, has: list.length > 0, nomatch: list.length === 0,
+      count: chips.length ? list.length + ' of ' + this.plural(all.length, 'experiment') : this.plural(all.length, 'experiment') + ' in 1 course' });
+    return { C: V, X };
+  }
+  courseVM(w) {
+    const C = Component.CRS;
+    const paused = w.inst === 'paused', waiting = w.grant === 'waiting';
+    return { back: this.L({ s: 'courses', tab: 'courses' }), name: C.name, code: C.own, meta: '1 experiment given to you', hasPill: paused || waiting,
+      pillCls: paused ? 'xr-st xr-st--paused' : 'xr-st xr-st--warn', pill: paused ? 'Paused' : 'Waiting for a licence', paused, rows: [this.xcard(w, 'st-co')] };
+  }
+  hubVM(w, r, u) {
+    const E = Component.EXP.ste, C = Component.CRS, A = Component.ASM, FN = Component.FN, tab = r.tab || 'overview';
+    const paused = w.inst === 'paused', waiting = w.grant === 'waiting';
+    const V = { crumbCourses: this.L({ s: 'courses', tab: 'courses' }), crumbCourse: this.L({ s: 'course' }), course: C.name, code: C.own, bits: C.bits, area: C.area, t: E.t, desc: E.desc,
+      hasPill: waiting && !paused, pillCls: 'xr-st xr-st--warn', pill: 'Waiting for a licence', pillText: 'Your institution can tell you more.',
+      tabsAria: E.t + ' sections', isOverview: tab === 'overview', isResources: tab === 'resources', isFormats: tab === 'simulation' || tab === 'progress', isAssessment: tab === 'assessment',
+      tabs: [['overview', 'Overview'], ['resources', 'Resources'], ['simulation', 'Simulation'], ['assessment', 'Assessment'], ['progress', 'Progress']].map(t => Object.assign({ t: t[1], cur: t[0] === tab ? 'page' : undefined }, this.L({ s: 'hub', exp: 'ste', tab: t[0] }))),
+      outcomes: E.outcomes, need: [{ code: 'WEB', t: 'Laptop or desktop with a current web browser' }, { code: 'VR', t: 'Supported VR headset' }] };
+    V.cells = ['WEB', 'AR', 'VR', 'MR'].map(f => { const a = this.avail(w, f), c = this.cellOf(a); return { code: f, name: FN[f], state: a.label, cls: c.cls, glyph: c.glyph, hasGlyph: c.hasGlyph }; });
+    // next step (deterministic rule recorded in HANDOFF.md)
+    const runs = w.runs, a = w.asmt, open = Object.keys(w.opened).length;
+    const nx = (t, d, label, rt) => ({ show: true, t, d, hasD: !!d, label, hasAct: !!label, href: label ? '#' + this.path(rt) : '', go: label ? this.L(rt).go : null });
+    let next = { show: false };
+    if (!paused && !waiting) {
+      const prog = ['WEB', 'VR'].find(f => runs[f].st === 'prog' && this.canLaunch(w, f));
+      const fbDue = ['WEB', 'VR'].find(f => runs[f].st === 'done' && !w.fb[f]);
+      const notStarted = ['WEB', 'VR'].find(f => runs[f].st === 'none' && this.canLaunch(w, f));
+      const nothing = ['WEB', 'VR'].every(f => runs[f].st === 'none');
+      if (prog === 'WEB') next = nx('Continue in your browser', 'WEB is in progress. Last saved ' + runs.WEB.saved + '.', 'Continue WEB', { s: 'web', exp: 'ste' });
+      else if (prog === 'VR') next = nx('Continue on your headset', 'VR is in progress. Last session reported ' + runs.VR.saved + '.', 'Open VR', { s: 'fmt', exp: 'ste', fmt: 'VR' });
+      else if (fbDue) next = nx('Give feedback on ' + fbDue, 'You completed ' + fbDue + ' on ' + this.dOnly(runs[fbDue].done) + '.', 'Give feedback on ' + fbDue, { s: 'fb', exp: 'ste', fmt: fbDue });
+      else if (nothing && !open) next = nx('Open the resources', '', 'Open resources', { s: 'hub', exp: 'ste', tab: 'resources' });
+      else if (nothing) next = nx('Choose a format', 'Each format has its own progress.', 'Choose a format', { s: 'hub', exp: 'ste', tab: 'simulation' });
+      else if (a.st === 'todo') next = nx('Start the assessment', A.name + ' is due ' + A.deadline + '.', 'Open assessment', { s: 'aintro' });
+      else if (a.st === 'prog') next = nx('Finish your attempt', 'Your answers are saved.', 'Continue attempt', { s: 'att' });
+      else if (notStarted) next = nx('Set up ' + notStarted, notStarted + ' is waiting for you.', 'Open ' + notStarted, notStarted === 'WEB' ? { s: 'web', exp: 'ste' } : { s: 'fmt', exp: 'ste', fmt: notStarted });
+      else next = nx('Nothing else to do here right now', 'Your work on each format is in the Progress tab.', '', null);
+    }
+    V.next = next;
+    V.note = paused ? { show: true, cls: 'st-band-note st-band-note--paused', ico: 'sti-pause', t: 'Your institution’s access is paused', d: 'Resources and simulations can’t be opened right now. Your work is kept, and you can continue when it’s lifted.' }
+      : waiting ? { show: true, cls: 'st-band-note st-band-note--wait', ico: 'sti-clock', t: 'You’re waiting for a licence', d: 'No licence is available for you on ACC-0107 right now. Your institution can tell you more.' } : { show: false };
+    // three steps, no locks and no completion verdict
+    const resD = paused ? 'Not available while your institution’s access is paused.' : waiting ? 'Not available to you yet — you’re waiting for a licence.'
+      : open === 0 ? '3 resources · none opened yet.' : open === 1 ? Component.RES.find(x => w.opened[x.id]).short + ' opened on ' + this.dOnly(w.opened[Object.keys(w.opened)[0]]) + '. 2 more to read.' : open + ' of 3 opened.';
+    const w1 = runs.WEB.st, v1 = runs.VR.st, word = s => s === 'done' ? 'completed' : s === 'prog' ? 'in progress' : 'not started';
+    const simD = paused ? 'Not available while your institution’s access is paused. Your progress is kept.' : waiting ? 'Waiting for a licence. Your institution can tell you more.'
+      : !w.vrNow ? 'WEB is available to you; VR is not available right now. WEB ' + word(w1) + ' · VR ' + word(v1) + '.'
+      : (w1 === 'none' && v1 === 'none' ? 'WEB and VR are available to you. ' : '') + 'WEB ' + word(w1) + ' · VR ' + word(v1) + '. Each format has its own progress.';
+    const AS = this.asmtRow(w);
+    const asD = a.st === 'none' ? 'Your faculty hasn’t set an assessment for this experiment yet. Nothing to do here yet.' : a.st === 'todo' ? A.name + ' is ready. Due ' + A.deadline + '.'
+      : a.st === 'prog' ? 'Attempt ' + a.attempt + ' in progress. Your answers are saved.' : a.st === 'wait' ? 'Submitted ' + a.submitted + ' — waiting for marking.'
+      : a.st === 'notrel' ? 'Marked — released after the deadline: ' + A.deadline + '.' : a.st === 'noq' ? 'It can’t be started yet: it has no questions.' : 'Result released ' + this.dOnly(a.released) + '.';
+    const st = (n, t, d, label, rt) => Object.assign({ n, t, d, label, hasAct: !!label }, label ? this.L(rt) : {});
+    V.steps = [
+      st(1, 'Resources', resD, paused || waiting ? '' : 'Open resources', { s: 'hub', exp: 'ste', tab: 'resources' }),
+      st(2, 'Simulation', simD, paused || waiting ? '' : (w1 === 'prog' && this.canLaunch(w, 'WEB') ? 'Continue WEB' : 'Choose a format'), w1 === 'prog' && this.canLaunch(w, 'WEB') ? { s: 'web', exp: 'ste' } : { s: 'hub', exp: 'ste', tab: 'simulation' }),
+      st(3, 'Assessment', asD, AS.has ? AS.act : '', AS.has ? { s: AS.act === 'Continue attempt' ? 'att' : AS.act === 'Open' ? 'aintro' : 'ares' } : null)
+    ];
+    return V;
+  }
+  resVM(w, u) {
+    const paused = w.inst === 'paused', waiting = w.grant === 'waiting';
+    const V = { note: u.data === 'ok' ? '3 resources · each opens in a new tab' : 'Each resource opens in a new tab', has: false, none: false, loading: u.data === 'loading', failed: u.data === 'failed', retry: () => this.apply({ ui: { data: 'ok' }, focus: 'st-res-h' }), rows: [] };
+    if (V.loading || V.failed) return V;
+    V.rows = Component.RES.map(r => {
+      const opened = w.opened[r.id], busy = u.resBusy === r.id, failed = !!u.resFail[r.id] && !busy, held = paused || waiting;
+      return Object.assign({}, r, { stId: 'st-res-st-' + r.id, isNot: !opened && !busy && !failed, isOpened: !!opened && !busy && !failed, isBusy: busy, isFailed: failed,
+        openedText: 'Opened ' + (opened || ''), hasPill: held, pillCls: paused ? 'xr-st xr-st--paused' : 'xr-st xr-st--warn', pill: paused ? 'Paused' : 'Waiting for a licence',
+        canOpen: !held, btn: failed ? 'Try again' : 'Open', aria: (failed ? 'Try opening ' : 'Open ') + r.t + ' in a new tab', open: () => this.openRes(r) });
+    });
+    V.has = V.rows.length > 0;
+    return V;
+  }
+  fpageVM(w, f, u) {
+    const E = Component.EXP.ste, C = Component.CRS, D = Component.DEV, r = w.runs[f], a = this.avail(w, f), pill = this.runPill(w, f), fb = w.fb[f];
+    const paused = w.inst === 'paused', waiting = w.grant === 'waiting', notNow = f === 'VR' && !w.vrNow;
+    const V = { code: f, exp: E.t, crumbExp: this.L({ s: 'hub', exp: 'ste', tab: 'overview' }), crumbSim: this.L({ s: 'hub', exp: 'ste', tab: 'simulation' }),
+      title: f === 'WEB' ? 'WEB simulation' : 'VR on your headset', pillCls: pill[0], pill: pill[1], meta: '', h2: '', d: '', fail: false, hasGo: false, goIsBtn: false, goIsLink: false,
+      goLabel: '', goLink: {}, launch: () => this.launchWeb(), busy: false, busyAria: 'false', hint: '', hasHint: false, hasSecond: false, second: {}, hasDevice: false, hasSetup: false, setup: [],
+      report: this.L({ s: 'helpform' }, { ui: { help: { what: '', where: E.t + ' · ' + (f === 'WEB' ? 'WEB simulation' : 'VR'), err: false, busy: false } } }), about: [] };
+    const doneT = r.done ? this.tOnly(r.done) : '';
+    if (f === 'WEB') {
+      V.meta = r.st === 'prog' ? 'Last saved ' + r.saved : r.st === 'done' ? (r.by === 'platform' ? 'Recorded by the platform at ' + doneT : 'Reported by the simulation at ' + doneT) : 'Needs a laptop or desktop with a current web browser';
+      V.about = [{ k: 'Experiment', v: E.t + ' · ' + C.own }, { k: 'How it works', v: 'Runs in your browser. This page keeps your place.' }, { k: 'In this prototype', v: 'A simulated sample activity stands in for the real simulation.' }, { k: 'Completed means', v: 'The simulation reports that you finished and the platform records it. You can’t mark it yourself.' }];
+      if (paused) { V.h2 = 'You can’t open the simulation right now'; V.d = 'Your institution’s access is paused. Your progress is kept, and you can continue when it’s lifted.'; }
+      else if (waiting) { V.h2 = 'Not available to you yet'; V.d = 'No licence is available for you on ACC-0107 right now. Your institution can tell you more.'; }
+      else if (r.st === 'done') {
+        V.h2 = 'You’ve completed WEB';
+        if (fb) { V.d = 'Thank you — your feedback on WEB is recorded.'; V.hasSecond = true; V.second = Object.assign({ label: 'See your feedback' }, this.L({ s: 'fb', exp: 'ste', fmt: 'WEB' })); }
+        else { V.d = 'Tell us how this format worked for you. It takes about two minutes.'; V.hasGo = true; V.goIsLink = true; V.goLabel = 'Give feedback on WEB'; V.goLink = this.L({ s: 'fb', exp: 'ste', fmt: 'WEB' }); }
+      } else {
+        const busy = u.launch === 'busy', fail = u.launch === 'fail';
+        V.h2 = r.st === 'prog' ? 'Continue where you left off' : 'Start the WEB simulation';
+        V.d = r.st === 'prog' ? 'Your progress is kept between visits. Stage ' + (r.stage || 0) + ' of 3 of the sample activity is finished.' : 'Needs a laptop or desktop with a current web browser. This page keeps your place.';
+        V.fail = fail; V.hasGo = true; V.goIsBtn = true; V.busy = busy; V.busyAria = busy ? 'true' : 'false';
+        V.goLabel = busy ? 'Opening the simulation…' : fail ? 'Try again' : r.st === 'prog' ? 'Continue WEB' : 'Launch WEB';
+        V.hasHint = true; V.hint = 'Opens the simulated sample activity. Opening it doesn’t complete WEB.';
+      }
+    } else {
+      const devNow = w.dev.stage === 'appr' ? w.dev.newDev : w.dev.dev;
+      V.meta = r.st === 'prog' ? 'Last session reported ' + r.saved : r.st === 'done' ? 'Reported from the headset at ' + doneT : (a.kind === 'on' ? 'Needs a VR headset · nothing reported yet' : '');
+      V.about = [{ k: 'Experiment', v: E.t + ' · ' + C.own }, { k: 'How it works', v: 'Runs on your authorised headset, not in this browser. This page shows only what the headset reports.' }, { k: 'Completed means', v: 'The headset reports that you finished. You can’t mark it yourself.' }];
+      V.hasDevice = !!devNow && !paused && !waiting; V.device = devNow; V.devLink = this.L({ s: 'dev' });
+      if (paused) { V.h2 = 'You can’t use VR right now'; V.d = 'Your institution’s access is paused. Your progress is kept.'; }
+      else if (waiting) { V.h2 = 'Not available to you yet'; V.d = 'No licence is available for you on ACC-0107 right now. Your institution can tell you more.'; }
+      else if (notNow) { V.h2 = 'VR isn’t available right now'; V.d = 'VR can’t be used at the moment. WEB still opens, and your VR progress is kept.'; }
+      else if (r.st === 'done') {
+        V.h2 = 'You’ve completed VR';
+        if (fb) { V.d = 'Thank you — your feedback on VR is recorded.'; V.hasSecond = true; V.second = Object.assign({ label: 'See your feedback' }, this.L({ s: 'fb', exp: 'ste', fmt: 'VR' })); }
+        else { V.d = 'Tell us how this format worked for you.'; V.hasGo = true; V.goIsLink = true; V.goLabel = 'Give feedback on VR'; V.goLink = this.L({ s: 'fb', exp: 'ste', fmt: 'VR' }); }
+      } else {
+        V.h2 = r.st === 'prog' ? 'Continue on your headset' : 'Set up VR';
+        V.d = r.st === 'prog' ? 'Pick up where you left off on the headset. This page updates when a session is reported.' : 'VR runs on a headset, not in this browser. Follow the setup steps below. This page changes only when the headset reports a session.';
+        V.hasSetup = true;
+        const open = u.setup === null ? r.st === 'none' : !!u.setup;
+        V.setupOpen = open; V.setupExp = open ? 'true' : 'false'; V.setupCtl = open ? 'st-setup' : undefined; V.setupLabel = open ? 'Hide setup steps' : 'View setup steps';
+        V.toggleSetup = () => this.apply({ ui: { setup: !open } });
+        V.setup = [{ n: 1, t: 'Use your authorised VR headset.', d: 'It is shown under My device, in your account menu.' }, { n: 2, t: 'Open the ' + E.t + ' app on the headset.', d: 'If you can’t find it, contact your institution administrator.' },
+          { n: 3, t: 'Work through the experiment on the headset.', d: 'Your sessions are reported here, so this page shows where you are.' }, { n: 4, t: 'When the headset reports that you’ve finished, this page shows “Completed”.', d: 'You can then give feedback on VR.' }];
+      }
+    }
+    V.hasMeta = !!V.meta;
+    return V;
+  }
+  actVM(w, u) {
+    const r = w.runs.WEB, n = r.stage || 0, done = r.st === 'done', busy = !!u.actBusy;
+    const stages = [1, 2, 3].map(i => ({ k: 'Stage ' + i + ' of 3', s: i <= n ? 'Finished' : i === n + 1 && !done ? 'Now' : 'Not yet', done: i <= n, cls: 'st-stage' + (i <= n ? ' is-done' : i === n + 1 && !done ? ' is-now' : '') }));
+    const cur = Math.min(n + 1, 3);
+    return { exit: this.L({ s: 'web', exp: 'ste' }), stages, working: !done, complete: done, stageTitle: 'Sample stage ' + cur + ' of 3',
+      stageText: cur < 3 ? 'This stage stands in for part of the WEB simulation. Finishing it saves your place; it doesn’t complete WEB.' : 'This is the last stage. When you finish it, the activity reports that you finished and the platform records WEB as completed.',
+      finishLabel: busy ? 'Saving…' : cur < 3 ? 'Finish stage ' + cur : 'Finish the activity', finish: () => this.finishStage(cur), busy, busyAria: busy ? 'true' : 'false',
+      saveCls: 'st-save' + (busy ? '' : ' st-save--ok'), saveIco: busy ? 'sti-clock' : 'sti-check', saveText: busy ? 'Saving…' : (r.saved ? 'Saved ' + this.tOnly(r.saved) : 'Nothing saved yet'),
+      doneLabel: 'Completed ' + this.dOnly(r.done), doneText: (r.by === 'platform' ? 'Recorded by the platform on ' + r.done + ', after the activity’s last stage.' : 'Reported by the simulation on ' + r.done + '.') + (w.fb.WEB ? ' Your feedback on WEB is sent.' : ' You can now give feedback on WEB.') + ' Your VR progress is separate.',
+      canFb: !w.fb.WEB, fb: this.L({ s: 'fb', exp: 'ste', fmt: 'WEB' }) };
+  }
+  progVM(w, u) {
+    const E = Component.EXP.ste, C = Component.CRS, A = Component.ASM;
+    const V = { nothing: false, showList: true, showTools: true, st: u.pst, crs: u.pcrs, crsLabel: C.own + ' · ' + C.name, chips: [], hasChips: false, loading: false, failed: false, nomatch: false, groups: [], count: '',
+      onSt: ev => this.apply({ ui: { pst: ev.target.value } }), onCrs: ev => this.apply({ ui: { pcrs: ev.target.value } }), clear: () => this.apply({ ui: { pst: 'all', pcrs: 'all' }, focus: 'st-p-st' }), retry: () => this.apply({ ui: { data: 'ok' }, focus: 'st-h1' }) };
+    if (w.grant === 'none') { V.nothing = true; V.showList = false; return V; }
+    const earlier = w.grant === 'ended' || w.grant === 'withdrawn';
+    if (earlier) V.showTools = false;
+    if (u.data === 'loading') { V.loading = true; return V; }
+    if (u.data === 'failed') { V.failed = true; return V; }
+    const st = earlier ? 'all' : u.pst, crs = earlier ? 'all' : u.pcrs;
+    let rows = this.fmtRows(w, 'prog');
+    if (st !== 'all') rows = rows.filter(x => x.given && this.avail(w, x.code).kind === 'on' && x.st === st);
+    const a = w.asmt, AS = this.asmtRow(w), sc = this.score(w);
+    const asmt = a.st === 'none' ? 'None set yet' : a.st === 'todo' ? A.name + ' · to do · due ' + A.deadline : a.st === 'prog' ? A.name + ' · attempt in progress' : a.st === 'noq' ? A.name + ' · can’t be started yet'
+      : a.st === 'wait' ? A.name + ' · submitted, waiting for marking' : a.st === 'notrel' ? A.name + ' · marked, result not released yet' : A.name + ' · ' + (sc >= A.passm ? 'passed' : 'not passed') + ' · ' + sc + ' of ' + A.total + ' marks · released ' + this.dOnly(a.released);
+    const linkLabel = { todo: 'Open', prog: 'Continue attempt', ready: 'See result' }[a.st];
+    const exp = Object.assign({ hid: 'st-p-ste', t: E.t, given: 'Given by your institution · SACC-0310' + (w.grant === 'ended' ? ' · access ended on ' + w.endedOn : w.grant === 'withdrawn' ? ' · no longer given to you' : ''),
+      hasOpen: !earlier && w.inst !== 'paused', aria: 'Open experiment ' + E.t, fAria: 'Formats of ' + E.t, rows, asmt, hasAsmtLink: !!linkLabel && !earlier, asmtLink: linkLabel ? Object.assign({ label: linkLabel }, this.L({ s: AS.act === 'Continue attempt' ? 'att' : linkLabel === 'Open' ? 'aintro' : 'ares' })) : {} }, this.L({ s: 'hub', exp: 'ste', tab: 'overview' }));
+    const show = rows.length > 0 && (crs === 'all' || crs === 'mec-523');
+    V.groups = show ? [{ hid: 'st-p-g1', code: C.own, title: earlier ? 'Earlier work · ' + C.name : C.name, d: '1 experiment', hasNote: earlier,
+      note: w.grant === 'ended' ? 'Your access to these experiments has ended. Your progress is kept and stays here.' : 'These experiments are no longer given to you. Your progress is kept and stays here.', exps: [exp] }] : [];
+    V.nomatch = !show;
+    const chips = [];
+    if (st !== 'all') chips.push({ label: 'Status: ' + { prog: 'In progress', done: 'Completed', none: 'Not started' }[st], rm: () => this.apply({ ui: { pst: 'all' }, focus: 'st-p-st' }) });
+    if (crs !== 'all') chips.push({ label: 'Course: ' + C.own, rm: () => this.apply({ ui: { pcrs: 'all' }, focus: 'st-p-c' }) });
+    chips.forEach(c => { c.aria = 'Remove filter ' + c.label; });
+    V.chips = chips; V.hasChips = chips.length > 0;
+    V.count = chips.length ? (show ? 1 : 0) + ' of 1 experiment' : '1 experiment in 1 course';
+    return V;
+  }
+  fbVM(w, f) {
+    const E = Component.EXP.ste, Q = Component.FBQ, SC = Component.SCALE, sent = w.fb[f], d = this.fbDraft(f), pid = 'st-fb-' + f.toLowerCase();
+    const V = { exp: E.t, code: f, crumbExp: this.L({ s: 'hub', exp: 'ste', tab: 'overview' }), crumbFmt: this.L(f === 'WEB' ? { s: 'web', exp: 'ste' } : { s: 'fmt', exp: 'ste', fmt: f }), progress: this.L({ s: 'prog' }),
+      form: !sent, sent: !!sent, h1: sent ? 'Feedback on ' + f + ' sent' : 'Feedback on ' + f, formAria: 'Feedback on ' + f };
+    if (sent) {
+      V.when = sent.when;
+      V.answers = Q.map((t, i) => ({ t: (i + 1) + '. ' + t, v: sent.ans[i + 1] ? sent.ans[i + 1] + ' — ' + SC[sent.ans[i + 1] - 1] : '—' }));
+      V.commentText = sent.comments || '—';
+      return V;
+    }
+    V.qs = Q.map((t, i) => {
+      const n = i + 1, err = d.errs.includes(n);
+      return { n, t: n + '. ' + t, name: pid + '-q' + n, fsId: pid + '-q' + n, cls: 'st-fbq' + (err ? ' is-invalid' : ''), err, errText: 'Choose a rating for statement ' + n, errId: pid + '-q' + n + '-e', desc: err ? pid + '-q' + n + '-e' : undefined,
+        opts: SC.map((lab, j) => ({ v: j + 1, lab, id: pid + '-q' + n + '-' + (j + 1), checked: d.ans[n] === j + 1,
+          pick: () => { const c = this.fbDraft(f); this.setFb(f, { ans: Object.assign({}, c.ans, { [n]: j + 1 }), errs: c.errs.filter(x => x !== n) }); } })) };
+    });
+    V.hasErr = d.errs.length > 0;
+    V.errTitle = d.errs.length === 1 ? 'One rating is missing' : d.errs.length + ' ratings are missing';
+    V.errList = d.errs.map(n => ({ t: 'Choose a rating for statement ' + n, href: '#' + pid + '-q' + n, go: ev => { if (ev) ev.preventDefault(); this.focusId(pid + '-q' + n + '-1'); } }));
+    V.fail = d.fail; V.comments = d.comments; V.onComments = ev => this.setFb(f, { comments: ev.target.value });
+    V.busy = d.busy; V.busyAria = d.busy ? 'true' : 'false'; V.goLabel = d.busy ? 'Sending…' : 'Submit feedback'; V.submit = () => this.sendFb(f);
+    return V;
+  }
+  alistVM(w, r, u) {
+    const A = Component.ASM, AS = this.asmtRow(w), tab = r.tab || 'todo';
+    const V = { noneAtAll: !AS.has, showTabs: AS.has, loading: u.data === 'loading', failed: u.data === 'failed', retry: () => this.apply({ ui: { data: 'ok' }, focus: 'st-h1' }), rows: [], has: false, empty: false };
+    const n = t => (AS.has && AS.tab === t ? 1 : 0);
+    V.tabs = [['todo', 'To do'], ['sub', 'Submitted'], ['res', 'Results']].map(t => Object.assign({ t: t[1], n: String(n(t[0])), hasN: !V.loading && !V.failed, cur: t[0] === tab ? 'page' : undefined }, this.L({ s: 'alist', tab: t[0] })));
+    V.tabTitle = { todo: 'To do', sub: 'Submitted', res: 'Results' }[tab];
+    if (V.loading || V.failed || !AS.has) return V;
+    if (AS.tab === tab) { V.rows = [Object.assign({}, AS, { exp: AS.exp })]; V.has = true; }
+    else { V.empty = true; V.emptyText = { todo: 'Nothing to do right now.', sub: 'Nothing submitted and waiting.', res: 'No results released yet.' }[tab]; }
+    return V;
+  }
+  introVM(w) {
+    const A = Component.ASM, E = Component.EXP.ste, a = w.asmt, sc = this.score(w), passed = sc >= A.passm, left = A.attempts - (a.used || 0);
+    const p = (label, rt, go) => go ? { label, cls: 'rb-btn rb-btn--primary rb-btn--lg', href: '#' + this.path(rt), go } : this.act(label, rt, 'rb-btn rb-btn--primary rb-btn--lg');
+    const s = (label, rt) => this.act(label, rt, 'rb-btn rb-btn--lg');
+    const back = s('Back to experiment', { s: 'hub', exp: 'ste', tab: 'assessment' });
+    const notice = (cls, ico, t, d) => ({ show: true, cls: 'rk-notice rk-notice--' + cls, ico, t, d });
+    const answeredN = A.qs.filter(q => this.answered(a, q.n)).length;
+    const V = { crumb: this.L({ s: 'alist', tab: 'todo' }), expLink: this.L({ s: 'hub', exp: 'ste', tab: 'assessment' }), exp: E.t, name: A.name, desc: A.desc, setBy: 'Set for this assessment by ' + A.fac + '.', notice: { show: false } };
+    V.facts = [{ k: 'Questions', v: '4', s: A.mix }, { k: 'Total marks', v: String(A.total) }, { k: 'Pass mark', v: A.passpct, s: A.passm + ' of ' + A.total + ' marks' },
+      { k: 'Attempts allowed', v: String(A.attempts), s: a.used ? 'You have used ' + a.used : 'You have used none' }, { k: 'Deadline', v: A.deadline }, { k: 'Result and answers', v: 'After the deadline', s: 'Your faculty marks written answers' }]
+      .map(f => Object.assign({ hasS: !!f.s }, f));
+    if (a.st === 'todo') V.acts = [p('Start assessment', { s: 'att' }, ev => { if (ev) ev.preventDefault(); this.startAttempt(); }), back];
+    else if (a.st === 'prog') { V.notice = notice('info', 'sti-clock', 'Attempt ' + a.attempt + ' in progress', 'Your answers are saved. ' + this.plural(answeredN, 'question').replace(/^1 question$/, 'One question') + ' of 4 answered.'); V.acts = [p('Continue attempt', { s: 'att' }), back]; }
+    else if (a.st === 'wait') { V.notice = notice('info', 'sti-clock', 'Submitted — waiting for marking', 'You submitted on ' + a.submitted + '. Your result appears after the deadline: ' + A.deadline + '.'); V.acts = [s('See result page', { s: 'ares' }), back]; }
+    else if (a.st === 'notrel') { V.notice = notice('off', 'sti-clock', 'Marked — result not released yet', 'Results for this assessment are released after the deadline: ' + A.deadline + '.'); V.acts = [s('See result page', { s: 'ares' }), back]; }
+    else if (a.st === 'noq') { V.notice = notice('off', 'sti-info', 'This assessment can’t be started yet', 'It has no questions yet. It appears ready to start when your faculty has added them.'); V.acts = [back]; }
+    else if (a.st === 'ready' && !passed && left > 0) { V.notice = notice('warn', 'sti-info', 'Not passed on attempt ' + a.used + ' · ' + this.plural(left, 'attempt') + ' left', 'You can try once more. Your first result stays on your result page.'); V.acts = [p('Try again', { s: 'att' }, ev => { if (ev) ev.preventDefault(); this.retryAttempt(); }), s('See result', { s: 'ares' })]; }
+    else if (a.st === 'ready') { V.notice = notice(passed ? 'ok' : 'off', passed ? 'sti-check' : 'sti-info', passed ? 'Result released — you passed' : 'Result released', 'Released ' + a.released + ', after the deadline.'); V.acts = [p('See result', { s: 'ares' }), back]; }
+    else V.acts = [back];
+    return V;
+  }
+  attVM(w, u) {
+    const A = Component.ASM, E = Component.EXP.ste, a = w.asmt, att = u.att;
+    const missing = A.qs.filter(q => !this.answered(a, q.n)).map(q => q.n);
+    const form = a.st === 'todo' || a.st === 'prog';
+    const V = { exit: this.L({ s: 'aintro' }), exitLabel: A.name, exp: E.t, name: A.name, attemptText: 'Attempt ' + (a.attempt || 1) + ' of ' + A.attempts,
+      meta: '4 questions · 16 marks · due ' + A.deadline + ' · no time limit', form, done: !form, showSave: form,
+      saveIdle: att.save === 'idle', saving: att.save === 'saving', saved: att.save === 'saved', saveErr: att.save === 'err',
+      retrySave: () => { this.setAtt({ save: 'saving' }); window.setTimeout(() => this.setAtt({ save: 'saved' }), 600); },
+      result: this.L({ s: 'ares' }), backExp: this.L({ s: 'hub', exp: 'ste', tab: 'assessment' }),
+      doneText: (a.submitted ? 'Submitted ' + a.submitted + '. ' : '') + 'Your faculty marks written answers. Your result appears after the deadline: ' + A.deadline + '.' };
+    V.qs = A.qs.map(q => {
+      const isW = q.type === 'written';
+      return { anchor: 'st-q-' + q.n, hid: 'st-q-' + q.n + '-h', label: 'Question ' + q.n + ' of 4 · ' + q.tname, marksText: q.marks + ' marks', text: q.text, isChoice: !isW, isW, name: 'st-att-q' + q.n,
+        tid: 'st-q-' + q.n + '-t', hintId: 'st-q-' + q.n + '-hint', val: isW ? (a.ans[q.n] || '') : '', onText: ev => this.answer(q.n, ev.target.value),
+        opts: q.opts.map((lab, j) => ({ id: 'st-q-' + q.n + '-o' + j, lab, checked: a.ans[q.n] === j, pick: () => this.answer(q.n, j) })) };
+    });
+    V.strip = A.qs.map(q => { const done = this.answered(a, q.n); return { n: q.n, href: '#st-q-' + q.n, cls: done ? 'is-done' : '', aria: 'Question ' + q.n + (done ? ', answered' : ', not answered'), go: ev => { if (ev) ev.preventDefault(); this.focusId('st-q-' + q.n); } }; });
+    V.countText = (4 - missing.length) + ' of 4 answered';
+    V.hasMissing = missing.length > 0; V.allAnswered = missing.length === 0; V.nq = '4';
+    V.missText = missing.length === 1 ? '1 question isn’t answered (question ' + missing[0] + ').' : missing.length + ' questions aren’t answered (' + missing.join(', ') + ').';
+    V.nextUn = () => { if (missing.length) this.focusId('st-q-' + missing[0]); };
+    V.subErr = att.subErr; V.dlg = form && att.dlg; V.busy = att.busy; V.busyAria = att.busy ? 'true' : 'false'; V.okLabel = att.busy ? 'Submitting…' : 'Submit answers';
+    V.submit = () => this.setAtt({ dlg: true, subErr: false }, 'st-dlg-t');
+    V.cancel = () => this.setAtt({ dlg: false }, 'st-submit');
+    V.doSubmit = () => this.doSubmit();
+    V.dlgKey = ev => this.trapKey(ev, () => this.setAtt({ dlg: false }, 'st-submit'), 'st-dlg-cancel', 'st-dlg-ok');
+    return V;
+  }
+  resultVM(w) {
+    const A = Component.ASM, E = Component.EXP.ste, a = w.asmt, sc = this.score(w), passed = sc >= A.passm, left = A.attempts - (a.used || 0);
+    const V = { crumbList: this.L({ s: 'alist', tab: 'todo' }), crumbIntro: this.L({ s: 'aintro' }), name: A.name, fac: A.fac, withheld: a.st !== 'ready', released: a.st === 'ready',
+      back: Object.assign({ label: 'Back to experiment' }, this.L({ s: 'hub', exp: 'ste', tab: 'assessment' })), progress: this.L({ s: 'prog' }) };
+    if (a.st === 'todo' || a.st === 'prog' || a.st === 'noq') Object.assign(V, { ico: 'sti-clip', icoCls: 'xsb-msg-ico', h1: 'Not submitted yet', d: 'Your result appears here after you submit and your answers are marked.', back: Object.assign({ label: 'Back to the assessment' }, this.L({ s: 'aintro' })) });
+    if (a.st === 'wait') Object.assign(V, { ico: 'sti-clock', icoCls: 'xsb-msg-ico xsb-msg-ico--warn', h1: 'Submitted — waiting for marking', d: 'You submitted on ' + a.submitted + '. Your faculty marks written answers. Your result appears after the deadline: ' + A.deadline + '.' });
+    if (a.st === 'notrel') Object.assign(V, { ico: 'sti-clock', icoCls: 'xsb-msg-ico xsb-msg-ico--off', h1: 'Result not released yet', d: 'Your answers have been marked. Results for this assessment are released after the deadline: ' + A.deadline + '.' });
+    if (a.st !== 'ready') return V;
+    Object.assign(V, { h1: passed ? 'You passed' : 'Not passed this time', score: sc + ' of ' + A.total, pillCls: passed ? 'xr-st xr-st--ok rk-st-lg' : 'xr-st rk-st-lg', pill: passed ? 'Passed' : 'Not passed',
+      passText: A.passpct + ' · ' + A.passm + ' of ' + A.total + ' marks', attemptText: 'Attempt ' + (a.used || 1) + ' of ' + A.attempts, releasedText: 'Released ' + a.released + ', after the deadline',
+      canRetry: !passed && left > 0, left: String(left), retry: { href: '#' + this.path({ s: 'att' }), go: ev => { if (ev) ev.preventDefault(); this.retryAttempt(); } } });
+    V.answers = A.qs.map(q => {
+      const isW = q.type === 'written', v = a.ans[q.n], got = isW ? Number(a.mark || 0) : (v === q.correct ? q.marks : 0);
+      return { head: 'Question ' + q.n + ' · ' + q.tname, text: q.text, yours: isW ? (v || 'Not answered') : (v === undefined || v === null ? 'Not answered' : q.opts[v]), isChoice: !isW, correct: isW ? '' : q.opts[q.correct],
+        expl: q.expl, markText: got + ' of ' + q.marks + ' marks', pillCls: got === q.marks ? 'xr-st xr-st--ok' : 'xr-st', hasFb: isW && !!a.fbText, fb: isW ? a.fbText : '' };
+    });
+    return V;
+  }
+  devVM(w, u) {
+    const D = Component.DEV, P = this.person(w), d = w.dev, f = u.devf, paused = w.inst === 'paused';
+    const devNow = d.stage === 'appr' ? d.newDev : d.dev, hasReq = d.stage !== 'none';
+    const W = { sent: ['xr-st xr-st--warn rk-st-lg', 'With your Institute Admin', 'Your Institute Admin forwards it to BITS. Nothing changes on your device yet.'], fwd: ['xr-st xr-st--info rk-st-lg', 'Forwarded to BITS', 'BITS decides. Nothing changes on your device yet.'], appr: ['xr-st xr-st--ok rk-st-lg', 'Approved', 'BITS approved the transfer. Your authorised device is updated above.'] }[d.stage] || ['', '', ''];
+    const hist = [];
+    if (d.stage === 'appr') hist.push({ what: 'Approved by BITS', when: d.t.appr, note: 'The authorised device is now: ' + d.newDev });
+    if (d.stage === 'fwd' || d.stage === 'appr') hist.push({ what: 'Forwarded to BITS by ' + D.ia, when: d.t.fwd, note: '' });
+    if (hasReq) hist.push({ what: 'Requested by ' + P.name, when: d.t.dtr, note: 'From ' + (d.stage === 'appr' ? d.dev : d.dev) + ' to ' + d.newDev });
+    hist.forEach((h, i) => { h.cls = i === 0 ? 'is-latest' : ''; h.hasNote = !!h.note; });
+    return { hasDevice: !!devNow, noDevice: !devNow, device: devNow, canRequest: !!devNow && !paused && !f.form && (d.stage === 'none' || d.stage === 'appr'),
+      openForm: () => this.apply({ ui: { devf: Object.assign({}, this.ui().devf, { form: true, err: '' }) }, focus: 'st-dev-new' }),
+      pausedNote: paused && !!devNow, showForm: f.form && !paused && !!devNow && (d.stage === 'none' || d.stage === 'appr'),
+      f: { dev: f.dev, note: f.note, err: f.err, hasErr: !!f.err, inv: f.err ? 'true' : 'false', desc: f.err ? 'st-dev-new-h st-dev-new-e' : 'st-dev-new-h' },
+      onDev: ev => this.apply({ ui: { devf: Object.assign({}, this.ui().devf, { dev: ev.target.value, err: '' }) } }),
+      onNote: ev => this.apply({ ui: { devf: Object.assign({}, this.ui().devf, { note: ev.target.value }) } }),
+      cancelForm: () => this.apply({ ui: { devf: { form: false, dev: '', note: '', err: '', busy: false } }, focus: 'st-dev-req' }),
+      send: () => this.sendDev(), busy: f.busy, busyAria: f.busy ? 'true' : 'false', sendLabel: f.busy ? 'Sending…' : 'Send request',
+      reqTitle: hasReq ? 'Your transfer request' : 'Transfer requests', hasReq, noReq: !hasReq, hasRef: hasReq && !!d.ref, ref: d.ref, pillCls: W[0], words: W[1], explain: hasReq && d.noIA && d.stage === 'sent' ? 'Nothing changes on your device yet.' : W[2], noIA: hasReq && d.noIA && d.stage === 'sent',
+      hasPrev: !!d.prev, prevText: d.prev ? 'Earlier request' + (d.prev.ref ? ' ' + d.prev.ref : '') + ' · approved ' + d.prev.when : '',
+      from: d.dev, to: d.newDev, hasNote: !!d.note, note: d.note, hist };
+  }
+  helpVM(w, u) {
+    const h = u.help, n = w.reports.length;
+    return { report: this.L({ s: 'helpform' }, { ui: { help: { what: '', where: 'Help & support', err: false, busy: false } } }), crumb: this.L({ s: 'help' }), home: this.L({ s: 'home' }),
+      count: n ? this.plural(n, 'report') : 'No reports', none: n === 0, has: n > 0, rows: w.reports.map(r => ({ t: r.t, d: 'Sent ' + r.when + (r.where ? ' · ' + r.where : ''), st: 'Open' })),
+      f: { what: h.what, where: h.where === null ? 'Help & support' : h.where, hasErr: !!h.err, inv: h.err ? 'true' : 'false', desc: h.err ? 'st-hp-what-h st-hp-what-e' : 'st-hp-what-h',
+        onWhat: ev => this.apply({ ui: { help: Object.assign({}, this.ui().help, { what: ev.target.value }) } }), onWhere: ev => this.apply({ ui: { help: Object.assign({}, this.ui().help, { where: ev.target.value }) } }),
+        goErr: ev => { if (ev) ev.preventDefault(); this.focusId('st-hp-what'); }, send: () => this.sendHelp(), busy: h.busy, busyAria: h.busy ? 'true' : 'false', sendLabel: h.busy ? 'Sending…' : 'Send report' } };
+  }
+
+  renderVals() {
+    const w = this.world(), u = this.ui(), r = this.route(), P = this.person(w), A = Component.ASM;
+    const res = this.resolve(r, w), view = res.view;
+    const is = { home: view === 'home', courses: view === 'courses', course: view === 'course', hub: view === 'hub', fpage: view === 'fpage', act: view === 'act', prog: view === 'prog', fb: view === 'fb',
+      alist: view === 'alist', aintro: view === 'aintro', att: view === 'att', ares: view === 'ares', dev: view === 'dev', help: view === 'help', helpform: view === 'helpform', helpsent: view === 'helpsent', msg: view === 'msg', out: view === 'out' };
+    const shell = !(is.att || is.act || is.out);
+    const navKey = { home: 'home', courses: 'courses', course: 'courses', hub: 'courses', fpage: 'courses', act: 'courses', fb: 'courses', alist: 'alist', aintro: 'alist', att: 'alist', ares: 'alist', prog: 'prog', help: 'help', helpform: 'help', helpsent: 'help' }[view];
+    const closeMenu = () => { this.apply({ ui: { menu: false } }); this.focusId('st-menu'); };
+    const closeAcct = () => { this.apply({ ui: { acct: false } }); this.focusId('st-acct'); };
+    const acctItems = [];
+    if (this.devEligible(w)) acctItems.push(Object.assign({ t: 'My device', ico: 'sti-vr', id: 'st-acct-first' }, this.L({ s: 'dev' })));
+    acctItems.push(Object.assign({ t: 'Help & support', ico: 'sti-help', id: acctItems.length ? 'st-acct-help' : 'st-acct-first' }, this.L({ s: 'help' })));
+    const S = {
+      inst: Component.INST, name: P.name, ini: P.ini, dateLong: w.dateLong, acctAria: 'Account menu, ' + P.name + ', Student, ' + Component.INST,
+      nav: [['home', 'Home', 'sti-home', { s: 'home' }], ['courses', 'My courses', 'sti-book', { s: 'courses', tab: 'courses' }], ['alist', 'Assessments', 'sti-clip', { s: 'alist', tab: 'todo' }], ['prog', 'Progress', 'sti-bars', { s: 'prog' }]]
+        .map(n => Object.assign({ t: n[1], ico: n[2], cur: navKey === n[0] ? 'page' : undefined }, this.L(n[3]))),
+      help: Object.assign({ cur: navKey === 'help' ? 'page' : undefined }, this.L({ s: 'help' })),
+      banner: { paused: shell && w.inst === 'paused' && w.acct === 'active', inactive: shell && w.acct === 'inactive' },
+      menuOpen: shell && !!u.menu, menuExp: u.menu ? 'true' : 'false', openMenu: () => { this.apply({ ui: { menu: true, acct: false } }); this.focusId('st-menu-close'); }, closeMenu,
+      drawerKey: ev => this.trapKey(ev, closeMenu),
+      acctOpen: shell && !!u.acct, acctExp: u.acct ? 'true' : 'false', acctCtl: u.acct ? 'st-acct-menu' : undefined, acctItems,
+      toggleAcct: () => { const o = !this.ui().acct; this.apply({ ui: { acct: o } }); if (o) this.focusId('st-acct-first'); },
+      acctKey: ev => { if (ev.key === 'Escape' && this.ui().acct) { ev.preventDefault(); closeAcct(); } },
+      acctBlur: ev => { const t = ev.relatedTarget; if (this.ui().acct && (!t || !ev.currentTarget.contains(t))) this.apply({ ui: { acct: false } }); },
+      signOut: () => this.apply({ route: { s: 'out' } }),
+      skip: ev => { if (ev) ev.preventDefault(); this.focusId('st-main'); }
+    };
+    const names = Component.NAMES, nm = names[res.id] || names[this.screenKey(r)] || ['', ''];
+    const R = {
+      show: (this.props.chrome || 'review') !== 'none', openExp: u.review ? 'true' : 'false', toggle: () => this.apply({ ui: { review: !this.ui().review } }), bodyCls: 'st-review-body' + (u.review ? ' is-open' : ''),
+      sc: this.scKey(), groups: Component.GROUPS.map(g => ({ label: g[0], opts: g[1].map(k => ({ v: k, t: Component.SC[k].lab })) })),
+      onSc: ev => { const k = ev.target.value; this.setState({ sc: k, world: null, ui: Object.assign(this.baseUi(), { review: this.ui().review }), route: this.route() }); this.focusId('st-h1'); },
+      scr: this.screenKey(r), screens: Component.SCREENS.map(s => ({ v: s[0], t: s[0] + ' · ' + s[1] })),
+      onScr: ev => { const k = ev.target.value; this.apply({ route: this.routeFor(k), ui: { acct: k === 'XS-05' } }); if (k === 'XS-05') this.focusId('st-acct-first'); },
+      data: u.data, onData: ev => this.apply({ ui: { data: ev.target.value } }),
+      id: res.id, name: nm[0], path: nm[1],
+      restart: () => { this.setState({ world: null, ui: Object.assign(this.baseUi(), { review: this.ui().review }), route: null }); this.toTop(); this.focusId('st-h1'); }
+    };
+    const V = { is, shell, S, R, H: {}, C: {}, X: {}, CO: {}, HB: {}, RS: {}, FR: {}, AS1: {}, FP: {}, A: {}, P: {}, FB: {}, AL: {}, AI: {}, AT: { dlg: false }, AR: {}, D: {}, HP: {}, M: res.M || {}, OUT: { signIn: this.L({ s: 'home' }) } };
+    if (is.home) V.H = this.homeVM(w);
+    if (is.courses) { const c = this.coursesVM(w, r, u); V.C = c.C; V.X = c.X; }
+    if (is.course) V.CO = this.courseVM(w);
+    if (is.hub) {
+      V.HB = this.hubVM(w, r, u);
+      if (V.HB.isResources) V.RS = this.resVM(w, u);
+      if (V.HB.isFormats) V.FR = r.tab === 'progress'
+        ? { title: 'Your progress, format by format', intro: 'Each format has its own progress, with no overall percentage. Opening resources isn’t counted here.', listAria: 'Progress by format', rows: this.fmtRows(w, 'prog'), showAsmt: true }
+        : { title: 'Choose a format', intro: 'Formats come from your institution’s access. Each one has its own progress.', listAria: 'Formats', rows: this.fmtRows(w, 'sim'), showAsmt: false };
+      V.AS1 = this.asmtRow(w);
+    }
+    if (is.fpage) V.FP = this.fpageVM(w, res.fmt || r.fmt || 'WEB', u);
+    if (is.act) V.A = this.actVM(w, u);
+    if (is.prog) V.P = this.progVM(w, u);
+    if (is.fb) V.FB = this.fbVM(w, r.fmt);
+    if (is.alist) V.AL = this.alistVM(w, r, u);
+    if (is.aintro) V.AI = this.introVM(w);
+    if (is.att) V.AT = this.attVM(w, u);
+    if (is.ares) V.AR = this.resultVM(w);
+    if (is.dev) V.D = this.devVM(w, u);
+    if (is.help || is.helpform || is.helpsent) V.HP = this.helpVM(w, u);
+    return V;
+  }
+}
+</script>
+</body>
+</html>

@@ -26,8 +26,8 @@
 // src/styles/v3/xs-scoped.css, SA-v1's sa-role.css → src/styles/v3/sa-scoped.css, VE-v1's
 // v3-vendor.css → src/styles/v3/ve-scoped.css, CM-v1's cm.css → src/styles/v3/cm-scoped.css,
 // RV-v1's rv.css → src/styles/v3/rv-scoped.css, IA-v1's ia-role.css →
-// src/styles/v3/ia-scoped.css and FA-v1's fa.css → src/styles/v3/fa-scoped.css, with the same
-// selector-only transform. Before anything is written, the export must name this foundation,
+// src/styles/v3/ia-scoped.css, FA-v1's fa.css → src/styles/v3/fa-scoped.css and ST-v1's
+// v3-student-final.css → src/styles/v3/st-scoped.css, with the same selector-only transform. Before anything is written, the export must name this foundation,
 // its three base sheets must be the foundation's own bytes (a different base is a new foundation
 // version: STOP), and the extension sheet must match both the export's FOUNDATION-LOCK.json and
 // its checksums (the export's own SHA256SUMS.txt, or the list recorded at intake beside it).
@@ -502,6 +502,37 @@ export const ROLE_SHEETS = [
       'panel heads, is left out too: V3P-17 confines it to the Faculty panels.',
     ],
   },
+  {
+    /** The workstream: ST · Student (19 screens). */
+    role: 'ST',
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'ST-v1'),
+    /** The one role stylesheet (every rule selects an `st-` or `sv-` class). */
+    sheet: 'project/v3-student-final.css',
+    /** No SHA256SUMS.txt in the export: the list recorded at intake, `ST-v1.SHA256SUMS.txt`. */
+    sums: 'beside',
+    output: join(packageRoot, 'src', 'styles', 'v3', 'st-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these: the preview root and its review
+     * controls (`st-root`, `st-review*` and with them the `@container streview` rules — "preview
+     * root, review controls (not product UI)", the sheet's Part A), the preview's skip link
+     * (`st-skip`; the shell draws the XS `xs-skip`), and the borrowed XS surfaces (the sheet's
+     * "borrowed XS surfaces (xsb-)"; START-HERE "ASSEMBLY PENDING XS") — the account menu, message
+     * page, signed-out header and Help rows (`xsb-*`) and the form classes of Help & support's
+     * Report a problem (XS-07: `st-form`, `st-formstack`, `st-file`, `st-actions`, `st-sec-note`,
+     * drawn only on the borrowed Help pages). The delivered XS export (XS-v6) draws them. With
+     * `st-root` goes its one descendant rule, `.st-root .rk-errsum li a` (a 24 px target for
+     * error-summary links), which from this layer would reach no product page as written.
+     * `st-main` (no outline on the programmatically focused main) stays: the focused-task pages
+     * (the attempt) carry it on their own main.
+     */
+    omit: /\.(?:st-(?:root|review(?:-[\w-]+)?|skip|form|formstack|file|actions|sec-note)|xsb-[\w-]+)(?![\w-])/,
+    omitNote: [
+      'preview root and review controls (st-root, st-review* with its @container streview rules,',
+      'st-skip) and its borrowed XS surfaces (xsb-*, and the Help form classes st-form, st-formstack,',
+      'st-file, st-actions, st-sec-note), which the delivered XS export draws, are left out; with',
+      'st-root goes its one descendant rule, the error-summary links’ 24 px target written under it.',
+    ],
+  },
 ];
 
 /** Whether every selector of a rule names something its export says is not product UI. */
@@ -509,10 +540,14 @@ export function previewOnlyRule(role, prelude) {
   return splitTopLevel(prelude, ',').every((selector) => role.omit.test(selector));
 }
 
-/** The export's recorded SHA-256 of one of its base sheets, in any of the seven lock layouts. */
+/**
+ * The export's recorded SHA-256 of one of its base sheets, in any of the eight lock layouts (ST-v1:
+ * `baseFiles["project/core.css"].finalSha256`).
+ */
 function exportedBaseSheet(exportLock, sheet) {
   return (
     exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
+    exportLock.baseFiles?.[`project/${sheet}`]?.finalSha256 ??
     exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256 ??
     exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256 ??
     exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256 ??
@@ -523,11 +558,12 @@ function exportedBaseSheet(exportLock, sheet) {
 }
 
 /**
- * The export's recorded SHA-256 of its extension sheet, in any of the seven lock layouts: keyed by
- * path or file name (a hash or `{ sha256 }`), or — IA-v1 — an array of `{ path, sha256 }` entries.
+ * The export's recorded SHA-256 of its extension sheet, in any of the eight lock layouts: keyed by
+ * path or file name (a hash or `{ sha256 }`), or — IA-v1 — an array of `{ path, sha256 }` entries,
+ * or — ST-v1, no `localAdditions` — the final design's `final.roleStylesheet` keyed by path.
  */
 function exportedLocalAddition(exportLock, sheet) {
-  const additions = exportLock.localAdditions;
+  const additions = exportLock.localAdditions ?? exportLock.final?.roleStylesheet;
   const entry = Array.isArray(additions)
     ? additions.find((addition) => addition?.path === sheet || addition?.path === basename(sheet))
     : (additions?.[sheet] ?? additions?.[basename(sheet)]);

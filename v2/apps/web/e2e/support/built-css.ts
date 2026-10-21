@@ -33,6 +33,7 @@ export const V3_LAYER_ORDER = [
   'xr.v3.rv',
   'xr.v3.ia',
   'xr.v3.fa',
+  'xr.v3.st',
   'xr.v3.patch',
 ] as const;
 

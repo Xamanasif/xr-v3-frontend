@@ -2,24 +2,37 @@
 
 import type { AnswerReview, AttemptResultView } from '@xr/contracts/draft';
 import type { AssessmentId, AttemptResult } from '@xr/domain';
-import { Button, Icon, Link, Notice, PageContent, PageHeader, StatusPill } from '@xr/ui';
-import { useId, useState } from 'react';
+import {
+  Button,
+  ButtonLink,
+  Notice,
+  PageHead,
+  StResultAnswer,
+  StResultReview,
+  StScoreCard,
+  StTextLink,
+} from '@xr/ui/v3';
+import { type ReactNode, useId, useState } from 'react';
 
 import {
-  attemptsLeftWords,
   attemptWords,
+  byQuestionWords,
   correctAnswerWords,
   feedbackFromWords,
+  figure,
   ofMarksWords,
-  passMarkWords,
+  outOfWords,
+  passMarkValueWords,
   questionHeadWords,
   releasedWords,
   RESULT_PAGE,
+  RESULT_V3,
   resultOverline,
+  retryLine,
   yourAnswerWords,
 } from '@/copy/result';
+import { ST_STATE_WORDS } from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
-import { STUDENT_WORDS } from '@/copy/student';
 import { useAppNavigation } from '@/nav/navigation';
 import { studentAssessmentAddress } from '@/nav/student-assessments';
 import { PROGRESS_ADDRESS } from '@/nav/student-progress';
@@ -27,132 +40,192 @@ import { useCommand } from '@/queries/use-command';
 
 type Released = Extract<AttemptResult, { readonly kind: 'released' }>;
 
+/** The board's id prefix of the answers (`Rs-ans-1` …: the jump list's targets). */
+const PREFIX = 'Rs';
+
 /**
- * B4-13 f0, f3, f5: the released result — the header ("You passed" / "Not passed this time"
- * under "<assessment> · result"), the score card (`div.xa-score`), "Your answers" (`ul.xa-ans`)
- * and the actions (`div.xw-actions`). Rendered only for a result the service answers `released`.
+ * The released result (ST-v1 `resultVM`, `AR.released`): the crumbs, the head ("<assessment> ·
+ * result", "You passed" / "Not passed this time"), the score panel (score, Passed / Not passed,
+ * pass mark, attempt, release, the marks by question as a jump list, and — not passed with an
+ * attempt left the service allows — "Try again") and "Your answers" with the ways on. Rendered only
+ * for a result the service answers `released`.
  */
 export function ReleasedResult({
   assessmentId,
   view,
   released,
   canStart,
+  crumbs,
+  date,
   hub,
 }: {
   readonly assessmentId: string;
   readonly view: AttemptResultView;
   readonly released: Released;
   readonly canStart: boolean;
+  readonly crumbs: ReactNode;
+  readonly date: string | undefined;
+  /** "Back to experiment": the hub's Assessment tab. */
   readonly hub: string;
 }) {
-  const headingId = useId();
+  const answersId = useId();
+  const byQuestionId = useId();
   const tryAgain = !released.passed && released.attemptsLeft > 0 && canStart;
+  const review = view.review ?? [];
   return (
-    <PageContent wrap="read">
-      <PageHeader
-        className="[margin:8px_0_16px]"
-        overline={resultOverline(view.assessmentName)}
+    <>
+      <PageHead
+        breadcrumbs={crumbs}
+        date={date}
+        eyebrow={resultOverline(view.assessmentName)}
+        variant="record"
         title={released.passed ? RESULT_PAGE.passed : RESULT_PAGE.notPassed}
+        titleFocusTarget
       />
-      <div className="xa-score">
-        <div>
-          <span className="xa-score-n">{ofMarksWords(released.score, released.outOf)}</span>
-          <span className="xa-score-sub">
-            {released.passed ? (
-              <StatusPill tone="ok">{RESULT_PAGE.passedPill}</StatusPill>
-            ) : (
-              <StatusPill tone="err">{RESULT_PAGE.notPassedPill}</StatusPill>
-            )}
-          </span>
-        </div>
-        <div className="xa-score-facts">
-          <span>{passMarkWords(released.passMarkMarks, released.outOf)}</span>
-          <span>{attemptWords(view.attemptNumber, view.attemptsAllowed)}</span>
-          <span>{releasedWords(view.release, released.releasedAt)}</span>
-        </div>
-      </div>
+      <StScoreCard
+        label={RESULT_V3.scoreLabel}
+        score={figure(released.score)}
+        outOf={outOfWords(released.outOf)}
+        status={
+          released.passed
+            ? { tone: 'ok', words: RESULT_PAGE.passedPill }
+            : { tone: 'neutral', words: RESULT_PAGE.notPassedPill }
+        }
+        facts={[
+          {
+            key: 'pass',
+            term: RESULT_V3.passMark,
+            value: passMarkValueWords(released.passMarkMarks, released.outOf),
+          },
+          {
+            key: 'attempt',
+            term: RESULT_V3.attempt,
+            value: attemptWords(view.attemptNumber, view.attemptsAllowed),
+          },
+          {
+            key: 'result',
+            term: RESULT_V3.result,
+            value: releasedWords(view.release, released.releasedAt),
+          },
+        ]}
+        byQuestion={{
+          title: RESULT_V3.byQuestion,
+          titleId: byQuestionId,
+          items: review.map((answer) => {
+            const words = byQuestionWords(answer.number, answer.awarded, answer.outOf);
+            return {
+              targetId: `${PREFIX}-ans-${answer.number}`,
+              label: words.label,
+              mark: words.mark,
+              full: answer.awarded === answer.outOf,
+              ariaLabel: words.name,
+            };
+          }),
+        }}
+        retry={
+          tryAgain
+            ? {
+                text: retryLine(released.attemptsLeft, view.attemptNumber),
+                action: <TryAgain assessmentId={assessmentId} />,
+              }
+            : undefined
+        }
+      />
       {view.review ? (
-        <section className="xr-section mt-6" aria-labelledby={headingId}>
-          <div className="xr-section-head">
-            <h2 id={headingId} className="xr-h2">
-              {RESULT_PAGE.yourAnswers}
-            </h2>
-          </div>
-          <div className="[padding:0_24px_24px]">
-            <ul className="xa-ans">
-              {view.review.map((answer) => (
-                <AnswerCard key={answer.questionId} answer={answer} />
-              ))}
-            </ul>
-          </div>
-        </section>
+        <StResultReview
+          title={RESULT_PAGE.yourAnswers}
+          titleId={answersId}
+          foot={
+            <>
+              <ButtonLink size="lg" href={hub}>
+                {RESULT_PAGE.backToExperiment}
+              </ButtonLink>
+              <StTextLink href={PROGRESS_ADDRESS}>{RESULT_PAGE.seeProgress}</StTextLink>
+            </>
+          }
+        >
+          {view.review.map((answer) => (
+            <AnswerItem key={answer.questionId} answer={answer} />
+          ))}
+        </StResultReview>
       ) : null}
-      <ResultActions
-        assessmentId={assessmentId}
-        hub={hub}
-        attemptsLeft={tryAgain ? released.attemptsLeft : null}
-      />
-    </PageContent>
+    </>
   );
 }
 
-/** One answer (`ul.xa-ans > li`): head, question, your answer, the key, explanation, feedback. */
-function AnswerCard({ answer }: { readonly answer: AnswerReview }) {
+/** Whether a choice answer is the key's (`resultVM` `right`); `null` for a written answer. */
+function isRight(answer: AnswerReview): boolean | null {
+  if (answer.type === 'written' || answer.correct === null) return null;
+  const yours = answer.yourAnswer;
+  if (yours === null) return false;
+  if (yours.type === 'multiple-choice') return yours.choice === answer.correct;
+  if (yours.type === 'true-false') return String(yours.value) === answer.correct;
+  return false;
+}
+
+/**
+ * One answer (`li.sv-ans`): the head and mark, the question, your answer with its verdict, the
+ * correct answer only where it differs, the explanation and the faculty's feedback.
+ */
+function AnswerItem({ answer }: { readonly answer: AnswerReview }) {
+  const headingId = useId();
+  const right = isRight(answer);
   const correct = correctAnswerWords(answer.type, answer.correct, answer.options);
-  const awarded = answer.awarded > 0;
+  const unanswered =
+    answer.yourAnswer === null ||
+    (answer.yourAnswer.type === 'written' && answer.yourAnswer.text.trim() === '');
+  const yours = unanswered
+    ? RESULT_V3.notAnswered
+    : yourAnswerWords(answer.type, answer.yourAnswer, answer.options);
   return (
-    <li>
-      <div className="xa-q-head">
-        <span className="xa-q-n">{questionHeadWords(answer.number, answer.type)}</span>
-        <span className={awarded ? 'xa-mk is-ok' : 'xa-mk is-no'}>
-          <Icon name={awarded ? 'done' : 'close'} />
-          {ofMarksWords(answer.awarded, answer.outOf)}
-        </span>
-      </div>
-      <p className="xa-q-text m-0 text-[17px] leading-[26px]">{answer.text}</p>
-      <div className="xa-ans-row">
-        <span>{RESULT_PAGE.yourAnswer}</span>
-        <span className="[white-space:pre-line]">
-          {yourAnswerWords(answer.type, answer.yourAnswer, answer.options)}
-        </span>
-      </div>
-      {correct !== null ? (
-        <div className="xa-ans-row">
-          <span>{RESULT_PAGE.correctAnswer}</span>
-          <span>{correct}</span>
-        </div>
-      ) : null}
-      {answer.explanation ? (
-        <div className="xa-ans-row">
-          <span>{RESULT_PAGE.explanation}</span>
-          <span>{answer.explanation}</span>
-        </div>
-      ) : null}
-      {answer.feedback ? (
-        <div className="xa-ans-row">
-          <span>{feedbackFromWords(answer.feedbackBy)}</span>
-          <span className="[white-space:pre-line]">{answer.feedback}</span>
-        </div>
-      ) : null}
-    </li>
+    <StResultAnswer
+      id={`${PREFIX}-ans-${answer.number}`}
+      headingId={headingId}
+      head={questionHeadWords(answer.number, answer.type)}
+      mark={{
+        tone: answer.awarded === answer.outOf ? 'ok' : 'neutral',
+        words: ofMarksWords(answer.awarded, answer.outOf),
+      }}
+      question={answer.text}
+      yours={{
+        term: RESULT_PAGE.yourAnswer,
+        value: yours,
+        verdict:
+          right === null
+            ? undefined
+            : {
+                ok: right,
+                words: right
+                  ? RESULT_V3.correct
+                  : unanswered
+                    ? RESULT_V3.notAnswered
+                    : RESULT_V3.notCorrect,
+              },
+      }}
+      correct={
+        right === false && correct !== null
+          ? { term: RESULT_PAGE.correctAnswer, value: correct }
+          : undefined
+      }
+      explanation={
+        answer.explanation
+          ? { term: RESULT_PAGE.explanation, value: answer.explanation }
+          : undefined
+      }
+      feedback={
+        answer.feedback
+          ? { term: feedbackFromWords(answer.feedbackBy), value: answer.feedback }
+          : undefined
+      }
+    />
   );
 }
 
 /**
- * f0, f3 `div.xw-actions`: "Back to experiment" (the one primary), then — f3 only — "Try again"
- * with "You have 1 attempt left.", then "See your progress". "Try again" starts the new attempt
- * and opens it (`ST-14.try-again`); a refusal or a failure is said in place.
+ * "Try again" (`div.sv-score-retry`): starts the new attempt and opens it (`ST-14.try-again`); a
+ * refusal or a failure is said in place.
  */
-function ResultActions({
-  assessmentId,
-  hub,
-  attemptsLeft,
-}: {
-  readonly assessmentId: string;
-  readonly hub: string;
-  /** The attempts left when "Try again" is shown; `null` hides it. */
-  readonly attemptsLeft: number | null;
-}) {
+function TryAgain({ assessmentId }: { readonly assessmentId: string }) {
   const navigation = useAppNavigation();
   const start = useCommand((ports) => ports.assessments.startAttempt);
   const [problem, setProblem] = useState<'refused' | 'failed' | null>(null);
@@ -170,39 +243,27 @@ function ResultActions({
 
   return (
     <>
+      <Button
+        variant="primary"
+        size="lg"
+        busy={start.busy}
+        busyLabel={stateWords('ST-14.starting')}
+        onClick={() => void tryAgain()}
+      >
+        {RESULT_PAGE.tryAgain}
+      </Button>
       {problem === 'failed' ? (
-        <Notice tone="err" className="mt-6" title={stateWords('ST-14.start-failed')}>
-          {STUDENT_WORDS.failedLine}
+        <Notice
+          tone="warn"
+          icon="alertCircle"
+          role="alert"
+          title={stateWords('ST-14.start-failed')}
+        >
+          {ST_STATE_WORDS.failedLine}
         </Notice>
       ) : problem === 'refused' ? (
-        <Notice
-          tone="err"
-          role="status"
-          className="mt-6"
-          title={stateWords('ST-14.start-refused')}
-        />
+        <Notice tone="off" role="status" title={stateWords('ST-14.start-refused')} />
       ) : null}
-      <div className="xw-actions mt-6">
-        <Link className="xr-btn xr-btn--primary" href={hub}>
-          {RESULT_PAGE.backToExperiment}
-        </Link>
-        {attemptsLeft !== null ? (
-          <>
-            <Button
-              variant="secondary"
-              busy={start.busy}
-              busyLabel={stateWords('ST-14.starting')}
-              onClick={() => void tryAgain()}
-            >
-              {RESULT_PAGE.tryAgain}
-            </Button>
-            <span className="xl-meta">{attemptsLeftWords(attemptsLeft)}</span>
-          </>
-        ) : null}
-        <Link className="xr-btn xr-btn--text" href={PROGRESS_ADDRESS}>
-          {RESULT_PAGE.seeProgress}
-        </Link>
-      </div>
     </>
   );
 }

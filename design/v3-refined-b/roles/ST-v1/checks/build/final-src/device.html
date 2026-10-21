@@ -1,0 +1,81 @@
+      <!-- ══════════ ST-18 My device: one card — the authorised headset and the one action, the transfer form when
+           opened, then your request as three dated steps with its state; "How a transfer works" beside it. ══════════ -->
+      <sc-if value="{{ is.dev }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">My device</h1>
+          <p class="rk-sub">The device authorised for your headset formats</p>
+        </div>
+      </div>
+      <div class="sv-ov">
+        <div class="sv-card sv-devmain">
+          <section class="sv-devsec sv-devnow" aria-labelledby="st-dev-h">
+            <sc-if value="{{ D.hasDevice }}" hint-placeholder-val="{{ true }}">
+            <span class="sv-devico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-vr"></use></svg></span>
+            <div class="sv-devnow-main">
+              <p class="sv-eyebrow">Authorised device</p>
+              <h2 class="sv-devname" id="st-dev-h">{{ D.device }}</h2>
+              <p class="sv-devuse"><span class="{{ D.chip.fmtCls }}" aria-hidden="true">VR<sc-if value="{{ D.chip.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ D.chip.glyph }}"></use></svg></sc-if></span><span><span class="xr-sr">Used for VR: </span>{{ D.devUse }}</span></p>
+            </div>
+            <sc-if value="{{ D.canRequest }}" hint-placeholder-val="{{ true }}"><div class="sv-devnow-act"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-dev-req" onClick="{{ D.openForm }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-swap"></use></svg>Request a device transfer</button></div></sc-if>
+            </sc-if>
+            <sc-if value="{{ D.noDevice }}" hint-placeholder-val="{{ false }}">
+            <span class="sv-devico sv-devico--off" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-vr"></use></svg></span>
+            <div class="sv-devnow-main">
+              <h2 class="sv-devname" id="st-dev-h">No authorised device is recorded for you</h2>
+              <p class="sv-devuse">Your institution can tell you more. When a device is authorised for you, it appears here.</p>
+            </div>
+            </sc-if>
+            <sc-if value="{{ D.pausedNote }}" hint-placeholder-val="{{ false }}"><p class="sv-devlock"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-lock"></use></svg><span>You can’t request a transfer while your institution’s access is paused.</span></p></sc-if>
+          </section>
+
+          <sc-if value="{{ D.showForm }}" hint-placeholder-val="{{ false }}">
+          <section class="sv-devsec sv-devform" aria-labelledby="st-dtf-h">
+            <h2 class="sv-sec-t" id="st-dtf-h">Request a device transfer</h2>
+            <dl class="sv-dl sv-dl--rows sv-devfrom"><div><dt>Moving from</dt><dd>{{ D.device }}</dd></div></dl>
+            <div class="rk-field">
+              <label class="rk-label" for="st-dev-new">New device</label>
+              <p class="rk-hint" id="st-dev-new-h">Describe it the way your lab or institution labels it — for example, its asset tag.</p>
+              <input id="st-dev-new" class="rk-input" type="text" autocomplete="off" value="{{ D.f.dev }}" aria-invalid="{{ D.f.inv }}" aria-describedby="{{ D.f.desc }}" onChange="{{ D.onDev }}">
+              <sc-if value="{{ D.f.hasErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="st-dev-new-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>{{ D.f.err }}</p></sc-if>
+            </div>
+            <div class="rk-field">
+              <label class="rk-label" for="st-dev-note">Anything your Institute Admin should know (optional)</label>
+              <textarea id="st-dev-note" class="rk-textarea" value="{{ D.f.note }}" onChange="{{ D.onNote }}"></textarea>
+            </div>
+            <p class="rk-hint">Your Institute Admin forwards the request to BITS, and BITS decides.</p>
+            <div class="sv-devform-act"><button type="button" class="rb-btn rb-btn--lg" onClick="{{ D.cancelForm }}">Cancel</button><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" aria-busy="{{ D.busyAria }}" disabled="{{ D.busy }}" onClick="{{ D.send }}">{{ D.sendLabel }}</button></div>
+          </section>
+          </sc-if>
+
+          <section class="sv-devsec" aria-labelledby="st-dtr-h">
+            <div class="sv-devreq-h"><h2 class="sv-sec-t" id="st-dtr-h">{{ D.reqTitle }}</h2><sc-if value="{{ D.hasReq }}" hint-placeholder-val="{{ false }}"><span class="{{ D.pillCls }}"><i></i>{{ D.words }}</span></sc-if></div>
+            <sc-if value="{{ D.noReq }}" hint-placeholder-val="{{ true }}"><p class="sv-devnone">No transfer requests yet.</p></sc-if>
+            <sc-if value="{{ D.hasReq }}" hint-placeholder-val="{{ false }}">
+            <div class="sv-devst" id="st-dtr-st" tabindex="-1">
+              <p class="sv-devexp">{{ D.explain }}</p>
+              <ol class="sv-steps sv-devsteps" aria-label="Steps of your transfer request"><sc-for list="{{ D.steps }}" as="g" hint-placeholder-count="3"><li class="{{ g.cls }}" aria-label="{{ g.aria }}"><p class="sv-steps-k" aria-hidden="true">{{ g.k }}<sc-if value="{{ g.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></sc-if></p><p class="sv-steps-s" aria-hidden="true">{{ g.s }}</p></li></sc-for></ol>
+            </div>
+            <sc-if value="{{ D.noIA }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--warn sv-devnoia"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg><p class="rk-notice-t">This request can’t be forwarded yet</p><p class="rk-notice-d">Your institution has no Institute Admin right now. It stays here until one is assigned.</p></div>
+            </sc-if>
+            <dl class="sv-dl sv-dl--rows sv-devdl"><sc-if value="{{ D.hasRef }}" hint-placeholder-val="{{ false }}"><div><dt>Reference</dt><dd><span class="rk-code rk-code--plain">{{ D.ref }}</span></dd></div></sc-if><div><dt>From</dt><dd>{{ D.from }}</dd></div><div><dt>To</dt><dd>{{ D.to }}</dd></div><sc-if value="{{ D.hasNote }}" hint-placeholder-val="{{ false }}"><div><dt>Your note</dt><dd>{{ D.note }}</dd></div></sc-if></dl>
+            <sc-if value="{{ D.hasPrev }}" hint-placeholder-val="{{ false }}"><p class="sv-devprev">{{ D.prevText }}</p></sc-if>
+            </sc-if>
+          </section>
+        </div>
+        <aside class="sv-card sv-ov-side" aria-labelledby="st-dev-how">
+          <section class="sv-sec sv-side-sec">
+            <h2 class="sv-h3" id="st-dev-how">How a transfer works</h2>
+            <ol class="sv-howto sv-devhow">
+              <li><span class="sv-how-n" aria-hidden="true">1</span><div><p class="sv-howto-t">You ask for the transfer</p><p class="sv-howto-d">Name the new device and add a note if it helps.</p></div></li>
+              <li><span class="sv-how-n" aria-hidden="true">2</span><div><p class="sv-howto-t">Your Institute Admin forwards it</p><p class="sv-howto-d">The request goes to BITS.</p></div></li>
+              <li><span class="sv-how-n" aria-hidden="true">3</span><div><p class="sv-howto-t">BITS approves it</p><p class="sv-howto-d">Your authorised device changes here.</p></div></li>
+            </ol>
+            <p class="sv-side-d sv-devnote">A transfer only changes which device is authorised for your headset formats. Your progress stays with you.</p>
+          </section>
+        </aside>
+      </div>
+      </sc-if>
+

@@ -658,10 +658,11 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
  * Three product fixes, each confined to the Faculty element:
  * - FA-16 "How many drafts" (`.fa-segpick`): fa.css hides each radio at `opacity: 0` over its label
  *   and rings the label (`label:has(input:focus-visible)`), so the keyboard reaches a control no
- *   one can see (BC13; the focus harness refuses it). As the product's rating scale does
- *   (st-16-feedback/rating-scale.tsx), the radio stays the label-sized cover but is painted as
- *   nothing — no appearance, border or background, fully opaque — so the focused control is the
- *   visible choice itself; its own ring is dropped, the label's stays.
+ *   one can see (BC13; the focus harness refuses it). As the product's v46 rating scale did (the
+ *   former st-16-feedback/rating-scale.tsx; the V3 Student scale draws visible radios), the radio
+ *   stays the label-sized cover but is painted as nothing — no appearance, border or background,
+ *   fully opaque — so the focused control is the visible choice itself; its own ring is dropped,
+ *   the label's stays.
  * - FA-09's offer "Add this question to the assessment" (`.rk-notice.rk-x-notice-wrap`, `Notice`
  *   `wrapActions`): the button keeps the foundation's `white-space: nowrap`, wider than the
  *   notice's column at 375 px, so the page scrolls sideways; here its label wraps instead.
@@ -803,5 +804,51 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 :where(.xr) .fa-iconbtn:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
 :where(.xr) .fa-savednote:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
 :where(.xr) .fa-panel-x:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  border-radius: 6px;
+}
+
+/*
+ * V3P-18 · The Student export's error-summary targets and its cascade (design/v3-refined-b/roles/
+ * ST-v1, `project/StudentFinal.dc.html` and `project/v3-student-final.css`).
+ *
+ * Inline styles. The export's template writes 6 `style=` and none is on a Student product element,
+ * so nothing is patched for them: the hidden icon sprite (the product draws each icon inline); the
+ * borrowed XS-07 Help & support page's "My reports" (its section's `padding-bottom: 12px`, its
+ * head's `margin-bottom: 0`, the empty state's and the list's `border-top`), which the delivered
+ * XS components draw; and the drawer brand's `padding-top: 0` (the shell's). The script writes no
+ * `style=`.
+ *
+ * The error-summary targets. The sheet sizes each summary link as a 24 px target (WCAG 2.5.8) with
+ * `.st-root .rk-errsum li a{display:inline-block;padding:1px 0}` — written under the preview root,
+ * which no product page carries, so the generator leaves it out of st-scoped.css. It is restored
+ * here, as written, on the Student's error summaries only (`.rk-errsum.rk-x-errsum-target`,
+ * `StFeedbackErrors`: ST-16's missing ratings). V3P-17's `rk-x-errsum-spaced` (4 px between the
+ * links) is not the same declaration, so it is not reused.
+ *
+ * And the export's cascade, checked as for V3P-17: the export loads core.css, rb.css, rb-kit.css,
+ * then v3-student-final.css unlayered, while the product's `xr.v3.st` layer wins whatever the
+ * specificity. Comparing both cascades on every element and longhand an `st-` / `sv-` rule sets,
+ * on every Student screen state reached through the product (ST-01 … ST-19 with their tabs, the
+ * hub's five sections, the format pages, feedback and its missing ratings, My device and its
+ * transfer form, the assessment list, Before you start, the focused attempt with its answer, submit
+ * dialog and done state, the result; before access, after Flow B, C and D, and the inactive
+ * Student, at 1440 and 375, at rest and with hover / focus forced) finds these elements, and only
+ * these, where they differ; the rule restores, on exactly the elements both rules match, the
+ * declaration the export's winning rule gives:
+ * - Focus (core.css `.xr :where(a, button, …, [tabindex]):focus-visible` 0,2,0 over `.st-main` and
+ *   `.sv-card` 0,1,0): the keyboard focus ring on the focused attempt's main (ST-13, `st-main`
+ *   takes the outline away only at rest and for a pointer) and the ring's 6 px corners on a card
+ *   that takes focus (ST-13's "Answers submitted").
+ */
+:where(.xr) .rk-errsum.rk-x-errsum-target li a:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: inline-block;
+  padding: 1px 0;
+}
+
+:where(.xr) .st-main:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  outline: 2px solid var(--focus);
+}
+
+:where(.xr) .sv-card:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
   border-radius: 6px;
 }

@@ -16,6 +16,7 @@ import {
   iaExportText,
   rvExportText,
   saExportText,
+  stExportText,
   v3BoardText,
   veExportText,
   xsExportText,
@@ -39,7 +40,7 @@ const XS_FILES = [
 ];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board or the XS, SA, VE, CM, RV, IA or FA export draws', () => {
+  it('every icon is a path a V3 board or the XS, SA, VE, CM, RV, IA, FA or ST export draws', () => {
     const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
       '\n',
     );
@@ -57,6 +58,8 @@ describe('V3 icons', () => {
     const iaRoot = iaExportText('Main.dc.html');
     // The Faculty export (FA-v1) draws every glyph as `<symbol id="fai-…">` in its live root.
     const faRoot = faExportText('Main.dc.html');
+    // The Student export (ST-v1) does the same with its `<symbol id="sti-…">`.
+    const stRoot = stExportText('StudentFinal.dc.html');
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
       expect(
         drawn.includes(`d="${path}"`) ||
@@ -65,7 +68,8 @@ describe('V3 icons', () => {
           cmSprite.includes(`<path d="${path}"></path></symbol>`) ||
           rvRoot.includes(`<path d="${path}"></path>`) ||
           iaRoot.includes(`<path d="${path}"></path>`) ||
-          faRoot.includes(`<path d="${path}"></path></symbol>`),
+          faRoot.includes(`<path d="${path}"></path></symbol>`) ||
+          stRoot.includes(`<path d="${path}"></path></symbol>`),
         name,
       ).toBe(true);
     }
@@ -151,11 +155,62 @@ describe('V3 icons', () => {
     }
   });
 
+  it('draws every glyph of the Student export (ST-v1 `sti-*` sprite) its pages use', () => {
+    const root = stExportText('StudentFinal.dc.html');
+    const paths = new Set<string>(Object.values(V3_ICON_PATHS));
+    const symbols = new Map(
+      [
+        ...root.matchAll(
+          /<symbol id="(sti-[\w-]+)" viewBox="0 0 24 24"><path d="([^"]+)"><\/path>/g,
+        ),
+      ].map((match) => [match[1]!, match[2]!] as const),
+    );
+    expect(symbols.size).toBe(38);
+    // Every glyph is a sprite symbol: nothing else in the root draws a path.
+    expect([...root.matchAll(/<path d="/g)].length).toBe(symbols.size);
+    // A glyph is drawn by its id in the markup (`#sti-…"`) or named in the script (`'sti-…'`).
+    const uses = (id: string) =>
+      [...root.matchAll(new RegExp(`#${id}"|'${id}'`, 'g'))].map((match) => match.index);
+    /*
+     * Not drawn by a Student page: two symbols nothing uses (`sti-cal`, `sti-filter`); the review
+     * controls' Restart (`sti-refresh`, inside the preview-only `st-review` strip); and the way out
+     * (`sti-signout`), drawn only by the borrowed XS surfaces the delivered XS export replaces —
+     * the account menu's Sign out (XS-05, `xsb-menu`) and the signed-out page (XS-03, `xsb-msg`).
+     */
+    const UNUSED = ['sti-cal', 'sti-filter'];
+    for (const id of UNUSED) expect(uses(id), id).toEqual([]);
+    const review = root.indexOf('<div class="st-review"');
+    const reviewEnd = root.indexOf('<a class="st-skip"');
+    expect(review > 0 && reviewEnd > review).toBe(true);
+    const refresh = uses('sti-refresh');
+    expect(refresh).toHaveLength(1);
+    for (const at of refresh) expect(at > review && at < reviewEnd).toBe(true);
+    const menu = root.indexOf('<div class="xsb-menu" id="st-acct-menu">');
+    const signedOut = root.indexOf('<header class="xsb-public">');
+    const borrowed: [number, number][] = [
+      [menu, root.indexOf('</ul>', menu)],
+      [signedOut, root.indexOf('</main>', signedOut)],
+    ];
+    const signouts = uses('sti-signout');
+    expect(signouts).toHaveLength(2);
+    for (const at of signouts) {
+      expect(borrowed.some(([from, to]) => from > 0 && at > from && at < to)).toBe(true);
+    }
+    const used = [...symbols].filter(
+      ([id]) => ![...UNUSED, 'sti-refresh', 'sti-signout'].includes(id),
+    );
+    expect(used).toHaveLength(34);
+    for (const [id, glyph] of used) {
+      expect(uses(id).length, id).toBeGreaterThan(0);
+      expect(paths.has(glyph), id).toBe(true);
+    }
+  });
+
   it('takes the shared icons from the v46 registry (one path per glyph, never two)', () => {
     const shared = Object.entries(V3_ICON_PATHS).filter(([, path]) =>
       Object.values(ICON_PATHS).includes(path as never),
     );
-    expect(shared.length).toBe(35);
+    expect(shared.length).toBe(39);
   });
 
   it('renders the core.css icon, decorative', () => {

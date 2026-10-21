@@ -26,6 +26,9 @@
  * - the committed `v3/fa-scoped.css` is the same for the Faculty role stylesheet of the
  *   owner-approved Faculty export (design/v3-refined-b/roles/FA-v1), less the borrowed XS surfaces
  *   the delivered XS export replaces;
+ * - the committed `v3/st-scoped.css` is the same for the Student role stylesheet of the
+ *   owner-approved Student export (design/v3-refined-b/roles/ST-v1), less its preview root, review
+ *   controls and skip link and the borrowed XS surfaces the delivered XS export replaces;
  * - the central patches (`v3/patch.css`) are confined the same way and use only allow-listed
  *   product classes — except V3P-09's container name on the v46 app root that holds a V3 region;
  * - the entry puts both in `xr.v3`, nothing reaches `:root`, `html` or `body`, nothing loads a URL,
@@ -129,6 +132,9 @@ const iaDerived = readFileSync(iaRole.output, 'utf8');
 const faRole = ROLE_SHEETS.find((role) => role.role === 'FA')!;
 const faSource = readFileSync(join(faRole.directory, faRole.sheet), 'utf8');
 const faDerived = readFileSync(faRole.output, 'utf8');
+const stRole = ROLE_SHEETS.find((role) => role.role === 'ST')!;
+const stSource = readFileSync(join(stRole.directory, stRole.sheet), 'utf8');
+const stDerived = readFileSync(stRole.output, 'utf8');
 
 /** The top-level grouping at-rules of `css`, each with the style rules directly inside it. */
 function groupsOf(css: string): { readonly prelude: string; readonly rules: Rule[] }[] {
@@ -257,6 +263,7 @@ describe('generated xs-scoped.css (the XS export, design/v3-refined-b/roles/XS-v
       'RV',
       'IA',
       'FA',
+      'ST',
     ]);
     expect(xsDerived).toBe(renderRoleCss(readRoleInput(xsRole)));
   });
@@ -630,7 +637,7 @@ describe('patch.css (V3P-nn)', () => {
     expect([...product].sort()).toEqual([...V3_PRODUCT_CLASS_ALLOW_LIST].sort());
   });
 
-  it('numbers its patches V3P-01 … V3P-17 in order; V3P-06 and V3P-07 are retired, not reused', () => {
+  it('numbers its patches V3P-01 … V3P-18 in order; V3P-06 and V3P-07 are retired, not reused', () => {
     expect([...patch.matchAll(/V3P-(\d\d) ·/g)].map((match) => match[1])).toEqual([
       '01',
       '02',
@@ -649,6 +656,7 @@ describe('patch.css (V3P-nn)', () => {
       '15',
       '16',
       '17',
+      '18',
     ]);
     for (const retired of ['06', '07']) {
       expect(patch).toMatch(new RegExp(`V3P-${retired} · retired`));
@@ -1415,7 +1423,7 @@ describe('patch.css (V3P-nn)', () => {
     const start = patch.indexOf('V3P-17 ·');
     expect(start).toBeGreaterThan(0);
     expect(
-      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2, patch.indexOf('/*\n * V3P-18 ·')))
         .flatMap((rule) => splitTopLevel(rule.prelude, ','))
         .map((part) => part.trim().replace(/\s+/g, ' '))
         .sort(),
@@ -1429,6 +1437,96 @@ describe('patch.css (V3P-nn)', () => {
         `${SCOPE_PREFIX}.fa-segpick input:focus-visible${ISLAND_EXCLUSION}`,
         `${SCOPE_PREFIX}.rk-notice.rk-x-notice-wrap .rk-notice-act .rb-btn${ISLAND_EXCLUSION}`,
         `${SCOPE_PREFIX}.rk-errsum.rk-x-errsum-spaced li + li${ISLAND_EXCLUSION}`,
+        ...CASCADE.map((restoration) => `${SCOPE_PREFIX}${restoration.patch}${ISLAND_EXCLUSION}`),
+      ].sort(),
+    );
+  });
+
+  it("V3P-18: the Student export's style= — none on a Student product element, each recorded", () => {
+    const main = readFileSync(join(stRole.directory, 'project', 'StudentFinal.dc.html'), 'utf8');
+    const at = main.indexOf('<script type="text/x-dc"');
+    /** The export's template: the markup before its logic script (which writes no `style=`). */
+    const template = main.slice(0, at);
+    expect(main.slice(at)).not.toContain('style=');
+    /*
+     * Every `style=` with why it is not patched: the hidden icon sprite (the product draws each
+     * icon inline); the borrowed XS-07 Help & support page's "My reports" (its section, its head,
+     * the empty state and the list), which the delivered XS components draw; and the drawer
+     * brand's `padding-top: 0` (the shell's).
+     */
+    const NOT_PATCHED = [
+      '<svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">',
+      '<div class="rk-sec" style="padding-bottom: 12px"><div class="rk-sec-h" style="margin-bottom: 0"><h2 class="rb-h2" id="st-hp-h">My reports</h2>',
+      '<div class="rk-state" style="border-top: 1px solid var(--rb-line)"><span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-flag"></use></svg></span><h3 class="rk-state-t">No reports yet</h3>',
+      '<ul style="border-top: 1px solid var(--rb-line)"><sc-for list="{{ HP.rows }}" as="r" hint-placeholder-count="1"><li class="xsb-help-row">',
+      '<div class="rb-brand" style="padding-top: 0">',
+    ];
+    let recorded = 0;
+    for (const markup of NOT_PATCHED) {
+      expect(template.split(markup), markup).toHaveLength(2);
+      recorded += [...markup.matchAll(/style="[^"]*"/g)].length;
+    }
+    const styled = [...template.matchAll(/style="[^"]*"/g)].length;
+    expect(styled).toBe(6);
+    expect(recorded, 'each export style= is recorded as not patched').toBe(styled);
+    // The Help & support surfaces are the borrowed XS-07 page (the `xsb-` and `st-hp-` markup).
+    expect(
+      template.slice(template.indexOf('id="st-hp-h"') - 2000, template.indexOf('id="st-hp-h"')),
+    ).toContain('Help &amp; support');
+  });
+
+  it("V3P-18: the export's 24 px error-summary links, confined to the Student's summaries", () => {
+    const rules = rulesOf(patch);
+    const one = (prelude: string) => {
+      const found = rules.filter((rule) => rule.prelude.replace(/\s+/g, ' ') === prelude);
+      expect(found, prelude).toHaveLength(1);
+      return declarations(found[0]!.block);
+    };
+    // The export's rule, under its preview root, left out of st-scoped.css with the root…
+    expect(stSource).toContain('.st-root .rk-errsum li a{display:inline-block;padding:1px 0}');
+    expect(rulesOf(stDerived).filter((rule) => rule.prelude.includes('.rk-errsum'))).toEqual([]);
+    // …and here, as written, only on a summary that carries the Student marker.
+    expect(one(`${SCOPE_PREFIX}.rk-errsum.rk-x-errsum-target li a${ISLAND_EXCLUSION}`)).toEqual([
+      'display: inline-block',
+      'padding: 1px 0',
+    ]);
+    // V3P-18's product class is that marker alone.
+    expect([...patchClasses('18')]).toEqual(['rk-x-errsum-target']);
+    expect(patch.indexOf('.rk-errsum.rk-x-errsum-spaced li + li')).toBeLessThan(
+      patch.indexOf('V3P-18 ·'),
+    );
+  });
+
+  it("V3P-18: the Student export's cascade — the Refined B declaration that wins there, on the elements both rules match", () => {
+    const FOCUS = '.xr :where(a,button,input,select,textarea,[tabindex]):focus-visible';
+    // The Student rules (v3-student-final.css) that win only by their layer, and what the export
+    // shows: the focused attempt's main keeps the ring, a focused card the ring's corners.
+    const CASCADE: readonly Restoration[] = [
+      {
+        patch: '.st-main:focus-visible',
+        refined: FOCUS,
+        role: '.st-main',
+        css: 'outline: 2px solid var(--focus);',
+      },
+      {
+        patch: '.sv-card:focus-visible',
+        refined: FOCUS,
+        role: '.sv-card',
+        css: 'border-radius: 6px;',
+      },
+    ];
+    expectRestorations(CASCADE, stDerived);
+    // V3P-18 holds the rules above and no other.
+    const start = patch.indexOf('V3P-18 ·');
+    expect(start).toBeGreaterThan(0);
+    expect(
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+        .flatMap((rule) => splitTopLevel(rule.prelude, ','))
+        .map((part) => part.trim().replace(/\s+/g, ' '))
+        .sort(),
+    ).toEqual(
+      [
+        `${SCOPE_PREFIX}.rk-errsum.rk-x-errsum-target li a${ISLAND_EXCLUSION}`,
         ...CASCADE.map((restoration) => `${SCOPE_PREFIX}${restoration.patch}${ISLAND_EXCLUSION}`),
       ].sort(),
     );
@@ -2136,6 +2234,215 @@ describe('generated fa-scoped.css (the Faculty export, design/v3-refined-b/roles
   });
 });
 
+describe('generated st-scoped.css (the Student export, design/v3-refined-b/roles/ST-v1)', () => {
+  /**
+   * What the export says is not its product UI (the sheet's Part A): the preview root and review
+   * controls ("not product UI") with their `@container streview` rules, the preview's skip link, and
+   * the borrowed XS surfaces — the `xsb-` families and the form classes of the borrowed Help &
+   * support pages (XS-07). `st-main` (no outline on the focused main) stays: the focused-task pages
+   * carry it on their own main.
+   */
+  const LEFT_OUT =
+    /\.(?:st-(?:root|review(?:-[\w-]+)?|skip|form|formstack|file|actions|sec-note)|xsb-[\w-]+)(?![\w-])/;
+
+  it('is exactly what the generator writes from the locked role sheet', () => {
+    expect(stDerived).toBe(renderRoleCss(readRoleInput(stRole)));
+  });
+
+  it("is built on this foundation: the export's three base sheets are the locked bytes", () => {
+    // The eighth lock layout: `baseFiles["project/core.css"].finalSha256` (no `sha256` key), with
+    // the role stylesheet's hash at `final.roleStylesheet["project/v3-student-final.css"]` and no
+    // `localAdditions`.
+    const exportLock = JSON.parse(
+      readFileSync(join(stRole.directory, 'FOUNDATION-LOCK.json'), 'utf8'),
+    ) as {
+      foundationId: string;
+      baseFiles: Record<
+        string,
+        {
+          source: string;
+          originalSha256: string;
+          packFileSha256: string;
+          copySha256: string;
+          byteIdentical: boolean;
+          finalSha256: string;
+        }
+      >;
+      localAdditions?: unknown;
+      final: { roleStylesheet: Record<string, string>; previewRoot: Record<string, string> };
+    };
+    expect(exportLock.foundationId).toBe(FOUNDATION_ID);
+    for (const sheet of SHEETS) {
+      const base = exportLock.baseFiles[`project/${sheet}`];
+      const locked = lock.baseFiles[`references/v3/project/${sheet}`];
+      expect(base?.source, sheet).toBe(`references/v3/project/${sheet}`);
+      expect(
+        [base?.originalSha256, base?.packFileSha256, base?.copySha256, base?.finalSha256],
+        sheet,
+      ).toEqual([locked, locked, locked, locked]);
+      expect(base?.byteIdentical, sheet).toBe(true);
+      expect(sha256(readFileSync(join(stRole.directory, 'project', sheet))), sheet).toBe(locked);
+    }
+    expect(exportLock.localAdditions).toBeUndefined();
+    expect(exportLock.final.roleStylesheet).toEqual({
+      'project/v3-student-final.css': sha256(stSource),
+    });
+    expect(Object.keys(exportLock.final.previewRoot)).toEqual(['project/StudentFinal.dc.html']);
+  });
+
+  it('leaves out only the preview root, review controls, skip link and the borrowed XS surfaces', () => {
+    const left = rulesOf(stSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && previewOnlyRule(stRole, rule.prelude),
+    );
+    expect(left.length).toBeGreaterThan(0);
+    for (const rule of left) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector.trim(), rule.prelude).toMatch(LEFT_OUT);
+      }
+    }
+    expect(stDerived).not.toMatch(LEFT_OUT);
+    // The one descendant rule of the preview root goes with it (a 24 px target for error-summary
+    // links, written under `.st-root`, which no product page carries).
+    expect(left.filter((rule) => rule.prelude === '.st-root .rk-errsum li a')).toHaveLength(1);
+    // The 36 classes of those families, and no other.
+    const classes = (css: string) =>
+      new Set(rulesOf(css).flatMap((rule) => rule.prelude.match(/\.(?:st|sv|xsb)-[\w-]+/g) ?? []));
+    const dropped = [...classes(stSource)].filter((name) => !classes(stDerived).has(name));
+    expect(dropped.sort()).toEqual(
+      [
+        '.st-actions',
+        '.st-file',
+        '.st-form',
+        '.st-formstack',
+        '.st-review',
+        '.st-review-body',
+        '.st-review-f',
+        '.st-review-f--data',
+        '.st-review-f--sc',
+        '.st-review-f--scr',
+        '.st-review-in',
+        '.st-review-route',
+        '.st-review-tag',
+        '.st-review-toggle',
+        '.st-root',
+        '.st-sec-note',
+        '.st-skip',
+        '.xsb-acct',
+        '.xsb-help-d',
+        '.xsb-help-row',
+        '.xsb-help-t',
+        '.xsb-menu',
+        '.xsb-menu-line',
+        '.xsb-menu-name',
+        '.xsb-menu-sep',
+        '.xsb-menu-who',
+        '.xsb-msg',
+        '.xsb-msg-act',
+        '.xsb-msg-d',
+        '.xsb-msg-ico',
+        '.xsb-msg-ico--off',
+        '.xsb-msg-ico--ok',
+        '.xsb-msg-ico--paused',
+        '.xsb-msg-ico--warn',
+        '.xsb-public',
+        '.xsb-public-name',
+      ].sort(),
+    );
+    // The role's own components stay, and those whose names start alike.
+    for (const kept of [
+      '.st-main',
+      '.st-focus',
+      '.st-focusbar',
+      '.st-focuspage',
+      '.st-fbq',
+      '.st-errsum-d',
+      '.st-eyecode',
+      '.st-disclose',
+      '.st-tabn',
+      '.st-att',
+      '.sv-card',
+      '.sv-refuse',
+    ]) {
+      expect(stDerived, kept).toContain(kept);
+      expect(previewOnlyRule(stRole, kept)).toBe(false);
+    }
+    expect(previewOnlyRule(stRole, '.st-review,.st-focus')).toBe(false);
+    expect(previewOnlyRule(stRole, '.rb .xsb-menu a,.xsb-menu button')).toBe(true);
+    expect(previewOnlyRule(stRole, '.st-formfield')).toBe(false);
+  });
+
+  it('keeps every other declaration block and at-rule in order and changes only selectors', () => {
+    // Exactly three grouping at-rules go whole, each holding only left-out rules: the two review
+    // controls' container queries and the Help form's narrow padding.
+    const groups = groupsOf(stSource);
+    const dropped = groups.filter(
+      (group) =>
+        group.rules.length > 0 &&
+        group.rules.every((rule) => previewOnlyRule(stRole, rule.prelude)),
+    );
+    expect(
+      dropped.map((group) => [group.prelude, group.rules.map((rule) => rule.prelude)]),
+    ).toEqual([
+      [
+        '@container streview (max-width: 759.98px)',
+        [
+          '.st-review-in',
+          '.st-review-toggle',
+          '.st-review-body',
+          '.st-review-body.is-open',
+          '.st-review-f--sc,.st-review-f--scr,.st-review-f--data',
+        ],
+      ],
+      ['@container streview (min-width: 760px)', ['.st-review-body']],
+      ['@container rb (max-width: 759.98px)', ['.st-form']],
+    ]);
+    expect(groupsOf(stDerived).map((group) => group.prelude)).toEqual(
+      groups.filter((group) => !dropped.includes(group)).map((group) => group.prelude),
+    );
+    const expected = rulesOf(stSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && !previewOnlyRule(stRole, rule.prelude),
+    );
+    const scoped = rulesOf(stDerived).filter((rule) => !rule.prelude.startsWith('@'));
+    expect(scoped.length).toBe(expected.length);
+    scoped.forEach((rule, index) => {
+      const source = expected[index]!;
+      expect(rule.block, source.prelude).toBe(source.block);
+      const before = splitTopLevel(source.prelude, ',').map((part) => part.trim());
+      const after = splitTopLevel(rule.prelude, ',').map((part) => part.trim());
+      after.forEach((selector, position) => {
+        expect(selector).toContain(ISLAND_EXCLUSION);
+        expect(selector.replace(SCOPE_PREFIX, '').replace(ISLAND_EXCLUSION, '')).toBe(
+          before[position],
+        );
+      });
+    });
+  });
+
+  it('selects only st- and sv- classes (shared classes only under a role parent), no root, URL, keyframes or token', () => {
+    const unprefixed: string[] = [];
+    for (const rule of rulesOf(stDerived).filter(
+      (candidate) => !candidate.prelude.startsWith('@'),
+    )) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        if (!/\.(?:st|sv)-[\w-]/.test(selector)) unprefixed.push(selector.trim());
+      }
+    }
+    expect(unprefixed).toEqual([]);
+    // In the source, only the left-out borrowed XS selectors name neither prefix.
+    for (const rule of rulesOf(stSource).filter(
+      (candidate) => !candidate.prelude.startsWith('@'),
+    )) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        if (!/\.(?:st|sv)-[\w-]/.test(selector)) expect(selector.trim()).toMatch(/\.xsb-/);
+      }
+    }
+    expect(stDerived).not.toMatch(/url\(|@import|@keyframes|[{;]\s*--[\w-]+\s*:/);
+    expect(
+      rulesOf(stDerived).filter((rule) => /(^|[\s,])(:root|html|body)\b/.test(rule.prelude)),
+    ).toEqual([]);
+  });
+});
+
 describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
   it('reserves xr.v3 after xr.product and imports the derivatives, then the patches', () => {
     const statements = entry
@@ -2143,9 +2450,9 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
       .trim()
       .split(';')
       .map((part) => part.trim());
-    expect(statements.slice(0, 11)).toEqual([
+    expect(statements.slice(0, 12)).toEqual([
       '@layer properties, theme, xr.v46, xr.product, xr.v3, utilities',
-      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.ia, xr.v3.fa, xr.v3.patch',
+      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.ia, xr.v3.fa, xr.v3.st, xr.v3.patch',
       "@import './rb-scoped.css' layer(xr.v3.rb)",
       "@import './xs-scoped.css' layer(xr.v3.xs)",
       "@import './sa-scoped.css' layer(xr.v3.sa)",
@@ -2154,6 +2461,7 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
       "@import './rv-scoped.css' layer(xr.v3.rv)",
       "@import './ia-scoped.css' layer(xr.v3.ia)",
       "@import './fa-scoped.css' layer(xr.v3.fa)",
+      "@import './st-scoped.css' layer(xr.v3.st)",
       "@import './patch.css' layer(xr.v3.patch)",
     ]);
   });
@@ -2177,5 +2485,6 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/rv-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/ia-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/fa-scoped.css');
+    expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/st-scoped.css');
   });
 });

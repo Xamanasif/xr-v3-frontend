@@ -1,0 +1,76 @@
+  <!-- ══════════ Focused task layouts (no rail): ST-13 attempt · ST-08 sample activity · borrowed XS-03 signed out ══════════
+       ST-13: the questions as one numbered sheet (a hairline between questions, the number marks answered ones), and one
+       sticky panel with your answers and Submit. Below 900px the panel splits: answers at the top, Submit after the last question. -->
+  <sc-if value="{{ is.att }}" hint-placeholder-val="{{ false }}">
+  <div class="st-focus">
+    <header class="st-focusbar">
+      <a class="st-exit st-exit--compact" href="{{ AT.exit.href }}" onClick="{{ AT.exit.go }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-left"></use></svg><span>{{ AT.exitLabel }}</span></a>
+      <div class="st-focusbar-mid"></div>
+      <div class="st-focusbar-end">
+        <sc-if value="{{ AT.showSave }}" hint-placeholder-val="{{ true }}">
+        <div role="status">
+          <sc-if value="{{ AT.saveIdle }}" hint-placeholder-val="{{ true }}"><p class="st-save"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-info"></use></svg>Answers save automatically</p></sc-if>
+          <sc-if value="{{ AT.saving }}" hint-placeholder-val="{{ false }}"><p class="st-save"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-clock"></use></svg>Saving…</p></sc-if>
+          <sc-if value="{{ AT.saved }}" hint-placeholder-val="{{ false }}"><p class="st-save st-save--ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-check"></use></svg>All answers saved</p></sc-if>
+          <sc-if value="{{ AT.saveErr }}" hint-placeholder-val="{{ false }}"><p class="st-save st-save--err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>Your last answer didn’t save<button type="button" onClick="{{ AT.retrySave }}">Try again</button></p></sc-if>
+        </div>
+        </sc-if>
+        <span class="xr-avatar" aria-hidden="true">{{ S.ini }}</span>
+      </div>
+    </header>
+    <main class="st-focuspage st-main" id="st-main" tabindex="-1">
+      <div class="sv-focushead">
+        <p class="sv-act-k"><span>{{ AT.exp }}</span><span aria-hidden="true">·</span><span>{{ AT.attemptText }}</span></p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">{{ AT.name }}</h1>
+        <p class="sv-focus-sub">{{ AT.meta }}</p>
+      </div>
+      <sc-if value="{{ AT.form }}" hint-placeholder-val="{{ true }}">
+      <div class="st-att">
+        <div class="st-att-qs">
+          <ol class="sv-card sv-qs" aria-label="Questions">
+            <sc-for list="{{ AT.qs }}" as="q" hint-placeholder-count="4">
+            <li>
+            <section class="sv-q" id="{{ q.anchor }}" tabindex="-1" aria-labelledby="{{ q.hid }}">
+              <span class="{{ q.numCls }}" aria-hidden="true">{{ q.n }}</span>
+              <div class="sv-q-body">
+                <div class="sv-q-h"><h2 class="sv-q-k" id="{{ q.hid }}">{{ q.label }}</h2><p class="sv-q-m">{{ q.marksText }}</p></div>
+                <sc-if value="{{ q.isChoice }}" hint-placeholder-val="{{ true }}">
+                <fieldset class="st-qfs sv-qfs"><legend>{{ q.text }}</legend>
+                  <div class="rk-choices"><sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="4"><label class="rk-choice" for="{{ o.id }}"><input type="radio" name="{{ q.name }}" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.pick }}"><span class="rk-choice-t">{{ o.lab }}</span></label></sc-for></div>
+                </fieldset>
+                </sc-if>
+                <sc-if value="{{ q.isW }}" hint-placeholder-val="{{ false }}">
+                <div class="st-q-w sv-q-w"><label for="{{ q.tid }}">{{ q.text }}</label><p class="rk-hint" id="{{ q.hintId }}">Your faculty marks written answers.</p><textarea id="{{ q.tid }}" class="rk-textarea" aria-describedby="{{ q.hintId }}" value="{{ q.val }}" onChange="{{ q.onText }}"></textarea></div>
+                </sc-if>
+              </div>
+            </section>
+            </li>
+            </sc-for>
+          </ol>
+        </div>
+        <div class="st-att-side sv-attside">
+          <section class="st-att-panel st-att-strip sv-attpanel" aria-labelledby="st-strip-h">
+            <div class="sv-attpanel-h"><h2 class="sv-h3" id="st-strip-h">Your answers</h2><p class="sv-attcount" role="status">{{ AT.countText }}</p></div>
+            <ol class="st-strip"><sc-for list="{{ AT.strip }}" as="s" hint-placeholder-count="4"><li><a href="{{ s.href }}" class="{{ s.cls }}" aria-label="{{ s.aria }}" onClick="{{ s.go }}">{{ s.n }}</a></li></sc-for></ol>
+            <sc-if value="{{ AT.hasMissing }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn sv-attnext" onClick="{{ AT.nextUn }}">Next unanswered</button></sc-if>
+          </section>
+          <section class="st-att-panel st-att-submit sv-attpanel" aria-labelledby="st-sub-h">
+            <h2 class="xr-sr" id="st-sub-h">Submit your answers</h2>
+            <sc-if value="{{ AT.subErr }}" hint-placeholder-val="{{ false }}"><div class="rk-errsum sv-attsuberr" id="st-suberr" tabindex="-1" role="alert"><p class="rk-errsum-t">Your answers weren’t submitted</p><p class="st-errsum-d">They’re still saved here. Try again.</p></div></sc-if>
+            <p class="sv-attnote">Nothing is submitted until you choose Submit. You can’t change answers after submitting.</p>
+            <button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-submit" onClick="{{ AT.submit }}">Submit</button>
+          </section>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ AT.done }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-card sv-act-card" id="st-att-done" tabindex="-1" aria-labelledby="st-att-done-h">
+        <p><span class="xr-st xr-st--warn rk-st-lg"><i></i>Waiting for marking</span></p>
+        <h2 class="sv-sec-t" id="st-att-done-h">Answers submitted</h2>
+        <p class="sv-act-d">{{ AT.doneText }}</p>
+        <div class="sv-act-go"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ AT.result.href }}" onClick="{{ AT.result.go }}">See your result page</a><a class="rb-btn rb-btn--lg" href="{{ AT.backExp.href }}" onClick="{{ AT.backExp.go }}">Back to experiment</a></div>
+      </section>
+      </sc-if>
+    </main>
+  </div>
+  </sc-if>

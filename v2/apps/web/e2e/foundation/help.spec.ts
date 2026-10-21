@@ -63,7 +63,7 @@ test('the seven steps on one world: report, Sent with SUP reference, My reports,
   await sidebarHelp(page).click();
   await page.waitForURL('**/student/help');
   await expect(page.getByRole('heading', { level: 1, name: 'Help & support' })).toBeVisible();
-  await expect(page.locator('main.xr-page ul.xs-reports > li')).toHaveCount(1);
+  await expect(page.locator('main#main ul.xs-reports > li')).toHaveCount(1);
 
   // 2. Submits a report (from the header's "Report a problem").
   await page.locator('main').getByRole('link', { name: 'Report a problem' }).click();
@@ -87,7 +87,7 @@ test('the seven steps on one world: report, Sent with SUP reference, My reports,
   // 4. Navigates to My reports. 5. The same report is there.
   await page.getByRole('link', { name: 'View my reports' }).click();
   await page.waitForURL('**/student/help');
-  const rows = page.locator('main.xr-page ul.xs-reports a.xs-report');
+  const rows = page.locator('main#main ul.xs-reports a.xs-report');
   await expect(rows).toHaveCount(2);
   await expect(rows.first()).toContainText(reference);
   await expect(rows.first()).toContainText('My reports took a long time to appear');
@@ -187,7 +187,7 @@ test('My reports holds only the signed-in person’s reports; another person’s
   page,
 }) => {
   await openAs(page, RAHUL.person, '/student/help');
-  await expect(page.locator('main.xr-page ul.xs-reports a.xs-report')).toHaveCount(1);
+  await expect(page.locator('main#main ul.xs-reports a.xs-report')).toHaveCount(1);
   // Kavya's SUP-0207 exists in this world …
   const kavyas = await actAs<{ ok: boolean; value: { id: string }[] }>(
     page,
@@ -217,7 +217,7 @@ test('a receipt refreshes the open page; another person’s report never joins R
   page,
 }) => {
   await openAs(page, RAHUL.person, '/student/help');
-  const rows = page.locator('main.xr-page ul.xs-reports a.xs-report');
+  const rows = page.locator('main#main ul.xs-reports a.xs-report');
   await expect(rows).toHaveCount(1);
   // Rahul, in a session of his own (as from another tab of the same world): his open My reports
   // refreshes from the receipt (`changed: SUP`) — no reload, no polling.

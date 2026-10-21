@@ -141,7 +141,7 @@ export const STATE_COPY_PACKAGE_2B = {
     state:
       'An experiment row that is not simply available (paused, inactive account, a supplied licence wait, an undecided gate)',
     words: null,
-    rule: 'The row is ST-03’s, with ST-03’s words (`ST-03.inactive-row`, `ST-03.policy-open`, B2-11 f6’s paused line, B3-02’s licence words): one component for both screens.',
+    rule: 'The row is ST-03’s, with ST-03’s words (`ST-03.policy-open`, B2-11 f6’s paused line, B3-02’s licence words): one component for both screens.',
     basis: 'B2-11 f2 draws the available row only',
     status: 'provisional',
     decisions: ['OD-B2-01', 'D7', 'VD-12'],

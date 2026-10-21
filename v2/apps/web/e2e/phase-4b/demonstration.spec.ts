@@ -338,9 +338,21 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   // 3. Rahul: Up next → Before you start → the attempt → Submit → no figure yet.
   await signIn(page, 'rahul.verma@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/student');
-  const upNext = page.getByRole('region', { name: 'Up next' });
-  const upNextRow = upNext.locator('li.xr-row', { hasText: `${ASSESSMENT} is ready` });
-  await reachAndClick(page, upNextRow.getByRole('link', { name: 'Open assessment' }));
+  // ST-01 (ST-v1): Rahul has opened no resource yet, so the cover's next step is the resources;
+  // the assessment is in "Also in this experiment", ready with its deadline, and leads to the
+  // hub's Assessment tab (ST-05), where the card named by the assessment opens Before you start.
+  const also = page.getByRole('region', { name: 'Also in this experiment' });
+  await reachAndClick(
+    page,
+    also.getByRole('link', { name: /^Assessment Ready · due 14\sNov\s2026,\s23:59$/ }),
+  );
+  await page.waitForURL('**/student/experiments/shell-and-tube-heat-exchanger/assessment');
+  const assessmentCard = main(page).getByRole('region', { name: ASSESSMENT, exact: true });
+  await expect(assessmentCard).toContainText('To do');
+  await reachAndClick(
+    page,
+    assessmentCard.getByRole('link', { name: `Open assessment, ${ASSESSMENT}`, exact: true }),
+  );
   await page.waitForURL(`**/student/assessments/${assessmentId}`);
   await expect(h1(page)).toHaveText(ASSESSMENT);
   await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/assessments');
@@ -352,30 +364,39 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await expect(h1(page)).toHaveText(ASSESSMENT);
   // A focused page: no sidebar; no key anywhere on it.
   await expect(page.locator('aside.xr-side')).toHaveCount(0);
+  await expect(page.locator('aside.rb-rail')).toHaveCount(0);
   await expect(main(page)).not.toContainText('Correct answer');
+  // Nor any verdict or answer review of the V3 result (ST-14, ST-v1).
+  await expect(main(page).locator('.sv-verdict, li.sv-ans')).toHaveCount(0);
   await choose(page.getByRole('radio', { name: Q1_RIGHT }));
   await choose(page.getByRole('radio', { name: 'True', exact: true }));
   await page.getByRole('textbox', { name: Q3 }).fill(RAHUL_ANSWER);
   await page.getByRole('textbox', { name: Q3 }).blur();
-  await expect(page.locator('header.xa-bar [role="status"]')).toHaveText('All answers saved');
-  await expect(main(page).locator('.xa-strip-text')).toHaveText('3 of 3 answered');
+  await expect(page.locator('header.st-focusbar [role="status"]')).toHaveText('All answers saved');
+  await expect(main(page).locator('.sv-attcount')).toHaveText('3 of 3 answered');
   await checkState(page, ASSESSMENT);
   await reachAndClick(page, main(page).getByRole('button', { name: 'Submit', exact: true }));
   const submitDialog = page.getByRole('dialog', { name: 'Submit your answers?' });
   await expect(submitDialog).toContainText('You can’t change your answers after submitting.');
   await reachAndClick(page, submitDialog.getByRole('button', { name: 'Submit answers' }));
-  await expect(h1(page)).toHaveText('Answers submitted');
+  // ST-13 (ST-v1): the title stays the assessment's name; the submitted card says so.
+  await expect(page.locator('#Ta-done').getByRole('heading', { level: 2 })).toHaveText(
+    'Answers submitted',
+  );
+  await expect(h1(page)).toHaveText(ASSESSMENT);
   await reachAndClick(page, page.getByRole('link', { name: 'See your result page' }));
   await page.waitForURL(`**/student/assessments/${assessmentId}/result`);
   await expect(h1(page)).toHaveText('Submitted — waiting for marking');
   await expect(main(page)).not.toContainText('of 14 marks');
   await checkState(page, 'Submitted — waiting for marking');
   await sidebar(page, '/student/assessments');
-  await expect(page.getByRole('group', { name: 'Show' }).getByRole('button')).toHaveText([
-    'To do (0)',
-    'Submitted (1)',
-    'Results (0)',
-  ]);
+  // ST-11 (ST-v1): the state tabs, each named "<words>, <count>".
+  const stateTabs = page
+    .getByRole('navigation', { name: 'Assessments', exact: true })
+    .getByRole('link');
+  await expect(stateTabs).toHaveCount(3);
+  for (const [index, name] of [/^To do ?, 0$/, /^Submitted ?, 1$/, /^Results ?, 0$/].entries())
+    await expect(stateTabs.nth(index)).toHaveAccessibleName(name);
   await signOut(page, RAHUL);
 
   // 4. Dr S. Ranganathan marks the written answer; the record and the Students list follow.
@@ -475,13 +496,20 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await sidebar(page, '/student/assessments');
   await reachAndClick(
     page,
-    page.getByRole('group', { name: 'Show' }).getByRole('button', { name: 'Results (1)' }),
+    page
+      .getByRole('navigation', { name: 'Assessments', exact: true })
+      .getByRole('link', { name: /^Results ?, 1$/ }),
   );
-  await reachAndClick(page, main(page).getByRole('link', { name: `See result ${ASSESSMENT}` }));
+  await reachAndClick(page, main(page).getByRole('link', { name: `See result, ${ASSESSMENT}` }));
   await page.waitForURL(`**/student/assessments/${assessmentId}/result`);
   await expect(h1(page)).toHaveText('You passed');
-  await expect(main(page).locator('.xa-score-n')).toHaveText('11 of 14 marks');
-  await expect(main(page)).toContainText(`Correct answer`);
+  await expect(main(page).locator('.sv-score-n b')).toHaveText('11');
+  await expect(main(page).locator('.sv-score-n span')).toHaveText('of 14 marks');
+  // ST-14 (ST-v1): the released review marks each choice answer; the correct answer is written
+  // out only where Rahul's differs (both of his are right).
+  await expect(main(page).locator('ol.sv-review-list > li.sv-ans')).toHaveCount(3);
+  await expect(main(page).locator('li.sv-ans .sv-verdict')).toHaveText(['Correct', 'Correct']);
+  await expect(main(page).locator('li.sv-ans .sv-verdict--ok')).toHaveCount(2);
   await expect(main(page)).toContainText('Feedback from Dr S. Ranganathan');
   await expect(main(page)).toContainText(FEEDBACK);
   await checkState(page, 'You passed');

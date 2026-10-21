@@ -1,0 +1,72 @@
+      <!-- ══════════ ST-16 Format feedback · ST-17 Feedback sent: the five statements as one rating sheet — the scale is
+           named once above the columns (on a phone, under each row with your choice in words); sent feedback is shown on the
+           same scale, read-only. ══════════ -->
+      <sc-if value="{{ is.fb }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ FB.crumbExp.href }}" onClick="{{ FB.crumbExp.go }}">{{ FB.exp }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ FB.crumbFmt.href }}" onClick="{{ FB.crumbFmt.go }}">{{ FB.code }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">Feedback</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="{{ FB.chip.fmtCls }}" aria-hidden="true">{{ FB.code }}<sc-if value="{{ FB.chip.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ FB.chip.glyph }}"></use></svg></sc-if></span><span>{{ FB.exp }}</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ FB.h1 }}</h1>
+          <sc-if value="{{ FB.form }}" hint-placeholder-val="{{ true }}"><p class="rk-sub">Your feedback helps improve this experience. Rate all five statements; additional comments are optional.</p></sc-if>
+        </div>
+      </div>
+
+      <sc-if value="{{ FB.form }}" hint-placeholder-val="{{ true }}">
+      <section class="sv-card sv-fb" aria-label="{{ FB.formAria }}">
+        <sc-if value="{{ FB.hasErr }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-errsum sv-fb-msg" id="st-fb-errs" tabindex="-1" role="alert">
+          <p class="rk-errsum-t">{{ FB.errTitle }}</p>
+          <ul><sc-for list="{{ FB.errList }}" as="e" hint-placeholder-count="1"><li><a href="{{ e.href }}" onClick="{{ e.go }}">{{ e.t }}</a></li></sc-for></ul>
+        </div>
+        </sc-if>
+        <sc-if value="{{ FB.fail }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-notice rk-notice--warn sv-fb-msg" id="st-fb-fail" tabindex="-1" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg><p class="rk-notice-t">Your feedback wasn’t sent</p><p class="rk-notice-d">Nothing was lost — your answers are still here. Try again.</p></div>
+        </sc-if>
+        <div class="sv-lk-head" aria-hidden="true">
+          <p class="sv-lk-head-t">Rate each statement</p>
+          <ol class="sv-lk-scale"><sc-for list="{{ FB.scale }}" as="c" hint-placeholder-count="5"><li><b>{{ c.v }}</b><span>{{ c.lab }}</span></li></sc-for></ol>
+        </div>
+        <sc-for list="{{ FB.qs }}" as="q" hint-placeholder-count="5">
+        <fieldset class="{{ q.cls }}" id="{{ q.fsId }}" tabindex="-1" aria-describedby="{{ q.desc }}">
+          <legend>{{ q.t }}</legend>
+          <div class="sv-lk-opts">
+            <sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="5"><label class="sv-lk-o" for="{{ o.id }}"><input type="radio" name="{{ q.name }}" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.pick }}"><span class="sv-lk-n" aria-hidden="true">{{ o.v }}</span><span class="xr-sr">{{ o.lab }}</span></label></sc-for>
+          </div>
+          <p class="sv-lk-ends" aria-hidden="true"><span>Strongly disagree</span><span>Strongly agree</span></p>
+          <p class="{{ q.selCls }}" aria-hidden="true">{{ q.sel }}</p>
+          <sc-if value="{{ q.err }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="{{ q.errId }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg>{{ q.errText }}</p></sc-if>
+        </fieldset>
+        </sc-for>
+        <div class="rk-field sv-fb-c">
+          <label class="rk-label" for="st-fb-c">Additional comments (optional)</label>
+          <textarea id="st-fb-c" class="rk-textarea" value="{{ FB.comments }}" onChange="{{ FB.onComments }}"></textarea>
+        </div>
+        <div class="sv-fb-foot">
+          <a class="rb-btn rb-btn--lg" href="{{ FB.crumbFmt.href }}" onClick="{{ FB.crumbFmt.go }}">Cancel</a>
+          <button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-fb-go" aria-busy="{{ FB.busyAria }}" disabled="{{ FB.busy }}" onClick="{{ FB.submit }}">{{ FB.goLabel }}</button>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ FB.sent }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-card sv-fbsent" aria-labelledby="st-fb-ans">
+        <div class="sv-fbsent-top" role="status">
+          <span class="sv-fbsent-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></span>
+          <div>
+            <p class="sv-fbsent-t">Thank you</p>
+            <p class="sv-fbsent-d">Sent {{ FB.when }}. Feedback can’t be changed after it’s sent.</p>
+          </div>
+          <div class="sv-fbsent-act"><a class="rb-btn rb-btn--primary" href="{{ FB.crumbExp.href }}" onClick="{{ FB.crumbExp.go }}">Back to experiment</a><a class="rb-btn" href="{{ FB.progress.href }}" onClick="{{ FB.progress.go }}">See your progress</a></div>
+        </div>
+        <div class="sv-fbsent-ans">
+          <div class="sv-fbsent-h"><h2 class="sv-sec-t" id="st-fb-ans">Your answers · {{ FB.code }}</h2><p class="sv-sh-note">Read-only</p></div>
+          <dl class="sv-fbsent-dl">
+            <sc-for list="{{ FB.answers }}" as="a" hint-placeholder-count="5"><div><dt>{{ a.t }}</dt><dd><span class="sv-lk-dots" aria-hidden="true"><sc-for list="{{ a.dots }}" as="d" hint-placeholder-count="5"><span class="{{ d.cls }}">{{ d.k }}</span></sc-for></span><span class="sv-lk-v">{{ a.v }}</span></dd></div></sc-for>
+            <div class="sv-fbsent-c"><dt>Additional comments</dt><dd>{{ FB.commentText }}</dd></div>
+          </dl>
+        </div>
+      </section>
+      </sc-if>
+      </sc-if>
+

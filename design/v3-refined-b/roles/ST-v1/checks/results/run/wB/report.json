@@ -1,0 +1,2486 @@
+[
+ {
+  "case": "01-learn",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-learn",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1449,
+  "file": "01-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-assess",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-assess",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1431,
+  "file": "01-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-granted",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-granted",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1373,
+  "file": "01-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-newst",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-newst-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-newst",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-newst-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-vrnow",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-vrnow-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-vrnow",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1373,
+  "file": "01-vrnow-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-vrprog",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-vrprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-vrprog",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1397,
+  "file": "01-vrprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-vrdone",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-vrdone",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1375,
+  "file": "01-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-licence",
+  "w": 1440,
+  "h1": "Hello, Arun",
+  "height": 900,
+  "file": "01-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-licence",
+  "w": 375,
+  "h1": "Hello, Arun",
+  "height": 1386,
+  "file": "01-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-paused",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-paused",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1500,
+  "file": "01-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-ended",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-ended-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-ended",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1415,
+  "file": "01-ended-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-withdrawn",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-withdrawn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-withdrawn",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1397,
+  "file": "01-withdrawn-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-inactive",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-inactive-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-inactive",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-inactive-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-nodevice",
+  "w": 1440,
+  "h1": "Hello, Vikram",
+  "height": 900,
+  "file": "01-nodevice-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-nodevice",
+  "w": 375,
+  "h1": "Hello, Vikram",
+  "height": 900,
+  "file": "01-nodevice-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-inprog",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-inprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-inprog",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1409,
+  "file": "01-inprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-waitmark",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-waitmark-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-waitmark",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1446,
+  "file": "01-waitmark-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-released",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-released-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-released",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1446,
+  "file": "01-released-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-device",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-device-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-device",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1446,
+  "file": "01-device-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-learn-menu",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-learn-menu-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-learn-menu",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1449,
+  "file": "01-learn-menu-375.png",
+  "problems": []
+ },
+ {
+  "case": "01-learn-acct",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "01-learn-acct-1440.png",
+  "problems": []
+ },
+ {
+  "case": "01-learn-acct",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1449,
+  "file": "01-learn-acct-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-learn",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-learn",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-granted",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-granted",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-newst",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-newst-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-newst",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-newst-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-licence",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-licence",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-paused",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-paused",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-ended",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-ended-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-ended",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-ended-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-withdrawn",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-withdrawn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-withdrawn",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-withdrawn-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-learn-loading",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-learn-loading-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-learn-loading",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-learn-loading-375.png",
+  "problems": []
+ },
+ {
+  "case": "02-learn-failed",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-learn-failed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "02-learn-failed",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "02-learn-failed-375.png",
+  "problems": []
+ },
+ {
+  "case": "03-learn",
+  "w": 1440,
+  "h1": "Thermodynamics & Heat Transfer",
+  "height": 900,
+  "file": "03-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "03-learn",
+  "w": 375,
+  "h1": "Thermodynamics & Heat Transfer",
+  "height": 900,
+  "file": "03-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "03-paused",
+  "w": 1440,
+  "h1": "Thermodynamics & Heat Transfer",
+  "height": 900,
+  "file": "03-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "03-paused",
+  "w": 375,
+  "h1": "Thermodynamics & Heat Transfer",
+  "height": 900,
+  "file": "03-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "03-licence",
+  "w": 1440,
+  "h1": "Thermodynamics & Heat Transfer",
+  "height": 900,
+  "file": "03-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "03-licence",
+  "w": 375,
+  "h1": "Thermodynamics & Heat Transfer",
+  "height": 900,
+  "file": "03-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "03-ended",
+  "w": 1440,
+  "h1": "This course has no experiments for you right now",
+  "height": 900,
+  "file": "03-ended-1440.png",
+  "problems": []
+ },
+ {
+  "case": "03-ended",
+  "w": 375,
+  "h1": "This course has no experiments for you right now",
+  "height": 900,
+  "file": "03-ended-375.png",
+  "problems": []
+ },
+ {
+  "case": "03-newst",
+  "w": 1440,
+  "h1": "This course isn’t available to you",
+  "height": 900,
+  "file": "03-newst-1440.png",
+  "problems": []
+ },
+ {
+  "case": "03-newst",
+  "w": 375,
+  "h1": "This course isn’t available to you",
+  "height": 900,
+  "file": "03-newst-375.png",
+  "problems": []
+ },
+ {
+  "case": "04-learn",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "04-learn",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "04-learn-x-nomatch",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-x-nomatch-1440.png",
+  "problems": []
+ },
+ {
+  "case": "04-learn-x-nomatch",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-x-nomatch-375.png",
+  "problems": []
+ },
+ {
+  "case": "04-ended",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-ended-1440.png",
+  "problems": []
+ },
+ {
+  "case": "04-ended",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-ended-375.png",
+  "problems": []
+ },
+ {
+  "case": "04-paused",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "04-paused",
+  "w": 375,
+  "h1": "My courses",
+  "height": 928,
+  "file": "04-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-learn",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1057,
+  "file": "05-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-learn",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 2022,
+  "file": "05-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-granted",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1051,
+  "file": "05-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-granted",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 2036,
+  "file": "05-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-newst",
+  "w": 1440,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "05-newst-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-newst",
+  "w": 375,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "05-newst-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-vrnow",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1051,
+  "file": "05-vrnow-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-vrnow",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 2000,
+  "file": "05-vrnow-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-vrdone",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1055,
+  "file": "05-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-vrdone",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1964,
+  "file": "05-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-licence",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1091,
+  "file": "05-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-licence",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1908,
+  "file": "05-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-paused",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1130,
+  "file": "05-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-paused",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1964,
+  "file": "05-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-ended",
+  "w": 1440,
+  "h1": "Your access to Shell-and-Tube Heat Exchanger has ended",
+  "height": 900,
+  "file": "05-ended-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-ended",
+  "w": 375,
+  "h1": "Your access to Shell-and-Tube Heat Exchanger has ended",
+  "height": 900,
+  "file": "05-ended-375.png",
+  "problems": []
+ },
+ {
+  "case": "05-withdrawn",
+  "w": 1440,
+  "h1": "This experiment is no longer given to you",
+  "height": 900,
+  "file": "05-withdrawn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05-withdrawn",
+  "w": 375,
+  "h1": "This experiment is no longer given to you",
+  "height": 900,
+  "file": "05-withdrawn-375.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "06-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1449,
+  "file": "06-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "06-granted",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "06-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "06-granted",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1448,
+  "file": "06-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "06-paused",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 906,
+  "file": "06-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "06-paused",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1495,
+  "file": "06-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "06-licence",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "06-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "06-licence",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1420,
+  "file": "06-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn-res-fail",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "06-learn-res-fail-1440.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn-res-fail",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1465,
+  "file": "06-learn-res-fail-375.png",
+  "problems": []
+ },
+ {
+  "case": "07-learn",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 934,
+  "file": "07-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "07-learn",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1551,
+  "file": "07-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "07-granted",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "07-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "07-granted",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1481,
+  "file": "07-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "07-vrnow",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "07-vrnow-1440.png",
+  "problems": []
+ },
+ {
+  "case": "07-vrnow",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1417,
+  "file": "07-vrnow-375.png",
+  "problems": []
+ },
+ {
+  "case": "07-vrprog",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "07-vrprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "07-vrprog",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1505,
+  "file": "07-vrprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "07-vrdone",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 918,
+  "file": "07-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "07-vrdone",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1582,
+  "file": "07-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "07-licence",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "07-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "07-licence",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1353,
+  "file": "07-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "07-paused",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 907,
+  "file": "07-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "07-paused",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1451,
+  "file": "07-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "05as-assess",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05as-assess",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 959,
+  "file": "05as-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "05as-learn",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05as-learn",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "05as-inprog",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-inprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05as-inprog",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 985,
+  "file": "05as-inprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "05as-waitmark",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-waitmark-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05as-waitmark",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1005,
+  "file": "05as-waitmark-375.png",
+  "problems": []
+ },
+ {
+  "case": "05as-notrel",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-notrel-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05as-notrel",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 985,
+  "file": "05as-notrel-375.png",
+  "problems": []
+ },
+ {
+  "case": "05as-released",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-released-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05as-released",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 985,
+  "file": "05as-released-375.png",
+  "problems": []
+ },
+ {
+  "case": "05as-notpassed",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "05as-notpassed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "05as-notpassed",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 985,
+  "file": "05as-notpassed-375.png",
+  "problems": []
+ },
+ {
+  "case": "10-learn",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "10-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "10-learn",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1266,
+  "file": "10-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "10-vrdone",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "10-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "10-vrdone",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1301,
+  "file": "10-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "10-granted",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "10-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "10-granted",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1244,
+  "file": "10-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "10-paused",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 909,
+  "file": "10-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "10-paused",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1333,
+  "file": "10-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "08-learn",
+  "w": 1440,
+  "h1": "WEB simulation",
+  "height": 900,
+  "file": "08-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08-learn",
+  "w": 375,
+  "h1": "WEB simulation",
+  "height": 1154,
+  "file": "08-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "08-granted",
+  "w": 1440,
+  "h1": "WEB simulation",
+  "height": 900,
+  "file": "08-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08-granted",
+  "w": 375,
+  "h1": "WEB simulation",
+  "height": 1104,
+  "file": "08-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "08-vrdone",
+  "w": 1440,
+  "h1": "WEB simulation",
+  "height": 900,
+  "file": "08-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08-vrdone",
+  "w": 375,
+  "h1": "WEB simulation",
+  "height": 1132,
+  "file": "08-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "08-paused",
+  "w": 1440,
+  "h1": "WEB simulation",
+  "height": 900,
+  "file": "08-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08-paused",
+  "w": 375,
+  "h1": "WEB simulation",
+  "height": 1112,
+  "file": "08-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "08-licence",
+  "w": 1440,
+  "h1": "WEB simulation",
+  "height": 900,
+  "file": "08-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08-licence",
+  "w": 375,
+  "h1": "WEB simulation",
+  "height": 960,
+  "file": "08-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "08-learn-launch-fail",
+  "w": 1440,
+  "h1": "WEB simulation",
+  "height": 900,
+  "file": "08-learn-launch-fail-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08-learn-launch-fail",
+  "w": 375,
+  "h1": "WEB simulation",
+  "height": 1300,
+  "file": "08-learn-launch-fail-375.png",
+  "problems": []
+ },
+ {
+  "case": "08a-learn",
+  "w": 1440,
+  "h1": "Sample activity",
+  "height": 900,
+  "file": "08a-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08a-learn",
+  "w": 375,
+  "h1": "Sample activity",
+  "height": 900,
+  "file": "08a-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "08a-learn-act-done",
+  "w": 1440,
+  "h1": "Sample activity",
+  "height": 900,
+  "file": "08a-learn-act-done-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08a-learn-act-done",
+  "w": 375,
+  "h1": "Sample activity",
+  "height": 900,
+  "file": "08a-learn-act-done-375.png",
+  "problems": []
+ },
+ {
+  "case": "08a-granted",
+  "w": 1440,
+  "h1": "Sample activity",
+  "height": 900,
+  "file": "08a-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "08a-granted",
+  "w": 375,
+  "h1": "Sample activity",
+  "height": 900,
+  "file": "08a-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-learn",
+  "w": 1440,
+  "h1": "VR on your headset",
+  "height": 929,
+  "file": "09-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-learn",
+  "w": 375,
+  "h1": "VR on your headset",
+  "height": 1544,
+  "file": "09-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-vrprog",
+  "w": 1440,
+  "h1": "VR on your headset",
+  "height": 900,
+  "file": "09-vrprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-vrprog",
+  "w": 375,
+  "h1": "VR on your headset",
+  "height": 1191,
+  "file": "09-vrprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-vrdone",
+  "w": 1440,
+  "h1": "VR on your headset",
+  "height": 900,
+  "file": "09-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-vrdone",
+  "w": 375,
+  "h1": "VR on your headset",
+  "height": 1132,
+  "file": "09-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-vrnow",
+  "w": 1440,
+  "h1": "VR on your headset",
+  "height": 900,
+  "file": "09-vrnow-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-vrnow",
+  "w": 375,
+  "h1": "VR on your headset",
+  "height": 1058,
+  "file": "09-vrnow-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-paused",
+  "w": 1440,
+  "h1": "VR on your headset",
+  "height": 900,
+  "file": "09-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-paused",
+  "w": 375,
+  "h1": "VR on your headset",
+  "height": 1016,
+  "file": "09-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-licence",
+  "w": 1440,
+  "h1": "VR on your headset",
+  "height": 900,
+  "file": "09-licence-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-licence",
+  "w": 375,
+  "h1": "VR on your headset",
+  "height": 916,
+  "file": "09-licence-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-learn-setup-open",
+  "w": 1440,
+  "h1": "VR on your headset",
+  "height": 929,
+  "file": "09-learn-setup-open-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-learn-setup-open",
+  "w": 375,
+  "h1": "VR on your headset",
+  "height": 1544,
+  "file": "09-learn-setup-open-375.png",
+  "problems": []
+ },
+ {
+  "case": "09-nodevice",
+  "w": 1440,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "09-nodevice-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09-nodevice",
+  "w": 375,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "09-nodevice-375.png",
+  "problems": []
+ },
+ {
+  "case": "09ar-learn",
+  "w": 1440,
+  "h1": "AR isn’t included for your institution",
+  "height": 900,
+  "file": "09ar-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09ar-learn",
+  "w": 375,
+  "h1": "AR isn’t included for your institution",
+  "height": 900,
+  "file": "09ar-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "09mr-learn",
+  "w": 1440,
+  "h1": "This experiment isn’t available in MR",
+  "height": 900,
+  "file": "09mr-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "09mr-learn",
+  "w": 375,
+  "h1": "This experiment isn’t available in MR",
+  "height": 900,
+  "file": "09mr-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "11-assess",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11-assess",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "11-learn",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11-learn",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "11-newst",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-newst-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11-newst",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-newst-375.png",
+  "problems": []
+ },
+ {
+  "case": "11-inprog",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-inprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11-inprog",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-inprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "11-assess-loading",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-assess-loading-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11-assess-loading",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-assess-loading-375.png",
+  "problems": []
+ },
+ {
+  "case": "11-assess-failed",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-assess-failed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11-assess-failed",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11-assess-failed-375.png",
+  "problems": []
+ },
+ {
+  "case": "11sub-waitmark",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11sub-waitmark-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11sub-waitmark",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11sub-waitmark-375.png",
+  "problems": []
+ },
+ {
+  "case": "11sub-assess",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11sub-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11sub-assess",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11sub-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "11res-released",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11res-released-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11res-released",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11res-released-375.png",
+  "problems": []
+ },
+ {
+  "case": "11res-assess",
+  "w": 1440,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11res-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "11res-assess",
+  "w": 375,
+  "h1": "Assessments",
+  "height": 900,
+  "file": "11res-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "12-assess",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "12-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "12-assess",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1285,
+  "file": "12-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "12-inprog",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "12-inprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "12-inprog",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1341,
+  "file": "12-inprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "12-waitmark",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "12-waitmark-1440.png",
+  "problems": []
+ },
+ {
+  "case": "12-waitmark",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1196,
+  "file": "12-waitmark-375.png",
+  "problems": []
+ },
+ {
+  "case": "12-notrel",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "12-notrel-1440.png",
+  "problems": []
+ },
+ {
+  "case": "12-notrel",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1172,
+  "file": "12-notrel-375.png",
+  "problems": []
+ },
+ {
+  "case": "12-released",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "12-released-1440.png",
+  "problems": []
+ },
+ {
+  "case": "12-released",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1145,
+  "file": "12-released-375.png",
+  "problems": []
+ },
+ {
+  "case": "12-notpassed",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "12-notpassed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "12-notpassed",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1370,
+  "file": "12-notpassed-375.png",
+  "problems": []
+ },
+ {
+  "case": "12-learn",
+  "w": 1440,
+  "h1": "There’s no assessment here yet",
+  "height": 900,
+  "file": "12-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "12-learn",
+  "w": 375,
+  "h1": "There’s no assessment here yet",
+  "height": 900,
+  "file": "12-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "13-assess",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1633,
+  "file": "13-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "13-assess",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 2286,
+  "file": "13-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1633,
+  "file": "13-inprog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 2286,
+  "file": "13-inprog-375.png",
+  "problems": []
+ },
+ {
+  "case": "13-assess-att-two",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1633,
+  "file": "13-assess-att-two-1440.png",
+  "problems": []
+ },
+ {
+  "case": "13-assess-att-two",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 2286,
+  "file": "13-assess-att-two-375.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1633,
+  "file": "13-inprog-att-dialog-1440.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 2286,
+  "file": "13-inprog-att-dialog-375.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog-att-savefail",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1633,
+  "file": "13-inprog-att-savefail-1440.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog-att-savefail",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 2286,
+  "file": "13-inprog-att-savefail-375.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog-att-subfail",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 1633,
+  "file": "13-inprog-att-subfail-1440.png",
+  "problems": []
+ },
+ {
+  "case": "13-inprog-att-subfail",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 2338,
+  "file": "13-inprog-att-subfail-375.png",
+  "problems": []
+ },
+ {
+  "case": "13-waitmark",
+  "w": 1440,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "13-waitmark-1440.png",
+  "problems": []
+ },
+ {
+  "case": "13-waitmark",
+  "w": 375,
+  "h1": "Heat Exchanger — post-lab",
+  "height": 900,
+  "file": "13-waitmark-375.png",
+  "problems": []
+ },
+ {
+  "case": "14-released",
+  "w": 1440,
+  "h1": "You passed",
+  "height": 1623,
+  "file": "14-released-1440.png",
+  "problems": []
+ },
+ {
+  "case": "14-released",
+  "w": 375,
+  "h1": "You passed",
+  "height": 2734,
+  "file": "14-released-375.png",
+  "problems": []
+ },
+ {
+  "case": "14-notpassed",
+  "w": 1440,
+  "h1": "Not passed this time",
+  "height": 1666,
+  "file": "14-notpassed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "14-notpassed",
+  "w": 375,
+  "h1": "Not passed this time",
+  "height": 2786,
+  "file": "14-notpassed-375.png",
+  "problems": []
+ },
+ {
+  "case": "14-waitmark",
+  "w": 1440,
+  "h1": "Submitted — waiting for marking",
+  "height": 900,
+  "file": "14-waitmark-1440.png",
+  "problems": []
+ },
+ {
+  "case": "14-waitmark",
+  "w": 375,
+  "h1": "Submitted — waiting for marking",
+  "height": 900,
+  "file": "14-waitmark-375.png",
+  "problems": []
+ },
+ {
+  "case": "14-notrel",
+  "w": 1440,
+  "h1": "Result not released yet",
+  "height": 900,
+  "file": "14-notrel-1440.png",
+  "problems": []
+ },
+ {
+  "case": "14-notrel",
+  "w": 375,
+  "h1": "Result not released yet",
+  "height": 900,
+  "file": "14-notrel-375.png",
+  "problems": []
+ },
+ {
+  "case": "14-assess",
+  "w": 1440,
+  "h1": "Not submitted yet",
+  "height": 900,
+  "file": "14-assess-1440.png",
+  "problems": []
+ },
+ {
+  "case": "14-assess",
+  "w": 375,
+  "h1": "Not submitted yet",
+  "height": 900,
+  "file": "14-assess-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn",
+  "w": 375,
+  "h1": "Progress",
+  "height": 1340,
+  "file": "15-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-vrdone",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-vrdone",
+  "w": 375,
+  "h1": "Progress",
+  "height": 1375,
+  "file": "15-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-granted",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-granted-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-granted",
+  "w": 375,
+  "h1": "Progress",
+  "height": 1318,
+  "file": "15-granted-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-newst",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-newst-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-newst",
+  "w": 375,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-newst-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-paused",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 915,
+  "file": "15-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-paused",
+  "w": 375,
+  "h1": "Progress",
+  "height": 1371,
+  "file": "15-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-ended",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-ended-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-ended",
+  "w": 375,
+  "h1": "Progress",
+  "height": 1213,
+  "file": "15-ended-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-p-filter",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-p-filter-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-p-filter",
+  "w": 375,
+  "h1": "Progress",
+  "height": 962,
+  "file": "15-learn-p-filter-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-p-nomatch",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-p-nomatch-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-p-nomatch",
+  "w": 375,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-p-nomatch-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-loading",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-loading-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-loading",
+  "w": 375,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-loading-375.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-failed",
+  "w": 1440,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-failed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "15-learn-failed",
+  "w": 375,
+  "h1": "Progress",
+  "height": 900,
+  "file": "15-learn-failed-375.png",
+  "problems": []
+ },
+ {
+  "case": "16v-vrdone",
+  "w": 1440,
+  "h1": "Feedback on VR",
+  "height": 1059,
+  "file": "16v-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "16v-vrdone",
+  "w": 375,
+  "h1": "Feedback on VR",
+  "height": 1704,
+  "file": "16v-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "w": 1440,
+  "h1": "Feedback on VR",
+  "height": 1296,
+  "file": "16v-vrdone-fb-errors-1440.png",
+  "problems": []
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "w": 375,
+  "h1": "Feedback on VR",
+  "height": 1981,
+  "file": "16v-vrdone-fb-errors-375.png",
+  "problems": []
+ },
+ {
+  "case": "16v-vrdone-fb-fail",
+  "w": 1440,
+  "h1": "Feedback on VR",
+  "height": 1163,
+  "file": "16v-vrdone-fb-fail-1440.png",
+  "problems": []
+ },
+ {
+  "case": "16v-vrdone-fb-fail",
+  "w": 375,
+  "h1": "Feedback on VR",
+  "height": 1931,
+  "file": "16v-vrdone-fb-fail-375.png",
+  "problems": []
+ },
+ {
+  "case": "16v-learn",
+  "w": 1440,
+  "h1": "Feedback on VR isn’t open yet",
+  "height": 900,
+  "file": "16v-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "16v-learn",
+  "w": 375,
+  "h1": "Feedback on VR isn’t open yet",
+  "height": 900,
+  "file": "16v-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "16w-vrdone",
+  "w": 1440,
+  "h1": "Feedback on WEB sent",
+  "height": 900,
+  "file": "16w-vrdone-1440.png",
+  "problems": []
+ },
+ {
+  "case": "16w-vrdone",
+  "w": 375,
+  "h1": "Feedback on WEB sent",
+  "height": 1232,
+  "file": "16w-vrdone-375.png",
+  "problems": []
+ },
+ {
+  "case": "16w-learn",
+  "w": 1440,
+  "h1": "Feedback on WEB isn’t open yet",
+  "height": 900,
+  "file": "16w-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "16w-learn",
+  "w": 375,
+  "h1": "Feedback on WEB isn’t open yet",
+  "height": 900,
+  "file": "16w-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-device",
+  "w": 1440,
+  "h1": "My device",
+  "height": 900,
+  "file": "18-device-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-device",
+  "w": 375,
+  "h1": "My device",
+  "height": 974,
+  "file": "18-device-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-device-dev-form",
+  "w": 1440,
+  "h1": "My device",
+  "height": 969,
+  "file": "18-device-dev-form-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-device-dev-form",
+  "w": 375,
+  "h1": "My device",
+  "height": 1531,
+  "file": "18-device-dev-form-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-device-dev-error",
+  "w": 1440,
+  "h1": "My device",
+  "height": 996,
+  "file": "18-device-dev-error-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-device-dev-error",
+  "w": 375,
+  "h1": "My device",
+  "height": 1558,
+  "file": "18-device-dev-error-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrsent",
+  "w": 1440,
+  "h1": "My device",
+  "height": 900,
+  "file": "18-dtrsent-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrsent",
+  "w": 375,
+  "h1": "My device",
+  "height": 1375,
+  "file": "18-dtrsent-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrfwd",
+  "w": 1440,
+  "h1": "My device",
+  "height": 900,
+  "file": "18-dtrfwd-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrfwd",
+  "w": 375,
+  "h1": "My device",
+  "height": 1375,
+  "file": "18-dtrfwd-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrappr",
+  "w": 1440,
+  "h1": "My device",
+  "height": 900,
+  "file": "18-dtrappr-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrappr",
+  "w": 375,
+  "h1": "My device",
+  "height": 1437,
+  "file": "18-dtrappr-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrnoia",
+  "w": 1440,
+  "h1": "My device",
+  "height": 900,
+  "file": "18-dtrnoia-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-dtrnoia",
+  "w": 375,
+  "h1": "My device",
+  "height": 1520,
+  "file": "18-dtrnoia-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-nodevice",
+  "w": 1440,
+  "h1": "My device isn’t available to you",
+  "height": 900,
+  "file": "18-nodevice-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-nodevice",
+  "w": 375,
+  "h1": "My device isn’t available to you",
+  "height": 900,
+  "file": "18-nodevice-375.png",
+  "problems": []
+ },
+ {
+  "case": "18-paused",
+  "w": 1440,
+  "h1": "My device",
+  "height": 900,
+  "file": "18-paused-1440.png",
+  "problems": []
+ },
+ {
+  "case": "18-paused",
+  "w": 375,
+  "h1": "My device",
+  "height": 1112,
+  "file": "18-paused-375.png",
+  "problems": []
+ },
+ {
+  "case": "19-learn",
+  "w": 1440,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "19-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "19-learn",
+  "w": 375,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "19-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "19-withdrawn",
+  "w": 1440,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "19-withdrawn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "19-withdrawn",
+  "w": 375,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "19-withdrawn-375.png",
+  "problems": []
+ },
+ {
+  "case": "19-ended",
+  "w": 1440,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "19-ended-1440.png",
+  "problems": []
+ },
+ {
+  "case": "19-ended",
+  "w": 375,
+  "h1": "This experiment isn’t available to you",
+  "height": 900,
+  "file": "19-ended-375.png",
+  "problems": []
+ },
+ {
+  "case": "xs05-learn",
+  "w": 1440,
+  "h1": "Hello, Rahul",
+  "height": 900,
+  "file": "xs05-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "xs05-learn",
+  "w": 375,
+  "h1": "Hello, Rahul",
+  "height": 1449,
+  "file": "xs05-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "xs07-learn",
+  "w": 1440,
+  "h1": "Help & support",
+  "height": 900,
+  "file": "xs07-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "xs07-learn",
+  "w": 375,
+  "h1": "Help & support",
+  "height": 900,
+  "file": "xs07-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "xs07f-learn",
+  "w": 1440,
+  "h1": "Report a problem",
+  "height": 900,
+  "file": "xs07f-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "xs07f-learn",
+  "w": 375,
+  "h1": "Report a problem",
+  "height": 900,
+  "file": "xs07f-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "xs03-learn",
+  "w": 1440,
+  "h1": "You’re signed out",
+  "height": 900,
+  "file": "xs03-learn-1440.png",
+  "problems": []
+ },
+ {
+  "case": "xs03-learn",
+  "w": 375,
+  "h1": "You’re signed out",
+  "height": 900,
+  "file": "xs03-learn-375.png",
+  "problems": []
+ },
+ {
+  "case": "xs06-learn",
+  "w": 1440,
+  "h1": "This page isn’t part of your workspace",
+  "height": 900,
+  "file": "xs06-learn-1440.png",
+  "problems": [
+   "small targets: <a data-dc-tpl=\"506\" class=\"rb-link\" href=\"#/student/help\">H"
+  ]
+ },
+ {
+  "case": "xs06-learn",
+  "w": 375,
+  "h1": "This page isn’t part of your workspace",
+  "height": 900,
+  "file": "xs06-learn-375.png",
+  "problems": [
+   "small targets: <a data-dc-tpl=\"506\" class=\"rb-link\" href=\"#/student/help\">H"
+  ]
+ },
+ {
+  "case": "04-learn-loading",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-loading-1440.png",
+  "problems": []
+ },
+ {
+  "case": "04-learn-loading",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-loading-375.png",
+  "problems": []
+ },
+ {
+  "case": "04-learn-failed",
+  "w": 1440,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-failed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "04-learn-failed",
+  "w": 375,
+  "h1": "My courses",
+  "height": 900,
+  "file": "04-learn-failed-375.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn-loading",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "06-learn-loading-1440.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn-loading",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1090,
+  "file": "06-learn-loading-375.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn-failed",
+  "w": 1440,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 900,
+  "file": "06-learn-failed-1440.png",
+  "problems": []
+ },
+ {
+  "case": "06-learn-failed",
+  "w": 375,
+  "h1": "Shell-and-Tube Heat Exchanger",
+  "height": 1063,
+  "file": "06-learn-failed-375.png",
+  "problems": []
+ },
+ {
+  "case": "XS07f-learn-help-error",
+  "w": 1440,
+  "h1": "Report a problem",
+  "height": 928,
+  "file": "XS07f-learn-help-error-1440.png",
+  "problems": []
+ },
+ {
+  "case": "XS07f-learn-help-error",
+  "w": 375,
+  "h1": "Report a problem",
+  "height": 968,
+  "file": "XS07f-learn-help-error-375.png",
+  "problems": []
+ }
+]

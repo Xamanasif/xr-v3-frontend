@@ -4,18 +4,15 @@ import { type PageRow, pageRows } from './rows';
 
 const HUB = '/student/experiments/{experimentId}';
 
-/**
- * The hub's tab strip on each tab page (B3-01 f0, f8; B3-02 f0): Overview · Resources ·
- * Simulation · Assessment · Progress — the Assessment tab since Phase 4B (B4-11 f7 … f9).
- */
+/** The hub's section tabs and breadcrumbs on each tab page (V3, ST-v1 `hubVM`). */
 function hubTabs(board: string): PageRow[] {
   return [
-    ['Hub tabs', 'Overview', 'secondary', HUB, 'built', board],
-    ['Hub tabs', 'Resources', 'secondary', `${HUB}/resources`, 'built', board],
-    ['Hub tabs', 'Simulation', 'secondary', `${HUB}/simulation`, 'built', board],
-    ['Hub tabs', 'Progress', 'secondary', `${HUB}/progress`, 'built', board],
+    ['Section tabs', 'Overview', 'secondary', HUB, 'built', board],
+    ['Section tabs', 'Resources', 'secondary', `${HUB}/resources`, 'built', board],
+    ['Section tabs', 'Simulation', 'secondary', `${HUB}/simulation`, 'built', board],
+    ['Section tabs', 'Progress', 'secondary', `${HUB}/progress`, 'built', board],
     [
-      'Hub tabs',
+      'Section tabs',
       'Assessment',
       'secondary',
       `${HUB}/assessment`,
@@ -24,66 +21,90 @@ function hubTabs(board: string): PageRow[] {
       'The hub’s Assessment tab (Phase 4B).',
     ],
     [
-      'Top bar crumbs',
-      'My courses · <course code> · <experiment>',
+      'Breadcrumbs',
+      'My courses · <course>',
       'secondary',
-      HUB,
+      '/student/courses/{courseId}',
       'built',
       board,
     ],
   ];
 }
 
-/** Phase 3 link targets: ST-05 tab strip and next steps, ST-06 Resources, ST-07 Simulation, ST-10 Progress for this experiment (B3-01, B3-02). */
+/** The hub's tabs ST-06 Resources, ST-07 Simulation and ST-10 Progress (V3, ST-v1 `resVM`, `simVM`, `progTabVM`). */
 export const P3_HUB_LINK_TARGETS: readonly LedgerEntry[] = [
   ...pageRows('ST-06', `${HUB}/resources`, [
-    ...hubTabs('B3-01 f0 … f7'),
+    ...hubTabs('ST-v1 StudentFinal `HB.isResources`, `resVM`'),
     // Opens the answer's `href` in a new tab (`LearningService.openResource`); the row then reads
     // "Opened in a new tab just now". Stays on the page.
-    ['Resource row', 'Open', 'secondary', null, 'in-page', 'B3-01 f0, f2, f7'],
-    ['Resource row (couldn’t open)', 'Try again', 'secondary', null, 'in-page', 'B3-01 f1'],
-    ['List failed', 'Try again', 'primary', null, 'in-page', 'B3-01 f5'],
+    ['Resource row', 'Open', 'secondary', null, 'in-page', 'ST-v1 `resVM`'],
+    ['Resource row (couldn’t open)', 'Try again', 'secondary', null, 'in-page', 'ST-v1 `resVM`'],
+    ['List failed', 'Try again', 'secondary', null, 'in-page', 'ST-v1 `resVM` (`RS.failed`)'],
   ]),
   ...pageRows('ST-07', `${HUB}/simulation`, [
-    ...hubTabs('B3-02 f0 … f7'),
-    // The page's one primary while WEB is not completed (`ST-07.primary`).
+    ...hubTabs('ST-v1 StudentFinal `HB.isSim`, `simVM`'),
+    // Gold once (`fmtRows`): continue, then feedback, then open.
     [
-      'WEB row',
-      'Open WEB · Continue WEB',
+      'Format card (the gold action)',
+      'Continue <format> · Give feedback on <format> · Open <format>',
       'primary',
-      `${HUB}/simulation/web`,
+      `${HUB}/simulation/{format}`,
       'built',
-      'B3-02 f0, f1; B3-12 f0',
+      'ST-v1 `simVM`, `fmtRows`',
+      'Give feedback opens ST-16 (`/feedback/{format}`).',
     ],
     [
-      'WEB row (completed)',
-      'Open WEB',
+      'Format card',
+      'Open WEB · Continue WEB · Open VR · Continue VR',
       'secondary',
-      `${HUB}/simulation/web`,
+      `${HUB}/simulation/{format}`,
       'built',
-      'B3-02 f2, f3, f7',
+      'ST-v1 `simVM`',
     ],
-    ['VR row', 'Open VR', 'secondary', `${HUB}/simulation/{format}`, 'built', 'B3-02 f0 … f3, f7'],
     [
-      'Completed row',
+      'Format card (completed, feedback offered)',
       'Give feedback on <format>',
       'secondary',
       `${HUB}/feedback/{format}`,
       'built',
-      'B3-02 f2, f7',
+      'ST-v1 `simVM`',
     ],
   ]),
   ...pageRows('ST-10', `${HUB}/progress`, [
-    ...hubTabs('B3-01 f8 … f12'),
-    ['Format row', 'Continue WEB', 'secondary', `${HUB}/simulation/web`, 'built', 'B3-01 f9'],
-    ['Format row', 'Open VR', 'secondary', `${HUB}/simulation/{format}`, 'built', 'B3-01 f8'],
+    ...hubTabs('ST-v1 StudentFinal `HB.isPT`, `progTabVM`'),
+    [
+      'Format row (the gold action)',
+      'Continue <format> · Give feedback on <format> · Open <format>',
+      'primary',
+      `${HUB}/simulation/{format}`,
+      'built',
+      'ST-v1 `progExp`',
+      'Give feedback opens ST-16 (`/feedback/{format}`).',
+    ],
+    [
+      'Format row',
+      'Continue WEB · Open VR',
+      'secondary',
+      `${HUB}/simulation/{format}`,
+      'built',
+      'ST-v1 `progExp`',
+    ],
     [
       'Completed row',
       'Give feedback on <format>',
       'secondary',
       `${HUB}/feedback/{format}`,
       'built',
-      'B3-01 f8, f12',
+      'ST-v1 `progExp`',
+    ],
+    [
+      'Assessment line',
+      'Open assessment · Continue attempt · See result',
+      'secondary',
+      '/student/assessments/{assessmentId}',
+      'built',
+      'ST-v1 `progExp` (`asmtLink`)',
+      'Continue attempt opens ST-13 (`/attempt`), See result ST-14 (`/result`).',
     ],
   ]),
 ];

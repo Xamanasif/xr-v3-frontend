@@ -8,9 +8,9 @@ import { joinClasses } from '../internal/classes.js';
  * messages, the Super Admin export (SA-v1) in its sprite, the Vendor export (VE-v1) in its
  * `vei-*` symbols, the Content Manager export (CM-v1) in its `cmi-*` symbols, the Academic
  * Reviewer export (RV-v1) in its rail and its `rvi-*` symbols, the Institute Admin export (IA-v1)
- * in its rail and its `rbi-*` / `rki-*` sprite and the Faculty export (FA-v1) in its `fai-*`
- * sprite. Thirty-five are the very paths of the v46 registry (taken from it, so the two never
- * drift); the others are new to V3.
+ * in its rail and its `rbi-*` / `rki-*` sprite, the Faculty export (FA-v1) in its `fai-*`
+ * sprite and the Student export (ST-v1) in its `sti-*` sprite. Thirty-nine are the very paths of
+ * the v46 registry (taken from it, so the two never drift); the others are new to V3.
  * `primitives.test.tsx` checks every path against the board or export that draws it.
  */
 export const V3_ICON_PATHS = {
@@ -28,6 +28,12 @@ export const V3_ICON_PATHS = {
   contentAccess: ICON_PATHS.contentAccess,
   studentAccess: ICON_PATHS.studentAccess,
   people: ICON_PATHS.studentsPeople,
+  // The Student export's rail (ST-v1 `StudentFinal.dc.html` `sti-home`, `sti-book`, `sti-clip`,
+  // `sti-bars`): the v46 Student sidebar's own glyphs, path for path.
+  home: ICON_PATHS.home,
+  myCourses: ICON_PATHS.myCourses,
+  assessments: ICON_PATHS.assessments,
+  progress: ICON_PATHS.progress,
   requests: ICON_PATHS.requests,
   usage: ICON_PATHS.usage,
   chevronDown: ICON_PATHS.chevronDown,
@@ -139,6 +145,21 @@ export const V3_ICON_PATHS = {
   eye: 'M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
   key: 'M14.5 14.5a5 5 0 1 0-4.6-3.1L3 18.3V21h2.7l1-1V18h2v-2h2l.9-.9a5 5 0 0 0 2.9-.6zM16.5 7.5h.01',
   file: 'M6 3h8l5 5v13H6zM14 3v5h5',
+  // New in the Student export (ST-v1 `StudentFinal.dc.html` `sti-*` symbols): the focused task
+  // bar's way back (`sti-left`), the paused and ended format chips (`sti-bars2`, `sti-dash`), a
+  // web page and a spreadsheet resource (`sti-web`, `sti-sheet`; a document is `documentText`),
+  // the simulation, resources and feedback steps (`sti-sim`, `sti-res`, `sti-chat`; not the RV
+  // `playDisc` and `message`) and a device transfer (`sti-swap`).
+  chevronLeft: 'M14.5 6l-6 6 6 6',
+  pauseBars: 'M9 6v12M15 6v12',
+  dash: 'M7 12h10',
+  globe:
+    'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3.5 9h17M3.5 15h17M12 3c2.5 2.6 3.7 5.6 3.7 9s-1.2 6.4-3.7 9M12 3C9.5 5.6 8.3 8.6 8.3 12s1.2 6.4 3.7 9',
+  spreadsheet: 'M4 5h16v14H4zM4 10h16M4 15h16M10 5v14',
+  simulation: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10 8.5v7l6-3.5z',
+  resources: 'M4 5h6a2 2 0 0 1 2 2v12a2 2 0 0 0-2-2H4zM20 5h-6a2 2 0 0 0-2 2v12a2 2 0 0 1 2-2h6z',
+  chat: 'M4 5h16v11H9l-5 4zM8 9.5h8M8 12.5h5',
+  swap: 'M7 7h12M15 3l4 4-4 4M17 17H5M9 13l-4 4 4 4',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;

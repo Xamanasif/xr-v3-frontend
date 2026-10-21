@@ -8,9 +8,14 @@
 import type { IsoInstant } from '@xr/domain';
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, stExport } from '@/test-support/boards';
 
 import {
+  byQuestionWords,
+  outOfWords,
+  passMarkValueWords,
+  RESULT_V3,
+  retryLine,
   attemptsLeftWords,
   attemptWords,
   correctAnswerWords,
@@ -27,6 +32,11 @@ import {
   yourAnswerWords,
 } from './result';
 import { STATE_COPY_RESULT } from './state-copy-result';
+
+/** Text as it reads: the export's no-break spaces that keep a date on one line (`nbd`) read as
+ * spaces. */
+const plain = <T extends string | null | undefined>(text: T): T =>
+  (text == null ? text : text.replace(/\u00a0/g, ' ')) as T;
 
 /** The board's text with tags removed, then its raw markup (attributes, script). */
 function words(file: string): string {
@@ -62,10 +72,10 @@ describe('ST-14 Result words (B4-13)', () => {
     expect(B4_13).toContain(passMarkWords(8, 16));
     expect(attemptWords(1, 2)).toBe('Attempt 1 of 2');
     expect(B4_13).toContain(attemptWords(1, 2));
-    expect(releasedWords(AFTER_DEADLINE, DEADLINE)).toBe(
+    expect(plain(releasedWords(AFTER_DEADLINE, DEADLINE))).toBe(
       'Released 14 Nov 2026, 23:59, after the deadline',
     );
-    expect(B4_13).toContain(releasedWords(AFTER_DEADLINE, DEADLINE));
+    expect(B4_13).toContain(plain(releasedWords(AFTER_DEADLINE, DEADLINE)));
     expect(attemptsLeftWords(1)).toBe('You have 1 attempt left.');
     expect(B4_13).toContain(attemptsLeftWords(1));
     expect(feedbackFromWords('Dr S. Ranganathan')).toBe('Feedback from Dr S. Ranganathan');
@@ -96,35 +106,35 @@ describe('ST-14 Result words (B4-13)', () => {
 
   it('waiting for marking and not released take the board’s lines (f1, f2, f4)', () => {
     const waiting = waitingLine(SUBMITTED, AFTER_DEADLINE);
-    expect(waiting).toBe(
+    expect(plain(waiting)).toBe(
       'You submitted on 5 Nov 2026, 18:52. Your faculty marks written answers. Your result appears after the deadline: 14 Nov 2026, 23:59.',
     );
-    expect(B4_13).toContain(waiting);
+    expect(B4_13).toContain(plain(waiting));
     const notReleased = notReleasedLine(AFTER_DEADLINE);
-    expect(notReleased).toBe(
+    expect(plain(notReleased)).toBe(
       'Your answers have been marked. Results for this assessment are released after the deadline: 14 Nov 2026, 23:59.',
     );
-    expect(B4_13).toContain(notReleased);
+    expect(B4_13).toContain(plain(notReleased));
   });
 
   it('the undrawn settings and forms are the register’s words', () => {
     const at = '2026-10-27T04:30:00.000Z' as IsoInstant; // 27 Oct 2026, 10:00 IST
-    expect(releasedWords({ option: 'immediately-after-marking', on: null }, at)).toBe(
+    expect(plain(releasedWords({ option: 'immediately-after-marking', on: null }, at))).toBe(
       'Released 27 Oct 2026, 10:00, when marked',
     );
-    expect(releasedWords({ option: 'on-date', on: at }, at)).toBe(
+    expect(plain(releasedWords({ option: 'on-date', on: at }, at))).toBe(
       'Released 27 Oct 2026, 10:00, on the date set',
     );
-    expect(releasedWords({ option: 'on-date', on: SUBMITTED }, at)).toBe(
+    expect(plain(releasedWords({ option: 'on-date', on: SUBMITTED }, at))).toBe(
       'Released 27 Oct 2026, 10:00, when marked',
     );
-    expect(waitingLine(SUBMITTED, { option: 'immediately-after-marking', on: null })).toBe(
+    expect(plain(waitingLine(SUBMITTED, { option: 'immediately-after-marking', on: null }))).toBe(
       'You submitted on 5 Nov 2026, 18:52. Your faculty marks written answers. Your result appears when your answers are marked.',
     );
-    expect(waitingLine(SUBMITTED, { option: 'on-date', on: DEADLINE })).toBe(
+    expect(plain(waitingLine(SUBMITTED, { option: 'on-date', on: DEADLINE }))).toBe(
       'You submitted on 5 Nov 2026, 18:52. Your faculty marks written answers. Your result appears on 14 Nov 2026, 23:59.',
     );
-    expect(notReleasedLine({ option: 'on-date', on: DEADLINE })).toBe(
+    expect(plain(notReleasedLine({ option: 'on-date', on: DEADLINE }))).toBe(
       'Your answers have been marked. Results for this assessment are released on 14 Nov 2026, 23:59.',
     );
     expect(attemptsLeftWords(2)).toBe('You have 2 attempts left.');
@@ -145,5 +155,44 @@ describe('ST-14 Result words (B4-13)', () => {
         expect(entry.words, id).not.toMatch(/\b(VD|OD|PC|ATT|T|M|P4)-?\d/);
       }
     }
+  });
+});
+
+// ---- V3 (the owner-approved Student export ST-v1) -----------------------------------------------
+
+const ST_MAIN = stExport('StudentFinal.dc.html');
+const ST_TEMPLATE = ST_MAIN.slice(0, ST_MAIN.indexOf('<script type="text/x-dc"'));
+const ST_SCRIPT = ST_MAIN.slice(ST_MAIN.indexOf('<script type="text/x-dc"'));
+/** The template's text (`&amp;` decoded) and the script that fills it. */
+const ST_DRAWN = `${ST_TEMPLATE.replace(/&amp;/g, '&')}\n${ST_SCRIPT}`;
+/** No assessment, attempt or record id in a Student word (decision 3). */
+const ST_REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT|Q)-\d+/;
+
+function expectStDrawn(words: string) {
+  expect(ST_DRAWN.includes(words), `drawn in the ST-v1 export: ${words}`).toBe(true);
+  expect(words).not.toMatch(ST_REFERENCE);
+}
+
+describe('V3: ST-14 Result (ST-v1 `resultVM`)', () => {
+  it('the fixed words are the export’s', () => {
+    for (const words of Object.values(RESULT_V3)) expectStDrawn(words);
+  });
+
+  it('composes the score panel as the export’s script does', () => {
+    expect(outOfWords(16)).toBe('of 16 marks');
+    expectStDrawn(`total: 'of ' + A.total + ' marks'`);
+    expect(outOfWords(1)).toBe('of 1 mark');
+    expect(passMarkValueWords(8, 16)).toBe('50% · 8 of 16 marks');
+    expectStDrawn(`passText: A.passpct + ' · ' + A.passm + ' of ' + A.total + ' marks'`);
+    expect(byQuestionWords(4, 7, 10)).toEqual({
+      label: 'Q4',
+      mark: '7 of 10',
+      name: 'Question 4: 7 of 10 marks',
+    });
+    expectStDrawn(`aria: 'Question ' + x.n + ': ' + x.markText`);
+    expectStDrawn(`<span class="sv-byq-n">Q{{ b.n }}</span>`);
+    expect(retryLine(1, 1)).toBe('You have 1 attempt left. Your first result stays here.');
+    expectStDrawn(`' left. Your first result stays here.'`);
+    expect(retryLine(2, 2)).toBe('You have 2 attempts left. Your earlier results stay here.');
   });
 });

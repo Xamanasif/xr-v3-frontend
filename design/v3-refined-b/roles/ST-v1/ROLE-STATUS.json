@@ -1,0 +1,892 @@
+{
+ "role": "Student",
+ "foundation": "XR-V3-RB-1.0",
+ "ownedIds": 19,
+ "excluded": [
+  "ST-20 Signed-in catalogue (designed:false, removed from Student nav R18)"
+ ],
+ "status": "DESIGN COMPLETE (19 / 19) · CONNECTED PREVIEW COMPLETE · ASSEMBLY PENDING XS · OWNER APPROVED (21 Oct 2026)",
+ "statusKey": {
+  "DESIGN COMPLETE": "every owned ID and subview designed in the final design",
+  "CONNECTED PREVIEW COMPLETE": "reachable and working inside StudentFinal.dc.html",
+  "ASSEMBLY PENDING XS": "account menu, Help and shared messages are faithful borrowed versions until the XS components are delivered",
+  "OWNER APPROVAL": "Approved by the owner on 21 Oct 2026 for integration into the existing V3 frontend. This is the one Student design to implement; every earlier generation is superseded."
+ },
+ "liveEntry": "project/StudentFinal.dc.html — canvas Final page, “Final preview (live) · start here”",
+ "screens": [
+  {
+   "id": "ST-01",
+   "screen": "Home",
+   "type": "page",
+   "navigation": "Sidebar Home",
+   "v46RouteProposal": "/student",
+   "v46Boards": [
+    "B2-10"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-01.page",
+     "name": "Home · active learner: next step with the stage tracker, also in this experiment, what you learn",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-01.learning",
+     "name": "Learning states: given, assessment ready, attempt in progress, feedback to give, VR in progress / not now / done, waiting, released",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-01.new",
+     "name": "New student: no access yet, how it works",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-01.held",
+     "name": "Held access: waiting for a licence, institution paused, ended, withdrawn, no headset formats",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-01.inactive",
+     "name": "Account inactive (borrowed XS-08 notice above the page)",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-01-ended.dc.html",
+    "F-01-learn-1024.dc.html",
+    "F-01-learn-320.dc.html",
+    "F-01-learn-375.dc.html",
+    "F-01-learn-768.dc.html",
+    "F-01-learn.dc.html",
+    "F-01-licence.dc.html",
+    "F-01-newst.dc.html",
+    "F-01-paused-375.dc.html",
+    "F-01-paused.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1 J2 J5",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-02",
+   "screen": "My courses",
+   "type": "page",
+   "navigation": "Sidebar My courses",
+   "v46RouteProposal": "/student/courses",
+   "v46Boards": [
+    "B2-11"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-02.page",
+     "name": "My courses · course sections with experiment rows",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-02.states",
+     "name": "Given, new student, waiting for a licence, paused, access ended / withdrawn (earlier work)",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-02.data",
+     "name": "Loading and could not load (Try again)",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-02-ended.dc.html",
+    "F-02-learn-375.dc.html",
+    "F-02-learn-failed.dc.html",
+    "F-02-learn-loading.dc.html",
+    "F-02-learn.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1 (breadcrumb)",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-03",
+   "screen": "Course (student view)",
+   "type": "page",
+   "navigation": "Detail",
+   "v46RouteProposal": "/student/courses/[courseId]",
+   "v46Boards": [
+    "B2-11"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-03.page",
+     "name": "Course · experiments given to you",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-03.states",
+     "name": "Paused, waiting for a licence, new student, course not current (refusal with earlier work)",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-03-ended.dc.html",
+    "F-03-learn-375.dc.html",
+    "F-03-learn.dc.html",
+    "F-03-paused.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-04",
+   "screen": "All my experiments",
+   "type": "tab",
+   "navigation": "Tab of My courses",
+   "v46RouteProposal": "/student/courses?tab=experiments",
+   "v46Boards": [
+    "B2-11"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-04.page",
+     "name": "All my experiments · toolbar (search, format filter) and rows",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-04.filter",
+     "name": "Search / filter with no match, chips and Clear filters",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-04.states",
+     "name": "Ended, paused, loading, could not load",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-04-learn-375.dc.html",
+    "F-04-learn-x-nomatch.dc.html",
+    "F-04-learn.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "link map",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-05",
+   "screen": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+   "type": "page",
+   "navigation": "Detail",
+   "v46RouteProposal": "/student/experiments/[experimentId]",
+   "v46Boards": [
+    "B2-12"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-05.head",
+     "name": "Experiment header and the five section tabs (wrapping chips on phones)",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-05.overview",
+     "name": "Overview tab: about, what you learn, formats and your progress, resources and assessment beside",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-05.held",
+     "name": "Held: waiting for a licence, paused, ended / withdrawn refusals, new student",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-05-learn-1024.dc.html",
+    "F-05-learn-320.dc.html",
+    "F-05-learn-375.dc.html",
+    "F-05-learn-768.dc.html",
+    "F-05-learn.dc.html",
+    "F-05-licence.dc.html",
+    "F-05-paused.dc.html",
+    "F-05-vrdone.dc.html",
+    "F-05-vrnow.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1 J5",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-05as",
+   "screen": "Experiment · Assessment tab (part of ST-05)",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "v46RouteProposal": null,
+   "v46Boards": null,
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-05as.tab",
+     "name": "Assessment tab: deadline block, what it covers, state and one action",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-05as.states",
+     "name": "In progress, submitted, not released, released, not passed, none set yet",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-05as-assess-375.dc.html",
+    "F-05as-assess.dc.html",
+    "F-05as-learn.dc.html",
+    "F-05as-released.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "link map",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-06",
+   "screen": "Resources",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "v46RouteProposal": "/student/experiments/[experimentId]/resources",
+   "v46Boards": [
+    "B3-01"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-06.list",
+     "name": "Resources tab: reading list with type, length and when opened; aside on how resources relate",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-06.fail",
+     "name": "A resource did not open (Try again)",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-06.states",
+     "name": "Given, paused, waiting for a licence, loading, could not load",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-06-learn-375.dc.html",
+    "F-06-learn-loading.dc.html",
+    "F-06-learn-res-fail.dc.html",
+    "F-06-learn.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-07",
+   "screen": "Simulation — choose a format",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "v46RouteProposal": "/student/experiments/[experimentId]/simulation",
+   "v46Boards": [
+    "B3-02"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-07.chooser",
+     "name": "Simulation tab: two format cards (next step tagged), formats not available listed with reasons",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-07.states",
+     "name": "Given, VR not now, VR in progress, both completed, waiting for a licence, paused",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-07-learn-375.dc.html",
+    "F-07-learn-768.dc.html",
+    "F-07-learn.dc.html",
+    "F-07-licence.dc.html",
+    "F-07-paused.dc.html",
+    "F-07-vrdone.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1 J4",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-08",
+   "screen": "WEB simulation (launch / resume)",
+   "type": "page",
+   "navigation": "Detail",
+   "v46RouteProposal": "/student/experiments/[experimentId]/simulation/web",
+   "v46Boards": [
+    "B3-03"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-08.launch",
+     "name": "WEB page: launch card (stages, one action, help row) and the format facts",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-08.states",
+     "name": "Not started, completed (feedback), paused, waiting for a licence",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-08.fail",
+     "name": "The simulation did not open (Try again, Report a problem)",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-08-granted.dc.html",
+    "F-08-learn-1024.dc.html",
+    "F-08-learn-375.dc.html",
+    "F-08-learn-launch-fail.dc.html",
+    "F-08-learn.dc.html",
+    "F-08-paused.dc.html",
+    "F-08-vrdone.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1 J5 J6",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-08a",
+   "screen": "WEB · simulated sample activity (part of ST-08)",
+   "type": "step",
+   "navigation": "From ST-08",
+   "v46RouteProposal": null,
+   "v46Boards": null,
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-08a.activity",
+     "name": "Sample activity: stage tracker and one stage card",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-08a.done",
+     "name": "Activity completed: recorded by the platform",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-08a.focusbar",
+     "name": "Focused-task bar: back link and save status",
+     "status": "REVIEWED AND UNCHANGED"
+    }
+   ],
+   "boards": [
+    "F-08a-learn-375.dc.html",
+    "F-08a-learn-act-done.dc.html",
+    "F-08a-learn.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-09",
+   "screen": "AR / VR / MR format (setup & progress)",
+   "type": "page",
+   "navigation": "Detail",
+   "v46RouteProposal": "/student/experiments/[experimentId]/simulation/[format]",
+   "v46Boards": [
+    "B3-04"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-09.vr",
+     "name": "VR page: set up (steps disclosure), your authorised headset, help row, format facts",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-09.states",
+     "name": "In progress, completed (feedback), not available right now, paused, waiting, no headset formats",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-09.armr",
+     "name": "AR not included · MR not available (compact refusal with the formats you can use)",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-09-learn-375.dc.html",
+    "F-09-learn.dc.html",
+    "F-09-nodevice.dc.html",
+    "F-09-vrdone.dc.html",
+    "F-09-vrnow.dc.html",
+    "F-09-vrprog.dc.html",
+    "F-09ar-learn-375.dc.html",
+    "F-09ar-learn.dc.html",
+    "F-09mr-learn.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J4 J5",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-10",
+   "screen": "Progress for this experiment",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "v46RouteProposal": "/student/experiments/[experimentId]/progress",
+   "v46Boards": [
+    "B3-01"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-10.table",
+     "name": "Progress tab: one row per format with dated facts, formats not available, assessment line",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-10.states",
+     "name": "Given, paused",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-10-learn-375.dc.html",
+    "F-10-learn.dc.html",
+    "F-10-vrdone-768.dc.html",
+    "F-10-vrdone.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "link map",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-11",
+   "screen": "Assessments",
+   "type": "page",
+   "navigation": "Sidebar Assessments",
+   "v46RouteProposal": "/student/assessments",
+   "v46Boards": [
+    "B4-11"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-11.list",
+     "name": "Assessments: To do / Submitted / Results tabs with counts, rows led by the key date",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-11.empty",
+     "name": "Empty tabs say where the assessment is; no assessments set; new student",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-11.data",
+     "name": "Loading and could not load (no counts shown)",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-11-assess-375.dc.html",
+    "F-11-assess-failed.dc.html",
+    "F-11-assess.dc.html",
+    "F-11-learn.dc.html",
+    "F-11-newst.dc.html",
+    "F-11res-released.dc.html",
+    "F-11sub-waitmark.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J3",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-12",
+   "screen": "Assessment — before you start",
+   "type": "page",
+   "navigation": "Detail",
+   "v46RouteProposal": "/student/assessments/[assessmentId]",
+   "v46Boards": [
+    "B4-11"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-12.card",
+     "name": "Before you start: state, three rules and the action; deadline block and six key facts",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-12.states",
+     "name": "Attempt in progress, submitted, not released, released, not passed (try again), none set",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-12-assess-320.dc.html",
+    "F-12-assess-375.dc.html",
+    "F-12-assess-768.dc.html",
+    "F-12-assess.dc.html",
+    "F-12-inprog.dc.html",
+    "F-12-learn.dc.html",
+    "F-12-notpassed.dc.html",
+    "F-12-waitmark.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J3 J5",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-13",
+   "screen": "Assessment attempt",
+   "type": "step",
+   "navigation": "Flow step",
+   "v46RouteProposal": "/student/assessments/[assessmentId]/attempt",
+   "v46Boards": [
+    "B4-12"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-13.sheet",
+     "name": "Attempt: one numbered question sheet (choice, true / false, written) and the answer navigator",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-13.save",
+     "name": "Answers save automatically: saved / did not save + Try again",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-13.dialog",
+     "name": "Submit dialog naming unanswered questions (focus kept inside, Escape closes)",
+     "status": "REVIEWED AND UNCHANGED"
+    },
+    {
+     "subview": "ST-13.subfail",
+     "name": "Answers were not submitted (still saved)",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-13.done",
+     "name": "Submitted: waiting for marking",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-13.focusbar",
+     "name": "Focused-task bar: back link and save status",
+     "status": "REVIEWED AND UNCHANGED"
+    }
+   ],
+   "boards": [
+    "F-13-assess.dc.html",
+    "F-13-inprog-1024.dc.html",
+    "F-13-inprog-320.dc.html",
+    "F-13-inprog-375.dc.html",
+    "F-13-inprog-att-dialog-375.dc.html",
+    "F-13-inprog-att-dialog.dc.html",
+    "F-13-inprog-att-savefail.dc.html",
+    "F-13-inprog-att-subfail.dc.html",
+    "F-13-inprog.dc.html",
+    "F-13-waitmark.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J3",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-14",
+   "screen": "Result",
+   "type": "page",
+   "navigation": "Detail",
+   "v46RouteProposal": "/student/assessments/[assessmentId]/result",
+   "v46Boards": [
+    "B4-13"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-14.released",
+     "name": "Result released: score panel, marks by question (jump list), answer review",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-14.withheld",
+     "name": "Not submitted / waiting for marking / not released: compact message, no marks",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-14-notpassed.dc.html",
+    "F-14-notrel.dc.html",
+    "F-14-released-320.dc.html",
+    "F-14-released-375.dc.html",
+    "F-14-released-768.dc.html",
+    "F-14-released.dc.html",
+    "F-14-waitmark.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J3",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-15",
+   "screen": "Progress (all experiments)",
+   "type": "page",
+   "navigation": "Sidebar Progress",
+   "v46RouteProposal": "/student/progress",
+   "v46Boards": [
+    "B3-05"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-15.list",
+     "name": "Progress: filters with chips, course groups, one row per format with dated facts",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-15.filter",
+     "name": "Filtered, no match, Clear filters",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-15.states",
+     "name": "New student, paused, earlier work after access ended, loading, could not load",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-15-ended-375.dc.html",
+    "F-15-ended.dc.html",
+    "F-15-learn-1024.dc.html",
+    "F-15-learn-320.dc.html",
+    "F-15-learn-375.dc.html",
+    "F-15-learn-768.dc.html",
+    "F-15-learn-loading.dc.html",
+    "F-15-learn-p-filter.dc.html",
+    "F-15-learn-p-nomatch.dc.html",
+    "F-15-learn.dc.html",
+    "F-15-newst.dc.html",
+    "F-15-vrdone.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J1 J5",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-16",
+   "screen": "Format feedback",
+   "type": "step",
+   "navigation": "Flow step",
+   "v46RouteProposal": "/student/experiments/[experimentId]/feedback/[format]",
+   "v46Boards": [
+    "B3-06"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-16.sheet",
+     "name": "Feedback: one rating sheet, the scale named once, optional comment",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-16.errors",
+     "name": "Ratings missing: error summary and inline errors",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-16.fail",
+     "name": "Not sent (answers kept)",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-16.notyet",
+     "name": "Not open yet (before the format is completed)",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-16v-learn.dc.html",
+    "F-16v-vrdone-320.dc.html",
+    "F-16v-vrdone-375.dc.html",
+    "F-16v-vrdone-fb-errors.dc.html",
+    "F-16v-vrdone-fb-fail.dc.html",
+    "F-16v-vrdone.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J2 J5",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-17",
+   "screen": "Feedback sent (confirmation, read-only)",
+   "type": "state",
+   "navigation": "Flow step",
+   "v46RouteProposal": "/student/experiments/[experimentId]/feedback/[format] (sent state)",
+   "v46Boards": [
+    "B3-06"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-17.sent",
+     "name": "Feedback sent: thank-you band and the answers on the same scale, read-only",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-16w-vrdone-375.dc.html",
+    "F-16w-vrdone.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J2",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-18",
+   "screen": "My device (AR/VR/MR holders only)",
+   "type": "page",
+   "navigation": "Account menu",
+   "v46RouteProposal": "/student/device",
+   "v46Boards": [
+    "B3-07"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-18.device",
+     "name": "My device: authorised headset and one action",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-18.form",
+     "name": "Transfer request form and its validation",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-18.chain",
+     "name": "Request as three dated steps: with your Institute Admin, forwarded, approved, no Institute Admin",
+     "status": "REDESIGNED"
+    },
+    {
+     "subview": "ST-18.held",
+     "name": "Paused; not available without headset formats",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-18-device-dev-error.dc.html",
+    "F-18-device-dev-form.dc.html",
+    "F-18-device.dc.html",
+    "F-18-dtrappr.dc.html",
+    "F-18-dtrfwd-320.dc.html",
+    "F-18-dtrfwd-375.dc.html",
+    "F-18-dtrfwd.dc.html",
+    "F-18-dtrnoia.dc.html",
+    "F-18-dtrsent.dc.html",
+    "F-18-nodevice.dc.html",
+    "F-18-paused.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J4 J5",
+   "ownerApproval": "APPROVED"
+  },
+  {
+   "id": "ST-19",
+   "screen": "Experiment not available (refusal page)",
+   "type": "state",
+   "navigation": "—",
+   "v46RouteProposal": "/student/experiments/[experimentId] (not-available state)",
+   "v46Boards": [
+    "B2-11",
+    "B2-12",
+    "B2-13"
+   ],
+   "source": "project/StudentFinal.dc.html",
+   "designComplete": true,
+   "connectedPreview": true,
+   "coverageStatus": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-19.refusal",
+     "name": "Not available: compact card, the reason once and what you can still do",
+     "status": "REDESIGNED"
+    }
+   ],
+   "boards": [
+    "F-19-ended.dc.html",
+    "F-19-learn-375.dc.html",
+    "F-19-learn.dc.html",
+    "F-19-withdrawn.dc.html"
+   ],
+   "rendered": "1440 · 1024 · 768 · 375 (every case), 320 (subset)",
+   "logicTested": "J5",
+   "ownerApproval": "APPROVED"
+  }
+ ]
+}

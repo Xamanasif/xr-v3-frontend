@@ -43,6 +43,12 @@ export interface NoticeProps {
    * FA-09's "Add this question to the assessment", wider than the notice's column at 375 px.
    */
   readonly wrapActions?: boolean;
+  /**
+   * Opt-in: the role export's own class on the notice, beside `rk-notice` (the Student export's
+   * `sv-fb-msg` over the feedback sheet, `sv-launch-err` in the launch card, `sv-devnoia` in the
+   * transfer request). None by default.
+   */
+  readonly className?: string;
 }
 
 const NOTICE_SPACE = { above: 'rk-x-notice-above', below: 'rk-x-notice-below' } as const;
@@ -59,6 +65,7 @@ export function Notice({
   id,
   space,
   wrapActions = false,
+  className,
 }: NoticeProps) {
   return (
     <div
@@ -69,6 +76,7 @@ export function Notice({
         `rk-notice--${tone}`,
         space && NOTICE_SPACE[space],
         wrapActions && 'rk-x-notice-wrap',
+        className,
       )}
       role={role}
       tabIndex={ref || id ? -1 : undefined}

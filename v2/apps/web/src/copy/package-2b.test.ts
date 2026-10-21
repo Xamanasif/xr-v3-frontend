@@ -21,13 +21,7 @@ import { fieldWords } from './field-words';
 import { CONTENT_ACCESS_WORDS, OVERVIEW_WORDS } from './institute-home';
 import { ADD_PERSON, PEOPLE_PAGE } from './institute-people';
 import { STATE_COPY_PACKAGE_2B } from './state-copy-package-2b';
-import {
-  ALL_EXPERIMENTS_PAGE,
-  allExperimentsCountWords,
-  experimentSearchChip,
-  formatChip,
-  MY_COURSES_TABS,
-} from './student';
+import { ALL_EXPERIMENTS_PAGE, experimentSearchChip, formatChip, MY_COURSES_TABS } from './student';
 import { GIVE_ACCESS, STUDENT_ACCESS_PAGE } from './student-access';
 
 function words(file: string): string {
@@ -110,9 +104,6 @@ describe('ST-04 All experiments and the My courses tabs (B2-11 f2, f4, f15)', ()
   );
 
   it('the count and chips follow B2-11’s script', () => {
-    expect(allExperimentsCountWords(1, 1, false)).toBe('1 experiment given to you');
-    expect(allExperimentsCountWords(0, 1, true)).toBe('0 of 1 experiment');
-    expect(allExperimentsCountWords(2, 3, true)).toBe('2 of 3 experiments');
     expect(experimentSearchChip(' Fin-Tube ')).toBe('Search: “Fin-Tube”');
     expect(formatChip('web')).toBe('Format: WEB');
     // B2-11 `mxView`: "Search: “' + s.q.trim() + '”'", "'Format: ' + s.fmt".

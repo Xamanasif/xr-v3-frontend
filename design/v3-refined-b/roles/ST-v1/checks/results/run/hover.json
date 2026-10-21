@@ -1,0 +1,180 @@
+[
+ {
+  "case": "01-learn",
+  "controls": 12,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “Home”"
+  ]
+ },
+ {
+  "case": "02-learn",
+  "controls": 11,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "03-learn",
+  "controls": 9,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "04-learn",
+  "controls": 12,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "05-learn",
+  "controls": 17,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "06-learn",
+  "controls": 17,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "07-learn",
+  "controls": 16,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "05as-assess",
+  "controls": 15,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "10-learn",
+  "controls": 16,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "08-learn",
+  "controls": 11,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "08a-learn",
+  "controls": 4,
+  "noHover": [
+   "a.st-skip “Skip to main content”"
+  ]
+ },
+ {
+  "case": "09-learn",
+  "controls": 12,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "09ar-learn",
+  "controls": 12,
+  "noHover": [
+   "a.st-skip “Skip to main content”"
+  ]
+ },
+ {
+  "case": "11-assess",
+  "controls": 11,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “Assessments”"
+  ]
+ },
+ {
+  "case": "12-assess",
+  "controls": 11,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “Assessments”"
+  ]
+ },
+ {
+  "case": "13-inprog",
+  "controls": 19,
+  "noHover": [
+   "a.st-skip “Skip to main content”"
+  ]
+ },
+ {
+  "case": "14-released",
+  "controls": 15,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “Assessments”"
+  ]
+ },
+ {
+  "case": "15-learn",
+  "controls": 12,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “Progress”"
+  ]
+ },
+ {
+  "case": "16v-vrdone",
+  "controls": 37,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "16w-vrdone",
+  "controls": 11,
+  "noHover": [
+   "a.st-skip “Skip to main content”",
+   "a.[current] “My courses”"
+  ]
+ },
+ {
+  "case": "18-device-dev-form",
+  "controls": 11,
+  "noHover": [
+   "a.st-skip “Skip to main content”"
+  ]
+ },
+ {
+  "case": "18-dtrfwd",
+  "controls": 7,
+  "noHover": [
+   "a.st-skip “Skip to main content”"
+  ]
+ },
+ {
+  "case": "19-learn",
+  "controls": 11,
+  "noHover": [
+   "a.st-skip “Skip to main content”"
+  ]
+ }
+]

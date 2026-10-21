@@ -1,0 +1,805 @@
+[
+ {
+  "name": "01-learn",
+  "scenario": "learn",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-assess",
+  "scenario": "assess",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-granted",
+  "scenario": "granted",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-newst",
+  "scenario": "newst",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-vrnow",
+  "scenario": "vrnow",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-vrprog",
+  "scenario": "vrprog",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-licence",
+  "scenario": "licence",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-paused",
+  "scenario": "paused",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-ended",
+  "scenario": "ended",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-withdrawn",
+  "scenario": "withdrawn",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-inactive",
+  "scenario": "inactive",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-nodevice",
+  "scenario": "nodevice",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-inprog",
+  "scenario": "inprog",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-released",
+  "scenario": "released",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-device",
+  "scenario": "device",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-learn-menu",
+  "scenario": "learn",
+  "screen": "ST-01",
+  "preset": "menu"
+ },
+ {
+  "name": "01-learn-acct",
+  "scenario": "learn",
+  "screen": "ST-01",
+  "preset": "acct"
+ },
+ {
+  "name": "02-learn",
+  "scenario": "learn",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-granted",
+  "scenario": "granted",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-newst",
+  "scenario": "newst",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-licence",
+  "scenario": "licence",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-paused",
+  "scenario": "paused",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-ended",
+  "scenario": "ended",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-withdrawn",
+  "scenario": "withdrawn",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-learn-loading",
+  "scenario": "learn",
+  "screen": "ST-02",
+  "dataState": "loading"
+ },
+ {
+  "name": "02-learn-failed",
+  "scenario": "learn",
+  "screen": "ST-02",
+  "dataState": "failed"
+ },
+ {
+  "name": "03-learn",
+  "scenario": "learn",
+  "screen": "ST-03"
+ },
+ {
+  "name": "03-paused",
+  "scenario": "paused",
+  "screen": "ST-03"
+ },
+ {
+  "name": "03-licence",
+  "scenario": "licence",
+  "screen": "ST-03"
+ },
+ {
+  "name": "03-ended",
+  "scenario": "ended",
+  "screen": "ST-03"
+ },
+ {
+  "name": "03-newst",
+  "scenario": "newst",
+  "screen": "ST-03"
+ },
+ {
+  "name": "04-learn",
+  "scenario": "learn",
+  "screen": "ST-04"
+ },
+ {
+  "name": "04-learn-x-nomatch",
+  "scenario": "learn",
+  "screen": "ST-04",
+  "preset": "x-nomatch"
+ },
+ {
+  "name": "04-ended",
+  "scenario": "ended",
+  "screen": "ST-04"
+ },
+ {
+  "name": "04-paused",
+  "scenario": "paused",
+  "screen": "ST-04"
+ },
+ {
+  "name": "05-learn",
+  "scenario": "learn",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-granted",
+  "scenario": "granted",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-newst",
+  "scenario": "newst",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-vrnow",
+  "scenario": "vrnow",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-licence",
+  "scenario": "licence",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-paused",
+  "scenario": "paused",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-ended",
+  "scenario": "ended",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-withdrawn",
+  "scenario": "withdrawn",
+  "screen": "ST-05"
+ },
+ {
+  "name": "06-learn",
+  "scenario": "learn",
+  "screen": "ST-06"
+ },
+ {
+  "name": "06-granted",
+  "scenario": "granted",
+  "screen": "ST-06"
+ },
+ {
+  "name": "06-paused",
+  "scenario": "paused",
+  "screen": "ST-06"
+ },
+ {
+  "name": "06-licence",
+  "scenario": "licence",
+  "screen": "ST-06"
+ },
+ {
+  "name": "06-learn-res-fail",
+  "scenario": "learn",
+  "screen": "ST-06",
+  "preset": "res-fail"
+ },
+ {
+  "name": "07-learn",
+  "scenario": "learn",
+  "screen": "ST-07"
+ },
+ {
+  "name": "07-granted",
+  "scenario": "granted",
+  "screen": "ST-07"
+ },
+ {
+  "name": "07-vrnow",
+  "scenario": "vrnow",
+  "screen": "ST-07"
+ },
+ {
+  "name": "07-vrprog",
+  "scenario": "vrprog",
+  "screen": "ST-07"
+ },
+ {
+  "name": "07-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-07"
+ },
+ {
+  "name": "07-licence",
+  "scenario": "licence",
+  "screen": "ST-07"
+ },
+ {
+  "name": "07-paused",
+  "scenario": "paused",
+  "screen": "ST-07"
+ },
+ {
+  "name": "05as-assess",
+  "scenario": "assess",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "05as-learn",
+  "scenario": "learn",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "05as-inprog",
+  "scenario": "inprog",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "05as-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "05as-notrel",
+  "scenario": "notrel",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "05as-released",
+  "scenario": "released",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "05as-notpassed",
+  "scenario": "notpassed",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "10-learn",
+  "scenario": "learn",
+  "screen": "ST-10"
+ },
+ {
+  "name": "10-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-10"
+ },
+ {
+  "name": "10-granted",
+  "scenario": "granted",
+  "screen": "ST-10"
+ },
+ {
+  "name": "10-paused",
+  "scenario": "paused",
+  "screen": "ST-10"
+ },
+ {
+  "name": "08-learn",
+  "scenario": "learn",
+  "screen": "ST-08"
+ },
+ {
+  "name": "08-granted",
+  "scenario": "granted",
+  "screen": "ST-08"
+ },
+ {
+  "name": "08-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-08"
+ },
+ {
+  "name": "08-paused",
+  "scenario": "paused",
+  "screen": "ST-08"
+ },
+ {
+  "name": "08-licence",
+  "scenario": "licence",
+  "screen": "ST-08"
+ },
+ {
+  "name": "08-learn-launch-fail",
+  "scenario": "learn",
+  "screen": "ST-08",
+  "preset": "launch-fail"
+ },
+ {
+  "name": "08a-learn",
+  "scenario": "learn",
+  "screen": "ST-08a"
+ },
+ {
+  "name": "08a-learn-act-done",
+  "scenario": "learn",
+  "screen": "ST-08a",
+  "preset": "act-done"
+ },
+ {
+  "name": "08a-granted",
+  "scenario": "granted",
+  "screen": "ST-08a"
+ },
+ {
+  "name": "09-learn",
+  "scenario": "learn",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09-vrprog",
+  "scenario": "vrprog",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09-vrnow",
+  "scenario": "vrnow",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09-paused",
+  "scenario": "paused",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09-licence",
+  "scenario": "licence",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09-learn-setup-open",
+  "scenario": "learn",
+  "screen": "ST-09",
+  "preset": "setup-open"
+ },
+ {
+  "name": "09-nodevice",
+  "scenario": "nodevice",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09ar-learn",
+  "scenario": "learn",
+  "screen": "ST-09ar"
+ },
+ {
+  "name": "09mr-learn",
+  "scenario": "learn",
+  "screen": "ST-09mr"
+ },
+ {
+  "name": "11-assess",
+  "scenario": "assess",
+  "screen": "ST-11"
+ },
+ {
+  "name": "11-learn",
+  "scenario": "learn",
+  "screen": "ST-11"
+ },
+ {
+  "name": "11-newst",
+  "scenario": "newst",
+  "screen": "ST-11"
+ },
+ {
+  "name": "11-inprog",
+  "scenario": "inprog",
+  "screen": "ST-11"
+ },
+ {
+  "name": "11-assess-loading",
+  "scenario": "assess",
+  "screen": "ST-11",
+  "dataState": "loading"
+ },
+ {
+  "name": "11-assess-failed",
+  "scenario": "assess",
+  "screen": "ST-11",
+  "dataState": "failed"
+ },
+ {
+  "name": "11sub-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-11sub"
+ },
+ {
+  "name": "11sub-assess",
+  "scenario": "assess",
+  "screen": "ST-11sub"
+ },
+ {
+  "name": "11res-released",
+  "scenario": "released",
+  "screen": "ST-11res"
+ },
+ {
+  "name": "11res-assess",
+  "scenario": "assess",
+  "screen": "ST-11res"
+ },
+ {
+  "name": "12-assess",
+  "scenario": "assess",
+  "screen": "ST-12"
+ },
+ {
+  "name": "12-inprog",
+  "scenario": "inprog",
+  "screen": "ST-12"
+ },
+ {
+  "name": "12-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-12"
+ },
+ {
+  "name": "12-notrel",
+  "scenario": "notrel",
+  "screen": "ST-12"
+ },
+ {
+  "name": "12-released",
+  "scenario": "released",
+  "screen": "ST-12"
+ },
+ {
+  "name": "12-notpassed",
+  "scenario": "notpassed",
+  "screen": "ST-12"
+ },
+ {
+  "name": "12-learn",
+  "scenario": "learn",
+  "screen": "ST-12"
+ },
+ {
+  "name": "13-assess",
+  "scenario": "assess",
+  "screen": "ST-13"
+ },
+ {
+  "name": "13-inprog",
+  "scenario": "inprog",
+  "screen": "ST-13"
+ },
+ {
+  "name": "13-assess-att-two",
+  "scenario": "assess",
+  "screen": "ST-13",
+  "preset": "att-two"
+ },
+ {
+  "name": "13-inprog-att-dialog",
+  "scenario": "inprog",
+  "screen": "ST-13",
+  "preset": "att-dialog"
+ },
+ {
+  "name": "13-inprog-att-savefail",
+  "scenario": "inprog",
+  "screen": "ST-13",
+  "preset": "att-savefail"
+ },
+ {
+  "name": "13-inprog-att-subfail",
+  "scenario": "inprog",
+  "screen": "ST-13",
+  "preset": "att-subfail"
+ },
+ {
+  "name": "13-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-13"
+ },
+ {
+  "name": "14-released",
+  "scenario": "released",
+  "screen": "ST-14"
+ },
+ {
+  "name": "14-notpassed",
+  "scenario": "notpassed",
+  "screen": "ST-14"
+ },
+ {
+  "name": "14-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-14"
+ },
+ {
+  "name": "14-notrel",
+  "scenario": "notrel",
+  "screen": "ST-14"
+ },
+ {
+  "name": "14-assess",
+  "scenario": "assess",
+  "screen": "ST-14"
+ },
+ {
+  "name": "15-learn",
+  "scenario": "learn",
+  "screen": "ST-15"
+ },
+ {
+  "name": "15-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-15"
+ },
+ {
+  "name": "15-granted",
+  "scenario": "granted",
+  "screen": "ST-15"
+ },
+ {
+  "name": "15-newst",
+  "scenario": "newst",
+  "screen": "ST-15"
+ },
+ {
+  "name": "15-paused",
+  "scenario": "paused",
+  "screen": "ST-15"
+ },
+ {
+  "name": "15-ended",
+  "scenario": "ended",
+  "screen": "ST-15"
+ },
+ {
+  "name": "15-learn-p-filter",
+  "scenario": "learn",
+  "screen": "ST-15",
+  "preset": "p-filter"
+ },
+ {
+  "name": "15-learn-p-nomatch",
+  "scenario": "learn",
+  "screen": "ST-15",
+  "preset": "p-nomatch"
+ },
+ {
+  "name": "15-learn-loading",
+  "scenario": "learn",
+  "screen": "ST-15",
+  "dataState": "loading"
+ },
+ {
+  "name": "15-learn-failed",
+  "scenario": "learn",
+  "screen": "ST-15",
+  "dataState": "failed"
+ },
+ {
+  "name": "16v-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-16v"
+ },
+ {
+  "name": "16v-vrdone-fb-errors",
+  "scenario": "vrdone",
+  "screen": "ST-16v",
+  "preset": "fb-errors"
+ },
+ {
+  "name": "16v-vrdone-fb-fail",
+  "scenario": "vrdone",
+  "screen": "ST-16v",
+  "preset": "fb-fail"
+ },
+ {
+  "name": "16v-learn",
+  "scenario": "learn",
+  "screen": "ST-16v"
+ },
+ {
+  "name": "16w-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-16w"
+ },
+ {
+  "name": "16w-learn",
+  "scenario": "learn",
+  "screen": "ST-16w"
+ },
+ {
+  "name": "18-device",
+  "scenario": "device",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-device-dev-form",
+  "scenario": "device",
+  "screen": "ST-18",
+  "preset": "dev-form"
+ },
+ {
+  "name": "18-device-dev-error",
+  "scenario": "device",
+  "screen": "ST-18",
+  "preset": "dev-error"
+ },
+ {
+  "name": "18-dtrsent",
+  "scenario": "dtrsent",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-dtrfwd",
+  "scenario": "dtrfwd",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-dtrappr",
+  "scenario": "dtrappr",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-dtrnoia",
+  "scenario": "dtrnoia",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-nodevice",
+  "scenario": "nodevice",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-paused",
+  "scenario": "paused",
+  "screen": "ST-18"
+ },
+ {
+  "name": "19-learn",
+  "scenario": "learn",
+  "screen": "ST-19"
+ },
+ {
+  "name": "19-withdrawn",
+  "scenario": "withdrawn",
+  "screen": "ST-19"
+ },
+ {
+  "name": "19-ended",
+  "scenario": "ended",
+  "screen": "ST-19"
+ },
+ {
+  "name": "xs05-learn",
+  "scenario": "learn",
+  "screen": "XS-05"
+ },
+ {
+  "name": "xs07-learn",
+  "scenario": "learn",
+  "screen": "XS-07"
+ },
+ {
+  "name": "xs07f-learn",
+  "scenario": "learn",
+  "screen": "XS-07f"
+ },
+ {
+  "name": "xs03-learn",
+  "scenario": "learn",
+  "screen": "XS-03"
+ },
+ {
+  "name": "xs06-learn",
+  "scenario": "learn",
+  "screen": "XS-06"
+ },
+ {
+  "name": "04-learn-loading",
+  "scenario": "learn",
+  "screen": "ST-04",
+  "dataState": "loading"
+ },
+ {
+  "name": "04-learn-failed",
+  "scenario": "learn",
+  "screen": "ST-04",
+  "dataState": "failed"
+ },
+ {
+  "name": "06-learn-loading",
+  "scenario": "learn",
+  "screen": "ST-06",
+  "dataState": "loading"
+ },
+ {
+  "name": "06-learn-failed",
+  "scenario": "learn",
+  "screen": "ST-06",
+  "dataState": "failed"
+ },
+ {
+  "name": "XS07f-learn-help-error",
+  "scenario": "learn",
+  "screen": "XS-07f",
+  "preset": "help-error"
+ }
+]

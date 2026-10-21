@@ -5,9 +5,10 @@ import { checkState } from '../support/screen-checks';
 import { currentSidebarItem } from '../support/workspace';
 
 /**
- * Phase 3, the experiment hub's tabs, on the test-hook build at 1440, 1024, 768 and 375: ST-05's
- * tab strip, Next step and card actions (B2-12), ST-06 Resources and ST-10 Progress for this
- * experiment (B3-01), ST-07 Simulation — choose a format (B3-02). Each state passes `checkState`
+ * The experiment hub on the test-hook build at 1440, 1024, 768 and 375, as the V3 Student export
+ * draws it (ST-v1 `StudentFinal.dc.html`): ST-05's head, section tabs and Overview (the one next
+ * step tagged), ST-06 Resources, ST-07 Simulation — choose a format, ST-10 Progress for this
+ * experiment. Each state passes `checkState`
  * (axe WCAG A/AA, one h1, visible focus targets, 24 × 24 targets, no developer surface, no sideways
  * scroll). In progress and Completed are reached only through the CI-only runtime-report seam —
  * never by a page, a launch or a resource (T-12, T-13). Worlds: after Flow B (Rahul given
@@ -24,7 +25,8 @@ const HUB = `/student/experiments/${SHELL_ID}`;
 const BRIEF = 'Lab brief — Shell-and-Tube Heat Exchanger';
 
 const main = (page: Page) => page.locator('main');
-const tabs = (page: Page) => page.getByRole('navigation', { name: SHELL });
+const tabs = (page: Page) => page.getByRole('navigation', { name: `${SHELL} sections` });
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT)-\d+/;
 
 async function open(
   page: Page,
@@ -62,34 +64,51 @@ async function expectTabs(page: Page, current: string): Promise<void> {
   await expect(tabs(page).locator('[aria-current="page"]')).toHaveText(current);
 }
 
+/** Student words never carry an internal record reference (lead decision 3). */
+async function expectNoReferences(page: Page): Promise<void> {
+  await expect(main(page)).not.toContainText(REFERENCE);
+  expect(await page.title()).not.toMatch(REFERENCE);
+}
+
+const resourceRows = (page: Page) =>
+  main(page).getByRole('region', { name: 'Resources' }).locator('li.sv-li');
+const cards = (page: Page) =>
+  main(page).getByRole('list', { name: 'Your formats' }).locator(':scope > li');
+const progressRows = (page: Page) =>
+  page
+    .getByRole('table', { name: `Your formats for ${SHELL}: progress and actions` })
+    .locator('tbody > tr');
+
 test.describe('Student · the experiment hub', () => {
-  test('ST-05 Overview: the tabs, “Next step: open the resources” → ST-06 (B2-12 f0, f5)', async ({
+  test('ST-05 Overview: the head, the tabs, the next step on Learning resources → ST-06', async ({
     page,
   }) => {
     await open(page, 'after-flow-b', RAHUL, HUB);
     await expect(page.getByRole('heading', { level: 1, name: SHELL })).toBeVisible();
     await expectTabs(page, 'Overview');
-    await expect(main(page).locator('.xw-hubrow')).toContainText('Next step: open the resources');
+    const resources = main(page).getByRole('region', { name: 'Learning resources' });
+    await expect(resources).toContainText('Next step');
+    await expect(
+      main(page).getByRole('list', { name: 'Your formats' }).locator(':scope > li'),
+    ).toHaveCount(2);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/courses');
     await checkState(page, SHELL);
-    await reachAndClick(
-      page,
-      main(page).locator('.xw-hubrow').getByRole('link', { name: 'Open resources' }),
-    );
+    await expectNoReferences(page);
+    await reachAndClick(page, resources.getByRole('link', { name: 'Open resources' }));
     await page.waitForURL(`**${HUB}/resources`);
     await expectTabs(page, 'Resources');
     await expect(main(page).getByRole('region', { name: 'Resources' })).toContainText(
-      '3 resources',
+      '3 resources · each opens in a new tab',
     );
   });
 
-  test('ST-06 Resources: Open → “Opened in a new tab just now”; nothing becomes progress (B3-01 f0, f2, f7)', async ({
+  test('ST-06 Resources: Open → “Opened in a new tab just now”; nothing becomes progress (T-13)', async ({
     page,
   }) => {
     await open(page, 'after-flow-b', RAHUL, `${HUB}/resources`);
     const section = main(page).getByRole('region', { name: 'Resources' });
-    await expect(section.locator('li.xr-row')).toHaveCount(3);
-    await expect(section.locator('li.xr-row').first()).toContainText('Not opened yet');
+    await expect(resourceRows(page)).toHaveCount(3);
+    await expect(resourceRows(page).first()).toContainText('Not opened yet');
     await checkState(page, SHELL);
     await reachAndClick(page, section.getByRole('button', { name: `Open ${BRIEF} in a new tab` }));
     await expect(page.locator(':focus')).toHaveText('Opened in a new tab just now');
@@ -104,38 +123,39 @@ test.describe('Student · the experiment hub', () => {
     // Opening is not progress (T-13): the Progress tab still reads Not started.
     await reachAndClick(page, tabs(page).getByRole('link', { name: 'Progress' }));
     await page.waitForURL(`**${HUB}/progress`);
-    const rows = page.getByRole('list', { name: 'Progress by format' }).locator(':scope > li');
-    await expect(rows.nth(0)).toContainText('Not started');
-    await expect(rows.nth(1)).toContainText('Not started');
+    await expect(progressRows(page).nth(0)).toContainText('Not started');
+    await expect(progressRows(page).nth(1)).toContainText('Not started');
   });
 
-  test('ST-06 after Flow C: the lab brief’s first opening is kept (B3-01 f0)', async ({ page }) => {
+  test('ST-06 after Flow C: the lab brief’s first opening is kept', async ({ page }) => {
     await open(page, 'after-flow-c', RAHUL, `${HUB}/resources`);
-    const rows = main(page).getByRole('region', { name: 'Resources' }).locator('li.xr-row');
-    await expect(rows.nth(0)).toContainText('Opened 12 Oct 2026, 09:40');
-    await expect(rows.nth(1)).toContainText('Not opened yet');
+    await expect(resourceRows(page).nth(0)).toContainText('Opened 12 Oct 2026, 09:40');
+    await expect(resourceRows(page).nth(1)).toContainText('Not opened yet');
+    await expect(
+      main(page).getByRole('complementary', { name: 'How resources fit in' }),
+    ).toContainText('1 of 3 opened');
     await checkState(page, SHELL);
   });
 
-  test('ST-07 first visit, then WEB in progress and completed as the runtime reports them (B3-02 f1, f0, f2)', async ({
+  test('ST-07 first visit, then WEB in progress and completed as the runtime reports them', async ({
     page,
   }) => {
     await open(page, 'after-flow-b', RAHUL, `${HUB}/simulation`);
-    const chooser = main(page).getByRole('region', { name: 'Choose a format' });
-    const web = chooser.locator('li.xl-frow').nth(0);
-    const vr = chooser.locator('li.xl-frow').nth(1);
-    await expect(web).toContainText('Opens in your browser');
+    const web = cards(page).nth(0);
+    const vr = cards(page).nth(1);
+    await expect(web).toContainText('Not opened yet');
     await expect(web).toContainText('Not started');
-    await expect(web.getByRole('link', { name: 'Open WEB' })).toHaveClass(/xr-btn--primary/);
-    await expect(vr).toContainText('Needs a VR headset');
-    await expect(chooser.locator('li.xl-frow').nth(2)).toContainText(
-      'Not included for your institution',
+    await expect(web.getByRole('link', { name: 'Open WEB' })).toHaveClass(/rb-btn--primary/);
+    await expect(vr).toContainText('No headset session reported yet');
+    await expect(main(page).locator('li.sv-xrow').nth(0)).toContainText(
+      'Published for this experiment, not included in your institution’s access',
     );
-    await expect(chooser.locator('li.xl-frow').nth(3)).toContainText(
-      'Not available for this experiment',
+    await expect(main(page).locator('li.sv-xrow').nth(1)).toContainText(
+      'Not published for this experiment',
     );
     await expectTabs(page, 'Simulation');
     await checkState(page, SHELL);
+    await expect(main(page)).not.toContainText(/stage/i);
 
     await reportRuntime(page, {
       person: RAHUL,
@@ -150,7 +170,8 @@ test.describe('Student · the experiment hub', () => {
       kind: 'saved',
     });
     await expect(web).toContainText('In progress');
-    await expect(web).toContainText(/Last saved \d+ \w{3} \d{4}, \d\d:\d\d/);
+    await expect(web).toContainText(/Last saved \d+\s\w{3}\s\d{4},\s\d\d:\d\d/);
+    await expect(web).toContainText('Next step');
     await expect(web.getByRole('link', { name: 'Continue WEB' })).toHaveAttribute(
       'href',
       `${HUB}/simulation/web`,
@@ -167,53 +188,48 @@ test.describe('Student · the experiment hub', () => {
       'href',
       `${HUB}/feedback/web`,
     );
-    await expect(web).toContainText(/Completed \d+ \w{3} \d{4}/);
+    await expect(web).toContainText(/Completed \d+\s\w{3}\s\d{4}/);
     await expect(vr.getByRole('link', { name: /Give feedback/ })).toHaveCount(0);
     await checkState(page, SHELL);
   });
 
-  test('ST-07 waiting for a licence: the reason in words, nothing opens (B3-02 f4)', async ({
+  test('ST-07 waiting for a licence: said once, without the plan; nothing opens', async ({
     page,
   }) => {
     await open(page, 'later-sample', ARUN, `${HUB}/simulation`);
     const chooser = main(page).getByRole('region', { name: 'Choose a format' });
-    await expect(chooser.locator('li.xl-frow').nth(0)).toContainText('Waiting for a licence');
-    await expect(chooser.locator('li.xl-frow').nth(0)).toContainText(
-      'No licence is available for you on ACC-0107 right now.',
-    );
+    await expect(cards(page).nth(0)).toContainText('Waiting for a licence');
+    await expect(chooser).toContainText('No licence is available for you right now.');
     await expect(chooser.getByRole('link')).toHaveCount(0);
+    await expectNoReferences(page);
     await checkState(page, SHELL);
   });
 
-  test('ST-10 after Flow C: both completed, feedback sent, no verdict (B3-01 f10, f12)', async ({
-    page,
-  }) => {
+  test('ST-10 after Flow C: both completed, feedback sent, no verdict', async ({ page }) => {
     await open(page, 'after-flow-c', RAHUL, `${HUB}/progress`);
-    const rows = page.getByRole('list', { name: 'Progress by format' }).locator(':scope > li');
-    await expect(rows.nth(0)).toContainText('Completed 14 Oct 2026');
-    await expect(rows.nth(0)).toContainText('Feedback sent 14 Oct 2026');
-    await expect(rows.nth(1)).toContainText('Completed 20 Oct 2026');
-    await expect(rows.nth(1)).toContainText('Feedback sent 20 Oct 2026');
-    await expect(main(page).getByRole('region', { name: 'Assessment' })).toContainText(
-      'Your faculty hasn’t set an assessment for this experiment yet.',
-    );
+    await expect(progressRows(page).nth(0)).toContainText('Completed 14 Oct 2026');
+    await expect(progressRows(page).nth(0)).toContainText('Feedback sent 14 Oct 2026');
+    await expect(progressRows(page).nth(1)).toContainText('Completed 20 Oct 2026');
+    await expect(progressRows(page).nth(1)).toContainText('Feedback sent 20 Oct 2026');
+    await expect(main(page).locator('.sv-pas')).toContainText('Not set by your faculty yet');
     await expect(main(page)).not.toContainText('%');
     await expectTabs(page, 'Progress');
     await checkState(page, SHELL);
   });
 
-  test('ST-10 WEB completed → Give feedback on WEB; VR → Open VR (B3-01 f8)', async ({ page }) => {
+  test('ST-10 WEB completed → Give feedback on WEB; VR → Open VR', async ({ page }) => {
     await open(page, 'after-flow-b', RAHUL, `${HUB}/progress`);
-    const rows = page.getByRole('list', { name: 'Progress by format' }).locator(':scope > li');
-    await expect(rows.nth(0)).toContainText('Not started');
+    await expect(progressRows(page).nth(0)).toContainText('Not started');
     await reportRuntime(page, {
       person: RAHUL,
       experimentId: SHELL_ID,
       format: 'web',
       kind: 'completed',
     });
-    await expect(rows.nth(0).getByRole('link', { name: 'Give feedback on WEB' })).toBeVisible();
-    await expect(rows.nth(1).getByRole('link', { name: 'Open VR' })).toHaveAttribute(
+    await expect(
+      progressRows(page).nth(0).getByRole('link', { name: 'Give feedback on WEB' }),
+    ).toBeVisible();
+    await expect(progressRows(page).nth(1).getByRole('link', { name: 'Open VR' })).toHaveAttribute(
       'href',
       `${HUB}/simulation/vr`,
     );

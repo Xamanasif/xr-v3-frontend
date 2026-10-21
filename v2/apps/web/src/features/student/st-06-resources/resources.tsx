@@ -2,18 +2,34 @@
 
 import type { ServiceError } from '@xr/contracts/draft';
 import type { LearningResource } from '@xr/domain';
-import { Icon, type IconName, LoadingState, Skeleton, StatusPill } from '@xr/ui';
+import {
+  StAside,
+  StList,
+  StLoading,
+  StOverview,
+  StResourceCard,
+  StResourceCount,
+  StResourceRow,
+  type StResourceStatus,
+  StSideSection,
+  StSideText,
+  StSideTitle,
+  StStateRow,
+  type V3IconName,
+} from '@xr/ui/v3';
 import { useEffect, useId, useRef, useState } from 'react';
 
 import {
   openedWords,
   openResourceLabel,
   RESOURCES_PAGE,
-  resourceCountWords,
-  retryResourceLabel,
+  RESOURCES_V3,
+  resourcesNoteWords,
+  resourcesOpenedCount,
+  retryOpenResourceLabel,
 } from '@/copy/learning-hub';
+import { ST_STATE_WORDS } from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
-import { STUDENT_WORDS } from '@/copy/student';
 import { useExperimentResources } from '@/queries/learning';
 import { useExperimentHub } from '@/queries/student';
 import { useCommand } from '@/queries/use-command';
@@ -22,19 +38,22 @@ import { HubFallback, HubTabPage, type HubView, useHubPage } from '../shared/hub
 import { openPendingTab } from '../shared/new-tab';
 
 /**
- * ST-06 Resources — a tab of the experiment hub, board B3-01 f0 … f7, at
- * `/student/experiments/[experimentId]/resources`.
+ * ST-06 Resources — a tab of the experiment hub, at `/student/experiments/[experimentId]/resources`,
+ * as the V3 Student export draws it (ST-v1 `StudentFinal.dc.html`, `HB.isResources`, `resVM`): a
+ * reading list (each resource's kind icon, title, kind and length, when the Student opened it and
+ * "Open" in a new tab) beside one aside — "Before you run a simulation" and "Opened isn’t
+ * progress" with the count opened.
  *
  * - **Read**: `LearningService.listResources` — the experiment's resources and when the Student
- *   first opened each; the hub frame reads the header (`getExperimentHub`, `shared/hub-frame`).
+ *   first opened each; the hub frame reads the head (`getExperimentHub`, `shared/hub-frame`).
  * - **Command**: `LearningService.openResource` → "Opening…", then the answer's `href` opens in a
  *   new tab and the row reads "Opened in a new tab just now" (later visits: "Opened <date, time>",
- *   the first opening the service keeps). Opening marks "Opened" and nothing else — never
- *   progress, never the Progress tab (T-13, T-15). A failed opening says so in words with
- *   "Try again" (f1); a refusal also re-reads, so a closure that arrived meanwhile shows.
- * - **States**: not opened · opening · opened · couldn't open + try again (f0, f1, f2); none
- *   attached (f3); loading (f4); list failed + retry (f5); paused — listed, not openable (f6;
- *   inactive and a licence wait the same, `ST-06.closed`); mobile (f7). A refusal is ST-19.
+ *   the first opening the service keeps); focus moves to the row's status. Opening marks "Opened"
+ *   and nothing else — never progress (T-13, T-15). A failed opening says so in the row with "Try
+ *   again"; a refusal also re-reads, so a closure that arrived meanwhile shows.
+ * - **States**: not opened · opening · opened · couldn't open + try again; none attached; loading;
+ *   list failed + retry (focus back on "Resources"); paused, a licence wait, an inactive account —
+ *   said once above the list, nothing opens. A refusal is ST-19.
  */
 export function Resources({ experimentId }: { readonly experimentId: string }) {
   const list = useExperimentResources(experimentId);
@@ -45,24 +64,16 @@ export function Resources({ experimentId }: { readonly experimentId: string }) {
   if (state.kind !== 'ready') return <HubFallback state={state} />;
   return (
     <HubTabPage experimentId={experimentId} view={state.view} tab="resources">
-      {list.isError ? (
-        <ListFailed onRetry={() => void list.refetch()} />
-      ) : answer?.ok ? (
-        answer.value.length === 0 ? (
-          <NoneAttached />
-        ) : (
-          <ResourceList
-            rows={answer.value}
-            view={state.view}
-            reread={() => {
-              void list.refetch();
-              void hub.refetch();
-            }}
-          />
-        )
-      ) : (
-        <ListLoading />
-      )}
+      <ResourcesBody
+        view={state.view}
+        rows={answer?.ok ? answer.value : null}
+        failed={list.isError}
+        retry={() => void list.refetch()}
+        reread={() => {
+          void list.refetch();
+          void hub.refetch();
+        }}
+      />
     </HubTabPage>
   );
 }
@@ -72,29 +83,40 @@ type Row = { readonly resource: LearningResource; readonly openedAt: string | nu
 /** Per row, this visit only: the opening under way, its failure, or its success just now. */
 type Attempt = 'busy' | 'failed' | 'opened';
 
-function ResourceList({
-  rows,
+function ResourcesBody({
   view,
+  rows,
+  failed,
+  retry,
   reread,
 }: {
-  readonly rows: readonly Row[];
   readonly view: HubView;
+  /** `null` while loading or failed. */
+  readonly rows: readonly Row[] | null;
+  readonly failed: boolean;
+  readonly retry: () => void;
   /** Re-reads the list and the hub after a refusal (a refusal's receipt invalidates nothing). */
   readonly reread: () => void;
 }) {
-  const headingId = useId();
-  const statusPrefix = useId();
+  const ids = { title: useId(), status: useId(), before: useId(), opened: useId() };
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const open = useCommand((ports) => ports.learning.openResource);
   const [attempts, setAttempts] = useState<Readonly<Record<string, Attempt>>>({});
   const focusRow = useRef<string | null>(null);
-  const closed = closedWords(view);
+  const focusTitle = useRef(false);
+  const held = heldWords(view);
 
-  // After an opening settles, focus moves to the row's status line (B3-01 `stId`, tabindex -1),
-  // once the settled words are on screen.
+  // After an opening settles, focus moves to the row's status (`focusId('st-res-st-' + id)`), once
+  // the settled words are on screen; after "Try again", to the list's title.
   useEffect(() => {
-    if (focusRow.current === null) return;
-    document.getElementById(`${statusPrefix}-${focusRow.current}`)?.focus();
-    focusRow.current = null;
+    if (focusRow.current !== null) {
+      document.getElementById(`${ids.status}-${focusRow.current}`)?.focus();
+      focusRow.current = null;
+    }
+    if (focusTitle.current && rows !== null) {
+      titleRef.current?.focus();
+      focusTitle.current = false;
+    }
   });
 
   const settle = (id: string, attempt: Attempt) => {
@@ -124,177 +146,120 @@ function ResourceList({
     }
   };
 
+  const opened = rows
+    ? rows.filter((row) => row.openedAt !== null || attempts[row.resource.id] === 'opened').length
+    : 0;
+
   return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {RESOURCES_PAGE.heading}
-        </h2>
-        <span className="xr-meta">{resourceCountWords(rows.length)}</span>
-      </div>
-      <ul className="xr-rows">
-        {rows.map(({ resource, openedAt }) => {
-          const attempt = attempts[resource.id];
-          return (
-            <li key={resource.id} className="xr-row">
-              <div className="xr-row-main">
-                <span className="xr-row-icon">
-                  <Icon name={kindIcon(resource.kind)} />
-                </span>
-                <div className="xr-row-text">
-                  <span className="xr-row-title">{resource.title}</span>
-                  <span className="xr-row-sub">{`${resource.kind} · ${resource.sizeLabel}`}</span>
-                  {closed === null ? (
-                    <span
-                      id={`${statusPrefix}-${resource.id}`}
-                      tabIndex={-1}
-                      className="xl-meta mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-1.5"
-                    >
-                      <RowStatus attempt={attempt} openedAt={openedAt} />
-                    </span>
-                  ) : null}
-                </div>
-              </div>
-              {closed !== null ? (
-                <StatusPill tone={closed.tone}>{closed.words}</StatusPill>
-              ) : attempt === 'busy' ? null : attempt === 'failed' ? (
-                <button
-                  type="button"
-                  className="xr-btn xr-btn--secondary xr-btn--sm"
-                  aria-label={retryResourceLabel(resource.title)}
-                  onClick={() => void openRow(resource)}
-                >
-                  <Icon name="tryAgain" />
-                  {RESOURCES_PAGE.tryAgain}
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className="xr-btn xr-btn--secondary xr-btn--sm"
-                  aria-label={openResourceLabel(resource.title)}
-                  onClick={() => void openRow(resource)}
-                >
-                  {RESOURCES_PAGE.open}
-                  <Icon name="externalLink" />
-                </button>
-              )}
-            </li>
-          );
-        })}
-      </ul>
-    </section>
+    <StOverview>
+      <StResourceCard
+        title={RESOURCES_V3.title}
+        titleId={ids.title}
+        titleRef={titleRef}
+        note={rows && rows.length > 0 ? resourcesNoteWords(rows.length) : RESOURCES_V3.eachNewTab}
+        held={rows !== null && rows.length > 0 ? held : null}
+      >
+        {failed ? (
+          <StStateRow
+            icon="cloudAlert"
+            tone="err"
+            alert
+            title={RESOURCES_PAGE.failedTitle}
+            description={ST_STATE_WORDS.failedLine}
+            action={{
+              label: ST_STATE_WORDS.tryAgain,
+              onClick: () => {
+                focusTitle.current = true;
+                retry();
+              },
+            }}
+          />
+        ) : rows === null ? (
+          <StLoading label={RESOURCES_V3.loading} />
+        ) : rows.length === 0 ? (
+          <StStateRow
+            icon="resources"
+            title={RESOURCES_PAGE.noneTitle}
+            description={RESOURCES_V3.noneLine}
+          />
+        ) : (
+          <StList>
+            {rows.map(({ resource, openedAt }) => {
+              const attempt = attempts[resource.id];
+              return (
+                <StResourceRow
+                  key={resource.id}
+                  icon={kindIcon(resource.kind)}
+                  title={resource.title}
+                  kind={resource.kind}
+                  size={resource.sizeLabel}
+                  statusId={`${ids.status}-${resource.id}`}
+                  status={rowStatus(attempt, openedAt)}
+                  action={
+                    held !== null
+                      ? undefined
+                      : {
+                          label:
+                            attempt === 'failed' ? ST_STATE_WORDS.tryAgain : RESOURCES_PAGE.open,
+                          ariaLabel:
+                            attempt === 'failed'
+                              ? retryOpenResourceLabel(resource.title)
+                              : openResourceLabel(resource.title),
+                          busy: attempt === 'busy',
+                          onOpen: () => void openRow(resource),
+                        }
+                  }
+                />
+              );
+            })}
+          </StList>
+        )}
+      </StResourceCard>
+      <StAside label={RESOURCES_V3.asideLabel}>
+        <StSideSection labelledBy={ids.before}>
+          <StSideTitle id={ids.before}>{RESOURCES_V3.beforeTitle}</StSideTitle>
+          <StSideText>{RESOURCES_V3.beforeLine}</StSideText>
+        </StSideSection>
+        <StSideSection labelledBy={ids.opened}>
+          <StSideTitle id={ids.opened}>{RESOURCES_V3.openedTitle}</StSideTitle>
+          <StSideText>{RESOURCES_V3.openedLine}</StSideText>
+          {rows !== null && rows.length > 0 ? (
+            <StResourceCount>{resourcesOpenedCount(opened, rows.length)}</StResourceCount>
+          ) : null}
+        </StSideSection>
+      </StAside>
+    </StOverview>
   );
 }
 
-/** B3-01 f0 / f1: not opened yet · opening · opened (just now, or the first opening) · failed. */
-function RowStatus({
-  attempt,
-  openedAt,
-}: {
-  readonly attempt: Attempt | undefined;
-  readonly openedAt: string | null;
-}) {
-  if (attempt === 'busy') {
-    return (
-      <span className="xl-inline" role="status">
-        <span className="xr-spin" aria-hidden="true" />
-        {RESOURCES_PAGE.opening}
-      </span>
-    );
-  }
-  if (attempt === 'failed') {
-    return (
-      <span className="xw-ferr" role="alert">
-        <Icon name="failed" />
-        {RESOURCES_PAGE.openFailed}
-      </span>
-    );
-  }
-  if (attempt === 'opened' || openedAt !== null) {
-    return (
-      <span className="xl-inline">
-        <Icon name="done" size={16} />
-        {attempt === 'opened' ? RESOURCES_PAGE.justOpened : openedWords(openedAt!)}
-      </span>
-    );
-  }
-  return <span>{RESOURCES_PAGE.notOpened}</span>;
+/** Not opened yet · Opening… · Opened (just now, or the first opening) · It didn't open. */
+function rowStatus(attempt: Attempt | undefined, openedAt: string | null): StResourceStatus {
+  if (attempt === 'busy') return { kind: 'busy', words: RESOURCES_PAGE.opening };
+  if (attempt === 'failed') return { kind: 'failed', words: RESOURCES_PAGE.openFailed };
+  if (attempt === 'opened') return { kind: 'opened', words: RESOURCES_PAGE.justOpened };
+  if (openedAt !== null) return { kind: 'opened', words: openedWords(openedAt) };
+  return { kind: 'not-opened', words: RESOURCES_PAGE.notOpened };
 }
 
 /**
- * Listed, not openable (B3-01 f6): the paused chip in place of Open, no opened line; an inactive
- * account and a licence wait read the same way with their own chip (`ST-06.closed`).
+ * Listed, not openable, said once (`resVM` `heldText`): the institution's pause, a licence wait;
+ * an inactive account the same way (`ST-06.closed`, the register's words).
  */
-function closedWords(
-  view: HubView,
-): { readonly tone: 'paused' | 'wait' | 'off'; readonly words: string } | null {
-  if (view.closure === 'paused') return { tone: 'paused', words: RESOURCES_PAGE.paused };
-  if (view.closure === 'inactive')
-    return { tone: 'off', words: stateWords('ST-05.inactive-format') };
-  if (view.hub.row.closure?.kind === 'waiting-for-a-licence') {
-    return { tone: 'wait', words: stateWords('ST-06.waiting') };
+function heldWords(view: HubView): string | null {
+  const closure = view.hub.row.closure;
+  if (view.closure === 'paused' || closure?.kind === 'institution-paused') {
+    return RESOURCES_V3.heldPaused;
   }
+  if (view.closure === 'inactive' || closure?.kind === 'student-inactive') {
+    return stateWords('ST-05.inactive-resources');
+  }
+  if (closure?.kind === 'waiting-for-a-licence') return RESOURCES_V3.heldWaiting;
   return null;
 }
 
-/** B3-01 `isPdf` / `isWeb` / `isSheet` by the resource's kind (`ST-06.kind-icon`). */
-function kindIcon(kind: string): IconName {
-  if (/web/i.test(kind)) return 'link';
-  if (/sheet/i.test(kind)) return 'table';
-  return 'fileText';
-}
-
-/** B3-01 f3: "No resources are attached to this experiment yet". */
-function NoneAttached() {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="fileText" />
-        </span>
-        <h2 className="xr-h3 m-0">{RESOURCES_PAGE.noneTitle}</h2>
-        <p className="xr-body m-0 text-ink-2">{RESOURCES_PAGE.noneLine}</p>
-      </div>
-    </div>
-  );
-}
-
-/** B3-01 f4: the list loading — four rows of two bars (`1.6fr 140px`). */
-function ListLoading() {
-  return (
-    <LoadingState
-      label={RESOURCES_PAGE.loading}
-      skeleton={[0, 1, 2, 3].map((row) => (
-        <div
-          key={row}
-          aria-hidden="true"
-          className="grid grid-cols-[1.6fr_140px] gap-5 px-4 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-        >
-          <Skeleton />
-          <Skeleton />
-        </div>
-      ))}
-    />
-  );
-}
-
-/** B3-01 f5: "We couldn’t load the resources" — "Nothing has changed. Try again." */
-function ListFailed({ onRetry }: { readonly onRetry: () => void }) {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon bg-err-bg text-err">
-          <Icon name="failed" />
-        </span>
-        <h2 className="xr-h3 m-0">{RESOURCES_PAGE.failedTitle}</h2>
-        <p className="xr-body m-0 text-ink-2">{STUDENT_WORDS.failedLine}</p>
-        <div className="flex flex-wrap gap-3">
-          <button type="button" className="xr-btn xr-btn--primary" onClick={onRetry}>
-            <Icon name="tryAgain" />
-            {STUDENT_WORDS.tryAgain}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
+/** The kind's glyph (`RES.ico`: `sti-doc`, `sti-web`, `sti-sheet`), by the resource's kind. */
+function kindIcon(kind: string): V3IconName {
+  if (/web/i.test(kind)) return 'globe';
+  if (/sheet/i.test(kind)) return 'spreadsheet';
+  return 'documentText';
 }

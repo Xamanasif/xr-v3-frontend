@@ -431,17 +431,57 @@ test.describe('Student', () => {
   test('ST-01, ST-02 and ST-19 before access (B2-10 f0, B2-11 f3, f12)', async ({ page }) => {
     await open(page, 'after-setup', RAHUL, '/student');
     await expect(main(page)).toContainText('Your institution hasn’t given you access yet');
+    // V3 (ST-v1 `homeVM`): the message with "How it works" and Help & support.
+    await expect(main(page).getByRole('list', { name: 'How it works' })).toBeVisible();
+    await expect(main(page).getByRole('link', { name: 'Help & support' })).toHaveAttribute(
+      'href',
+      '/student/help',
+    );
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student');
     await checkState(page, 'Hello, Rahul');
+    await expectNoIaReferences(page);
     await page.goto('/student/courses');
     await expect(main(page)).toContainText('Your institution hasn’t given you access yet');
     await checkState(page, 'My courses');
+    await expectNoIaReferences(page);
     await page.goto('/student/experiments/shell-and-tube-heat-exchanger');
     await expect(
       page.getByRole('heading', { level: 1, name: 'This experiment isn’t available to you' }),
     ).toBeVisible();
+    // V3 (ST-v1 `msg('notgiven')`): the crumb, then the compact refusal with its way back.
+    await expect(
+      main(page).getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', {
+        name: 'My courses',
+      }),
+    ).toHaveAttribute('href', '/student/courses');
+    await expect(main(page).getByRole('link', { name: 'Back to My courses' })).toBeVisible();
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/courses');
     await checkState(page, 'This experiment isn’t available to you');
+    await expectNoIaReferences(page);
+  });
+
+  test('ST-01’s cover after the grant: one next step, the experiment’s parts, what it teaches', async ({
+    page,
+  }) => {
+    await open(page, 'after-flow-b', RAHUL, '/student');
+    const cover = main(page).getByRole('region', { name: 'Start here' });
+    await expect(cover.getByRole('article', { name: SHELL })).toBeVisible();
+    await expect(cover.getByRole('link', { name: `Open resources, ${SHELL}` })).toHaveAttribute(
+      'href',
+      '/student/experiments/shell-and-tube-heat-exchanger/resources',
+    );
+    await expect(main(page).getByRole('region', { name: 'Also in this experiment' })).toBeVisible();
+    await expect(main(page).getByRole('region', { name: 'What you’re learning' })).toBeVisible();
+    // Lead decision 1: no stage tracker on the Home.
+    await expect(main(page).locator('.sv-steps')).toHaveCount(0);
+    await checkState(page, 'Hello, Rahul');
+    await expectNoIaReferences(page);
+    // "Open experiment" is one link at each width (the button below 600 px, the text link above).
+    await reachAndClick(
+      page,
+      cover.getByRole('link', { name: `Open experiment, ${SHELL}` }).filter({ visible: true }),
+    );
+    await page.waitForURL('**/student/experiments/shell-and-tube-heat-exchanger');
   });
 
   test('ST-01 → ST-03 → ST-05 after the grant (B2-10 f1, B2-11 f0, f1, B2-12 f0)', async ({
@@ -457,7 +497,8 @@ test.describe('Student', () => {
     );
     await page.waitForURL('**/student/courses/**');
     await checkState(page, 'Thermodynamics & Heat Transfer');
-    await reachAndClick(page, main(page).getByRole('link', { name: `Open ${SHELL}` }));
+    await expectNoIaReferences(page);
+    await reachAndClick(page, main(page).getByRole('link', { name: `Open experiment ${SHELL}` }));
     await page.waitForURL('**/student/experiments/shell-and-tube-heat-exchanger');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/courses');
     await checkState(page, SHELL);
@@ -465,7 +506,11 @@ test.describe('Student', () => {
 
   test('an inactive student’s Home (B2-10 f7)', async ({ page }) => {
     await open(page, 'after-setup', INACTIVE_STUDENT, '/student');
-    await expect(main(page)).toContainText('Your account is inactive');
+    // V3: the shell's banner names the inactive account; the Home's message says what it means.
+    await expect(
+      page.getByText('Your account is inactive', { exact: false }).first(),
+    ).toBeVisible();
+    await expect(main(page)).toContainText('You can’t open experiments right now');
     await checkState(page, 'Hello, Sneha');
   });
 });

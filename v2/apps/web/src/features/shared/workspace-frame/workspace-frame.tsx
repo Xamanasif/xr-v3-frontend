@@ -185,6 +185,7 @@ function FrameShell({
             person={person}
             screen={placement?.screen ?? 'XS-06'}
             banner={bannerKindOf(banners)}
+            deviceEligible={device.offered}
             counts={counts}
             today={snapshot.status === 'signed-in' ? snapshot.signedInAt : null}
             onSignOut={signOut}

@@ -130,10 +130,15 @@ async function adminAt(admin: Page, href: string): Promise<void> {
 }
 
 /** A row of a table or list in `main` holding `text`. */
-// A row (v46 and the V3 tables) or, on the Content Manager's V3 Updates (CM-08, CM-v1), a card of
-// her correction tracker.
+// A row (v46 and the V3 tables), on the Content Manager's V3 Updates (CM-08, CM-v1) a card of her
+// correction tracker, and on the Student's V3 lists (ST-v1) a list row (`li.sv-li`).
 const rowWith = (page: Page, text: string | RegExp): Locator =>
-  main(page).locator('tbody tr, li.xr-row, li.cm-trk').filter({ hasText: text });
+  main(page).locator('tbody tr, li.xr-row, li.cm-trk, li.sv-li').filter({ hasText: text });
+/** The Student's assessment state tabs (ST-11, ST-v1): each tab link reads "<words>, <count>". */
+const assessmentTab = (page: Page, words: string, count: number): Locator =>
+  page
+    .getByRole('navigation', { name: 'Assessments', exact: true })
+    .getByRole('link', { name: new RegExp(`^${words} ?, ${count}$`) });
 // The Super Admin's V3 lists (SA-v1) never show a record's reference: a device transfer's row is
 // the one whose link opens its address, and a content record's link is named by its title.
 // The Academic Reviewer's V3 screens (RV-v1): a queue row's link is named by the experiment (never
@@ -272,13 +277,18 @@ test('Flows A–F and the device chain on one shared sample world, through the p
         .first(),
     );
     await desk.waitForURL('**/student/courses/**');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: `Open ${SHELL}` }));
+    await reachAndClick(
+      desk,
+      main(desk).getByRole('link', { name: `Open experiment ${SHELL}`, exact: true }),
+    );
     await desk.waitForURL(`**/student/experiments/${SHELL_ID}`);
     await hubTab(desk, 'Simulation');
     await desk.waitForURL(`**/student/experiments/${SHELL_ID}/simulation`);
     const chooser = main(desk).getByRole('region', { name: 'Choose a format' });
-    await expect(chooser).toContainText('Not included for your institution');
-    await expect(chooser).toContainText('Not available for this experiment');
+    await expect(chooser).toContainText(
+      'Published for this experiment, not included in your institution’s access',
+    );
+    await expect(chooser).toContainText('Not published for this experiment');
     await expect(chooser).toContainText('Not started');
   });
 
@@ -293,10 +303,7 @@ test('Flows A–F and the device chain on one shared sample world, through the p
   await test.step(stepTitle('C1'), async () => {
     await hubTab(desk, 'Resources');
     await desk.waitForURL(`**/student/experiments/${SHELL_ID}/resources`);
-    const brief = main(desk)
-      .getByRole('region', { name: 'Resources' })
-      .locator('li.xr-row')
-      .first();
+    const brief = main(desk).getByRole('region', { name: 'Resources' }).locator('li.sv-li').first();
     await expect(brief).toContainText('Not opened yet');
     const popup = desk.waitForEvent('popup');
     await reachAndClick(desk, brief.getByRole('button', { name: /in a new tab$/ }));
@@ -312,7 +319,7 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await desk.waitForURL(`**/student/experiments/${SHELL_ID}/simulation/web`);
   });
 
-  const status = main(desk).locator('.xl-fmtpanel .xr-status');
+  const status = main(desk).locator('.rk-head .rk-meta .xr-st');
   await test.step(stepTitle('C2'), async () => {
     await expect(status).toHaveText('Not started');
     await expect(button(desk, 'Launch WEB')).toBeVisible();
@@ -380,7 +387,9 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await desk.getByRole('textbox', { name: 'New device' }).fill(GIT_VR_07);
     await reachAndClick(desk, button(desk, 'Send request'));
     await expect(main(desk)).toContainText('With your Institute Admin');
-    transfer = /DTR-\d{4}/.exec((await main(desk).textContent()) ?? '')![0];
+    // The Student's page names the request by its content, never its reference (ST-v1, lead
+    // decision 3): the reference is read from the Super Admin's row link (its address) below.
+    await expect(main(desk)).not.toContainText(REFERENCE);
     await signOut(desk, ACCOUNT.rahul);
     await adminAt(admin, '/admin/operations/device-transfers');
     await reachAndClick(
@@ -389,6 +398,11 @@ test('Flows A–F and the device chain on one shared sample world, through the p
         .getByRole('group', { name: 'Show device transfers' })
         .getByRole('button', { name: /^Still with an institution/ }),
     );
+    const rahuls = main(admin).getByRole('link', { name: /^VR device transfer for Rahul Verma, / });
+    await expect(rahuls).toHaveCount(1);
+    transfer = /\/admin\/operations\/device-transfers\/(DTR-\d{4})$/.exec(
+      (await rahuls.getAttribute('href')) ?? '',
+    )![1]!;
     await expect(transferRow(admin, transfer)).toContainText('Still with the institution');
     await desk.bringToFront();
     await as(desk, EMAIL.meera, '/institute');
@@ -553,9 +567,7 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await signOut(desk, ACCOUNT.ranganathan);
     await as(desk, EMAIL.rahul, '/student');
     await sidebar(desk, '/student/assessments');
-    await expect(
-      desk.getByRole('group', { name: 'Show' }).getByRole('button', { name: 'To do (1)' }),
-    ).toBeVisible();
+    await expect(assessmentTab(desk, 'To do', 1)).toBeVisible();
     await expect(rowWith(desk, ASSESSMENT)).toContainText('To do');
   });
 
@@ -572,19 +584,23 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await choose(desk.getByRole('radio', { name: Q1_RIGHT }));
     await desk.getByRole('textbox', { name: Q3 }).fill(RAHUL_ANSWER);
     await desk.getByRole('textbox', { name: Q3 }).blur();
-    await expect(desk.locator('header.xa-bar [role="status"]')).toHaveText('All answers saved');
+    await expect(desk.locator('header.st-focusbar [role="status"]')).toHaveText(
+      'All answers saved',
+    );
     await reachAndClick(desk, main(desk).getByRole('button', { name: 'Submit', exact: true }));
     const submit = desk.getByRole('dialog', { name: 'Submit your answers?' });
     await reachAndClick(desk, submit.getByRole('button', { name: 'Submit answers' }));
-    await checkState(desk, 'Answers submitted');
+    // ST-13 (ST-v1): the page keeps the assessment's name as its title; the submitted card says
+    // "Answers submitted".
+    await expect(desk.locator('#Ta-done').getByRole('heading', { level: 2 })).toHaveText(
+      'Answers submitted',
+    );
+    await checkState(desk, ASSESSMENT);
     await reachAndClick(desk, desk.getByRole('link', { name: 'See your result page' }));
     await desk.waitForURL(`**/student/assessments/${assessmentId}/result`);
     await expect(h1(desk)).toHaveText('Submitted — waiting for marking');
     await sidebar(desk, '/student/assessments');
-    await reachAndClick(
-      desk,
-      desk.getByRole('group', { name: 'Show' }).getByRole('button', { name: 'Submitted (1)' }),
-    );
+    await reachAndClick(desk, assessmentTab(desk, 'Submitted', 1));
     await expect(rowWith(desk, ASSESSMENT)).toContainText('Waiting for marking');
     await signOut(desk, ACCOUNT.rahul);
   });
@@ -641,12 +657,9 @@ test('Flows A–F and the device chain on one shared sample world, through the p
   await test.step(stepTitle('D4'), async () => {
     await as(desk, EMAIL.rahul, '/student');
     await sidebar(desk, '/student/assessments');
-    await reachAndClick(
-      desk,
-      desk.getByRole('group', { name: 'Show' }).getByRole('button', { name: 'Results (1)' }),
-    );
+    await reachAndClick(desk, assessmentTab(desk, 'Results', 1));
     await expect(rowWith(desk, ASSESSMENT)).toContainText('Result ready');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: `See result ${ASSESSMENT}` }));
+    await reachAndClick(desk, main(desk).getByRole('link', { name: `See result, ${ASSESSMENT}` }));
     await desk.waitForURL(`**/student/assessments/${assessmentId}/result`);
     await checkState(desk, 'You passed');
     await expect(main(desk)).toContainText('Passed');

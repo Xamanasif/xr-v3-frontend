@@ -2,24 +2,37 @@
 
 import type { MyAssessmentRow } from '@xr/contracts/draft';
 import {
-  EmptyState,
-  Icon,
-  Link,
-  PageContent,
-  PageHeader,
-  SegmentedControl,
+  ButtonLink,
+  PageHead,
+  StAssessFacts,
+  StAssessListCard,
+  StAssessWhen,
+  StEyebrow,
+  StList,
+  StListRow,
+  StLoading,
+  StMessage,
+  StRowKicker,
+  StRowMeta,
+  StRowText,
+  StRowTitle,
+  StStateRow,
   StatusPill,
-} from '@xr/ui';
+  StTabs,
+} from '@xr/ui/v3';
 import { useEffect, useId, useState } from 'react';
 
-import { stateWords } from '@/copy/state-copy';
+import { ST_STATE_WORDS } from '@/copy/st-shared';
 import {
-  assessmentActionLabel,
+  assessmentActionName,
   assessmentExperimentLine,
-  assessmentTabWords,
+  elsewhereWords,
+  ST_ASSESSMENTS_V3,
   STUDENT_ASSESSMENT_TAB_EMPTY,
+  STUDENT_ASSESSMENT_TAB_WORDS,
   STUDENT_ASSESSMENTS_PAGE,
 } from '@/copy/student-assessments';
+import { courseLine } from '@/copy/student';
 import { useAppNavigation } from '@/nav/navigation';
 import {
   STUDENT_ASSESSMENT_TABS,
@@ -29,40 +42,46 @@ import {
   studentAssessmentsAddress,
   studentAssessmentsPlacement,
 } from '@/nav/student-assessments';
+import { useMyExperiments } from '@/queries/student';
 import { useMyAssessments } from '@/queries/student-assessments';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { StudentFailed, StudentLoading, useRetryFocus } from '../shared/student-states';
+import { useRetryFocus } from '../shared/student-states';
+import { useStudentToday } from '../shared/use-today';
 import {
   assessmentsTabOf,
-  factLine,
+  isPrimaryState,
   rowAction,
-  STATE_TONE,
-  stateWordsOf,
+  rowLine,
+  rowWhen,
+  statusOf,
   tabOfState,
 } from './assessment-rows';
 
 /**
- * ST-11 Assessments — board B4-11 f0 … f6, at `/student/assessments`: "What assessments do I have,
- * what’s due, and how did I do?"
+ * ST-11 Assessments — the owner-approved V3 export (ST-v1 `StudentFinal.dc.html` `is.alist`,
+ * `alistVM`), at `/student/assessments`: "What assessments do I have, what’s due, and how did I
+ * do?"
  *
  * - **Read**: `AssessmentService.listMyAssessments` — each Ready assessment of an experiment the
  *   Student has, with its experiment, the course code the Student sees, its size and the latest
  *   attempt (figure-free until the service releases its result, ATT-15). Nothing here scores,
- *   releases or decides: the status, the line and the action follow the service's answer.
- * - **As B4-11 draws it**: the header ("Assessments for the experiments you have"), "Your
- *   assessments" with the state tabs To do · Submitted · Results (`div.xr-seg`, counts per tab;
- *   the tab in the address, `?tab=`, state-copy `ST-11.tabs`), one row per assessment — name,
- *   experiment and code, the state's line, its status and one action: To do "Open" (ST-12),
- *   Attempt in progress "Continue attempt" (ST-13), Waiting for marking / Result not released yet
- *   "View" and Result ready "See result" (ST-14). A tab without rows says so in the board's line;
- *   no assessment at all is f5's empty state.
- * - **States B4-11 does not draw**: loading and failed with "Try again" (`ST-11.loading`,
- *   `ST-11.failed`); release terms other than "after the deadline" (`ST-11.release-*`).
+ *   releases or decides: the status, the line and the action follow the service's answer. With no
+ *   assessment at all, the Student's experiments (`myExperiments`, ST-04's read) name each one
+ *   "No assessment set yet".
+ * - **As drawn**: the head (date, "Assessments", "Assessments for the experiments you have"), the
+ *   state tabs To do · Submitted · Results with their counts (the tab in the address, `?tab=`,
+ *   replaced without a history entry; state-copy `ST-11.tabs`), one card named by the tab: loading,
+ *   failed + "Try again", a tab without rows (and where the assessment is instead), or the rows —
+ *   each led by its key date (due, result after, released), the experiment and code, the name, the
+ *   introduction, the status and its line, and one action: To do "Open" (ST-12), Attempt in
+ *   progress "Continue attempt" (ST-13), Waiting for marking / Result not released yet "View" and
+ *   Result ready "See result" (ST-14). No assessment at all is the compact "No assessments yet".
  */
 export function StudentAssessments() {
   const navigation = useAppNavigation();
   useShellPage(studentAssessmentsPlacement());
+  const today = useStudentToday();
 
   // The tab lives here while the page is on show; the address mirrors it (replaced, no history
   // entry). An address that differs from what the page last saw came from outside (Back): it is
@@ -85,114 +104,201 @@ export function StudentAssessments() {
 
   const read = useMyAssessments();
   const answer = read.data;
+  const failed = read.isError || (answer !== undefined && !answer.ok);
+  const rows = answer?.ok ? answer.value : null;
+  const none = rows !== null && rows.length === 0;
+  const experiments = useMyExperiments(none);
   const retried = useRetryFocus(answer?.ok === true);
   const retry = () => {
     retried();
     void read.refetch();
   };
 
-  let body;
-  if (read.isError || (answer !== undefined && !answer.ok)) {
-    body = <StudentFailed title={stateWords('ST-11.failed')} onRetry={retry} />;
-  } else if (answer === undefined) {
-    body = <StudentLoading label={stateWords('ST-11.loading')} />;
-  } else if (answer.value.length === 0) {
-    body = (
-      <div className="xr-section">
-        <EmptyState icon="assessments" title={STUDENT_ASSESSMENTS_PAGE.noneTitle}>
-          {STUDENT_ASSESSMENTS_PAGE.noneLine}
-        </EmptyState>
-      </div>
-    );
-  } else {
-    body = <AssessmentList rows={answer.value} tab={tab} onTab={choose} />;
-  }
-
   return (
-    <PageContent wrap="read">
-      <PageHeader
+    <>
+      <PageHead
+        date={today?.line}
         title={STUDENT_ASSESSMENTS_TITLE}
-        meta={<span className="xl-meta">{STUDENT_ASSESSMENTS_PAGE.meta}</span>}
+        titleFocusTarget
+        lead={STUDENT_ASSESSMENTS_PAGE.meta}
       />
-      {body}
-    </PageContent>
+      {none ? (
+        <NoneYet experiments={experiments.data?.ok ? experiments.data.value.rows : null} />
+      ) : (
+        <AssessmentList
+          rows={rows}
+          failed={failed}
+          tab={tab}
+          today={today?.now ?? null}
+          onTab={choose}
+          onRetry={retry}
+        />
+      )}
+    </>
+  );
+}
+
+/**
+ * No assessment at all (`AL.noneAtAll`): the compact message, which states the fact for each
+ * experiment the Student has and adds no action.
+ */
+function NoneYet({
+  experiments,
+}: {
+  readonly experiments:
+    | readonly {
+        readonly course: { readonly codeShown: string | null; readonly name: string };
+        readonly experiment: { readonly experimentId: string; readonly name: string };
+      }[]
+    | null;
+}) {
+  const titleId = useId();
+  return (
+    <StMessage
+      icon="assessments"
+      title={STUDENT_ASSESSMENTS_PAGE.noneTitle}
+      titleId={titleId}
+      description={
+        experiments !== null && experiments.length === 0
+          ? ST_ASSESSMENTS_V3.noneLineNoExperiment
+          : STUDENT_ASSESSMENTS_PAGE.noneLine
+      }
+    >
+      {experiments !== null && experiments.length > 0 ? (
+        <StAssessFacts
+          label={ST_ASSESSMENTS_V3.experimentsLabel}
+          items={experiments.map((entry) => ({
+            key: entry.experiment.experimentId,
+            title: entry.experiment.name,
+            course: courseLine(entry.course.codeShown, entry.course.name),
+            state: ST_ASSESSMENTS_V3.noAssessmentSet,
+          }))}
+        />
+      ) : null}
+    </StMessage>
   );
 }
 
 function AssessmentList({
   rows,
+  failed,
   tab,
+  today,
   onTab,
+  onRetry,
 }: {
-  readonly rows: readonly MyAssessmentRow[];
+  /** `null` while loading or failed. */
+  readonly rows: readonly MyAssessmentRow[] | null;
+  readonly failed: boolean;
   readonly tab: StudentAssessmentTab;
+  readonly today: string | null;
   readonly onTab: (tab: StudentAssessmentTab) => void;
+  readonly onRetry: () => void;
 }) {
-  const headingId = useId();
-  const shown = rows.filter((row) => tabOfState(row.result.kind) === tab);
+  const titleId = useId();
   const count = (which: StudentAssessmentTab) =>
-    rows.filter((row) => tabOfState(row.result.kind) === which).length;
+    rows === null ? undefined : rows.filter((row) => tabOfState(row.result.kind) === which).length;
+  const shown = rows?.filter((row) => tabOfState(row.result.kind) === tab) ?? [];
+
+  let body;
+  if (failed) {
+    body = (
+      <StStateRow
+        icon="cloudAlert"
+        tone="err"
+        alert
+        title={ST_ASSESSMENTS_V3.failedTitle}
+        description={ST_STATE_WORDS.failedLine}
+        action={{ label: ST_STATE_WORDS.tryAgain, onClick: onRetry }}
+      />
+    );
+  } else if (rows === null) {
+    body = <StLoading label={ST_ASSESSMENTS_V3.loading} />;
+  } else if (shown.length === 0) {
+    const elsewhere = STUDENT_ASSESSMENT_TABS.filter((which) => (count(which) ?? 0) > 0).map(
+      (which) => STUDENT_ASSESSMENT_TAB_WORDS[which],
+    );
+    body = (
+      <StStateRow
+        icon="assessments"
+        titleAs="p"
+        title={STUDENT_ASSESSMENT_TAB_EMPTY[tab]}
+        description={elsewhereWords(elsewhere, rows.length)}
+      />
+    );
+  } else {
+    body = (
+      <StList>
+        {shown.map((row) => (
+          <AssessmentRow key={row.assessment.id} row={row} today={today} />
+        ))}
+      </StList>
+    );
+  }
+
   return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {STUDENT_ASSESSMENTS_PAGE.section}
-        </h2>
-      </div>
-      <div className="[padding:0_24px_16px]">
-        <SegmentedControl<StudentAssessmentTab>
-          label={STUDENT_ASSESSMENTS_PAGE.tabsLabel}
-          value={tab}
-          onValueChange={onTab}
-          options={STUDENT_ASSESSMENT_TABS.map((value) => ({
-            value,
-            label: assessmentTabWords(value, count(value)),
-          }))}
-        />
-      </div>
-      {shown.length > 0 ? (
-        <ul className="xr-rows">
-          {shown.map((row) => (
-            <AssessmentRow key={row.assessment.id} row={row} />
-          ))}
-        </ul>
-      ) : (
-        <div className="xr-section-body">
-          <p className="xr-body m-0 text-ink-2">{STUDENT_ASSESSMENT_TAB_EMPTY[tab]}</p>
-        </div>
-      )}
-    </section>
+    <>
+      <StTabs
+        label={ST_ASSESSMENTS_V3.tabsLabel}
+        onSelect={(key) => onTab(key as StudentAssessmentTab)}
+        tabs={STUDENT_ASSESSMENT_TABS.map((which) => ({
+          key: which,
+          href: studentAssessmentsAddress(which),
+          label: STUDENT_ASSESSMENT_TAB_WORDS[which],
+          current: which === tab,
+          count: failed ? undefined : count(which),
+        }))}
+      />
+      <StAssessListCard title={STUDENT_ASSESSMENT_TAB_WORDS[tab]} titleId={titleId}>
+        {body}
+      </StAssessListCard>
+    </>
   );
 }
 
-/** One assessment (f0 … f4): `li.xr-row` with two lines under the name, its status and action. */
-function AssessmentRow({ row }: { readonly row: MyAssessmentRow }) {
+/**
+ * One assessment (`li.sv-li.sv-ali`): its key date, the experiment and code, the name, the
+ * introduction, the status with its line, and one action.
+ */
+function AssessmentRow({
+  row,
+  today,
+}: {
+  readonly row: MyAssessmentRow;
+  readonly today: string | null;
+}) {
   const state = row.result.kind;
   const action = rowAction(row.assessment.id, state);
+  const status = statusOf(state);
+  const lead = rowWhen(row, today);
   return (
-    <li className="xr-row">
-      <div className="xr-row-main">
-        <span className="xr-row-icon">
-          <Icon name="assessments" />
-        </span>
-        <div className="xr-row-text">
-          <span className="xr-row-title">{row.assessment.name}</span>
-          <span className="xr-row-sub">
-            {assessmentExperimentLine(row.experimentName, row.courseCode)}
-          </span>
-          <span className="xr-row-sub">{factLine(row)}</span>
-        </div>
-      </div>
-      <div className="xw-actions flex-none">
-        <StatusPill tone={STATE_TONE[state]}>{stateWordsOf(state)}</StatusPill>
-        <Link
-          className="xr-btn xr-btn--secondary xr-btn--sm"
+    <StListRow
+      variant="assessment"
+      lead={
+        <>
+          <StEyebrow>{lead.kicker}</StEyebrow>
+          {lead.when ? <StAssessWhen {...lead.when} /> : null}
+        </>
+      }
+      end={
+        <ButtonLink
+          variant={isPrimaryState(state) ? 'primary' : 'default'}
           href={action.href}
-          aria-label={assessmentActionLabel(action.words, row.assessment.name)}
+          aria-label={assessmentActionName(action.words, row.assessment.name)}
         >
           {action.words}
-        </Link>
-      </div>
-    </li>
+        </ButtonLink>
+      }
+    >
+      <StRowKicker>{assessmentExperimentLine(row.experimentName, row.courseCode)}</StRowKicker>
+      <StRowTitle>{row.assessment.name}</StRowTitle>
+      {row.assessment.introduction ? (
+        <StRowText clamp>{row.assessment.introduction}</StRowText>
+      ) : null}
+      <StRowMeta>
+        <StatusPill tone={status.tone}>{status.words}</StatusPill>
+        <span>{rowLine(row)}</span>
+      </StRowMeta>
+    </StListRow>
   );
 }

@@ -1,18 +1,12 @@
 'use client';
 
 import type { ExperimentId } from '@xr/domain';
-import { Button, Icon, LoadingState, Notice, PageContent } from '@xr/ui';
+import { Notice, StLaunchCard, StLaunchGo, StLaunchPage } from '@xr/ui/v3';
 import { useEffect, useId, useRef, useState } from 'react';
 
 import { FORMAT_WORDS } from '@/copy/flow-state-words';
-import {
-  experimentLine,
-  FORMAT_PAGE,
-  firstOpenedWords,
-  lastSavedWords,
-  noLicenceLine,
-  WEB_PAGE,
-} from '@/copy/formats';
+import { FORMAT_PAGE, pausedLaunchWords, WEB_PAGE } from '@/copy/formats';
+import { NO_LICENCE_TELL_MORE } from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
 import { HOME_PAGE } from '@/copy/student';
 import { useAppNavigation } from '@/nav/navigation';
@@ -22,42 +16,43 @@ import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { openPendingTab } from '../shared/new-tab';
-import { StudentFailed, useRetryFocus } from '../shared/student-states';
-import { NOT_AVAILABLE_TITLE, NotAvailable } from '../st-19-not-available/not-available';
+import { NOT_AVAILABLE_TITLE, NotAvailable } from '../shared/not-available';
+import { useRetryFocus } from '../shared/student-states';
 import {
-  BackToSimulation,
-  CompletedRows,
-  FormatMessage,
-  FormatPanel,
-  Meta,
-  PanelActions,
-  PanelText,
-  PanelTitle,
-  pausedWords,
-  progressWords,
-  StatusRow,
+  AboutFormat,
+  completedLaunch,
+  FormatFailed,
+  FormatHead,
+  FormatLoading,
+  FormatRefusal,
+  headStatus,
+  LaunchFoot,
 } from '../st-09-format/format-parts';
 import { useFormatModel } from '../st-09-format/format-model';
-import type { PanelState, ProgressMeta } from '../st-09-format/format-view';
+import type { FormatPageAnswer, PanelState } from '../st-09-format/format-view';
 
 /**
- * ST-08 WEB simulation — launch and resume — board B3-03 (f0 … f7; B3-12 f1; B3-13 f4 … f7), at
- * `/student/experiments/[experimentId]/simulation/web`, a page outside the hub's tabs.
+ * ST-08 WEB simulation — launch and resume — at `/student/experiments/[experimentId]/simulation/web`,
+ * a page outside the hub's tabs, as the V3 Student export draws it (ST-v1 `StudentFinal.dc.html`,
+ * `is.fpage`, `fpageVM`): the head (crumbs, the WEB chip and the experiment, "WEB simulation", the
+ * status pill and its line), one launch surface (what to do now, the one large action and its
+ * hint, the notices, the help foot) and "About WEB".
  *
  * - **Reads** (`useFormatModel`): `LearningService.getFormatPage` for WEB — its progress view
  *   (runtime activity and the system's completion record, side by side: BC3), the WEB link and the
- *   gate; the experiment hub (crumb, availability, the licence wait's plan); the course code shown
- *   (T-17); and, once Completed, `FeedbackService.getFeedbackState` for WEB (BC5).
- * - **Status in words + one large action**: Not started → "Launch WEB" (f1); In progress, "Last
- *   saved …" → "Continue WEB" (f0); Completed (the record's date, "Reported by the simulation at …")
- *   → "Give feedback on WEB" only when `eligible` (f3), or "See your feedback" once sent (f4).
- *   Paused (f5) and a supplied licence wait (f6) show why nothing opens.
+ *   gate; the experiment hub (crumb, availability, the closure); the course code shown (T-17); and,
+ *   once Completed, `FeedbackService.getFeedbackState` for WEB (BC5).
+ * - **Status in words + one large action**: Not started → "Launch WEB"; In progress, "Last saved
+ *   …" → "Continue WEB"; Completed ("Reported by the simulation at …") → "Give feedback on WEB" only
+ *   when `eligible`, or "See your feedback" once sent. Paused and a supplied licence wait say why
+ *   nothing opens (no plan named — lead decision 3).
  * - **Command**: `LearningService.launchWebFormat` → "Opening the simulation…" → the returned link
- *   opens in a new tab (`noopener,noreferrer`) → "The simulation opened in a new tab…" (focus on the
- *   notice); a refusal or a failure → "The simulation didn’t open. Nothing was lost." + "Try again"
- *   (f2). TE-3 is unsigned: there is no runtime page or simulator here. The launch stores nothing
- *   (AD-16): the status stays as the service reports it until the runtime reports activity — no
- *   "I have finished", no self-report, no timer (T-12).
+ *   opens in a new tab (the Phase-7 sample activity, reporting to this tab, in the product build) →
+ *   "The simulation opened in a new tab…" (focus on the notice); a refusal or a failure → "The
+ *   simulation didn’t open. Nothing was lost." + "Try again" (focus on the notice). The launch
+ *   stores nothing (AD-16): the status stays as the service reports it until the runtime reports
+ *   activity — no "I have finished", no self-report, no timer (T-12), no stage (lead decision 1:
+ *   the export's in-tab ST-08a activity and its three stages are not built).
  */
 export function WebSimulation({ experimentId }: { readonly experimentId: string }) {
   const navigation = useAppNavigation();
@@ -77,146 +72,139 @@ export function WebSimulation({ experimentId }: { readonly experimentId: string 
 
   if (model.failed) {
     return (
-      <PageContent wrap="read">
-        <StudentFailed
-          title={stateWords('ST-08.failed')}
-          onRetry={() => {
-            retried();
-            model.retry();
-          }}
-        />
-      </PageContent>
+      <FormatFailed
+        title={stateWords('ST-08.failed')}
+        onRetry={() => {
+          retried();
+          model.retry();
+        }}
+      />
     );
   }
   if (outcome === 'not-found') return navigation.notFound();
-  if (outcome === null) return <WebLoading />;
+  if (outcome === null) return <FormatLoading label={stateWords('ST-08.loading')} />;
   if (outcome.kind === 'not-available') {
-    if (model.publishedPending) return <WebLoading />;
+    if (model.publishedPending) return <FormatLoading label={stateWords('ST-08.loading')} />;
     return <NotAvailable kind={outcome.refusal} name={model.publishedName} />;
   }
+  if (!model.hub) return <FormatLoading label={stateWords('ST-08.loading')} />;
   if (outcome.kind !== 'panel') {
+    if (model.formats === null) return <FormatLoading label={stateWords('ST-08.loading')} />;
     return (
-      <PageContent wrap="read">
-        <BackToSimulation experimentId={experimentId} gap={false} />
-        <FormatMessage
-          experimentId={experimentId}
-          format="web"
-          view={outcome}
-          experimentName={model.hub?.experiment.name ?? ''}
-        />
-      </PageContent>
+      <FormatRefusal
+        experimentId={experimentId}
+        format="web"
+        view={outcome}
+        hub={model.hub}
+        session={model.session}
+        progress={model.formats}
+      />
     );
   }
+  if (!model.page) return <FormatLoading label={stateWords('ST-08.loading')} />;
   return (
-    <PageContent wrap="read">
-      <BackToSimulation experimentId={experimentId} />
-      <div className="xw-stack">
-        <WebPanel experimentId={experimentId} panel={outcome.panel} onRefused={model.refetchPage} />
-        <AboutWeb name={model.hub?.experiment.name ?? ''} code={model.code} />
-      </div>
-    </PageContent>
+    <>
+      <FormatHead
+        experimentId={experimentId}
+        hub={model.hub}
+        format="web"
+        session={model.session}
+        status={headStatus(model.page, outcome.panel)}
+      />
+      <StLaunchPage>
+        <WebLaunch
+          experimentId={experimentId}
+          page={model.page}
+          panel={outcome.panel}
+          onRefused={model.refetchPage}
+        />
+        <AboutFormat format="web" />
+      </StLaunchPage>
+    </>
   );
 }
 
-function WebLoading() {
-  return (
-    <PageContent wrap="read">
-      <LoadingState label={stateWords('ST-08.loading')} surface="section" />
-    </PageContent>
-  );
-}
-
-/** The panel's state, then (f5, f6, inactive) the text actions outside it, as the board draws. */
-function WebPanel({
+/** The launch surface per state (`fpageVM`, WEB). */
+function WebLaunch({
   experimentId,
+  page,
   panel,
   onRefused,
 }: {
   readonly experimentId: string;
+  readonly page: FormatPageAnswer;
   readonly panel: PanelState;
   readonly onRefused: () => void;
 }) {
+  const titleId = useId();
   switch (panel.kind) {
     case 'not-started':
     case 'in-progress':
       return (
-        <FormatPanel format="web" label={WEB_PAGE.title}>
-          <Launch experimentId={experimentId} panel={panel} onRefused={onRefused} />
-          <PanelActions experimentId={experimentId} />
-        </FormatPanel>
+        <Launch
+          experimentId={experimentId}
+          titleId={titleId}
+          started={panel.kind === 'in-progress'}
+          onRefused={onRefused}
+        />
       );
-    case 'completed':
+    case 'completed': {
+      const done = completedLaunch(experimentId, 'web', panel.feedback, WEB_PAGE.completedText);
       return (
-        <FormatPanel format="web" label={WEB_PAGE.title}>
-          <CompletedRows
-            experimentId={experimentId}
-            format="web"
-            completedAt={panel.completedAt}
-            reportedFrom={panel.reportedFrom}
-            feedback={panel.feedback}
-            eligibleText={WEB_PAGE.completedText}
-          />
-          <PanelActions experimentId={experimentId} />
-        </FormatPanel>
+        <StLaunchCard
+          title={FORMAT_WORDS.completed('web')}
+          titleId={titleId}
+          description={done.description}
+          foot={<LaunchFoot />}
+        >
+          {done.action}
+        </StLaunchCard>
       );
+    }
     case 'paused':
       return (
-        <>
-          <FormatPanel format="web" label={WEB_PAGE.title}>
-            <StatusRow tone="paused" words={pausedWords()} />
-            <PanelTitle>{FORMAT_WORDS.paused}</PanelTitle>
-            <PanelText>{WEB_PAGE.pausedText}</PanelText>
-          </FormatPanel>
-          <PanelActions experimentId={experimentId} />
-        </>
+        <StLaunchCard
+          title={FORMAT_WORDS.paused}
+          titleId={titleId}
+          description={pausedLaunchWords('web', page.progress.status)}
+          foot={<LaunchFoot />}
+        />
       );
     case 'waiting':
       return (
-        <>
-          <FormatPanel format="web" label={WEB_PAGE.title}>
-            <StatusRow tone="wait" words={FORMAT_PAGE.waitingForLicence} />
-            <PanelTitle>{FORMAT_PAGE.notAvailableYet}</PanelTitle>
-            {panel.planId ? <PanelText>{noLicenceLine(panel.planId)}</PanelText> : null}
-          </FormatPanel>
-          <PanelActions experimentId={experimentId} />
-        </>
+        <StLaunchCard
+          title={FORMAT_PAGE.notAvailableYet}
+          titleId={titleId}
+          description={NO_LICENCE_TELL_MORE}
+          foot={<LaunchFoot />}
+        />
       );
     case 'inactive':
       return (
-        <>
-          <FormatPanel format="web" label={WEB_PAGE.title}>
-            <PanelTitle>{HOME_PAGE.inactiveTitle}</PanelTitle>
-            <PanelText>{HOME_PAGE.inactiveLine}</PanelText>
-          </FormatPanel>
-          <PanelActions experimentId={experimentId} />
-        </>
+        <StLaunchCard
+          title={HOME_PAGE.inactiveTitle}
+          titleId={titleId}
+          description={HOME_PAGE.inactiveLine}
+          foot={<LaunchFoot />}
+        />
       );
-  }
-}
-
-function metaWords(meta: ProgressMeta): string | null {
-  switch (meta.kind) {
-    case 'last':
-      return lastSavedWords(meta.at);
-    case 'first':
-      return firstOpenedWords(meta.at);
-    case 'none':
-      return null;
   }
 }
 
 /**
- * B3-03 f0, f1, f2, f7: the status, the title, what WEB needs, the notices, the one large action
- * and "Opens in a new tab". The launch runs the command, then opens the returned link; nothing is
+ * Not started or in progress: the title, how WEB runs, the notices, the one large action and its
+ * hint "Opens in a new tab". The launch runs the command, then opens the returned link; nothing is
  * stored and nothing here changes the status (AD-16).
  */
 function Launch({
   experimentId,
-  panel,
+  titleId,
+  started,
   onRefused,
 }: {
   readonly experimentId: string;
-  readonly panel: Extract<PanelState, { kind: 'not-started' | 'in-progress' }>;
+  readonly titleId: string;
+  readonly started: boolean;
   readonly onRefused: () => void;
 }) {
   const launch = useCommand((ports) => ports.learning.launchWebFormat);
@@ -224,17 +212,15 @@ function Launch({
     opened: false,
     failed: false,
   });
-  // The notice takes focus when it appears (B3-03 script `focus(pid + '-msg')`).
+  // The notice takes focus when it appears (the export's `focusId('st-launch-err')`).
   const [focusNotice, setFocusNotice] = useState(0);
   const noticeRef = useRef<HTMLDivElement>(null);
-  const noticeId = useId();
-  const newTabId = useId();
+  const errorId = useId();
+  const okId = useId();
+  const hintId = useId();
   useEffect(() => {
     if (focusNotice > 0) noticeRef.current?.focus();
   }, [focusNotice]);
-
-  const started = panel.kind === 'in-progress';
-  const meta = panel.kind === 'in-progress' ? metaWords(panel.meta) : null;
 
   const go = async () => {
     setResult((current) => ({ ...current, failed: false }));
@@ -245,7 +231,7 @@ function Launch({
     try {
       const answer = await launch.run({ experimentId: experimentId as ExperimentId });
       if (answer.ok && tab) {
-        // The published WEB link, in the new tab; this page keeps the status (B3-03 "How it works").
+        // The WEB link, in the new tab; this page keeps the status.
         tab.go(answer.value.href);
         opened = true;
       } else {
@@ -262,80 +248,43 @@ function Launch({
   };
 
   return (
-    <>
-      <StatusRow
-        tone={started ? 'wait' : 'off'}
-        words={progressWords(panel.kind)}
-        meta={meta ? <Meta>{meta}</Meta> : undefined}
-      />
-      <PanelTitle>{started ? WEB_PAGE.inProgressTitle : WEB_PAGE.notStartedTitle}</PanelTitle>
-      <div className="xl-inline xl-meta">
-        <Icon name="monitor" size={16} />
-        {WEB_PAGE.needs}
-      </div>
-      <div id={noticeId} ref={noticeRef} tabIndex={-1}>
-        {result.opened && !result.failed ? <Notice tone="ok">{WEB_PAGE.opened}</Notice> : null}
-        {result.failed ? (
-          <Notice tone="err" title={WEB_PAGE.failedTitle}>
-            {WEB_PAGE.failedLine}
-          </Notice>
-        ) : null}
-      </div>
-      <div className="xl-bigact">
-        <Button
-          variant="primary"
-          busy={launch.busy}
-          busyLabel={WEB_PAGE.opening}
-          icon={result.failed ? 'tryAgain' : 'externalLink'}
-          iconPosition={result.failed ? 'start' : 'end'}
-          aria-describedby={newTabId}
-          onClick={() => void go()}
+    <StLaunchCard
+      title={started ? WEB_PAGE.inProgressTitle : WEB_PAGE.notStartedTitle}
+      titleId={titleId}
+      description={WEB_PAGE.howItWorksLine}
+      foot={<LaunchFoot />}
+    >
+      {result.failed ? (
+        <Notice
+          tone="warn"
+          icon="alertCircle"
+          role="alert"
+          className="sv-launch-err"
+          ref={noticeRef}
+          id={errorId}
+          title={WEB_PAGE.failedTitle}
         >
-          {result.failed
-            ? WEB_PAGE.tryAgain
-            : started
-              ? FORMAT_WORDS.continue('web')
-              : FORMAT_WORDS.launch('web')}
-        </Button>
-        <span id={newTabId} className="xl-meta">
-          {WEB_PAGE.opensInNewTab}
-        </span>
-      </div>
-    </>
-  );
-}
-
-/** "About WEB" (B3-03 f0 … f7): Experiment, How it works, Completed means. */
-function AboutWeb({ name, code }: { readonly name: string; readonly code: string | null }) {
-  const headingId = useId();
-  const rows: readonly (readonly [string, string])[] = [
-    [WEB_PAGE.experiment, experimentLine(name, code)],
-    [WEB_PAGE.howItWorks, WEB_PAGE.howItWorksLine],
-    [WEB_PAGE.completedMeans, WEB_PAGE.completedMeansLine],
-  ];
-  return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {WEB_PAGE.about}
-        </h2>
-      </div>
-      <div className="xr-section-body">
-        <dl className="xp-kv m-0 grid grid-cols-[170px_minmax(0,1fr)] gap-x-5 gap-y-[10px] text-[15px] leading-[22px]">
-          {rows.map(([term, value]) => (
-            <KeyValue key={term} term={term} value={value} />
-          ))}
-        </dl>
-      </div>
-    </section>
-  );
-}
-
-function KeyValue({ term, value }: { readonly term: string; readonly value: string }) {
-  return (
-    <>
-      <dt className="font-[700] text-ink">{term}</dt>
-      <dd className="m-0 text-ink-2">{value}</dd>
-    </>
+          {WEB_PAGE.failedLine}
+        </Notice>
+      ) : result.opened ? (
+        <Notice ref={noticeRef} id={okId} tone="ok" role="status" title={WEB_PAGE.opened} />
+      ) : null}
+      <StLaunchGo
+        action={{
+          kind: 'button',
+          label: launch.busy
+            ? WEB_PAGE.opening
+            : result.failed
+              ? WEB_PAGE.tryAgain
+              : started
+                ? FORMAT_WORDS.continue('web')
+                : FORMAT_WORDS.launch('web'),
+          busy: launch.busy,
+          onLaunch: () => void go(),
+          describedBy: hintId,
+        }}
+        hint={{ id: hintId, text: WEB_PAGE.opensInNewTab }}
+      />
+    </StLaunchCard>
   );
 }

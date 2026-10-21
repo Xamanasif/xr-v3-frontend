@@ -72,8 +72,9 @@ describe('PU-15 public variant', () => {
 });
 
 describe('PU-15 workspace variant', () => {
-  it('in the person’s own shell: nothing current, "Not found" on top, Back to Home and Help', async () => {
-    // A role that keeps its v46 shell (the Faculty member moved to the V3 shell with FA-v1).
+  it('in the person’s own shell: nothing current, a v46 island, Back to Home and Help', async () => {
+    // Every role is in the V3 shell since the Student's export (ST-v1): PU-15 keeps its v46 design
+    // (board 08) as a v46 island in it.
     const { runtime } = await tabPlatform(PERSON_OF_ROLE.student);
     renderInTab(
       <WorkspaceLayout workspace="student">
@@ -98,7 +99,8 @@ describe('PU-15 workspace variant', () => {
       ['Help', '/student/help'],
     ]);
     await waitFor(() => expect(document.title).toBe('Not found · XR Learning Platform'));
-    expect(document.querySelector('.xr-side [aria-current]')).toBeNull();
-    expect(document.querySelector('.xr-top-title')).toHaveTextContent('Not found');
+    expect(message.closest('[data-xr-v46]')).not.toBeNull();
+    expect(document.querySelector('aside.rb-rail')).not.toBeNull();
+    expect(document.querySelector('aside.rb-rail [aria-current]')).toBeNull();
   });
 });

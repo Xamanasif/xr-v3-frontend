@@ -1,0 +1,267 @@
+[
+ {
+  "name": "01-learn",
+  "scenario": "learn",
+  "screen": "ST-01"
+ },
+ {
+  "name": "01-paused",
+  "scenario": "paused",
+  "screen": "ST-01"
+ },
+ {
+  "name": "02-learn",
+  "scenario": "learn",
+  "screen": "ST-02"
+ },
+ {
+  "name": "02-ended",
+  "scenario": "ended",
+  "screen": "ST-02"
+ },
+ {
+  "name": "03-learn",
+  "scenario": "learn",
+  "screen": "ST-03"
+ },
+ {
+  "name": "04-learn",
+  "scenario": "learn",
+  "screen": "ST-04"
+ },
+ {
+  "name": "04-learn-x-nomatch",
+  "scenario": "learn",
+  "screen": "ST-04",
+  "preset": "x-nomatch"
+ },
+ {
+  "name": "05-learn",
+  "scenario": "learn",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-05"
+ },
+ {
+  "name": "05-withdrawn",
+  "scenario": "withdrawn",
+  "screen": "ST-05"
+ },
+ {
+  "name": "06-learn",
+  "scenario": "learn",
+  "screen": "ST-06"
+ },
+ {
+  "name": "06-learn-res-fail",
+  "scenario": "learn",
+  "screen": "ST-06",
+  "preset": "res-fail"
+ },
+ {
+  "name": "07-learn",
+  "scenario": "learn",
+  "screen": "ST-07"
+ },
+ {
+  "name": "07-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-07"
+ },
+ {
+  "name": "05as-assess",
+  "scenario": "assess",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "05as-released",
+  "scenario": "released",
+  "screen": "ST-05as"
+ },
+ {
+  "name": "10-learn",
+  "scenario": "learn",
+  "screen": "ST-10"
+ },
+ {
+  "name": "08-learn",
+  "scenario": "learn",
+  "screen": "ST-08"
+ },
+ {
+  "name": "08-learn-launch-fail",
+  "scenario": "learn",
+  "screen": "ST-08",
+  "preset": "launch-fail"
+ },
+ {
+  "name": "08a-learn",
+  "scenario": "learn",
+  "screen": "ST-08a"
+ },
+ {
+  "name": "08a-learn-act-done",
+  "scenario": "learn",
+  "screen": "ST-08a",
+  "preset": "act-done"
+ },
+ {
+  "name": "09-learn",
+  "scenario": "learn",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09-vrprog",
+  "scenario": "vrprog",
+  "screen": "ST-09"
+ },
+ {
+  "name": "09ar-learn",
+  "scenario": "learn",
+  "screen": "ST-09ar"
+ },
+ {
+  "name": "09mr-learn",
+  "scenario": "learn",
+  "screen": "ST-09mr"
+ },
+ {
+  "name": "11-assess",
+  "scenario": "assess",
+  "screen": "ST-11"
+ },
+ {
+  "name": "11-newst",
+  "scenario": "newst",
+  "screen": "ST-11"
+ },
+ {
+  "name": "11sub-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-11sub"
+ },
+ {
+  "name": "12-assess",
+  "scenario": "assess",
+  "screen": "ST-12"
+ },
+ {
+  "name": "12-notpassed",
+  "scenario": "notpassed",
+  "screen": "ST-12"
+ },
+ {
+  "name": "13-inprog",
+  "scenario": "inprog",
+  "screen": "ST-13"
+ },
+ {
+  "name": "13-inprog-att-dialog",
+  "scenario": "inprog",
+  "screen": "ST-13",
+  "preset": "att-dialog"
+ },
+ {
+  "name": "13-inprog-att-subfail",
+  "scenario": "inprog",
+  "screen": "ST-13",
+  "preset": "att-subfail"
+ },
+ {
+  "name": "13-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-13"
+ },
+ {
+  "name": "14-released",
+  "scenario": "released",
+  "screen": "ST-14"
+ },
+ {
+  "name": "14-notpassed",
+  "scenario": "notpassed",
+  "screen": "ST-14"
+ },
+ {
+  "name": "14-waitmark",
+  "scenario": "waitmark",
+  "screen": "ST-14"
+ },
+ {
+  "name": "15-learn",
+  "scenario": "learn",
+  "screen": "ST-15"
+ },
+ {
+  "name": "15-ended",
+  "scenario": "ended",
+  "screen": "ST-15"
+ },
+ {
+  "name": "16v-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-16v"
+ },
+ {
+  "name": "16v-vrdone-fb-errors",
+  "scenario": "vrdone",
+  "screen": "ST-16v",
+  "preset": "fb-errors"
+ },
+ {
+  "name": "16w-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-16w"
+ },
+ {
+  "name": "18-device",
+  "scenario": "device",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-device-dev-form",
+  "scenario": "device",
+  "screen": "ST-18",
+  "preset": "dev-form"
+ },
+ {
+  "name": "18-dtrfwd",
+  "scenario": "dtrfwd",
+  "screen": "ST-18"
+ },
+ {
+  "name": "18-nodevice",
+  "scenario": "nodevice",
+  "screen": "ST-18"
+ },
+ {
+  "name": "19-learn",
+  "scenario": "learn",
+  "screen": "ST-19"
+ },
+ {
+  "name": "xs06-learn",
+  "scenario": "learn",
+  "screen": "XS-06"
+ },
+ {
+  "name": "10-vrdone",
+  "scenario": "vrdone",
+  "screen": "ST-10"
+ },
+ {
+  "name": "06-learn-loading",
+  "scenario": "learn",
+  "screen": "ST-06",
+  "dataState": "loading"
+ },
+ {
+  "name": "04-learn-failed",
+  "scenario": "learn",
+  "screen": "ST-04",
+  "dataState": "failed"
+ }
+]

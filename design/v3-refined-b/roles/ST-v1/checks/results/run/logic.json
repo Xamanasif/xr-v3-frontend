@@ -1,0 +1,42 @@
+{
+ "pass": 1206,
+ "fail": 0,
+ "fails": [],
+ "changed": [
+  "actVM",
+  "alistVM",
+  "attVM",
+  "courseVM",
+  "coursesVM",
+  "devVM",
+  "fbVM",
+  "fpageVM",
+  "homeVM",
+  "introVM",
+  "msg",
+  "progVM",
+  "renderVals",
+  "resVM",
+  "resultVM",
+  "xcard"
+ ],
+ "added": [
+  "asmtTabVM",
+  "courseCard",
+  "dayNum",
+  "fmtChip",
+  "fmtStatus",
+  "holdReason",
+  "nbd",
+  "nextStep",
+  "offFormats",
+  "overviewVM",
+  "progExp",
+  "progTabVM",
+  "runWord",
+  "simVM",
+  "webStages",
+  "whenOf"
+ ],
+ "routes": 690
+}

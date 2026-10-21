@@ -58,7 +58,18 @@ function inStudent(runtime: PlatformRuntime, path: string, page: ReactNode) {
 }
 
 const main = () => screen.getByRole('main');
-const topTitle = () => document.querySelector('.xr-top-title');
+/** The browser tab's title (the V3 shell has no top title: the page names the tab). */
+const tabTitle = () => document.title;
+/** Student words never carry an internal record reference (lead decision 3). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT)-\d+/;
+
+function expectNoReferences() {
+  expect(main().textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of main().querySelectorAll('[aria-label]')) {
+    expect(element.getAttribute('aria-label')).not.toMatch(REFERENCE);
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 /** Signs another person into this tab's one world (the CI seam), as the test-hook bridge does. */
 async function signIn(sample: Sample, runtime: PlatformRuntime, personId: string) {
@@ -105,54 +116,67 @@ async function pauseGodavari(sample: Sample, runtime: PlatformRuntime) {
 // ---- before access (after-setup, 8 Oct: Rahul is in People, nothing given) ---------------------
 
 describe('before access — Rahul on after-setup (B2-10 f0, B2-11 f3, B2-11 f12; B2-13 f1–f3)', () => {
-  it('ST-01: “Hello, Rahul” and one clear message with Help, nothing that leads nowhere', async () => {
+  it('ST-01: “Hello, Rahul” and one clear message with Help & support, nothing that leads nowhere', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-setup');
     inStudent(runtime, '/student', <StudentHome />);
     expect(await screen.findByRole('heading', { level: 1, name: 'Hello, Rahul' })).toBeVisible();
-    expect(main().querySelector('.xw-greet .xr-overline')).toHaveTextContent(
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent(
       'Godavari Institute of Technology',
     );
     const message = await screen.findByRole('heading', {
       level: 2,
       name: 'Your institution hasn’t given you access yet',
     });
-    expect(message.closest('.xr-empty')).toHaveTextContent(
+    const card = message.closest<HTMLElement>('section.sv-msg')!;
+    expect(card).toHaveAccessibleName('Your institution hasn’t given you access yet');
+    expect(card).toHaveTextContent(
       'When it gives you an experiment, it appears here and in My courses.',
     );
+    // The export's "How it works" (`homeVM` before access): three numbered steps.
+    const how = within(card).getByRole('list', { name: 'How it works' });
+    expect([...how.querySelectorAll('.sv-how-t')].map((step) => step.textContent)).toEqual([
+      'Your institution gives you an experiment, with the formats you can use.',
+      'Read its resources, then run a simulation. Nothing is locked.',
+      'Answer the assessment when your faculty sets one.',
+    ]);
     const links = within(main()).getAllByRole('link');
     expect(links.map((link) => [link.textContent, link.getAttribute('href')])).toEqual([
-      ['Help', '/student/help'],
+      ['Help & support', '/student/help'],
     ]);
-    expect(main().querySelector('.xw-continue')).toBeNull();
-    expect(topTitle()).toHaveTextContent('Home');
+    expect(main().querySelector('.sv-home')).toBeNull();
+    await waitFor(() => expect(tabTitle()).toBe('Home · XR Learning Platform'));
+    expectNoReferences();
   });
 
-  it('ST-02: no courses yet, with Help — and the tab strip (ST-04, Package 2B)', async () => {
+  it('ST-02: no courses yet, with Help & support — and the tab strip (ST-04, Package 2B)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-setup');
     inStudent(runtime, '/student/courses', <MyCourses />);
     expect(await screen.findByRole('heading', { level: 1, name: 'My courses' })).toBeVisible();
-    expect(main()).toHaveTextContent('Courses with experiments your institution has given you');
+    expect(main().querySelector('.rk-head .rk-sub')).toHaveTextContent(
+      'Courses with experiments your institution has given you',
+    );
     const message = await screen.findByRole('heading', {
       name: 'Your institution hasn’t given you access yet',
     });
-    expect(message.closest('.xr-empty')).toHaveTextContent(
+    expect(message.closest('section.sv-msg')).toHaveTextContent(
       'Courses appear here when your institution gives you an experiment in them.',
     );
-    expect(within(main()).getByRole('link', { name: 'Help' })).toHaveAttribute(
+    expect(within(main()).getByRole('link', { name: 'Help & support' })).toHaveAttribute(
       'href',
       '/student/help',
     );
     // Package 2B: the "Courses · All experiments" strip (ST-04), Courses current.
-    expect(
-      within(main().querySelector<HTMLElement>('.xr-tabs')!).getByRole('link', {
-        name: 'Courses',
-      }),
-    ).toHaveAttribute('aria-current', 'page');
-    expect(
-      within(main().querySelector<HTMLElement>('.xr-tabs')!).getByRole('link', {
-        name: 'All experiments',
-      }),
-    ).toHaveAttribute('href', '/student/courses?tab=experiments');
+    const tabs = screen.getByRole('navigation', { name: 'My courses' });
+    expect(tabs).toHaveClass('rk-tabs');
+    expect(within(tabs).getByRole('link', { name: 'Courses' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    expect(within(tabs).getByRole('link', { name: 'All experiments' })).toHaveAttribute(
+      'href',
+      '/student/courses?tab=experiments',
+    );
+    expectNoReferences();
   });
 
   it('ST-19: opening Shell-and-Tube reads “isn’t available”, named, with a way back', async () => {
@@ -164,21 +188,59 @@ describe('before access — Rahul on after-setup (B2-10 f0, B2-11 f3, B2-11 f12;
         name: 'This experiment isn’t available to you',
       }),
     ).toBeVisible();
-    const message = main().querySelector('.xr-msg')!;
-    expect(message.querySelector('p.xr-lead')).toHaveTextContent(
+    // The export's compact refusal (`msg('notgiven')`): the experiment it is about, the H1, one
+    // sentence — nothing given yet, so no "Experiments you can open" and the primary way back.
+    const message = main().querySelector<HTMLElement>('section.sv-refuse')!;
+    expect(message).toHaveAccessibleName('This experiment isn’t available to you');
+    expect(message.querySelector('.sv-refuse-k')).toHaveTextContent(SHELL_NAME);
+    expect(message.querySelector('p.sv-refuse-d')).toHaveTextContent(
       'Your institution hasn’t given you Shell-and-Tube Heat Exchanger. Experiments you can open are in My courses.',
     );
-    expect(within(main()).getByRole('link', { name: 'Back to My courses' })).toHaveAttribute(
-      'href',
-      '/student/courses',
-    );
-    expect(within(main()).getByRole('link', { name: 'Help' })).toHaveAttribute(
+    expect(message.querySelector('.sv-refuse-alt')).toBeNull();
+    expect(message.querySelector('.sv-refuse-ico')).toHaveClass('sv-refuse-ico--off');
+    const back = within(main()).getByRole('link', { name: 'Back to My courses' });
+    expect(back).toHaveAttribute('href', '/student/courses');
+    expect(back).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
+    expect(within(main()).getByRole('link', { name: 'Help & support' })).toHaveAttribute(
       'href',
       '/student/help',
     );
-    expect(message.querySelector('.xr-msg-icon.xr-x-msg-icon--ok')).toBeNull();
-    await waitFor(() => expect(topTitle()).toHaveTextContent('Not available'));
-    expect(document.querySelector('.xr-crumbs')).toHaveTextContent('My courses');
+    await waitFor(() => expect(tabTitle()).toBe('Not available · XR Learning Platform'));
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(crumbs).getByRole('link', { name: 'My courses' })).toHaveAttribute(
+      'href',
+      '/student/courses',
+    );
+    expect(crumbs.querySelector('[aria-current="page"]')).toHaveTextContent('Not available');
+    expectNoReferences();
+  });
+
+  it('ST-19: with experiments given, “not given” lists them to open instead (`msg` expAlt)', async () => {
+    const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
+    inStudent(
+      runtime,
+      '/student/experiments/fin-tube-bundle',
+      <ExperimentHub experimentId="fin-tube-bundle" />,
+    );
+    expect(
+      await screen.findByRole('heading', {
+        level: 1,
+        name: 'This experiment isn’t available to you',
+      }),
+    ).toBeVisible();
+    const message = main().querySelector<HTMLElement>('section.sv-refuse')!;
+    expect(message.querySelector('p.sv-refuse-d')).toHaveTextContent(
+      /^Your institution hasn’t given you Fin-Tube Bundle\.$/,
+    );
+    const others = within(message).getByRole('list', { name: 'Experiments you can open' });
+    expect(others).toHaveTextContent(`${SHELL_NAME}MEC-523 · ${THERMO_NAME}`);
+    expect(
+      within(others).getByRole('link', { name: `Open experiment ${SHELL_NAME}` }),
+    ).toHaveAttribute('href', HUB);
+    const back = within(message).getByRole('link', { name: 'Back to My courses' });
+    expect(back).toHaveClass('rb-btn', 'rb-btn--lg');
+    expect(back).not.toHaveClass('rb-btn--primary');
+    expectNoReferences();
   });
 
   it('ST-19: an unknown experiment is “not given” too, without revealing a name', async () => {
@@ -196,46 +258,57 @@ describe('before access — Rahul on after-setup (B2-10 f0, B2-11 f3, B2-11 f12;
 // ---- first time after the grant (after-flow-b: SACC-0310 given to Rahul) ----------------------
 
 describe('after SACC-0310 — Rahul on after-flow-b (B2-10 f1, f9; B2-11 f0, f1, f11; B2-12 f0)', () => {
-  it('ST-01: Start here names the experiment and its course; Up next is honestly empty', async () => {
+  it('ST-01: Start here names the experiment, its course and its one next step (the resources)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     inStudent(runtime, '/student', <StudentHome />);
-    const card = await waitFor(() => {
-      const found = main().querySelector<HTMLElement>('section.xw-continue');
-      expect(found).not.toBeNull();
-      return found!;
-    });
-    expect(card.querySelector('.xr-overline')).toHaveTextContent('Start here');
-    expect(within(card).getByRole('heading', { level: 2 })).toHaveTextContent(SHELL_NAME);
-    expect(card).toHaveAccessibleName(SHELL_NAME);
-    const metas = [...card.querySelectorAll('.xw-continue-meta')].map((node) => node.textContent);
-    // T-17: Godavari's own code MEC-523 is set (after-setup), so it is the code shown (B2-10 f9).
-    expect(metas[0]).toBe(`MEC-523 · ${THERMO_NAME}`);
-    expect(metas[1]).toBe('Available to you: WEBVR');
-    expect([...card.querySelectorAll('.xr-fmt.xr-fmt--yours')].map((n) => n.textContent)).toEqual([
-      'WEB',
-      'VR',
+    const cover = await screen.findByRole('region', { name: 'Start here' });
+    const card = within(cover).getByRole('article', { name: SHELL_NAME });
+    expect(within(card).getByRole('heading', { level: 3 })).toHaveTextContent(SHELL_NAME);
+    // T-17: Godavari's own code MEC-523 is set (after-setup), so it is the code shown.
+    expect(card.querySelector('.sv-now-course .rk-owncode')).toHaveTextContent('MEC-523');
+    expect(within(card).getByRole('link', { name: `${THERMO_NAME}, open course` })).toHaveAttribute(
+      'href',
+      COURSE,
+    );
+    // The hub read (one more read on the Home) gives the description.
+    expect(card.querySelector('.sv-now-d')?.textContent).toBeTruthy();
+    for (const open of within(card).getAllByRole('link', {
+      name: `Open experiment, ${SHELL_NAME}`,
+    })) {
+      expect(open).toHaveAttribute('href', HUB);
+    }
+    // Nothing opened yet: the next step is the resources (the export's `nextStep` "res").
+    const step = card.querySelector<HTMLElement>('.sv-step.is-next')!;
+    expect(step.querySelector('.sv-step-k')).toHaveTextContent('Your next step');
+    expect(step.querySelector('.sv-step-t')).toHaveTextContent('Start with the resources');
+    expect(step.querySelector('.sv-step-d')).toHaveTextContent('3 resources · none opened yet');
+    const go = within(step).getByRole('link', { name: `Open resources, ${SHELL_NAME}` });
+    expect(go).toHaveAttribute('href', `${HUB}/resources`);
+    expect(go).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
+    expect(card).not.toHaveTextContent(/stage/i);
+
+    // The rest of the experiment: its formats (both given, not started) and its assessment.
+    const also = screen.getByRole('region', { name: 'Also in this experiment' });
+    const items = [...also.querySelectorAll('li')].map((li) => li.textContent);
+    expect(items).toEqual([
+      'WEBBrowserNot started',
+      'VRVirtual realityNot started',
+      'AssessmentNot set by your faculty yet',
     ]);
-    expect(within(card).getByRole('link', { name: `Open ${SHELL_NAME}` })).toHaveAttribute(
+    expect(within(also).getByRole('link', { name: /Browser/ })).toHaveAttribute(
       'href',
-      HUB,
+      `${HUB}/simulation/web`,
     );
+    expect(also.querySelectorAll('.sv-fmt--on')).toHaveLength(2);
+    // An assessment not set yet is not a link.
+    expect(within(also).queryByRole('link', { name: /Assessment/ })).toBeNull();
 
-    const upNext = screen.getByRole('region', { name: 'Up next' });
-    expect(upNext).toHaveTextContent('Nothing else is waiting for you right now.');
-
-    const courses = screen.getByRole('region', { name: 'My courses' });
-    expect(courses.querySelector('.xr-row-title')).toHaveTextContent(THERMO_NAME);
-    expect(courses.querySelector('.xr-row-sub')).toHaveTextContent(
-      'MEC-523 · 1 experiment given to you · WEB and VR available',
-    );
-    expect(courses.querySelector('.xr-row-sub .xr-id')).toHaveTextContent('MEC-523');
-    expect(
-      within(courses).getByRole('link', { name: `Open course ${THERMO_NAME}` }),
-    ).toHaveAttribute('href', COURSE);
-    expect(within(courses).getByRole('link', { name: 'View all courses' })).toHaveAttribute(
-      'href',
-      '/student/courses',
-    );
+    const learning = screen.getByRole('region', { name: 'What you’re learning' });
+    expect(learning).toHaveTextContent('The same in every format');
+    expect(learning.querySelectorAll('ol.sv-outcomes > li')).toHaveLength(2);
+    // No other experiment is waiting: no Up next column.
+    expect(screen.queryByRole('heading', { name: 'Up next' })).toBeNull();
+    expectNoReferences();
   });
 
   it('ST-02 → ST-03 → ST-05: the course, its given experiment, then the hub', async () => {
@@ -243,88 +316,102 @@ describe('after SACC-0310 — Rahul on after-flow-b (B2-10 f1, f9; B2-11 f0, f1,
     const courses = inStudent(runtime, '/student/courses', <MyCourses />);
     const open = await screen.findByRole('link', { name: `Open course ${THERMO_NAME}` });
     expect(open).toHaveAttribute('href', COURSE);
-    expect(main().querySelector('.xr-row-sub')).toHaveTextContent(
-      'MEC-523 · 1 experiment given to you · WEB and VR available',
+    // The course as a section (`courseCard`): its code, name, count, then its experiments.
+    const courseCard = screen.getByRole('region', { name: THERMO_NAME });
+    expect(courseCard).toHaveClass('sv-card', 'sv-course');
+    expect(courseCard.querySelector('.sv-course-k .rk-owncode')).toHaveTextContent('MEC-523');
+    expect(courseCard.querySelector('.sv-course-m')).toHaveTextContent('1 experiment given to you');
+    const given = within(courseCard).getByRole('list', {
+      name: `Experiments given to you in ${THERMO_NAME}`,
+    });
+    expect(within(given).getByRole('heading', { level: 4 })).toHaveTextContent(SHELL_NAME);
+    expect(
+      within(given).getByRole('link', { name: `Open experiment ${SHELL_NAME}` }),
+    ).toHaveAttribute('href', HUB);
+    expect(screen.getByRole('navigation', { name: 'My courses' })).toHaveTextContent(
+      'CoursesAll experiments',
     );
-    expect(main().querySelector('.xr-tabs')).toHaveTextContent('CoursesAll experiments');
     courses.view.unmount();
 
     const course = inStudent(runtime, COURSE, <MyCourse courseId={THERMO} />);
     expect(await screen.findByRole('heading', { level: 1, name: THERMO_NAME })).toBeVisible();
-    expect(main().querySelector('a.xr-back')).toHaveAttribute('href', '/student/courses');
-    expect(main().querySelector('.xr-phead .xr-overline')).toHaveTextContent('MEC-523');
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent('1 experiment given to you');
-    const section = screen.getByRole('region', { name: 'Your experiments in this course' });
-    const rows = section.querySelectorAll('.xw-erow');
-    // Only the experiment given to him (B2-11 f1: Fin-Tube and Composite Wall are not listed).
+    const courseCrumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(courseCrumbs).getByRole('link', { name: 'My courses' })).toHaveAttribute(
+      'href',
+      '/student/courses',
+    );
+    expect(courseCrumbs.querySelector('[aria-current="page"]')).toHaveTextContent(THERMO_NAME);
+    expect(main().querySelector('.rk-head .st-eyecode')).toHaveTextContent('MEC-523Course');
+    expect(main().querySelector('.rk-head .sv-head-meta')).toHaveTextContent(
+      '1 experiment given to you',
+    );
+    const section = screen.getByRole('region', { name: 'Experiments given to you' });
+    expect(section).toHaveTextContent('Only experiments given to you are listed');
+    const rows = section.querySelectorAll('li.sv-xli');
+    // Only the experiment given to him (Fin-Tube and Composite Wall are not listed).
     expect(rows).toHaveLength(1);
     const row = rows[0] as HTMLElement;
     expect(within(row).getByRole('heading', { level: 3 })).toHaveTextContent(SHELL_NAME);
-    expect(row.querySelector('.xr-meta')).toHaveTextContent(`MEC-523 · ${THERMO_NAME}`);
-    const lines = [...row.querySelectorAll('.xw-inherit')].map((node) => node.textContent);
-    expect(lines).toEqual(['Available to you: WEBVR', 'WEB Not started · VR Not started']);
-    expect(within(row).getByRole('link', { name: `Open ${SHELL_NAME}` })).toHaveAttribute(
-      'href',
-      HUB,
-    );
-    await waitFor(() => expect(topTitle()).toHaveTextContent(THERMO_NAME));
+    const rowFormats = within(row).getByRole('list', { name: `Your formats for ${SHELL_NAME}` });
+    expect([...rowFormats.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
+      'WEBBrowser: Not started',
+      'VRVirtual reality: Not started',
+    ]);
+    expect(rowFormats.querySelectorAll('.xr-fmt.sv-fmt--on')).toHaveLength(2);
+    expect(
+      within(row).getByRole('link', { name: `Open experiment ${SHELL_NAME}` }),
+    ).toHaveAttribute('href', HUB);
+    await waitFor(() => expect(tabTitle()).toBe(`${THERMO_NAME} · XR Learning Platform`));
+    expectNoReferences();
     course.view.unmount();
 
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     expect(await screen.findByRole('heading', { level: 1, name: SHELL_NAME })).toBeVisible();
-    const head = main().querySelector('.xw-hubhead')!;
-    expect(head.querySelector('.xr-overline')).toHaveTextContent(`MEC-523 · ${THERMO_NAME}`);
-    const formats = within(head as HTMLElement).getByRole('list', { name: 'Formats for you' });
-    expect([...formats.querySelectorAll('li')].map((li) => [li.className, li.textContent])).toEqual(
+    // V3 (ST-v1 `hubVM`, `overviewVM`; the hub's own tests: learning-hub.test.tsx): the head —
+    // the course code shown and the course above the name — and the five section tabs.
+    expect(main().querySelector('.rk-head .st-eyecode')).toHaveTextContent(`MEC-523${THERMO_NAME}`);
+    expect(
       [
-        ['', 'WEBAvailable to you'],
-        ['', 'VRAvailable to you'],
-        ['is-off', 'ARNot included for your institution'],
-        ['is-off', 'MRNot available for this experiment'],
-      ],
-    );
-    const cards = [...main().querySelectorAll('.xw-scard')].map((card) => card.textContent);
-    expect(cards).toEqual([
-      'Step 1 of 3Resources3 resources · none opened yet.Open resources',
-      'Step 2 of 3SimulationWEB and VR are available to you. WEB not started · VR not started.Choose a format',
-      'Step 3 of 3AssessmentYour faculty hasn’t set an assessment for this experiment yet.Nothing to do here yet.',
+        ...screen.getByRole('navigation', { name: `${SHELL_NAME} sections` }).querySelectorAll('a'),
+      ].map((tab) => tab.textContent),
+    ).toEqual(['Overview', 'Resources', 'Simulation', 'Assessment', 'Progress']);
+    // Your formats, each with its access, progress and one action; then those not available.
+    const mine = await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    expect(
+      [...mine.querySelectorAll(':scope > li')].map((li) => [
+        li.querySelector('.sv-frow-t')?.textContent,
+        li.querySelector('.xr-st')?.textContent,
+        li.querySelector('a')?.textContent,
+      ]),
+    ).toEqual([
+      ['Browser (WEB),  · Available to you', 'Not started', 'Open WEB'],
+      ['Virtual reality (VR),  · Available to you', 'Not started', 'Open VR'],
     ]);
-    expect(main()).toHaveTextContent(
-      'Suggested order: resources, then a simulation, then the assessment. Nothing is locked.',
-    );
+    expect(
+      [...main().querySelectorAll('li.sv-xrow')].map((li) => li.querySelector('b')?.textContent),
+    ).toEqual(['Augmented reality', 'Mixed reality']);
+    // About, what you learn, and the one next step: the resources (nothing opened, nothing started).
     const about = screen.getByRole('region', { name: 'About this experiment' });
-    expect(about).toHaveTextContent(`CourseMEC-523 · ${THERMO_NAME}`);
-    expect(about).toHaveTextContent('Engineering areaMechanical & Manufacturing');
-    expect([...about.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
-      'WEB — laptop or desktop with a current web browser',
-      'VR — supported VR headset',
-    ]);
-    const outcomes = screen.getByRole('region', { name: 'Learning outcomes' });
-    expect(outcomes).toHaveTextContent('The same for every format.');
+    expect(about).toHaveTextContent('Mechanical & Manufacturing');
+    expect(about).toHaveTextContent('BITS course codeME ZG523');
+    const outcomes = screen.getByRole('region', { name: 'What you’ll learn' });
+    expect(outcomes).toHaveTextContent('The same in every format');
     expect(outcomes.querySelectorAll('li')).toHaveLength(2);
-    // Phase 3: the tabs (the Assessment tab since Phase 4B, B4-11 f7), the Next step and the
-    // cards' actions lead to the built tabs (`ST-05.unbuilt`; the hub's own tests:
-    // learning-hub.test.tsx).
-    expect([...main().querySelectorAll('.xw-hubtabs a')].map((tab) => tab.textContent)).toEqual([
-      'Overview',
-      'Resources',
-      'Simulation',
-      'Assessment',
-      'Progress',
-    ]);
-    expect(main()).toHaveTextContent('Next step: open the resources');
+    const resources = screen.getByRole('region', { name: 'Learning resources' });
+    expect(resources).toHaveTextContent('Next step');
+    expect(resources).toHaveTextContent('None opened yet.');
+    expect(within(resources).getByRole('link')).toHaveClass('rb-btn--primary');
+    expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(1);
     // No assessment is set yet (after Flow B): the tab is the only way to it.
     expect(
       within(main())
         .getAllByRole('link', { name: /Assessment/ })
         .map((link) => link.getAttribute('href')),
     ).toEqual([`${HUB}/assessment`]);
-    await waitFor(() => expect(topTitle()).toHaveTextContent(SHELL_NAME));
-    const crumbs = document.querySelector('.xr-crumbs')!;
-    expect(within(crumbs as HTMLElement).getByRole('link', { name: 'MEC-523' })).toHaveAttribute(
-      'href',
-      COURSE,
-    );
+    await waitFor(() => expect(tabTitle()).toBe(`${SHELL_NAME} · XR Learning Platform`));
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(crumbs).getByRole('link', { name: THERMO_NAME })).toHaveAttribute('href', COURSE);
+    expectNoReferences();
   });
 
   it('ST-03: a course that was not given (or does not exist) is the in-shell not-found', async () => {
@@ -339,19 +426,15 @@ describe('a group grant — Priya Natarajan on the later sample (B2-13 f6, SACC-
     const { runtime } = await tabPlatform('per-0003', 'later-sample');
     inStudent(runtime, '/student', <StudentHome />);
     expect(await screen.findByRole('heading', { level: 1, name: 'Hello, Priya' })).toBeVisible();
-    const card = await waitFor(() => {
-      const found = main().querySelector<HTMLElement>('section.xw-continue');
-      expect(found).not.toBeNull();
-      return found!;
-    });
-    expect(card.querySelector('.xr-overline')).toHaveTextContent('Start here');
-    expect(within(card).getByRole('link', { name: `Open ${SHELL_NAME}` })).toHaveAttribute(
-      'href',
-      HUB,
-    );
-    expect(screen.getByRole('region', { name: 'My courses' })).toHaveTextContent(
-      'MEC-523 · 1 experiment given to you · WEB and VR available',
-    );
+    const cover = await screen.findByRole('region', { name: 'Start here' });
+    const card = within(cover).getByRole('article', { name: SHELL_NAME });
+    expect(card.querySelector('.sv-now-course')).toHaveTextContent(`MEC-523${THERMO_NAME}`);
+    expect(
+      within(card).getAllByRole('link', { name: `Open experiment, ${SHELL_NAME}` })[0],
+    ).toHaveAttribute('href', HUB);
+    const also = screen.getByRole('region', { name: 'Also in this experiment' });
+    expect(also).toHaveTextContent('BrowserNot started');
+    expect(also).toHaveTextContent('Virtual realityNot started');
   });
 });
 
@@ -367,21 +450,41 @@ describe('a licence wait — Fatima Begum on the later sample (B3-02 "Waiting fo
     const fatima = await fatimaId();
     const course = await tabPlatform(fatima, 'later-sample');
     const courseView = inStudent(course.runtime, COURSE, <MyCourse courseId={THERMO} />);
-    expect(
-      await screen.findByText(
-        /No licence is available for you on ACC-0107 right now\./,
-        undefined,
-        {
-          timeout: 5000,
-        },
-      ),
-    ).toBeVisible();
+    // The course's status and each given format read the wait (`courseVM`, `fmtStatus`: the
+    // held chip with the clock) — named by content, never by the plan (lead decision 3).
+    const pill = await screen.findByText(
+      'Waiting for a licence',
+      { selector: '.xr-st' },
+      {
+        timeout: 5000,
+      },
+    );
+    expect(pill).toHaveClass('xr-st--warn');
+    const row = main().querySelector<HTMLElement>('li.sv-xli')!;
+    expect([...row.querySelectorAll('.sv-xli-f > li')].map((li) => li.textContent)).toEqual([
+      'WEBBrowser: Waiting for a licence',
+      'VRVirtual reality: Waiting for a licence',
+    ]);
+    expect(row.querySelectorAll('.sv-fmt--held')).toHaveLength(2);
+    // The hub still opens (PC-45: it names the wait).
+    expect(within(row).getByRole('link', { name: `Open experiment ${SHELL_NAME}` })).toBeVisible();
     expect(main()).not.toHaveTextContent('Available to you');
+    expectNoReferences();
     courseView.view.unmount();
     const hub = await tabPlatform(fatima, 'later-sample');
     inStudent(hub.runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     expect(await screen.findByRole('heading', { level: 1, name: SHELL_NAME })).toBeVisible();
-    expect(main()).toHaveTextContent('No licence is available for you on ACC-0107 right now.');
+    // The head says the wait once, without the plan (lead decision 3); the formats read it too.
+    expect(main().querySelector('.rk-head .rk-meta')).toHaveTextContent(
+      'Waiting for a licenceYour institution can tell you more.',
+    );
+    const mine = await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    expect([...mine.querySelectorAll('.sv-frow-acc')].map((n) => n.textContent)).toEqual([
+      'Waiting for a licence',
+      'Waiting for a licence',
+    ]);
+    expect(within(mine).queryByRole('link')).toBeNull();
+    expectNoReferences();
   }, 30_000);
 });
 
@@ -401,14 +504,20 @@ describe('Meera withdraws SACC-0310 — the same world, the Student’s next rea
         name: 'This experiment is no longer given to you',
       }),
     ).toBeVisible();
-    expect(main().querySelector('.xr-msg p.xr-lead')).toHaveTextContent(
+    const message = main().querySelector<HTMLElement>('section.sv-refuse')!;
+    expect(message.querySelector('.sv-refuse-k')).toHaveTextContent(SHELL_NAME);
+    expect(message.querySelector('p.sv-refuse-d')).toHaveTextContent(
       'Your institution no longer gives you Shell-and-Tube Heat Exchanger. Your work is kept.',
     );
+    // SACC-14: no "Your work, as recorded" and no "See your earlier work" (no read holds them).
+    expect(message.querySelector('.sv-refuse-alt')).toBeNull();
+    expect(message).not.toHaveTextContent('See your earlier work');
     expect(within(main()).getByRole('link', { name: 'Back to My courses' })).toHaveAttribute(
       'href',
       '/student/courses',
     );
-    await waitFor(() => expect(topTitle()).toHaveTextContent('Not available'));
+    await waitFor(() => expect(tabTitle()).toBe('Not available · XR Learning Platform'));
+    expectNoReferences();
   });
 
   it('with no work recorded, Home and My courses read as before access (SACC-14: no row, no words)', async () => {
@@ -433,22 +542,28 @@ describe('Meera withdraws SACC-0310 — the same world, the Student’s next rea
       level: 2,
       name: 'No experiments are given to you right now',
     });
-    expect(message.closest('.xr-empty')).toHaveTextContent('Your earlier work is kept.');
-    const courses = screen.getByRole('region', { name: 'My courses' });
-    expect(courses.querySelector('.xr-row-sub')).toHaveTextContent('MEC-523 · earlier work kept');
-    expect(within(courses).queryByRole('link')).toBeNull();
-    expect(main()).not.toHaveTextContent('See earlier work');
+    expect(message.closest('section.sv-msg')).toHaveTextContent('Your earlier work is kept.');
+    // The export's "See earlier work" opens My courses, where the course is kept (`homeVM`).
+    expect(within(main()).getByRole('link', { name: 'See earlier work' })).toHaveAttribute(
+      'href',
+      '/student/courses',
+    );
+    expect(main().querySelector('.sv-home')).toBeNull();
     home.view.unmount();
 
     inStudent(runtime, '/student/courses', <MyCourses />);
-    const empty = await screen.findByRole('heading', {
+    const earlier = await screen.findByRole('region', {
       name: 'No experiments are given to you right now',
     });
-    expect(empty.closest('.xr-empty')).toHaveTextContent('Your earlier work is kept below.');
-    const earlier = screen.getByRole('region', { name: 'Earlier work' });
-    expect(earlier.querySelector('.xr-row-title')).toHaveTextContent(THERMO_NAME);
+    expect(earlier).toHaveTextContent('Your earlier work is kept below.');
+    const row = earlier.querySelector<HTMLElement>('li.sv-xli')!;
+    expect(row.querySelector('.sv-li-k')).toHaveTextContent('MEC-523');
+    expect(row.querySelector('.sv-li-t')).toHaveTextContent(THERMO_NAME);
+    expect(row).toHaveTextContent('Your earlier work is kept.');
     expect(within(earlier).queryByRole('link')).toBeNull();
+    // SACC-14: no earlier-work row in Progress, so no "View earlier work".
     expect(main()).not.toHaveTextContent('View earlier work');
+    expectNoReferences();
   });
 
   it('an undecided overlap (later sample, a group grant remains) makes no can / can’t claim', async () => {
@@ -465,11 +580,13 @@ describe('Meera withdraws SACC-0310 — the same world, the Student’s next rea
     hub.view.unmount();
     inStudent(runtime, COURSE, <MyCourse courseId={THERMO} />);
     const row = await waitFor(() => {
-      const found = main().querySelector<HTMLElement>('.xw-erow');
+      const found = main().querySelector<HTMLElement>('li.sv-xli');
       expect(found).not.toBeNull();
       return found!;
     });
-    expect(row).toHaveTextContent('Your access to this experiment hasn’t been settled yet.');
+    expect(row.querySelector('.sv-li-d')).toHaveTextContent(
+      'Your access to this experiment hasn’t been settled yet.',
+    );
     expect(within(row).queryByRole('link')).toBeNull();
     expect(row.querySelector('.xr-fmt')).toBeNull();
   });
@@ -478,19 +595,22 @@ describe('Meera withdraws SACC-0310 — the same world, the Student’s next rea
 // ---- inactive and paused (B2-10 f6, f7; B2-11 f5, f6; B2-12 f3; B2-13 f4) ----------------------
 
 describe('an inactive Student — Sneha Reddy (B2-10 f7)', () => {
-  it('ST-01: “Your account is inactive”, and no course section', async () => {
+  it('ST-01: “You can’t open experiments right now” (the banner names the inactive account), no cover', async () => {
     const { runtime } = await tabPlatform(INACTIVE_STUDENT, 'later-sample');
     inStudent(runtime, '/student', <StudentHome />);
     expect(await screen.findByRole('heading', { level: 1, name: 'Hello, Sneha' })).toBeVisible();
     const message = await screen.findByRole('heading', {
       level: 2,
-      name: 'Your account is inactive',
+      name: 'You can’t open experiments right now',
     });
-    expect(message.closest('.xr-empty')).toHaveTextContent(
-      'You can’t open experiments until your institution reactivates your account. Your work is kept.',
+    const card = message.closest<HTMLElement>('section.sv-msg')!;
+    expect(card).toHaveTextContent(
+      'Your work is kept and will be here when your account is reactivated.',
     );
-    expect(screen.queryByRole('region', { name: 'My courses' })).toBeNull();
-    expect(main().querySelector('.xw-continue')).toBeNull();
+    expect(card.querySelector('.sv-msg-ico')).toHaveClass('sv-msg-ico--paused');
+    expect(within(card).queryByRole('link')).toBeNull();
+    expect(main().querySelector('.sv-home')).toBeNull();
+    expectNoReferences();
   });
 });
 
@@ -499,28 +619,30 @@ describe('a paused institution — the Super Admin pauses Godavari (B2-10 f6, B2
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     await pauseGodavari(sample, runtime);
     const home = inStudent(runtime, '/student', <StudentHome />);
-    const message = await screen.findByRole('heading', {
-      level: 2,
-      name: 'You can’t open experiments right now',
-    });
-    expect(message.closest('.xr-empty')).toHaveTextContent(
-      'Your institution’s access is paused. Your work is kept, and you can continue when it’s lifted.',
+    // The cover names the experiment (`homeVM` paused): the held step, no way in, the parts static.
+    const cover = await screen.findByRole('region', { name: 'Your experiment' });
+    const step = cover.querySelector<HTMLElement>('.sv-step.sv-step--held')!;
+    expect(step.querySelector('.sv-step-t')).toHaveTextContent(
+      'You can’t open experiments right now',
     );
-    const courses = screen.getByRole('region', { name: 'My courses' });
-    expect(courses.querySelector('.xr-row-sub')).toHaveTextContent(
-      'MEC-523 · Paused — your institution’s access is paused',
+    expect(step.querySelector('.sv-step-d')).toHaveTextContent(
+      'You can carry on from where you left off when the pause is lifted.',
     );
-    expect(within(courses).getByRole('link', { name: `Open course ${THERMO_NAME}` })).toBeVisible();
-    expect(within(courses).queryByRole('link', { name: 'View all courses' })).toBeNull();
-    expect(screen.queryByRole('region', { name: 'Up next' })).toBeNull();
+    expect(step.querySelector('.sv-step-k')).toBeNull();
+    expect(within(cover).queryByRole('link', { name: /Open experiment/ })).toBeNull();
+    expect(within(cover).getByRole('link', { name: `${THERMO_NAME}, open course` })).toBeVisible();
+    const parts = screen.getByRole('region', { name: 'In this experiment' });
+    expect(within(parts).queryByRole('link')).toBeNull();
+    expect(parts).toHaveTextContent('BrowserPaused');
+    expect(parts.querySelectorAll('.sv-fmt--held')).toHaveLength(2);
+    expect(screen.queryByRole('heading', { name: 'Up next' })).toBeNull();
     home.view.unmount();
 
     inStudent(runtime, '/student/courses', <MyCourses />);
-    await waitFor(() =>
-      expect(main().querySelector('.xr-row-sub')).toHaveTextContent(
-        'MEC-523 · Paused — your institution’s access is paused',
-      ),
-    );
+    const course = await screen.findByRole('region', { name: THERMO_NAME });
+    expect(course.querySelector('.sv-course-m .xr-st--paused')).toHaveTextContent('Paused');
+    expect(within(course).getByRole('link', { name: `Open course ${THERMO_NAME}` })).toBeVisible();
+    expect(within(course).queryByRole('link', { name: /Open experiment/ })).toBeNull();
   });
 
   it('ST-03 and ST-05: paused status, the notice, every given format paused, no way to open', async () => {
@@ -528,61 +650,81 @@ describe('a paused institution — the Super Admin pauses Godavari (B2-10 f6, B2
     await pauseGodavari(sample, runtime);
     const course = inStudent(runtime, COURSE, <MyCourse courseId={THERMO} />);
     expect(await screen.findByRole('heading', { level: 1, name: THERMO_NAME })).toBeVisible();
-    expect(main().querySelector('.xr-phead-meta .xr-status--paused')).toHaveTextContent('Paused');
-    const notice = main().querySelector('.xr-notice--warn')!;
-    expect(notice).toHaveTextContent(
-      'Your institution’s access is pausedYou can’t open experiments right now. Your work is kept.',
-    );
-    const row = main().querySelector<HTMLElement>('.xw-erow')!;
-    expect([...row.querySelectorAll('.xr-fmt--off')].map((n) => n.textContent)).toEqual([
+    expect(main().querySelector('.sv-head-meta .xr-st--paused')).toHaveTextContent('Paused');
+    // The shell's banner says the institution's access is paused (the export draws no notice).
+    expect(document.querySelector('.rk-banner')).toHaveTextContent(/paused/);
+    const row = main().querySelector<HTMLElement>('li.sv-xli')!;
+    expect([...row.querySelectorAll('.sv-fmt--held')].map((n) => n.textContent)).toEqual([
       'WEB',
       'VR',
     ]);
-    expect(row).toHaveTextContent(
-      'Paused — your institution’s access is paused. Your work is kept.',
-    );
+    expect([...row.querySelectorAll('.sv-xli-ft')].map((n) => n.textContent)).toEqual([
+      'Browser: Paused',
+      'Virtual reality: Paused',
+    ]);
     expect(within(row).queryByRole('link')).toBeNull();
     course.view.unmount();
 
     inStudent(runtime, HUB, <ExperimentHub experimentId={SHELL} />);
     expect(await screen.findByRole('heading', { level: 1, name: SHELL_NAME })).toBeVisible();
-    const formats = screen.getByRole('list', { name: 'Formats for you' });
-    expect([...formats.querySelectorAll('li')].map((li) => [li.className, li.textContent])).toEqual(
-      [
-        ['is-off', 'WEBPaused'],
-        ['is-off', 'VRPaused'],
-        ['is-off', 'ARNot included for your institution'],
-        ['is-off', 'MRNot available for this experiment'],
-      ],
+    const mine = await screen.findByRole('list', { name: 'Your formats' }, { timeout: 5000 });
+    await waitFor(() =>
+      expect([...mine.querySelectorAll('.sv-frow-acc')].map((n) => n.textContent)).toEqual([
+        'Paused',
+        'Paused',
+      ]),
     );
-    const cards = [...main().querySelectorAll('.xw-scard')].map((card) => card.textContent);
-    expect(cards[0]).toBe(
-      'Step 1 of 3ResourcesNot available while your institution’s access is paused.Nothing to do here yet.',
-    );
-    expect(cards[1]).toBe(
-      'Step 2 of 3SimulationNot available while your institution’s access is paused. Your progress is kept.Nothing to do here yet.',
-    );
+    expect(mine.querySelectorAll('.sv-fmt--held')).toHaveLength(2);
+    expect(within(mine).queryByRole('link')).toBeNull();
+    expect(
+      [...main().querySelectorAll('li.sv-xrow')].map(
+        (li) => li.querySelector('.sv-xrow-r')?.textContent,
+      ),
+    ).toEqual([
+      'Published for this experiment, not included in your institution’s access',
+      'Not published for this experiment',
+    ]);
+    const resources = screen.getByRole('region', { name: 'Learning resources' });
+    expect(resources).toHaveTextContent('They open again when the pause is lifted.');
+    expect(within(resources).queryByRole('link')).toBeNull();
+    expect(main()).not.toHaveTextContent('Next step');
   });
 });
 
 // ---- later samples: continue where you left off (B2-10 f4), loading and failed (B2-11 f9, f10) --
 
 describe('continue, loading and failed', () => {
-  it('ST-01: “Continue where you left off” names each given format’s own progress', async () => {
+  it('ST-01: after both formats, the cover names each given format’s own progress and nothing waiting', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-c');
     inStudent(runtime, '/student', <StudentHome />);
-    const card = await waitFor(() => {
-      const found = main().querySelector<HTMLElement>('section.xw-continue');
-      expect(found).not.toBeNull();
-      return found!;
-    });
-    expect(card.querySelector('.xr-overline')).toHaveTextContent('Continue where you left off');
-    expect(card.querySelector('.xw-inherit')).toHaveTextContent('WEB Completed · VR Completed');
-    expect(card).not.toHaveTextContent('%');
-    expect(within(card).getByRole('link', { name: `Continue ${SHELL_NAME}` })).toHaveAttribute(
-      'href',
-      HUB,
+    // Feedback sent on both and no assessment set: nothing waits (the export's `nextStep` "none").
+    const cover = await screen.findByRole('region', { name: 'Your experiment' });
+    const step = cover.querySelector<HTMLElement>('.sv-step')!;
+    expect(step).not.toHaveClass('is-next');
+    expect(step.querySelector('.sv-step-t')).toHaveTextContent(
+      'Nothing else is waiting for you right now',
     );
+    expect(step.querySelector('.sv-step-d')).toHaveTextContent(
+      'Your work on each format is kept in Progress.',
+    );
+    const parts = screen.getByRole('region', { name: 'In this experiment' });
+    expect([...parts.querySelectorAll('li')].map((li) => li.textContent)).toEqual([
+      'Resources1 of 3 opened',
+      'WEBBrowserCompleted',
+      'VRVirtual realityCompleted',
+      'AssessmentNot set by your faculty yet',
+    ]);
+    expect(parts).not.toHaveTextContent('%');
+    expect(within(parts).getByRole('link', { name: /Resources/ })).toHaveAttribute(
+      'href',
+      `${HUB}/resources`,
+    );
+    for (const open of within(cover).getAllByRole('link', {
+      name: `Open experiment, ${SHELL_NAME}`,
+    })) {
+      expect(open).toHaveAttribute('href', HUB);
+    }
+    expectNoReferences();
   });
 
   it('ST-02: loading is announced, a failure says nothing changed, “Try again” reads again', async () => {
@@ -590,9 +732,14 @@ describe('continue, loading and failed', () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     faults(sample).failNext('StudentAccessService.listMyCourses');
     inStudent(runtime, '/student/courses', <MyCourses />);
-    expect(await screen.findByText('Loading your courses')).toHaveAttribute('role', 'status');
+    const loading = await screen.findByText('Loading your courses…');
+    expect(loading).toHaveAttribute('role', 'status');
+    expect(loading.closest('section.sv-loading')).toHaveAttribute('aria-busy', 'true');
     const failed = await screen.findByRole('heading', { name: 'We couldn’t load your courses' });
-    expect(failed.closest('.xr-empty')).toHaveTextContent('Nothing has changed. Try again.');
+    const card = failed.closest<HTMLElement>('section.sv-msg')!;
+    expect(card).toHaveAttribute('role', 'alert');
+    expect(card).toHaveTextContent('Nothing has changed. Try again.');
+    expect(card.querySelector('.sv-msg-ico')).toHaveClass('sv-msg-ico--err');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByRole('link', { name: `Open course ${THERMO_NAME}` })).toBeVisible();
     expect(document.activeElement).toBe(main());

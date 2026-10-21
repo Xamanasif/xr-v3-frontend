@@ -80,10 +80,11 @@ describe('placeWordsOf', () => {
 
   it.each([
     // Phase 4B: the Student's assessment pages, Marking, a submission, Students, the tools.
+    // V3 (ST-v1): no Student words carry an internal reference (the owner's identifier rule).
     ['/student/assessments', 'Assessments'],
-    ['/student/assessments/ASMT-0009', 'Assessments › ASMT-0009'],
-    ['/student/assessments/ASMT-0009/attempt', 'Assessments › ASMT-0009'],
-    ['/student/assessments/ASMT-0009/result', 'Assessments › ASMT-0009'],
+    ['/student/assessments/ASMT-0009', 'Assessments'],
+    ['/student/assessments/ASMT-0009/attempt', 'Assessments'],
+    ['/student/assessments/ASMT-0009/result', 'Assessments'],
     ['/student/experiments/shell-and-tube-heat-exchanger/assessment', 'My courses'],
     // V3 (FA-v1): no Faculty words carry an internal reference (the owner's identifier rule).
     ['/faculty/assessments/ASMT-0009/submissions', 'Assessments'],

@@ -25,6 +25,10 @@ const RAHUL = { personId: 'per-0002' };
 const RANGANATHAN = { personId: 'per-0014' };
 const SHELL = 'shell-and-tube-heat-exchanger';
 const HUB = `/student/experiments/${SHELL}`;
+/** "Back to experiment": the hub's Assessment tab (ST-v1 LINK-MAP `?tab=assessment`). */
+const TAB = `${HUB}/assessment`;
+/** No assessment, attempt or record id in any word, name or the tab title (decision 3). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT|Q)-\d+/;
 const NAME = 'Heat Exchanger — post-lab';
 const SHOTS = join(
   '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/e6f2f9f4-aaaa-49f8-bcc7-f8cf4cd1eb0d/scratchpad',
@@ -185,69 +189,98 @@ async function markAndConfirm(page: Page, attemptId: string, mark: string): Prom
 }
 
 async function expectNoFigure(page: Page): Promise<void> {
-  await expect(main(page).locator('.xa-score, .xa-ans, .xa-mk')).toHaveCount(0);
+  await expect(main(page).locator('.sv-score, .sv-review, .sv-byq')).toHaveCount(0);
   await expect(main(page)).not.toContainText(/of 16 marks|Passed|Correct answer|Explanation/);
 }
 
+async function expectNoReference(page: Page): Promise<void> {
+  expect(await page.locator('body').innerText()).not.toMatch(REFERENCE);
+  const names = await page
+    .locator('[aria-label]')
+    .evaluateAll((items) => items.map((item) => item.getAttribute('aria-label') ?? ''));
+  for (const name of names) expect(name).not.toMatch(REFERENCE);
+  expect(await page.title()).not.toMatch(REFERENCE);
+}
+
+const crumbs = (page: Page) => main(page).getByRole('navigation', { name: 'Breadcrumb' });
+const score = (page: Page) => page.getByRole('region', { name: 'Your score' });
+const answers = (page: Page) => main(page).locator('ol.sv-review-list > li.sv-ans');
+/** A withheld result's card (`section.sv-card.sv-refuse`): its line. */
+const withheldLine = (page: Page) => main(page).locator('.sv-refuse .sv-refuse-d');
+
 test.describe('ST-14 Result', () => {
-  test('released and passed: the score card, every answer, the actions (f0, f5)', async ({
-    page,
-  }) => {
+  test('released and passed: the score panel, every answer, the ways on', async ({ page }) => {
     await bootWorld(page, { fixture: 'after-flow-d', session: RAHUL });
     await page.goto(resultAddress('ASMT-0009'));
     await expect(page.getByRole('heading', { level: 1, name: 'You passed' })).toBeVisible({
       timeout: 60_000,
     });
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/assessments');
-    await expect(main(page).locator('.xr-phead .xr-overline')).toHaveText(`${NAME} · result`);
-    await expect(main(page).locator('.xa-score-n')).toHaveText('11 of 16 marks');
-    await expect(main(page).locator('.xa-score-sub .xr-status--ok')).toHaveText('Passed');
-    await expect(main(page).locator('.xa-score-facts > span')).toHaveText([
-      'Pass mark 50% · 8 of 16 marks',
+    await expect(crumbs(page).locator('a, [aria-current="page"]')).toHaveText([
+      'Assessments',
+      NAME,
+      'Result',
+    ]);
+    await expect(main(page).locator('.rk-head .rk-eyebrow')).toHaveText(`${NAME} · result`);
+    await expect(score(page).locator('.sv-score-n b')).toHaveText('11');
+    await expect(score(page).locator('.sv-score-n span')).toHaveText('of 16 marks');
+    await expect(score(page).locator('.sv-score-main .xr-st')).toHaveText('Passed');
+    await expect(score(page).locator('.sv-score-main .xr-st')).toHaveClass(/xr-st--ok/);
+    await expect(score(page).locator('dl.sv-score-facts dd')).toHaveText([
+      '50% · 8 of 16 marks',
       'Attempt 1 of 2',
       'Released 14 Nov 2026, 23:59, after the deadline',
     ]);
+    const byQuestion = score(page).getByRole('list', { name: 'Marks by question' });
+    await expect(byQuestion.getByRole('link')).toHaveText([
+      'Q12 of 2',
+      'Q20 of 2',
+      'Q32 of 2',
+      'Q47 of 10',
+    ]);
     await expect(page.getByRole('heading', { level: 2, name: 'Your answers' })).toBeVisible();
-    await expect(main(page).locator('ul.xa-ans > li .xa-q-n')).toHaveText([
+    await expect(answers(page).locator('.sv-ans-k')).toHaveText([
       'Question 1 · Multiple choice',
       'Question 2 · Multiple choice',
       'Question 3 · True or false',
       'Question 4 · Written answer',
     ]);
-    await expect(main(page).locator('ul.xa-ans > li .xa-mk')).toHaveText([
+    await expect(answers(page).locator('.sv-ans-h .xr-st')).toHaveText([
       '2 of 2 marks',
       '0 of 2 marks',
       '2 of 2 marks',
       '7 of 10 marks',
     ]);
-    await expect(main(page).locator('ul.xa-ans > li').last()).toContainText(
-      'Feedback from Dr S. Ranganathan',
-    );
-    await expect(main(page).locator('.xw-actions > *')).toHaveText([
+    await expect(answers(page).last()).toContainText('Feedback from Dr S. Ranganathan');
+    await expect(main(page).locator('.sv-review-foot > *')).toHaveText([
       'Back to experiment',
       'See your progress',
     ]);
-    // The answer rows stack below 600 px of content width (f5), side by side above it (f0).
-    const row = main(page).locator('ul.xa-ans > li').first().locator('.xa-ans-row').first();
-    const [label, value] = [row.locator('span').first(), row.locator('span').last()];
-    const labelBox = (await label.boundingBox())!;
+    // A mark jumps to its answer.
+    await reachAndClick(page, byQuestion.getByRole('link', { name: 'Question 4: 7 of 10 marks' }));
+    await expect(answers(page).last()).toBeFocused();
+    // The answer rows sit side by side on a wide page, stacked below 768 px of page width.
+    const term = answers(page).first().locator('dt').first();
+    const value = answers(page).first().locator('dd').first();
+    const termBox = (await term.boundingBox())!;
     const valueBox = (await value.boundingBox())!;
-    if ((page.viewportSize()?.width ?? 1440) <= 375) {
-      expect(valueBox.y).toBeGreaterThan(labelBox.y + labelBox.height - 1);
-    } else if ((page.viewportSize()?.width ?? 1440) >= 1024) {
-      expect(Math.abs(valueBox.y - labelBox.y)).toBeLessThan(2);
+    if ((page.viewportSize()?.width ?? 1440) >= 1280) {
+      expect(Math.abs(valueBox.y - termBox.y)).toBeLessThan(2);
+    } else {
+      expect(valueBox.y).toBeGreaterThan(termBox.y + termBox.height - 1);
     }
     await checkState(page, 'You passed');
-    // "See your progress" opens Progress (ST-15); Back returns, then "Back to experiment" (ST-05).
+    await expectNoReference(page);
+    // "See your progress" opens Progress (ST-15); Back returns, then "Back to experiment".
     await reachAndClick(page, page.getByRole('link', { name: 'See your progress' }));
     await expect(page).toHaveURL(/\/student\/progress$/);
     await page.goBack();
     await expect(page.getByRole('heading', { level: 1, name: 'You passed' })).toBeVisible();
     await reachAndClick(page, page.getByRole('link', { name: 'Back to experiment' }));
-    await expect(page).toHaveURL(new RegExp(`${HUB}$`));
+    await expect(page).toHaveURL(new RegExp(`${TAB}$`));
   });
 
-  test('submitted: waiting for marking, then marked but not released — no figure (f1, f2)', async ({
+  test('submitted: waiting for marking, then marked but not released — no figure', async ({
     page,
   }) => {
     const id = await postLab(page, { releaseOption: 'after-deadline' });
@@ -258,28 +291,30 @@ test.describe('ST-14 Result', () => {
       name: 'Submitted — waiting for marking',
     });
     await expect(waiting).toBeVisible({ timeout: 60_000 });
+    await expect(main(page).locator('.sv-refuse .sv-refuse-k')).toHaveText(`${NAME} · result`);
     // The sample clock runs on from 27 Oct 2026, 10:00 on the dev server.
-    await expect(main(page).locator('.xr-msg .xr-lead')).toHaveText(
-      /^You submitted on 27 Oct 2026, \d\d:\d\d\. Your faculty marks written answers\. Your result appears after the deadline: 14 Nov 2026, 23:59\.$/,
+    await expect(withheldLine(page)).toHaveText(
+      /^You submitted on 27\sOct\s2026,\s\d\d:\d\d\. Your faculty marks written answers\. Your result appears after the deadline: 14\sNov\s2026,\s23:59\.$/,
     );
     await expectNoFigure(page);
     await checkState(page, 'Submitted — waiting for marking');
+    await expectNoReference(page);
     // Dr Ranganathan confirms the marks in the same world: the page follows, still no figure.
     await markAndConfirm(page, attemptId, '7');
     await expect(
       page.getByRole('heading', { level: 1, name: 'Result not released yet' }),
     ).toBeVisible();
-    await expect(main(page).locator('.xr-msg .xr-lead')).toHaveText(
+    await expect(withheldLine(page)).toHaveText(
       'Your answers have been marked. Results for this assessment are released after the deadline: 14 Nov 2026, 23:59.',
     );
     await expectNoFigure(page);
     await expect(main(page)).not.toContainText('You named the cause');
     await checkState(page, 'Result not released yet');
     await reachAndClick(page, page.getByRole('link', { name: 'Back to experiment' }));
-    await expect(page).toHaveURL(new RegExp(`${HUB}$`));
+    await expect(page).toHaveURL(new RegExp(`${TAB}$`));
   });
 
-  test('the deadline has passed, marking not finished: still waiting, never a partial score (f4)', async ({
+  test('the deadline has passed, marking not finished: still waiting, never a partial score', async ({
     page,
   }) => {
     // The sample "now" is 27 Oct 2026; this version's deadline passed on 20 Oct.
@@ -292,14 +327,14 @@ test.describe('ST-14 Result', () => {
     await expect(
       page.getByRole('heading', { level: 1, name: 'Submitted — waiting for marking' }),
     ).toBeVisible({ timeout: 60_000 });
-    await expect(main(page).locator('.xr-msg .xr-lead')).toContainText(
+    await expect(withheldLine(page)).toContainText(
       'Your result appears after the deadline: 20 Oct 2026, 23:59.',
     );
     await expectNoFigure(page);
     await checkState(page, 'Submitted — waiting for marking');
   });
 
-  test('not passed with an attempt left: Try again starts attempt 2 and opens it (f3)', async ({
+  test('not passed with an attempt left: Try again starts attempt 2 and opens it', async ({
     page,
   }) => {
     const id = await postLab(page, { releaseOption: 'immediately-after-marking' });
@@ -309,23 +344,27 @@ test.describe('ST-14 Result', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Not passed this time' })).toBeVisible(
       { timeout: 60_000 },
     );
-    await expect(main(page).locator('.xa-score-n')).toHaveText('6 of 16 marks');
-    await expect(main(page).locator('.xa-score-sub .xr-status--err')).toHaveText('Not passed');
-    await expect(main(page).locator('.xa-score-facts > span')).toHaveText([
-      'Pass mark 50% · 8 of 16 marks',
+    await expect(score(page).locator('.sv-score-n b')).toHaveText('6');
+    await expect(score(page).locator('.sv-score-main .xr-st')).toHaveText('Not passed');
+    await expect(score(page).locator('.sv-score-main .xr-st')).toHaveClass(/^xr-st rk-st-lg$/);
+    await expect(score(page).locator('dl.sv-score-facts dd')).toHaveText([
+      '50% · 8 of 16 marks',
       'Attempt 1 of 2',
-      /^Released 27 Oct 2026, \d\d:\d\d, when marked$/,
+      /^Released 27\sOct\s2026,\s\d\d:\d\d, when marked$/,
     ]);
-    await expect(main(page).locator('ul.xa-ans > li .xa-mk')).toHaveText([
+    await expect(answers(page).locator('.sv-ans-h .xr-st')).toHaveText([
       '0 of 2 marks',
       '2 of 2 marks',
       '0 of 2 marks',
       '4 of 10 marks',
     ]);
-    await expect(main(page).locator('.xw-actions > *')).toHaveText([
+    const retry = score(page).locator('.sv-score-retry');
+    await expect(retry.locator('p')).toHaveText(
+      'You have 1 attempt left. Your first result stays here.',
+    );
+    await expect(retry.getByRole('button', { name: 'Try again' })).toHaveClass(/rb-btn--primary/);
+    await expect(main(page).locator('.sv-review-foot > *')).toHaveText([
       'Back to experiment',
-      'Try again',
-      'You have 1 attempt left.',
       'See your progress',
     ]);
     await checkState(page, 'Not passed this time');
@@ -350,6 +389,9 @@ test.describe('ST-14 Result', () => {
     await expect(page.getByRole('heading', { level: 1, name: 'Not submitted yet' })).toBeVisible({
       timeout: 60_000,
     });
+    await expect(withheldLine(page)).toHaveText(
+      'Your result appears here after you submit and your answers are marked.',
+    );
     await expectNoFigure(page);
     await checkState(page, 'Not submitted yet');
     await reachAndClick(page, page.getByRole('link', { name: 'Back to the assessment' }));

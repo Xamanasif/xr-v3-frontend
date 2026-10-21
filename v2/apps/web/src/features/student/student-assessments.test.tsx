@@ -35,6 +35,16 @@ import { StudentHome } from './st-01-home/home';
 import { HubAssessmentTab } from './st-05-experiment-hub/hub-assessment-tab';
 import { StudentAssessments } from './st-11-assessments/assessments';
 
+/**
+ * Text as it reads: the export's no-break spaces that keep a date on one line (`nbd`) read as
+ * spaces (in a string, or in each string of a row).
+ */
+function plain<T>(value: T): T {
+  if (typeof value === 'string') return value.replace(/\u00a0/g, ' ') as T;
+  if (Array.isArray(value)) return value.map((item: unknown) => plain(item)) as T;
+  return value;
+}
+
 afterEach(() => {
   forgetLastAddress();
 });
@@ -69,12 +79,15 @@ function inStudent(runtime: PlatformRuntime, path: string, page: ReactNode, sear
 }
 
 const main = () => screen.getByRole('main');
-const topTitle = () => document.querySelector('.xr-top-title');
-const crumbs = () =>
-  [...document.querySelectorAll('.xr-crumbs li')].map((li) => [
-    li.textContent?.replace('/', '').trim(),
-    li.querySelector('a')?.getAttribute('href') ?? null,
-  ]);
+/** An internal reference: no assessment, attempt or record id in any word or name (decision 3). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT|Q)-\d+/;
+
+function expectNoReference(root: Element) {
+  expect(root.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of root.querySelectorAll('[aria-label]'))
+    expect(element.getAttribute('aria-label') ?? '').not.toMatch(REFERENCE);
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 /** D1: Dr S. Ranganathan creates ASMT-0009 on Shell-and-Tube, after the deadline (27 Oct). */
 async function created(sample: Sample): Promise<AssessmentId> {
@@ -145,15 +158,21 @@ async function confirmed(sample: Sample, attemptId: AttemptId) {
   ok(await marking.confirmMarks({ attemptId, expectedRev: saved.rev }));
 }
 
-/** The list's rows as [title, experiment line, fact line, status, action, href, name]. */
-function rows() {
-  const section = screen.getByRole('region', { name: 'Your assessments' });
-  return [...section.querySelectorAll<HTMLElement>('ul.xr-rows > li.xr-row')].map((row) => {
+/**
+ * The list's rows (`li.sv-li.sv-ali` in the card named by the tab) as [date kicker, date block,
+ * experiment line, title, status, line, action, href, name].
+ */
+function rows(tab = 'To do') {
+  const card = screen.getByRole('region', { name: tab });
+  return [...card.querySelectorAll<HTMLElement>('ul.sv-list > li.sv-li.sv-ali')].map((row) => {
     const link = within(row).getByRole('link');
     return [
-      row.querySelector('.xr-row-title')?.textContent,
-      ...[...row.querySelectorAll('.xr-row-sub')].map((sub) => sub.textContent),
-      row.querySelector('.xr-status')?.textContent,
+      row.querySelector('.sv-ali-when .sv-eyebrow')?.textContent,
+      row.querySelector('.sv-when')?.textContent ?? null,
+      row.querySelector('.sv-li-k')?.textContent,
+      row.querySelector('h3.sv-li-t')?.textContent,
+      row.querySelector('.sv-li-m .xr-st')?.textContent,
+      row.querySelector('.sv-li-m > span:last-child')?.textContent,
       link.textContent,
       link.getAttribute('href'),
       link.getAttribute('aria-label'),
@@ -161,71 +180,81 @@ function rows() {
   });
 }
 
-/** The state tabs as [words, pressed]. */
+/** The state tabs (`nav.rk-tabs.sv-tabs` "Assessments") as [name, current]. */
 function tabs() {
-  const group = screen.getByRole('group', { name: 'Show' });
-  expect(group).toHaveClass('xr-seg');
-  return within(group)
-    .getAllByRole('button')
-    .map((button) => [button.textContent, button.getAttribute('aria-pressed')]);
+  const nav = screen.getByRole('navigation', { name: 'Assessments' });
+  expect(nav).toHaveClass('rk-tabs', 'sv-tabs');
+  return within(nav)
+    .getAllByRole('link')
+    .map((link) => [link.textContent, link.getAttribute('aria-current') === 'page']);
 }
 
 // ---- ST-11 Assessments ---------------------------------------------------------------------------
 
-describe('ST-11 Assessments (B4-11 f0 … f6)', () => {
-  it('none yet (after Flow C, before D1): the empty state; Assessments current, no crumb (f5)', async () => {
+describe('ST-11 Assessments (ST-v1 `is.alist`)', () => {
+  it('none yet (after Flow C, before D1): “No assessments yet” with each experiment Rahul has; Assessments current', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-c');
     inStudent(runtime, LIST, <StudentAssessments />);
-    expect(await screen.findByRole('heading', { level: 1, name: 'Assessments' })).toBeVisible();
-    expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
+    const h1 = await screen.findByRole('heading', { level: 1, name: 'Assessments' });
+    expect(h1).toHaveAttribute('class', 'rb-h1');
+    expect(h1).toHaveAttribute('tabindex', '-1');
+    expect(main().querySelector('.rk-head .rk-sub')).toHaveTextContent(
       'Assessments for the experiments you have',
     );
-    const empty = await screen.findByRole('heading', { level: 2, name: 'No assessments yet' });
-    expect(empty.closest('.xr-section > .xr-empty')).toHaveTextContent(
+    expect(main().querySelector('.rk-head .rb-eyebrow-date')).toHaveTextContent(
+      'Tuesday 27 October 2026',
+    );
+    const empty = await screen.findByRole('region', { name: 'No assessments yet' });
+    expect(empty).toHaveClass('sv-card', 'sv-msg');
+    expect(empty.querySelector('.sv-msg-d')).toHaveTextContent(
       'When your faculty sets an assessment for an experiment you have, it appears here.',
     );
-    expect(screen.queryByRole('group', { name: 'Show' })).toBeNull();
+    const experiments = await within(empty).findByRole('list', { name: 'Your experiments' });
+    const facts = [...experiments.querySelectorAll('li')].map((item) => [
+      item.querySelector('.sv-facts-t')?.textContent,
+      item.querySelector('.sv-facts-s')?.textContent,
+    ]);
+    expect(facts).toContainEqual([SHELL_NAME, 'No assessment set yet']);
+    expect(experiments.querySelector('.sv-facts-c')?.textContent).toMatch(/^MEC-523 · /);
+    expect(screen.queryByRole('navigation', { name: 'Assessments' })).toBeNull();
+    // States only: no action is added.
     expect(within(main()).queryAllByRole('link')).toEqual([]);
-    expect(topTitle()?.textContent).toBe('Assessments');
-    expect(crumbs()).toEqual([['Assessments', null]]);
     expect(
       screen.getByRole('navigation', { name: /Student/ }).querySelector('[aria-current="page"]'),
     ).toHaveAttribute('href', LIST);
+    expect(main().querySelector('.rk-crumbs')).toBeNull();
+    expectNoReference(main());
   });
 
-  it('to do (D1): the row, its line, "To do" and "Open" to Before you start (f0)', async () => {
+  it('to do (D1): the row led by its deadline, its line, "To do" and the gold "Open" to Before you start', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await created(sample);
     inStudent(runtime, LIST, <StudentAssessments />);
-    await waitFor(() =>
-      expect(screen.getByRole('region', { name: 'Your assessments' })).toBeVisible(),
-    );
+    await waitFor(() => expect(rows()).toHaveLength(1));
     expect(tabs()).toEqual([
-      ['To do (1)', 'true'],
-      ['Submitted (0)', 'false'],
-      ['Results (0)', 'false'],
+      ['To do1, 1', true],
+      ['Submitted0, 0', false],
+      ['Results0, 0', false],
     ]);
     expect(rows()).toEqual([
       [
-        NAME,
+        'Due',
+        '14 Nov23:59 · in 18 days',
         `${SHELL_NAME} · ${CODE}`,
-        'Due 14 Nov 2026, 23:59 · 4 questions · no time limit',
+        NAME,
         'To do',
+        '4 questions · 16 marks · no time limit',
         'Open',
         `${LIST}/${id}`,
-        `Open ${NAME}`,
+        `Open, ${NAME}`,
       ],
     ]);
-    const row = main().querySelector('li.xr-row')!;
-    expect(row.querySelector('.xr-row-icon')).not.toBeNull();
-    expect(row.querySelector('.xw-actions .xr-status')).toHaveClass('xr-status--info');
-    expect(within(row as HTMLElement).getByRole('link')).toHaveClass(
-      'xr-btn',
-      'xr-btn--secondary',
-      'xr-btn--sm',
-    );
-    // No primary action on the list: each row has one secondary action.
-    expect(main().querySelectorAll('.xr-btn--primary')).toHaveLength(0);
+    const card = screen.getByRole('region', { name: 'To do' });
+    expect(card).toHaveClass('sv-card', 'sv-alist');
+    expect(card.querySelector('.sv-li-m .xr-st')).toHaveClass('xr-st--info');
+    expect(card.querySelector('.sv-when')).toHaveAttribute('class', 'sv-when');
+    expect(within(card).getByRole('link')).toHaveAttribute('class', 'rb-btn rb-btn--primary');
+    expectNoReference(main());
   });
 
   it('the state tabs switch the list in place and keep the tab in the address (`?tab=`)', async () => {
@@ -234,18 +263,21 @@ describe('ST-11 Assessments (B4-11 f0 … f6)', () => {
     await created(sample);
     const navigation = inStudent(runtime, LIST, <StudentAssessments />);
     await waitFor(() => expect(rows()).toHaveLength(1));
-    await user.click(screen.getByRole('button', { name: 'Submitted (0)' }));
+    await user.click(screen.getByRole('link', { name: 'Submitted, 0' }));
     expect(navigation.replace).toHaveBeenLastCalledWith(`${LIST}?tab=submitted`);
-    expect(tabs()[1]).toEqual(['Submitted (0)', 'true']);
-    const section = screen.getByRole('region', { name: 'Your assessments' });
-    expect(section.querySelector('ul.xr-rows')).toBeNull();
-    expect(section.querySelector('.xr-section-body p.xr-body')).toHaveTextContent(
-      'Nothing submitted and waiting.',
-    );
-    await user.click(screen.getByRole('button', { name: 'Results (0)' }));
+    expect(tabs()[1]).toEqual(['Submitted0, 0', true]);
+    const card = screen.getByRole('region', { name: 'Submitted' });
+    expect(card.querySelector('ul.sv-list')).toBeNull();
+    const state = within(card).getByRole('status');
+    expect(state).toHaveClass('sv-pstate', 'sv-pstate--row');
+    expect(state).toHaveTextContent('Nothing submitted and waiting.');
+    expect(state).toHaveTextContent('Your assessment is under To do.');
+    await user.click(screen.getByRole('link', { name: 'Results, 0' }));
     expect(navigation.replace).toHaveBeenLastCalledWith(`${LIST}?tab=results`);
-    expect(section).toHaveTextContent('No results released yet.');
-    await user.click(screen.getByRole('button', { name: 'To do (1)' }));
+    expect(screen.getByRole('region', { name: 'Results' })).toHaveTextContent(
+      'No results released yet.',
+    );
+    await user.click(screen.getByRole('link', { name: 'To do, 1' }));
     expect(navigation.replace).toHaveBeenLastCalledWith(LIST);
     expect(rows()).toHaveLength(1);
     expect(navigation.navigate).not.toHaveBeenCalled();
@@ -256,200 +288,214 @@ describe('ST-11 Assessments (B4-11 f0 … f6)', () => {
     await created(sample);
     const odd = inStudent(runtime, LIST, <StudentAssessments />, '?tab=everything');
     await waitFor(() => expect(rows()).toHaveLength(1));
-    expect(tabs()[0]).toEqual(['To do (1)', 'true']);
+    expect(tabs()[0]).toEqual(['To do1, 1', true]);
     expect(odd.replace).toHaveBeenCalledWith(LIST);
   });
 
-  it('attempt in progress (D2 started): "Answers saved · due …", "Continue attempt" to the attempt (f1)', async () => {
+  it('attempt in progress (D2 started): "Your answers are saved", "Continue attempt" to the attempt', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await created(sample);
     inStudent(runtime, LIST, <StudentAssessments />);
-    await waitFor(() => expect(rows()[0]?.[3]).toBe('To do'));
+    await waitFor(() => expect(rows()[0]?.[4]).toBe('To do'));
     // Rahul starts in another tab of the same world: this list follows the receipt.
     const attempt = await asPersonId(sample, RAHUL).assessments.startAttempt(id);
     if (!attempt.ok) throw new Error('start refused');
     await act(async () => {
       await runtime.invalidate(attempt.changed);
     });
-    await waitFor(() => expect(rows()[0]?.[3]).toBe('Attempt in progress'));
-    expect(tabs()[0]).toEqual(['To do (1)', 'true']);
+    await waitFor(() => expect(rows()[0]?.[4]).toBe('Attempt in progress'));
+    expect(tabs()[0]).toEqual(['To do1, 1', true]);
     expect(rows()).toEqual([
       [
-        NAME,
+        'Due',
+        '14 Nov23:59 · in 18 days',
         `${SHELL_NAME} · ${CODE}`,
-        'Answers saved · due 14 Nov 2026, 23:59',
+        NAME,
         'Attempt in progress',
+        'Your answers are saved · no time limit',
         'Continue attempt',
         `${LIST}/${id}/attempt`,
-        `Continue attempt ${NAME}`,
+        `Continue attempt, ${NAME}`,
       ],
     ]);
-    expect(main().querySelector('.xr-status')).toHaveClass('xr-status--wait');
+    expect(main().querySelector('.sv-li-m .xr-st')).toHaveClass('xr-st--warn');
+    expect(screen.getByRole('link', { name: `Continue attempt, ${NAME}` })).toHaveClass(
+      'rb-btn--primary',
+    );
   });
 
-  it('waiting for marking (D2 submitted): the Submitted tab, "View" the result page, no score (f2)', async () => {
+  it('waiting for marking (D2 submitted): the Submitted tab, "Result after", "View" the result page, no score', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await created(sample);
     await submitted(sample, id);
     inStudent(runtime, LIST, <StudentAssessments />, '?tab=submitted');
-    await waitFor(() => expect(rows()).toHaveLength(1));
+    await waitFor(() => expect(rows('Submitted')).toHaveLength(1));
     expect(tabs()).toEqual([
-      ['To do (0)', 'false'],
-      ['Submitted (1)', 'true'],
-      ['Results (0)', 'false'],
+      ['To do0, 0', false],
+      ['Submitted1, 1', true],
+      ['Results0, 0', false],
     ]);
-    expect(rows()).toEqual([
+    expect(plain(rows('Submitted'))).toEqual([
       [
-        NAME,
+        'Result after',
+        '14 Nov23:59 · in 18 days',
         `${SHELL_NAME} · ${CODE}`,
-        'Submitted 5 Nov 2026, 18:52 · your faculty marks written answers',
+        NAME,
         'Waiting for marking',
+        'Submitted 5 Nov 2026, 18:52 · your faculty marks written answers',
         'View',
         `${LIST}/${id}/result`,
-        `View ${NAME}`,
+        `View, ${NAME}`,
       ],
     ]);
-    expect(main()).not.toHaveTextContent(/of 16|Passed|Not passed|score/i);
+    // A release date is never drawn ivory; the action is a plain button.
+    expect(main().querySelector('.sv-when')).toHaveAttribute('class', 'sv-when');
+    expect(screen.getByRole('link', { name: `View, ${NAME}` })).toHaveAttribute('class', 'rb-btn');
+    expect(main()).not.toHaveTextContent(/of 16 marks|Passed|Not passed|score/i);
   });
 
-  it('result not released yet (D3 confirmed, before the deadline): the release terms (f3)', async () => {
+  it('result not released yet (D3 confirmed, before the deadline): "Marked · released after the deadline"', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await created(sample);
     await confirmed(sample, await submitted(sample, id));
     inStudent(runtime, LIST, <StudentAssessments />, '?tab=submitted');
-    await waitFor(() => expect(rows()).toHaveLength(1));
-    expect(rows()[0]).toEqual([
-      NAME,
+    await waitFor(() => expect(rows('Submitted')).toHaveLength(1));
+    expect(rows('Submitted')[0]).toEqual([
+      'Result after',
+      '14 Nov23:59 · in 18 days',
       `${SHELL_NAME} · ${CODE}`,
-      'Released after the deadline: 14 Nov 2026, 23:59',
+      NAME,
       'Result not released yet',
+      'Marked · released after the deadline',
       'View',
       `${LIST}/${id}/result`,
-      `View ${NAME}`,
+      `View, ${NAME}`,
     ]);
-    expect(main().querySelector('.xr-status')).toHaveClass('xr-status--off');
+    expect(main().querySelector('.sv-li-m .xr-st')).toHaveAttribute('class', 'xr-st');
     // Marks confirmed, still nothing of the result before the release (ATT-15).
     expect(main()).not.toHaveTextContent(/11|of 16|Passed|Not passed/);
   });
 
-  it('result ready (after Flow D): the Results tab, "Released …", "See result" (f4)', async () => {
+  it('result ready (after Flow D): the Results tab, "Released", "See result"', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-d');
     inStudent(runtime, LIST, <StudentAssessments />, '?tab=results');
-    await waitFor(() => expect(rows()).toHaveLength(1));
+    await waitFor(() => expect(rows('Results')).toHaveLength(1));
     expect(tabs()).toEqual([
-      ['To do (0)', 'false'],
-      ['Submitted (0)', 'false'],
-      ['Results (1)', 'true'],
+      ['To do0, 0', false],
+      ['Submitted0, 0', false],
+      ['Results1, 1', true],
     ]);
-    expect(rows()).toEqual([
-      [
-        NAME,
-        `${SHELL_NAME} · ${CODE}`,
-        'Released 14 Nov 2026, 23:59',
-        'Result ready',
-        'See result',
-        `${LIST}/ASMT-0009/result`,
-        `See result ${NAME}`,
-      ],
+    const [row] = rows('Results');
+    expect(row).toEqual([
+      'Released',
+      expect.stringMatching(/^14 Nov23:59 · /),
+      `${SHELL_NAME} · ${CODE}`,
+      NAME,
+      'Result ready',
+      'Your result and answers are ready',
+      'See result',
+      `${LIST}/ASMT-0009/result`,
+      `See result, ${NAME}`,
     ]);
-    expect(main().querySelector('.xr-status')).toHaveClass('xr-status--ok');
+    expect(main().querySelector('.sv-li-m .xr-st')).toHaveClass('xr-st--ok');
     // The list never carries the figures: they are the result page's.
     expect(main()).not.toHaveTextContent(/11 of 16|Passed/);
+    expectNoReference(main());
   });
 
-  it('failed says so and "Try again" reads again (ST-11.failed)', async () => {
+  it('loading, then failed says so in the card and "Try again" reads again', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-d');
     faults(sample).failNext('AssessmentService.listMyAssessments');
     inStudent(runtime, LIST, <StudentAssessments />);
-    expect(
-      await screen.findByRole('heading', { level: 2, name: 'We couldn’t load your assessments' }),
-    ).toBeVisible();
+    const failed = await screen.findByRole('heading', {
+      level: 3,
+      name: 'We couldn’t load your assessments',
+    });
+    expect(failed.closest('.sv-pstate')).toHaveAttribute('role', 'alert');
+    expect(failed.closest('.sv-pstate')).toHaveTextContent('Nothing has changed. Try again.');
+    // The tabs stay, without their counts.
+    expect(tabs()).toEqual([
+      ['To do', true],
+      ['Submitted', false],
+      ['Results', false],
+    ]);
     await user.click(screen.getByRole('button', { name: 'Try again' }));
-    await waitFor(() => expect(screen.getByRole('group', { name: 'Show' })).toBeVisible());
+    await waitFor(() => expect(tabs()[2]).toEqual(['Results1, 1', false]));
   });
 });
 
 // ---- the hub's Assessment tab ----------------------------------------------------------------------
 
-describe('the hub’s Assessment tab (B4-11 f7 … f9)', () => {
-  function strip() {
-    return within(screen.getByRole('navigation', { name: SHELL_NAME }))
-      .getAllByRole('link')
-      .map((link) => [link.textContent, link.getAttribute('aria-current') === 'page']);
-  }
+describe('the hub’s Assessment tab (ST-v1 `HB.isAssessment`)', () => {
+  /** The card of this experiment's assessment (`section.sv-card.sv-atab`), named by it. */
+  const card = () => screen.findByRole('region', { name: NAME }, { timeout: 5000 });
 
-  it('none set yet: the hub, the strip with Assessment current, the empty state (f8)', async () => {
+  it('none set yet: the hub with Assessment current and “Your faculty hasn’t set an assessment …”', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-c');
     inStudent(runtime, TAB, <HubAssessmentTab experimentId={SHELL} />);
     expect(await screen.findByRole('heading', { level: 1, name: SHELL_NAME })).toBeVisible();
-    expect(strip()).toEqual([
-      ['Overview', false],
-      ['Resources', false],
-      ['Simulation', false],
-      ['Assessment', true],
-      ['Progress', false],
-    ]);
-    const empty = await screen.findByRole('heading', {
-      level: 2,
+    const assessment = await screen.findByRole('link', { name: 'Assessment' });
+    expect(assessment).toHaveAttribute('aria-current', 'page');
+    expect(assessment).toHaveAttribute('href', TAB);
+    const empty = await screen.findByRole('region', {
       name: 'Your faculty hasn’t set an assessment for this experiment yet',
     });
-    expect(empty.closest('.xr-section > .xr-empty')).toHaveTextContent(
-      'When they do, it appears here and in Assessments.',
-    );
-    expect(main().querySelector('.xw-hubhead')).toHaveClass('xl-hubhead');
-    await waitFor(() => expect(topTitle()?.textContent).toBe('Assessment'));
-    expect(crumbs()).toEqual([
-      ['My courses', '/student/courses'],
-      [CODE, '/student/courses/thermodynamics-heat-transfer'],
-      [SHELL_NAME, HUB],
-      ['Assessment', null],
-    ]);
+    expect(empty).toHaveClass('sv-card', 'sv-msg');
+    expect(empty).toHaveTextContent('When they do, it appears here and in Assessments.');
+    expect(within(empty).queryAllByRole('link')).toEqual([]);
   });
 
-  it('to do: the row with 16 marks, "To do" and the primary "Open assessment" (f7)', async () => {
+  it('to do: the deadline, the key facts, "To do" and the gold "Open assessment"', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await created(sample);
     inStudent(runtime, TAB, <HubAssessmentTab experimentId={SHELL} />);
-    const section = await screen.findByRole('region', { name: 'Assessment' });
-    const row = section.querySelector<HTMLElement>('ul.xr-rows > li.xr-row')!;
-    expect(row.querySelector('.xr-row-title')).toHaveTextContent(NAME);
-    expect(row.querySelector('.xr-row-sub')).toHaveTextContent(
-      'Due 14 Nov 2026, 23:59 · 4 questions · 16 marks · no time limit',
+    const section = await card();
+    expect(section).toHaveClass('sv-card', 'sv-atab');
+    expect(section.querySelector('.sv-atab-when .sv-eyebrow')).toHaveTextContent('Due');
+    expect(section.querySelector('.sv-when')).toHaveTextContent('14 Nov23:59 · in 18 days');
+    expect(section.querySelector('.sv-atab-main .sv-eyebrow')).toHaveTextContent('Assessment');
+    expect(section.querySelector('.sv-atab-f')).toHaveTextContent(
+      '4 questions · 16 marks · pass mark 50% · 2 attempts · no time limit',
     );
-    expect(row.querySelector('.xr-status')).toHaveTextContent('To do');
-    const open = within(row).getByRole('link', { name: 'Open assessment' });
-    expect(open).toHaveClass('xr-btn', 'xr-btn--primary');
-    expect(open).not.toHaveClass('xr-btn--sm');
+    expect(
+      plain([...section.querySelectorAll('.sv-li-m > span')].map((span) => span.textContent)),
+    ).toEqual(['To do']);
+    const open = within(section).getByRole('link', { name: `Open assessment, ${NAME}` });
+    expect(open).toHaveTextContent('Open assessment');
+    expect(open).toHaveAttribute('class', 'rb-btn rb-btn--primary');
     expect(open).toHaveAttribute('href', `${LIST}/${id}`);
-    expect(main().querySelectorAll('.xr-btn--primary')).toHaveLength(1);
+    expect(main().querySelectorAll('.sv-atab .rb-btn--primary')).toHaveLength(1);
+    expectNoReference(main());
   });
 
-  it('waiting for marking: "your result appears after the deadline" and "View" (f9)', async () => {
+  it('waiting for marking: "Deadline", "Submitted … · your faculty marks written answers" and "View"', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await created(sample);
     await submitted(sample, id);
     inStudent(runtime, TAB, <HubAssessmentTab experimentId={SHELL} />);
-    const section = await screen.findByRole('region', { name: 'Assessment' });
-    const row = section.querySelector<HTMLElement>('li.xr-row')!;
-    expect(row.querySelector('.xr-row-sub')).toHaveTextContent(
-      'Submitted 5 Nov 2026, 18:52 · your result appears after the deadline',
-    );
-    expect(row.querySelector('.xr-status')).toHaveTextContent('Waiting for marking');
-    const view = within(row).getByRole('link', { name: 'View' });
-    expect(view).toHaveClass('xr-btn', 'xr-btn--secondary');
+    const section = await card();
+    expect(section.querySelector('.sv-atab-when .sv-eyebrow')).toHaveTextContent('Deadline');
+    expect(
+      plain([...section.querySelectorAll('.sv-li-m > span')].map((span) => span.textContent)),
+    ).toEqual([
+      'Waiting for marking',
+      'Submitted 5 Nov 2026, 18:52 · your faculty marks written answers',
+    ]);
+    const view = within(section).getByRole('link', { name: `View, ${NAME}` });
+    expect(view).toHaveAttribute('class', 'rb-btn');
     expect(view).toHaveAttribute('href', `${LIST}/${id}/result`);
-    expect(main().querySelectorAll('.xr-btn--primary')).toHaveLength(0);
+    expect(main().querySelectorAll('.sv-atab .rb-btn--primary')).toHaveLength(0);
   });
 
-  it('result ready (after Flow D): ST-11’s status, line and "See result" (ST-05.assessment-tab.states)', async () => {
+  it('result ready (after Flow D): "Result ready", "Released …" and "See result"', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-d');
     inStudent(runtime, TAB, <HubAssessmentTab experimentId={SHELL} />);
-    const section = await screen.findByRole('region', { name: 'Assessment' });
-    const row = section.querySelector<HTMLElement>('li.xr-row')!;
-    expect(row.querySelector('.xr-row-sub')).toHaveTextContent('Released 14 Nov 2026, 23:59');
-    expect(row.querySelector('.xr-status')).toHaveTextContent('Result ready');
-    expect(within(row).getByRole('link', { name: 'See result' })).toHaveAttribute(
+    const section = await card();
+    expect(
+      plain([...section.querySelectorAll('.sv-li-m > span')].map((span) => span.textContent)),
+    ).toEqual(['Result ready', 'Released 14 Nov 2026, 23:59']);
+    expect(within(section).getByRole('link', { name: `See result, ${NAME}` })).toHaveAttribute(
       'href',
       `${LIST}/ASMT-0009/result`,
     );
@@ -464,36 +510,42 @@ describe('the hub’s Assessment tab (B4-11 f7 … f9)', () => {
       <HubAssessmentTab experimentId="fin-tube-bundle" />,
     );
     await waitFor(() => expect(screen.getByRole('heading', { level: 1 })).toBeVisible());
-    expect(screen.queryByRole('region', { name: 'Assessment' })).toBeNull();
+    expect(main().querySelector('.sv-atab')).toBeNull();
   });
 });
 
 // ---- Home's Up next ------------------------------------------------------------------------------
 
 describe('Home · Up next · the assessment (B4-11 f10)', () => {
-  it('names the assessment, its experiment and deadline; "Open assessment" opens Before you start', async () => {
+  it('the cover’s next step names the assessment and its deadline; "Open assessment" opens Before you start', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await created(sample);
     inStudent(runtime, '/student', <StudentHome />);
-    const upNext = await screen.findByRole('region', { name: 'Up next' });
-    await waitFor(() => expect(upNext).toHaveTextContent('Heat Exchanger — post-lab is ready'));
-    const row = within(upNext)
-      .getByText('Heat Exchanger — post-lab is ready')
-      .closest<HTMLElement>('li.xr-row')!;
-    expect(row.querySelector('.xr-row-icon')).toHaveClass('xr-row-icon--info');
-    expect(row.querySelector('.xr-row-sub')).toHaveTextContent(
-      `${SHELL_NAME} · assessment · due 14 Nov 2026, 23:59`,
+    // V3 Home (the export's `nextStep` "asmt-todo"): both formats done and their feedback sent,
+    // so the assessment to do is the one next step — named from the Student's own assessments.
+    const cover = await screen.findByRole('region', { name: 'Continue learning' });
+    const step = cover.querySelector<HTMLElement>('.sv-step.is-next')!;
+    expect(step.querySelector('.sv-step-t')).toHaveTextContent('Start the assessment');
+    expect(step.querySelector('.sv-step-d')).toHaveTextContent(
+      'Heat Exchanger — post-lab is due 14 Nov 2026, 23:59.',
     );
-    const open = within(row).getByRole('link', { name: 'Open assessment' });
-    expect(open).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    const open = within(step).getByRole('link', { name: `Open assessment, ${SHELL_NAME}` });
+    expect(open).toHaveTextContent('Open assessment');
+    expect(open).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
     expect(open).toHaveAttribute('href', `${LIST}/${id}`);
+    // The step covers it: "Also in this experiment" does not list the assessment again.
+    const also = screen.getByRole('region', { name: 'Also in this experiment' });
+    expect(also).not.toHaveTextContent('Assessment');
   });
 
-  it('lists the assessment only while it is to do (after Flow D: none)', async () => {
+  it('offers the assessment only while it is to do (after Flow D: none)', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-d');
     inStudent(runtime, '/student', <StudentHome />);
-    const upNext = await screen.findByRole('region', { name: 'Up next' });
-    expect(within(upNext).queryByRole('link', { name: 'Open assessment' })).toBeNull();
+    await screen.findByRole('article', { name: SHELL_NAME });
+    expect(within(main()).queryByRole('link', { name: /^Open assessment/ })).toBeNull();
+    // The assessment stays named in the experiment's parts, with its state.
+    const parts = main().querySelector<HTMLElement>('.sv-home-also')!;
+    expect(parts).toHaveTextContent('Assessment');
   });
 });
 

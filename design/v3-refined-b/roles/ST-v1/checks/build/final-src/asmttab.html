@@ -1,0 +1,31 @@
+      <!-- Hub · Assessment tab: the deadline as a date block, what the assessment covers, its key facts, the state
+           and one action; a compact message when none is set. -->
+      <sc-if value="{{ HB.isAssessment }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ AT1.none }}" hint-placeholder-val="{{ true }}">
+      <section class="sv-card sv-msg" aria-labelledby="st-ha-h">
+        <span class="sv-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span>
+        <div class="sv-msg-main">
+          <h2 class="sv-msg-t" id="st-ha-h">Your faculty hasn’t set an assessment for this experiment yet</h2>
+          <p class="sv-msg-d">When they do, it appears here and in Assessments.</p>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ AT1.has }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-card sv-atab" aria-labelledby="st-ha-h">
+        <div class="sv-atab-when">
+          <p class="sv-eyebrow">{{ AT1.whenK }}</p>
+          <div class="{{ AT1.when.cls }}"><p class="sv-when-d">{{ AT1.when.d }}</p><p class="sv-when-t">{{ AT1.when.t }}</p></div>
+        </div>
+        <div class="sv-atab-main">
+          <p class="sv-eyebrow">Assessment</p>
+          <h2 class="sv-atab-t" id="st-ha-h">{{ AT1.name }}</h2>
+          <p class="sv-atab-d">{{ AT1.desc }}</p>
+          <p class="sv-li-m"><span class="{{ AT1.pillCls }}"><i></i>{{ AT1.pill }}</span><sc-if value="{{ AT1.hasState }}" hint-placeholder-val="{{ false }}"><span>{{ AT1.state }}</span></sc-if></p>
+          <p class="sv-atab-f">{{ AT1.facts }}</p>
+        </div>
+        <div class="sv-atab-act"><a class="{{ AT1.act.cls }}" href="{{ AT1.act.href }}" onClick="{{ AT1.act.go }}" aria-label="{{ AT1.act.aria }}">{{ AT1.act.label }}</a></div>
+      </section>
+      </sc-if>
+      </sc-if>
+      </sc-if>
+

@@ -1,0 +1,15 @@
+      <!-- ══════════ ST-05 Experiment hub · tabs ST-06 Resources · ST-07 Simulation · Assessment · ST-10 Progress ══════════ -->
+      <sc-if value="{{ is.hub }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ HB.crumbCourses.href }}" onClick="{{ HB.crumbCourses.go }}">My courses</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ HB.crumbCourse.href }}" onClick="{{ HB.crumbCourse.go }}">{{ HB.course }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ HB.t }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="rk-owncode">{{ HB.code }}</span><span>{{ HB.course }}</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ HB.t }}</h1>
+          <sc-if value="{{ HB.hasPill }}" hint-placeholder-val="{{ false }}"><div class="rk-meta"><span class="{{ HB.pillCls }}"><i></i>{{ HB.pill }}</span><span>{{ HB.pillText }}</span></div></sc-if>
+        </div>
+      </div>
+      <nav class="rk-tabs sv-tabs sv-tabs--chips" aria-label="{{ HB.tabsAria }}">
+        <sc-for list="{{ HB.tabs }}" as="t" hint-placeholder-count="5"><a class="rk-tab" href="{{ t.href }}" aria-current="{{ t.cur }}" onClick="{{ t.go }}">{{ t.t }}</a></sc-for>
+      </nav>
+

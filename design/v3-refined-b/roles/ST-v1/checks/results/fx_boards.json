@@ -1,0 +1,1540 @@
+[
+ {
+  "key": "home",
+  "title": "ST-01 Home · the next step first · held access said once",
+  "boards": [
+   {
+    "file": "F-01-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-01 Home",
+    "title": "Final · ST-01 Home · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-01-learn-1024.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 1024,
+    "label": "ST-01 Home",
+    "title": "Final · ST-01 Home · 1024 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-01-learn-768.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 768,
+    "label": "ST-01 Home",
+    "title": "Final · ST-01 Home · 768 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-01-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-01 Home",
+    "title": "Final · ST-01 Home · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-01-newst.dc.html",
+    "scenario": "newst",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-01 Home · new student",
+    "title": "Final · ST-01 Home · new student · 1440 · Rahul Verma · Thu 8 Oct 2026"
+   },
+   {
+    "file": "F-01-licence.dc.html",
+    "scenario": "licence",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-01 Home · waiting for a licence",
+    "title": "Final · ST-01 Home · waiting for a licence · 1440 · Arun Kumar · Wed 22 Sep 2027"
+   },
+   {
+    "file": "F-01-paused.dc.html",
+    "scenario": "paused",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-01 Home · institution paused",
+    "title": "Final · ST-01 Home · institution paused · 1440 · Rahul Verma · Tue 2 Mar 2027"
+   },
+   {
+    "file": "F-01-ended.dc.html",
+    "scenario": "ended",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-01 Home · access ended",
+    "title": "Final · ST-01 Home · access ended · 1440 · Rahul Verma · Fri 8 Oct 2027"
+   },
+   {
+    "file": "F-01-paused-375.dc.html",
+    "scenario": "paused",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-01 Home · institution paused",
+    "title": "Final · ST-01 Home · institution paused · 375 · Rahul Verma · Tue 2 Mar 2027"
+   }
+  ]
+ },
+ {
+  "key": "courses",
+  "title": "ST-02 My courses · ST-04 All my experiments · course sections and experiment rows",
+  "boards": [
+   {
+    "file": "F-02-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-02",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-02 My courses",
+    "title": "Final · ST-02 My courses · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-02-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-02",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-02 My courses",
+    "title": "Final · ST-02 My courses · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-02-learn-loading.dc.html",
+    "scenario": "learn",
+    "screen": "ST-02",
+    "preset": "",
+    "ds": "loading",
+    "w": 1440,
+    "label": "ST-02 My courses · loading",
+    "title": "Final · ST-02 My courses · loading · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-02-learn-failed.dc.html",
+    "scenario": "learn",
+    "screen": "ST-02",
+    "preset": "",
+    "ds": "failed",
+    "w": 1440,
+    "label": "ST-02 My courses · could not load",
+    "title": "Final · ST-02 My courses · could not load · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-02-ended.dc.html",
+    "scenario": "ended",
+    "screen": "ST-02",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-02 My courses · access ended, earlier work",
+    "title": "Final · ST-02 My courses · access ended, earlier work · 1440 · Rahul Verma · Fri 8 Oct 2027"
+   },
+   {
+    "file": "F-04-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-04",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-04 All my experiments",
+    "title": "Final · ST-04 All my experiments · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-04-learn-x-nomatch.dc.html",
+    "scenario": "learn",
+    "screen": "ST-04",
+    "preset": "x-nomatch",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-04 All my experiments · no match",
+    "title": "Final · ST-04 All my experiments · no match · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-04-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-04",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-04 All my experiments",
+    "title": "Final · ST-04 All my experiments · 375 · Rahul Verma · Mon 12 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "course",
+  "title": "ST-03 Course · experiments given to you",
+  "boards": [
+   {
+    "file": "F-03-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-03",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-03 Course",
+    "title": "Final · ST-03 Course · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-03-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-03",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-03 Course",
+    "title": "Final · ST-03 Course · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-03-paused.dc.html",
+    "scenario": "paused",
+    "screen": "ST-03",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-03 Course · institution paused",
+    "title": "Final · ST-03 Course · institution paused · 1440 · Rahul Verma · Tue 2 Mar 2027"
+   },
+   {
+    "file": "F-03-ended.dc.html",
+    "scenario": "ended",
+    "screen": "ST-03",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-03 Course · nothing for you now",
+    "title": "Final · ST-03 Course · nothing for you now · 1440 · Rahul Verma · Fri 8 Oct 2027"
+   }
+  ]
+ },
+ {
+  "key": "overview",
+  "title": "ST-05 Experiment · Overview · what it is, what you learn, your formats",
+  "boards": [
+   {
+    "file": "F-05-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Overview",
+    "title": "Final · ST-05 Overview · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-05-learn-1024.dc.html",
+    "scenario": "learn",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 1024,
+    "label": "ST-05 Overview",
+    "title": "Final · ST-05 Overview · 1024 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-05-learn-768.dc.html",
+    "scenario": "learn",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 768,
+    "label": "ST-05 Overview",
+    "title": "Final · ST-05 Overview · 768 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-05-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-05 Overview",
+    "title": "Final · ST-05 Overview · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-05-licence.dc.html",
+    "scenario": "licence",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Overview · waiting for a licence",
+    "title": "Final · ST-05 Overview · waiting for a licence · 1440 · Arun Kumar · Wed 22 Sep 2027"
+   },
+   {
+    "file": "F-05-paused.dc.html",
+    "scenario": "paused",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Overview · institution paused",
+    "title": "Final · ST-05 Overview · institution paused · 1440 · Rahul Verma · Tue 2 Mar 2027"
+   },
+   {
+    "file": "F-05-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Overview · feedback to give",
+    "title": "Final · ST-05 Overview · feedback to give · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-05-vrnow.dc.html",
+    "scenario": "vrnow",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Overview · VR not available right now",
+    "title": "Final · ST-05 Overview · VR not available right now · 1440 · Rahul Verma · Fri 9 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "ressim",
+  "title": "ST-06 Resources · ST-07 Simulation, choose a format",
+  "boards": [
+   {
+    "file": "F-06-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-06",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-06 Resources",
+    "title": "Final · ST-06 Resources · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-06-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-06",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-06 Resources",
+    "title": "Final · ST-06 Resources · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-06-learn-res-fail.dc.html",
+    "scenario": "learn",
+    "screen": "ST-06",
+    "preset": "res-fail",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-06 Resources · a resource did not open",
+    "title": "Final · ST-06 Resources · a resource did not open · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-06-learn-loading.dc.html",
+    "scenario": "learn",
+    "screen": "ST-06",
+    "preset": "",
+    "ds": "loading",
+    "w": 1440,
+    "label": "ST-06 Resources · loading",
+    "title": "Final · ST-06 Resources · loading · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-07-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-07",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-07 Simulation",
+    "title": "Final · ST-07 Simulation · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-07-learn-768.dc.html",
+    "scenario": "learn",
+    "screen": "ST-07",
+    "preset": "",
+    "ds": "",
+    "w": 768,
+    "label": "ST-07 Simulation",
+    "title": "Final · ST-07 Simulation · 768 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-07-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-07",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-07 Simulation",
+    "title": "Final · ST-07 Simulation · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-07-licence.dc.html",
+    "scenario": "licence",
+    "screen": "ST-07",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-07 Simulation · waiting for a licence",
+    "title": "Final · ST-07 Simulation · waiting for a licence · 1440 · Arun Kumar · Wed 22 Sep 2027"
+   },
+   {
+    "file": "F-07-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-07",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-07 Simulation · both formats completed",
+    "title": "Final · ST-07 Simulation · both formats completed · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-07-paused.dc.html",
+    "scenario": "paused",
+    "screen": "ST-07",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-07 Simulation · institution paused",
+    "title": "Final · ST-07 Simulation · institution paused · 1440 · Rahul Verma · Tue 2 Mar 2027"
+   }
+  ]
+ },
+ {
+  "key": "tabs",
+  "title": "ST-05 Assessment tab · ST-10 Progress for this experiment",
+  "boards": [
+   {
+    "file": "F-05as-assess.dc.html",
+    "scenario": "assess",
+    "screen": "ST-05as",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Assessment tab · to do",
+    "title": "Final · ST-05 Assessment tab · to do · 1440 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-05as-released.dc.html",
+    "scenario": "released",
+    "screen": "ST-05as",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Assessment tab · result ready",
+    "title": "Final · ST-05 Assessment tab · result ready · 1440 · Rahul Verma · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-05as-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-05as",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-05 Assessment tab · none set",
+    "title": "Final · ST-05 Assessment tab · none set · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-05as-assess-375.dc.html",
+    "scenario": "assess",
+    "screen": "ST-05as",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-05 Assessment tab · to do",
+    "title": "Final · ST-05 Assessment tab · to do · 375 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-10-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-10",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-10 Progress tab",
+    "title": "Final · ST-10 Progress tab · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-10-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-10",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-10 Progress tab · both completed",
+    "title": "Final · ST-10 Progress tab · both completed · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-10-vrdone-768.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-10",
+    "preset": "",
+    "ds": "",
+    "w": 768,
+    "label": "ST-10 Progress tab · both completed",
+    "title": "Final · ST-10 Progress tab · both completed · 768 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-10-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-10",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-10 Progress tab",
+    "title": "Final · ST-10 Progress tab · 375 · Rahul Verma · Mon 12 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "web",
+  "title": "ST-08 WEB simulation · ST-08a sample activity · completion recorded by the platform",
+  "boards": [
+   {
+    "file": "F-08-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-08",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-08 WEB · in progress",
+    "title": "Final · ST-08 WEB · in progress · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-08-learn-1024.dc.html",
+    "scenario": "learn",
+    "screen": "ST-08",
+    "preset": "",
+    "ds": "",
+    "w": 1024,
+    "label": "ST-08 WEB · in progress",
+    "title": "Final · ST-08 WEB · in progress · 1024 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-08-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-08",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-08 WEB · in progress",
+    "title": "Final · ST-08 WEB · in progress · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-08-learn-launch-fail.dc.html",
+    "scenario": "learn",
+    "screen": "ST-08",
+    "preset": "launch-fail",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-08 WEB · did not open",
+    "title": "Final · ST-08 WEB · did not open · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-08-granted.dc.html",
+    "scenario": "granted",
+    "screen": "ST-08",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-08 WEB · not started",
+    "title": "Final · ST-08 WEB · not started · 1440 · Rahul Verma · Fri 9 Oct 2026"
+   },
+   {
+    "file": "F-08-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-08",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-08 WEB · completed",
+    "title": "Final · ST-08 WEB · completed · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-08-paused.dc.html",
+    "scenario": "paused",
+    "screen": "ST-08",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-08 WEB · institution paused",
+    "title": "Final · ST-08 WEB · institution paused · 1440 · Rahul Verma · Tue 2 Mar 2027"
+   },
+   {
+    "file": "F-08a-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-08a",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-08a Sample activity",
+    "title": "Final · ST-08a Sample activity · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-08a-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-08a",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-08a Sample activity",
+    "title": "Final · ST-08a Sample activity · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-08a-learn-act-done.dc.html",
+    "scenario": "learn",
+    "screen": "ST-08a",
+    "preset": "act-done",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-08a Sample activity · completed",
+    "title": "Final · ST-08a Sample activity · completed · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "vr",
+  "title": "ST-09 VR · set up and progress · AR and MR not available",
+  "boards": [
+   {
+    "file": "F-09-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-09",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-09 VR · set up",
+    "title": "Final · ST-09 VR · set up · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-09-vrprog.dc.html",
+    "scenario": "vrprog",
+    "screen": "ST-09",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-09 VR · in progress",
+    "title": "Final · ST-09 VR · in progress · 1440 · Rahul Verma · Fri 16 Oct 2026"
+   },
+   {
+    "file": "F-09-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-09",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-09 VR · completed, feedback to give",
+    "title": "Final · ST-09 VR · completed, feedback to give · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-09-vrnow.dc.html",
+    "scenario": "vrnow",
+    "screen": "ST-09",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-09 VR · not available right now",
+    "title": "Final · ST-09 VR · not available right now · 1440 · Rahul Verma · Fri 9 Oct 2026"
+   },
+   {
+    "file": "F-09-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-09",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-09 VR · set up",
+    "title": "Final · ST-09 VR · set up · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-09ar-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-09ar",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-09 AR · not included",
+    "title": "Final · ST-09 AR · not included · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-09mr-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-09mr",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-09 MR · not available",
+    "title": "Final · ST-09 MR · not available · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-09ar-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-09ar",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-09 AR · not included",
+    "title": "Final · ST-09 AR · not included · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-09-nodevice.dc.html",
+    "scenario": "nodevice",
+    "screen": "ST-09",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-09 · no headset formats",
+    "title": "Final · ST-09 · no headset formats · 1440 · Vikram Joshi · Thu 8 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "progress",
+  "title": "ST-15 Progress · one row per format, dated facts, no percentages",
+  "boards": [
+   {
+    "file": "F-15-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-15 Progress",
+    "title": "Final · ST-15 Progress · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-15-learn-1024.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 1024,
+    "label": "ST-15 Progress",
+    "title": "Final · ST-15 Progress · 1024 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-15-learn-768.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 768,
+    "label": "ST-15 Progress",
+    "title": "Final · ST-15 Progress · 768 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-15-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-15 Progress",
+    "title": "Final · ST-15 Progress · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-15-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-15 Progress · both completed",
+    "title": "Final · ST-15 Progress · both completed · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-15-ended.dc.html",
+    "scenario": "ended",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-15 Progress · earlier work",
+    "title": "Final · ST-15 Progress · earlier work · 1440 · Rahul Verma · Fri 8 Oct 2027"
+   },
+   {
+    "file": "F-15-ended-375.dc.html",
+    "scenario": "ended",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-15 Progress · earlier work",
+    "title": "Final · ST-15 Progress · earlier work · 375 · Rahul Verma · Fri 8 Oct 2027"
+   },
+   {
+    "file": "F-15-learn-p-filter.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "p-filter",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-15 Progress · filtered",
+    "title": "Final · ST-15 Progress · filtered · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-15-learn-p-nomatch.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "p-nomatch",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-15 Progress · no match",
+    "title": "Final · ST-15 Progress · no match · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-15-newst.dc.html",
+    "scenario": "newst",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-15 Progress · nothing yet",
+    "title": "Final · ST-15 Progress · nothing yet · 1440 · Rahul Verma · Thu 8 Oct 2026"
+   },
+   {
+    "file": "F-15-learn-loading.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "loading",
+    "w": 1440,
+    "label": "ST-15 Progress · loading",
+    "title": "Final · ST-15 Progress · loading · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "alist",
+  "title": "ST-11 Assessments · each row led by its key date",
+  "boards": [
+   {
+    "file": "F-11-assess.dc.html",
+    "scenario": "assess",
+    "screen": "ST-11",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-11 Assessments · to do",
+    "title": "Final · ST-11 Assessments · to do · 1440 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-11-assess-375.dc.html",
+    "scenario": "assess",
+    "screen": "ST-11",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-11 Assessments · to do",
+    "title": "Final · ST-11 Assessments · to do · 375 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-11sub-waitmark.dc.html",
+    "scenario": "waitmark",
+    "screen": "ST-11sub",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-11 Assessments · submitted",
+    "title": "Final · ST-11 Assessments · submitted · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-11res-released.dc.html",
+    "scenario": "released",
+    "screen": "ST-11res",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-11 Assessments · results",
+    "title": "Final · ST-11 Assessments · results · 1440 · Rahul Verma · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-11-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-11",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-11 Assessments · none set yet",
+    "title": "Final · ST-11 Assessments · none set yet · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-11-newst.dc.html",
+    "scenario": "newst",
+    "screen": "ST-11",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-11 Assessments · new student",
+    "title": "Final · ST-11 Assessments · new student · 1440 · Rahul Verma · Thu 8 Oct 2026"
+   },
+   {
+    "file": "F-11-assess-failed.dc.html",
+    "scenario": "assess",
+    "screen": "ST-11",
+    "preset": "",
+    "ds": "failed",
+    "w": 1440,
+    "label": "ST-11 Assessments · could not load",
+    "title": "Final · ST-11 Assessments · could not load · 1440 · Rahul Verma · Sun 1 Nov 2026"
+   }
+  ]
+ },
+ {
+  "key": "aintro",
+  "title": "ST-12 Assessment, before you start · the state, three rules and the action first",
+  "boards": [
+   {
+    "file": "F-12-assess.dc.html",
+    "scenario": "assess",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-12 Before you start",
+    "title": "Final · ST-12 Before you start · 1440 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-12-assess-768.dc.html",
+    "scenario": "assess",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 768,
+    "label": "ST-12 Before you start",
+    "title": "Final · ST-12 Before you start · 768 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-12-assess-375.dc.html",
+    "scenario": "assess",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-12 Before you start",
+    "title": "Final · ST-12 Before you start · 375 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-12-inprog.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-12 · attempt in progress",
+    "title": "Final · ST-12 · attempt in progress · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-12-waitmark.dc.html",
+    "scenario": "waitmark",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-12 · submitted",
+    "title": "Final · ST-12 · submitted · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-12-notpassed.dc.html",
+    "scenario": "notpassed",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-12 · not passed, one attempt left",
+    "title": "Final · ST-12 · not passed, one attempt left · 1440 · Imran Shaikh · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-12-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-12 · no assessment here yet",
+    "title": "Final · ST-12 · no assessment here yet · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "attempt",
+  "title": "ST-13 Assessment attempt · one numbered sheet, the navigator beside it",
+  "boards": [
+   {
+    "file": "F-13-assess.dc.html",
+    "scenario": "assess",
+    "screen": "ST-13",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-13 Attempt · not started",
+    "title": "Final · ST-13 Attempt · not started · 1440 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-13 Attempt · two answered",
+    "title": "Final · ST-13 Attempt · two answered · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog-1024.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "",
+    "ds": "",
+    "w": 1024,
+    "label": "ST-13 Attempt",
+    "title": "Final · ST-13 Attempt · 1024 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog-375.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-13 Attempt",
+    "title": "Final · ST-13 Attempt · 375 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog-att-dialog.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "att-dialog",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-13 Attempt · confirm submit",
+    "title": "Final · ST-13 Attempt · confirm submit · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog-att-dialog-375.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "att-dialog",
+    "ds": "",
+    "w": 375,
+    "label": "ST-13 Attempt · confirm submit",
+    "title": "Final · ST-13 Attempt · confirm submit · 375 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog-att-savefail.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "att-savefail",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-13 Attempt · answer did not save",
+    "title": "Final · ST-13 Attempt · answer did not save · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog-att-subfail.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "att-subfail",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-13 Attempt · could not submit",
+    "title": "Final · ST-13 Attempt · could not submit · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-13-waitmark.dc.html",
+    "scenario": "waitmark",
+    "screen": "ST-13",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-13 Attempt · submitted",
+    "title": "Final · ST-13 Attempt · submitted · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   }
+  ]
+ },
+ {
+  "key": "result",
+  "title": "ST-14 Result · the score panel, marks by question, the review",
+  "boards": [
+   {
+    "file": "F-14-released.dc.html",
+    "scenario": "released",
+    "screen": "ST-14",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-14 Result · passed",
+    "title": "Final · ST-14 Result · passed · 1440 · Rahul Verma · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-14-released-768.dc.html",
+    "scenario": "released",
+    "screen": "ST-14",
+    "preset": "",
+    "ds": "",
+    "w": 768,
+    "label": "ST-14 Result · passed",
+    "title": "Final · ST-14 Result · passed · 768 · Rahul Verma · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-14-released-375.dc.html",
+    "scenario": "released",
+    "screen": "ST-14",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-14 Result · passed",
+    "title": "Final · ST-14 Result · passed · 375 · Rahul Verma · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-14-notpassed.dc.html",
+    "scenario": "notpassed",
+    "screen": "ST-14",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-14 Result · not passed, try again",
+    "title": "Final · ST-14 Result · not passed, try again · 1440 · Imran Shaikh · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-14-waitmark.dc.html",
+    "scenario": "waitmark",
+    "screen": "ST-14",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-14 Result · waiting for marking",
+    "title": "Final · ST-14 Result · waiting for marking · 1440 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-14-notrel.dc.html",
+    "scenario": "notrel",
+    "screen": "ST-14",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-14 Result · not released yet",
+    "title": "Final · ST-14 Result · not released yet · 1440 · Rahul Verma · Sat 7 Nov 2026"
+   }
+  ]
+ },
+ {
+  "key": "feedback",
+  "title": "ST-16 Format feedback · ST-17 Feedback sent · one rating sheet, the scale named once",
+  "boards": [
+   {
+    "file": "F-16v-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-16v",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-16 Feedback on VR",
+    "title": "Final · ST-16 Feedback on VR · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-16v-vrdone-375.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-16v",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-16 Feedback on VR",
+    "title": "Final · ST-16 Feedback on VR · 375 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-16v-vrdone-fb-errors.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-16v",
+    "preset": "fb-errors",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-16 Feedback · ratings missing",
+    "title": "Final · ST-16 Feedback · ratings missing · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-16v-vrdone-fb-fail.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-16v",
+    "preset": "fb-fail",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-16 Feedback · not sent",
+    "title": "Final · ST-16 Feedback · not sent · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-16v-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-16v",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-16 Feedback · not open yet",
+    "title": "Final · ST-16 Feedback · not open yet · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-16w-vrdone.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-16w",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-17 Feedback on WEB sent",
+    "title": "Final · ST-17 Feedback on WEB sent · 1440 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-16w-vrdone-375.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-16w",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-17 Feedback on WEB sent",
+    "title": "Final · ST-17 Feedback on WEB sent · 375 · Rahul Verma · Tue 20 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "device",
+  "title": "ST-18 My device · the transfer request as three dated steps",
+  "boards": [
+   {
+    "file": "F-18-device.dc.html",
+    "scenario": "device",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 My device",
+    "title": "Final · ST-18 My device · 1440 · Rahul Verma · Thu 22 Oct 2026"
+   },
+   {
+    "file": "F-18-device-dev-form.dc.html",
+    "scenario": "device",
+    "screen": "ST-18",
+    "preset": "dev-form",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · request form",
+    "title": "Final · ST-18 · request form · 1440 · Rahul Verma · Thu 22 Oct 2026"
+   },
+   {
+    "file": "F-18-device-dev-error.dc.html",
+    "scenario": "device",
+    "screen": "ST-18",
+    "preset": "dev-error",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · request form, missing device",
+    "title": "Final · ST-18 · request form, missing device · 1440 · Rahul Verma · Thu 22 Oct 2026"
+   },
+   {
+    "file": "F-18-dtrsent.dc.html",
+    "scenario": "dtrsent",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · with your Institute Admin",
+    "title": "Final · ST-18 · with your Institute Admin · 1440 · Rahul Verma · Thu 22 Oct 2026"
+   },
+   {
+    "file": "F-18-dtrfwd.dc.html",
+    "scenario": "dtrfwd",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · forwarded to BITS",
+    "title": "Final · ST-18 · forwarded to BITS · 1440 · Rahul Verma · Fri 23 Oct 2026"
+   },
+   {
+    "file": "F-18-dtrfwd-375.dc.html",
+    "scenario": "dtrfwd",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-18 · forwarded to BITS",
+    "title": "Final · ST-18 · forwarded to BITS · 375 · Rahul Verma · Fri 23 Oct 2026"
+   },
+   {
+    "file": "F-18-dtrappr.dc.html",
+    "scenario": "dtrappr",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · approved",
+    "title": "Final · ST-18 · approved · 1440 · Rahul Verma · Sat 24 Oct 2026"
+   },
+   {
+    "file": "F-18-dtrnoia.dc.html",
+    "scenario": "dtrnoia",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · no Institute Admin yet",
+    "title": "Final · ST-18 · no Institute Admin yet · 1440 · Rahul Verma · Thu 22 Oct 2026"
+   },
+   {
+    "file": "F-18-nodevice.dc.html",
+    "scenario": "nodevice",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · not available without headset formats",
+    "title": "Final · ST-18 · not available without headset formats · 1440 · Vikram Joshi · Thu 8 Oct 2026"
+   },
+   {
+    "file": "F-18-paused.dc.html",
+    "scenario": "paused",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-18 · institution paused",
+    "title": "Final · ST-18 · institution paused · 1440 · Rahul Verma · Tue 2 Mar 2027"
+   }
+  ]
+ },
+ {
+  "key": "refusal",
+  "title": "ST-19 Experiment not available · refusals say why once and what you can still do",
+  "boards": [
+   {
+    "file": "F-19-learn.dc.html",
+    "scenario": "learn",
+    "screen": "ST-19",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-19 Not available",
+    "title": "Final · ST-19 Not available · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-19-learn-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-19",
+    "preset": "",
+    "ds": "",
+    "w": 375,
+    "label": "ST-19 Not available",
+    "title": "Final · ST-19 Not available · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-19-withdrawn.dc.html",
+    "scenario": "withdrawn",
+    "screen": "ST-19",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-19 · no longer given to you",
+    "title": "Final · ST-19 · no longer given to you · 1440 · Rahul Verma · Thu 15 Oct 2026"
+   },
+   {
+    "file": "F-19-ended.dc.html",
+    "scenario": "ended",
+    "screen": "ST-19",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "ST-19 · access ended",
+    "title": "Final · ST-19 · access ended · 1440 · Rahul Verma · Fri 8 Oct 2027"
+   },
+   {
+    "file": "F-05-inactive.dc.html",
+    "scenario": "inactive",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "XS-08 · account inactive (shared notice, borrowed)",
+    "title": "Final · XS-08 · account inactive (shared notice, borrowed) · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "shell",
+  "title": "Navigation shell and the borrowed shared surfaces (XS, unchanged, assembly pending XS)",
+  "boards": [
+   {
+    "file": "F-01-learn-menu-375.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "menu",
+    "ds": "",
+    "w": 375,
+    "label": "Menu drawer",
+    "title": "Final · Menu drawer · 375 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-01-learn-menu-768.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "menu",
+    "ds": "",
+    "w": 768,
+    "label": "Menu drawer",
+    "title": "Final · Menu drawer · 768 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-01-learn-acct.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "acct",
+    "ds": "",
+    "w": 1440,
+    "label": "XS-05 Account menu (borrowed)",
+    "title": "Final · XS-05 Account menu (borrowed) · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-xs07-learn.dc.html",
+    "scenario": "learn",
+    "screen": "XS-07",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "XS-07 Help & support (borrowed)",
+    "title": "Final · XS-07 Help & support (borrowed) · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-xs07f-learn.dc.html",
+    "scenario": "learn",
+    "screen": "XS-07f",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "XS-07 Report a problem (borrowed)",
+    "title": "Final · XS-07 Report a problem (borrowed) · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-xs03-learn.dc.html",
+    "scenario": "learn",
+    "screen": "XS-03",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "XS-03 Signed out (borrowed)",
+    "title": "Final · XS-03 Signed out (borrowed) · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-xs06-learn.dc.html",
+    "scenario": "learn",
+    "screen": "XS-06",
+    "preset": "",
+    "ds": "",
+    "w": 1440,
+    "label": "XS-06 Not your workspace (borrowed)",
+    "title": "Final · XS-06 Not your workspace (borrowed) · 1440 · Rahul Verma · Mon 12 Oct 2026"
+   }
+  ]
+ },
+ {
+  "key": "narrow",
+  "title": "Narrow phones · 320",
+  "boards": [
+   {
+    "file": "F-01-learn-320.dc.html",
+    "scenario": "learn",
+    "screen": "ST-01",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-01 Home",
+    "title": "Final · ST-01 Home · 320 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-05-learn-320.dc.html",
+    "scenario": "learn",
+    "screen": "ST-05",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-05 Overview",
+    "title": "Final · ST-05 Overview · 320 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-12-assess-320.dc.html",
+    "scenario": "assess",
+    "screen": "ST-12",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-12 Before you start",
+    "title": "Final · ST-12 Before you start · 320 · Rahul Verma · Sun 1 Nov 2026"
+   },
+   {
+    "file": "F-13-inprog-320.dc.html",
+    "scenario": "inprog",
+    "screen": "ST-13",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-13 Attempt",
+    "title": "Final · ST-13 Attempt · 320 · Rahul Verma · Thu 5 Nov 2026"
+   },
+   {
+    "file": "F-14-released-320.dc.html",
+    "scenario": "released",
+    "screen": "ST-14",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-14 Result",
+    "title": "Final · ST-14 Result · 320 · Rahul Verma · Sun 15 Nov 2026"
+   },
+   {
+    "file": "F-15-learn-320.dc.html",
+    "scenario": "learn",
+    "screen": "ST-15",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-15 Progress",
+    "title": "Final · ST-15 Progress · 320 · Rahul Verma · Mon 12 Oct 2026"
+   },
+   {
+    "file": "F-16v-vrdone-320.dc.html",
+    "scenario": "vrdone",
+    "screen": "ST-16v",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-16 Feedback",
+    "title": "Final · ST-16 Feedback · 320 · Rahul Verma · Tue 20 Oct 2026"
+   },
+   {
+    "file": "F-18-dtrfwd-320.dc.html",
+    "scenario": "dtrfwd",
+    "screen": "ST-18",
+    "preset": "",
+    "ds": "",
+    "w": 320,
+    "label": "ST-18 My device",
+    "title": "Final · ST-18 My device · 320 · Rahul Verma · Fri 23 Oct 2026"
+   }
+  ]
+ }
+]

@@ -1,0 +1,99 @@
+      <!-- ══════════ ST-15 Progress (all experiments) ══════════ -->
+      <sc-if value="{{ is.prog }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">Progress</h1>
+          <p class="rk-sub">What you’ve started and finished, format by format</p>
+        </div>
+      </div>
+      <sc-if value="{{ P.nothing }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-card sv-msg" aria-labelledby="st-p-none">
+        <span class="sv-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-bars"></use></svg></span>
+        <div class="sv-msg-main">
+          <h2 class="sv-msg-t" id="st-p-none">Nothing to show yet</h2>
+          <p class="sv-msg-d">Your progress appears here when your institution gives you an experiment and you start a format.</p>
+          <a class="rb-link sv-msg-link" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ P.showList }}" hint-placeholder-val="{{ true }}">
+      <section class="sv-card sv-prog" aria-labelledby="st-p-h">
+        <h2 class="xr-sr" id="st-p-h">Your progress by course</h2>
+        <sc-if value="{{ P.showTools }}" hint-placeholder-val="{{ true }}">
+        <div class="sv-ptools">
+          <div class="sv-ptools-f" role="search" aria-label="Filter your progress">
+            <div class="sv-pfield">
+              <label class="rk-label" for="st-p-st">Status</label>
+              <div class="rk-selwrap"><select id="st-p-st" class="rk-select" value="{{ P.st }}" onChange="{{ P.onSt }}"><option value="all">All statuses</option><option value="prog">In progress</option><option value="done">Completed</option><option value="none">Not started</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></div>
+            </div>
+            <div class="sv-pfield">
+              <label class="rk-label" for="st-p-c">Course</label>
+              <div class="rk-selwrap"><select id="st-p-c" class="rk-select" value="{{ P.crs }}" onChange="{{ P.onCrs }}"><option value="all">All courses</option><option value="mec-523">{{ P.crsLabel }}</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></div>
+            </div>
+          </div>
+          <div class="sv-ptools-s">
+            <p class="rk-count" role="status">{{ P.count }}</p>
+            <sc-for list="{{ P.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-close"></use></svg></button></span></sc-for>
+            <sc-if value="{{ P.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ P.clear }}">Clear filters</button></sc-if>
+          </div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ P.loading }}" hint-placeholder-val="{{ false }}">
+        <div class="sv-pstate" aria-busy="true"><p class="rk-loading-msg" role="status">Loading your progress…</p><div class="sv-pskel" aria-hidden="true"><span class="rk-skel"></span><span class="rk-skel"></span><span class="rk-skel"></span></div></div>
+        </sc-if>
+        <sc-if value="{{ P.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="sv-pstate sv-pstate--row" role="alert">
+          <span class="sv-msg-ico sv-msg-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-cloud"></use></svg></span>
+          <div><h3 class="sv-msg-t">We couldn’t load your progress</h3><p class="sv-msg-d">Nothing has changed. Try again.</p></div>
+          <button type="button" class="rb-btn" onClick="{{ P.retry }}">Try again</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ P.nomatch }}" hint-placeholder-val="{{ false }}">
+        <div class="sv-pstate sv-pstate--row" role="status">
+          <span class="sv-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-search"></use></svg></span>
+          <div><p class="sv-msg-t">No experiments match these filters</p><p class="sv-msg-d">Try a different status or course.</p></div>
+          <button type="button" class="rb-btn" onClick="{{ P.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+        <sc-for list="{{ P.groups }}" as="g" hint-placeholder-count="1">
+        <div class="sv-pgroup" role="group" aria-labelledby="{{ g.hid }}">
+          <div class="sv-pgroup-h"><span class="rk-owncode">{{ g.code }}</span><h3 class="sv-pgroup-t" id="{{ g.hid }}">{{ g.title }}</h3><span class="sv-pgroup-d">{{ g.d }}</span></div>
+          <sc-if value="{{ g.hasNote }}" hint-placeholder-val="{{ false }}"><p class="sv-pgroup-note">{{ g.note }}</p></sc-if>
+          <sc-for list="{{ g.exps }}" as="e" hint-placeholder-count="1">
+          <article class="sv-pexp" aria-labelledby="{{ e.hid }}">
+            <div class="sv-pexp-h"><div class="sv-pexp-ht"><h4 class="sv-pexp-t" id="{{ e.hid }}">{{ e.t }}</h4><p class="sv-pexp-g">{{ e.given }}</p></div><sc-if value="{{ e.hasOpen }}" hint-placeholder-val="{{ true }}"><a class="sv-link" href="{{ e.href }}" onClick="{{ e.go }}" aria-label="{{ e.aria }}">Open experiment<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a></sc-if></div>
+            <sc-if value="{{ e.note.show }}" hint-placeholder-val="{{ false }}"><p class="sv-holdnote"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ e.note.ico }}"></use></svg><span>{{ e.note.d }}</span></p></sc-if>
+            <sc-if value="{{ e.hasMine }}" hint-placeholder-val="{{ true }}">
+            <table class="sv-ptable">
+              <caption class="xr-sr">{{ e.capt }}</caption>
+              <thead><tr><th scope="col">Your format</th><th scope="col">Progress</th><th scope="col">Details</th><th scope="col"><span class="xr-sr">Action</span></th></tr></thead>
+              <tbody>
+                <sc-for list="{{ e.mine }}" as="f" hint-placeholder-count="2">
+                <tr>
+                  <th scope="row" class="sv-pc-f"><span class="sv-pc-fx"><span class="{{ f.fmtCls }}" aria-hidden="true">{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ f.glyph }}"></use></svg></sc-if></span><span class="sv-pc-name"><b>{{ f.name }}</b><span class="xr-sr"> ({{ f.code }})</span><span class="sv-pc-acc">{{ f.access }}</span></span></span></th>
+                  <td class="sv-pc-p"><span class="{{ f.pillCls }}"><i></i>{{ f.pill }}</span></td>
+                  <td class="sv-pc-d"><sc-for list="{{ f.facts }}" as="x" hint-placeholder-count="2"><span class="sv-pc-fact">{{ x }}</span></sc-for></td>
+                  <td class="sv-pc-x"><sc-for list="{{ f.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}" aria-label="{{ a.aria }}">{{ a.label }}</a></sc-for></td>
+                </tr>
+                </sc-for>
+              </tbody>
+            </table>
+            </sc-if>
+            <sc-if value="{{ e.hasOff }}" hint-placeholder-val="{{ true }}">
+            <div class="sv-poff">
+              <h5 class="sv-subk" id="{{ e.offId }}">Not available to you</h5>
+              <ul class="sv-xrows" aria-labelledby="{{ e.offId }}">
+                <sc-for list="{{ e.off }}" as="f" hint-placeholder-count="2"><li class="sv-xrow"><span class="sv-xrow-b" aria-hidden="true"><span class="{{ f.fmtCls }}">{{ f.code }}</span></span><p class="sv-xrow-t"><b>{{ f.name }}</b><span class="xr-sr"> ({{ f.code }}), </span><span class="sv-frow-sep" aria-hidden="true"> · </span><span class="sv-xrow-r">{{ f.reason }}</span></p></li></sc-for>
+              </ul>
+            </div>
+            </sc-if>
+            <p class="sv-pas"><span class="sv-pas-k">Assessment</span><span>{{ e.asmt }}</span><sc-if value="{{ e.hasAsmtLink }}" hint-placeholder-val="{{ false }}"><a class="sv-link" href="{{ e.asmtLink.href }}" onClick="{{ e.asmtLink.go }}">{{ e.asmtLink.label }}<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a></sc-if></p>
+          </article>
+          </sc-for>
+        </div>
+        </sc-for>
+      </section>
+      </sc-if>
+      </sc-if>
+

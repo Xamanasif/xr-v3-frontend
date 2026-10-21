@@ -8,8 +8,8 @@
  */
 import type { Technology } from '@xr/domain';
 
-import { dateTime } from './dates';
 import { formatCode, formatList } from './student';
+import { stDateTime, stDay } from './st-shared';
 
 /** The 24-hour time alone, in Indian time as every board date ("15:30", B3-03 f3). */
 const IST_TIME = new Intl.DateTimeFormat('en-GB', {
@@ -42,17 +42,12 @@ export function simulationOverline(format: Technology): string {
 
 /** "Feedback sent 14 Oct 2026, 15:42" (B3-03 f4). */
 export function feedbackSentWords(sentAt: string): string {
-  return `Feedback sent ${dateTime(sentAt)}`;
+  return `Feedback sent ${stDateTime(sentAt)}`;
 }
 
 /** "Thank you — your feedback on WEB is recorded." (B3-03 f4). */
 export function feedbackRecordedWords(format: Technology): string {
   return `Thank you — your feedback on ${formatCode(format)} is recorded.`;
-}
-
-/** "No licence is available for you on ACC-0107 right now. Your institution can tell you more." (B3-03 f6). */
-export function noLicenceLine(planId: string): string {
-  return `No licence is available for you on ${planId} right now. Your institution can tell you more.`;
 }
 
 // ---- ST-08 WEB simulation (B3-03) -----------------------------------------------------------
@@ -82,12 +77,12 @@ export const WEB_PAGE = {
 
 /** "Last saved 12 Oct 2026, 11:20" (B3-03 f0, f2, f7). */
 export function lastSavedWords(savedAt: string): string {
-  return `Last saved ${dateTime(savedAt)}`;
+  return `Last saved ${stDateTime(savedAt)}`;
 }
 
 /** "First opened 12 Oct 2026, 10:05" (B3-05 f0): WEB in progress before a save is reported. */
 export function firstOpenedWords(openedAt: string): string {
-  return `First opened ${dateTime(openedAt)}`;
+  return `First opened ${stDateTime(openedAt)}`;
 }
 
 /** "Shell-and-Tube Heat Exchanger · ME ZG523" (B3-03 "About WEB": Experiment). */
@@ -127,12 +122,12 @@ export function cantUseTitle(format: Technology): string {
 
 /** "Last session reported 16 Oct 2026, 14:10" (B3-04 f0). */
 export function lastSessionWords(reportedAt: string): string {
-  return `Last session reported ${dateTime(reportedAt)}`;
+  return `Last session reported ${stDateTime(reportedAt)}`;
 }
 
 /** "First session reported 16 Oct 2026, 14:10" (B3-05 f0): a session before any is reported. */
 export function firstSessionWords(reportedAt: string): string {
-  return `First session reported ${dateTime(reportedAt)}`;
+  return `First session reported ${stDateTime(reportedAt)}`;
 }
 
 /** "Reported by the simulation at 15:30" (B3-03 f3), "Reported from the headset at 11:15" (B3-04 f2). */
@@ -241,4 +236,116 @@ export function setupSteps(words: SetupWords, published: readonly string[]): Set
         ? [{ text: words.fallback, sub: words.published }]
         : [];
   return [words.use, ...middle, ...(words.work ? [words.work] : []), words.done];
+}
+
+// ---- V3: the owner-approved Student export (ST-v1 `StudentFinal.dc.html`, `fpageVM`, `msg`) -----
+// ST-08 / ST-09 as the V3 design words them; `formats.test.ts` finds each in the export. No stage
+// is worded (lead decision 1: the sample activity's stages are illustrative), no plan is named
+// (lead decision 3; the licence wait is `st-shared.ts` `NO_LICENCE_TELL_MORE`).
+
+/** "WEB simulation" (`fpageVM` title), "VR on your headset"; another package format: "AR format". */
+export function formatPageTitle(format: Technology): string {
+  if (format === 'web') return WEB_PAGE.title;
+  if (format === 'vr') return 'VR on your headset';
+  return formatTitle(format);
+}
+
+/** "About WEB" / "About VR" (the aside's title). */
+export function aboutFormatTitle(format: Technology): string {
+  return `About ${formatCode(format)}`;
+}
+
+/** The aside's facts (`fpageVM` `about`): WEB, then a headset format. */
+export const ABOUT_WEB = {
+  needs: 'Needs',
+  needsLine: 'A laptop or desktop with a current web browser',
+  prototype: 'In this prototype',
+  prototypeLine: 'A simulated sample activity stands in for the real simulation.',
+  completedMeans: 'Completed means',
+  completedMeansLine:
+    'The simulation reports that you finished and the platform records it. You can’t mark it yourself.',
+} as const;
+
+export const ABOUT_HEADSET = {
+  runsOn: 'Runs on',
+  runsOnLine: (format: Technology) =>
+    `Your authorised ${formatCode(format)} headset, not in this browser`,
+  pageShows: 'This page shows',
+  pageShowsLine: 'Only what the headset reports',
+  completedMeans: 'Completed means',
+  completedMeansLine: 'The headset reports that you finished. You can’t mark it yourself.',
+} as const;
+
+/** The launch surface's words (`fpageVM`) the Phase-3 words don't already hold. */
+export const LAUNCH_V3 = {
+  vrNotStarted: 'Nothing has been reported from a headset yet. Follow the setup steps to start.',
+  vrInProgress:
+    'Pick up where you left off on the headset. This page updates when the headset reports a session.',
+  hideSetupSteps: 'Hide setup steps',
+  device: 'Your authorised headset',
+  helpLead: 'Something not working?',
+  helpLine: 'Reporting it doesn’t affect your progress.',
+} as const;
+
+/**
+ * While the institution's access is paused (`fpageVM`): WEB "You can start WEB when access
+ * resumes."; a headset format the same with "use".
+ */
+export function pausedLaunchWords(
+  format: Technology,
+  status: 'not-started' | 'in-progress' | 'completed',
+): string {
+  const code = formatCode(format);
+  const verb = format === 'web' ? 'open' : 'use';
+  switch (status) {
+    case 'completed':
+      return `${code} stays completed. You can ${verb} it again when access resumes.`;
+    case 'in-progress':
+      return format === 'web'
+        ? 'Your place is kept. You can continue when access resumes.'
+        : 'Your progress is kept. You can continue when access resumes.';
+    case 'not-started':
+      return `You can start ${code} when access resumes.`;
+  }
+}
+
+/** The head's line beside a held format's pill (`fpageVM` `meta`): "In progress · last saved …". */
+export function heldProgressWords(format: Technology, at: string): string {
+  return format === 'web'
+    ? `In progress · last saved ${stDateTime(at)}`
+    : `In progress · last session reported ${stDateTime(at)}`;
+}
+
+/** The AR / MR refusals' "what you can still do" (`msg('ar' | 'mr')` `fmtAlt`, `fmtStatus`). */
+export const FORMAT_REFUSAL = {
+  formatsYouCanUse: 'Formats you can use',
+} as const;
+
+/** The refusal's kicker: "Shell-and-Tube Heat Exchanger · Simulation". */
+export function refusalKicker(experimentName: string): string {
+  return `${experimentName} · ${FORMAT_PAGE.simulation}`;
+}
+
+/**
+ * A format's run in a refusal's list (`fmtStatus`): "Not started", "In progress · saved 12 Oct
+ * 2026" (WEB) / "In progress · last session 16 Oct 2026" (a headset), "Completed 14 Oct 2026"; a
+ * held format leads with its access ("Paused · in progress · saved 12 Oct 2026").
+ */
+export function formatRunWords(
+  format: Technology,
+  run:
+    | { readonly status: 'not-started' }
+    | { readonly status: 'in-progress'; readonly at: string | null }
+    | { readonly status: 'completed'; readonly at: string },
+  heldAccess: string | null,
+): string {
+  const words =
+    run.status === 'completed'
+      ? `completed ${stDay(run.at)}`
+      : run.status === 'in-progress'
+        ? `in progress${run.at ? ` · ${format === 'web' ? 'saved' : 'last session'} ${stDay(run.at)}` : ''}`
+        : 'not started';
+  if (heldAccess !== null)
+    return run.status === 'not-started' ? heldAccess : `${heldAccess} · ${words}`;
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
 }

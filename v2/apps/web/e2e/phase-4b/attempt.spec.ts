@@ -161,12 +161,28 @@ async function markAndConfirm(page: Page, attemptId: string, mark: string): Prom
 }
 
 const main = (page: Page) => page.locator('main');
-const facts = (page: Page) => main(page).locator('dl.xa-facts > div');
-const notice = (page: Page) => main(page).locator('.xr-notice');
-const bar = (page: Page) => page.locator('header.xa-bar');
-const save = (page: Page) => bar(page).locator('.xa-save');
-const strip = (page: Page) => page.getByRole('navigation', { name: 'Your answers' });
+const facts = (page: Page) => main(page).locator('dl.sv-ai-dl > div');
+/** ST-12's card: the state's heading, line and status, and its actions. */
+const stateTitle = (page: Page) => main(page).locator('.sv-ai-state h2.sv-sec-t');
+const stateLine = (page: Page) => main(page).locator('.sv-ai-state .sv-ai-d');
+const statusPill = (page: Page) => main(page).locator('.sv-ai-state .xr-st');
+const cardActions = (page: Page) => main(page).locator('.sv-ai-act > *');
+const bar = (page: Page) => page.locator('header.st-focusbar');
+const save = (page: Page) => bar(page).locator('.st-save');
+const strip = (page: Page) => page.getByRole('region', { name: 'Your answers', exact: true });
 const dialog = (page: Page) => page.getByRole('dialog', { name: 'Submit your answers?' });
+const TAB = `/student/experiments/${SHELL}/assessment`;
+/** No assessment, attempt or record id in any word, name or the tab title (decision 3). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT|Q)-\d+/;
+
+async function expectNoReference(page: Page): Promise<void> {
+  expect(await page.locator('body').innerText()).not.toMatch(REFERENCE);
+  const names = await page
+    .locator('[aria-label]')
+    .evaluateAll((items) => items.map((item) => item.getAttribute('aria-label') ?? ''));
+  for (const name of names) expect(name).not.toMatch(REFERENCE);
+  expect(await page.title()).not.toMatch(REFERENCE);
+}
 
 async function factsText(page: Page): Promise<string[]> {
   return (await facts(page).allInnerTexts()).map((text) => text.replace(/\s+/g, ' ').trim());
@@ -177,12 +193,12 @@ const DRAWN_FACTS = [
   'Total marks 16',
   'Pass mark 50% 8 of 16 marks',
   'Attempts allowed 2 You have used none',
-  'Deadline 14 Nov 2026, 23:59',
   'Result and answers After the deadline Your faculty marks written answers',
+  'Set by Dr S. Ranganathan',
 ];
 
 test.describe('ST-12 Before you start', () => {
-  test('to do: the six key facts as configured, Start assessment opens the attempt (f11, f16)', async ({
+  test('to do: “Before you start”, the rules, the key facts as configured; Start assessment opens the attempt', async ({
     page,
   }) => {
     const id = await setUp(page, { introduction: INTRODUCTION });
@@ -191,48 +207,54 @@ test.describe('ST-12 Before you start', () => {
       timeout: 30_000,
     });
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/assessments');
-    await expect(main(page).locator('a.xr-back')).toHaveText(EXPERIMENT);
-    await expect(main(page).locator('a.xr-back')).toHaveAttribute(
+    const crumbs = main(page).getByRole('navigation', { name: 'Breadcrumb' });
+    await expect(crumbs.getByRole('link', { name: 'Assessments' })).toHaveAttribute(
       'href',
-      `/student/experiments/${SHELL}`,
+      '/student/assessments',
     );
-    await expect(main(page).locator('.xr-phead .xr-overline')).toHaveText(
-      `${EXPERIMENT} · assessment`,
-    );
-    await expect(main(page).locator('p.xr-lead')).toHaveText(INTRODUCTION);
+    await expect(crumbs.locator('[aria-current="page"]')).toHaveText(NAME);
+    const eyebrow = main(page).locator('.rk-head .rk-eyebrow');
+    await expect(eyebrow).toHaveText(`${EXPERIMENT} · assessment`);
+    await expect(eyebrow.locator('a.st-eyelink')).toHaveAttribute('href', TAB);
+    await expect(main(page).locator('.rk-head .rk-sub')).toHaveText(INTRODUCTION);
+    await expect(stateTitle(page)).toHaveText('Before you start');
+    await expect(statusPill(page)).toHaveText('To do');
+    await expect(
+      main(page).getByRole('list', { name: 'How answering works' }).locator('li b'),
+    ).toHaveText([
+      'No time limit',
+      'Answers save as you go',
+      'Nothing is submitted until you choose Submit',
+    ]);
+    await expect(main(page).locator('.sv-ai-when .sv-when-d')).toHaveText('14 Nov');
+    await expect(main(page).locator('.sv-ai-when .sv-when-t')).toHaveText('23:59 · in 18 days');
     expect(await factsText(page)).toEqual(DRAWN_FACTS);
-    await expect(main(page).locator('p.xl-open')).toHaveText(
-      'No time limit. Answers save as you go, and nothing is submitted until you choose Submit.',
-    );
-    await expect(notice(page)).toHaveCount(0);
-    const actions = main(page).locator('.xw-actions > *');
-    await expect(actions).toHaveText(['Start assessment', 'Back to experiment']);
-    await expect(main(page).locator('.xr-btn--primary')).toHaveText(['Start assessment']);
+    await expect(cardActions(page)).toHaveText(['Start assessment', 'Back to experiment']);
+    await expect(main(page).locator('.rb-btn--primary')).toHaveText(['Start assessment']);
     await expect(page.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute(
       'href',
-      `/student/experiments/${SHELL}`,
+      TAB,
     );
-    // f16 at 375: the facts in one column.
+    // The facts in three columns on a wide page, two below 900 px of page width.
     const width = page.viewportSize()?.width ?? 1440;
     const boxes = await facts(page).evaluateAll((items) =>
       items.map((item) => item.getBoundingClientRect().x),
     );
-    expect(new Set(boxes.map(Math.round)).size).toBe(width < 600 ? 1 : 2);
+    expect(new Set(boxes.map(Math.round)).size).toBe(width >= 1280 ? 3 : 2);
     await checkState(page, NAME);
-    await shot(page, 'st12-f11');
+    await expectNoReference(page);
+    await shot(page, 'st12-assess');
 
     await reachAndClick(page, page.getByRole('button', { name: 'Start assessment' }));
     await expect(page).toHaveURL(new RegExp(`/student/assessments/${id}/attempt$`));
     await expect(page.getByRole('heading', { level: 1, name: NAME })).toBeVisible();
-    await expect(page.locator('.xr-phead .xr-overline')).toHaveText(
-      `${EXPERIMENT} · Attempt 1 of 2`,
+    await expect(page.locator('.sv-focushead .sv-act-k')).toHaveText(
+      `${EXPERIMENT}·Attempt 1 of 2`,
     );
-    await expect(strip(page).locator('.xa-strip-text')).toHaveText('0 of 4 answered');
+    await expect(strip(page).locator('.sv-attcount')).toHaveText('0 of 4 answered');
   });
 
-  test('an attempt in progress: “Attempt 1 in progress”, Continue attempt (f12)', async ({
-    page,
-  }) => {
+  test('an attempt in progress: “Attempt 1 in progress”, Continue attempt', async ({ page }) => {
     const id = await setUp(page);
     await rahulAttempt(
       page,
@@ -244,26 +266,20 @@ test.describe('ST-12 Before you start', () => {
       false,
     );
     await softNavigate(page, `/student/assessments/${id}`);
-    await expect(notice(page).locator('.xr-notice-title')).toHaveText('Attempt 1 in progress', {
-      timeout: 30_000,
-    });
-    await expect(notice(page)).toContainText(
-      'Your answers are saved. Two of four questions answered.',
-    );
-    await expect(notice(page)).not.toHaveClass(/xr-notice--/);
+    await expect(stateTitle(page)).toHaveText('Attempt 1 in progress', { timeout: 30_000 });
+    await expect(stateLine(page)).toHaveText('Your answers are saved. 2 questions of 4 answered.');
+    await expect(statusPill(page)).toHaveText('Attempt in progress');
+    await expect(statusPill(page)).toHaveClass(/xr-st--warn/);
     // No introduction was written (the walk's D1): none is shown.
-    await expect(main(page).locator('p.xr-lead')).toHaveCount(0);
+    await expect(main(page).locator('.rk-head .rk-sub')).toHaveCount(0);
     expect(await factsText(page)).toEqual(DRAWN_FACTS);
-    await expect(main(page).locator('.xw-actions > *')).toHaveText([
-      'Continue attempt',
-      'Back to experiment',
-    ]);
+    await expect(cardActions(page)).toHaveText(['Continue attempt', 'Back to experiment']);
     await checkState(page, NAME);
-    await shot(page, 'st12-f12');
+    await shot(page, 'st12-inprog');
 
     await reachAndClick(page, page.getByRole('link', { name: 'Continue attempt' }));
     await expect(page).toHaveURL(new RegExp(`/student/assessments/${id}/attempt$`));
-    await expect(strip(page).locator('.xa-strip-text')).toHaveText('2 of 4 answered');
+    await expect(strip(page).locator('.sv-attcount')).toHaveText('2 of 4 answered');
     await expect(
       page.getByRole('radio', {
         name: 'The actual heat transfer with the largest heat transfer possible',
@@ -273,23 +289,20 @@ test.describe('ST-12 Before you start', () => {
     await expect(strip(page).locator('a.is-done')).toHaveText(['1', '2']);
   });
 
-  test('submitted: “Submitted — waiting for marking”, See result page (f13)', async ({ page }) => {
+  test('submitted: “Submitted — waiting for marking”, See result page', async ({ page }) => {
     const id = await setUp(page);
     await rahulAttempt(page, id, [['Q-0101', { type: 'multiple-choice', choice: 'A' }]], true);
     await softNavigate(page, `/student/assessments/${id}`);
-    await expect(notice(page).locator('.xr-notice-title')).toHaveText(
-      'Submitted — waiting for marking',
-      { timeout: 30_000 },
-    );
-    await expect(notice(page)).toHaveClass(/xr-notice--warn/);
-    await expect(notice(page)).toContainText(
-      'You submitted on 27 Oct 2026, 10:00. Your result appears after the deadline.',
+    await expect(stateTitle(page)).toHaveText('Submitted — waiting for marking', {
+      timeout: 30_000,
+    });
+    await expect(statusPill(page)).toHaveText('Waiting for marking');
+    await expect(stateLine(page)).toHaveText(
+      'You submitted on 27 Oct 2026, 10:00. Your result appears after the deadline: 14 Nov 2026, 23:59.',
     );
     await expect(facts(page).nth(3)).toContainText('You have used 1');
-    await expect(main(page).locator('.xw-actions > *')).toHaveText([
-      'See result page',
-      'Back to experiment',
-    ]);
+    await expect(cardActions(page)).toHaveText(['See result page', 'Back to experiment']);
+    await expect(main(page).locator('.sv-ai .rb-btn--primary')).toHaveCount(0);
     await expect(page.getByRole('link', { name: 'See result page' })).toHaveAttribute(
       'href',
       `/student/assessments/${id}/result`,
@@ -297,10 +310,10 @@ test.describe('ST-12 Before you start', () => {
     // No figure of any kind before the result is released.
     await expect(main(page)).not.toContainText(/of 16 marks scored|Passed|Not passed/);
     await checkState(page, NAME);
-    await shot(page, 'st12-f13');
+    await shot(page, 'st12-waitmark');
   });
 
-  test('not passed with an attempt left: Try again starts attempt 2 (f14)', async ({ page }) => {
+  test('not passed with an attempt left: Try again starts attempt 2', async ({ page }) => {
     const id = await setUp(page, { release: 'immediately-after-marking' });
     const first = await rahulAttempt(
       page,
@@ -310,141 +323,151 @@ test.describe('ST-12 Before you start', () => {
     );
     await markAndConfirm(page, first.id, '2');
     await softNavigate(page, `/student/assessments/${id}`);
-    await expect(notice(page).locator('.xr-notice-title')).toHaveText(
-      'Not passed on attempt 1 · 1 attempt left',
-      { timeout: 30_000 },
-    );
-    await expect(notice(page)).toHaveClass(/xr-notice--quiet/);
-    await expect(notice(page)).toContainText(
+    await expect(stateTitle(page)).toHaveText('Not passed on attempt 1 · 1 attempt left', {
+      timeout: 30_000,
+    });
+    await expect(stateLine(page)).toHaveText(
       'You can try once more. Your first result stays on your result page.',
     );
-    await expect(facts(page).nth(5)).toContainText('Immediately after marking');
-    await expect(main(page).locator('.xw-actions > *')).toHaveText(['Try again', 'See result']);
+    await expect(statusPill(page)).toHaveText('Result ready');
+    await expect(facts(page).nth(4)).toContainText('Immediately after marking');
+    await expect(cardActions(page)).toHaveText(['Try again', 'See result']);
     await checkState(page, NAME);
-    await shot(page, 'st12-f14');
+    await shot(page, 'st12-notpassed');
 
     await reachAndClick(page, page.getByRole('button', { name: 'Try again' }));
     await expect(page).toHaveURL(new RegExp(`/student/assessments/${id}/attempt$`));
-    await expect(page.locator('.xr-phead .xr-overline')).toHaveText(
-      `${EXPERIMENT} · Attempt 2 of 2`,
+    await expect(page.locator('.sv-focushead .sv-act-k')).toHaveText(
+      `${EXPERIMENT}·Attempt 2 of 2`,
     );
-    await expect(strip(page).locator('.xa-strip-text')).toHaveText('0 of 4 answered');
+    await expect(strip(page).locator('.sv-attcount')).toHaveText('0 of 4 answered');
   });
 
-  test('not passed with no attempt left: See result only (provisional)', async ({ page }) => {
+  test('not passed with no attempt left: “Result released”, See result only', async ({ page }) => {
     const id = await setUp(page, { release: 'immediately-after-marking' });
     const first = await rahulAttempt(page, id, [], true);
     await markAndConfirm(page, first.id, '0');
     const second = await rahulAttempt(page, id, [], true);
     await markAndConfirm(page, second.id, '1');
     await softNavigate(page, `/student/assessments/${id}`);
-    await expect(notice(page).locator('.xr-notice-title')).toHaveText(
-      'Not passed on attempt 2 · no attempts left',
-      { timeout: 30_000 },
-    );
-    await expect(notice(page)).toContainText('Your result stays on your result page.');
+    await expect(stateTitle(page)).toHaveText('Result released', { timeout: 30_000 });
+    await expect(stateLine(page)).toHaveText('Released 27 Oct 2026, 10:00, when marked.');
     await expect(facts(page).nth(3)).toContainText('You have used 2');
-    await expect(main(page).locator('.xw-actions > *')).toHaveText([
-      'See result',
-      'Back to experiment',
-    ]);
+    await expect(cardActions(page)).toHaveText(['See result', 'Back to experiment']);
     await expect(page.getByRole('button', { name: 'Try again' })).toHaveCount(0);
     await checkState(page, NAME);
   });
 
-  test('passed after Flow D: “Passed on attempt 1” (provisional)', async ({ page }) => {
+  test('passed after Flow D: “Result released — you passed”', async ({ page }) => {
     await bootWorld(page, { fixture: 'after-flow-d', session: RAHUL });
     await page.goto('/student/assessments/ASMT-0009');
-    await expect(notice(page).locator('.xr-notice-title')).toHaveText('Passed on attempt 1', {
+    await expect(stateTitle(page)).toHaveText('Result released — you passed', {
       timeout: 30_000,
     });
-    await expect(notice(page)).toHaveClass(/xr-notice--ok/);
-    await expect(main(page).locator('.xw-actions > *')).toHaveText([
-      'See result',
-      'Back to experiment',
-    ]);
+    await expect(stateLine(page)).toHaveText('Released 14 Nov 2026, 23:59, after the deadline.');
+    await expect(statusPill(page)).toHaveClass(/xr-st--ok/);
+    await expect(cardActions(page)).toHaveText(['See result', 'Back to experiment']);
     await checkState(page, NAME);
+    await expectNoReference(page);
+    await shot(page, 'st12-released');
   });
 });
 
 test.describe('ST-13 the attempt', () => {
-  test('answer, save, the strip, DL-1 with the unanswered warning, submit (f0, f1, f4, f5, f6)', async ({
-    page,
-  }) => {
+  test('answer, save, the panel, DL-1 with the unanswered warning, submit', async ({ page }) => {
     const id = await setUp(page);
     await softNavigate(page, `/student/assessments/${id}`);
     await reachAndClick(page, page.getByRole('button', { name: 'Start assessment' }));
     await expect(page).toHaveURL(new RegExp(`/student/assessments/${id}/attempt$`));
 
-    // The focused page: its own bar, no sidebar, no shell top bar; the tab named by the assessment.
-    await expect(page.locator('aside.xr-side')).toHaveCount(0);
-    await expect(page.locator('header.xr-top')).toHaveCount(0);
+    // The focused page: its own V3 root and bar, no rail, no shell top bar; the tab named by the
+    // assessment; the way out goes back to Before you start.
+    await expect(page.locator('aside.xr-side, aside.rb-rail')).toHaveCount(0);
+    await expect(page.locator('header.xr-top, header.rb-top')).toHaveCount(0);
+    await expect(page.locator('div.xr.rb > div.st-focus')).toHaveCount(1);
     await expect(page).toHaveTitle(`${NAME} · XR Learning Platform`);
-    await expect(bar(page).locator('a.xr-back')).toHaveText(EXPERIMENT);
-    await expect(bar(page).locator('a.xr-back')).toHaveAttribute(
-      'href',
-      `/student/experiments/${SHELL}`,
-    );
+    const exit = bar(page).locator('a.st-exit');
+    await expect(exit).toHaveAccessibleName(NAME);
+    await expect(exit).toHaveAttribute('href', `/student/assessments/${id}`);
     await expect(save(page)).toHaveText('Answers save automatically');
-    await expect(bar(page).getByRole('img', { name: 'Rahul Verma, Student' })).toHaveText('RV');
-    await expect(page.locator('.xr-phead .xl-meta')).toHaveText(
+    await expect(bar(page).locator('.xr-avatar')).toHaveText('RV');
+    await expect(bar(page).locator('.xr-avatar')).toHaveAttribute('aria-hidden', 'true');
+    await expect(page.locator('.sv-focushead .sv-focus-sub')).toHaveText(
       '4 questions · 16 marks · due 14 Nov 2026, 23:59 · no time limit',
     );
-    await expect(page.locator('li.xa-q .xa-q-n')).toHaveText([
+    await expect(page.locator('section.sv-q h2.sv-q-k')).toHaveText([
       'Question 1 of 4 · Multiple choice',
       'Question 2 of 4 · Multiple choice',
       'Question 3 of 4 · True or false',
       'Question 4 of 4 · Written answer',
     ]);
-    await expect(page.locator('li.xa-q .xa-q-head .xr-meta')).toHaveText([
+    await expect(page.locator('section.sv-q .sv-q-m')).toHaveText([
       '2 marks',
       '2 marks',
       '2 marks',
       '10 marks',
     ]);
-    await expect(strip(page).locator('a')).toHaveText(['1', '2', '3', '4']);
+    await expect(strip(page).locator('ol.st-strip a')).toHaveText(['1', '2', '3', '4']);
+    // Below 900 px the panel splits: the answers above the questions, Submit after them.
+    const width = page.viewportSize()?.width ?? 1440;
+    const [stripBox, firstQuestion, submitBox] = await Promise.all([
+      strip(page).boundingBox(),
+      page.locator('#Ta-q1').boundingBox(),
+      page.getByRole('region', { name: 'Submit your answers' }).boundingBox(),
+    ]);
+    if (width < 1000) {
+      expect(stripBox!.y).toBeLessThan(firstQuestion!.y);
+      expect(submitBox!.y).toBeGreaterThan(firstQuestion!.y);
+    } else {
+      expect(stripBox!.x).toBeGreaterThan(firstQuestion!.x);
+    }
     await checkState(page, NAME);
-    await shot(page, 'st13-f0');
+    await expectNoReference(page);
+    await shot(page, 'st13-assess');
 
-    // f6 at 375: each option is a touch row of 44 px or more.
-    const option = page.locator('label.xr-choice').first();
+    // Each option is a touch row of 44 px or more.
+    const option = page.locator('label.rk-choice').first();
     expect((await option.boundingBox())!.height).toBeGreaterThanOrEqual(44);
 
-    // Answer two choices: "Saving…" → "All answers saved"; the strip counts them.
+    // Answer two choices: "Saving…" → "All answers saved"; the panel counts them.
     await page
       .getByText('The actual heat transfer with the largest heat transfer possible')
       .click();
     await expect(save(page)).toHaveText('All answers saved');
-    await expect(save(page)).toHaveClass(/is-ok/);
+    await expect(save(page)).toHaveClass(/st-save--ok/);
     await page.getByText('C_min ÷ C_max', { exact: true }).click();
-    await expect(strip(page).locator('.xa-strip-text')).toHaveText('2 of 4 answered');
+    await expect(strip(page).locator('.sv-attcount')).toHaveText('2 of 4 answered');
     await expect(strip(page).getByRole('link', { name: 'Question 1, answered' })).toHaveClass(
       /is-done/,
     );
     await expect(
       strip(page).getByRole('link', { name: 'Question 3, not answered' }),
     ).not.toHaveClass(/is-done/);
+    await expect(page.locator('#Ta-q1 .sv-q-n')).toHaveClass(/is-done/);
     await expect(save(page)).toHaveText('All answers saved');
     await checkState(page, NAME);
-    await shot(page, 'st13-f5');
+    await shot(page, 'st13-inprog');
 
     // Next unanswered moves focus to question 3.
     await reachAndClick(page, page.getByRole('button', { name: 'Next unanswered' }));
     await expect(page.locator('#Ta-q3')).toBeFocused();
-    // A strip number moves focus to its question.
+    // A question number moves focus to its question.
     await strip(page).getByRole('link', { name: 'Question 4, not answered' }).focus();
     await page.keyboard.press('Enter');
     await expect(page.locator('#Ta-q4')).toBeFocused();
 
-    // f1: Submit opens DL-1 with the unanswered warning; Keep answering closes it.
+    // Submit opens DL-1 with the unanswered warning; Keep answering closes it.
     await reachAndClick(page, page.getByRole('button', { name: 'Submit', exact: true }));
     await expect(dialog(page)).toBeVisible();
-    await expect(dialog(page).locator('.xr-dialog-body')).toHaveText(
-      /2 questions aren’t answered \(3, 4\)\. You can still submit\.\s*You can’t change your answers after submitting\./,
+    await expect(dialog(page)).toHaveAccessibleDescription(
+      'You can’t change your answers after submitting.',
     );
-    await expect(dialog(page).getByRole('button', { name: 'Submit answers' })).toBeFocused();
+    await expect(dialog(page).locator('.rk-dlg-body .rk-pending')).toHaveText(
+      '2 questions aren’t answered (3, 4). You can still submit.',
+    );
+    await expect(dialog(page).getByRole('heading', { name: 'Submit your answers?' })).toBeFocused();
     await checkState(page, NAME);
-    await shot(page, 'st13-f1');
+    await shot(page, 'st13-dialog');
     await dialog(page).getByRole('button', { name: 'Keep answering' }).click();
     await expect(dialog(page)).toBeHidden();
 
@@ -454,41 +477,40 @@ test.describe('ST-13 the attempt', () => {
       .fill('Fouling adds a resistance, so U falls and less heat passes across.');
     await expect(save(page)).toHaveText('All answers saved', { timeout: 10_000 });
     await page.getByText('True', { exact: true }).click();
-    await expect(strip(page).locator('.xa-strip-text')).toHaveText('4 of 4 answered');
+    await expect(strip(page).locator('.sv-attcount')).toHaveText('4 of 4 answered');
     await expect(page.getByRole('button', { name: 'Next unanswered' })).toHaveCount(0);
     await expect(save(page)).toHaveText('All answers saved');
 
-    // Submit: no warning now; Submit answers sends it; "Answers submitted" takes focus.
+    // Submit: every question answered; Submit answers sends it; "Answers submitted" takes focus.
     await reachAndClick(page, page.getByRole('button', { name: 'Submit', exact: true }));
-    await expect(dialog(page).locator('.xr-dialog-body')).toHaveText(
-      'You can’t change your answers after submitting.',
-    );
+    await expect(dialog(page).locator('.rk-dlg-body')).toHaveText('All 4 questions are answered.');
     await dialog(page).getByRole('button', { name: 'Submit answers' }).click();
     const done = page.locator('#Ta-done');
-    await expect(done.getByRole('heading', { level: 1 })).toHaveText('Answers submitted');
+    await expect(done.getByRole('heading', { level: 2 })).toHaveText('Answers submitted');
     await expect(done).toBeFocused();
-    await expect(done.locator('p.xr-lead')).toHaveText(
+    await expect(done.locator('.xr-st')).toHaveText('Waiting for marking');
+    await expect(done.locator('p.sv-act-d')).toHaveText(
       'Submitted 27 Oct 2026, 10:00. Your faculty marks written answers. Your result appears after the deadline: 14 Nov 2026, 23:59.',
     );
+    await expect(save(page)).toHaveCount(0);
     await expect(page).toHaveTitle(`Answers submitted · ${NAME} · XR Learning Platform`);
-    await expect(done.locator('.xr-msg-actions > *')).toHaveText([
-      'Back to experiment',
+    await expect(done.locator('.sv-act-go > *')).toHaveText([
       'See your result page',
+      'Back to experiment',
     ]);
     await expect(page.getByRole('link', { name: 'See your result page' })).toHaveAttribute(
       'href',
       `/student/assessments/${id}/result`,
     );
-    await checkState(page, 'Answers submitted');
-    await shot(page, 'st13-f4');
+    await checkState(page, NAME);
+    await expectNoReference(page);
+    await shot(page, 'st13-waitmark');
 
-    // Back to experiment opens the hub; Before you start now says it is waiting for marking.
+    // Back to experiment opens the hub's Assessment tab; Before you start now says it is waiting.
     await reachAndClick(page, page.getByRole('link', { name: 'Back to experiment' }));
-    await expect(page).toHaveURL(new RegExp(`/student/experiments/${SHELL}$`));
+    await expect(page).toHaveURL(new RegExp(`${TAB}$`));
     await softNavigate(page, `/student/assessments/${id}`);
-    await expect(notice(page).locator('.xr-notice-title')).toHaveText(
-      'Submitted — waiting for marking',
-    );
+    await expect(stateTitle(page)).toHaveText('Submitted — waiting for marking');
   });
 
   test('without an attempt in progress the attempt page gives way to Before you start', async ({
@@ -507,12 +529,9 @@ test.describe('ST-13 the attempt', () => {
     await expect(page).toHaveURL(new RegExp(`/attempt$`));
     await page.getByText('False', { exact: true }).click();
     await expect(save(page)).toHaveText('All answers saved');
-    await reachAndClick(page, bar(page).locator('a.xr-back'));
-    await expect(page).toHaveURL(new RegExp(`/student/experiments/${SHELL}$`));
-    await softNavigate(page, `/student/assessments/${id}`);
-    await expect(notice(page)).toContainText(
-      'Your answers are saved. One of four questions answered.',
-    );
+    await reachAndClick(page, bar(page).locator('a.st-exit'));
+    await expect(page).toHaveURL(new RegExp(`/student/assessments/${id}$`));
+    await expect(stateLine(page)).toHaveText('Your answers are saved. One question of 4 answered.');
     await reachAndClick(page, page.getByRole('link', { name: 'Continue attempt' }));
     await expect(page.getByRole('radio', { name: 'False' })).toBeChecked();
   });

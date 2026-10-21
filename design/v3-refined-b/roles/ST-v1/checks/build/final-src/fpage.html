@@ -1,0 +1,62 @@
+      <!-- ══════════ ST-08 WEB simulation · ST-09 AR / VR / MR format ══════════
+           One launch surface: where you are (stages for the sample WEB activity, reported sessions for VR), the one action,
+           honest notes about what opening does; the format's facts beside it. AR and MR are refusals (message pages). -->
+      <sc-if value="{{ is.fpage }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ FP.crumbExp.href }}" onClick="{{ FP.crumbExp.go }}">{{ FP.exp }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ FP.crumbSim.href }}" onClick="{{ FP.crumbSim.go }}">Simulation</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">{{ FP.code }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow st-eyecode"><span class="{{ FP.chip.fmtCls }}" aria-hidden="true">{{ FP.code }}<sc-if value="{{ FP.chip.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ FP.chip.glyph }}"></use></svg></sc-if></span><span>{{ FP.exp }}</span></p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ FP.title }}</h1>
+          <div class="rk-meta"><span class="{{ FP.pillCls }}"><i></i>{{ FP.pill }}</span><sc-if value="{{ FP.hasMeta }}" hint-placeholder-val="{{ true }}"><span>{{ FP.meta }}</span></sc-if></div>
+        </div>
+      </div>
+      <div class="sv-ov sv-fp">
+        <section class="sv-card sv-launch" aria-labelledby="st-launch-t">
+          <div class="sv-launch-main">
+            <h2 class="sv-sec-t" id="st-launch-t" tabindex="-1">{{ FP.h2 }}</h2>
+            <p class="sv-launch-d">{{ FP.d }}</p>
+            <sc-if value="{{ FP.hasStages }}" hint-placeholder-val="{{ false }}"><ol class="sv-steps sv-launch-stages" aria-label="Stages of the sample WEB activity"><sc-for list="{{ FP.stages }}" as="g" hint-placeholder-count="3"><li class="{{ g.cls }}" aria-label="{{ g.aria }}"><p class="sv-steps-k" aria-hidden="true">{{ g.k }}<sc-if value="{{ g.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></sc-if></p><p class="sv-steps-s" aria-hidden="true">{{ g.s }}</p></li></sc-for></ol></sc-if>
+            <sc-if value="{{ FP.fail }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--warn sv-launch-err" id="st-launch-err" tabindex="-1" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-alert"></use></svg><p class="rk-notice-t">The simulation didn’t open</p><p class="rk-notice-d">Nothing was lost. Try again, or report a problem if it keeps happening.</p></div>
+            </sc-if>
+            <sc-if value="{{ FP.hasGo }}" hint-placeholder-val="{{ true }}">
+            <div class="sv-launch-go">
+              <sc-if value="{{ FP.goIsLink }}" hint-placeholder-val="{{ false }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ FP.goLink.href }}" onClick="{{ FP.goLink.go }}">{{ FP.goLabel }}</a></sc-if>
+              <sc-if value="{{ FP.goIsBtn }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="st-launch-go" aria-busy="{{ FP.busyAria }}" disabled="{{ FP.busy }}" onClick="{{ FP.launch }}">{{ FP.goLabel }}</button></sc-if>
+              <sc-if value="{{ FP.hasHint }}" hint-placeholder-val="{{ true }}"><p class="sv-launch-hint">{{ FP.hint }}</p></sc-if>
+            </div>
+            </sc-if>
+            <sc-if value="{{ FP.hasSecond }}" hint-placeholder-val="{{ false }}"><div class="sv-launch-go"><a class="rb-btn" href="{{ FP.second.href }}" onClick="{{ FP.second.go }}">{{ FP.second.label }}</a></div></sc-if>
+          </div>
+          <sc-if value="{{ FP.hasDevice }}" hint-placeholder-val="{{ false }}">
+          <div class="sv-launch-sec sv-launch-dev">
+            <span class="sv-res-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-vr"></use></svg></span>
+            <div><p class="sv-eyebrow">Your authorised headset</p><p class="sv-launch-devname">{{ FP.device }}</p></div>
+            <a class="sv-link" href="{{ FP.devLink.href }}" onClick="{{ FP.devLink.go }}">My device<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a>
+          </div>
+          </sc-if>
+          <sc-if value="{{ FP.hasSetup }}" hint-placeholder-val="{{ false }}">
+          <div class="sv-launch-sec">
+            <button type="button" class="st-disclose sv-disclose" aria-expanded="{{ FP.setupExp }}" aria-controls="{{ FP.setupCtl }}" onClick="{{ FP.toggleSetup }}">{{ FP.setupLabel }}<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-chev"></use></svg></button>
+            <sc-if value="{{ FP.setupOpen }}" hint-placeholder-val="{{ true }}">
+            <ol class="sv-howto" id="st-setup">
+              <sc-for list="{{ FP.setup }}" as="s" hint-placeholder-count="4"><li><span class="sv-how-n" aria-hidden="true">{{ s.n }}</span><div><p class="sv-howto-t">{{ s.t }}</p><p class="sv-howto-d">{{ s.d }}</p></div></li></sc-for>
+            </ol>
+            </sc-if>
+          </div>
+          </sc-if>
+          <div class="sv-launch-sec sv-launch-foot">
+            <p class="sv-launch-help"><b>Something not working?</b> Reporting it doesn’t affect your progress.</p>
+            <a class="rb-btn" href="{{ FP.report.href }}" onClick="{{ FP.report.go }}"><svg class="xr-ico xr-ico--16" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-flag"></use></svg>Report a problem</a>
+          </div>
+        </section>
+        <aside class="sv-card sv-ov-side" aria-labelledby="st-about-h">
+          <section class="sv-sec sv-side-sec">
+            <h2 class="sv-h3" id="st-about-h">About {{ FP.code }}</h2>
+            <dl class="sv-dl sv-about-dl"><sc-for list="{{ FP.about }}" as="a" hint-placeholder-count="3"><div><dt>{{ a.k }}</dt><dd>{{ a.v }}</dd></div></sc-for></dl>
+          </section>
+        </aside>
+      </div>
+      </sc-if>
+

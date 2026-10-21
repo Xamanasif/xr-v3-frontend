@@ -11,8 +11,8 @@ import type { PinnedRelease } from '@xr/contracts/draft';
 import type { AnswerValue, ChoiceKey, QuestionType } from '@xr/domain';
 
 import { QUESTION_TYPE_WORDS } from './assessment-words';
-import { dateTime } from './dates';
 import { stateWords } from './state-copy';
+import { stDateTime } from './st-shared';
 
 export const RESULT_PAGE = {
   /** The top bar's title below 1024 px and the current crumb (B4-13 f0 … f5 `xr-top-title`). */
@@ -100,7 +100,7 @@ function sameInstant(a: string, b: string): boolean {
  * the others are `ST-14.released.*`.
  */
 export function releasedWords(release: PinnedRelease, releasedAt: string): string {
-  const at = dateTime(releasedAt);
+  const at = stDateTime(releasedAt);
   switch (release.option) {
     case 'after-deadline':
       return `Released ${at}, after the deadline`;
@@ -119,9 +119,9 @@ export function releasedWords(release: PinnedRelease, releasedAt: string): strin
 /** When the result appears, as the attempt's version sets it (f1, f4; `ST-14.appears.*`). */
 function appearsWords(release: PinnedRelease): string {
   if (release.option === 'after-deadline' && release.on !== null)
-    return `Your result appears after the deadline: ${dateTime(release.on)}.`;
+    return `Your result appears after the deadline: ${stDateTime(release.on)}.`;
   if (release.option === 'on-date' && release.on !== null)
-    return stateWords('ST-14.appears.on-date').replace('{date}', dateTime(release.on));
+    return stateWords('ST-14.appears.on-date').replace('{date}', stDateTime(release.on));
   if (release.option === 'immediately-after-marking')
     return stateWords('ST-14.appears.when-marked');
   return stateWords('ST-14.appears.other');
@@ -139,7 +139,7 @@ export function waitingLine(
   hasWritten = true,
 ): string {
   return [
-    submittedAt === null ? null : `You submitted on ${dateTime(submittedAt)}.`,
+    submittedAt === null ? null : `You submitted on ${stDateTime(submittedAt)}.`,
     hasWritten ? RESULT_PAGE.facultyMarks : null,
     appearsWords(release),
   ]
@@ -154,9 +154,9 @@ export function waitingLine(
 export function notReleasedLine(release: PinnedRelease): string {
   const when =
     release.option === 'after-deadline' && release.on !== null
-      ? `Results for this assessment are released after the deadline: ${dateTime(release.on)}.`
+      ? `Results for this assessment are released after the deadline: ${stDateTime(release.on)}.`
       : release.option === 'on-date' && release.on !== null
-        ? stateWords('ST-14.not-released.on-date').replace('{date}', dateTime(release.on))
+        ? stateWords('ST-14.not-released.on-date').replace('{date}', stDateTime(release.on))
         : stateWords('ST-14.not-released.other');
   return `${RESULT_PAGE.marked} ${when}`;
 }
@@ -209,4 +209,60 @@ export function correctAnswerWords(
   if (type === 'true-false')
     return correct === 'true' ? RESULT_PAGE.trueWord : RESULT_PAGE.falseWord;
   return options?.[correct as ChoiceKey] ?? correct;
+}
+
+// ---- V3 (the owner-approved Student export ST-v1, `StudentFinal.dc.html`) -----------------------
+// ST-14 (`resultVM`): the score panel, the marks by question, the answer review. Each string is the
+// export's own (`result.test.ts` finds it there); what it does not word is the register's.
+
+/** ST-14's fixed words (`is.ares`). */
+export const RESULT_V3 = {
+  /** `section.sv-score aria-label`. */
+  scoreLabel: 'Your score',
+  passMark: 'Pass mark',
+  attempt: 'Attempt',
+  result: 'Result',
+  /** `p.sv-eyebrow` over the jump list. */
+  byQuestion: 'Marks by question',
+  /** A choice answer's verdict (`sv-verdict`). */
+  correct: 'Correct',
+  notCorrect: 'Not correct',
+  /** No answer given (a choice or a written answer). */
+  notAnswered: 'Not answered',
+} as const;
+
+/** "of 16 marks" beside the score (`AR.total`); "of 1 mark". */
+export function outOfWords(outOf: number): string {
+  return `of ${figure(outOf)} ${outOf === 1 ? 'mark' : 'marks'}`;
+}
+
+/** "50% · 8 of 16 marks" (`AR.passText`): the attempt's own pass mark. */
+export function passMarkValueWords(passMarkMarks: number, outOf: number): string {
+  const percent = outOf > 0 ? Math.round((passMarkMarks * 100) / outOf) : 0;
+  return `${percent}% · ${ofMarksWords(passMarkMarks, outOf)}`;
+}
+
+/** The jump list: "Q1", "2 of 2" and its name "Question 1: 2 of 2 marks" (`AR.byQ`). */
+export function byQuestionWords(
+  number: number,
+  awarded: number,
+  outOf: number,
+): { readonly label: string; readonly mark: string; readonly name: string } {
+  const marks = ofMarksWords(awarded, outOf);
+  return {
+    label: `Q${number}`,
+    mark: `${figure(awarded)} of ${figure(outOf)}`,
+    name: `Question ${number}: ${marks}`,
+  };
+}
+
+/**
+ * Not passed with an attempt left (`AR.leftText`): "You have 1 attempt left. Your first result
+ * stays here." — more than one left, or a later attempt, from the register.
+ */
+export function retryLine(attemptsLeft: number, attemptNumber: number): string {
+  const left = attemptsLeftWords(attemptsLeft);
+  const stays =
+    attemptNumber === 1 ? 'Your first result stays here.' : stateWords('ST-14.earlier-stay');
+  return `${left} ${stays}`;
 }

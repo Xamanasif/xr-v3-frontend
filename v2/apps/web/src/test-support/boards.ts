@@ -164,6 +164,24 @@ export function faExport(file: string): string {
   return readFileSync(join(FA_EXPORT_DIRECTORY, file), 'utf8');
 }
 
+/**
+ * The owner-approved Student export (ST-v1), read only: its one preview root
+ * (`StudentFinal.dc.html`, START-HERE "The design") and sheet (`v3-student-final.css`).
+ */
+export const ST_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'ST-v1',
+  'project',
+);
+
+/** An ST export file's source (`StudentFinal.dc.html`, `v3-student-final.css`, …), by file name. */
+export function stExport(file: string): string {
+  return readFileSync(join(ST_EXPORT_DIRECTORY, file), 'utf8');
+}
+
 /** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
 export function xsContract(): {
   readonly components: readonly {

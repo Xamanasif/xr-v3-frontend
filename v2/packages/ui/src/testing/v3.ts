@@ -148,8 +148,23 @@ export const FA_EXPORT_DIRECTORY = join(
 );
 
 /**
- * Every class a selector of the V3, XS, SA, VE, CM, RV, IA and FA derivatives or the V3 patches
- * names.
+ * The owner-approved Student export (ST-v1): its one preview root (`StudentFinal.dc.html`,
+ * START-HERE "The design"), read as the reference for the Student pages' markup, words and icons.
+ */
+export const ST_EXPORT_DIRECTORY = join(
+  V3_BOARDS_DIRECTORY,
+  '..',
+  '..',
+  '..',
+  '..',
+  'roles',
+  'ST-v1',
+  'project',
+);
+
+/**
+ * Every class a selector of the V3, XS, SA, VE, CM, RV, IA, FA and ST derivatives or the V3
+ * patches names.
  */
 export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
   [
@@ -161,6 +176,7 @@ export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
     'rv-scoped.css',
     'ia-scoped.css',
     'fa-scoped.css',
+    'st-scoped.css',
     'patch.css',
   ].flatMap((sheet) => [...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8'))]),
 );
@@ -198,6 +214,11 @@ export function iaExportText(file: string): string {
 /** The raw text of an FA export file (`Main.dc.html`, …), for markup, words and icon checks. */
 export function faExportText(file: string): string {
   return readFileSync(join(FA_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The raw text of an ST export file (`StudentFinal.dc.html`, …), for markup, words and icons. */
+export function stExportText(file: string): string {
+  return readFileSync(join(ST_EXPORT_DIRECTORY, file), 'utf8');
 }
 
 /**

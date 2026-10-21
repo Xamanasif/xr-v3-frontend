@@ -1,0 +1,1862 @@
+[
+ {
+  "case": "01-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-newst",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-newst",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-vrnow",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-vrnow",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-vrprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-vrprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-ended",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-ended",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-withdrawn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-withdrawn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-inactive",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-inactive",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-nodevice",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-nodevice",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-inprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-inprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-waitmark",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-waitmark",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-released",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-released",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-device",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-device",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-learn-menu",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-learn-menu",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-learn-acct",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "01-learn-acct",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-newst",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-newst",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-ended",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-ended",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-withdrawn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-withdrawn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-learn-loading",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-learn-loading",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-learn-failed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "02-learn-failed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-ended",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-ended",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-newst",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "03-newst",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn-x-nomatch",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn-x-nomatch",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-ended",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-ended",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-newst",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-newst",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-vrnow",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-vrnow",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-ended",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-ended",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-withdrawn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05-withdrawn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn-res-fail",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn-res-fail",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-vrnow",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-vrnow",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-vrprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-vrprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "07-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-inprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-inprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-waitmark",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-waitmark",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-notrel",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-notrel",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-released",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-released",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-notpassed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "05as-notpassed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "10-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-learn-launch-fail",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08-learn-launch-fail",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08a-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08a-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08a-learn-act-done",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08a-learn-act-done",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08a-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "08a-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-vrprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-vrprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-vrnow",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-vrnow",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-licence",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-licence",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-learn-setup-open",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-learn-setup-open",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-nodevice",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09-nodevice",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09ar-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09ar-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09mr-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "09mr-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-newst",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-newst",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-inprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-inprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-assess-loading",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-assess-loading",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-assess-failed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11-assess-failed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11sub-waitmark",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11sub-waitmark",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11sub-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11sub-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11res-released",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11res-released",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11res-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "11res-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-inprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-inprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-waitmark",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-waitmark",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-notrel",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-notrel",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-released",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-released",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-notpassed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-notpassed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "12-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-assess-att-two",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-assess-att-two",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog-att-dialog",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog-att-savefail",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog-att-savefail",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog-att-subfail",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-inprog-att-subfail",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-waitmark",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "13-waitmark",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-released",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-released",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-notpassed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-notpassed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-waitmark",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-waitmark",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-notrel",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-notrel",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-assess",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "14-assess",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-granted",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-granted",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-newst",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-newst",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-ended",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-ended",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-p-filter",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-p-filter",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-p-nomatch",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-p-nomatch",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-loading",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-loading",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-failed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "15-learn-failed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-vrdone-fb-errors",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-vrdone-fb-fail",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-vrdone-fb-fail",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16v-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16w-vrdone",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16w-vrdone",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16w-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "16w-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-device",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-device",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-device-dev-form",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-device-dev-form",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-device-dev-error",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-device-dev-error",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrsent",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrsent",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrfwd",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrfwd",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrappr",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrappr",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrnoia",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-dtrnoia",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-nodevice",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-nodevice",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-paused",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "18-paused",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "19-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "19-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "19-withdrawn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "19-withdrawn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "19-ended",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "19-ended",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs05-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs05-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs07-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs07-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs07f-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs07f-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs03-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs03-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs06-learn",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "xs06-learn",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn-loading",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn-loading",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn-failed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "04-learn-failed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn-loading",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn-loading",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn-failed",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "06-learn-failed",
+  "w": 375,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "XS07f-learn-help-error",
+  "w": 1440,
+  "same": true,
+  "errors": []
+ },
+ {
+  "case": "XS07f-learn-help-error",
+  "w": 375,
+  "same": true,
+  "errors": []
+ }
+]

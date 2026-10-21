@@ -70,15 +70,14 @@ describe('XS-05 "Sign out"', () => {
       </WorkspaceLayout>,
       { runtime, navigation },
     );
-    await waitFor(() =>
-      expect(document.querySelector('main.xr-page ul.xs-reports')).not.toBeNull(),
-    );
+    await waitFor(() => expect(document.querySelector('main#main ul.xs-reports')).not.toBeNull());
     const signedIn = runtime.session.getSnapshot();
     if (signedIn.status !== 'signed-in') throw new Error('not signed in');
     expect(runtime.queryClient.getQueryCache().getAll().length).toBeGreaterThan(0);
 
     const button = screen.getByRole('button', { name: /^Account menu, Rahul Verma, Student/ });
-    // Rahul holds VR (Phase 3: ST-18 is built): "My device" joins once the shell's reads answer.
+    // Rahul holds VR (Phase 3: ST-18 is built): "My device" joins once the shell's reads answer —
+    // in the Student's V3 shell (ST-v1) as in the v46 one (the frame passes `deviceEligible`).
     await waitFor(() => expect(runtime.queryClient.isFetching()).toBe(0));
     await user.click(button);
     const menu = document.getElementById(button.getAttribute('aria-controls')!)!;

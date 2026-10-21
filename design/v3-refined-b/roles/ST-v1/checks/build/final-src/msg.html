@@ -1,0 +1,50 @@
+      <!-- ══════════ Message pages: ST-19 not available, ST-09 AR/MR, refusals, borrowed XS-06 / XS-08 ══════════
+           Student refusals are one compact card — what this is about, what happened, and what you can still do (only
+           destinations that already exist). The borrowed XS-06 / XS-08 messages keep their XS form. -->
+      <sc-if value="{{ is.msg }}" hint-placeholder-val="{{ false }}">
+      <sc-if value="{{ M.hasCrumbs }}" hint-placeholder-val="{{ true }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><sc-for list="{{ M.crumbs }}" as="c" hint-placeholder-count="2"><a href="{{ c.href }}" onClick="{{ c.go }}">{{ c.t }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></sc-for><span aria-current="page">{{ M.crumb }}</span></nav>
+      </sc-if>
+      <sc-if value="{{ M.xs }}" hint-placeholder-val="{{ false }}">
+      <div class="xsb-msg">
+        <span class="{{ M.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ M.ico }}"></use></svg></span>
+        <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+        <h1 class="rb-h1" id="st-h1" tabindex="-1">{{ M.t }}</h1>
+        <p class="xsb-msg-d">{{ M.d }}</p>
+        <div class="xsb-msg-act">
+          <sc-for list="{{ M.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}">{{ a.label }}</a></sc-for>
+          <sc-if value="{{ M.help }}" hint-placeholder-val="{{ true }}"><a class="rb-link" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a></sc-if>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ M.st }}" hint-placeholder-val="{{ true }}">
+      <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+      <section class="sv-card sv-refuse" aria-labelledby="st-h1">
+        <span class="{{ M.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ M.ico }}"></use></svg></span>
+        <div class="sv-refuse-main">
+          <sc-if value="{{ M.hasK }}" hint-placeholder-val="{{ true }}"><p class="sv-refuse-k">{{ M.k }}</p></sc-if>
+          <h1 class="sv-refuse-t" id="st-h1" tabindex="-1">{{ M.t }}</h1>
+          <p class="sv-refuse-d">{{ M.d }}</p>
+          <sc-if value="{{ M.hasAlt }}" hint-placeholder-val="{{ false }}">
+          <div class="sv-refuse-alt">
+            <h2 class="sv-subk" id="st-refuse-alt">{{ M.altH }}</h2>
+            <ul class="sv-refuse-list" aria-labelledby="st-refuse-alt">
+              <sc-for list="{{ M.alt }}" as="x" hint-placeholder-count="2">
+              <li>
+                <sc-if value="{{ x.hasChip }}" hint-placeholder-val="{{ true }}"><span class="{{ x.fmtCls }}" aria-hidden="true">{{ x.code }}<sc-if value="{{ x.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ x.glyph }}"></use></svg></sc-if></span></sc-if>
+                <p class="sv-refuse-row"><b>{{ x.t }}<span class="xr-sr">{{ x.sr }}</span></b><span>{{ x.m }}</span></p>
+                <sc-if value="{{ x.hasLink }}" hint-placeholder-val="{{ true }}"><a class="sv-link" href="{{ x.link.href }}" onClick="{{ x.link.go }}" aria-label="{{ x.link.aria }}">{{ x.link.label }}<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a></sc-if>
+              </li>
+              </sc-for>
+            </ul>
+          </div>
+          </sc-if>
+          <div class="sv-refuse-act">
+            <sc-for list="{{ M.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}">{{ a.label }}</a></sc-for>
+            <sc-if value="{{ M.help }}" hint-placeholder-val="{{ true }}"><a class="sv-link" href="{{ S.help.href }}" onClick="{{ S.help.go }}">Help &amp; support</a></sc-if>
+          </div>
+        </div>
+      </section>
+      </sc-if>
+      </sc-if>
+

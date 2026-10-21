@@ -26,7 +26,7 @@ export type IntroState =
       readonly latest: StudentAttemptFacts;
       readonly attemptsLeft: number;
     }
-  /** Released and passed (`ST-12.passed-title`). */
+  /** Released and passed (`INTRO_V3.passedTitle`). */
   | { readonly kind: 'passed'; readonly latest: StudentAttemptFacts }
   /** Released, not passed, no attempt left. */
   | { readonly kind: 'no-attempts-left'; readonly latest: StudentAttemptFacts }

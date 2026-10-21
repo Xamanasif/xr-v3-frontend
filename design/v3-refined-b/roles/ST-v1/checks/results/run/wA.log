@@ -1,0 +1,312 @@
+01-learn @1024 · Hello, Rahul · clean
+01-learn @768 · Hello, Rahul · clean
+01-assess @1024 · Hello, Rahul · clean
+01-assess @768 · Hello, Rahul · clean
+01-granted @1024 · Hello, Rahul · clean
+01-granted @768 · Hello, Rahul · clean
+01-newst @1024 · Hello, Rahul · clean
+01-newst @768 · Hello, Rahul · clean
+01-vrnow @1024 · Hello, Rahul · clean
+01-vrnow @768 · Hello, Rahul · clean
+01-vrprog @1024 · Hello, Rahul · clean
+01-vrprog @768 · Hello, Rahul · clean
+01-vrdone @1024 · Hello, Rahul · clean
+01-vrdone @768 · Hello, Rahul · clean
+01-licence @1024 · Hello, Arun · clean
+01-licence @768 · Hello, Arun · clean
+01-paused @1024 · Hello, Rahul · clean
+01-paused @768 · Hello, Rahul · clean
+01-ended @1024 · Hello, Rahul · clean
+01-ended @768 · Hello, Rahul · clean
+01-withdrawn @1024 · Hello, Rahul · clean
+01-withdrawn @768 · Hello, Rahul · clean
+01-inactive @1024 · Hello, Rahul · clean
+01-inactive @768 · Hello, Rahul · clean
+01-nodevice @1024 · Hello, Vikram · clean
+01-nodevice @768 · Hello, Vikram · clean
+01-inprog @1024 · Hello, Rahul · clean
+01-inprog @768 · Hello, Rahul · clean
+01-waitmark @1024 · Hello, Rahul · clean
+01-waitmark @768 · Hello, Rahul · clean
+01-released @1024 · Hello, Rahul · clean
+01-released @768 · Hello, Rahul · clean
+01-device @1024 · Hello, Rahul · clean
+01-device @768 · Hello, Rahul · clean
+01-learn-menu @1024 · Hello, Rahul · clean
+01-learn-menu @768 · Hello, Rahul · clean
+01-learn-acct @1024 · Hello, Rahul · clean
+01-learn-acct @768 · Hello, Rahul · clean
+02-learn @1024 · My courses · clean
+02-learn @768 · My courses · clean
+02-granted @1024 · My courses · clean
+02-granted @768 · My courses · clean
+02-newst @1024 · My courses · clean
+02-newst @768 · My courses · clean
+02-licence @1024 · My courses · clean
+02-licence @768 · My courses · clean
+02-paused @1024 · My courses · clean
+02-paused @768 · My courses · clean
+02-ended @1024 · My courses · clean
+02-ended @768 · My courses · clean
+02-withdrawn @1024 · My courses · clean
+02-withdrawn @768 · My courses · clean
+02-learn-loading @1024 · My courses · clean
+02-learn-loading @768 · My courses · clean
+02-learn-failed @1024 · My courses · clean
+02-learn-failed @768 · My courses · clean
+03-learn @1024 · Thermodynamics & Heat Transfer · clean
+03-learn @768 · Thermodynamics & Heat Transfer · clean
+03-paused @1024 · Thermodynamics & Heat Transfer · clean
+03-paused @768 · Thermodynamics & Heat Transfer · clean
+03-licence @1024 · Thermodynamics & Heat Transfer · clean
+03-licence @768 · Thermodynamics & Heat Transfer · clean
+03-ended @1024 · This course has no experiments for you right now · clean
+03-ended @768 · This course has no experiments for you right now · clean
+03-newst @1024 · This course isn’t available to you · clean
+03-newst @768 · This course isn’t available to you · clean
+04-learn @1024 · My courses · clean
+04-learn @768 · My courses · clean
+04-learn-x-nomatch @1024 · My courses · clean
+04-learn-x-nomatch @768 · My courses · clean
+04-ended @1024 · My courses · clean
+04-ended @768 · My courses · clean
+04-paused @1024 · My courses · clean
+04-paused @768 · My courses · clean
+05-learn @1024 · Shell-and-Tube Heat Exchanger · clean
+05-learn @768 · Shell-and-Tube Heat Exchanger · clean
+05-granted @1024 · Shell-and-Tube Heat Exchanger · clean
+05-granted @768 · Shell-and-Tube Heat Exchanger · clean
+05-newst @1024 · This experiment isn’t available to you · clean
+05-newst @768 · This experiment isn’t available to you · clean
+05-vrnow @1024 · Shell-and-Tube Heat Exchanger · clean
+05-vrnow @768 · Shell-and-Tube Heat Exchanger · clean
+05-vrdone @1024 · Shell-and-Tube Heat Exchanger · clean
+05-vrdone @768 · Shell-and-Tube Heat Exchanger · clean
+05-licence @1024 · Shell-and-Tube Heat Exchanger · clean
+05-licence @768 · Shell-and-Tube Heat Exchanger · clean
+05-paused @1024 · Shell-and-Tube Heat Exchanger · clean
+05-paused @768 · Shell-and-Tube Heat Exchanger · clean
+05-ended @1024 · Your access to Shell-and-Tube Heat Exchanger has ended · clean
+05-ended @768 · Your access to Shell-and-Tube Heat Exchanger has ended · clean
+05-withdrawn @1024 · This experiment is no longer given to you · clean
+05-withdrawn @768 · This experiment is no longer given to you · clean
+06-learn @1024 · Shell-and-Tube Heat Exchanger · clean
+06-learn @768 · Shell-and-Tube Heat Exchanger · clean
+06-granted @1024 · Shell-and-Tube Heat Exchanger · clean
+06-granted @768 · Shell-and-Tube Heat Exchanger · clean
+06-paused @1024 · Shell-and-Tube Heat Exchanger · clean
+06-paused @768 · Shell-and-Tube Heat Exchanger · clean
+06-licence @1024 · Shell-and-Tube Heat Exchanger · clean
+06-licence @768 · Shell-and-Tube Heat Exchanger · clean
+06-learn-res-fail @1024 · Shell-and-Tube Heat Exchanger · clean
+06-learn-res-fail @768 · Shell-and-Tube Heat Exchanger · clean
+07-learn @1024 · Shell-and-Tube Heat Exchanger · clean
+07-learn @768 · Shell-and-Tube Heat Exchanger · clean
+07-granted @1024 · Shell-and-Tube Heat Exchanger · clean
+07-granted @768 · Shell-and-Tube Heat Exchanger · clean
+07-vrnow @1024 · Shell-and-Tube Heat Exchanger · clean
+07-vrnow @768 · Shell-and-Tube Heat Exchanger · clean
+07-vrprog @1024 · Shell-and-Tube Heat Exchanger · clean
+07-vrprog @768 · Shell-and-Tube Heat Exchanger · clean
+07-vrdone @1024 · Shell-and-Tube Heat Exchanger · clean
+07-vrdone @768 · Shell-and-Tube Heat Exchanger · clean
+07-licence @1024 · Shell-and-Tube Heat Exchanger · clean
+07-licence @768 · Shell-and-Tube Heat Exchanger · clean
+07-paused @1024 · Shell-and-Tube Heat Exchanger · clean
+07-paused @768 · Shell-and-Tube Heat Exchanger · clean
+05as-assess @1024 · Shell-and-Tube Heat Exchanger · clean
+05as-assess @768 · Shell-and-Tube Heat Exchanger · clean
+05as-learn @1024 · Shell-and-Tube Heat Exchanger · clean
+05as-learn @768 · Shell-and-Tube Heat Exchanger · clean
+05as-inprog @1024 · Shell-and-Tube Heat Exchanger · clean
+05as-inprog @768 · Shell-and-Tube Heat Exchanger · clean
+05as-waitmark @1024 · Shell-and-Tube Heat Exchanger · clean
+05as-waitmark @768 · Shell-and-Tube Heat Exchanger · clean
+05as-notrel @1024 · Shell-and-Tube Heat Exchanger · clean
+05as-notrel @768 · Shell-and-Tube Heat Exchanger · clean
+05as-released @1024 · Shell-and-Tube Heat Exchanger · clean
+05as-released @768 · Shell-and-Tube Heat Exchanger · clean
+05as-notpassed @1024 · Shell-and-Tube Heat Exchanger · clean
+05as-notpassed @768 · Shell-and-Tube Heat Exchanger · clean
+10-learn @1024 · Shell-and-Tube Heat Exchanger · clean
+10-learn @768 · Shell-and-Tube Heat Exchanger · clean
+10-vrdone @1024 · Shell-and-Tube Heat Exchanger · clean
+10-vrdone @768 · Shell-and-Tube Heat Exchanger · clean
+10-granted @1024 · Shell-and-Tube Heat Exchanger · clean
+10-granted @768 · Shell-and-Tube Heat Exchanger · clean
+10-paused @1024 · Shell-and-Tube Heat Exchanger · clean
+10-paused @768 · Shell-and-Tube Heat Exchanger · clean
+08-learn @1024 · WEB simulation · clean
+08-learn @768 · WEB simulation · clean
+08-granted @1024 · WEB simulation · clean
+08-granted @768 · WEB simulation · clean
+08-vrdone @1024 · WEB simulation · clean
+08-vrdone @768 · WEB simulation · clean
+08-paused @1024 · WEB simulation · clean
+08-paused @768 · WEB simulation · clean
+08-licence @1024 · WEB simulation · clean
+08-licence @768 · WEB simulation · clean
+08-learn-launch-fail @1024 · WEB simulation · clean
+08-learn-launch-fail @768 · WEB simulation · clean
+08a-learn @1024 · Sample activity · clean
+08a-learn @768 · Sample activity · clean
+08a-learn-act-done @1024 · Sample activity · clean
+08a-learn-act-done @768 · Sample activity · clean
+08a-granted @1024 · Sample activity · clean
+08a-granted @768 · Sample activity · clean
+09-learn @1024 · VR on your headset · clean
+09-learn @768 · VR on your headset · clean
+09-vrprog @1024 · VR on your headset · clean
+09-vrprog @768 · VR on your headset · clean
+09-vrdone @1024 · VR on your headset · clean
+09-vrdone @768 · VR on your headset · clean
+09-vrnow @1024 · VR on your headset · clean
+09-vrnow @768 · VR on your headset · clean
+09-paused @1024 · VR on your headset · clean
+09-paused @768 · VR on your headset · clean
+09-licence @1024 · VR on your headset · clean
+09-licence @768 · VR on your headset · clean
+09-learn-setup-open @1024 · VR on your headset · clean
+09-learn-setup-open @768 · VR on your headset · clean
+09-nodevice @1024 · This experiment isn’t available to you · clean
+09-nodevice @768 · This experiment isn’t available to you · clean
+09ar-learn @1024 · AR isn’t included for your institution · clean
+09ar-learn @768 · AR isn’t included for your institution · clean
+09mr-learn @1024 · This experiment isn’t available in MR · clean
+09mr-learn @768 · This experiment isn’t available in MR · clean
+11-assess @1024 · Assessments · clean
+11-assess @768 · Assessments · clean
+11-learn @1024 · Assessments · clean
+11-learn @768 · Assessments · clean
+11-newst @1024 · Assessments · clean
+11-newst @768 · Assessments · clean
+11-inprog @1024 · Assessments · clean
+11-inprog @768 · Assessments · clean
+11-assess-loading @1024 · Assessments · clean
+11-assess-loading @768 · Assessments · clean
+11-assess-failed @1024 · Assessments · clean
+11-assess-failed @768 · Assessments · clean
+11sub-waitmark @1024 · Assessments · clean
+11sub-waitmark @768 · Assessments · clean
+11sub-assess @1024 · Assessments · clean
+11sub-assess @768 · Assessments · clean
+11res-released @1024 · Assessments · clean
+11res-released @768 · Assessments · clean
+11res-assess @1024 · Assessments · clean
+11res-assess @768 · Assessments · clean
+12-assess @1024 · Heat Exchanger — post-lab · clean
+12-assess @768 · Heat Exchanger — post-lab · clean
+12-inprog @1024 · Heat Exchanger — post-lab · clean
+12-inprog @768 · Heat Exchanger — post-lab · clean
+12-waitmark @1024 · Heat Exchanger — post-lab · clean
+12-waitmark @768 · Heat Exchanger — post-lab · clean
+12-notrel @1024 · Heat Exchanger — post-lab · clean
+12-notrel @768 · Heat Exchanger — post-lab · clean
+12-released @1024 · Heat Exchanger — post-lab · clean
+12-released @768 · Heat Exchanger — post-lab · clean
+12-notpassed @1024 · Heat Exchanger — post-lab · clean
+12-notpassed @768 · Heat Exchanger — post-lab · clean
+12-learn @1024 · There’s no assessment here yet · clean
+12-learn @768 · There’s no assessment here yet · clean
+13-assess @1024 · Heat Exchanger — post-lab · clean
+13-assess @768 · Heat Exchanger — post-lab · clean
+13-inprog @1024 · Heat Exchanger — post-lab · clean
+13-inprog @768 · Heat Exchanger — post-lab · clean
+13-assess-att-two @1024 · Heat Exchanger — post-lab · clean
+13-assess-att-two @768 · Heat Exchanger — post-lab · clean
+13-inprog-att-dialog @1024 · Heat Exchanger — post-lab · clean
+13-inprog-att-dialog @768 · Heat Exchanger — post-lab · clean
+13-inprog-att-savefail @1024 · Heat Exchanger — post-lab · clean
+13-inprog-att-savefail @768 · Heat Exchanger — post-lab · clean
+13-inprog-att-subfail @1024 · Heat Exchanger — post-lab · clean
+13-inprog-att-subfail @768 · Heat Exchanger — post-lab · clean
+13-waitmark @1024 · Heat Exchanger — post-lab · clean
+13-waitmark @768 · Heat Exchanger — post-lab · clean
+14-released @1024 · You passed · clean
+14-released @768 · You passed · clean
+14-notpassed @1024 · Not passed this time · clean
+14-notpassed @768 · Not passed this time · clean
+14-waitmark @1024 · Submitted — waiting for marking · clean
+14-waitmark @768 · Submitted — waiting for marking · clean
+14-notrel @1024 · Result not released yet · clean
+14-notrel @768 · Result not released yet · clean
+14-assess @1024 · Not submitted yet · clean
+14-assess @768 · Not submitted yet · clean
+15-learn @1024 · Progress · clean
+15-learn @768 · Progress · clean
+15-vrdone @1024 · Progress · clean
+15-vrdone @768 · Progress · clean
+15-granted @1024 · Progress · clean
+15-granted @768 · Progress · clean
+15-newst @1024 · Progress · clean
+15-newst @768 · Progress · clean
+15-paused @1024 · Progress · clean
+15-paused @768 · Progress · clean
+15-ended @1024 · Progress · clean
+15-ended @768 · Progress · clean
+15-learn-p-filter @1024 · Progress · clean
+15-learn-p-filter @768 · Progress · clean
+15-learn-p-nomatch @1024 · Progress · clean
+15-learn-p-nomatch @768 · Progress · clean
+15-learn-loading @1024 · Progress · clean
+15-learn-loading @768 · Progress · clean
+15-learn-failed @1024 · Progress · clean
+15-learn-failed @768 · Progress · clean
+16v-vrdone @1024 · Feedback on VR · clean
+16v-vrdone @768 · Feedback on VR · clean
+16v-vrdone-fb-errors @1024 · Feedback on VR · clean
+16v-vrdone-fb-errors @768 · Feedback on VR · clean
+16v-vrdone-fb-fail @1024 · Feedback on VR · clean
+16v-vrdone-fb-fail @768 · Feedback on VR · clean
+16v-learn @1024 · Feedback on VR isn’t open yet · clean
+16v-learn @768 · Feedback on VR isn’t open yet · clean
+16w-vrdone @1024 · Feedback on WEB sent · clean
+16w-vrdone @768 · Feedback on WEB sent · clean
+16w-learn @1024 · Feedback on WEB isn’t open yet · clean
+16w-learn @768 · Feedback on WEB isn’t open yet · clean
+18-device @1024 · My device · clean
+18-device @768 · My device · clean
+18-device-dev-form @1024 · My device · clean
+18-device-dev-form @768 · My device · clean
+18-device-dev-error @1024 · My device · clean
+18-device-dev-error @768 · My device · clean
+18-dtrsent @1024 · My device · clean
+18-dtrsent @768 · My device · clean
+18-dtrfwd @1024 · My device · clean
+18-dtrfwd @768 · My device · clean
+18-dtrappr @1024 · My device · clean
+18-dtrappr @768 · My device · clean
+18-dtrnoia @1024 · My device · clean
+18-dtrnoia @768 · My device · clean
+18-nodevice @1024 · My device isn’t available to you · clean
+18-nodevice @768 · My device isn’t available to you · clean
+18-paused @1024 · My device · clean
+18-paused @768 · My device · clean
+19-learn @1024 · This experiment isn’t available to you · clean
+19-learn @768 · This experiment isn’t available to you · clean
+19-withdrawn @1024 · This experiment isn’t available to you · clean
+19-withdrawn @768 · This experiment isn’t available to you · clean
+19-ended @1024 · This experiment isn’t available to you · clean
+19-ended @768 · This experiment isn’t available to you · clean
+xs05-learn @1024 · Hello, Rahul · clean
+xs05-learn @768 · Hello, Rahul · clean
+xs07-learn @1024 · Help & support · clean
+xs07-learn @768 · Help & support · clean
+xs07f-learn @1024 · Report a problem · clean
+xs07f-learn @768 · Report a problem · clean
+xs03-learn @1024 · You’re signed out · clean
+xs03-learn @768 · You’re signed out · clean
+xs06-learn @1024 · This page isn’t part of your workspace · 
+   small targets: <a data-dc-tpl="506" class="rb-link" href="#/student/help">H
+xs06-learn @768 · This page isn’t part of your workspace · 
+   small targets: <a data-dc-tpl="506" class="rb-link" href="#/student/help">H
+04-learn-loading @1024 · My courses · clean
+04-learn-loading @768 · My courses · clean
+04-learn-failed @1024 · My courses · clean
+04-learn-failed @768 · My courses · clean
+06-learn-loading @1024 · Shell-and-Tube Heat Exchanger · clean
+06-learn-loading @768 · Shell-and-Tube Heat Exchanger · clean
+06-learn-failed @1024 · Shell-and-Tube Heat Exchanger · clean
+06-learn-failed @768 · Shell-and-Tube Heat Exchanger · clean
+XS07f-learn-help-error @1024 · Report a problem · clean
+XS07f-learn-help-error @768 · Report a problem · clean

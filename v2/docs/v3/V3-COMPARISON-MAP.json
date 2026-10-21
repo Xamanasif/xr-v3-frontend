@@ -3329,6 +3329,534 @@
       "differences": [],
       "supersedes": [],
       "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-shell",
+      "state": "The Student workspace in the V3 shell: rail (Home, My courses, Assessments, Progress), the date in the top line, Menu drawer below 1024 px, XS-08 banners (paused, inactive), XS account menu with My device while access is active, Help & support; the attempt keeps its focused layout without the rail",
+      "route": "/student/*",
+      "sources": ["apps/web/src/features/student/shared"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": []
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The account menu, Help & support, Not your workspace and signed out are the delivered XS components (the export borrowed `xsb-*` drafts and the Help form classes)."
+      ],
+      "supersedes": [
+        "05-student-help-built-top-bar",
+        "05-student-help-built-sidebar-head",
+        "05-student-help-built-sidebar-workspace",
+        "05-student-help-built-sidebar-help",
+        "05-student-help-built-sidebar-phase-4b",
+        "07-f0-state-1-report-a-problem-sidebar-head",
+        "07-f0-state-1-report-a-problem-sidebar-workspace",
+        "07-f0-state-1-report-a-problem-sidebar-help",
+        "07-f0-state-1-report-a-problem-sidebar-phase-4b",
+        "07-f1-state-1a-validation-sidebar-head",
+        "07-f1-state-1a-validation-sidebar-workspace",
+        "07-f1-state-1a-validation-sidebar-help",
+        "07-f3-state-1c-sent-sidebar-head",
+        "07-f3-state-1c-sent-sidebar-workspace",
+        "07-f3-state-1c-sent-sidebar-help",
+        "07-f3-state-1c-sent-sidebar-phase-4b",
+        "07-f8-phone-375-report-a-problem-top-bar",
+        "07-f9-phone-375-my-reports-top-bar",
+        "08-f9-at-375-top-bar"
+      ],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-01",
+      "state": "Home",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-01-home"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/01-learn-1440.png",
+          "cases-1024/01-learn-1024.png",
+          "cases-768/01-learn-768.png",
+          "cases-375/01-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-02",
+      "state": "My courses",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-02-my-courses"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/02-learn-1440.png",
+          "cases-1024/02-learn-1024.png",
+          "cases-768/02-learn-768.png",
+          "cases-375/02-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-03",
+      "state": "Course (student view)",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-03-course"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/03-learn-1440.png",
+          "cases-1024/03-learn-1024.png",
+          "cases-768/03-learn-768.png",
+          "cases-375/03-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-04",
+      "state": "All my experiments",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-04-all-experiments"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/04-learn-1440.png",
+          "cases-1024/04-learn-1024.png",
+          "cases-768/04-learn-768.png",
+          "cases-375/04-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-05",
+      "state": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-05-experiment-hub"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/05-learn-1440.png",
+          "cases-1024/05-learn-1024.png",
+          "cases-768/05-learn-768.png",
+          "cases-375/05-learn-375.png",
+          "cases-1440/05as-assess-1440.png",
+          "cases-1024/05as-assess-1024.png",
+          "cases-768/05as-assess-768.png",
+          "cases-375/05as-assess-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-06",
+      "state": "Resources",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-06-resources"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/06-learn-1440.png",
+          "cases-1024/06-learn-1024.png",
+          "cases-768/06-learn-768.png",
+          "cases-375/06-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-07",
+      "state": "Simulation — choose a format",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-07-simulation"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/07-learn-1440.png",
+          "cases-1024/07-learn-1024.png",
+          "cases-768/07-learn-768.png",
+          "cases-375/07-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-08",
+      "state": "WEB simulation (launch / resume)",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-08-web-simulation"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/08-learn-1440.png",
+          "cases-1024/08-learn-1024.png",
+          "cases-768/08-learn-768.png",
+          "cases-375/08-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-09",
+      "state": "AR / VR / MR format (setup & progress)",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-09-format"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/09-vrnow-1440.png",
+          "cases-1024/09-vrnow-1024.png",
+          "cases-768/09-vrnow-768.png",
+          "cases-375/09-vrnow-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-10",
+      "state": "Progress for this experiment",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-10-experiment-progress"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/10-learn-1440.png",
+          "cases-1024/10-learn-1024.png",
+          "cases-768/10-learn-768.png",
+          "cases-375/10-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-11",
+      "state": "Assessments",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-11-assessments"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/11-assess-1440.png",
+          "cases-1024/11-assess-1024.png",
+          "cases-768/11-assess-768.png",
+          "cases-375/11-assess-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-12",
+      "state": "Assessment — before you start",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-12-assessment-intro"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/12-assess-1440.png",
+          "cases-1024/12-assess-1024.png",
+          "cases-768/12-assess-768.png",
+          "cases-375/12-assess-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-13",
+      "state": "Assessment attempt",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-13-attempt"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/13-inprog-1440.png",
+          "cases-1024/13-inprog-1024.png",
+          "cases-768/13-inprog-768.png",
+          "cases-375/13-inprog-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-14",
+      "state": "Result",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-14-result"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/14-released-1440.png",
+          "cases-1024/14-released-1024.png",
+          "cases-768/14-released-768.png",
+          "cases-375/14-released-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-15",
+      "state": "Progress (all experiments)",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-15-progress"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/15-learn-1440.png",
+          "cases-1024/15-learn-1024.png",
+          "cases-768/15-learn-768.png",
+          "cases-375/15-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-16",
+      "state": "Format feedback",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-16-feedback"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/16w-vrdone-1440.png",
+          "cases-1024/16w-vrdone-1024.png",
+          "cases-768/16w-vrdone-768.png",
+          "cases-375/16w-vrdone-375.png",
+          "cases-1440/16v-vrdone-1440.png",
+          "cases-1024/16v-vrdone-1024.png",
+          "cases-768/16v-vrdone-768.png",
+          "cases-375/16v-vrdone-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-17",
+      "state": "Feedback sent (confirmation, read-only)",
+      "route": "/student/…",
+      "sources": [
+        "apps/web/src/features/student/st-16-feedback/feedback-sent.tsx",
+        "apps/web/src/features/student/st-16-feedback/format-feedback.tsx"
+      ],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/16w-vrdone-1440.png",
+          "cases-1024/16w-vrdone-1024.png",
+          "cases-768/16w-vrdone-768.png",
+          "cases-375/16w-vrdone-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-18",
+      "state": "My device (AR/VR/MR holders only)",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-18-my-device"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/18-device-1440.png",
+          "cases-1024/18-device-1024.png",
+          "cases-768/18-device-768.png",
+          "cases-375/18-device-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "ST-19",
+      "state": "Experiment not available (refusal page)",
+      "route": "/student/…",
+      "sources": ["apps/web/src/features/student/st-19-not-available"],
+      "reference": {
+        "archive": "XR-V3-Student-FINAL-Source.zip",
+        "archiveSha256": "029b9dfb56734f929f82ee46cdb063dc558c051ed188f7a52ee554a21048c268",
+        "revision": "ST-v1 (FINAL — OWNER APPROVED, 21 Oct 2026)",
+        "renders": "XR-V3-Student-FINAL-Screenshots.zip (SHA-256 e5a23f57…0d5f60; cases at 1440, 1024, 768, 375 and 320, interaction states, before-after, long-text stress), kept by the owner",
+        "file": "design/v3-refined-b/roles/ST-v1/project/StudentFinal.dc.html",
+        "compared": [
+          "cases-1440/19-learn-1440.png",
+          "cases-1024/19-learn-1024.png",
+          "cases-768/19-learn-768.png",
+          "cases-375/19-learn-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world, the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
     }
   ],
   "foundationEvidence": {
@@ -4021,5 +4549,11 @@
     "tool": "tools/v3-reference/capture-product.mjs",
     "measured": "9 Faculty cases × 4 widths (36 captures): Overview, My courses, Assessments, Create an assessment, Question bank, Draft questions, Import questions, Marking, Students. No horizontal overflow, no clipped text, all Public Sans weights, no console error, no internal reference (the check now also covers ASMT-, ATT-, Q-, SACC-, GRP- and FMAP-). A sweep of every list page, the record pages they link to and the assessment tabs and marking page, after Flow C and after Flow D, finds no reference in words, accessible names, placeholders or tab titles.",
     "review": "Reviewed side by side with the export's four-width renders (responsive/FA*): the priority band, coming-up tiles, unit meters, course ledger, refined tables and toolbars, stepper, record bands and tabs, question rows, draft cards, import checks, marking sheet and student formats match. What differs is the sample content and the differences listed in FA-INTEGRATION-RECORD.md §5."
+  },
+  "productEvidenceST": {
+    "note": "Not baselines. Captures of the test-hook build (next build with the test-hook bridge + next start, port 3520, isolated verification copy), booted into the sample world after Flow C as Rahul Verma (per-0002) — the Student exists only after the sample journeys — by tools/v3-reference/capture-product.mjs (the ST_CASES), 21 Oct 2026, full page at each width, device scale 1, reduced motion; run folder tools/v3-reference/.runs/2026-10-21T18-14-01-522Z-product (git-ignored).",
+    "tool": "tools/v3-reference/capture-product.mjs",
+    "measured": "11 Student cases × 4 widths (44 captures): Home, My courses, All experiments, the experiment hub's Overview, Resources, Simulation and Progress, the WEB simulation page, Assessments, Progress, My device. No horizontal overflow, no clipped text, all Public Sans weights, no console error, no internal reference (ACC-, SACC-, DTR-, SUB-, ASMT-, ATT-, Q- …). A sweep of every list page, the hub tabs, the format pages, the record pages they link to, the assessment introduction and result and the feedback pages, after Flow C and after Flow D, finds no reference in words, accessible names, placeholders or tab titles.",
+    "review": "Reviewed side by side with the export's four-width renders (cases-1440/1024/768/375): the continue-learning cover, side list, course sections, experiment rows and chips, hub head and section tabs, chooser cards, launch card, progress tables, assessment cards and the device card match. What differs is the sample content and the differences listed in ST-INTEGRATION-RECORD.md §5 (no simulation stages)."
   }
 }

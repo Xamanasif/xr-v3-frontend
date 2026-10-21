@@ -228,6 +228,20 @@ export const CANVAS_CLASS_PATTERNS = [
   /^fa-menuscrim$/,
   /^fa-msg$/,
   /^fa-pub\w*$/,
+  // The Student export's preview root, review controls and skip link (design/v3-refined-b/roles/
+  // ST-v1/project/v3-student-final.css Part A: "preview root, review controls (not product UI),
+  // skip link"; the shell draws the XS skip link) and the form classes of its borrowed Help &
+  // support pages (XS-07 Report a problem: replaced by the XS components at assembly; its other
+  // borrowed surfaces are the `xsb-` families above). `st-main` stays: the focused-task pages carry
+  // it on their own main.
+  /^st-root$/,
+  /^st-review(?:-[\w-]*)?$/,
+  /^st-skip$/,
+  /^st-form$/,
+  /^st-formstack$/,
+  /^st-file$/,
+  /^st-actions$/,
+  /^st-sec-note$/,
 ];
 
 /**
@@ -279,6 +293,8 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
  * - V3P-17: the Faculty export's inline spacings and sizes, its panel heads' quiet focus (the
  *   export's one unconfined rule, confined), FA-09's wrapping offer and the Faculty forms' spaced
  *   error summaries.
+ * - V3P-18: the Student export's 24 px error-summary links (its preview-root rule, confined to the
+ *   Student's summaries).
  * (V3P-06 `rk-x-skip` and V3P-07 `rk-x-acct` were retired with the XS export: the shell now draws
  * its skip link and account wrapper with the XS classes `xs-skip`, `xs-acct-slot`, `xs-acct`.)
  */
@@ -365,6 +381,9 @@ export const V3_PRODUCT_CLASS_ALLOW_LIST = [
   'rk-x-panel-head-quiet',
   'rk-x-notice-wrap',
   'rk-x-errsum-spaced',
+  // V3P-18: the Student export's (ST-v1) `.st-root .rk-errsum li a` 24 px target, on the Student's
+  // error summaries (ST-16's missing ratings).
+  'rk-x-errsum-target',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

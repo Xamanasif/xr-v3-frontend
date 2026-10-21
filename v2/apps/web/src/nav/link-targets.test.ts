@@ -435,23 +435,32 @@ describe('the link-target ledger', () => {
       'IA-13: Create group',
       'IA-14: Give this group access',
       'IA-15: Assign course',
-      'ST-01: Open <experiment> · Continue <experiment>',
+      // V3 (ST-v1): Home's one gold action is the cover's next step (the hub's next-step rule);
+      // ST-03's empty course leads back to My courses.
+      'ST-01: Continue WEB · Open <format> · Give feedback on <format> · Open resources · Choose a format · Open assessment · Continue attempt',
+      'ST-03: Back to My courses',
       // Phase 3: ST-05's Next step (one variant at a time), the hub tabs, the format pages,
-      // feedback, My device, the Institute Admin's requests and the Super Admin's decision.
+      // feedback, My device, the Institute Admin's requests and the Super Admin's decision. V3
+      // (ST-v1): the hub's next step per state (resources, a format, its feedback, the assessment);
+      // ST-06 draws no gold action (its retry is plain); ST-07's and ST-10's per-format progress
+      // rows lead with one gold action (continue › feedback › open); ST-16's not-open card leads
+      // back to the format; ST-18's "isn't available to you" card leads back to Home.
       'ST-05: Open resources',
-      'ST-05: Continue WEB',
-      'ST-05: Choose a format',
+      'ST-05: Continue WEB · Open VR · Open <format> · Give feedback on <format>',
+      'ST-05: Open assessment · Continue attempt',
       'ST-19: Back to My courses',
-      'ST-06: Try again',
-      'ST-07: Open WEB · Continue WEB',
+      'ST-07: Continue <format> · Give feedback on <format> · Open <format>',
+      'ST-10: Continue <format> · Give feedback on <format> · Open <format>',
       'ST-08: Launch WEB · Continue WEB · Try again',
       'ST-08: Give feedback on WEB',
       'ST-09: Give feedback on VR',
       'ST-09: Back to Simulation',
       'ST-16: Submit feedback',
+      'ST-16: Back to WEB · Back to VR',
       'ST-17: Back to experiment',
       'ST-18: Request a device transfer',
       'ST-18: Send request',
+      'ST-18: Back to Home',
       'IA-17: Ask BITS for a renewal or more licences',
       'IA-17: Send request to BITS',
       'IA-17: Back to Requests',
@@ -481,24 +490,20 @@ describe('the link-target ledger', () => {
       'FA-15: Save question',
       'FA-15: Save question',
       // Phase 4B: one primary per drawn state — the hub's Assessment tab (ST-05), Before you
-      // start per state (ST-12), the attempt and its DL-1 (ST-13), the result's states (ST-14),
+      // start per state (ST-12), the attempt and its DL-1 (ST-13), the result's states (ST-14:
+      // V3 ST-v1 leads only "Try again"; its way back is a plain link to the hub's Assessment tab),
       // Mark next (FA-12, FA-18), Confirm marks (FA-19) and, once confirmed, Next submission (V3
       // FA-v1), Mark their answers (FA-21), the tools (FA-17's own-file "Choose another file").
       'ST-05: Open assessment',
       'ST-05: Continue attempt',
       'ST-12: Start assessment',
       'ST-12: Continue attempt',
-      'ST-12: See result page',
       'ST-12: Try again',
       'ST-12: See result',
       'ST-12: Back to experiment',
       'ST-13: Submit',
       'ST-13: Submit answers',
-      'ST-13: Back to experiment',
-      'ST-14: Back to experiment',
-      'ST-14: Back to experiment',
-      'ST-14: Back to experiment',
-      'ST-14: Back to the assessment',
+      'ST-13: See your result page',
       'ST-14: Try again',
       'FA-12: Mark next',
       'FA-18: Mark next',

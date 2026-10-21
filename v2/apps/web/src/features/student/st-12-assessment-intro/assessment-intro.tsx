@@ -6,41 +6,47 @@ import type {
   StudentAttemptFacts,
 } from '@xr/contracts/draft';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
-  Icon,
-  Link,
-  LoadingState,
+  ButtonLink,
   Notice,
-  type NoticeTone,
-  PageContent,
-  PageHeader,
-} from '@xr/ui';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+  PageHead,
+  StIntroCard,
+  type StIntroFact,
+  StIntroExperimentLink,
+  StLoading,
+  StMessage,
+  type StatusTone,
+} from '@xr/ui/v3';
+import { type ReactNode, type Ref, useEffect, useId, useRef, useState } from 'react';
 
 import {
   attemptsUsedWords,
-  inProgressLine,
-  inProgressTitle,
+  INTRO_EYEBROW_AFTER,
   INTRO_PAGE,
-  introOverline,
-  markedNotReleasedLine,
+  INTRO_V3,
+  inProgressSavedLine,
+  inProgressTitle,
   notPassedLine,
   notPassedTitle,
-  passedTitle,
+  notReleasedYetLine,
   passMarkMarksWords,
   passPercentWords,
   questionMixWords,
-  submittedOnLine,
+  submittedWaitingLine,
 } from '@/copy/attempt';
 import { releaseValueWords } from '@/copy/assessment-words';
 import { dateTime } from '@/copy/dates';
+import { releasedWords } from '@/copy/result';
+import { ST_STATE_WORDS } from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
-import { STUDENT_WORDS } from '@/copy/student';
+import { WHEN_KICKERS, whenWords } from '@/copy/student-assessments';
 import { useAppNavigation } from '@/nav/navigation';
 import { notAvailablePlacement } from '@/nav/student';
 import {
-  experimentAddress,
+  hubAssessmentAddress,
+  STUDENT_ASSESSMENTS_ADDRESS,
+  STUDENT_ASSESSMENTS_TITLE,
   studentAssessmentAddress,
   studentAssessmentPlacement,
 } from '@/nav/student-assessments';
@@ -48,30 +54,32 @@ import { useAssessmentIntro } from '@/queries/student-assessments';
 import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { StudentFailed, useRetryFocus } from '../shared/student-states';
+import { NOT_AVAILABLE_TITLE, NotAvailable } from '../shared/not-available';
+import { useRetryFocus } from '../shared/student-states';
 import { notAvailableKind } from '../shared/student-view';
-import { NOT_AVAILABLE_TITLE, NotAvailable } from '../st-19-not-available/not-available';
+import { useStudentToday } from '../shared/use-today';
+import { stateWordsOf, STATE_TONE } from '../st-11-assessments/assessment-rows';
 import { attemptsUsed, type IntroState, introState, questionCountOf } from './intro-state';
 
-/** The board's id prefix (`Im-main` …; B4-11 f11). */
+/** The board's id prefix (`Im-start` …; B4-11 f11). */
 const PREFIX = 'Im';
 
 /**
- * ST-12 Assessment — before you start — board B4-11 f11 … f16, at
- * `/student/assessments/[assessmentId]`.
+ * ST-12 Assessment — before you start — the owner-approved V3 export (ST-v1 `StudentFinal.dc.html`
+ * `is.aintro`, `introVM`), at `/student/assessments/[assessmentId]`.
  *
  * - **Read**: `AssessmentService.getAssessmentIntro` — the assessment as configured, its question
  *   mix, the Student's own attempts (figure-free until released) and the attempt in progress.
- * - **As drawn**: the back link to the experiment hub, the overline and the name, the state's
- *   notice (f12 in progress, f13 waiting for marking, f14 not passed · 1 attempt left, f15 can't be
- *   started), the introduction, the six key facts exactly as configured (`dl.xa-facts`: questions
- *   and their mix, total marks, pass mark and its marks, attempts allowed and used, deadline, when
- *   the result and answers are seen), "No time limit…", then the state's actions.
+ * - **As drawn**: the crumbs (Assessments › the name), the head (the experiment, linking to its
+ *   Assessment tab, " · assessment", the name, the introduction), then one card: the status, the
+ *   state as its heading with its line, the three rules while the Student can still answer, the
+ *   state's actions; the deadline as a date block beside the key facts exactly as configured
+ *   (questions and their mix, total marks, pass mark and its marks, attempts allowed and used, when
+ *   the result and answers are seen, who set it).
  * - **Start assessment / Try again** send `startAttempt` and open the attempt (ST-13); Continue
- *   attempt opens it; See result opens ST-14; Back to experiment opens the hub. Whether a start
- *   is allowed is the service's `canStart` — the page never decides it.
- * - Undrawn states (passed, marked but not released, no attempt left, a start that fails) are
- *   the register's (`state-copy-attempt.ts`).
+ *   attempt opens it; See result opens ST-14; Back to experiment opens the hub's Assessment tab.
+ *   Whether a start is allowed is the service's `canStart` — the page never decides it. A start
+ *   that fails or is refused is said in place (`ST-12.start-failed`, `ST-12.start-refused`).
  */
 export function AssessmentIntro({ assessmentId }: { readonly assessmentId: string }) {
   const navigation = useAppNavigation();
@@ -86,18 +94,25 @@ export function AssessmentIntro({ assessmentId }: { readonly assessmentId: strin
       : studentAssessmentPlacement(intro ? intro.assessment : null),
   );
   const retried = useRetryFocus(intro !== null);
+  const failedId = useId();
 
   if (read.isError) {
     return (
-      <PageContent wrap="read">
-        <StudentFailed
-          title={stateWords('ST-12.failed')}
-          onRetry={() => {
+      <StMessage
+        icon="cloudAlert"
+        tone="err"
+        alert
+        title={stateWords('ST-12.failed')}
+        titleId={failedId}
+        description={ST_STATE_WORDS.failedLine}
+        retry={{
+          label: ST_STATE_WORDS.tryAgain,
+          onRetry: () => {
             retried();
             void read.refetch();
-          }}
-        />
-      </PageContent>
+          },
+        }}
+      />
     );
   }
   if (error) {
@@ -106,9 +121,11 @@ export function AssessmentIntro({ assessmentId }: { readonly assessmentId: strin
   }
   if (!intro) {
     return (
-      <PageContent wrap="read">
-        <LoadingState label={stateWords('ST-12.loading')} surface="section" />
-      </PageContent>
+      <StLoading
+        variant="card"
+        label={stateWords('ST-12.loading')}
+        name={STUDENT_ASSESSMENTS_TITLE}
+      />
     );
   }
   return <IntroPage intro={intro} refetch={() => void read.refetch()} />;
@@ -124,11 +141,14 @@ function IntroPage({
   readonly refetch: () => void;
 }) {
   const navigation = useAppNavigation();
+  const today = useStudentToday();
   const start = useCommand((ports) => ports.assessments.startAttempt);
   const [outcome, setOutcome] = useState<StartOutcome | null>(null);
   const [answered, setAnswered] = useState(0);
   const outcomeRef = useRef<HTMLDivElement>(null);
   const [gone, setGone] = useState(false);
+  const stateId = useId();
+  const factsId = useId();
 
   // The start's answer takes focus when it shows (a notice in place, board 04).
   useEffect(() => {
@@ -139,7 +159,7 @@ function IntroPage({
 
   const { assessment } = intro;
   const state = introState(intro);
-  const hub = experimentAddress(assessment.experimentId);
+  const tab = hubAssessmentAddress(assessment.experimentId);
   const attemptAddress = studentAssessmentAddress(assessment.id, 'attempt');
   const resultAddress = studentAssessmentAddress(assessment.id, 'result');
 
@@ -175,70 +195,120 @@ function IntroPage({
     );
   };
 
-  const startButton = (label: string) => (
-    <Button variant="primary" busy={start.busy} onClick={begin}>
-      {label}
-    </Button>
-  );
-  const back = (variant: 'primary' | 'text') => (
-    <Link className={`xr-btn xr-btn--${variant}`} href={hub}>
-      {INTRO_PAGE.backToExperiment}
-    </Link>
-  );
   const view = stateView(state, {
-    start: startButton,
-    continueLink: (
-      <Link className="xr-btn xr-btn--primary" href={attemptAddress}>
-        {INTRO_PAGE.continue}
-      </Link>
-    ),
-    resultLink: (variant: 'primary' | 'secondary', label: string) => (
-      <Link className={`xr-btn xr-btn--${variant}`} href={resultAddress}>
+    start: (label) => (
+      <Button variant="primary" size="lg" busy={start.busy} onClick={begin}>
         {label}
-      </Link>
+      </Button>
     ),
-    back,
+    continueLink: (
+      <ButtonLink variant="primary" size="lg" href={attemptAddress}>
+        {INTRO_PAGE.continue}
+      </ButtonLink>
+    ),
+    resultLink: (primary, label) => (
+      <ButtonLink variant={primary ? 'primary' : 'default'} size="lg" href={resultAddress}>
+        {label}
+      </ButtonLink>
+    ),
+    back: (primary) => (
+      <ButtonLink variant={primary ? 'primary' : 'default'} size="lg" href={tab}>
+        {INTRO_PAGE.backToExperiment}
+      </ButtonLink>
+    ),
   });
 
+  const deadline = factsAttemptOf(state, intro)?.pinned.deadline ?? assessment.rules.deadline;
+
   return (
-    <PageContent wrap="read">
-      <PageHeader
-        className="mt-2 mb-6"
-        back={<BackLink href={hub}>{intro.experimentName}</BackLink>}
-        overline={introOverline(intro.experimentName)}
+    <>
+      <PageHead
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: STUDENT_ASSESSMENTS_TITLE, href: STUDENT_ASSESSMENTS_ADDRESS }]}
+            current={assessment.name}
+          />
+        }
+        date={today?.line}
+        eyebrow={
+          <>
+            <StIntroExperimentLink href={tab}>{intro.experimentName}</StIntroExperimentLink>
+            {INTRO_EYEBROW_AFTER}
+          </>
+        }
+        variant="record"
         title={assessment.name}
+        titleFocusTarget
+        lead={assessment.introduction ?? undefined}
       />
-      <div id={`${PREFIX}-start`} tabIndex={-1} ref={outcomeRef}>
-        {outcome ? (
-          <div className="mb-5">
-            <StartNotice outcome={outcome} />
-          </div>
-        ) : null}
-      </div>
-      {view.notice ? <div className="mb-5">{view.notice}</div> : null}
-      {assessment.introduction ? (
-        <p className="xr-lead [margin:0_0_20px]">{assessment.introduction}</p>
-      ) : null}
-      <KeyFacts intro={intro} attempt={factsAttemptOf(state, intro)} />
-      <div className="[margin:16px_0_24px]">
-        <p className="xl-open">
-          <Icon name="info" size={16} />
-          <span>{INTRO_PAGE.noTimeLimit}</span>
-        </p>
-      </div>
-      <div className="xw-actions">{view.actions}</div>
-    </PageContent>
+      {outcome ? <StartNotice outcome={outcome} noticeRef={outcomeRef} /> : null}
+      <StIntroCard
+        stateId={stateId}
+        status={view.status}
+        stateTitle={view.title}
+        stateLine={view.line ?? undefined}
+        rules={
+          view.rules
+            ? {
+                label: INTRO_V3.rulesLabel,
+                items: [
+                  { key: 'time', icon: 'clock', title: INTRO_V3.ruleNoTimeLimit },
+                  { key: 'saves', icon: 'check', title: INTRO_V3.ruleSaves },
+                  {
+                    key: 'submit',
+                    icon: 'lock',
+                    title: INTRO_V3.ruleSubmit,
+                    detail: INTRO_V3.ruleSubmitDetail,
+                  },
+                ],
+              }
+            : undefined
+        }
+        actions={view.actions}
+        factsId={factsId}
+        factsTitle={INTRO_V3.factsTitle}
+        deadline={
+          deadline
+            ? {
+                kicker: WHEN_KICKERS.deadline,
+                when: whenWords(deadline, today?.now ?? null),
+                full: dateTime(deadline),
+              }
+            : undefined
+        }
+        facts={keyFacts(intro, factsAttemptOf(state, intro))}
+      />
+    </>
   );
 }
 
 /** The start's answer when it is not the attempt (`ST-12.start-failed`, `ST-12.start-refused`). */
-function StartNotice({ outcome }: { readonly outcome: StartOutcome }) {
+function StartNotice({
+  outcome,
+  noticeRef,
+}: {
+  readonly outcome: StartOutcome;
+  readonly noticeRef: Ref<HTMLDivElement>;
+}) {
   return outcome === 'unavailable' ? (
-    <Notice tone="err" title={stateWords('ST-12.start-failed')}>
-      {STUDENT_WORDS.failedLine}
+    <Notice
+      ref={noticeRef}
+      id={`${PREFIX}-start`}
+      tone="warn"
+      icon="alertCircle"
+      role="alert"
+      title={stateWords('ST-12.start-failed')}
+    >
+      {ST_STATE_WORDS.failedLine}
     </Notice>
   ) : (
-    <Notice tone="warn" title={stateWords('ST-12.start-failed')}>
+    <Notice
+      ref={noticeRef}
+      id={`${PREFIX}-start`}
+      tone="off"
+      role="status"
+      title={stateWords('ST-12.start-failed')}
+    >
       {stateWords('ST-12.start-refused')}
     </Notice>
   );
@@ -247,113 +317,134 @@ function StartNotice({ outcome }: { readonly outcome: StartOutcome }) {
 interface StateParts {
   readonly start: (label: string) => ReactNode;
   readonly continueLink: ReactNode;
-  readonly resultLink: (variant: 'primary' | 'secondary', label: string) => ReactNode;
-  readonly back: (variant: 'primary' | 'text') => ReactNode;
+  readonly resultLink: (primary: boolean, label: string) => ReactNode;
+  readonly back: (primary: boolean) => ReactNode;
 }
 
-function notice(tone: NoticeTone, title: string, line: string, icon?: 'clock'): ReactNode {
-  return (
-    <Notice tone={tone} title={title} {...(icon ? { icon } : {})}>
-      {line}
-    </Notice>
-  );
+interface StateView {
+  readonly status: { readonly tone: StatusTone; readonly words: string };
+  readonly title: string;
+  readonly line: string | null;
+  readonly rules: boolean;
+  readonly actions: ReactNode;
 }
 
-/** Each state's notice and actions, as B4-11 f11 … f15 draw them (the rest: `ST-12.states`). */
-function stateView(
-  state: IntroState,
-  parts: StateParts,
-): { readonly notice: ReactNode; readonly actions: ReactNode } {
+/** The status the card leads with: the assessment's state as ST-11 words it (`asmtRow`). */
+function statusFor(state: IntroState) {
+  switch (state.kind) {
+    case 'start':
+      return { tone: STATE_TONE['to-do'], words: stateWordsOf('to-do') };
+    case 'continue':
+      return { tone: STATE_TONE['in-progress'], words: stateWordsOf('in-progress') };
+    case 'waiting':
+      return {
+        tone: STATE_TONE['waiting-for-marking'],
+        words: stateWordsOf('waiting-for-marking'),
+      };
+    case 'not-released':
+      return { tone: STATE_TONE['not-released-yet'], words: stateWordsOf('not-released-yet') };
+    case 'try-again':
+    case 'passed':
+    case 'no-attempts-left':
+      return { tone: STATE_TONE.released, words: stateWordsOf('released') };
+    case 'cant-start':
+      return state.latest?.result.kind === 'released'
+        ? { tone: STATE_TONE.released, words: stateWordsOf('released') }
+        : { tone: 'neutral' as const, words: INTRO_V3.cantStartStatus };
+  }
+}
+
+/** "Released 14 Nov 2026, 23:59, after the deadline." for a released attempt. */
+function releasedLine(latest: StudentAttemptFacts): string | null {
+  return latest.result.kind === 'released'
+    ? `${releasedWords(latest.release, latest.result.releasedAt)}.`
+    : null;
+}
+
+/** Each state's heading, line and actions, as the export's `introVM` draws them. */
+function stateView(state: IntroState, parts: StateParts): StateView {
+  const status = statusFor(state);
   switch (state.kind) {
     case 'start':
       return {
-        notice: null,
+        status,
+        title: INTRO_V3.beforeYouStart,
+        line: null,
+        rules: true,
         actions: (
           <>
             {parts.start(INTRO_PAGE.start)}
-            {parts.back('text')}
+            {parts.back(false)}
           </>
         ),
       };
     case 'continue':
       return {
-        notice: notice(
-          'info',
-          inProgressTitle(state.attemptNumber),
-          inProgressLine(state.answered, state.questionCount),
-        ),
+        status,
+        title: inProgressTitle(state.attemptNumber),
+        line: inProgressSavedLine(state.answered, state.questionCount),
+        rules: true,
         actions: (
           <>
             {parts.continueLink}
-            {parts.back('text')}
+            {parts.back(false)}
           </>
         ),
       };
     case 'waiting':
     case 'not-released':
       return {
-        notice: notice(
-          'warn',
-          state.kind === 'waiting' ? INTRO_PAGE.waitingTitle : INTRO_PAGE.notReleasedTitle,
+        status,
+        title: state.kind === 'waiting' ? INTRO_PAGE.waitingTitle : INTRO_V3.notReleasedTitle,
+        line:
           state.kind === 'waiting'
-            ? submittedOnLine(state.latest.submittedAt!, state.latest.release)
-            : markedNotReleasedLine(state.latest.release),
-          'clock',
-        ),
+            ? submittedWaitingLine(state.latest.submittedAt!, state.latest.release)
+            : notReleasedYetLine(state.latest.release),
+        rules: false,
         actions: (
           <>
-            {parts.resultLink('primary', INTRO_PAGE.seeResultPage)}
-            {parts.back('text')}
+            {parts.resultLink(false, INTRO_PAGE.seeResultPage)}
+            {parts.back(false)}
           </>
         ),
       };
     case 'try-again':
       return {
-        notice: notice(
-          'quiet',
-          notPassedTitle(state.latest.attemptNumber, state.attemptsLeft),
-          notPassedLine(state.latest.attemptNumber, state.attemptsLeft),
-        ),
+        status,
+        title: notPassedTitle(state.latest.attemptNumber, state.attemptsLeft),
+        line: notPassedLine(state.latest.attemptNumber, state.attemptsLeft),
+        rules: true,
         actions: (
           <>
             {parts.start(INTRO_PAGE.tryAgain)}
-            {parts.resultLink('secondary', INTRO_PAGE.seeResult)}
+            {parts.resultLink(false, INTRO_PAGE.seeResult)}
           </>
         ),
       };
     case 'passed':
     case 'no-attempts-left':
       return {
-        notice:
-          state.kind === 'passed'
-            ? notice(
-                'ok',
-                passedTitle(state.latest.attemptNumber),
-                stateWords('ST-12.result-stays'),
-              )
-            : notice(
-                'quiet',
-                notPassedTitle(state.latest.attemptNumber, 0),
-                notPassedLine(state.latest.attemptNumber, 0),
-              ),
+        status,
+        title: state.kind === 'passed' ? INTRO_V3.passedTitle : INTRO_V3.releasedTitle,
+        line: releasedLine(state.latest),
+        rules: false,
         actions: (
           <>
-            {parts.resultLink('primary', INTRO_PAGE.seeResult)}
-            {parts.back('text')}
+            {parts.resultLink(true, INTRO_PAGE.seeResult)}
+            {parts.back(false)}
           </>
         ),
       };
     case 'cant-start':
       return {
-        notice: notice(
-          'quiet',
-          INTRO_PAGE.cantStartTitle,
-          state.noQuestions ? INTRO_PAGE.noQuestionsLine : stateWords('ST-12.cant-start-line'),
-        ),
+        status,
+        title: INTRO_PAGE.cantStartTitle,
+        line: state.noQuestions ? INTRO_PAGE.noQuestionsLine : stateWords('ST-12.cant-start-line'),
+        rules: false,
         actions: (
           <>
-            {parts.back('primary')}
-            {state.latest ? parts.resultLink('secondary', INTRO_PAGE.seeResult) : null}
+            {parts.back(true)}
+            {state.latest ? parts.resultLink(false, INTRO_PAGE.seeResult) : null}
           </>
         ),
       };
@@ -363,7 +454,7 @@ function stateView(
 /**
  * The attempt the page is about (Phase 4B review): an attempt in progress, submitted, marked or
  * released is shown with the facts of the version it pins (P4-06: a submitted attempt keeps its
- * version's terms) — never the current version's beside its own notice. Before a first or a next
+ * version's terms) — never the current version's beside its own state. Before a first or a next
  * attempt the facts are the version a new attempt would pin (`null`).
  */
 function factsAttemptOf(state: IntroState, intro: IntroAnswer): StudentAttemptFacts | null {
@@ -380,14 +471,8 @@ function factsAttemptOf(state: IntroState, intro: IntroAnswer): StudentAttemptFa
   }
 }
 
-/** The six key facts exactly as configured (B4-11 f11 `dl.xa-facts`). */
-function KeyFacts({
-  intro,
-  attempt,
-}: {
-  readonly intro: IntroAnswer;
-  readonly attempt: StudentAttemptFacts | null;
-}) {
+/** The key facts exactly as configured (`AI.facts` and "Set by"). */
+function keyFacts(intro: IntroAnswer, attempt: StudentAttemptFacts | null): StIntroFact[] {
   const current = intro.assessment.rules;
   const pinned = attempt?.pinned ?? null;
   const facts = pinned
@@ -399,7 +484,6 @@ function KeyFacts({
         passMarkMarks:
           pinned.passMarkPercent === null ? 0 : (pinned.passMarkPercent * pinned.totalMarks) / 100,
         attemptsAllowed: pinned.attemptsAllowed,
-        deadline: pinned.deadline,
         release: attempt!.release.option
           ? {
               option: attempt!.release.option,
@@ -414,51 +498,41 @@ function KeyFacts({
         passMarkPercent: current.passMarkPercent,
         passMarkMarks: intro.passMarkMarks,
         attemptsAllowed: current.attemptsAllowed,
-        deadline: current.deadline,
         release: current.release,
       };
   const missing = INTRO_PAGE.notSet;
-  const release = releaseValueWords(facts.release);
-  return (
-    <dl className="xa-facts">
-      <div>
-        <dt>{INTRO_PAGE.questions}</dt>
-        <dd>
-          {facts.questionCount}
-          <span>{questionMixWords(facts.questionTypes)}</span>
-        </dd>
-      </div>
-      <div>
-        <dt>{INTRO_PAGE.totalMarks}</dt>
-        <dd>{facts.totalMarks}</dd>
-      </div>
-      <div>
-        <dt>{INTRO_PAGE.passMark}</dt>
-        <dd>
-          {facts.passMarkPercent === null ? missing : passPercentWords(facts.passMarkPercent)}
-          {facts.passMarkPercent === null ? null : (
-            <span>{passMarkMarksWords(facts.passMarkMarks, facts.totalMarks)}</span>
-          )}
-        </dd>
-      </div>
-      <div>
-        <dt>{INTRO_PAGE.attemptsAllowed}</dt>
-        <dd>
-          {facts.attemptsAllowed ?? missing}
-          <span>{attemptsUsedWords(attemptsUsed(intro))}</span>
-        </dd>
-      </div>
-      <div>
-        <dt>{INTRO_PAGE.deadline}</dt>
-        <dd>{facts.deadline ? dateTime(facts.deadline) : missing}</dd>
-      </div>
-      <div>
-        <dt>{INTRO_PAGE.release}</dt>
-        <dd>
-          {release ?? missing}
-          {facts.questionTypes.written > 0 ? <span>{INTRO_PAGE.writtenMarked}</span> : null}
-        </dd>
-      </div>
-    </dl>
-  );
+  const setBy = intro.assessment.createdBy;
+  return [
+    {
+      key: 'questions',
+      term: INTRO_PAGE.questions,
+      value: facts.questionCount,
+      detail: questionMixWords(facts.questionTypes) || undefined,
+    },
+    { key: 'marks', term: INTRO_PAGE.totalMarks, value: facts.totalMarks },
+    {
+      key: 'pass',
+      term: INTRO_PAGE.passMark,
+      value: facts.passMarkPercent === null ? missing : passPercentWords(facts.passMarkPercent),
+      detail:
+        facts.passMarkPercent === null
+          ? undefined
+          : passMarkMarksWords(facts.passMarkMarks, facts.totalMarks),
+    },
+    {
+      key: 'attempts',
+      term: INTRO_PAGE.attemptsAllowed,
+      value: facts.attemptsAllowed ?? missing,
+      detail: attemptsUsedWords(attemptsUsed(intro)),
+    },
+    {
+      key: 'release',
+      term: INTRO_PAGE.release,
+      value: releaseValueWords(facts.release) ?? missing,
+      detail: facts.questionTypes.written > 0 ? INTRO_PAGE.writtenMarked : undefined,
+    },
+    ...(setBy.kind === 'person'
+      ? [{ key: 'set-by', term: INTRO_V3.setBy, value: setBy.displayName }]
+      : []),
+  ];
 }

@@ -1,0 +1,69 @@
+      <!-- ══════════ ST-14 Result: the score panel (score, pass mark, attempt, release, marks by question as a jump list)
+           and the answer review — your answer marked correct or not, the correct answer only where it differs, the
+           explanation and your faculty's feedback. Withheld results use the compact message card. ══════════ -->
+      <sc-if value="{{ is.ares }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ AR.crumbList.href }}" onClick="{{ AR.crumbList.go }}">Assessments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><a href="{{ AR.crumbIntro.href }}" onClick="{{ AR.crumbIntro.go }}">{{ AR.name }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg><span aria-current="page">Result</span></nav>
+      <sc-if value="{{ AR.withheld }}" hint-placeholder-val="{{ false }}">
+      <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+      <section class="sv-card sv-refuse" aria-labelledby="st-h1">
+        <span class="{{ AR.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ AR.ico }}"></use></svg></span>
+        <div class="sv-refuse-main">
+          <p class="sv-refuse-k">{{ AR.name }} · result</p>
+          <h1 class="sv-refuse-t" id="st-h1" tabindex="-1">{{ AR.h1 }}</h1>
+          <p class="sv-refuse-d">{{ AR.d }}</p>
+          <div class="sv-refuse-act"><a class="rb-btn rb-btn--lg" href="{{ AR.back.href }}" onClick="{{ AR.back.go }}">{{ AR.back.label }}</a></div>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ AR.released }}" hint-placeholder-val="{{ true }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow">{{ AR.name }} · result</p>
+          <h1 class="rk-title" id="st-h1" tabindex="-1">{{ AR.h1 }}</h1>
+        </div>
+      </div>
+      <section class="sv-card sv-score" aria-label="Your score">
+        <div class="sv-score-main">
+          <p class="sv-score-n"><b>{{ AR.score }}</b><span>{{ AR.total }}</span></p>
+          <p><span class="{{ AR.pillCls }}"><i></i>{{ AR.pill }}</span></p>
+        </div>
+        <dl class="sv-score-facts">
+          <div><dt>Pass mark</dt><dd>{{ AR.passText }}</dd></div>
+          <div><dt>Attempt</dt><dd>{{ AR.attemptText }}</dd></div>
+          <div><dt>Result</dt><dd>{{ AR.releasedText }}</dd></div>
+        </dl>
+        <div class="sv-score-byq">
+          <p class="sv-eyebrow" id="st-byq-h">Marks by question</p>
+          <ol class="sv-byq" aria-labelledby="st-byq-h"><sc-for list="{{ AR.byQ }}" as="b" hint-placeholder-count="4"><li><a class="{{ b.cls }}" href="{{ b.href }}" onClick="{{ b.go }}" aria-label="{{ b.aria }}"><span class="sv-byq-n">Q{{ b.n }}</span><span class="sv-byq-m">{{ b.mark }}</span></a></li></sc-for></ol>
+        </div>
+        <sc-if value="{{ AR.canRetry }}" hint-placeholder-val="{{ false }}">
+        <div class="sv-score-retry">
+          <p>{{ AR.leftText }}</p>
+          <a class="rb-btn rb-btn--primary rb-btn--lg" href="{{ AR.retry.href }}" onClick="{{ AR.retry.go }}">Try again</a>
+        </div>
+        </sc-if>
+      </section>
+      <section class="sv-card sv-review" aria-labelledby="st-ar-ans">
+        <div class="sv-card-h"><h2 class="sv-sec-t" id="st-ar-ans">Your answers</h2></div>
+        <ol class="sv-review-list">
+          <sc-for list="{{ AR.answers }}" as="a" hint-placeholder-count="4">
+          <li class="sv-ans" id="{{ a.id }}" tabindex="-1" aria-labelledby="{{ a.hid }}">
+            <div class="sv-ans-h"><p class="sv-ans-k" id="{{ a.hid }}">{{ a.head }}</p><span class="{{ a.pillCls }}"><i></i>{{ a.markText }}</span></div>
+            <p class="sv-ans-q">{{ a.text }}</p>
+            <dl class="sv-ans-dl">
+              <div><dt>Your answer</dt><dd><span class="sv-ans-v">{{ a.yours }}</span><sc-if value="{{ a.isChoice }}" hint-placeholder-val="{{ true }}"><span class="{{ a.verdictCls }}">{{ a.verdict }}</span></sc-if></dd></div>
+              <sc-if value="{{ a.showCorrect }}" hint-placeholder-val="{{ false }}"><div><dt>Correct answer</dt><dd>{{ a.correct }}</dd></div></sc-if>
+              <div><dt>Explanation</dt><dd>{{ a.expl }}</dd></div>
+              <sc-if value="{{ a.hasFb }}" hint-placeholder-val="{{ false }}"><div><dt>Feedback from {{ AR.fac }}</dt><dd><p class="rk-quote sv-ans-fb">{{ a.fb }}</p></dd></div></sc-if>
+            </dl>
+          </li>
+          </sc-for>
+        </ol>
+        <div class="sv-review-foot">
+          <a class="rb-btn rb-btn--lg" href="{{ AR.back.href }}" onClick="{{ AR.back.go }}">Back to experiment</a>
+          <a class="sv-link" href="{{ AR.progress.href }}" onClick="{{ AR.progress.go }}">See your progress<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a>
+        </div>
+      </section>
+      </sc-if>
+      </sc-if>

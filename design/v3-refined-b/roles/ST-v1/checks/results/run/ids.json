@@ -1,0 +1,54 @@
+{
+ "widths": [
+  1440,
+  375
+ ],
+ "casesScanned": 155,
+ "identifiersSeenByAStudent": {
+  "GIT-VR-03": {
+   "cases": 34,
+   "examples": [
+    "07-learn@1440",
+    "07-learn@375",
+    "07-granted@1440",
+    "07-granted@375"
+   ]
+  },
+  "GIT-VR-07": {
+   "cases": 8,
+   "examples": [
+    "18-dtrsent@1440",
+    "18-dtrsent@375",
+    "18-dtrfwd@1440",
+    "18-dtrfwd@375"
+   ]
+  },
+  "ME ZG523": {
+   "cases": 26,
+   "examples": [
+    "02-learn@1440",
+    "02-learn@375",
+    "02-granted@1440",
+    "02-granted@375"
+   ]
+  },
+  "MEC-523": {
+   "cases": 156,
+   "examples": [
+    "01-learn@1440",
+    "01-learn@375",
+    "01-assess@1440",
+    "01-assess@375"
+   ]
+  },
+  "ZG523": {
+   "cases": 26,
+   "examples": [
+    "02-learn@1440",
+    "02-learn@375",
+    "02-granted@1440",
+    "02-granted@375"
+   ]
+  }
+ }
+}

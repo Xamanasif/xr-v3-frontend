@@ -1,0 +1,175 @@
+[
+ {
+  "k": "primary",
+  "label": "Primary action (gold) · ST-01",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "secondary",
+  "label": "Secondary button · ST-08",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "link",
+  "label": "Text link · ST-09 AR",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "nav",
+  "label": "Rail item (not current)",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "tab",
+  "label": "Section tab · hub (Resources)",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "crumb",
+  "label": "Breadcrumb link · ST-05",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "open",
+  "label": "Resource Open · ST-06",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "select",
+  "label": "Filter select · ST-15 Status",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true
+  },
+  "errors": []
+ },
+ {
+  "k": "input",
+  "label": "Search field · ST-04",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true
+  },
+  "errors": []
+ },
+ {
+  "k": "choice",
+  "label": "Answer choice · ST-13",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "qnum",
+  "label": "Navigator number · ST-13",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "rating",
+  "label": "Rating cell · ST-16",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "textarea",
+  "label": "Comment field · ST-16",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true
+  },
+  "errors": []
+ },
+ {
+  "k": "byq",
+  "label": "Marks chip · ST-14",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "disclose",
+  "label": "Setup disclosure · ST-09",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ },
+ {
+  "k": "acct",
+  "label": "Account button (XS-05)",
+  "focusVisible": true,
+  "differsFromDefault": {
+   "hover": true,
+   "focus": true,
+   "pressed": true
+  },
+  "errors": []
+ }
+]

@@ -146,7 +146,6 @@ export function placeWordsOf(returnTo: string | null): string | null {
       )
         return QUESTION_BANK_TITLE;
       const reference = referenceIn(pathname);
-      const assessment = /\/assessments\/(ASMT-\d{4})(?:\/|$)/.exec(pathname)?.[1];
       if (
         outcome.screen === 'FA-06' ||
         outcome.screen === 'FA-07' ||
@@ -158,18 +157,17 @@ export function placeWordsOf(returnTo: string | null): string | null {
       ) {
         return ASSESSMENTS_TITLE;
       }
-      // Phase 4B: the Student's assessment pages name Assessments and the drawn reference
-      // ("Assessments › ASMT-0009"); marking a submission names the page (V3 FA-v1: never the
-      // attempt); Students are addressed by ids, so they name the destination alone.
+      // Phase 4B: the Student's assessment pages name Assessments alone (V3 ST-v1: never the
+      // assessment's or the attempt's reference — the owner's identifier rule); marking a
+      // submission names the page (V3 FA-v1: never the attempt); Students are addressed by ids,
+      // so they name the destination alone.
       if (
         outcome.screen === 'ST-11' ||
         outcome.screen === 'ST-12' ||
         outcome.screen === 'ST-13' ||
         outcome.screen === 'ST-14'
       ) {
-        return assessment
-          ? `${STUDENT_ASSESSMENTS_TITLE} › ${assessment}`
-          : STUDENT_ASSESSMENTS_TITLE;
+        return STUDENT_ASSESSMENTS_TITLE;
       }
       if (outcome.screen === 'FA-18') return MARKING_TITLE;
       if (outcome.screen === 'FA-19') return `${MARKING_TITLE} › ${MARK_SUBMISSION_TITLE}`;

@@ -1,6 +1,6 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
-import { bootWorld, reachAndClick, reportRuntime, TEST_HOOKS_URL } from '../support';
+import { actAs, bootWorld, reachAndClick, reportRuntime, TEST_HOOKS_URL } from '../support';
 import { checkState } from '../support/screen-checks';
 import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 
@@ -125,10 +125,15 @@ test('one tab, the test-hook build: access → resources → WEB → runtime pro
   // Rahul signs in: the hub → Resources → Simulation → WEB.
   await signIn(page, 'rahul.verma@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/student');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Open ${SHELL}` }));
+  await reachAndClick(
+    page,
+    main(page)
+      .getByRole('link', { name: `Open experiment, ${SHELL}`, exact: true })
+      .filter({ visible: true }),
+  );
   await page.waitForURL(`**/student/experiments/${SHELL_ID}`);
   await hubTab(page, 'Resources');
-  const brief = main(page).getByRole('region', { name: 'Resources' }).locator('li.xr-row').first();
+  const brief = main(page).getByRole('region', { name: 'Resources' }).locator('li.sv-li').first();
   await newTab(page, () =>
     reachAndClick(page, brief.getByRole('button', { name: /in a new tab$/ })),
   );
@@ -137,7 +142,7 @@ test('one tab, the test-hook build: access → resources → WEB → runtime pro
   const chooser = main(page).getByRole('region', { name: 'Choose a format' });
   await reachAndClick(page, chooser.getByRole('link', { name: 'Open WEB' }));
   await page.waitForURL(`**/simulation/web`);
-  const status = main(page).locator('.xl-fmtpanel .xr-status');
+  const status = main(page).locator('.rk-head .rk-meta .xr-st');
   await newTab(page, () =>
     reachAndClick(page, main(page).getByRole('button', { name: 'Launch WEB' })),
   );
@@ -187,7 +192,23 @@ test('one tab, the test-hook build: access → resources → WEB → runtime pro
   await page.getByRole('textbox', { name: 'New device' }).fill(GIT_VR_07);
   await reachAndClick(page, main(page).getByRole('button', { name: 'Send request' }));
   await expect(main(page)).toContainText('With your Institute Admin');
-  const reference = /DTR-\d{4}/.exec((await main(page).textContent()) ?? '')![0];
+  // The request's record, read as Meera (the Student's page names it by content only, lead
+  // decision 3): Rahul's one open transfer, with her.
+  const listed = await actAs<{
+    readonly ok: boolean;
+    readonly value: readonly {
+      readonly id: string;
+      readonly studentId: string;
+      readonly state: string;
+    }[];
+  }>(page, MEERA, { port: 'operations', method: 'listDeviceRequests', input: {} });
+  const open = listed.value.filter(
+    (entry) => entry.studentId === RAHUL.personId && entry.state === 'with-institute-admin',
+  );
+  expect(open).toHaveLength(1);
+  const reference = open[0]!.id;
+  expect(reference).toMatch(/^DTR-\d{4}$/);
+  await expect(main(page)).not.toContainText(reference);
   await signOut(page, RAHUL_LINE);
 
   // Device 2: Meera — the Overview's row → Device requests → Review → Forward to BITS (DL-1).

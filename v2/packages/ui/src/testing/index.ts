@@ -41,5 +41,7 @@ export {
   faPatchedMarkup,
   faPatchedStyleOf,
   type FaPatchedStyle,
+  stExportText,
+  ST_EXPORT_DIRECTORY,
   v3Canonical,
 } from './v3.js';

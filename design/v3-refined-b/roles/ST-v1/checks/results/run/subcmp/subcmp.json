@@ -1,0 +1,258 @@
+[
+ {
+  "part": "dialog",
+  "w": 1440,
+  "selector": ".rk-dialog",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "dialog",
+  "w": 1024,
+  "selector": ".rk-dialog",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "dialog",
+  "w": 768,
+  "selector": ".rk-dialog",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "dialog",
+  "w": 375,
+  "selector": ".rk-dialog",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "drawer",
+  "w": 768,
+  "selector": ".rb-drawer",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "drawer",
+  "w": 375,
+  "selector": ".rb-drawer",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "acctmenu",
+  "w": 1440,
+  "selector": ".xsb-menu",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "acctmenu",
+  "w": 1024,
+  "selector": ".xsb-menu",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "acctmenu",
+  "w": 768,
+  "selector": ".xsb-menu",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "acctmenu",
+  "w": 375,
+  "selector": ".xsb-menu",
+  "same": false,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-home",
+  "w": 1440,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-home",
+  "w": 1024,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-hub",
+  "w": 1440,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-hub",
+  "w": 1024,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-prog",
+  "w": 1440,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-prog",
+  "w": 1024,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-asmt",
+  "w": 1440,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-asmt",
+  "w": 1024,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-dev",
+  "w": 1440,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "rail-dev",
+  "w": 1024,
+  "selector": ".rb-rail",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "topbar",
+  "w": 1440,
+  "selector": ".rb-top",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "topbar",
+  "w": 1024,
+  "selector": ".rb-top",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "topbar",
+  "w": 768,
+  "selector": ".rb-top",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "topbar",
+  "w": 375,
+  "selector": ".rb-top",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "focusbar-att",
+  "w": 1440,
+  "selector": ".st-focusbar",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "focusbar-att",
+  "w": 768,
+  "selector": ".st-focusbar",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "focusbar-att",
+  "w": 375,
+  "selector": ".st-focusbar",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 15 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "focusbar-act",
+  "w": 1440,
+  "selector": ".st-focusbar",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "focusbar-act",
+  "w": 768,
+  "selector": ".st-focusbar",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "focusbar-act",
+  "w": 375,
+  "selector": ".st-focusbar",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 15 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "banner",
+  "w": 1440,
+  "selector": ".rk-banner",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 12 px (rounded corners show the page behind)"
+ },
+ {
+  "part": "banner",
+  "w": 375,
+  "selector": ".rk-banner",
+  "same": true,
+  "interiorSame": true,
+  "note": "interior compared inset 16 px (rounded corners show the page behind)"
+ }
+]

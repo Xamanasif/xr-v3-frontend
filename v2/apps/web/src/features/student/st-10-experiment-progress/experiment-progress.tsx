@@ -2,46 +2,75 @@
 
 import type { ExperimentHub as HubAnswer, ServiceError } from '@xr/contracts/draft';
 import type { FormatProgressView } from '@xr/domain';
-import { FormatBadge, Icon, Link, LoadingState, StatusPill } from '@xr/ui';
-import { type ReactNode, useId } from 'react';
+import {
+  ButtonLink,
+  StAssessmentLine,
+  StHoldNote,
+  StHubProgressCard,
+  StLoading,
+  StProgressBlock,
+  StProgressOff,
+  type StProgressRow,
+  StProgressTable,
+  StStateRow,
+} from '@xr/ui/v3';
+import { useId } from 'react';
 
 import { studentAssessmentWords, wordsOf } from '@/copy/flow-state-words';
 import {
-  completedBeforePauseWords,
-  continueFormatWords,
   EXPERIMENT_PROGRESS_PAGE,
-  feedbackSentWords,
-  giveFeedbackOnWords,
-  openFormatWords,
+  HUB_ASSESSMENT_ACTIONS,
+  PROGRESS_TAB_V3,
 } from '@/copy/learning-hub';
+import {
+  NO_LICENCE_FOR_YOU,
+  progressCaption,
+  ST_ACTION_WORDS,
+  ST_FORMAT_NAMES,
+  ST_LABELS,
+  ST_OFF_WORDS,
+  ST_PROGRESS_COLUMNS,
+  ST_STATE_WORDS,
+} from '@/copy/st-shared';
 import { stateWords } from '@/copy/state-copy';
-import { formatCode, HUB_AVAILABILITY, HUB_PAGE, STUDENT_WORDS } from '@/copy/student';
+import { studentAssessmentAddress } from '@/nav/student-assessments';
 import { formatFeedbackAddress, formatPageAddress } from '@/nav/student-hub';
-import { useFeedbackState, useSimulationChooser } from '@/queries/learning';
+import { useSimulationChooser } from '@/queries/learning';
 
+import {
+  formatActionOf,
+  formatChipOf,
+  formatFactsOf,
+  formatHoldWords,
+  offFormatRowsOf,
+  primaryActionIndex,
+  progressPillOf,
+  sharedHoldOf,
+} from '../shared/format-progress';
 import { HubFallback, HubTabPage, type HubView, useHubPage } from '../shared/hub-frame';
-import { activityWords, progressStatus } from '../shared/hub-progress';
-import { StudentFailed } from '../shared/student-states';
-import { hubFormatOrder, isGiven, policyOpenOf } from '../shared/student-view';
+import { hubFormatOrder } from '../shared/student-view';
 
 /**
- * ST-10 Progress for this experiment, a tab of the experiment hub — board B3-01 f8 … f12 (B3-12
- * f2), at `/student/experiments/[experimentId]/progress`.
+ * ST-10 Progress for this experiment, a tab of the experiment hub, at
+ * `/student/experiments/[experimentId]/progress`, as the V3 Student export draws it (ST-v1
+ * `StudentFinal.dc.html`, `HB.isPT`, `progTabVM` → `progExp`, the same rows as ST-15 Progress):
+ * one surface — "Your progress, format by format" with "Given by your institution" — the licence
+ * wait said once, then the per-format table (format, progress, details, one action), the formats
+ * not available to the Student, and the assessment line.
  *
  * - **Reads**, side by side (BC3): availability per format from the hub row (`getExperimentHub`,
  *   via the hub frame); progress per format from `LearningService.getSimulationChooser` — the
- *   experiment's own progress views, the same per-format reading as Progress (ST-15,
- *   `getMyProgress`) and refused exactly as the hub is; feedback per completed format from
- *   `FeedbackService.getFeedbackState` for that format alone (BC5); the assessment's words from
- *   the hub read.
- * - **One row per format** (f8): Not started · In progress (last save) · Completed (the date the
- *   system wrote, T-12) → "Give feedback on <format>" when eligible, or "Feedback sent <date>"
- *   (f10, f12); "Open VR" / "Continue WEB" plain links to the format's page while it is not
- *   completed (f8, f9). AR and MR say why in words. No percentage, no experiment-level verdict
- *   (T-13). Paused: each given format "Paused" with its progress before the pause (f11).
- * - **Assessment**: neutral words only — "Your faculty hasn’t set an assessment for this
- *   experiment yet." (f8); a set assessment's status words without any action (Phase 4,
- *   `ST-10.assessment-set`, DEV-21).
+ *   experiment's own progress views (the dates the runtime reported, the completion the system
+ *   recorded, the feedback the service offers; T-12, BC5), refused exactly as the hub is; the
+ *   assessment's state from the hub read. No per-row read.
+ * - **One row per given format**: its access, Not started · In progress · Completed <date>, the
+ *   dated facts, and — while it opens now — one action ("Continue WEB", "Open VR", "Give feedback
+ *   on WEB"; gold once: continue, then feedback, then open). No percentage, no experiment-level
+ *   verdict (T-13). A pause or an inactive account: the shell's banner says it; the rows keep the
+ *   progress, with no action.
+ * - **Assessment**: its state in words ("Not set by your faculty yet"; the Student's status words)
+ *   and, to do / in progress / released, its link. The assessment's name and deadline are not in
+ *   the hub read: left out.
  */
 export function ExperimentProgress({ experimentId }: { readonly experimentId: string }) {
   const read = useSimulationChooser(experimentId);
@@ -51,194 +80,174 @@ export function ExperimentProgress({ experimentId }: { readonly experimentId: st
   if (state.kind !== 'ready') return <HubFallback state={state} />;
   return (
     <HubTabPage experimentId={experimentId} view={state.view} tab="progress">
-      <div className="xw-stack">
-        {read.isError ? (
-          <StudentFailed title={stateWords('ST-10.failed')} onRetry={() => void read.refetch()} />
-        ) : answer?.ok ? (
-          <FormatList experimentId={experimentId} view={state.view} progress={answer.value} />
-        ) : (
-          <LoadingState label={stateWords('ST-10.loading')} surface="section" />
-        )}
-        <Assessment hub={state.view.hub} />
-      </div>
+      <ProgressCard
+        experimentId={experimentId}
+        view={state.view}
+        progress={answer?.ok ? answer.value : null}
+        failed={read.isError}
+        retry={() => void read.refetch()}
+      />
     </HubTabPage>
   );
 }
 
-type HubFormat = HubAnswer['row']['formats'][number];
-
-function FormatList({
+function ProgressCard({
   experimentId,
   view,
   progress,
+  failed,
+  retry,
 }: {
   readonly experimentId: string;
   readonly view: HubView;
-  readonly progress: readonly FormatProgressView[];
+  /** `null` while loading or failed. */
+  readonly progress: readonly FormatProgressView[] | null;
+  readonly failed: boolean;
+  readonly retry: () => void;
 }) {
-  const headingId = useId();
-  return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {EXPERIMENT_PROGRESS_PAGE.heading}
-        </h2>
-      </div>
-      <div className="px-6 pb-6">
-        <ul className="xl-fl" aria-label={EXPERIMENT_PROGRESS_PAGE.listLabel}>
-          {hubFormatOrder(view.hub.row).map((entry) => (
-            <FormatRow
-              key={entry.format}
-              experimentId={experimentId}
-              view={view}
-              entry={entry}
-              progress={progress.find((item) => item.format === entry.format) ?? null}
-            />
-          ))}
-        </ul>
-      </div>
-    </section>
-  );
-}
+  const ids = { title: useId(), off: useId() };
+  const { hub, closure } = view;
+  const name = hub.experiment.name;
+  // The hub's head already says "Your institution can tell you more." (`progTabVM`).
+  const hold = sharedHoldOf(hub.row.closure, closure) ? NO_LICENCE_FOR_YOU : null;
+  const off = offFormatRowsOf(hub.row.formats);
 
-function FormatRow({
-  experimentId,
-  view,
-  entry,
-  progress,
-}: {
-  readonly experimentId: string;
-  readonly view: HubView;
-  readonly entry: HubFormat;
-  readonly progress: FormatProgressView | null;
-}) {
-  const { format, availability } = entry;
-  const paused = view.closure === 'paused' || progress?.beforePause === true;
-  // Nothing opens while paused, inactive or waiting for a licence (`ST-10.closed`).
-  const canAct =
-    availability === 'available-to-you' &&
-    !paused &&
-    view.closure === null &&
-    view.hub.row.closure === null;
-  const completed = canAct && progress?.status === 'completed';
-  const feedback = useFeedbackState(experimentId, format, completed);
-
-  if (!isGiven(availability)) {
-    // AR / MR: the words only, no action (f8).
-    return (
-      <li className="is-off">
-        <span className="xl-fl-fmt">
-          <FormatBadge format={formatCode(format)} variant="off" compact />
-          <span>{formatCode(format)}</span>
-        </span>
-        <span className="xl-fl-state">
-          {policyOpenOf(availability) !== null
-            ? stateWords('ST-05.format-policy-open')
-            : typeof availability === 'string'
-              ? HUB_AVAILABILITY[availability]
-              : ''}
-        </span>
-        <span className="xl-fl-act" />
-      </li>
-    );
-  }
-
-  let state: ReactNode = null;
-  if (progress && paused) {
-    // Progress kept, shown as before the pause (f11).
-    state = (
+  let body;
+  if (failed || progress === null) {
+    // The assessment's words come from the hub read: they stay while the progress loads or fails.
+    body = (
       <>
-        <StatusPill tone="paused">{STUDENT_WORDS.paused}</StatusPill>
-        <span>{beforePauseWords(progress)}</span>
+        {failed ? (
+          <StStateRow
+            icon="cloudAlert"
+            tone="err"
+            alert
+            title={stateWords('ST-10.failed')}
+            description={ST_STATE_WORDS.failedLine}
+            action={{ label: ST_STATE_WORDS.tryAgain, onClick: retry }}
+          />
+        ) : (
+          <StLoading label={stateWords('ST-10.loading')} />
+        )}
+        <StProgressBlock flat>
+          <AssessmentLine assessment={hub.assessment} />
+        </StProgressBlock>
       </>
     );
-  } else if (progress) {
-    const status = progressStatus(progress);
-    const activity = activityWords(progress);
-    state = (
-      <>
-        <StatusPill tone={status.tone}>{status.words}</StatusPill>
-        {activity ? <span>{activity}</span> : null}
-        {availability === 'not-available-right-now' ? (
-          // Given, not available right now (D-26): said beside its progress (`ST-10.not-right-now`).
-          <span>{HUB_AVAILABILITY['not-available-right-now']}</span>
+  } else {
+    body = (
+      <StProgressBlock flat>
+        <StProgressTable
+          caption={progressCaption(name)}
+          columns={ST_PROGRESS_COLUMNS}
+          rows={formatRows(experimentId, view, progress)}
+        />
+        {off.length > 0 ? (
+          <StProgressOff title={ST_OFF_WORDS.title} titleId={ids.off} rows={off} />
         ) : null}
-      </>
-    );
-  }
-
-  let action: ReactNode = null;
-  if (canAct && progress?.status === 'completed') {
-    const answer = feedback.data?.ok ? feedback.data.value : null;
-    if (answer?.state === 'eligible') {
-      action = (
-        <Link
-          className="xr-btn xr-btn--secondary xr-btn--sm"
-          href={formatFeedbackAddress(experimentId, format)}
-        >
-          {giveFeedbackOnWords(format)}
-        </Link>
-      );
-    } else if (answer?.state === 'sent') {
-      action = (
-        <span className="xl-inline xl-meta">
-          <Icon name="done" size={16} />
-          {feedbackSentWords(answer.feedback.sentAt)}
-        </span>
-      );
-    }
-  } else if (canAct && progress) {
-    action = (
-      <Link href={formatPageAddress(experimentId, format)}>
-        {format === 'web' && progress.status === 'in-progress'
-          ? continueFormatWords(format)
-          : openFormatWords(format)}
-      </Link>
+        <AssessmentLine assessment={hub.assessment} />
+      </StProgressBlock>
     );
   }
 
   return (
-    <li>
-      <span className="xl-fl-fmt">
-        <FormatBadge format={formatCode(format)} variant="yours" compact />
-        <strong className="text-ink">{formatCode(format)}</strong>
-      </span>
-      <span className="xl-fl-state">{state}</span>
-      <span className="xl-fl-act">{action}</span>
-    </li>
+    <StHubProgressCard
+      title={EXPERIMENT_PROGRESS_PAGE.heading}
+      titleId={ids.title}
+      intro={PROGRESS_TAB_V3.intro}
+      note={PROGRESS_TAB_V3.given}
+    >
+      {hold ? (
+        <StHoldNote icon="clock" inTab>
+          {hold}
+        </StHoldNote>
+      ) : null}
+      {body}
+    </StHubProgressCard>
   );
 }
 
-/** "Completed 14 Oct 2026 before the pause", "Not started before the pause" (f11). */
-function beforePauseWords(progress: FormatProgressView): string {
-  switch (progress.status) {
-    case 'completed':
-      // Completed is read only with the completion record (BC3), so the date is always there.
-      return progress.completion ? completedBeforePauseWords(progress.completion.completedAt) : '';
-    case 'in-progress':
-      return stateWords('ST-10.in-progress-before-pause');
-    case 'not-started':
-      return EXPERIMENT_PROGRESS_PAGE.notStartedBeforePause;
-  }
+/** The table's rows (`progExp` `mine`): every given format, in the hub's order. */
+function formatRows(
+  experimentId: string,
+  view: HubView,
+  progress: readonly FormatProgressView[],
+): StProgressRow[] {
+  const { hub, closure } = view;
+  const given = hubFormatOrder(hub.row).filter(
+    (entry) =>
+      entry.availability !== 'not-included-for-your-institution' &&
+      entry.availability !== 'not-available-for-this-experiment',
+  );
+  const chips = given.map((entry) =>
+    formatChipOf(entry.format, entry.availability, hub.row.closure, closure),
+  );
+  const opens = chips.find((chip) => chip.kind === 'on')?.code ?? null;
+  const views = given.map((entry) => progress.find((item) => item.format === entry.format) ?? null);
+  const actions = views.map((item, index) => (item ? formatActionOf(chips[index]!, item) : null));
+  const primary = primaryActionIndex(actions);
+  return given.flatMap((entry, index) => {
+    const chip = chips[index]!;
+    const item = views[index];
+    if (!item) return [];
+    const action = actions[index];
+    const pill = progressPillOf(item);
+    const href =
+      action?.kind === 'feedback'
+        ? formatFeedbackAddress(experimentId, entry.format)
+        : formatPageAddress(experimentId, entry.format);
+    return [
+      {
+        key: entry.format,
+        chip: { code: chip.code, kind: chip.kind, glyph: chip.glyph },
+        name: ST_FORMAT_NAMES[chip.code],
+        access: chip.access,
+        status: { tone: pill.tone, words: pill.words },
+        facts: formatFactsOf(item, formatHoldWords(chip, opens)),
+        actions: action ? (
+          <ButtonLink
+            href={href}
+            variant={index === primary ? 'primary' : 'default'}
+            aria-label={ST_ACTION_WORDS.named(action.label, hub.experiment.name)}
+          >
+            {action.label}
+          </ButtonLink>
+        ) : undefined,
+      },
+    ];
+  });
 }
 
-/** The assessment, in words only (f8; Phase 4 builds its actions). */
-function Assessment({ hub }: { readonly hub: HubAnswer }) {
-  const headingId = useId();
-  const words =
-    'kind' in hub.assessment
-      ? HUB_PAGE.noAssessment
-      : (wordsOf(studentAssessmentWords(hub.assessment.result.kind)) ?? '');
+/**
+ * The assessment line (`progExp` `asmt`): "Not set by your faculty yet", else the Student's status
+ * words; to do "Open assessment", in progress "Continue attempt", released "See result".
+ */
+function AssessmentLine({ assessment }: { readonly assessment: HubAnswer['assessment'] }) {
+  if ('kind' in assessment) {
+    return (
+      <StAssessmentLine label={ST_LABELS.assessment}>
+        {PROGRESS_TAB_V3.noAssessment}
+      </StAssessmentLine>
+    );
+  }
+  const kind = assessment.result.kind;
+  const link =
+    kind === 'to-do'
+      ? { href: studentAssessmentAddress(assessment.id), label: HUB_ASSESSMENT_ACTIONS.open }
+      : kind === 'in-progress'
+        ? {
+            href: studentAssessmentAddress(assessment.id, 'attempt'),
+            label: HUB_ASSESSMENT_ACTIONS.continue,
+          }
+        : kind === 'released'
+          ? {
+              href: studentAssessmentAddress(assessment.id, 'result'),
+              label: HUB_ASSESSMENT_ACTIONS.result,
+            }
+          : undefined;
   return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {EXPERIMENT_PROGRESS_PAGE.assessment}
-        </h2>
-      </div>
-      <div className="xr-section-body">
-        <p className="xr-body m-0 text-ink-2">{words}</p>
-      </div>
-    </section>
+    <StAssessmentLine label={ST_LABELS.assessment} link={link}>
+      {wordsOf(studentAssessmentWords(kind)) ?? ''}
+    </StAssessmentLine>
   );
 }

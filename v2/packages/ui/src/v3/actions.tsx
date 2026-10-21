@@ -75,6 +75,13 @@ export interface ButtonProps
   readonly busy?: boolean;
   readonly busyLabel?: ReactNode;
   readonly spinner?: boolean;
+  /**
+   * Opt-in: how busy is said. `aria-disabled` (the default, every role): the button stays
+   * focusable and ignores the press. `disabled`: as the Student export draws its launch button
+   * (`button.rb-btn[disabled][aria-busy]`, ST-08 "Opening the simulation…") — `disabled` while
+   * busy and `aria-busy` always said (`true` / `false`).
+   */
+  readonly busyAs?: 'aria-disabled' | 'disabled';
   readonly ref?: Ref<HTMLButtonElement>;
 }
 
@@ -92,6 +99,7 @@ export function Button({
   busy = false,
   busyLabel,
   spinner = false,
+  busyAs = 'aria-disabled',
   onClick,
   ref,
   ...rest
@@ -118,7 +126,9 @@ export function Button({
       ref={ref}
       type={type}
       className={buttonClasses(look)}
-      aria-disabled={busy ? true : undefined}
+      aria-disabled={busy && busyAs === 'aria-disabled' ? true : undefined}
+      aria-busy={busyAs === 'disabled' ? (busy ? 'true' : 'false') : undefined}
+      disabled={busyAs === 'disabled' ? busy || rest.disabled : rest.disabled}
       onClick={handleClick}
     >
       {busy && spinner ? (

@@ -1,6 +1,7 @@
 /**
- * Phase 3, ST-18 My device (B3-07 f0 … f9; B3-12 DTR-0018 across roles) and its XS-05 account-menu
- * entry, on the real composition root and the sample world: who is offered it (f1, f2; P3-06), the
+ * ST-18 My device in the owner-approved V3 Student design (ST-v1 `StudentFinal.dc.html`: `device`,
+ * `devVM`, `msg('dev-not')`; B3-12 DTR-0018 across roles) and its XS-05 account-menu entry, on the
+ * real composition root and the sample world: who is offered it (f1, f2; P3-06), the
  * drawn states along the chain — request, validation, "With your Institute Admin", "Forwarded to
  * BITS", "Approved", "can’t be forwarded yet", paused — the provisional undrawn ones (no device
  * recorded, more than one device), loading, failed and every answer of "Send request" (success,
@@ -33,6 +34,16 @@ import { HelpHome } from '../shared/xs-07-help/help-home';
 import { holdsHeadsetFormat, offersMyDevice } from './st-18-my-device/device-entry';
 import { MyDevice } from './st-18-my-device/my-device';
 
+/**
+ * Text as it reads: the export's no-break spaces that keep a date on one line (`nbd`) read as
+ * spaces (in a string, or in each string of a row).
+ */
+function plain<T>(value: T): T {
+  if (typeof value === 'string') return value.replace(/\u00a0/g, ' ') as T;
+  if (Array.isArray(value)) return value.map((item: unknown) => plain(item)) as T;
+  return value;
+}
+
 afterEach(() => {
   forgetLastAddress();
 });
@@ -64,6 +75,20 @@ function render(
 
 const main = () => screen.getByRole('main');
 const section = (name: string) => screen.getByRole('region', { name });
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT)-\d+/;
+const railCurrent = () =>
+  screen
+    .getByRole('navigation', { name: 'Student navigation' })
+    .querySelector('[aria-current="page"]');
+
+/** Nothing the Student reads names the transfer by its record (lead decision 3). */
+function expectNoReference() {
+  expect(main().textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of main().querySelectorAll('[aria-label]')) {
+    expect(element.getAttribute('aria-label') ?? '').not.toMatch(REFERENCE);
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 async function opened(runtime: PlatformRuntime) {
   render(runtime);
@@ -122,7 +147,7 @@ async function pauseGodavari(sample: Sample, runtime: PlatformRuntime, refresh =
   });
 }
 
-/** Opens the form and sends it with what is given (B3-07 f0 → f3 → f4). */
+/** Opens the form and sends it with what is given. */
 async function sendRequest(newDevice: string, note = '') {
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: 'Request a device transfer' }));
@@ -137,15 +162,26 @@ async function sendRequest(newDevice: string, note = '') {
   return user;
 }
 
-function historyLines(): string[] {
-  return [...section('Request history').querySelectorAll('li.xr-tl')].map(
-    (item) => item.querySelector('.xr-tl-what')!.textContent!,
+/** The request's three steps as screen readers read them. */
+function steps(): string[] {
+  return [
+    ...screen.getByRole('list', { name: 'Steps of your transfer request' }).querySelectorAll('li'),
+  ].map((item) => item.getAttribute('aria-label')!);
+}
+
+/** The request's facts (`dl.sv-devdl`): term = detail. */
+function facts(): string[] {
+  return [...main().querySelectorAll('dl.sv-devdl > div')].map(
+    (entry) =>
+      `${entry.querySelector('dt')!.textContent} = ${entry.querySelector('dd')!.textContent}`,
   );
 }
 
-// ---- who is offered "My device" (B3-07 f1, f2; state-copy ST-18.offered, P3-06) ----------------
+const DATE = '\\d{1,2} [A-Z][a-z]{2} 2026, \\d\\d:\\d\\d';
 
-describe('“My device” is offered to a Student holding AR, VR or MR (f1, f2)', () => {
+// ---- who is offered "My device" (state-copy ST-18.offered, P3-06) ---------------------------------
+
+describe('“My device” is offered to a Student holding AR, VR or MR', () => {
   async function reads(personId: string, fixture: Parameters<typeof fixtureWorld>[0]) {
     const { runtime } = await tabPlatform(personId, fixture);
     const courses = await runtime.ports.studentAccess.listMyCourses();
@@ -200,13 +236,10 @@ describe('“My device” is offered to a Student holding AR, VR or MR (f1, f2)'
     return within(menu);
   }
 
-  it('f1: the account menu offers “My device” first, to /student/device', async () => {
+  it('the account menu offers “My device” first, to /student/device', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     render(runtime, <HelpHome />, '/student/help');
     await screen.findByRole('heading', { level: 1, name: 'Help & support' });
-    await waitFor(async () => {
-      expect(document.querySelector('.xr-acct-btn')).not.toBeNull();
-    });
     // The entry appears once the shell's reads have answered.
     await waitFor(() => expect(runtime.queryClient.isFetching()).toBe(0));
     const menu = await menuItems();
@@ -220,7 +253,7 @@ describe('“My device” is offered to a Student holding AR, VR or MR (f1, f2)'
     );
   });
 
-  it('f2: no headset format, no entry — never a disabled item', async () => {
+  it('no headset format, no entry — never a disabled item', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-setup');
     render(runtime, <HelpHome />, '/student/help');
     await screen.findByRole('heading', { level: 1, name: 'Help & support' });
@@ -230,47 +263,66 @@ describe('“My device” is offered to a Student holding AR, VR or MR (f1, f2)'
     expect(menu.queryByText('My device')).toBeNull();
   });
 
-  it('a direct visit without one is the in-shell not-found (P3-06), nothing current', async () => {
+  it('a direct visit without one: “My device isn’t available to you”, nothing current', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-setup');
     render(runtime);
-    expect(
-      await screen.findByRole('heading', { level: 1, name: 'We can’t find that page' }),
-    ).toBeVisible();
+    const title = await screen.findByRole('heading', {
+      level: 1,
+      name: 'My device isn’t available to you',
+    });
+    const card = title.closest('.sv-refuse') as HTMLElement;
+    expect(card.querySelector('.sv-refuse-k')).toHaveTextContent('My device');
+    expect(card).toHaveTextContent(
+      'It’s for students who use AR, VR or MR formats. None of your experiments uses them right now.',
+    );
+    expect(within(card).getByRole('link', { name: 'Back to Home' })).toHaveAttribute(
+      'href',
+      '/student',
+    );
+    expect(within(card).getByRole('link', { name: 'Help & support' })).toHaveAttribute(
+      'href',
+      '/student/help',
+    );
     expect(screen.queryByRole('heading', { name: 'My device' })).toBeNull();
-    expect(document.querySelector('.xr-side [aria-current="page"]')).toBeNull();
+    expect(railCurrent()).toBeNull();
   });
 });
 
-// ---- the page along the chain (B3-07 f0, f3 … f6) ------------------------------------------------
+// ---- the page along the chain --------------------------------------------------------------------
 
-describe('ST-18 along the chain — Rahul, DTR-0018 (f0, f3, f4, f5, f6)', () => {
-  it('f0: the authorised device, what it is used for, the request, an empty history', async () => {
+describe('ST-18 along the chain — Rahul’s request (ST-v1 `device`, `devVM`)', () => {
+  it('the authorised device, what it is used for, the request, no request yet, the aside', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     await opened(runtime);
-    expect(document.querySelector('.xr-top-title')).toHaveTextContent('My device');
-    expect(document.querySelector('.xr-crumbs [aria-current="page"]')).toHaveTextContent(
-      'My device',
-    );
-    // ST-18 is no sidebar destination: nothing is current (Appendix A §3.6).
-    expect(document.querySelector('.xr-side [aria-current="page"]')).toBeNull();
-    expect(main().querySelector('.xr-phead-meta')).toHaveTextContent(
+    await waitFor(() => expect(document.title).toContain('My device'));
+    // ST-18 is no rail destination: nothing is current.
+    expect(railCurrent()).toBeNull();
+    expect(main().querySelector('.rk-head .rk-sub')).toHaveTextContent(
       'The device authorised for your headset formats',
     );
-    const device = section('Authorised device');
-    expect(device.querySelector('.xr-section-head .xr-fmt--yours')).toHaveTextContent('VR');
-    expect(device.querySelector('.xl-dev-name')).toHaveTextContent(GIT_VR_03);
-    expect(device.querySelector('.xl-dev .xl-meta')).toHaveTextContent(
-      'Used for VR · Shell-and-Tube Heat Exchanger',
+    const device = section(GIT_VR_03);
+    expect(device.querySelector('.sv-eyebrow')).toHaveTextContent('Authorised device');
+    expect(device.querySelector('.sv-devuse .xr-fmt.sv-fmt--on')).toHaveTextContent('VR');
+    expect(device.querySelector('.sv-devuse')).toHaveTextContent(
+      'Used for VR: Shell-and-Tube Heat Exchanger',
     );
     expect(within(device).getByRole('button', { name: 'Request a device transfer' })).toHaveClass(
-      'xr-btn--primary',
+      'rb-btn--primary',
     );
     expect(screen.queryByRole('region', { name: 'Your transfer request' })).toBeNull();
-    expect(section('Request history')).toHaveTextContent('No transfer requests yet.');
+    expect(section('Transfer requests')).toHaveTextContent('No transfer requests yet.');
+    const how = screen.getByRole('complementary', { name: 'How a transfer works' });
+    expect([...how.querySelectorAll('.sv-howto-t')].map((step) => step.textContent)).toEqual([
+      'You ask for the transfer',
+      'Your Institute Admin forwards it',
+      'BITS approves it',
+    ]);
+    expect(how).toHaveTextContent('Your progress stays with you.');
     expect(main()).not.toHaveTextContent(/ship|deliver|provision|decline/i);
+    expectNoReference();
   });
 
-  it('f3: “New device” is the only required field — the service’s words, focus on the field; Cancel', async () => {
+  it('“New device” is the only required field — the service’s words, focus on the field; Cancel', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-b');
     await opened(runtime);
     const user = userEvent.setup();
@@ -278,8 +330,8 @@ describe('ST-18 along the chain — Rahul, DTR-0018 (f0, f3, f4, f5, f6)', () =>
     const field = screen.getByRole('textbox', { name: 'New device' });
     expect(field).toHaveFocus();
     expect(screen.queryByRole('button', { name: 'Request a device transfer' })).toBeNull();
-    const form = section('Request a device transfer');
-    expect(form.querySelector('.xr-ro')).toHaveTextContent(`Moving from${GIT_VR_03}`);
+    const form = screen.getByRole('form', { name: 'Request a device transfer' });
+    expect(form.querySelector('dl.sv-devfrom')).toHaveTextContent(`Moving from${GIT_VR_03}`);
     expect(form).toHaveTextContent(
       'Describe it the way your lab or institution labels it — for example, its asset tag.',
     );
@@ -288,94 +340,86 @@ describe('ST-18 along the chain — Rahul, DTR-0018 (f0, f3, f4, f5, f6)', () =>
     );
     await user.click(within(form).getByRole('button', { name: 'Send request' }));
     await waitFor(() => expect(field).toHaveAttribute('aria-invalid', 'true'));
-    expect(form.querySelector('.xw-ferr')).toHaveTextContent('Describe the new device');
+    expect(form.querySelector('.rk-ferr')).toHaveTextContent('Describe the new device');
     expect(field).toHaveFocus();
-    expect(form.querySelector('.xr-error-summary')).toBeNull();
+    expect(form.querySelector('.rk-errsum')).toBeNull();
     await user.type(field, 'G');
     expect(field).not.toHaveAttribute('aria-invalid');
     await user.click(within(form).getByRole('button', { name: 'Cancel' }));
-    expect(screen.queryByRole('region', { name: 'Request a device transfer' })).toBeNull();
+    expect(screen.queryByRole('form', { name: 'Request a device transfer' })).toBeNull();
     expect(screen.getByRole('button', { name: 'Request a device transfer' })).toHaveFocus();
     // Nothing was sent.
     const mine = await runtime.ports.operations.getMyDevice();
     expect(mine.ok && mine.value.openTransfer).toBeNull();
   });
 
-  it('f4 → f5 → f6: sent, forwarded by Meera, approved by BITS — the same DTR in this tab', async () => {
+  it('sent, forwarded by Meera, approved by BITS — the same request in this tab, three dated steps', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     await opened(runtime);
     await sendRequest(GIT_VR_07, NOTE);
 
-    // f4 "With your Institute Admin": the status replaces the button and takes focus.
+    // With your Institute Admin: the steps replace the button and take focus.
     const request = await screen.findByRole('region', { name: 'Your transfer request' });
     await waitFor(() => expect(document.getElementById('device-status')).toHaveFocus());
-    expect(request.querySelector('.xr-section-head .xr-id')).toHaveTextContent('DTR-0018');
-    expect(request.querySelector('.xr-status--wait')).toHaveTextContent(
+    expect(request.querySelector('.sv-devreq-h .xr-st--warn')).toHaveTextContent(
       'With your Institute Admin',
     );
-    expect(request).toHaveTextContent(
+    expect(request.querySelector('.sv-devexp')).toHaveTextContent(
       'Your Institute Admin forwards it to BITS. Nothing changes on your device yet.',
     );
-    expect(request.querySelector('dl.xl-kv')).toHaveTextContent(`From${GIT_VR_03}To${GIT_VR_07}`);
+    expect(plain(steps()[0])).toMatch(new RegExp(`^Requested, done, ${DATE}$`));
+    expect(steps().slice(1)).toEqual([
+      'Forwarded to BITS, current, With your Institute Admin',
+      'BITS decides, not yet, Not yet',
+    ]);
+    expect(facts()).toEqual([`From = ${GIT_VR_03}`, `To = ${GIT_VR_07}`, `Your note = ${NOTE}`]);
     expect(screen.queryByRole('button', { name: 'Request a device transfer' })).toBeNull();
-    expect(screen.queryByRole('region', { name: 'Request a device transfer' })).toBeNull();
-    expect(historyLines()).toEqual(['Requested by Rahul Verma']);
-    expect(section('Request history').querySelector('.xr-tl-note')).toHaveTextContent(
-      `From ${GIT_VR_03} to ${GIT_VR_07}`,
-    );
-    // The Student's own note goes to the Institute Admin; it is not repeated here.
-    expect(main()).not.toHaveTextContent(NOTE);
+    expect(screen.queryByRole('form', { name: 'Request a device transfer' })).toBeNull();
+    // The record's reference is not shown (lead decision 3).
+    expectNoReference();
 
-    // f5 "Forwarded to BITS" (Meera Iyer, B3-09).
+    // Forwarded to BITS (Meera Iyer).
     await forwardAsMeera(sample, runtime);
     await waitFor(() =>
-      expect(request.querySelector('.xr-status--info')).toHaveTextContent('Forwarded to BITS'),
+      expect(request.querySelector('.xr-st--info')).toHaveTextContent('Forwarded to BITS'),
     );
-    expect(request).toHaveTextContent('BITS decides. Nothing changes on your device yet.');
-    expect(historyLines()).toEqual(['Forwarded to BITS by Meera Iyer', 'Requested by Rahul Verma']);
-    expect(section('Authorised device').querySelector('.xl-dev-name')).toHaveTextContent(GIT_VR_03);
+    expect(request.querySelector('.sv-devexp')).toHaveTextContent(
+      'BITS decides. Nothing changes on your device yet.',
+    );
+    expect(plain(steps()[1])).toMatch(
+      new RegExp(`^Forwarded to BITS, done, Meera Iyer · ${DATE}$`),
+    );
+    expect(steps()[2]).toBe('BITS decides, current, With BITS now');
+    expect(section(GIT_VR_03).querySelector('.sv-devname')).toHaveTextContent(GIT_VR_03);
 
-    // f6 "Approved" (B3-11): the authorised device is now the new one.
+    // Approved: the authorised device is now the new one.
     await approveAsArjun(sample, runtime);
-    await waitFor(() =>
-      expect(request.querySelector('.xr-status--ok')).toHaveTextContent('Approved'),
-    );
-    expect(request).toHaveTextContent(
+    await waitFor(() => expect(request.querySelector('.xr-st--ok')).toHaveTextContent('Approved'));
+    expect(request.querySelector('.sv-devexp')).toHaveTextContent(
       'BITS approved the transfer. Your authorised device is updated above.',
     );
-    expect(section('Authorised device').querySelector('.xl-dev-name')).toHaveTextContent(GIT_VR_07);
-    expect(historyLines()).toEqual([
-      'Approved by BITS',
-      'Forwarded to BITS by Meera Iyer',
-      'Requested by Rahul Verma',
-    ]);
-    expect(section('Request history').querySelector('.is-latest .xr-tl-note')).toHaveTextContent(
-      `The authorised device is now: ${GIT_VR_07}`,
-    );
+    expect(section(GIT_VR_07).querySelector('.sv-devname')).toHaveTextContent(GIT_VR_07);
+    expect(plain(steps()[2])).toMatch(new RegExp(`^Approved by BITS, done, ${DATE}$`));
     // Nothing is open any more: the service offers a new request (state-copy ST-18.after-approval).
     expect(screen.getByRole('button', { name: 'Request a device transfer' })).toBeVisible();
     expect(main()).not.toHaveTextContent(/Arjun Mehta|decline/i);
+    expectNoReference();
   });
 
-  it('after the device flow (DTR-0018 approved on 24 Oct): the approved request and its history', async () => {
+  it('after the device flow (approved on 24 Oct): the approved request and its dated steps', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-device');
     await opened(runtime);
-    expect(section('Authorised device').querySelector('.xl-dev-name')).toHaveTextContent(GIT_VR_07);
+    expect(section(GIT_VR_07).querySelector('.sv-devname')).toHaveTextContent(GIT_VR_07);
     const request = section('Your transfer request');
-    expect(request.querySelector('.xr-status--ok')).toHaveTextContent('Approved');
-    expect(historyLines()).toEqual([
-      'Approved by BITS',
-      'Forwarded to BITS by Meera Iyer',
-      'Requested by Rahul Verma',
-    ]);
+    expect(request.querySelector('.xr-st--ok')).toHaveTextContent('Approved');
     expect(
-      [...section('Request history').querySelectorAll('.xr-tl-when')].map(
-        (when) => when.textContent,
-      ),
-    ).toEqual(['24 Oct 2026, 12:30', '23 Oct 2026, 10:00', '22 Oct 2026, 09:10']);
+      plain([...request.querySelectorAll('.sv-steps-s')].map((detail) => detail.textContent)),
+    ).toEqual(['22 Oct 2026, 09:10', 'Meera Iyer · 23 Oct 2026, 10:00', '24 Oct 2026, 12:30']);
+    expect(request.querySelectorAll('li.is-done')).toHaveLength(3);
+    expectNoReference();
   });
 
-  it('“Send request” is sent once while busy (one DTR)', async () => {
+  it('“Send request” is sent once while busy (one request)', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     await opened(runtime);
     const user = userEvent.setup();
@@ -389,10 +433,10 @@ describe('ST-18 along the chain — Rahul, DTR-0018 (f0, f3, f4, f5, f6)', () =>
   });
 });
 
-// ---- f7, f8 and the undrawn states -------------------------------------------------------------
+// ---- when the request cannot move, and the undrawn states -------------------------------------------
 
 describe('ST-18 when the request cannot move, and the undrawn states', () => {
-  it('f7: no Institute Admin — the request is created and waits, “can’t be forwarded yet”', async () => {
+  it('no Institute Admin — the request is created and waits, “can’t be forwarded yet”', async () => {
     const { runtime } = await adjusted('after-flow-b', (world) => ({
       ...world,
       records: {
@@ -406,12 +450,14 @@ describe('ST-18 when the request cannot move, and the undrawn states', () => {
     await opened(runtime);
     await sendRequest(GIT_VR_07);
     const request = await screen.findByRole('region', { name: 'Your transfer request' });
-    expect(request.querySelector('.xr-status--wait')).toHaveTextContent(
-      'With your Institute Admin',
+    expect(request.querySelector('.xr-st--warn')).toHaveTextContent('With your Institute Admin');
+    expect(request.querySelector('.sv-devexp')).toHaveTextContent(
+      'Nothing changes on your device yet.',
     );
-    const notice = request.querySelector('.xr-notice--warn')!;
+    expect(steps()[1]).toBe('Forwarded to BITS, current, Waiting for an Institute Admin');
+    const notice = request.querySelector('.sv-devnoia')!;
     expect(notice).toHaveAttribute('role', 'status');
-    expect(notice.querySelector('.xr-notice-title')).toHaveTextContent(
+    expect(notice.querySelector('.rk-notice-t')).toHaveTextContent(
       'This request can’t be forwarded yet',
     );
     expect(notice).toHaveTextContent(
@@ -419,17 +465,19 @@ describe('ST-18 when the request cannot move, and the undrawn states', () => {
     );
   });
 
-  it('f8: paused — no new request, the drawn words and the shell’s banner', async () => {
+  it('paused — no new request, the drawn words and the shell’s banner', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-b');
     await pauseGodavari(sample, runtime, false);
     await opened(runtime);
-    const device = section('Authorised device');
-    expect(device).toHaveTextContent(
+    const device = section(GIT_VR_03);
+    expect(device.querySelector('.sv-devlock')).toHaveTextContent(
       'You can’t request a transfer while your institution’s access is paused.',
     );
     expect(screen.queryByRole('button', { name: 'Request a device transfer' })).toBeNull();
-    expect(document.querySelector('.rk-x-region--banner > .rk-banner')).toHaveTextContent(
-      'Your institution’s access is paused — your work is kept.',
+    await waitFor(() =>
+      expect(document.querySelector('.rk-banner')).toHaveTextContent(
+        'Your institution’s access is paused — your work is kept.',
+      ),
     );
   });
 
@@ -440,11 +488,11 @@ describe('ST-18 when the request cannot move, and the undrawn states', () => {
     const request = await screen.findByRole('region', { name: 'Your transfer request' });
     await pauseGodavari(sample, runtime);
     await waitFor(() =>
-      expect(request.querySelector('.xr-notice--warn')).toHaveTextContent(
+      expect(request.querySelector('.sv-devnoia')).toHaveTextContent(
         'Your institution’s access is paused. It stays here until the access is restored.',
       ),
     );
-    expect(section('Authorised device')).toHaveTextContent(
+    expect(section(GIT_VR_03).querySelector('.sv-devlock')).toHaveTextContent(
       'You can’t request a transfer while your institution’s access is paused.',
     );
   });
@@ -455,11 +503,14 @@ describe('ST-18 when the request cannot move, and the undrawn states', () => {
       records: { ...world.records, devices: {} },
     }));
     await opened(runtime);
-    const device = section('Authorised device');
-    expect(device).toHaveTextContent('No authorised device is recorded for you yet.');
+    const device = section('No authorised device is recorded for you');
+    expect(device).toHaveTextContent(
+      'Your institution can tell you more. When a device is authorised for you, it appears here.',
+    );
+    expect(device.querySelector('.sv-devico--off')).not.toBeNull();
     expect(device.querySelector('.xr-fmt')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Request a device transfer' })).toBeNull();
-    expect(section('Request history')).toHaveTextContent('No transfer requests yet.');
+    expect(section('Transfer requests')).toHaveTextContent('No transfer requests yet.');
   });
 
   it('more than one authorised device: each listed, no picker and no request (OD-B3-01)', async () => {
@@ -481,30 +532,27 @@ describe('ST-18 when the request cannot move, and the undrawn states', () => {
       };
     });
     await opened(runtime);
-    const device = section('Authorised device');
-    expect([...device.querySelectorAll('.xl-dev-name')].map((name) => name.textContent)).toEqual([
+    const card = main().querySelector('.sv-devmain') as HTMLElement;
+    expect([...card.querySelectorAll('.sv-devname')].map((name) => name.textContent)).toEqual([
       GIT_VR_03,
       'ME lab AR tablet, asset tag GIT-AR-01',
     ]);
-    expect(device).toHaveTextContent(
+    expect(card).toHaveTextContent(
       'A transfer can’t be requested here while more than one device is authorised for you.',
     );
-    expect(within(device).queryAllByRole('button')).toEqual([]);
-    expect(device.querySelector('select, [role="radio"]')).toBeNull();
+    expect(within(card).queryAllByRole('button')).toEqual([]);
+    expect(card.querySelector('select, [role="radio"]')).toBeNull();
   });
 
-  it('state coverage: Imran’s DTR-0019, still with the institution', async () => {
+  it('state coverage: Imran’s request, still with the institution', async () => {
     const { runtime } = await tabPlatform(IMRAN, 'state-coverage');
     await opened(runtime);
-    expect(section('Authorised device').querySelector('.xl-dev .xl-meta')).toHaveTextContent(
-      /^Used for VR$/,
-    );
+    expect(main().querySelector('.sv-devuse')?.textContent).toBe('VRUsed for VR: ');
     const request = section('Your transfer request');
-    expect(request.querySelector('.xr-id')).toHaveTextContent('DTR-0019');
-    expect(request.querySelector('.xr-status--wait')).toHaveTextContent(
-      'With your Institute Admin',
-    );
-    expect(historyLines()).toEqual(['Requested by Imran Shaikh']);
+    expect(request.querySelector('.xr-st--warn')).toHaveTextContent('With your Institute Admin');
+    expect(plain(steps()[0])).toMatch(new RegExp(`^Requested, done, ${DATE}$`));
+    expect(request).not.toHaveTextContent('DTR-0019');
+    expectNoReference();
   });
 });
 
@@ -518,7 +566,7 @@ describe('ST-18 loading, failed, and every answer of “Send request”', () => 
     render(runtime);
     expect(await screen.findByText('Loading your device')).toHaveAttribute('role', 'status');
     const failed = await screen.findByRole('heading', { name: 'We couldn’t load your device' });
-    expect(failed.closest('.xr-empty')).toHaveTextContent('Nothing has changed. Try again.');
+    expect(failed.closest('.sv-msg')).toHaveTextContent('Nothing has changed. Try again.');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByRole('heading', { level: 1, name: 'My device' })).toBeVisible();
     expect(document.activeElement).toBe(main());
@@ -547,7 +595,7 @@ describe('ST-18 loading, failed, and every answer of “Send request”', () => 
     expect(await screen.findByRole('region', { name: 'Your transfer request' })).toHaveTextContent(
       GIT_VR_07,
     );
-    expect(screen.queryByRole('region', { name: 'Request a device transfer' })).toBeNull();
+    expect(screen.queryByRole('form', { name: 'Request a device transfer' })).toBeNull();
   });
 
   it('paused meanwhile: the drawn paused words, and no request is offered', async () => {
@@ -575,14 +623,16 @@ describe('ST-18 loading, failed, and every answer of “Send request”', () => 
     await sendRequest(GIT_VR_07);
     const field = screen.getByRole('textbox', { name: 'New device' });
     await waitFor(() =>
-      expect(screen.getByRole('button', { name: 'Send request' })).not.toHaveClass('is-busy'),
+      expect(screen.getByRole('button', { name: 'Send request' })).not.toHaveAttribute(
+        'aria-disabled',
+      ),
     );
     expect(field).toHaveValue(GIT_VR_07);
     expect(document.getElementById('device-refused')).toBeNull();
     await userEvent.setup().click(screen.getByRole('button', { name: 'Send request' }));
     expect(
       (await screen.findByRole('region', { name: 'Your transfer request' })).querySelector(
-        '.xr-status--wait',
+        '.xr-st--warn',
       ),
     ).toHaveTextContent('With your Institute Admin');
   });

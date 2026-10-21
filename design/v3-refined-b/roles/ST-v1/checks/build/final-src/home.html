@@ -1,0 +1,70 @@
+      <!-- ══════════ ST-01 Home ══════════ -->
+      <sc-if value="{{ is.home }}" hint-placeholder-val="{{ true }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <p class="rk-eyebrow">{{ S.inst }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">Hello, {{ H.first }}</h1>
+        </div>
+      </div>
+
+      <!-- no access yet / account inactive: one compact message, nothing invented -->
+      <sc-if value="{{ H.msg.show }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-card sv-msg" aria-labelledby="sv-home-msg">
+        <span class="{{ H.msg.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#{{ H.msg.ico }}"></use></svg></span>
+        <div class="sv-msg-main">
+          <h2 class="sv-msg-t" id="sv-home-msg">{{ H.msg.t }}</h2>
+          <p class="sv-msg-d">{{ H.msg.d }}</p>
+          <sc-if value="{{ H.msg.how }}" hint-placeholder-val="{{ true }}">
+          <ol class="sv-how" aria-label="How it works">
+            <sc-for list="{{ H.msg.steps }}" as="s" hint-placeholder-count="3"><li><span class="sv-how-n" aria-hidden="true">{{ s.n }}</span><span class="sv-how-t">{{ s.t }}</span></li></sc-for>
+          </ol>
+          </sc-if>
+          <sc-if value="{{ H.msg.hasAct }}" hint-placeholder-val="{{ true }}"><a class="rb-link sv-msg-link" href="{{ H.msg.act.href }}" onClick="{{ H.msg.act.go }}">{{ H.msg.act.label }}</a></sc-if>
+        </div>
+      </section>
+      </sc-if>
+
+      <!-- the current experiment, its one next step, the rest of it, and what it teaches -->
+      <sc-if value="{{ H.cover.show }}" hint-placeholder-val="{{ true }}">
+      <div class="sv-home">
+        <section class="sv-home-now" aria-labelledby="sv-now-h">
+          <h2 class="sv-sh" id="sv-now-h">{{ H.cover.k }}</h2>
+          <article class="sv-card sv-now" aria-labelledby="sv-now-t">
+            <div class="sv-now-top">
+              <p class="sv-now-course"><span class="rk-owncode">{{ H.cover.code }}</span><sc-if value="{{ H.cover.canCourse }}" hint-placeholder-val="{{ true }}"><a class="sv-now-clink" href="{{ H.cover.course.href }}" onClick="{{ H.cover.course.go }}" aria-label="{{ H.cover.course.aria }}">{{ H.cover.course.t }}</a></sc-if><sc-if value="{{ H.cover.noCourse }}" hint-placeholder-val="{{ false }}"><span>{{ H.cover.course.t }}</span></sc-if></p>
+              <sc-if value="{{ H.cover.canOpen }}" hint-placeholder-val="{{ true }}"><a class="sv-link sv-wide" href="{{ H.cover.open.href }}" onClick="{{ H.cover.open.go }}" aria-label="{{ H.cover.open.aria }}">Open experiment<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a></sc-if>
+            </div>
+            <h3 class="sv-now-t" id="sv-now-t">{{ H.cover.t }}</h3>
+            <p class="sv-now-d">{{ H.cover.d }}</p>
+            <div class="{{ H.cover.step.cls }}">
+              <span class="sv-step-badge" aria-hidden="true"><sc-if value="{{ H.cover.step.isFmt }}" hint-placeholder-val="{{ true }}"><span class="{{ H.cover.step.fmtCls }}">{{ H.cover.step.fmt }}<sc-if value="{{ H.cover.step.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ H.cover.step.glyph }}"></use></svg></sc-if></span></sc-if><sc-if value="{{ H.cover.step.isIco }}" hint-placeholder-val="{{ false }}"><span class="sv-step-ico"><svg viewBox="0 0 24 24"><use href="#{{ H.cover.step.ico }}"></use></svg></span></sc-if></span>
+              <div class="sv-step-main">
+                <sc-if value="{{ H.cover.step.hasK }}" hint-placeholder-val="{{ true }}"><p class="sv-step-k">Your next step</p></sc-if>
+                <p class="sv-step-t">{{ H.cover.step.t }}</p>
+                <sc-if value="{{ H.cover.step.hasD }}" hint-placeholder-val="{{ true }}"><p class="sv-step-d">{{ H.cover.step.d }}</p></sc-if>
+                <sc-if value="{{ H.cover.step.hasStages }}" hint-placeholder-val="{{ false }}"><ol class="sv-steps sv-step-stages" aria-label="Stages of the sample WEB activity"><sc-for list="{{ H.cover.step.stages }}" as="g" hint-placeholder-count="3"><li class="{{ g.cls }}" aria-label="{{ g.aria }}"><p class="sv-steps-k" aria-hidden="true">{{ g.k }}<sc-if value="{{ g.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></sc-if></p><p class="sv-steps-s" aria-hidden="true">{{ g.s }}</p></li></sc-for></ol></sc-if>
+              </div>
+              <sc-if value="{{ H.cover.step.showAct }}" hint-placeholder-val="{{ true }}"><div class="sv-step-act"><sc-if value="{{ H.cover.step.hasAct }}" hint-placeholder-val="{{ true }}"><a class="{{ H.cover.step.act.cls }}" href="{{ H.cover.step.act.href }}" onClick="{{ H.cover.step.act.go }}" aria-label="{{ H.cover.step.act.aria }}">{{ H.cover.step.act.label }}</a></sc-if><sc-if value="{{ H.cover.canOpen }}" hint-placeholder-val="{{ true }}"><a class="rb-btn sv-narrow" href="{{ H.cover.open.href }}" onClick="{{ H.cover.open.go }}" aria-label="{{ H.cover.open.aria }}">Open experiment</a></sc-if></div></sc-if>
+            </div>
+          </article>
+        </section>
+
+        <section class="sv-home-also" aria-labelledby="sv-also-h">
+          <h2 class="sv-sh" id="sv-also-h">{{ H.also.h }}</h2>
+          <ul class="sv-card sv-items">
+            <sc-for list="{{ H.also.items }}" as="i" hint-placeholder-count="3"><li>
+              <sc-if value="{{ i.isLink }}" hint-placeholder-val="{{ true }}"><a class="sv-item" href="{{ i.href }}" onClick="{{ i.go }}"><span class="sv-item-b" aria-hidden="true"><sc-if value="{{ i.isFmt }}" hint-placeholder-val="{{ false }}"><span class="{{ i.fmtCls }}">{{ i.fmt }}<sc-if value="{{ i.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ i.glyph }}"></use></svg></sc-if></span></sc-if><sc-if value="{{ i.isIco }}" hint-placeholder-val="{{ true }}"><span class="sv-item-ico"><svg viewBox="0 0 24 24"><use href="#{{ i.ico }}"></use></svg></span></sc-if></span><span class="sv-item-text"><span class="sv-item-l">{{ i.label }}</span><span class="sv-item-v">{{ i.v }}</span></span><svg class="sv-item-go" viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a></sc-if>
+              <sc-if value="{{ i.isStatic }}" hint-placeholder-val="{{ false }}"><div class="sv-item"><span class="sv-item-b" aria-hidden="true"><sc-if value="{{ i.isFmt }}" hint-placeholder-val="{{ false }}"><span class="{{ i.fmtCls }}">{{ i.fmt }}<sc-if value="{{ i.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ i.glyph }}"></use></svg></sc-if></span></sc-if><sc-if value="{{ i.isIco }}" hint-placeholder-val="{{ true }}"><span class="sv-item-ico"><svg viewBox="0 0 24 24"><use href="#{{ i.ico }}"></use></svg></span></sc-if></span><span class="sv-item-text"><span class="sv-item-l">{{ i.label }}</span><span class="sv-item-v">{{ i.v }}</span></span></div></sc-if>
+            </li></sc-for>
+          </ul>
+        </section>
+
+        <section class="sv-home-learn" aria-labelledby="sv-learn-h">
+          <div class="sv-sh-row"><h2 class="sv-sh" id="sv-learn-h">What you’re learning</h2><p class="sv-sh-note">The same in every format</p></div>
+          <ol class="sv-card sv-outcomes"><sc-for list="{{ H.cover.outcomes }}" as="o" hint-placeholder-count="2"><li>{{ o }}</li></sc-for></ol>
+        </section>
+      </div>
+      </sc-if>
+      </sc-if>
+

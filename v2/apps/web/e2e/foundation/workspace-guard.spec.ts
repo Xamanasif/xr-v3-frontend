@@ -116,8 +116,8 @@ test.describe('leaving XS-06 shown at another role’s bare base: focus moves in
       const mark = await markDocument(page);
       await page.locator('main .xs-msg').getByRole('link', { name: action }).click();
       // "Back to Home" reaches the Student's built Home (ST-01, Package 2A); Help reaches Help.
-      // Focus moves into the new page: Help's own H1 (an XS page, shell patch XS-P2); `main` on
-      // the Student's v46 Home.
+      // Focus moves into the new page: its own H1 — Help's (an XS page, shell patch XS-P2) and,
+      // in the Student's V3 shell (ST-v1), Home's ("route change → page heading").
       if (action === 'Help') {
         await page.waitForURL('**/student/help');
         const title = page.getByRole('heading', { level: 1, name: 'Help & support' });
@@ -125,8 +125,9 @@ test.describe('leaving XS-06 shown at another role’s bare base: focus moves in
         await expect(title).toBeFocused();
       } else {
         await page.waitForURL(/\/student$/);
-        await expect(page.getByRole('heading', { level: 1, name: 'Hello, Rahul' })).toBeVisible();
-        await expect(page.locator('main.xr-page#main')).toBeFocused();
+        const title = page.getByRole('heading', { level: 1, name: 'Hello, Rahul' });
+        await expect(title).toBeVisible();
+        await expect(title).toBeFocused();
       }
       await expectSameDocument(page, mark);
     });
@@ -149,7 +150,7 @@ test.describe('the guard comes before the page and before not-found', () => {
         page.getByRole('heading', { level: 1, name: 'This page isn’t part of your workspace' }),
       ).toBeVisible();
       await expect(page).toHaveURL(`${TEST_HOOKS_URL}${path}`);
-      await expect(page.locator('aside.xr-side')).toHaveAttribute(
+      await expect(page.locator('aside.rb-rail')).toHaveAttribute(
         'aria-label',
         'Student workspace',
       );

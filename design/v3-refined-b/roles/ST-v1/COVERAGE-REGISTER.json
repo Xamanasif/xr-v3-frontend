@@ -1,0 +1,2016 @@
+{
+ "basis": "Status is against the original complete-role design (project/Main.dc.html). Measured by rendering Main and StudentFinal for the same case at 1440, 1024, 768 and 375 and comparing pixels (whole page, or the named component).",
+ "owned": [
+  {
+   "id": "ST-01",
+   "screen": "Home",
+   "type": "page",
+   "navigation": "Sidebar Home",
+   "purpose": "Show what the student is learning now, where they left off and the one next action; reach the course, experiment, resources, formats and assessment.",
+   "mainAction": "The next step for the current experiment (e.g. Continue WEB).",
+   "problemsFound": [
+    "Original: continue band repeats the experiment, a row of four \"Go to\" links, an empty \"Up next\" panel and a one-course My courses panel — repetition and empty panels.",
+    "Checkpoint 1: oversized navy/white feature panel and three equal shortcut blocks (rejected).",
+    "Continuation (\"stage 1 of 3 finished\") is only implied; the gold action opened the hub rather than the next step."
+   ],
+   "treatmentAsBuilt": "One “Continue learning” card: course line (code chip + course link), the experiment and what it is, the next-step strip (format chip, “Your next step”, title, detail, the sample activity’s three-stage tracker while WEB is in progress, the one gold action and Open experiment). “Also in this experiment” lists resources (opened count), the other format and the assessment with real status; “What you’re learning” below. Held (licence, paused) → the strip becomes a held line with no action; ended / withdrawn → “Your earlier work” with See earlier work; new student → message with a three-step How it works; inactive → one line under the borrowed XS-08 banner.",
+   "finalPass": "Stage checks kept at 375 (hidden only on 320 phones).",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-01.page",
+     "name": "Home · active learner: next step with the stage tracker, also in this experiment, what you learn",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "01-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-01-learn-1024.dc.html",
+      "F-01-learn-320.dc.html",
+      "F-01-learn-375.dc.html",
+      "F-01-learn-768.dc.html",
+      "F-01-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-01.learning",
+     "name": "Learning states: given, assessment ready, attempt in progress, feedback to give, VR in progress / not now / done, waiting, released",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "01-granted",
+      "01-assess",
+      "01-inprog",
+      "01-vrdone",
+      "01-vrprog",
+      "01-vrnow",
+      "01-waitmark",
+      "01-released",
+      "01-device"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": []
+    },
+    {
+     "subview": "ST-01.new",
+     "name": "New student: no access yet, how it works",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "01-newst"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-01-newst.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-01.held",
+     "name": "Held access: waiting for a licence, institution paused, ended, withdrawn, no headset formats",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "01-licence",
+      "01-paused",
+      "01-ended",
+      "01-withdrawn",
+      "01-nodevice"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-01-ended.dc.html",
+      "F-01-licence.dc.html",
+      "F-01-paused-375.dc.html",
+      "F-01-paused.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-01.inactive",
+     "name": "Account inactive (borrowed XS-08 notice above the page)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "01-inactive"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": []
+    }
+   ],
+   "verification": {
+    "journeys": "J1 J2 J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-02",
+   "screen": "My courses",
+   "type": "page",
+   "navigation": "Sidebar My courses",
+   "purpose": "List the courses that contain experiments given to the student and lead into them.",
+   "mainAction": "Open a course or go straight to its experiment.",
+   "problemsFound": [
+    "One course in a full-width card with a single button; large unused canvas.",
+    "Course name has weak hierarchy; academic codes are not explained; the experiment is two clicks away."
+   ],
+   "treatmentAsBuilt": "Tabs Courses | All experiments. Each course is a section: code chip and engineering area, course name, BITS course code chip, count, held pill, Open course; the experiments given to you as rows (title, two-line description, format chips with status words, Open experiment). Earlier work card for ended / withdrawn; loading skeleton; failure with Try again; new-student message.",
+   "finalPass": "Reviewed again at 1440, 1024, 768, 375 and 320: no change needed.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-02.page",
+     "name": "My courses · course sections with experiment rows",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "02-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-02-learn-375.dc.html",
+      "F-02-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-02.states",
+     "name": "Given, new student, waiting for a licence, paused, access ended / withdrawn (earlier work)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "02-granted",
+      "02-newst",
+      "02-licence",
+      "02-paused",
+      "02-ended",
+      "02-withdrawn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-02-ended.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-02.data",
+     "name": "Loading and could not load (Try again)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "02-learn-loading",
+      "02-learn-failed"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-02-learn-failed.dc.html",
+      "F-02-learn-loading.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1 (breadcrumb)",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-03",
+   "screen": "Course (student view)",
+   "type": "page",
+   "navigation": "Detail",
+   "purpose": "Show one course and the experiments given to the student in it.",
+   "mainAction": "Open an experiment.",
+   "problemsFound": [
+    "Card inside a card for a single experiment; course facts (BITS code, area) missing; format status tiny.",
+    "Paused notice and pills inconsistent with other screens."
+   ],
+   "treatmentAsBuilt": "Record header (Course · area eyebrow, title, held pill, BITS code chip, count) and one “Experiments given to you” card with the same experiment rows as My courses. Paused is said by the pill and the rows (no extra notice). No current course → compact refusal card.",
+   "finalPass": "Reviewed again at 1440, 1024, 768, 375 and 320: no change needed.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-03.page",
+     "name": "Course · experiments given to you",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "03-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-03-learn-375.dc.html",
+      "F-03-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-03.states",
+     "name": "Paused, waiting for a licence, new student, course not current (refusal with earlier work)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "03-paused",
+      "03-licence",
+      "03-newst",
+      "03-ended"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-03-ended.dc.html",
+      "F-03-paused.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-04",
+   "screen": "All my experiments",
+   "type": "tab",
+   "navigation": "Tab of My courses",
+   "purpose": "Find any experiment given to the student across courses.",
+   "mainAction": "Open an experiment.",
+   "problemsFound": [
+    "Generic toolbar + nested experiment cards; filter chips and count fine but visually admin-like."
+   ],
+   "treatmentAsBuilt": "One panel: toolbar (search, format, result count, removable filter chips, Clear filters) and experiment rows (code chip, course, title, description, format chips with status, Open experiment). No match is a compact row state with Clear filters.",
+   "finalPass": "Reviewed again at 1440, 1024, 768, 375 and 320: no change needed.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-04.page",
+     "name": "All my experiments · toolbar (search, format filter) and rows",
+     "kind": "tab",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "04-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-04-learn-375.dc.html",
+      "F-04-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-04.filter",
+     "name": "Search / filter with no match, chips and Clear filters",
+     "kind": "form",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "04-learn-x-nomatch"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-04-learn-x-nomatch.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-04.states",
+     "name": "Ended, paused, loading, could not load",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "04-ended",
+      "04-paused",
+      "04-learn-loading",
+      "04-learn-failed"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": []
+    }
+   ],
+   "verification": {
+    "journeys": "link map",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-05",
+   "screen": "Experiment (hub: Overview · Resources · Simulation · Assessment · Progress)",
+   "type": "page",
+   "navigation": "Detail",
+   "purpose": "Introduce the experiment: what it is, what you learn, your formats and progress, resources and assessment.",
+   "mainAction": "The next step on its own row (gold).",
+   "problemsFound": [
+    "Original: band with large 2×2 format tiles, a separate next-step strip, a three-step card that repeats Resources / Simulation / Assessment and Continue WEB, then outcomes and an About card — repetition and oversized tiles.",
+    "Checkpoint 1: navy next-step panel and path (rejected)."
+   ],
+   "treatmentAsBuilt": "Header: code chip, course, title; held pill with the licence sentence on Overview. Five section tabs, wrapping as chips on phones so every section and the current one stay visible. Overview (checkpoint 2 design, kept): about → what you’ll learn → formats and your progress (yours with status and one action, the next step marked in place; not available with reasons) with learning resources and the assessment beside it.",
+   "finalPass": "Assessment tab: on tablets the action keeps its own width under the content (was a full-width bar). The licence-wait sentence no longer names the access-plan record (owner decision: internal identifiers stay out of Student labels).",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-05.head",
+     "name": "Experiment header and the five section tabs (wrapping chips on phones)",
+     "kind": "nested page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "05-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-05-learn-1024.dc.html",
+      "F-05-learn-320.dc.html",
+      "F-05-learn-375.dc.html",
+      "F-05-learn-768.dc.html",
+      "F-05-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-05.overview",
+     "name": "Overview tab: about, what you learn, formats and your progress, resources and assessment beside",
+     "kind": "tab",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "05-learn",
+      "05-granted",
+      "05-vrdone",
+      "05-vrnow"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-05-learn-1024.dc.html",
+      "F-05-learn-320.dc.html",
+      "F-05-learn-375.dc.html",
+      "F-05-learn-768.dc.html",
+      "F-05-learn.dc.html",
+      "F-05-vrdone.dc.html",
+      "F-05-vrnow.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-05.held",
+     "name": "Held: waiting for a licence, paused, ended / withdrawn refusals, new student",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "05-licence",
+      "05-paused",
+      "05-ended",
+      "05-withdrawn",
+      "05-newst"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-05-licence.dc.html",
+      "F-05-paused.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1 J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-05as",
+   "screen": "Experiment · Assessment tab (part of ST-05)",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "purpose": "Show this experiment’s assessment and its state.",
+   "mainAction": "Open, continue or see the result.",
+   "problemsFound": [
+    "One row in a full-width card; deadline buried in a meta line."
+   ],
+   "treatmentAsBuilt": "One card: deadline date block (Due / Deadline), assessment name and what it covers, status pill and state words, key facts line, one action. None set → compact message.",
+   "finalPass": "On tablets the action keeps its own width under the content (was a full-width gold bar).",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-05as.tab",
+     "name": "Assessment tab: deadline block, what it covers, state and one action",
+     "kind": "tab",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "05as-assess"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-05as-assess-375.dc.html",
+      "F-05as-assess.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-05as.states",
+     "name": "In progress, submitted, not released, released, not passed, none set yet",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "05as-inprog",
+      "05as-waitmark",
+      "05as-notrel",
+      "05as-released",
+      "05as-notpassed",
+      "05as-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-05as-learn.dc.html",
+      "F-05as-released.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "link map",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-06",
+   "screen": "Resources",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "purpose": "Let the student read the experiment resources (each opens in a new tab).",
+   "mainAction": "Open a resource.",
+   "problemsFound": [
+    "Generic card; resource type, length and opened state compete; opened time small."
+   ],
+   "treatmentAsBuilt": "Reading-list card: type tile, title, type · length, opened state with the time (Opening…, It didn’t open — Try again), Open ↗. A pause or licence wait is said once above the list. Aside: Before you run a simulation · Opened isn’t progress (opened count). None, loading and failed states.",
+   "finalPass": "Reviewed again at 1440, 1024, 768, 375 and 320: no change needed.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-06.list",
+     "name": "Resources tab: reading list with type, length and when opened; aside on how resources relate",
+     "kind": "tab",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "06-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-06-learn-375.dc.html",
+      "F-06-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-06.fail",
+     "name": "A resource did not open (Try again)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "06-learn-res-fail"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-06-learn-res-fail.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-06.states",
+     "name": "Given, paused, waiting for a licence, loading, could not load",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "06-granted",
+      "06-paused",
+      "06-licence",
+      "06-learn-loading",
+      "06-learn-failed"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-06-learn-loading.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-07",
+   "screen": "Simulation — choose a format",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "purpose": "Choose a format for the simulation.",
+   "mainAction": "Continue or open the chosen format.",
+   "problemsFound": [
+    "Four 72px format tiles of equal weight; unavailable formats as prominent as launchable ones; repeated pills."
+   ],
+   "treatmentAsBuilt": "Format chooser: “Choose a format” with one note (a licence wait is said there once). Your formats as two cards: chip, name, Next step tag, access words, what you need, your headset for VR, progress pill, WEB stage tracker, dated facts, the hold reason, one action. “Not available to you” as compact rows with the reason.",
+   "finalPass": "An unstyled hook class removed from held format cards (no visual change); stage checks kept at 375. The chooser’s licence note no longer names the access-plan record.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-07.chooser",
+     "name": "Simulation tab: two format cards (next step tagged), formats not available listed with reasons",
+     "kind": "tab",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "07-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-07-learn-375.dc.html",
+      "F-07-learn-768.dc.html",
+      "F-07-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-07.states",
+     "name": "Given, VR not now, VR in progress, both completed, waiting for a licence, paused",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "07-granted",
+      "07-vrnow",
+      "07-vrprog",
+      "07-vrdone",
+      "07-licence",
+      "07-paused"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-07-licence.dc.html",
+      "F-07-paused.dc.html",
+      "F-07-vrdone.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1 J4",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-08",
+   "screen": "WEB simulation (launch / resume)",
+   "type": "page",
+   "navigation": "Detail",
+   "purpose": "Launch or resume the WEB simulation (simulated sample activity in this prototype).",
+   "mainAction": "Launch / Continue WEB.",
+   "problemsFound": [
+    "One button in a large card; stage progress only in a sentence; empty space; fail state ok."
+   ],
+   "treatmentAsBuilt": "Header: format chip, experiment, title, status pill with last saved or completion. Launch card: state heading, one sentence, stage tracker (in progress / completed), the gold Launch / Continue with an honest hint (opening doesn’t complete WEB), failure notice with Try again, help row with Report a problem. Aside: About WEB (needs, in this prototype, completed means). Paused / waiting: no launch; the student’s own progress stays in the header.",
+   "finalPass": "Stage checks kept at 375. The licence-wait sentence no longer names the access-plan record.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-08.launch",
+     "name": "WEB page: launch card (stages, one action, help row) and the format facts",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "08-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-08-learn-1024.dc.html",
+      "F-08-learn-375.dc.html",
+      "F-08-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-08.states",
+     "name": "Not started, completed (feedback), paused, waiting for a licence",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "08-granted",
+      "08-vrdone",
+      "08-paused",
+      "08-licence"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-08-granted.dc.html",
+      "F-08-paused.dc.html",
+      "F-08-vrdone.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-08.fail",
+     "name": "The simulation did not open (Try again, Report a problem)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "08-learn-launch-fail"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-08-learn-launch-fail.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1 J5 J6",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-08a",
+   "screen": "WEB · simulated sample activity (part of ST-08)",
+   "type": "step",
+   "navigation": "From ST-08",
+   "purpose": "Run the simulated sample activity stage by stage.",
+   "mainAction": "Finish stage / Finish the activity.",
+   "problemsFound": [
+    "Acceptable focused layout; long intro copy; stage tiles plain."
+   ],
+   "treatmentAsBuilt": "Focused page (exit and save status in the top bar). Narrow column: simulated tag and experiment, title, intro; large three-stage tracker; one stage card with Finish stage N (gold) and Leave and keep my place; completion card (Completed date, recorded by the platform, Give feedback on WEB, Back to WEB simulation).",
+   "finalPass": "Reviewed again at 1440, 1024, 768, 375 and 320: no change needed.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-08a.activity",
+     "name": "Sample activity: stage tracker and one stage card",
+     "kind": "step",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "08a-learn",
+      "08a-granted"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-08a-learn-375.dc.html",
+      "F-08a-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-08a.done",
+     "name": "Activity completed: recorded by the platform",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "08a-learn-act-done"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-08a-learn-act-done.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-08a.focusbar",
+     "name": "Focused-task bar: back link and save status",
+     "kind": "component",
+     "status": "REVIEWED AND UNCHANGED",
+     "basis": "the component is pixel-identical to the original in 6 renders (.st-focusbar, fixed viewport)",
+     "cases": [
+      "08a-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-08a-learn-375.dc.html",
+      "F-08a-learn.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-09",
+   "screen": "AR / VR / MR format (setup & progress)",
+   "type": "page",
+   "navigation": "Detail",
+   "purpose": "Set up and follow progress for a headset format (VR); explain AR / MR.",
+   "mainAction": "Follow setup; give feedback when completed.",
+   "problemsFound": [
+    "Setup steps, device and status packed in one card; AR/MR refusals use a very large message layout."
+   ],
+   "treatmentAsBuilt": "Same launch card for VR: state heading and sentence; your authorised headset with My device; numbered setup steps (open on the first visit, Hide / View toggle); help row; aside About VR. AR and MR are compact refusal cards with “Formats you can use” rows (Continue WEB / Open VR) and Back to Simulation.",
+   "finalPass": "Setup-steps disclosure gets the same hover as text links. The licence-wait sentence no longer names the access-plan record.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-09.vr",
+     "name": "VR page: set up (steps disclosure), your authorised headset, help row, format facts",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "09-learn",
+      "09-learn-setup-open"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-09-learn-375.dc.html",
+      "F-09-learn.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-09.states",
+     "name": "In progress, completed (feedback), not available right now, paused, waiting, no headset formats",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "09-vrprog",
+      "09-vrdone",
+      "09-vrnow",
+      "09-paused",
+      "09-licence",
+      "09-nodevice"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-09-nodevice.dc.html",
+      "F-09-vrdone.dc.html",
+      "F-09-vrnow.dc.html",
+      "F-09-vrprog.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-09.armr",
+     "name": "AR not included · MR not available (compact refusal with the formats you can use)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "09ar-learn",
+      "09mr-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-09ar-learn-375.dc.html",
+      "F-09ar-learn.dc.html",
+      "F-09mr-learn.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J4 J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-10",
+   "screen": "Progress for this experiment",
+   "type": "tab",
+   "navigation": "Experiment tab",
+   "purpose": "Progress for this experiment, format by format.",
+   "mainAction": "Continue or give feedback where allowed.",
+   "problemsFound": [
+    "Same 72px tiles as ST-07; repeated status rows; assessment card separate."
+   ],
+   "treatmentAsBuilt": "One card “Your progress, format by format” with the grant note; the ST-15 table scoped to this experiment (format and access, progress pill, dated facts, one action), not-available rows, assessment line.",
+   "finalPass": "The grant line carries no record identifier (as before). One 24 / 18 px gutter aligned with the card header; below 766 px the table becomes two-column rows (fixes content spilling past the card at 768–1024).",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-10.table",
+     "name": "Progress tab: one row per format with dated facts, formats not available, assessment line",
+     "kind": "tab",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "10-learn",
+      "10-vrdone"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-10-learn-375.dc.html",
+      "F-10-learn.dc.html",
+      "F-10-vrdone-768.dc.html",
+      "F-10-vrdone.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-10.states",
+     "name": "Given, paused",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "10-granted",
+      "10-paused"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": []
+    }
+   ],
+   "verification": {
+    "journeys": "link map",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-11",
+   "screen": "Assessments",
+   "type": "page",
+   "navigation": "Sidebar Assessments",
+   "purpose": "List assessments: to do, submitted, results.",
+   "mainAction": "Open / continue / see result.",
+   "problemsFound": [
+    "One row in a full-width card; deadline in meta text; oversized empty state (fixed in checkpoint 2)."
+   ],
+   "treatmentAsBuilt": "Tabs with counts (fit on phones). Rows led by the key date block — Due, Result after or Released (ivory only within two days of a deadline) — then experiment · code, name, description, status pill and words, one action. An empty tab says where the assessment is. No assessment at all: the checkpoint-2 compact message, kept. Loading and failed as compact states.",
+   "finalPass": "At 320 the three tabs sit tighter, so “Results” and its count are no longer cut off at the edge of the tab strip.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-11.list",
+     "name": "Assessments: To do / Submitted / Results tabs with counts, rows led by the key date",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "11-assess",
+      "11sub-waitmark",
+      "11res-released"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-11-assess-375.dc.html",
+      "F-11-assess.dc.html",
+      "F-11res-released.dc.html",
+      "F-11sub-waitmark.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-11.empty",
+     "name": "Empty tabs say where the assessment is; no assessments set; new student",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "11-learn",
+      "11-newst",
+      "11-inprog",
+      "11sub-assess",
+      "11res-assess"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-11-learn.dc.html",
+      "F-11-newst.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-11.data",
+     "name": "Loading and could not load (no counts shown)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "11-assess-loading",
+      "11-assess-failed"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-11-assess-failed.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J3",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-12",
+   "screen": "Assessment — before you start",
+   "type": "page",
+   "navigation": "Detail",
+   "purpose": "Brief the student before an attempt.",
+   "mainAction": "Start / continue / try again / see result.",
+   "problemsFound": [
+    "Six-column fact strip wraps awkwardly; reads like a form; notices plain."
+   ],
+   "treatmentAsBuilt": "One card. First the state: status pill, the state as the heading (Before you start, Attempt 1 in progress, Submitted — waiting for marking, …), the state sentence, the three rules while answering is possible (no time limit; answers save as you go; nothing is submitted until you choose Submit — you can’t change answers after), the gold action and Back to experiment. Then the deadline date block beside the key facts (questions, total marks, pass mark, attempts, result and answers, set by).",
+   "finalPass": "The six key facts sit in two columns on phones (one column only below 330 px). Not passed: “Try again” and “See result” now reach the card edge on phones (the action row had shrunk to its two short labels).",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-12.card",
+     "name": "Before you start: state, three rules and the action; deadline block and six key facts",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "12-assess"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-12-assess-320.dc.html",
+      "F-12-assess-375.dc.html",
+      "F-12-assess-768.dc.html",
+      "F-12-assess.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-12.states",
+     "name": "Attempt in progress, submitted, not released, released, not passed (try again), none set",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "12-inprog",
+      "12-waitmark",
+      "12-notrel",
+      "12-released",
+      "12-notpassed",
+      "12-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-12-inprog.dc.html",
+      "F-12-learn.dc.html",
+      "F-12-notpassed.dc.html",
+      "F-12-waitmark.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J3 J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-13",
+   "screen": "Assessment attempt",
+   "type": "step",
+   "navigation": "Flow step",
+   "purpose": "Answer the questions; save; submit.",
+   "mainAction": "Submit (with confirmation).",
+   "problemsFound": [
+    "Each question in its own card plus two side cards — card-heavy; navigator plain."
+   ],
+   "treatmentAsBuilt": "Focused page. One numbered sheet: a number circle per question that fills when answered, type · marks, the question, answer rows or the written answer. One sticky panel: your answers (count, numbered strip, Next unanswered) and Submit with its rule; below 900 px the panel splits — answers at the top, Submit after the last question. Dialog, save failure and submit failure keep their behaviour; submitted card (Waiting for marking).",
+   "finalPass": "Answered numbers in the navigator get a hover state.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-13.sheet",
+     "name": "Attempt: one numbered question sheet (choice, true / false, written) and the answer navigator",
+     "kind": "step",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "13-assess",
+      "13-inprog",
+      "13-assess-att-two"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-13-assess.dc.html",
+      "F-13-inprog-1024.dc.html",
+      "F-13-inprog-320.dc.html",
+      "F-13-inprog-375.dc.html",
+      "F-13-inprog.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-13.save",
+     "name": "Answers save automatically: saved / did not save + Try again",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "13-inprog-att-savefail"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-13-inprog-att-savefail.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-13.dialog",
+     "name": "Submit dialog naming unanswered questions (focus kept inside, Escape closes)",
+     "kind": "dialog",
+     "status": "REVIEWED AND UNCHANGED",
+     "basis": "the component is pixel-identical to the original in 4 renders (.rk-dialog, fixed viewport)",
+     "cases": [
+      "13-inprog-att-dialog"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-13-inprog-att-dialog-375.dc.html",
+      "F-13-inprog-att-dialog.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-13.subfail",
+     "name": "Answers were not submitted (still saved)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "13-inprog-att-subfail"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-13-inprog-att-subfail.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-13.done",
+     "name": "Submitted: waiting for marking",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "13-waitmark"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-13-waitmark.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-13.focusbar",
+     "name": "Focused-task bar: back link and save status",
+     "kind": "component",
+     "status": "REVIEWED AND UNCHANGED",
+     "basis": "the component is pixel-identical to the original in 6 renders (.st-focusbar, fixed viewport)",
+     "cases": [
+      "13-inprog"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-13-inprog-1024.dc.html",
+      "F-13-inprog-320.dc.html",
+      "F-13-inprog-375.dc.html",
+      "F-13-inprog.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J3",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-14",
+   "screen": "Result",
+   "type": "page",
+   "navigation": "Detail",
+   "purpose": "Show the result or why it is withheld.",
+   "mainAction": "Back to experiment / Try again when allowed.",
+   "problemsFound": [
+    "Withheld states use a very large message; released result long dl rows."
+   ],
+   "treatmentAsBuilt": "Score panel: score, pass mark, attempt, release; marks by question as a jump list; Try again with attempts left when allowed. Answer review: your answer with a Correct / Not correct tag, the correct answer only where it differs, the explanation, your faculty’s feedback as a quote; Back to experiment and See your progress. Withheld results (not submitted, waiting for marking, not released) use the compact message card.",
+   "finalPass": "Full-mark chips in “marks by question” get a hover state.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-14.released",
+     "name": "Result released: score panel, marks by question (jump list), answer review",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "14-released",
+      "14-notpassed"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-14-notpassed.dc.html",
+      "F-14-released-320.dc.html",
+      "F-14-released-375.dc.html",
+      "F-14-released-768.dc.html",
+      "F-14-released.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-14.withheld",
+     "name": "Not submitted / waiting for marking / not released: compact message, no marks",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "14-waitmark",
+      "14-notrel",
+      "14-assess"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-14-notrel.dc.html",
+      "F-14-waitmark.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J3",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-15",
+   "screen": "Progress (all experiments)",
+   "type": "page",
+   "navigation": "Sidebar Progress",
+   "purpose": "Progress across experiments, format by format.",
+   "mainAction": "Continue / feedback where allowed.",
+   "problemsFound": [
+    "72px format boxes, repeated rows (fixed in checkpoint 2)."
+   ],
+   "treatmentAsBuilt": "Filters (status, course), count and chips; per experiment: format table (format and access, progress pill, dated facts, one action), not-available rows, assessment line; “Given by your institution”, with no record identifier; held and ended states; loading, failed, no match, new student. R2 adds the shared tokens of the redesign (chips, tags, 13 px floor) and the licence sentence.",
+   "finalPass": "The grant line reads “Given by your institution”, without the student-access record, and the licence-wait sentence no longer names the access-plan record. No box inside the card: experiments are flat groups with a tinted header band; one 24 / 18 px gutter; two-column rows below 766 px.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-15.list",
+     "name": "Progress: filters with chips, course groups, one row per format with dated facts",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "15-learn",
+      "15-vrdone",
+      "15-granted"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-15-learn-1024.dc.html",
+      "F-15-learn-320.dc.html",
+      "F-15-learn-375.dc.html",
+      "F-15-learn-768.dc.html",
+      "F-15-learn.dc.html",
+      "F-15-vrdone.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-15.filter",
+     "name": "Filtered, no match, Clear filters",
+     "kind": "form",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "15-learn-p-filter",
+      "15-learn-p-nomatch"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-15-learn-p-filter.dc.html",
+      "F-15-learn-p-nomatch.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-15.states",
+     "name": "New student, paused, earlier work after access ended, loading, could not load",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "15-newst",
+      "15-paused",
+      "15-ended",
+      "15-learn-loading",
+      "15-learn-failed"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-15-ended-375.dc.html",
+      "F-15-ended.dc.html",
+      "F-15-learn-loading.dc.html",
+      "F-15-newst.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J1 J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-16",
+   "screen": "Format feedback",
+   "type": "step",
+   "navigation": "Flow step",
+   "purpose": "Rate five statements about a completed format; optional comment.",
+   "mainAction": "Submit feedback.",
+   "problemsFound": [
+    "25 large boxed radio tiles — heavy and long."
+   ],
+   "treatmentAsBuilt": "One rating sheet: the five-point scale named once above five statement rows of radio cells; on phones each statement gets five numbered segments with the end anchors and the chosen rating in words. Error summary and per-row errors; comments; Cancel and Submit feedback; not-sent notice.",
+   "finalPass": "Reviewed again at 1440, 1024, 768, 375 and 320: no change needed.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-16.sheet",
+     "name": "Feedback: one rating sheet, the scale named once, optional comment",
+     "kind": "step",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "16v-vrdone"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-16v-vrdone-320.dc.html",
+      "F-16v-vrdone-375.dc.html",
+      "F-16v-vrdone.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-16.errors",
+     "name": "Ratings missing: error summary and inline errors",
+     "kind": "form",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "16v-vrdone-fb-errors"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-16v-vrdone-fb-errors.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-16.fail",
+     "name": "Not sent (answers kept)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "16v-vrdone-fb-fail"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-16v-vrdone-fb-fail.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-16.notyet",
+     "name": "Not open yet (before the format is completed)",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "16v-learn",
+      "16w-learn"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375"
+     ],
+     "boards": [
+      "F-16v-learn.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J2 J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-17",
+   "screen": "Feedback sent (confirmation, read-only)",
+   "type": "state",
+   "navigation": "Flow step",
+   "purpose": "Confirm sent feedback; read-only answers.",
+   "mainAction": "Back to experiment / See your progress.",
+   "problemsFound": [
+    "Plain notice + definition list."
+   ],
+   "treatmentAsBuilt": "One card: a thank-you band with the sent time and the rule, Back to experiment (gold) and See your progress; your answers read-only on the same five-point scale, with words; your comments.",
+   "finalPass": "At 320 the answer words wrap under the dots instead of being clipped (1440–375 unchanged).",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-17.sent",
+     "name": "Feedback sent: thank-you band and the answers on the same scale, read-only",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "16w-vrdone"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-16w-vrdone-375.dc.html",
+      "F-16w-vrdone.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J2",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-18",
+   "screen": "My device (AR/VR/MR holders only)",
+   "type": "page",
+   "navigation": "Account menu",
+   "purpose": "Show the authorised headset and the transfer request chain.",
+   "mainAction": "Request a device transfer.",
+   "problemsFound": [
+    "Generic sections; internal reference shown; history list plain."
+   ],
+   "treatmentAsBuilt": "One card: the authorised headset (icon, name, VR chip and experiment) with Request a device transfer below it; the request form as a section (moving from, new device with hint and error, note, rule, Cancel / Send request); your transfer request: status pill, explanation, three dated steps (Requested · Forwarded to BITS · BITS decides / Approved — vertical on phones), the no-Institute-Admin notice, From / To / Your note, earlier request. Aside: How a transfer works (numbered) and the rule that progress stays with you.",
+   "finalPass": "The transfer request shows no Reference row: the DTR record identifier stays in the data and in the view model, but is not a label on the page.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-18.device",
+     "name": "My device: authorised headset and one action",
+     "kind": "page",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "18-device"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-18-device.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-18.form",
+     "name": "Transfer request form and its validation",
+     "kind": "form",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "18-device-dev-form",
+      "18-device-dev-error"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-18-device-dev-error.dc.html",
+      "F-18-device-dev-form.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-18.chain",
+     "name": "Request as three dated steps: with your Institute Admin, forwarded, approved, no Institute Admin",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "18-dtrsent",
+      "18-dtrfwd",
+      "18-dtrappr",
+      "18-dtrnoia"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-18-dtrappr.dc.html",
+      "F-18-dtrfwd-320.dc.html",
+      "F-18-dtrfwd-375.dc.html",
+      "F-18-dtrfwd.dc.html",
+      "F-18-dtrnoia.dc.html",
+      "F-18-dtrsent.dc.html"
+     ]
+    },
+    {
+     "subview": "ST-18.held",
+     "name": "Paused; not available without headset formats",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "18-paused",
+      "18-nodevice"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-18-nodevice.dc.html",
+      "F-18-paused.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J4 J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  },
+  {
+   "id": "ST-19",
+   "screen": "Experiment not available (refusal page)",
+   "type": "state",
+   "navigation": "—",
+   "purpose": "Explain that an experiment is not available and offer a permitted path.",
+   "mainAction": "Back to My courses / See earlier work.",
+   "problemsFound": [
+    "Very large message with a 40px heading floating on an empty canvas."
+   ],
+   "treatmentAsBuilt": "Compact refusal card: icon, kicker, title, reason, and what you can still do from existing facts and destinations (experiments you can open, or your work as recorded), then the actions and Help & support. The same component serves access ended / withdrawn, no current course, AR / MR, feedback not open yet, My device not available, no assessment yet and withheld results. Borrowed XS-06 / XS-08 messages keep their XS form.",
+   "finalPass": "Reviewed again at 1440, 1024, 768, 375 and 320: no change needed.",
+   "status": "REDESIGNED",
+   "subviews": [
+    {
+     "subview": "ST-19.refusal",
+     "name": "Not available: compact card, the reason once and what you can still do",
+     "kind": "state",
+     "status": "REDESIGNED",
+     "basis": "every render differs from the original design",
+     "cases": [
+      "19-learn",
+      "19-withdrawn",
+      "19-ended"
+     ],
+     "widths": [
+      "1440",
+      "1024",
+      "768",
+      "375",
+      "320"
+     ],
+     "boards": [
+      "F-19-ended.dc.html",
+      "F-19-learn-375.dc.html",
+      "F-19-learn.dc.html",
+      "F-19-withdrawn.dc.html"
+     ]
+    }
+   ],
+   "verification": {
+    "journeys": "J5",
+    "widths": "1440 · 1024 · 768 · 375 for every case; 320 for a subset",
+    "automatedChecks": "see CHECKS.md",
+    "inspectedByEye": "yes (see the screenshot index)"
+   }
+  }
+ ],
+ "roleLevel": [
+  {
+   "subview": "role.rail",
+   "name": "Navigation rail and top bar (foundation shell)",
+   "kind": "shell",
+   "status": "REVIEWED AND UNCHANGED",
+   "basis": "the component is pixel-identical to the original in 10 renders (.rb-rail, fixed viewport)",
+   "cases": [
+    "01-learn",
+    "05-learn",
+    "15-learn"
+   ],
+   "boards": [
+    "F-01-learn-1024.dc.html",
+    "F-01-learn-320.dc.html",
+    "F-01-learn-375.dc.html",
+    "F-01-learn-768.dc.html",
+    "F-01-learn.dc.html",
+    "F-05-learn-1024.dc.html",
+    "F-05-learn-320.dc.html",
+    "F-05-learn-375.dc.html",
+    "F-05-learn-768.dc.html",
+    "F-05-learn.dc.html",
+    "F-15-learn-1024.dc.html",
+    "F-15-learn-320.dc.html",
+    "F-15-learn-375.dc.html",
+    "F-15-learn-768.dc.html",
+    "F-15-learn.dc.html"
+   ]
+  },
+  {
+   "subview": "role.top",
+   "name": "Top bar with the date and the account button",
+   "kind": "shell",
+   "status": "REVIEWED AND UNCHANGED",
+   "basis": "the component is pixel-identical to the original in 4 renders (.rb-top, fixed viewport)",
+   "cases": [
+    "01-learn",
+    "05-learn",
+    "15-learn"
+   ],
+   "boards": [
+    "F-01-learn-1024.dc.html",
+    "F-01-learn-320.dc.html",
+    "F-01-learn-375.dc.html",
+    "F-01-learn-768.dc.html",
+    "F-01-learn.dc.html",
+    "F-05-learn-1024.dc.html",
+    "F-05-learn-320.dc.html",
+    "F-05-learn-375.dc.html",
+    "F-05-learn-768.dc.html",
+    "F-05-learn.dc.html",
+    "F-15-learn-1024.dc.html",
+    "F-15-learn-320.dc.html",
+    "F-15-learn-375.dc.html",
+    "F-15-learn-768.dc.html",
+    "F-15-learn.dc.html"
+   ]
+  },
+  {
+   "subview": "role.drawer",
+   "name": "Menu drawer below 1024 px",
+   "kind": "dialog",
+   "status": "REVIEWED AND UNCHANGED",
+   "basis": "the component is pixel-identical to the original in 2 renders (.rb-drawer, fixed viewport)",
+   "cases": [
+    "01-learn-menu"
+   ],
+   "boards": [
+    "F-01-learn-menu-375.dc.html",
+    "F-01-learn-menu-768.dc.html"
+   ]
+  },
+  {
+   "subview": "role.banner",
+   "name": "Held-access banners (institution paused, account inactive)",
+   "kind": "component",
+   "status": "REVIEWED AND UNCHANGED",
+   "basis": "the component is pixel-identical to the original in 2 renders (.rk-banner, fixed viewport)",
+   "cases": [
+    "01-paused",
+    "05-paused",
+    "01-inactive"
+   ],
+   "boards": [
+    "F-01-paused-375.dc.html",
+    "F-01-paused.dc.html",
+    "F-05-paused.dc.html"
+   ]
+  },
+  {
+   "subview": "role.crumbs",
+   "name": "Breadcrumbs",
+   "kind": "component",
+   "status": "REVIEWED AND UNCHANGED",
+   "basis": "pixel-identical to the original design in 16 renders (.rk-crumbs)",
+   "cases": [
+    "03-learn",
+    "05-learn",
+    "08-learn",
+    "14-released"
+   ],
+   "boards": [
+    "F-03-learn-375.dc.html",
+    "F-03-learn.dc.html",
+    "F-05-learn-1024.dc.html",
+    "F-05-learn-320.dc.html",
+    "F-05-learn-375.dc.html",
+    "F-05-learn-768.dc.html",
+    "F-05-learn.dc.html",
+    "F-08-learn-1024.dc.html",
+    "F-08-learn-375.dc.html",
+    "F-08-learn.dc.html",
+    "F-14-released-320.dc.html",
+    "F-14-released-375.dc.html",
+    "F-14-released-768.dc.html",
+    "F-14-released.dc.html"
+   ]
+  }
+ ],
+ "borrowedNotOwned": [
+  {
+   "id": "XS-05",
+   "name": "Account menu",
+   "status": "BORROWED · UNCHANGED · ASSEMBLY PENDING XS",
+   "measured": "component pixel-identical to the original in 4 renders",
+   "cases": [
+    "01-learn-acct",
+    "xs05-learn"
+   ],
+   "boards": [
+    "F-01-learn-acct.dc.html"
+   ]
+  },
+  {
+   "id": "XS-07",
+   "name": "Help & support (and Report a problem)",
+   "status": "BORROWED · UNCHANGED · ASSEMBLY PENDING XS",
+   "measured": "page pixel-identical to the original",
+   "cases": [
+    "xs07-learn",
+    "xs07f-learn",
+    "XS07f-learn-help-error"
+   ],
+   "boards": [
+    "F-xs07-learn.dc.html",
+    "F-xs07f-learn.dc.html"
+   ]
+  },
+  {
+   "id": "XS-03",
+   "name": "Signed out",
+   "status": "BORROWED · UNCHANGED · ASSEMBLY PENDING XS",
+   "measured": "component pixel-identical to the original in 4 renders",
+   "cases": [
+    "xs03-learn"
+   ],
+   "boards": [
+    "F-xs03-learn.dc.html"
+   ]
+  },
+  {
+   "id": "XS-06",
+   "name": "Not your workspace",
+   "status": "BORROWED · UNCHANGED · ASSEMBLY PENDING XS",
+   "measured": "component pixel-identical to the original in 4 renders",
+   "cases": [
+    "xs06-learn"
+   ],
+   "boards": [
+    "F-xs06-learn.dc.html"
+   ]
+  },
+  {
+   "id": "XS-08",
+   "name": "Account inactive notice",
+   "status": "BORROWED · UNCHANGED · ASSEMBLY PENDING XS",
+   "measured": "component pixel-identical to the original in 2 renders",
+   "cases": [
+    "01-inactive"
+   ],
+   "boards": []
+  }
+ ]
+}

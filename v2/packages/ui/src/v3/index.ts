@@ -285,6 +285,13 @@ export * from './fa-teaching.js';
 export * from './fa-assessments.js';
 export * from './fa-bank.js';
 export * from './fa-marking.js';
+// The Student role's patterns (ST-v1): what more than one Student screen group draws, then what one
+// screen group alone draws, one module per group.
+export * from './st.js';
+export * from './st-home.js';
+export * from './st-hub.js';
+export * from './st-progress.js';
+export * from './st-assess.js';
 export {
   PlanBand,
   CourseGroup,

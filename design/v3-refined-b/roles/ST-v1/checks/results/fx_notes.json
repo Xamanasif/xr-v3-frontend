@@ -1,0 +1,47 @@
+{
+ "title": "Student · final complete-role design · all 19 screens · approved by the owner, 21 Oct 2026 · the one design to implement",
+ "stickies": [
+  [
+   "n-f-start",
+   {
+    "fill": "blue",
+    "text": "Start here · Final preview (live)\nPress Play on “Final preview”. It is the whole Student role — all 19 screens with every scenario and state — as one design: one preview and one stylesheet. The dark strip on top is review-only; it switches scenario and screen.\nThe rows below show every screen and its states at 1440, 1024, 768, 375 and 320. Earlier generations are on the History page — superseded, not for integration."
+   }
+  ],
+  [
+   "n-f-status",
+   {
+    "fill": "orange",
+    "text": "Status · final · approved by the owner\nDesign complete (19 / 19) · connected preview complete · shared Account and Help borrowed (assembly pending XS) · approved by the owner. The final source and screenshot ZIPs were generated from exactly this design; every earlier generation on the History page is superseded."
+   }
+  ],
+  [
+   "n-f-merged",
+   {
+    "fill": "green",
+    "text": "What was consolidated\nThe original design, checkpoint 1, checkpoint 2 and R2 are now one design. R2’s two layered role stylesheets became one, proven pixel-identical before any change (310 / 310 renders). Every earlier refinement is carried, superseded or reverted on record, and nothing is left pending (CONSOLIDATION-LEDGER.md)."
+   }
+  ],
+  [
+   "n-f-changed",
+   {
+    "fill": "green",
+    "text": "What the final pass changed\nST-15 Progress: no box inside the card. Progress tables: one gutter, and two-column rows below 766 px (fixes a table wider than its card at 768–1024). ST-12: facts in two columns on phones, and the not-passed buttons reach the card edge. ST-05 Assessment tab: the button keeps its width on tablets. ST-11: tabs fit at 320. ST-17: answer words wrap at 320. Hover feedback on every control. Stage checks kept at 375."
+   }
+  ],
+  [
+   "n-f-decide",
+   {
+    "fill": "pink",
+    "text": "Decided, and still open\nDecided at approval: internal record identifiers (ACC-0107, SACC-0310, DTR-0018) are not labels on Student pages — presentation only, the records stay in the data, and every place is listed with how to restore it. Home keeps no shortcut links to the hub’s tabs. Still for the product owners: the sample activity’s three stages are illustrative — bind the real ones or remove the trackers before implementation; ended vs withdrawn, released results after access ends, course codes. HANDOFF.md."
+   }
+  ],
+  [
+   "n-f-checked",
+   {
+    "fill": "purple",
+    "text": "How it was checked\nChromium with the Design host’s runtime: 671 renders (every case at 1440, 1024, 768 and 375, a subset at 320) — no overflow, spill, clipping, console error, duplicate ID or unnamed control (one borrowed XS link under 24 px). Journeys: 62/62 · 62/62 · 64/64 · 64/64. Keyboard: focus visible at every Tab stop on 79 of 84 pages (the other 5 are forced-open review presets), and kept inside the dialog, drawer and menu (29 / 29); hover on every control. axe: 0 violations on 624 pages. Routing identical to the original in 690 cases. Not done: the Design editor itself, real screen readers, real devices."
+   }
+  ]
+ ]
+}

@@ -7,6 +7,7 @@
  * counts and formats are the sample world's, never typed here.
  */
 import { FORMAT_META, type FormatCode, type Technology } from '@xr/domain';
+import { stDateTime, stDay } from './st-shared';
 
 type ProgressStatus = 'not-started' | 'in-progress' | 'completed';
 
@@ -73,26 +74,11 @@ export function experimentsGivenWords(count: number): string {
   return `${plural(count, 'experiment')} given to you`;
 }
 
-/** "WEB and VR available" (B2-10 f1, B2-11 f0). */
-export function formatsAvailableWords(formats: readonly Technology[]): string {
-  return `${formatList(formats)} available`;
-}
-
-/** "Paused — your institution’s access is paused" (B2-10 f6, B2-11 f5): a paused course row. */
-export const PAUSED_ROW = 'Paused — your institution’s access is paused';
-
-/** "earlier work kept" (B2-10 f8): the course row of earlier work. */
-export const EARLIER_WORK_KEPT = 'earlier work kept';
-
 // ---- ST-01 Home (B2-10) -------------------------------------------------------------------
 
 export const HOME_PAGE = {
   startHere: 'Start here',
-  continueWhere: 'Continue where you left off',
   upNext: 'Up next',
-  upNextEmpty: 'Nothing else is waiting for you right now.',
-  myCourses: 'My courses',
-  viewAllCourses: 'View all courses',
   noAccessTitle: 'Your institution hasn’t given you access yet',
   noAccessLine: 'When it gives you an experiment, it appears here and in My courses.',
   pausedTitle: 'You can’t open experiments right now',
@@ -110,21 +96,6 @@ export function greeting(firstName: string): string {
   return `Hello, ${firstName}`;
 }
 
-/** "Open Shell-and-Tube Heat Exchanger" (B2-10 f1). */
-export function openExperimentWords(name: string): string {
-  return `Open ${name}`;
-}
-
-/** "Continue Shell-and-Tube Heat Exchanger" (B2-10 f4). */
-export function continueExperimentWords(name: string): string {
-  return `Continue ${name}`;
-}
-
-/** "3 of at most 3" (B2-10 f5): how many Up next items show, of the most it shows. */
-export function upNextMeta(shown: number): string {
-  return `${shown} of at most 3`;
-}
-
 /** "An assessment for Shell-and-Tube Heat Exchanger is ready" (B2-10 f5). */
 export function assessmentReadyWords(experimentName: string): string {
   return `An assessment for ${experimentName} is ready`;
@@ -135,23 +106,9 @@ export function giveFeedbackWords(format: Technology): string {
   return `Give feedback on ${formatCode(format)}`;
 }
 
-/** "Shell-and-Tube Heat Exchanger · you completed WEB" (B2-10 f5). */
-export function feedbackSubWords(experimentName: string, format: Technology): string {
-  return `${experimentName} · you completed ${formatCode(format)}`;
-}
-
 /** "VR is waiting for you" (B2-10 f5). */
 export function formatWaitingWords(format: Technology): string {
   return `${formatCode(format)} is waiting for you`;
-}
-
-/** "Shell-and-Tube Heat Exchanger · VR not started" (B2-10 f5). */
-export function formatWaitingSub(
-  experimentName: string,
-  format: Technology,
-  progress: ProgressStatus,
-): string {
-  return `${experimentName} · ${progressInSentence(format, progress)}`;
 }
 
 // ---- ST-02 My courses (B2-11) -------------------------------------------------------------
@@ -188,11 +145,6 @@ export const ALL_EXPERIMENTS_PAGE = {
   failedTitle: 'We couldn’t load your experiments',
 } as const;
 
-/** B2-11 `count`: "1 experiment given to you", or "1 of 3 experiments" while a filter applies. */
-export function allExperimentsCountWords(shown: number, total: number, filtered: boolean): string {
-  return filtered ? `${shown} of ${plural(total, 'experiment')}` : experimentsGivenWords(total);
-}
-
 /** B2-11 `chips`: "Search: “Fin-Tube”", "Format: WEB". */
 export function experimentSearchChip(search: string): string {
   return `Search: “${search.trim()}”`;
@@ -203,14 +155,6 @@ export function formatChip(format: Technology): string {
 }
 
 // ---- ST-03 Course (B2-11 f1, f6, f14) ------------------------------------------------------
-
-export const COURSE_PAGE = {
-  yourExperiments: 'Your experiments in this course',
-  open: 'Open',
-  pausedNoticeTitle: 'Your institution’s access is paused',
-  pausedNoticeLine: 'You can’t open experiments right now. Your work is kept.',
-  pausedRow: 'Paused — your institution’s access is paused. Your work is kept.',
-} as const;
 
 /** "Open Shell-and-Tube Heat Exchanger" (B2-11 f1 `aria-label` of "Open"). */
 export function openExperimentLabel(name: string): string {
@@ -325,12 +269,175 @@ export function endedTitle(name: string): string {
   return `Your access to ${name} has ended`;
 }
 
-/**
- * B3-02 (Arun Kumar, later sample) "No licence is available for you on ACC-0107 right now." — the
- * Student's words for a supplied licence wait (never counted, T-06 / D7). Package 2A shows them on
- * the course's experiment row and the hub's Simulation step, where B3-02's format chooser (Phase 3)
- * is not built yet (PC-45).
- */
-export function noLicenceForYouWords(planId: string): string {
-  return `No licence is available for you on ${planId} right now.`;
+// ---- V3 (owner-approved Student export ST-v1, `StudentFinal.dc.html`) — ST-01 … ST-04, ST-19 ----
+// New keys only: the words above stay as other screens and roles read them. Each string here is
+// the export's own (`student.test.ts` "the V3 words" finds each in its template or script); none
+// names a record by its internal reference (lead decision 3).
+
+/** ST-01 Home (`homeVM`, `nextStep`). */
+export const HOME_V3 = {
+  continueLearning: 'Continue learning',
+  yourExperiment: 'Your experiment',
+  nextStep: 'Your next step',
+  alsoIn: 'Also in this experiment',
+  inThis: 'In this experiment',
+  learning: 'What you’re learning',
+  sameInEvery: 'The same in every format',
+  howItWorks: 'How it works',
+  how: [
+    'Your institution gives you an experiment, with the formats you can use.',
+    'Read its resources, then run a simulation. Nothing is locked.',
+    'Answer the assessment when your faculty sets one.',
+  ],
+  inactiveTitle: 'You can’t open experiments right now',
+  inactiveLine: 'Your work is kept and will be here when your account is reactivated.',
+  pausedStep: 'You can carry on from where you left off when the pause is lifted.',
+  waitingTitle: 'You’re waiting for a licence',
+  resourcesTitle: 'Start with the resources',
+  resourcesAction: 'Open resources',
+  simulationTitle: 'Run a simulation',
+  simulationLine: 'Each format has its own progress.',
+  simulationAction: 'Choose a format',
+  assessmentTitle: 'Start the assessment',
+  assessmentAction: 'Open assessment',
+  attemptTitle: 'Finish your attempt',
+  attemptLine: 'Your answers are saved.',
+  attemptAction: 'Continue attempt',
+  nothingTitle: 'Nothing else is waiting for you right now',
+  nothingLine: 'Your work on each format is kept in Progress.',
+  resources: 'Resources',
+  assessment: 'Assessment',
+  seeEarlierWork: 'See earlier work',
+  noAssessment: 'Not set by your faculty yet',
+  attemptInProgress: 'Attempt in progress · answers saved',
+  waitingForMarking: 'Submitted · waiting for marking',
+  resultNotReleased: 'Result not released yet',
+  feedbackToGive: 'feedback to give',
+} as const;
+
+/** "Continue in your browser" (WEB), "Continue on your headset" (a headset format). */
+export function continueInWords(format: Technology): string {
+  return format === 'web' ? 'Continue in your browser' : 'Continue on your headset';
 }
+
+/** "WEB is in progress." — the export's "Last saved …" follows only where a read holds it. */
+export function inProgressLine(format: Technology): string {
+  return `${formatCode(format)} is in progress.`;
+}
+
+/** "Feedback on WEB is open". */
+export function feedbackOpenTitle(format: Technology): string {
+  return `Feedback on ${formatCode(format)} is open`;
+}
+
+/** "You completed WEB." — the export's "on <date>" needs the completion date, which Home does not read. */
+export function completedLine(format: Technology): string {
+  return `You completed ${formatCode(format)}.`;
+}
+
+/** "Set up VR". */
+export function setUpWords(format: Technology): string {
+  return `Set up ${formatCode(format)}`;
+}
+
+/** "VR is waiting for you." */
+export function waitingForYouLine(format: Technology): string {
+  return `${formatCode(format)} is waiting for you.`;
+}
+
+/** "Heat Exchanger — post-lab is due 14 Nov 2026, 23:59." */
+export function assessmentDueLine(assessmentName: string, deadline: string): string {
+  return `${assessmentName} is due ${stDateTime(deadline)}.`;
+}
+
+/** The Resources step's line: "3 resources · none opened yet". */
+export function resourcesNoneLine(total: number): string {
+  return `${plural(total, 'resource')} · none opened yet`;
+}
+
+/** The Resources item: "None opened yet · 3 to read", "1 of 3 opened", "All 3 opened". */
+export function resourcesItemWords(total: number, opened: number): string {
+  if (opened === 0) return `None opened yet · ${total} to read`;
+  if (opened >= total) return `All ${total} opened`;
+  return `${opened} of ${total} opened`;
+}
+
+/** The Assessment item while it is to do: "Ready · due 14 Nov 2026, 23:59" (or "Ready"). */
+export function assessmentReadyItem(deadline: string | null): string {
+  return deadline === null ? 'Ready' : `Ready · due ${stDateTime(deadline)}`;
+}
+
+/** The Assessment item once released: "Result released 14 Nov 2026". */
+export function resultReleasedItem(releasedAt: string): string {
+  return `Result released ${stDay(releasedAt)}`;
+}
+
+/** "Thermodynamics & Heat Transfer, open course" (the cover's course link). */
+export function courseLinkLabel(courseName: string): string {
+  return `${courseName}, open course`;
+}
+
+/** "Open experiment, Shell-and-Tube Heat Exchanger" (the cover's "Open experiment"). */
+export function coverOpenLabel(experimentName: string): string {
+  return `Open experiment, ${experimentName}`;
+}
+
+/** ST-02 / ST-04 (`coursesVM`, `courseCard`, `xcard`). */
+export const MY_COURSES_V3 = {
+  listHeading: 'Your courses',
+  loadingCourses: 'Loading your courses…',
+  loadingExperiments: 'Loading your experiments…',
+  coursesNone: 'Courses appear here when your institution gives you an experiment in them.',
+  experimentsNone: 'Experiments appear here when your institution gives them to you.',
+  allHeading: 'All the experiments given to you',
+  filterLabel: 'Filter your experiments',
+  listLabel: 'Experiments',
+  noMatchLine:
+    'Only experiments your institution has given you are listed. Try fewer filters or a different spelling.',
+  waiting: 'Waiting for a licence',
+} as const;
+
+/** "Experiments given to you in Thermodynamics & Heat Transfer" (a course's list). */
+export function experimentsInCourseLabel(courseName: string): string {
+  return `Experiments given to you in ${courseName}`;
+}
+
+/** "Your formats for Shell-and-Tube Heat Exchanger" (a row's formats). */
+export function yourFormatsLabel(experimentName: string): string {
+  return `Your formats for ${experimentName}`;
+}
+
+/** ST-04's count: "1 experiment in 1 course", or "1 of 3 experiments" while a filter applies. */
+export function experimentsCountWords(
+  shown: number,
+  total: number,
+  courses: number,
+  filtered: boolean,
+): string {
+  return filtered
+    ? `${shown} of ${plural(total, 'experiment')}`
+    : `${plural(total, 'experiment')} in ${plural(courses, 'course')}`;
+}
+
+/** "Remove filter Search: “fin”" (a chip's button). */
+export function removeFilterLabel(chip: string): string {
+  return `Remove filter ${chip}`;
+}
+
+/** ST-03 (`courseVM`, `msg('course-none')`). */
+export const COURSE_V3 = {
+  kind: 'Course',
+  experimentsHeading: 'Experiments given to you',
+  onlyGiven: 'Only experiments given to you are listed',
+  noneTitle: 'This course has no experiments for you right now',
+} as const;
+
+/** ST-19 (`msg('notgiven')`): "Your institution hasn’t given you Fin-Tube Bundle." with experiments listed below. */
+export function notGivenShortLine(name: string): string {
+  return `Your institution hasn’t given you ${name}.`;
+}
+
+/** ST-19's list of what the Student can open instead. */
+export const NOT_AVAILABLE_V3 = {
+  openInstead: 'Experiments you can open',
+} as const;

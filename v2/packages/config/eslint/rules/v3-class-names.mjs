@@ -15,7 +15,7 @@
 import { V3_PRODUCT_CLASS_ALLOW_LIST } from '../../policy/terms.mjs';
 import { classStringPieces, isClassAttribute, tokensOf } from './class-strings.mjs';
 
-const PREFIX = '(?:xr|rb|rk|xs|sa|ve|vr|cm|rv|ia|fa)';
+const PREFIX = '(?:xr|rb|rk|xs|sa|ve|vr|cm|rv|ia|fa|st|sv)';
 const WHOLE = new RegExp(
   `^(?:xr|rb|${PREFIX}-[a-z0-9]+(?:(?:-|--|__)[a-z0-9]+)*|is-[a-z0-9]+(?:-[a-z0-9]+)*)$`,
 );

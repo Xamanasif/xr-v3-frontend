@@ -1,0 +1,53 @@
+      <!-- Overview: what it is, what you learn, your formats and progress, then resources and assessment -->
+      <sc-if value="{{ HB.isOverview }}" hint-placeholder-val="{{ true }}">
+      <div class="sv-ov">
+        <div class="sv-card sv-ov-main">
+          <section class="sv-sec" aria-labelledby="sv-about-h">
+            <h2 class="xr-sr" id="sv-about-h">About this experiment</h2>
+            <p class="sv-lead">{{ HB.desc }}</p>
+            <p class="sv-meta"><span>{{ HB.area }}</span><span class="sv-meta-sep" aria-hidden="true"></span><span>BITS course code</span><span class="rb-code">{{ HB.bits }}</span></p>
+          </section>
+          <section class="sv-sec" aria-labelledby="sv-lo-h">
+            <div class="sv-sec-h"><h2 class="sv-h2" id="sv-lo-h">What you’ll learn</h2><p class="sv-sh-note">The same in every format</p></div>
+            <ol class="sv-outcomes sv-outcomes--flat"><sc-for list="{{ HB.outcomes }}" as="o" hint-placeholder-count="2"><li>{{ o }}</li></sc-for></ol>
+          </section>
+          <section class="sv-sec" aria-labelledby="sv-fm-h">
+            <div class="sv-sec-h"><h2 class="sv-h2" id="sv-fm-h">Formats and your progress</h2><p class="sv-sh-note">Each format has its own progress</p></div>
+            <h3 class="sv-subk" id="sv-fm-mine">Your formats</h3>
+            <ul class="sv-frows" aria-labelledby="sv-fm-mine">
+              <sc-for list="{{ HO.mine }}" as="f" hint-placeholder-count="2">
+              <li class="{{ f.cls }}">
+                <span class="sv-frow-b" aria-hidden="true"><span class="{{ f.fmtCls }}">{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ f.glyph }}"></use></svg></sc-if></span></span>
+                <div class="sv-frow-main">
+                  <p class="sv-frow-t"><b>{{ f.name }}</b><span class="xr-sr"> ({{ f.code }}), </span><span class="sv-frow-sep" aria-hidden="true"> · </span><span class="sv-frow-acc">{{ f.access }}</span><sc-if value="{{ f.isNext }}" hint-placeholder-val="{{ false }}"><span class="sv-tag">Next step</span></sc-if></p>
+                  <p class="sv-frow-s"><span class="{{ f.pillCls }}"><i></i>{{ f.pill }}</span><sc-if value="{{ f.hasFacts }}" hint-placeholder-val="{{ true }}"><span class="sv-frow-f">{{ f.facts }}</span></sc-if></p>
+                </div>
+                <sc-if value="{{ f.hasAct }}" hint-placeholder-val="{{ true }}"><div class="sv-frow-act"><a class="{{ f.act.cls }}" href="{{ f.act.href }}" onClick="{{ f.act.go }}" aria-label="{{ f.act.aria }}">{{ f.act.label }}</a></div></sc-if>
+              </li>
+              </sc-for>
+            </ul>
+            <h3 class="sv-subk" id="sv-fm-off">Not available to you</h3>
+            <ul class="sv-xrows" aria-labelledby="sv-fm-off">
+              <sc-for list="{{ HO.off }}" as="f" hint-placeholder-count="2"><li class="sv-xrow"><span class="sv-xrow-b" aria-hidden="true"><span class="{{ f.fmtCls }}">{{ f.code }}</span></span><p class="sv-xrow-t"><b>{{ f.name }}</b><span class="xr-sr"> ({{ f.code }}), </span><span class="sv-frow-sep" aria-hidden="true"> · </span><span class="sv-xrow-r">{{ f.reason }}</span></p></li></sc-for>
+            </ul>
+          </section>
+        </div>
+
+        <div class="sv-card sv-ov-side">
+          <section class="{{ HO.res.cls }}" aria-labelledby="sv-res-h">
+            <div class="sv-side-h"><h2 class="sv-h3" id="sv-res-h">Learning resources</h2><sc-if value="{{ HO.res.isNext }}" hint-placeholder-val="{{ false }}"><span class="sv-tag">Next step</span></sc-if></div>
+            <p class="sv-side-d">{{ HO.res.d }}</p>
+            <ul class="sv-rlist">
+              <sc-for list="{{ HO.res.items }}" as="r" hint-placeholder-count="3"><li><svg class="sv-rlist-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ r.ico }}"></use></svg><span class="sv-rlist-t">{{ r.t }}</span><span class="{{ r.sCls }}">{{ r.s }}</span></li></sc-for>
+            </ul>
+            <sc-if value="{{ HO.res.hasAct }}" hint-placeholder-val="{{ true }}"><a class="{{ HO.res.act.cls }}" href="{{ HO.res.act.href }}" onClick="{{ HO.res.act.go }}" aria-label="{{ HO.res.act.aria }}">{{ HO.res.act.label }}</a></sc-if>
+          </section>
+          <section class="{{ HO.as.cls }}" aria-labelledby="sv-as-h">
+            <div class="sv-side-h"><h2 class="sv-h3" id="sv-as-h">Assessment</h2><sc-if value="{{ HO.as.isNext }}" hint-placeholder-val="{{ false }}"><span class="sv-tag">Next step</span></sc-if></div>
+            <p class="sv-side-d">{{ HO.as.d }}</p>
+            <sc-if value="{{ HO.as.hasAct }}" hint-placeholder-val="{{ false }}"><a class="{{ HO.as.act.cls }}" href="{{ HO.as.act.href }}" onClick="{{ HO.as.act.go }}" aria-label="{{ HO.as.act.aria }}">{{ HO.as.act.label }}</a></sc-if>
+          </section>
+        </div>
+      </div>
+      </sc-if>
+

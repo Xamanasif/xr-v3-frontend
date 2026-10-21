@@ -1,0 +1,10184 @@
+{
+ "01-learn@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-assess@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-granted@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-newst@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-vrnow@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot available right now",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-vrprog@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-vrdone@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-licence@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserWaiting for a licence",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityWaiting for a licence",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-ended@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-withdrawn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-inactive@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-nodevice@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-inprog@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-waitmark@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentSubmitted · waiting for marking",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-released@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentResult released 14 Nov 2026",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-device@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-menu@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-drawer": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-acct@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-granted@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-newst@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-licence@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-ended@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-withdrawn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-loading@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-failed@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "03-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-licence@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-ended@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-newst@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "04-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-x-nomatch@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-ended@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "05-learn@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-granted@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-newst@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrnow@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-licence@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-ended@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-withdrawn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-granted@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-licence@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-res-fail@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-granted@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrnow@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrprog@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-licence@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-assess@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-inprog@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-waitmark@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notrel@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-released@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notpassed@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-granted@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-granted@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-licence@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn-launch-fail@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08a-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-learn-act-done@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-granted@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "09-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrprog@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrnow@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-licence@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-learn-setup-open@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-nodevice@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09ar-learn@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09mr-learn@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "11-assess@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-newst@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-inprog@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-loading@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-failed@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11sub-waitmark@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11sub-assess@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11res-released@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11res-assess@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "12-assess@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-inprog@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-waitmark@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notrel@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-released@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notpassed@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "13-assess@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-assess-att-two@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-dialog@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-dialog": "changed",
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-savefail@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-subfail@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same",
+   ".rk-errsum": "changed"
+  }
+ },
+ "13-waitmark@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "14-released@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 7 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notpassed@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 4 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-waitmark@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notrel@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-assess@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "15-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-granted@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-newst@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-ended@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-filter@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-nomatch@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-loading@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-failed@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "16v-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-errors@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-errsum": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-fail@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-vrdone@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "18-device@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-form@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-error@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrsent@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrfwd@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrappr@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrnoia@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-nodevice@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original"
+  }
+ },
+ "18-paused@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "19-learn@1440": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-withdrawn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-ended@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs05-learn@1440": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "xs07-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "xs07f-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs03-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".xsb-msg": "same"
+  }
+ },
+ "xs06-learn@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "same"
+  }
+ },
+ "04-learn-loading@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-failed@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "06-learn-loading@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-failed@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "XS07f-learn-help-error@1440": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-errsum": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "01-learn@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-assess@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-granted@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-newst@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-vrnow@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot available right now",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-vrprog@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-vrdone@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-licence@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserWaiting for a licence",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityWaiting for a licence",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-ended@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-withdrawn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-inactive@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-nodevice@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-inprog@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-waitmark@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentSubmitted · waiting for marking",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-released@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentResult released 14 Nov 2026",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-device@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-menu@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-drawer": "changed",
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-acct@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-granted@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-newst@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-licence@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-ended@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-withdrawn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-loading@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-failed@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "03-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-licence@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-ended@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-newst@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "04-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-x-nomatch@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-ended@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "05-learn@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-granted@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-newst@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrnow@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-licence@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-ended@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-withdrawn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-granted@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-licence@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-res-fail@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-granted@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrnow@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrprog@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-licence@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-assess@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-inprog@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-waitmark@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notrel@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-released@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notpassed@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-granted@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-granted@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-licence@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn-launch-fail@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08a-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-learn-act-done@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-granted@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "09-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrprog@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrnow@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-licence@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-learn-setup-open@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-nodevice@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09ar-learn@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09mr-learn@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "11-assess@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-newst@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-inprog@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-loading@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-failed@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11sub-waitmark@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11sub-assess@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11res-released@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "11res-assess@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "12-assess@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-inprog@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-waitmark@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notrel@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-released@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notpassed@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "13-assess@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-assess-att-two@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-dialog@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-dialog": "changed",
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-savefail@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-subfail@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same",
+   ".rk-errsum": "changed"
+  }
+ },
+ "13-waitmark@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "14-released@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 7 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notpassed@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 4 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-waitmark@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notrel@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-assess@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "15-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-granted@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-newst@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-ended@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-filter@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-nomatch@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-loading@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-failed@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "16v-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-errors@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-errsum": "changed",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-fail@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-vrdone@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "18-device@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-form@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-error@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrsent@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrfwd@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrappr@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrnoia@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "18-nodevice@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original"
+  }
+ },
+ "18-paused@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "19-learn@1024": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-withdrawn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-ended@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs05-learn@1024": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-rail": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "xs07-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "xs07f-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs03-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".xsb-msg": "same"
+  }
+ },
+ "xs06-learn@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".xsb-msg": "same"
+  }
+ },
+ "04-learn-loading@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-failed@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same"
+  }
+ },
+ "06-learn-loading@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-failed@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "XS07f-learn-help-error@1024": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-rail": "same",
+   ".rb-top": "same",
+   ".rk-errsum": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "01-learn@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-assess@768": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-granted@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-newst@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-vrnow@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot available right now",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-vrprog@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-vrdone@768": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-licence@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserWaiting for a licence",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityWaiting for a licence",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-paused@768": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-ended@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-withdrawn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-inactive@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-nodevice@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-inprog@768": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-waitmark@768": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentSubmitted · waiting for marking",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-released@768": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentResult released 14 Nov 2026",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-device@768": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-menu@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-drawer": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-acct@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-granted@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-newst@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-licence@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-ended@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-withdrawn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-loading@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-failed@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "03-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-licence@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-ended@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-newst@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "04-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-x-nomatch@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-ended@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "05-learn@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-granted@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-newst@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrnow@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-licence@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-ended@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-withdrawn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-granted@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-licence@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-res-fail@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-granted@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrnow@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrprog@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-licence@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-assess@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-inprog@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-waitmark@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notrel@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-released@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notpassed@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-granted@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-granted@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-licence@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn-launch-fail@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08a-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-learn-act-done@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-granted@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "09-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrprog@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrnow@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-licence@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-learn-setup-open@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-nodevice@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09ar-learn@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09mr-learn@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "11-assess@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-newst@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-inprog@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-loading@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-failed@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11sub-waitmark@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11sub-assess@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11res-released@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11res-assess@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "12-assess@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-inprog@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-waitmark@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notrel@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-released@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notpassed@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "13-assess@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-assess-att-two@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-dialog@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-dialog": "changed",
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-savefail@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-subfail@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same",
+   ".rk-errsum": "changed"
+  }
+ },
+ "13-waitmark@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "14-released@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 7 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notpassed@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 4 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-waitmark@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notrel@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-assess@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "15-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-granted@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-newst@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-ended@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-filter@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-nomatch@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-loading@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-failed@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "16v-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-errors@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-errsum": "changed",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-fail@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-vrdone@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "18-device@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-form@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-error@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrsent@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrfwd@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrappr@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrnoia@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-nodevice@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original"
+  }
+ },
+ "18-paused@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "19-learn@768": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-withdrawn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-ended@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs05-learn@768": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "xs07-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "xs07f-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs03-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".xsb-msg": "same"
+  }
+ },
+ "xs06-learn@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "same"
+  }
+ },
+ "04-learn-loading@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-failed@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "06-learn-loading@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-failed@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "XS07f-learn-help-error@768": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-errsum": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "01-learn@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-assess@375": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-granted@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-newst@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-vrnow@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserNot started",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot available right now",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-vrprog@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-vrdone@375": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-licence@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserWaiting for a licence",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityWaiting for a licence",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-paused@375": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-ended@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-withdrawn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-inactive@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "01-nodevice@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-inprog@375": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-waitmark@375": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentSubmitted · waiting for marking",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-released@375": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "AssessmentResult released 14 Nov 2026",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-device@375": {
+  "lost": [
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/resources",
+    "name": "Resources1 of 3 opened",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "WEBBrowserCompleted 14 Oct 2026 · feedback sent",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityCompleted 20 Oct 2026 · feedback sent",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-menu@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-drawer": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "01-learn-acct@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "02-learn@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-granted@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-newst@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-licence@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "02-ended@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-withdrawn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-loading@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "02-learn-failed@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "03-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-licence@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-ended@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "03-newst@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "04-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-x-nomatch@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-ended@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "05-learn@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-granted@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-newst@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrnow@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Open WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-licence@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-ended@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05-withdrawn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-granted@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-licence@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-res-fail@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-granted@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrnow@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrprog@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-licence@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "07-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-assess@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-inprog@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-waitmark@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notrel@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-released@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "05as-notpassed@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-granted@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "10-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-granted@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-licence@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08-learn-launch-fail@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "08a-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-learn-act-done@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "08a-granted@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "09-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrprog@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-vrnow@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-licence@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-learn-setup-open@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09-nodevice@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09ar-learn@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "09mr-learn@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "Open VR, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "11-assess@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-newst@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-inprog@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-loading@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11-assess-failed@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11sub-waitmark@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11sub-assess@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11res-released@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "11res-assess@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "12-assess@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-inprog@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-waitmark@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notrel@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-released@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-notpassed@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "12-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "13-assess@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-assess-att-two@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-dialog@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-dialog": "changed",
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-savefail@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "13-inprog-att-subfail@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".st-focusbar": "same",
+   ".rk-errsum": "changed"
+  }
+ },
+ "13-waitmark@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".st-focusbar": "same"
+  }
+ },
+ "14-released@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 7 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notpassed@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#st-ans-1",
+    "name": "Question 1: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-2",
+    "name": "Question 2: 2 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-3",
+    "name": "Question 3: 0 of 2 marks",
+    "where": "page"
+   },
+   {
+    "href": "#st-ans-4",
+    "name": "Question 4: 4 of 10 marks",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-waitmark@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-notrel@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "14-assess@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "15-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-granted@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-newst@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "15-ended@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-filter@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-p-nomatch@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-loading@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "15-learn-failed@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "16v-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-errors@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-errsum": "changed",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-vrdone-fb-fail@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16v-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-vrdone@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "16w-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "18-device@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-form@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-device-dev-error@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrsent@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrfwd@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrappr@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-dtrnoia@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "18-nodevice@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original"
+  }
+ },
+ "18-paused@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rk-banner": "same",
+   ".rb-top": "same"
+  }
+ },
+ "19-learn@375": {
+  "lost": [],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube",
+    "name": "Open experiment Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-withdrawn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "19-ended@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "only in original",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs05-learn@375": {
+  "lost": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation",
+    "name": "Simulation",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube?tab=assessment",
+    "name": "Assessment",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/progress",
+    "name": "Progress",
+    "where": "page"
+   },
+   {
+    "href": "#/student/courses",
+    "name": "View all courses",
+    "where": "page"
+   }
+  ],
+  "added": [
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/web",
+    "name": "Continue WEB, Shell-and-Tube Heat Exchanger",
+    "where": "page"
+   },
+   {
+    "href": "#/student/experiments/shell-and-tube/simulation/vr",
+    "name": "VRVirtual realityNot started",
+    "where": "page"
+   }
+  ],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".xsb-menu": "changed",
+   ".rb-top": "same"
+  }
+ },
+ "xs07-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "xs07f-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "xs03-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".xsb-msg": "same"
+  }
+ },
+ "xs06-learn@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".xsb-msg": "same"
+  }
+ },
+ "04-learn-loading@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "04-learn-failed@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same"
+  }
+ },
+ "06-learn-loading@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "06-learn-failed@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": false,
+  "textSame": false,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-crumbs": "same"
+  }
+ },
+ "XS07f-learn-help-error@375": {
+  "lost": [],
+  "added": [],
+  "lostB": [],
+  "addedB": [],
+  "errors": [],
+  "pageSame": true,
+  "textSame": true,
+  "subs": {
+   ".rb-top": "same",
+   ".rk-errsum": "same",
+   ".rk-crumbs": "same"
+  }
+ }
+}

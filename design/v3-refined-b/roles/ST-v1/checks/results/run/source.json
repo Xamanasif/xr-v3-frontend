@@ -1,0 +1,99 @@
+{
+ "stylesheets the final root loads": [
+  "core.css",
+  "rb.css",
+  "rb-kit.css",
+  "v3-student-final.css"
+ ],
+ "loads exactly foundation + v3-student-final.css": true,
+ "classes used": 517,
+ "classes used but not defined": [],
+ "class-name prefixes joined with a tone in code (e.g. sv-refuse-ico-- + off)": [
+  "sv-refuse-ico--",
+  "xsb-msg-ico--"
+ ],
+ "retired classes still produced by two verbatim hubVM fields that no template renders (cells, note)": [
+  "rk-fcell",
+  "rk-fcell--none",
+  "rk-fcell--on",
+  "rk-fcell--pub",
+  "st-band-note",
+  "st-band-note--paused",
+  "st-band-note--wait",
+  "st-fcell--ended",
+  "st-fcell--held"
+ ],
+ "Part A rules": 115,
+ "Part A rules not verbatim from v3-student.css (pruned selector lists allowed)": [],
+ "Part B rules": 642,
+ "Part B selectors without sv-": [],
+ "Part B base classes restyled outside sv- context": [],
+ "custom properties defined (whole file)": [],
+ "!important in Part B": 0,
+ "!important in Part A (carried review-controls toggle only)": [
+  "\n.st-review-toggle{display:none!important}",
+  "\n  .st-review-toggle{display:inline-flex!important;margin-left:auto}"
+ ],
+ "at-rules": [
+  "@container rb (max-width: 759.98px)",
+  "@container rbpage (max-width: 329.98px)",
+  "@container rbpage (max-width: 479.98px)",
+  "@container rbpage (max-width: 599.98px)",
+  "@container rbpage (max-width: 767.98px)",
+  "@container rbpage (max-width: 899.98px)",
+  "@container stfocus (max-width: 599.98px)",
+  "@container stfocus (max-width: 899.98px)",
+  "@container streview (max-width: 759.98px)",
+  "@container streview (min-width: 760px)",
+  "@container svchoose (max-width: 479.98px)",
+  "@container svchoose (max-width: 699.98px)",
+  "@container svcourse (max-width: 559.98px)",
+  "@container svfb (max-width: 639.98px)",
+  "@container svmain (max-width: 599.98px)",
+  "@container svpexp (max-width: 479.98px)",
+  "@container svpexp (max-width: 765.98px)",
+  "@container svpexp (min-width: 480px) and (max-width: 765.98px)",
+  "@container svx (max-width: 679.98px)",
+  "@media (prefers-reduced-motion: reduce)"
+ ],
+ "descendant span selectors that could catch the runtime interpolation spans (Part B; a sibling span + span rule is safe)": [],
+ "Part B literal colours not in the base files": [],
+ "Part B rgb()/hsl() literals": [],
+ "gradients (whole file)": [],
+ "animations (whole file; selectors)": [
+  ".xsb-menu",
+  "@media (prefers-reduced-motion: reduce)"
+ ],
+ "keyframes defined here": [],
+ "transitions (Part B)": [
+  "transition:background-color 120ms linear",
+  "transition:background-color 120ms linear",
+  "transition:none"
+ ],
+ "font families named (Part B)": [],
+ "font sizes below 13px (Part B)": [],
+ "font sizes below 13px (Part A, carried)": [
+  "12.5"
+ ],
+ "sv classes defined": 341,
+ "sv classes defined but never in the final source": [],
+ "StudentFinal vs Main outside the replaced regions (expected: title, stylesheet link, render edits)": [
+  "-<title>Student — XR Learning Platform</title>",
+  "+<title>Student — complete role · XR Learning Platform</title>",
+  "-<link rel=\"stylesheet\" href=\"./v3-student.css\">",
+  "+<link rel=\"stylesheet\" href=\"./v3-student-final.css\">",
+  "-    const V = { is, shell, S, R, H: {}, C: {}, X: {}, CO: {}, HB: {}, RS: {}, FR: {}, AS1: {}, FP: {}, A: {}, P: {}, FB: {}, AL: {}, AI: {}, AT: { dlg: false }, AR: {}, D: {}, HP: {}, M: res.M || {}, OUT: { signIn: this.L({ s: 'home' }) } };",
+  "+    const V = { is, shell, S, R, H: {}, HO: {}, SM: {}, PT: {}, AT1: {}, C: {}, X: {}, CO: {}, HB: {}, RS: {}, FR: {}, AS1: {}, FP: {}, A: {}, P: {}, FB: {}, AL: {}, AI: {}, AT: { dlg: false }, AR: {}, D: {}, HP: {}, M: res.M || {}, OUT: { signIn: this.L({ s: 'home' }) } };",
+  "+      if (V.HB.hasPill && V.HB.isOverview) V.HB.pillText = 'No licence is available for you right now. Your institution can tell you more.';",
+  "+      V.HB.isSim = r.tab === 'simulation'; V.HB.isPT = r.tab === 'progress';",
+  "+      if (V.HB.isOverview) V.HO = this.overviewVM(w);",
+  "+      if (V.HB.isSim) V.SM = this.simVM(w);",
+  "+      if (V.HB.isPT) V.PT = this.progTabVM(w);",
+  "+      if (V.HB.isAssessment) V.AT1 = this.asmtTabVM(w);"
+ ],
+ "foundation (core, rb, rb-kit) byte-identical": true,
+ "original delivery unchanged (Main, v3-student.css, 112 boards)": true,
+ "checkpoint 1 unchanged": true,
+ "checkpoint 2 unchanged": true,
+ "R2 unchanged (StudentR2, v3-student-r2.css, 108 boards)": true
+}

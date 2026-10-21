@@ -34,10 +34,38 @@ const CODE = 'MEC-523';
 const FIRST_LOAD = { timeout: 120_000 };
 
 const main = (page: Page) => page.locator('main');
-const list = (page: Page) => page.getByRole('region', { name: 'Your assessments' });
-const rows = (page: Page) => list(page).locator('ul.xr-rows > li.xr-row');
-const segments = (page: Page) => page.getByRole('group', { name: 'Show' }).getByRole('button');
-const hubTabs = (page: Page) => page.getByRole('navigation', { name: SHELL_NAME });
+/** ST-11's state tabs (`nav.rk-tabs.sv-tabs` "Assessments") and the card named by the tab. */
+const stateTabs = (page: Page) =>
+  page.getByRole('navigation', { name: 'Assessments', exact: true }).getByRole('link');
+/** The tabs' counts, read as ", N" after each tab's words. */
+async function expectTabs(page: Page, counts: readonly [number, number, number]): Promise<void> {
+  const words = ['To do', 'Submitted', 'Results'];
+  for (const [index, count] of counts.entries())
+    // The engine may read a space before the hidden ", N" (the export's own markup).
+    await expect(stateTabs(page).nth(index)).toHaveAccessibleName(
+      new RegExp(`^${words[index]} ?, ${count}$`),
+    );
+}
+const card = (page: Page, tab: string) => page.getByRole('region', { name: tab, exact: true });
+const rows = (page: Page, tab = 'To do') => card(page, tab).locator('ul.sv-list > li.sv-ali');
+/** The hub's section tabs (the hub's own nav, whatever it is named): the one with "Overview". */
+const hubTabs = (page: Page) =>
+  main(page)
+    .getByRole('navigation')
+    .filter({ has: page.getByRole('link', { name: 'Overview', exact: true }) });
+/** The hub tab's assessment card (`section.sv-card.sv-atab`), named by the assessment. */
+const assessmentCard = (page: Page) => page.getByRole('region', { name: NAME, exact: true });
+/** No assessment, attempt or record id in any word, name or the tab title (decision 3). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT|Q)-\d+/;
+
+async function expectNoReference(page: Page): Promise<void> {
+  expect(await page.locator('body').innerText()).not.toMatch(REFERENCE);
+  const names = await page
+    .locator('[aria-label]')
+    .evaluateAll((items) => items.map((item) => item.getAttribute('aria-label') ?? ''));
+  for (const name of names) expect(name).not.toMatch(REFERENCE);
+  expect(await page.title()).not.toMatch(REFERENCE);
+}
 
 async function open(page: Page, fixture: string, path: string): Promise<void> {
   await bootWorld(page, { fixture, session: RAHUL });
@@ -138,76 +166,97 @@ async function confirmed(page: Page, attemptId: string): Promise<void> {
   });
 }
 
-/** A row's text parts, as the board lays them out. */
+/** A row's parts, as the V3 export lays them out (`li.sv-li.sv-ali`). */
 async function expectRow(
   row: Locator,
   parts: {
+    readonly kicker: string;
+    readonly when: string | RegExp;
     readonly line: string | RegExp;
     readonly status: string;
-    readonly tone: string;
+    readonly tone: RegExp;
     readonly action: string;
     readonly href: string;
+    readonly primary: boolean;
   },
 ): Promise<void> {
-  await expect(row.locator('.xr-row-title')).toHaveText(NAME);
-  await expect(row.locator('.xr-row-sub')).toHaveText([`${SHELL_NAME} · ${CODE}`, parts.line]);
-  await expect(row.locator('.xr-status')).toHaveText(parts.status);
-  await expect(row.locator('.xr-status')).toHaveClass(new RegExp(`xr-status--${parts.tone}`));
-  const link = row.getByRole('link', { name: `${parts.action} ${NAME}` });
+  await expect(row.locator('.sv-ali-when .sv-eyebrow')).toHaveText(parts.kicker);
+  await expect(row.locator('.sv-when')).toHaveText(parts.when);
+  await expect(row.locator('.sv-li-k')).toHaveText(`${SHELL_NAME} · ${CODE}`);
+  await expect(row.locator('h3.sv-li-t')).toHaveText(NAME);
+  await expect(row.locator('.sv-li-m .xr-st')).toHaveText(parts.status);
+  await expect(row.locator('.sv-li-m .xr-st')).toHaveClass(parts.tone);
+  await expect(row.locator('.sv-li-m > span').last()).toHaveText(parts.line);
+  const link = row.getByRole('link', { name: `${parts.action}, ${NAME}` });
   await expect(link).toHaveText(parts.action);
   await expect(link).toHaveAttribute('href', parts.href);
-  await expect(link).toHaveClass(/xr-btn--secondary/);
+  await expect(link).toHaveClass(parts.primary ? /rb-btn--primary/ : /^rb-btn$/);
 }
 
 test.describe('ST-11 Assessments', () => {
-  test('none yet (after Flow C): the empty state, Assessments current (f5)', async ({ page }) => {
-    await open(page, 'after-flow-c', LIST);
-    await expect(page.getByRole('heading', { level: 2, name: 'No assessments yet' })).toBeVisible(
-      FIRST_LOAD,
-    );
-    await expect(main(page).locator('.xr-empty')).toContainText(
-      'When your faculty sets an assessment for an experiment you have, it appears here.',
-    );
-    await expect(main(page).locator('.xr-phead-meta')).toHaveText(
-      'Assessments for the experiments you have',
-    );
-    await expect(currentSidebarItem(page)).toHaveAttribute('href', LIST);
-    await checkState(page, 'Assessments');
-  });
-
-  test('to do (D1): the row, the state tabs in the address, "Open" → Before you start (f0, f6)', async ({
+  test('none yet (after Flow C): “No assessments yet” with Rahul’s experiments, Assessments current', async ({
     page,
   }) => {
     await open(page, 'after-flow-c', LIST);
-    await expect(page.getByRole('heading', { level: 2, name: 'No assessments yet' })).toBeVisible(
-      FIRST_LOAD,
+    const empty = page.getByRole('region', { name: 'No assessments yet' });
+    await expect(empty).toBeVisible(FIRST_LOAD);
+    await expect(empty).toContainText(
+      'When your faculty sets an assessment for an experiment you have, it appears here.',
     );
+    await expect(
+      empty.getByRole('list', { name: 'Your experiments' }).locator('li').filter({
+        hasText: SHELL_NAME,
+      }),
+    ).toContainText('No assessment set yet');
+    await expect(main(page).locator('.rk-head .rk-sub')).toHaveText(
+      'Assessments for the experiments you have',
+    );
+    await expect(page.getByRole('navigation', { name: 'Assessments', exact: true })).toHaveCount(0);
+    await expect(currentSidebarItem(page)).toHaveAttribute('href', LIST);
+    await checkState(page, 'Assessments');
+    await expectNoReference(page);
+  });
+
+  test('to do (D1): the row, the state tabs in the address, "Open" → Before you start', async ({
+    page,
+  }) => {
+    await open(page, 'after-flow-c', LIST);
+    await expect(page.getByRole('region', { name: 'No assessments yet' })).toBeVisible(FIRST_LOAD);
     await created(page);
     await expect(rows(page)).toHaveCount(1);
-    await expect(segments(page)).toHaveText(['To do (1)', 'Submitted (0)', 'Results (0)']);
-    await expect(segments(page).first()).toHaveAttribute('aria-pressed', 'true');
+    await expectTabs(page, [1, 0, 0]);
+    await expect(stateTabs(page).first()).toHaveAttribute('aria-current', 'page');
     await expectRow(rows(page).first(), {
-      line: 'Due 14 Nov 2026, 23:59 · 4 questions · no time limit',
+      kicker: 'Due',
+      when: '14 Nov23:59 · in 18 days',
+      line: '4 questions · 16 marks · no time limit',
       status: 'To do',
-      tone: 'info',
+      tone: /xr-st--info/,
       action: 'Open',
       href: `${LIST}/${ASMT}`,
+      primary: true,
     });
     await checkState(page, 'Assessments');
+    await expectNoReference(page);
 
     // The state tabs switch the list in place; the address keeps the tab (replaced).
-    await reachAndClick(page, segments(page).nth(1));
+    await reachAndClick(page, stateTabs(page).nth(1));
     await page.waitForURL(`**${LIST}?tab=submitted`);
-    await expect(segments(page).nth(1)).toHaveAttribute('aria-pressed', 'true');
-    await expect(rows(page)).toHaveCount(0);
-    await expect(list(page).locator('.xr-section-body')).toHaveText(
+    await expect(stateTabs(page).nth(1)).toHaveAttribute('aria-current', 'page');
+    await expect(rows(page, 'Submitted')).toHaveCount(0);
+    await expect(card(page, 'Submitted').locator('.sv-pstate')).toContainText(
       'Nothing submitted and waiting.',
     );
+    await expect(card(page, 'Submitted').locator('.sv-pstate')).toContainText(
+      'Your assessment is under To do.',
+    );
     await checkState(page, 'Assessments');
-    await reachAndClick(page, segments(page).nth(2));
+    await reachAndClick(page, stateTabs(page).nth(2));
     await page.waitForURL(`**${LIST}?tab=results`);
-    await expect(list(page).locator('.xr-section-body')).toHaveText('No results released yet.');
-    await reachAndClick(page, segments(page).nth(0));
+    await expect(card(page, 'Results').locator('.sv-pstate')).toContainText(
+      'No results released yet.',
+    );
+    await reachAndClick(page, stateTabs(page).nth(0));
     await page.waitForURL((url) => url.pathname === LIST && url.search === '');
     await expect(rows(page)).toHaveCount(1);
 
@@ -215,12 +264,12 @@ test.describe('ST-11 Assessments', () => {
       page,
       rows(page)
         .first()
-        .getByRole('link', { name: `Open ${NAME}` }),
+        .getByRole('link', { name: `Open, ${NAME}` }),
     );
     await page.waitForURL(`**${LIST}/${ASMT}`, FIRST_LOAD);
   });
 
-  test('attempt in progress (D2): "Answers saved", "Continue attempt" → the attempt (f1)', async ({
+  test('attempt in progress (D2): "Your answers are saved", "Continue attempt" → the attempt', async ({
     page,
   }) => {
     await open(page, 'after-flow-c', LIST);
@@ -229,26 +278,29 @@ test.describe('ST-11 Assessments', () => {
     );
     await created(page);
     await started(page);
-    await expect(rows(page).first().locator('.xr-status')).toHaveText('Attempt in progress');
-    await expect(segments(page)).toHaveText(['To do (1)', 'Submitted (0)', 'Results (0)']);
+    await expect(rows(page).first().locator('.sv-li-m .xr-st')).toHaveText('Attempt in progress');
+    await expectTabs(page, [1, 0, 0]);
     await expectRow(rows(page).first(), {
-      line: 'Answers saved · due 14 Nov 2026, 23:59',
+      kicker: 'Due',
+      when: '14 Nov23:59 · in 18 days',
+      line: 'Your answers are saved · no time limit',
       status: 'Attempt in progress',
-      tone: 'wait',
+      tone: /xr-st--warn/,
       action: 'Continue attempt',
       href: `${LIST}/${ASMT}/attempt`,
+      primary: true,
     });
     await checkState(page, 'Assessments');
     await reachAndClick(
       page,
       rows(page)
         .first()
-        .getByRole('link', { name: `Continue attempt ${NAME}` }),
+        .getByRole('link', { name: `Continue attempt, ${NAME}` }),
     );
     await page.waitForURL(`**${LIST}/${ASMT}/attempt`, FIRST_LOAD);
   });
 
-  test('waiting for marking, then not released yet (D2, D3): the Submitted tab, "View" (f2, f3)', async ({
+  test('waiting for marking, then not released yet (D2, D3): the Submitted tab, "View"', async ({
     page,
   }) => {
     await open(page, 'after-flow-c', `${LIST}?tab=submitted`);
@@ -257,71 +309,83 @@ test.describe('ST-11 Assessments', () => {
     );
     await created(page);
     const attemptId = await submitted(page);
-    await expect(rows(page)).toHaveCount(1);
-    await expect(segments(page)).toHaveText(['To do (0)', 'Submitted (1)', 'Results (0)']);
-    await expect(segments(page).nth(1)).toHaveAttribute('aria-pressed', 'true');
-    await expectRow(rows(page).first(), {
+    await expect(rows(page, 'Submitted')).toHaveCount(1);
+    await expectTabs(page, [0, 1, 0]);
+    await expect(stateTabs(page).nth(1)).toHaveAttribute('aria-current', 'page');
+    await expectRow(rows(page, 'Submitted').first(), {
+      kicker: 'Result after',
+      when: '14 Nov23:59 · in 18 days',
       // The sample clock runs from the world's 27 Oct 10:00 while the page is open.
-      line: /^Submitted 27 Oct 2026, 10:0\d · your faculty marks written answers$/,
+      line: /^Submitted 27\sOct\s2026,\s10:0\d · your faculty marks written answers$/,
       status: 'Waiting for marking',
-      tone: 'wait',
+      tone: /xr-st--warn/,
       action: 'View',
       href: `${LIST}/${ASMT}/result`,
+      primary: false,
     });
     await checkState(page, 'Assessments');
 
     await confirmed(page, attemptId);
-    await expect(rows(page).first().locator('.xr-status')).toHaveText('Result not released yet');
-    await expectRow(rows(page).first(), {
-      line: 'Released after the deadline: 14 Nov 2026, 23:59',
+    await expect(rows(page, 'Submitted').first().locator('.sv-li-m .xr-st')).toHaveText(
+      'Result not released yet',
+    );
+    await expectRow(rows(page, 'Submitted').first(), {
+      kicker: 'Result after',
+      when: '14 Nov23:59 · in 18 days',
+      line: 'Marked · released after the deadline',
       status: 'Result not released yet',
-      tone: 'off',
+      tone: /^xr-st$/,
       action: 'View',
       href: `${LIST}/${ASMT}/result`,
+      primary: false,
     });
     // Confirmed marks, still no figure before the release.
     await expect(main(page)).not.toContainText(/of 16|Passed/);
     await checkState(page, 'Assessments');
     await reachAndClick(
       page,
-      rows(page)
+      rows(page, 'Submitted')
         .first()
-        .getByRole('link', { name: `View ${NAME}` }),
+        .getByRole('link', { name: `View, ${NAME}` }),
     );
     await page.waitForURL(`**${LIST}/${ASMT}/result`, FIRST_LOAD);
   });
 
-  test('result ready (after Flow D): the Results tab, "See result" → the result (f4)', async ({
+  test('result ready (after Flow D): the Results tab, "Released", "See result" → the result', async ({
     page,
   }) => {
     await open(page, 'after-flow-d', `${LIST}?tab=results`);
-    await expect(rows(page)).toHaveCount(1, FIRST_LOAD);
-    await expect(segments(page)).toHaveText(['To do (0)', 'Submitted (0)', 'Results (1)']);
-    await expectRow(rows(page).first(), {
-      line: 'Released 14 Nov 2026, 23:59',
+    await expect(rows(page, 'Results')).toHaveCount(1, FIRST_LOAD);
+    await expectTabs(page, [0, 0, 1]);
+    await expectRow(rows(page, 'Results').first(), {
+      kicker: 'Released',
+      when: /^14 Nov23:59 · /,
+      line: 'Your result and answers are ready',
       status: 'Result ready',
-      tone: 'ok',
+      tone: /xr-st--ok/,
       action: 'See result',
       href: `${LIST}/${ASMT}/result`,
+      primary: false,
     });
     await checkState(page, 'Assessments');
+    await expectNoReference(page);
     await reachAndClick(
       page,
-      rows(page)
+      rows(page, 'Results')
         .first()
-        .getByRole('link', { name: `See result ${NAME}` }),
+        .getByRole('link', { name: `See result, ${NAME}` }),
     );
     await page.waitForURL(`**${LIST}/${ASMT}/result`, FIRST_LOAD);
   });
 });
 
 test.describe('the hub’s Assessment tab', () => {
-  test('none set yet, then to do: the empty state, the row and "Open assessment" (f8, f7)', async ({
+  test('none set yet, then to do: the compact message, the card and "Open assessment"', async ({
     page,
   }) => {
     await open(page, 'after-flow-c', `${HUB}/progress`);
     await expect(page.getByRole('heading', { level: 1, name: SHELL_NAME })).toBeVisible(FIRST_LOAD);
-    // The strip lists the Assessment tab; it opens the tab.
+    // The hub's tabs list the Assessment tab; it opens the tab.
     await expect(hubTabs(page).getByRole('link')).toHaveText([
       'Overview',
       'Resources',
@@ -334,47 +398,46 @@ test.describe('the hub’s Assessment tab', () => {
     await reachAndClick(page, tab);
     await page.waitForURL(`**${TAB}`, FIRST_LOAD);
     await expect(hubTabs(page).locator('[aria-current="page"]')).toHaveText('Assessment');
-    await expect(
-      page.getByRole('heading', {
-        level: 2,
-        name: 'Your faculty hasn’t set an assessment for this experiment yet',
-      }),
-    ).toBeVisible(FIRST_LOAD);
-    await expect(main(page).locator('.xr-empty')).toContainText(
-      'When they do, it appears here and in Assessments.',
-    );
+    const empty = page.getByRole('region', {
+      name: 'Your faculty hasn’t set an assessment for this experiment yet',
+    });
+    await expect(empty).toBeVisible(FIRST_LOAD);
+    await expect(empty).toContainText('When they do, it appears here and in Assessments.');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/courses');
     await checkState(page, SHELL_NAME);
 
     await created(page);
-    const section = page.getByRole('region', { name: 'Assessment', exact: true });
-    const row = section.locator('li.xr-row');
-    await expect(row).toHaveCount(1);
-    await expect(row.locator('.xr-row-sub')).toHaveText(
-      'Due 14 Nov 2026, 23:59 · 4 questions · 16 marks · no time limit',
+    const section = assessmentCard(page);
+    await expect(section).toHaveCount(1);
+    await expect(section.locator('.sv-atab-when .sv-eyebrow')).toHaveText('Due');
+    await expect(section.locator('.sv-when')).toHaveText('14 Nov23:59 · in 18 days');
+    await expect(section.locator('.sv-atab-f')).toHaveText(
+      '4 questions · 16 marks · pass mark 50% · 2 attempts · no time limit',
     );
-    await expect(row.locator('.xr-status')).toHaveText('To do');
-    const openAssessment = row.getByRole('link', { name: 'Open assessment' });
-    await expect(openAssessment).toHaveClass(/xr-btn--primary/);
+    await expect(section.locator('.sv-li-m .xr-st')).toHaveText('To do');
+    const openAssessment = section.getByRole('link', { name: `Open assessment, ${NAME}` });
+    await expect(openAssessment).toHaveClass(/rb-btn--primary/);
     await checkState(page, SHELL_NAME);
+    await expectNoReference(page);
     await reachAndClick(page, openAssessment);
     await page.waitForURL(`**${LIST}/${ASMT}`, FIRST_LOAD);
   });
 
-  test('waiting for marking: "your result appears after the deadline", "View" → the result (f9)', async ({
+  test('waiting for marking: "Submitted … · your faculty marks written answers", "View" → the result', async ({
     page,
   }) => {
     await open(page, 'after-flow-c', TAB);
     await expect(page.getByRole('heading', { level: 1, name: SHELL_NAME })).toBeVisible(FIRST_LOAD);
     await created(page);
     await submitted(page);
-    const row = page.getByRole('region', { name: 'Assessment', exact: true }).locator('li.xr-row');
-    await expect(row.locator('.xr-status')).toHaveText('Waiting for marking');
-    await expect(row.locator('.xr-row-sub')).toHaveText(
-      /^Submitted 27 Oct 2026, 10:0\d · your result appears after the deadline$/,
+    const section = assessmentCard(page);
+    await expect(section.locator('.sv-li-m .xr-st')).toHaveText('Waiting for marking');
+    await expect(section.locator('.sv-atab-when .sv-eyebrow')).toHaveText('Deadline');
+    await expect(section.locator('.sv-li-m > span').last()).toHaveText(
+      /^Submitted 27\sOct\s2026,\s10:0\d · your faculty marks written answers$/,
     );
-    const view = row.getByRole('link', { name: 'View' });
-    await expect(view).toHaveClass(/xr-btn--secondary/);
+    const view = section.getByRole('link', { name: `View, ${NAME}` });
+    await expect(view).toHaveClass(/^rb-btn$/);
     await checkState(page, SHELL_NAME);
     await reachAndClick(page, view);
     await page.waitForURL(`**${LIST}/${ASMT}/result`, FIRST_LOAD);
@@ -390,14 +453,16 @@ test.describe('Home · Up next', () => {
       FIRST_LOAD,
     );
     await created(page);
-    const upNext = page.getByRole('region', { name: 'Up next' });
-    const row = upNext.locator('li.xr-row', { hasText: 'Heat Exchanger — post-lab is ready' });
-    await expect(row).toHaveCount(1);
-    await expect(row.locator('.xr-row-sub')).toHaveText(
-      `${SHELL_NAME} · assessment · due 14 Nov 2026, 23:59`,
+    // V3 (ST-v1 `nextStep` "asmt-todo"): the cover's one next step names it and its deadline.
+    const step = page
+      .getByRole('region', { name: 'Continue learning' })
+      .locator('.sv-step.is-next');
+    await expect(step.locator('.sv-step-t')).toHaveText('Start the assessment');
+    await expect(step.locator('.sv-step-d')).toHaveText(
+      'Heat Exchanger — post-lab is due 14 Nov 2026, 23:59.',
     );
     await checkState(page, 'Hello, Rahul');
-    await reachAndClick(page, row.getByRole('link', { name: 'Open assessment' }));
+    await reachAndClick(page, step.getByRole('link', { name: `Open assessment, ${SHELL_NAME}` }));
     await page.waitForURL(`**${LIST}/${ASMT}`, FIRST_LOAD);
   });
 });

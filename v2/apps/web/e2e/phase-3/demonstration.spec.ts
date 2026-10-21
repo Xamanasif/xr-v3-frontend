@@ -192,16 +192,19 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   // 3. Rahul: the hub → Resources → Simulation → WEB → Progress.
   await signIn(page, 'rahul.verma@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/student');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Open ${SHELL}` }));
-  await page.waitForURL(`**/student/experiments/${SHELL_ID}`);
-  await expect(main(page).locator('.xw-hubrow')).toContainText('Next step: open the resources');
   await reachAndClick(
     page,
-    main(page).locator('.xw-hubrow').getByRole('link', { name: 'Open resources' }),
+    main(page)
+      .getByRole('link', { name: `Open experiment, ${SHELL}`, exact: true })
+      .filter({ visible: true }),
   );
+  await page.waitForURL(`**/student/experiments/${SHELL_ID}`);
+  const learning = main(page).getByRole('region', { name: 'Learning resources' });
+  await expect(learning).toContainText('Next step');
+  await reachAndClick(page, learning.getByRole('link', { name: 'Open resources' }));
   await page.waitForURL(`**/student/experiments/${SHELL_ID}/resources`);
   const resources = main(page).getByRole('region', { name: 'Resources' });
-  const brief = resources.locator('li.xr-row').first();
+  const brief = resources.locator('li.sv-li').first();
   await expect(brief).toContainText('Not opened yet');
   const opened = await newTab(page, () =>
     reachAndClick(page, brief.getByRole('button', { name: /in a new tab$/ })),
@@ -213,12 +216,12 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await hubTab(page, 'Simulation');
   await page.waitForURL(`**/student/experiments/${SHELL_ID}/simulation`);
   const chooser = main(page).getByRole('region', { name: 'Choose a format' });
-  await expect(chooser.locator('li.xl-frow').nth(2)).toContainText(
-    'Not included for your institution',
+  await expect(chooser.locator('li.sv-xrow').nth(0)).toContainText(
+    'Published for this experiment, not included in your institution’s access',
   );
   await reachAndClick(page, chooser.getByRole('link', { name: 'Open WEB' }));
   await page.waitForURL(`**/student/experiments/${SHELL_ID}/simulation/web`);
-  const status = main(page).locator('.xl-fmtpanel .xr-status');
+  const status = main(page).locator('.rk-head .rk-meta .xr-st');
   await expect(status).toHaveText('Not started');
   // TE-3: the launch opens the sample WEB activity, labelled simulated, in a new tab.
   const popup = page.waitForEvent('popup');
@@ -241,12 +244,19 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await expect(status).toHaveText('In progress');
   await expect(main(page).getByRole('button', { name: 'Continue WEB' })).toBeVisible();
   await expect(main(page).getByRole('link', { name: /Give feedback/ })).toHaveCount(0);
-  await checkState(page, 'Continue where you left off');
+  await checkState(page, 'WEB simulation');
 
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Back to Simulation' }));
+  await reachAndClick(
+    page,
+    page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Simulation' }),
+  );
   await hubTab(page, 'Progress');
   await page.waitForURL(`**/student/experiments/${SHELL_ID}/progress`);
-  const rows = page.getByRole('list', { name: 'Progress by format' }).locator(':scope > li');
+  const rows = page
+    .getByRole('table', {
+      name: `Your formats for ${SHELL}: progress and actions`,
+    })
+    .locator('tbody > tr');
   await expect(rows.nth(0)).toContainText('In progress');
   await expect(rows.nth(1)).toContainText('Not started');
   await expect(main(page).getByRole('link', { name: /Give feedback/ })).toHaveCount(0);
@@ -260,7 +270,7 @@ test('one tab, the product build: access → Rahul’s resources, WEB launch and
   await page.locator('.xs-menu').getByRole('link', { name: 'My device' }).click();
   await page.waitForURL('**/student/device');
   await expect(main(page)).toContainText('ME lab VR headset, asset tag GIT-VR-03');
-  await expect(main(page)).not.toContainText('No authorised device is recorded for you yet.');
+  await expect(main(page)).not.toContainText('No authorised device is recorded for you');
   await expect(main(page).getByRole('button', { name: 'Request a device transfer' })).toBeVisible();
   await checkState(page, 'My device');
   await signOut(page, RAHUL);

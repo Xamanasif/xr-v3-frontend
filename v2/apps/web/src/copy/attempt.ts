@@ -8,8 +8,8 @@ import type { PinnedRelease } from '@xr/contracts/draft';
 import type { QuestionType } from '@xr/domain';
 
 import { marksWords, QUESTION_TYPE_WORDS, questionsAndMarks } from './assessment-words';
-import { dateTime } from './dates';
 import { stateWords } from './state-copy';
+import { stDateTime } from './st-shared';
 
 // ---- ST-12 Before you start (B4-11 f11 … f16) ------------------------------------------------
 
@@ -121,22 +121,6 @@ function numberWord(value: number): string {
   return NUMBER_WORDS[value] ?? String(value);
 }
 
-function capitalised(text: string): string {
-  return text.charAt(0).toUpperCase() + text.slice(1);
-}
-
-/**
- * f12 "Your answers are saved. Two of four questions answered."; with none answered yet the
- * register's line (`ST-12.in-progress-none`).
- */
-export function inProgressLine(answered: number, questionCount: number): string {
-  if (answered === 0) {
-    return stateWords('ST-12.in-progress-none').replace('{n}', numberWord(questionCount));
-  }
-  const noun = questionCount === 1 ? 'question' : 'questions';
-  return `Your answers are saved. ${capitalised(numberWord(answered))} of ${numberWord(questionCount)} ${noun} answered.`;
-}
-
 /**
  * When the result appears, by the attempt's pinned release (f13 "Your result appears after the
  * deadline."); the other two options are the register's (`ST-12.release-*`). Nothing when the
@@ -146,13 +130,13 @@ export function resultAppearsWords(release: PinnedRelease, withDate: boolean): s
   switch (release.option) {
     case 'after-deadline':
       return withDate && release.on
-        ? `Your result appears after the deadline: ${dateTime(release.on)}.`
+        ? `Your result appears after the deadline: ${stDateTime(release.on)}.`
         : 'Your result appears after the deadline.';
     case 'immediately-after-marking':
       return stateWords('ST-12.release-after-marking');
     case 'on-date':
       return release.on
-        ? stateWords('ST-12.release-on-date').replace('{date}', dateTime(release.on))
+        ? stateWords('ST-12.release-on-date').replace('{date}', stDateTime(release.on))
         : null;
     case null:
       return null;
@@ -162,7 +146,7 @@ export function resultAppearsWords(release: PinnedRelease, withDate: boolean): s
 /** f13 "You submitted on 5 Nov 2026, 18:52. Your result appears after the deadline." */
 export function submittedOnLine(submittedAt: string, release: PinnedRelease): string {
   const appears = resultAppearsWords(release, false);
-  return [`You submitted on ${dateTime(submittedAt)}.`, appears]
+  return [`You submitted on ${stDateTime(submittedAt)}.`, appears]
     .filter((part): part is string => part !== null)
     .join(' ');
 }
@@ -173,10 +157,10 @@ export function submittedOnLine(submittedAt: string, release: PinnedRelease): st
  */
 export function markedNotReleasedLine(release: PinnedRelease): string {
   if (release.option === 'after-deadline' && release.on) {
-    return `Your answers have been marked. Results for this assessment are released after the deadline: ${dateTime(release.on)}.`;
+    return `Your answers have been marked. Results for this assessment are released after the deadline: ${stDateTime(release.on)}.`;
   }
   if (release.option === 'on-date' && release.on) {
-    return stateWords('ST-12.not-released-on-date').replace('{date}', dateTime(release.on));
+    return stateWords('ST-12.not-released-on-date').replace('{date}', stDateTime(release.on));
   }
   return 'Your answers have been marked.';
 }
@@ -205,11 +189,6 @@ export function notPassedLine(attemptNumber: number, attemptsLeft: number): stri
       ? 'Your first result stays on your result page.'
       : stateWords('ST-12.earlier-results-stay');
   return `${tryWords} ${stays}`;
-}
-
-/** The passed state's title (`ST-12.passed-title`): "Passed on attempt 1". */
-export function passedTitle(attemptNumber: number): string {
-  return stateWords('ST-12.passed-title').replace('{n}', String(attemptNumber));
 }
 
 // ---- ST-13 the attempt (B4-12 f0 … f6) ------------------------------------------------------
@@ -267,7 +246,7 @@ export function attemptMetaLine(
 ): string {
   return [
     questionsAndMarks(questionCount, totalMarks),
-    deadline ? `due ${dateTime(deadline)}` : null,
+    deadline ? `due ${stDateTime(deadline)}` : null,
     ATTEMPT_PAGE.noTimeLimit,
   ]
     .filter((part): part is string => part !== null)
@@ -315,7 +294,7 @@ export function submittedLine(
   release: PinnedRelease | null,
 ): string {
   return [
-    `Submitted ${dateTime(submittedAt)}.`,
+    `Submitted ${stDateTime(submittedAt)}.`,
     hasWritten ? ATTEMPT_PAGE.writtenMarked : null,
     release ? resultAppearsWords(release, true) : null,
   ]
@@ -326,4 +305,98 @@ export function submittedLine(
 /** The browser tab while the attempt is on show: the assessment's name (`ST-13.document-title`). */
 export function attemptDocumentTitle(name: string, submitted: boolean): string {
   return submitted ? `${ATTEMPT_PAGE.submittedTitle} · ${name}` : name;
+}
+
+// ---- V3 (the owner-approved Student export ST-v1, `StudentFinal.dc.html`) -----------------------
+// ST-12 Before you start (`introVM`) and ST-13 the focused attempt (`attVM`, the DL-1 dialog). Each
+// string is the export's own (`attempt.test.ts` finds it there); what it does not word is the
+// register's (`state-copy-attempt.ts`).
+
+/** ST-12's fixed words (`is.aintro`). */
+export const INTRO_V3 = {
+  /** f11 state heading while nothing is attempted. */
+  beforeYouStart: 'Before you start',
+  /** `ul.sv-rules aria-label` and its three rules. */
+  rulesLabel: 'How answering works',
+  ruleNoTimeLimit: 'No time limit',
+  ruleSaves: 'Answers save as you go',
+  ruleSubmit: 'Nothing is submitted until you choose Submit',
+  ruleSubmitDetail: 'You can’t change answers after submitting.',
+  /** `h2.xr-sr` of the key facts. */
+  factsTitle: 'Key facts, as set for this assessment',
+  setBy: 'Set by',
+  /** Marked, not released yet: the state heading. */
+  notReleasedTitle: 'Marked — result not released yet',
+  /** Released and passed: the state heading. */
+  passedTitle: 'Result released — you passed',
+  /** Released, not passed, no attempt left: the state heading. */
+  releasedTitle: 'Result released',
+  /** The status of an assessment that can't be started (`asmtRow` `noq`). */
+  cantStartStatus: 'Can’t be started yet',
+} as const;
+
+/** The head's eyebrow after the experiment's link: " · assessment". */
+export const INTRO_EYEBROW_AFTER = ` · ${INTRO_PAGE.overline}`;
+
+/**
+ * An attempt in progress (`introVM`): "Your answers are saved. 2 questions of 4 answered." — one
+ * reads "One question of 4 answered.".
+ */
+export function inProgressSavedLine(answered: number, questionCount: number): string {
+  const count =
+    answered === 1 ? 'One question' : `${answered} ${answered === 1 ? 'question' : 'questions'}`;
+  return `Your answers are saved. ${count} of ${questionCount} answered.`;
+}
+
+/**
+ * Submitted, waiting for marking (`introVM`): "You submitted on 5 Nov 2026, 18:52. Your result
+ * appears after the deadline: 14 Nov 2026, 23:59." — by the attempt's pinned release.
+ */
+export function submittedWaitingLine(submittedAt: string, release: PinnedRelease): string {
+  return [`You submitted on ${stDateTime(submittedAt)}.`, resultAppearsWords(release, true)]
+    .filter((part): part is string => part !== null)
+    .join(' ');
+}
+
+/**
+ * Marked, not released yet (`introVM`): "Results for this assessment are released after the
+ * deadline: 14 Nov 2026, 23:59." — the other settings are the register's.
+ */
+export function notReleasedYetLine(release: PinnedRelease): string | null {
+  if (release.option === 'after-deadline' && release.on)
+    return `Results for this assessment are released after the deadline: ${stDateTime(release.on)}.`;
+  if (release.option === 'on-date' && release.on)
+    return stateWords('ST-12.not-released-on-date')
+      .replace('{date}', stDateTime(release.on))
+      .replace(/^Your answers have been marked\. /, '');
+  return null;
+}
+
+/** ST-13's fixed words (`is.att`, the DL-1 dialog). */
+export const ATTEMPT_V3 = {
+  /** The focused page's skip link (the delivered XS words). */
+  skip: 'Skip to main content',
+  /** `ol.sv-qs aria-label`. */
+  questionsLabel: 'Questions',
+  /** `h2.xr-sr` of the submit panel. */
+  submitTitle: 'Submit your answers',
+  /** "Answers submitted": the status. */
+  waiting: 'Waiting for marking',
+} as const;
+
+/** "Attempt 1 of 2" (`attVM` `attemptText`); "Attempt 1" when the version sets no limit. */
+export function attemptOfWords(attemptNumber: number, attemptsAllowed: number | null): string {
+  return attemptsAllowed === null
+    ? `Attempt ${attemptNumber}`
+    : `Attempt ${attemptNumber} of ${attemptsAllowed}`;
+}
+
+/** DL-1 with every question answered: "All 4 questions are answered." */
+export function allAnsweredWords(questionCount: number): string {
+  return `All ${questionCount} questions are answered.`;
+}
+
+/** DL-1's warning: "2 questions aren’t answered (3, 4). You can still submit." */
+export function pendingWords(numbers: readonly number[]): string {
+  return `${unansweredWords(numbers)} ${ATTEMPT_PAGE.stillSubmit}`;
 }

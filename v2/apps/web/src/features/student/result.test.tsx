@@ -41,6 +41,10 @@ const PRIYA = 'per-0003';
 const RANGANATHAN = 'per-0014';
 const SHELL = 'shell-and-tube-heat-exchanger';
 const HUB = `/student/experiments/${SHELL}`;
+/** "Back to experiment": the hub's Assessment tab (ST-v1 LINK-MAP `?tab=assessment`). */
+const TAB = `${HUB}/assessment`;
+/** No assessment, attempt or record id in any word, name or the tab title (decision 3). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT|Q)-\d+/;
 const NAME = 'Heat Exchanger — post-lab';
 
 type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
@@ -67,12 +71,22 @@ function showResult(runtime: PlatformRuntime, assessmentId: string, page?: React
 const main = () => screen.getByRole('main');
 const text = (element: Element | null) => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
 const h1 = (name: string) => screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
-const cards = () => [...main().querySelectorAll<HTMLElement>('ul.xa-ans > li')];
+const cards = () => [...main().querySelectorAll<HTMLElement>('ol.sv-review-list > li.sv-ans')];
 const rowsOf = (card: HTMLElement) =>
-  [...card.querySelectorAll('.xa-ans-row')].map((row) => [
-    text(row.firstElementChild),
-    text(row.lastElementChild),
+  [...card.querySelectorAll('dl.sv-ans-dl > div')].map((row) => [
+    text(row.querySelector('dt')),
+    text(row.querySelector('dd')),
   ]);
+const crumbsOf = () =>
+  [...screen.getByRole('navigation', { name: 'Breadcrumb' }).querySelectorAll('a, span')].map(
+    (item) => text(item),
+  );
+function expectNoReference() {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.querySelectorAll('[aria-label]'))
+    expect(element.getAttribute('aria-label') ?? '').not.toMatch(REFERENCE);
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 /** The board's ASMT-0009, made by Dr Ranganathan after Flow C (the walk's D1). */
 async function createPostLab(
@@ -175,83 +189,105 @@ async function markAs(
 
 /** Nothing of a result is on the page: no score card, no answers, no mark, no key. */
 function expectNoFigure() {
-  expect(main().querySelector('.xa-score')).toBeNull();
-  expect(main().querySelector('.xa-ans')).toBeNull();
-  expect(main().querySelector('.xa-mk')).toBeNull();
+  expect(main().querySelector('.sv-score')).toBeNull();
+  expect(main().querySelector('.sv-review')).toBeNull();
+  expect(main().querySelector('.sv-byq')).toBeNull();
   expect(main()).not.toHaveTextContent(/of 16 marks|Passed|Correct answer|Explanation/);
 }
 
 // ---- f0, f5: released, passed -------------------------------------------------------------------
 
-describe('ST-14 — released and passed (B4-13 f0, f5)', () => {
-  it('the header, the score card, every answer and the actions, as Flow D leaves them', async () => {
+describe('ST-14 — released and passed (ST-v1 `AR.released`)', () => {
+  it('the crumbs, the head, the score panel, every answer and the ways on, as Flow D leaves them', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-d');
     showResult(runtime, 'ASMT-0009');
-    await h1('You passed');
+    const title = await h1('You passed');
+    expect(title).toHaveAttribute('class', 'rk-title');
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(text(main().querySelector('.xr-phead .xr-overline'))).toBe(`${NAME} · result`);
-    // The shell: "Result" (below 1024) and "Assessments / Heat Exchanger — post-lab / Result".
-    expect(text(document.querySelector('.xr-top-title'))).toBe('Result');
-    const crumbs = document.querySelector('ol.xr-crumbs')!;
-    expect(
-      [...crumbs.querySelectorAll('li')].map((item) => text(item).replace(/\s*\/$/, '')),
-    ).toEqual(['Assessments', NAME, 'Result']);
-    expect(within(crumbs as HTMLElement).getByRole('link', { name: NAME })).toHaveAttribute(
+    expect(text(main().querySelector('.rk-head .rk-eyebrow'))).toBe(`${NAME} · result`);
+    // The crumbs: "Assessments › Heat Exchanger — post-lab › Result".
+    expect(crumbsOf()).toEqual(['Assessments', NAME, 'Result']);
+    expect(screen.getByRole('link', { name: NAME })).toHaveAttribute(
       'href',
       '/student/assessments/ASMT-0009',
     );
-    expect(document.querySelector('aside.xr-side a[aria-current="page"]')).toHaveTextContent(
-      'Assessments',
+    expect(
+      screen.getByRole('navigation', { name: /Student/ }).querySelector('[aria-current="page"]'),
+    ).toHaveTextContent('Assessments');
+    // The score panel (`section.sv-card.sv-score`).
+    const score = screen.getByRole('region', { name: 'Your score' });
+    expect(score).toHaveClass('sv-card', 'sv-score');
+    expect(score.querySelector('.sv-score-n')!.innerHTML).toBe('<b>11</b><span>of 16 marks</span>');
+    expect(score.querySelector('.sv-score-main .xr-st')).toHaveAttribute(
+      'class',
+      'xr-st xr-st--ok rk-st-lg',
     );
-    // The score card (f0 `div.xa-score`).
-    const score = main().querySelector('.xa-score')!;
-    expect(text(score.querySelector('.xa-score-n'))).toBe('11 of 16 marks');
-    expect(score.querySelector('.xa-score-sub .xr-status.xr-status--ok')).toHaveTextContent(
-      'Passed',
-    );
-    expect([...score.querySelectorAll('.xa-score-facts > span')].map(text)).toEqual([
-      'Pass mark 50% · 8 of 16 marks',
-      'Attempt 1 of 2',
-      'Released 14 Nov 2026, 23:59, after the deadline',
+    expect(text(score.querySelector('.sv-score-main .xr-st'))).toBe('Passed');
+    expect(
+      [...score.querySelectorAll('dl.sv-score-facts > div')].map((fact) => [
+        text(fact.querySelector('dt')),
+        text(fact.querySelector('dd')),
+      ]),
+    ).toEqual([
+      ['Pass mark', '50% · 8 of 16 marks'],
+      ['Attempt', 'Attempt 1 of 2'],
+      ['Result', 'Released 14 Nov 2026, 23:59, after the deadline'],
     ]);
-    // "Your answers": each question with its head, mark, answer, key, explanation, feedback.
-    expect(screen.getByRole('heading', { level: 2, name: 'Your answers' })).toBeInTheDocument();
+    // The marks by question: a jump list to each answer.
+    const byq = within(score).getByRole('list', { name: 'Marks by question' });
+    expect(
+      within(byq)
+        .getAllByRole('link')
+        .map((link) => [link.getAttribute('aria-label'), link.className]),
+    ).toEqual([
+      ['Question 1: 2 of 2 marks', 'sv-byq-i is-full'],
+      ['Question 2: 0 of 2 marks', 'sv-byq-i'],
+      ['Question 3: 2 of 2 marks', 'sv-byq-i is-full'],
+      ['Question 4: 7 of 10 marks', 'sv-byq-i'],
+    ]);
+    await userEvent
+      .setup()
+      .click(within(byq).getByRole('link', { name: 'Question 4: 7 of 10 marks' }));
+    expect(cards()[3]).toHaveFocus();
+    expect(score.querySelector('.sv-score-retry')).toBeNull();
+    // "Your answers": each question with its head, mark, answer, verdict, key, explanation, feedback.
+    const review = screen.getByRole('region', { name: 'Your answers' });
+    expect(review).toHaveClass('sv-card', 'sv-review');
     const all = cards();
     expect(all).toHaveLength(4);
-    expect(all.map((card) => text(card.querySelector('.xa-q-n')))).toEqual([
+    expect(all.map((card) => text(card.querySelector('.sv-ans-k')))).toEqual([
       'Question 1 · Multiple choice',
       'Question 2 · Multiple choice',
       'Question 3 · True or false',
       'Question 4 · Written answer',
     ]);
-    expect(all.map((card) => text(card.querySelector('.xa-mk')))).toEqual([
+    expect(all.map((card) => text(card.querySelector('.sv-ans-h .xr-st')))).toEqual([
       '2 of 2 marks',
       '0 of 2 marks',
       '2 of 2 marks',
       '7 of 10 marks',
     ]);
-    expect(all.map((card) => card.querySelector('.xa-mk')!.className)).toEqual([
-      'xa-mk is-ok',
-      'xa-mk is-no',
-      'xa-mk is-ok',
-      'xa-mk is-ok',
+    expect(all.map((card) => card.querySelector('.sv-ans-h .xr-st')!.className)).toEqual([
+      'xr-st xr-st--ok',
+      'xr-st',
+      'xr-st xr-st--ok',
+      'xr-st',
     ]);
-    expect(text(all[0]!.querySelector('.xa-q-text'))).toBe(
+    expect(text(all[0]!.querySelector('.sv-ans-q'))).toBe(
       'What does the effectiveness (ε) of a heat exchanger compare?',
     );
+    // A right choice: its verdict, no "Correct answer" (only where it differs).
     expect(rowsOf(all[0]!)).toEqual([
-      ['Your answer', 'The actual heat transfer with the largest heat transfer possible'],
-      ['Correct answer', 'The actual heat transfer with the largest heat transfer possible'],
+      ['Your answer', 'The actual heat transfer with the largest heat transfer possibleCorrect'],
       ['Explanation', 'ε = q ÷ q_max, where q_max = C_min (T_h,in − T_c,in).'],
     ]);
+    expect(all[0]!.querySelector('.sv-verdict')).toHaveClass('sv-verdict--ok');
     expect(rowsOf(all[1]!).slice(0, 2)).toEqual([
-      ['Your answer', 'C_min ÷ C_max'],
+      ['Your answer', 'C_min ÷ C_maxNot correct'],
       ['Correct answer', 'UA ÷ C_min'],
     ]);
-    expect(rowsOf(all[2]!).slice(0, 2)).toEqual([
-      ['Your answer', 'True'],
-      ['Correct answer', 'True'],
-    ]);
+    expect(all[1]!.querySelector('.sv-verdict')).toHaveAttribute('class', 'sv-verdict');
+    expect(rowsOf(all[2]!)[0]).toEqual(['Your answer', 'TrueCorrect']);
     const written = rowsOf(all[3]!);
     expect(written.map(([label]) => label)).toEqual([
       'Your answer',
@@ -259,18 +295,23 @@ describe('ST-14 — released and passed (B4-13 f0, f5)', () => {
       'Feedback from Dr S. Ranganathan',
     ]);
     expect(written[0]![1]).toMatch(/^In the WEB run I turned the fouling up/);
-    // The walk's feedback words (B4-13 draws other sample words).
+    expect(all[3]!.querySelector('.sv-verdict')).toBeNull();
+    // The walk's feedback words (the export draws other sample words).
     expect(written[2]![1]).toBe('Clear explanation of fouling.');
-    // The actions: "Back to experiment" (the one primary), "See your progress"; no Try again.
-    const actions = main().querySelector('.xw-actions')!;
+    expect(all[3]!.querySelector('p.rk-quote.sv-ans-fb')).toHaveTextContent(
+      'Clear explanation of fouling.',
+    );
+    // The ways on: "Back to experiment" (to the hub's Assessment tab), "See your progress ›".
+    const foot = review.querySelector('.sv-review-foot')!;
     expect(
-      within(actions as HTMLElement).getByRole('link', { name: 'Back to experiment' }),
-    ).toHaveAttribute('href', HUB);
+      within(foot as HTMLElement).getByRole('link', { name: 'Back to experiment' }),
+    ).toHaveAttribute('href', TAB);
     expect(
-      within(actions as HTMLElement).getByRole('link', { name: 'See your progress' }),
+      within(foot as HTMLElement).getByRole('link', { name: 'See your progress' }),
     ).toHaveAttribute('href', '/student/progress');
-    expect(main().querySelectorAll('.xr-btn--primary')).toHaveLength(1);
+    expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(0);
     expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+    expectNoReference();
   });
 });
 
@@ -282,15 +323,23 @@ describe('ST-14 — before release, no figure (B4-13 f1, f2, f4)', () => {
     const id = await createPostLab(sample);
     await submitAs(sample, RAHUL, id, RIGHT);
     showResult(runtime, id);
-    await h1('Submitted — waiting for marking');
-    expect(main().querySelector('.xr-msg .xr-lead')).toHaveTextContent(
+    const title = await h1('Submitted — waiting for marking');
+    expect(title).toHaveAttribute('class', 'sv-refuse-t');
+    const card = screen.getByRole('region', { name: 'Submitted — waiting for marking' });
+    expect(card).toHaveClass('sv-card', 'sv-refuse');
+    expect(text(card.querySelector('.sv-refuse-k'))).toBe(`${NAME} · result`);
+    expect(card.querySelector('.sv-refuse-d')).toHaveTextContent(
       'You submitted on 27 Oct 2026, 10:00. Your faculty marks written answers. Your result appears after the deadline: 14 Nov 2026, 23:59.',
     );
-    expect(main().querySelector('.xr-msg-icon')).toHaveClass('bg-warn-bg', 'text-warn');
-    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute('href', HUB);
-    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveClass('xr-btn--primary');
-    expect(text(document.querySelector('.xr-top-title'))).toBe('Result');
+    expect(card.querySelector('.sv-refuse-ico')).toHaveAttribute('class', 'sv-refuse-ico');
+    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute('href', TAB);
+    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute(
+      'class',
+      'rb-btn rb-btn--lg',
+    );
+    expect(crumbsOf()).toEqual(['Assessments', NAME, 'Result']);
     expectNoFigure();
+    expectNoReference();
   });
 
   it('the deadline passed but marking is not finished: still waiting, never a partial score (f4)', async () => {
@@ -300,7 +349,7 @@ describe('ST-14 — before release, no figure (B4-13 f1, f2, f4)', () => {
     setSampleNow(sample, '2026-11-15T04:30:00.000Z' as IsoInstant);
     showResult(runtime, id);
     await h1('Submitted — waiting for marking');
-    expect(main().querySelector('.xr-msg .xr-lead')).toHaveTextContent(
+    expect(main().querySelector('.sv-refuse-d')).toHaveTextContent(
       'Your result appears after the deadline: 14 Nov 2026, 23:59.',
     );
     expectNoFigure();
@@ -314,11 +363,11 @@ describe('ST-14 — before release, no figure (B4-13 f1, f2, f4)', () => {
     await h1('Submitted — waiting for marking');
     await markAs(sample, attemptId, '7', 'Good use of your own readings.', runtime);
     await h1('Result not released yet');
-    expect(main().querySelector('.xr-msg .xr-lead')).toHaveTextContent(
+    expect(main().querySelector('.sv-refuse-d')).toHaveTextContent(
       'Your answers have been marked. Results for this assessment are released after the deadline: 14 Nov 2026, 23:59.',
     );
-    expect(main().querySelector('.xr-msg-icon')).not.toHaveClass('bg-warn-bg');
-    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute('href', HUB);
+    expect(main().querySelector('.sv-refuse-ico')).toHaveClass('sv-refuse-ico--off');
+    expect(screen.getByRole('link', { name: 'Back to experiment' })).toHaveAttribute('href', TAB);
     expectNoFigure();
     expect(main()).not.toHaveTextContent('Good use of your own readings.');
     // The deadline passes: the result is released by the assessment's own setting.
@@ -327,7 +376,7 @@ describe('ST-14 — before release, no figure (B4-13 f1, f2, f4)', () => {
       await runtime.queryClient.invalidateQueries();
     });
     await h1('You passed');
-    expect(text(main().querySelector('.xa-score-n'))).toBe('11 of 16 marks');
+    expect(text(main().querySelector('.sv-score-n'))).toBe('11of 16 marks');
   });
 });
 
@@ -346,36 +395,39 @@ describe('ST-14 — not passed, Try again (B4-13 f3)', () => {
     );
     const { navigation } = showResult(runtime, id);
     await h1('Not passed this time');
-    const score = main().querySelector('.xa-score')!;
-    expect(text(score.querySelector('.xa-score-n'))).toBe('6 of 16 marks');
-    expect(score.querySelector('.xr-status.xr-status--err')).toHaveTextContent('Not passed');
-    expect([...score.querySelectorAll('.xa-score-facts > span')].map(text)).toEqual([
-      'Pass mark 50% · 8 of 16 marks',
+    const score = screen.getByRole('region', { name: 'Your score' });
+    expect(score.querySelector('.sv-score-n')!.innerHTML).toBe('<b>6</b><span>of 16 marks</span>');
+    expect(score.querySelector('.sv-score-main .xr-st')).toHaveAttribute('class', 'xr-st rk-st-lg');
+    expect(text(score.querySelector('.sv-score-main .xr-st'))).toBe('Not passed');
+    expect(
+      [...score.querySelectorAll('dl.sv-score-facts > div dd')].map((fact) => text(fact)),
+    ).toEqual([
+      '50% · 8 of 16 marks',
       'Attempt 1 of 2',
       'Released 27 Oct 2026, 10:00, when marked',
     ]);
     const all = cards();
-    expect(all.map((card) => text(card.querySelector('.xa-mk')))).toEqual([
+    expect(all.map((card) => text(card.querySelector('.sv-ans-h .xr-st')))).toEqual([
       '0 of 2 marks',
       '2 of 2 marks',
       '0 of 2 marks',
       '4 of 10 marks',
     ]);
     expect(rowsOf(all[0]!).slice(0, 2)).toEqual([
-      ['Your answer', 'The hot-side flow rate with the cold-side flow rate'],
+      ['Your answer', 'The hot-side flow rate with the cold-side flow rateNot correct'],
       ['Correct answer', 'The actual heat transfer with the largest heat transfer possible'],
     ]);
-    expect(rowsOf(all[2]!)[0]).toEqual(['Your answer', 'False']);
-    // The actions: Back to experiment · Try again · "You have 1 attempt left." · See your progress.
-    const actions = main().querySelector('.xw-actions')!;
-    expect([...actions.children].map((child) => text(child))).toEqual([
-      'Back to experiment',
-      'Try again',
-      'You have 1 attempt left.',
-      'See your progress',
-    ]);
-    const tryAgain = screen.getByRole('button', { name: 'Try again' });
-    expect(tryAgain).toHaveClass('xr-btn--secondary');
+    expect(rowsOf(all[2]!)[0]).toEqual(['Your answer', 'FalseNot correct']);
+    // Try again is in the score panel, with the attempts left; the review's ways on below.
+    const retry = score.querySelector('.sv-score-retry')!;
+    expect(text(retry.querySelector('p'))).toBe(
+      'You have 1 attempt left. Your first result stays here.',
+    );
+    const tryAgain = within(retry as HTMLElement).getByRole('button', { name: 'Try again' });
+    expect(tryAgain).toHaveAttribute('class', 'rb-btn rb-btn--primary rb-btn--lg');
+    expect([...main().querySelectorAll('.sv-review-foot > *')].map((child) => text(child))).toEqual(
+      ['Back to experiment', 'See your progress'],
+    );
     await userEvent.setup().click(tryAgain);
     await waitFor(() =>
       expect(navigation.navigate).toHaveBeenCalledWith(`/student/assessments/${id}/attempt`),
@@ -389,7 +441,7 @@ describe('ST-14 — not passed, Try again (B4-13 f3)', () => {
     ]);
     // With attempt 2 in progress the page still shows attempt 1's result, without Try again.
     await waitFor(() => expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull());
-    expect(text(main().querySelector('.xa-score-n'))).toBe('6 of 16 marks');
+    expect(text(main().querySelector('.sv-score-n'))).toBe('6of 16 marks');
   });
 
   it('a refused or failed start is said in place; the page stays', async () => {
@@ -424,9 +476,10 @@ describe('ST-14 — not passed, Try again (B4-13 f3)', () => {
     await markAs(sample, second, '1', 'Use your readings.');
     showResult(runtime, id);
     await h1('Not passed this time');
-    expect(text(main().querySelector('.xa-score-facts'))).toContain('Attempt 2 of 2');
-    expect(text(main().querySelector('.xa-score-n'))).toBe('3 of 16 marks');
+    expect(text(main().querySelector('.sv-score-facts'))).toContain('Attempt 2 of 2');
+    expect(text(main().querySelector('.sv-score-n'))).toBe('3of 16 marks');
     expect(screen.queryByRole('button', { name: 'Try again' })).toBeNull();
+    expect(main().querySelector('.sv-score-retry')).toBeNull();
     expect(main()).not.toHaveTextContent('attempt left');
   });
 });
@@ -441,9 +494,10 @@ describe('ST-14 — the undrawn states', () => {
     ok(await asPersonId(sample, RAHUL).assessments.startAttempt(id as AssessmentId));
     showResult(runtime, id);
     await h1('Not submitted yet');
-    expect(main().querySelector('.xr-msg .xr-lead')).toHaveTextContent(
+    expect(main().querySelector('.sv-refuse-d')).toHaveTextContent(
       'Your result appears here after you submit and your answers are marked.',
     );
+    expect(main().querySelector('.sv-refuse-ico')).toHaveClass('sv-refuse-ico--off');
     expect(screen.getByRole('link', { name: 'Back to the assessment' })).toHaveAttribute(
       'href',
       `/student/assessments/${id}`,
@@ -466,10 +520,8 @@ describe('ST-14 — the undrawn states', () => {
     const { runtime } = await tabPlatform(PRIYA, 'after-flow-d');
     showResult(runtime, 'ASMT-0009');
     await h1('This experiment isn’t available to you');
-    await waitFor(() =>
-      expect(text(document.querySelector('.xr-top-title'))).toBe('Not available'),
-    );
-    expect(main().querySelector('.xa-score')).toBeNull();
+    await waitFor(() => expect(document.title).toMatch(/^Not available/));
+    expect(main().querySelector('.sv-score')).toBeNull();
   });
 
   it('an unknown assessment: the in-shell not-found', async () => {
@@ -486,18 +538,15 @@ describe('ST-14 — the state-copy register and link targets', () => {
     for (const id of Object.keys(STATE_COPY_RESULT)) expect(STATE_COPY).toHaveProperty([id]);
   });
 
-  it('one primary per drawn state; Try again is a command', () => {
+  it('one primary where the export draws one; Try again is a command', () => {
     const primaries = P4B_RESULT_LINK_TARGETS.filter((entry) => entry.role === 'primary');
     expect(primaries.map((entry) => `${entry.where}: ${entry.action}`)).toEqual([
-      'Released result: Back to experiment',
-      'Submitted — waiting for marking: Back to experiment',
-      'Result not released yet: Back to experiment',
-      'Not submitted yet: Back to the assessment',
-      'Failed state: Try again',
+      'Released result, not passed with an attempt left: Try again',
     ]);
-    const tryAgain = P4B_RESULT_LINK_TARGETS.find(
-      (entry) => entry.action === 'Try again' && entry.role === 'secondary',
-    )!;
-    expect(tryAgain).toMatchObject({ target: null, outcome: 'in-page' });
+    expect(primaries[0]).toMatchObject({ target: null, outcome: 'in-page' });
+    for (const entry of P4B_RESULT_LINK_TARGETS.filter(
+      (item) => item.action === 'Back to experiment',
+    ))
+      expect(entry.target).toBe('/student/experiments/{experimentId}/assessment');
   });
 });

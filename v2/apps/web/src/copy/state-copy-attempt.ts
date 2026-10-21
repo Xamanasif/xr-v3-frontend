@@ -108,14 +108,6 @@ export const STATE_COPY_ATTEMPT = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
-  'ST-12.in-progress-none': {
-    screen: 'ST-12',
-    state: 'An attempt in progress with no answer yet',
-    words: 'None of {n} questions answered yet.',
-    basis: 'B4-11 f12 “Your answers are saved. Two of four questions answered.” (two answered)',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
   'ST-12.release-after-marking': {
     screen: 'ST-12',
     state: 'When the result appears, for “Immediately after marking” (ST-12 f13, ST-13 f4)',
@@ -180,16 +172,6 @@ export const STATE_COPY_ATTEMPT = {
     state: 'Not passed on a later attempt, with an attempt left',
     words: 'Your earlier results stay on your result page.',
     basis: 'B4-11 f14 “Your first result stays on your result page.” (after attempt 1)',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'ST-12.passed-title': {
-    screen: 'ST-12',
-    state:
-      'The latest attempt is released and passed (an ok notice; See result, Back to experiment)',
-    words: 'Passed on attempt {n}',
-    basis:
-      'B4-11 f14 “Not passed on attempt 1 · …”; B4-13 f0 “You passed”; B4-11 draws no passed ST-12 frame',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -290,8 +272,9 @@ export const STATE_COPY_ATTEMPT = {
     screen: 'ST-13',
     state: 'The avatar in the attempt’s bar',
     words: null,
-    rule: 'The signed-in person’s initials with the drawn name “<name>, <role>” as an image name (`role="img"`), so the name is read; no account menu on the focused page.',
-    basis: 'B4-12 f0 `span.xr-avatar aria-label="Rahul Verma, Student"`',
+    rule: 'V3: the signed-in person’s initials, decorative (`aria-hidden`), as the export draws it; no account menu on the focused page. Hidden below 760 px of page width with the bar’s middle.',
+    basis:
+      'ST-v1 `is.att` `span.xr-avatar aria-hidden="true"` (was B4-12 f0 `aria-label="Rahul Verma, Student"`)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

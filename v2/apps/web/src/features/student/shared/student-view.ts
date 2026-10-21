@@ -47,7 +47,7 @@ export function availableFormats(row: MyExperimentRow): Technology[] {
 }
 
 /** The formats given to the Student, with their progress (B2-10 f4, B2-11 f1, B2-12 f0). */
-export function givenFormats(row: MyExperimentRow): FormatRow[] {
+export function givenFormats(row: Pick<MyExperimentRow, 'formats'>): FormatRow[] {
   return inDisplayOrder(row.formats.filter((entry) => isGiven(entry.availability)));
 }
 

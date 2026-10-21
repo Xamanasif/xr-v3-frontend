@@ -1,0 +1,235 @@
+import type { LedgerEntry } from '../link-targets';
+import { pageRows } from '../link-targets-p3/rows';
+
+/** The ledger parts of the Student's home group, by screen. */
+export type StHomeLedgerPart = 'ST-01' | 'ST-02' | 'ST-04' | 'ST-03' | 'ST-19';
+
+/**
+ * Link targets of the Student's home group (ST-ANALYSIS §5): ST-01 Home, ST-02 My courses, ST-04
+ * All experiments, ST-03 Course and ST-19 Experiment not available — moved from `link-targets.ts`
+ * (Packages 2A, 2B) at the Student V3 settlement and redrawn to the owner-approved V3 design
+ * (basis "ST-v1 LINK-MAP / StudentFinal.dc.html …"); `link-targets.ts` spreads the parts in the
+ * ledger's order. ST-05 is the hub's (`link-targets-st/hub.ts`).
+ */
+export const ST_HOME_LINK_TARGETS: Readonly<Record<StHomeLedgerPart, readonly LedgerEntry[]>> = {
+  'ST-01': pageRows('ST-01', '/student', [
+    [
+      'Cover · next step',
+      'Continue WEB · Open <format> · Give feedback on <format> · Open resources · Choose a format · Open assessment · Continue attempt',
+      'primary',
+      '/student/experiments/{experimentId}/simulation/web',
+      'built',
+      'ST-v1 StudentFinal.dc.html `nextStep`, `homeVM` (01-learn, 01-granted, 01-assess, 01-inprog, 01-vrprog)',
+      'One at a time (`ST-01.next-step`): the WEB page (the target shown) or the format page (/simulation/{format}), its feedback (/feedback/{format}, ST-16), Resources (/resources, ST-06), Simulation (/simulation, ST-07), the assessment’s Before you start (/student/assessments/{assessmentId}, ST-12) or its attempt (…/attempt, ST-13). None while held (pause, inactive account, licence wait, undecided rule) or nothing waits.',
+    ],
+    [
+      'Cover',
+      'Open experiment',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'ST-v1 StudentFinal.dc.html ST-01 (`sv-link.sv-wide`, `rb-btn.sv-narrow` below 600 px)',
+      'Not while the experiment can’t be opened (the institution’s pause, an inactive account, an undecided rule).',
+    ],
+    [
+      'Cover',
+      '<course>',
+      'secondary',
+      '/student/courses/{courseId}',
+      'built',
+      'ST-v1 StudentFinal.dc.html ST-01 (`a.sv-now-clink`, “<course>, open course”)',
+    ],
+    [
+      'Also in this experiment',
+      'Resources · <format> · Assessment',
+      'secondary',
+      '/student/experiments/{experimentId}/resources',
+      'built',
+      'ST-v1 StudentFinal.dc.html `homeVM` items',
+      'Each item opens its tab or format page (/resources — the target shown —, /simulation/{format}, /assessment) while the experiment can be opened; an assessment not set yet is not a link.',
+    ],
+    [
+      'Up next (another experiment)',
+      '<experiment> · Give feedback on <format> · <assessment> is ready',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'B2-10 f5; B4-11 f10',
+      'Product-only in the V3 Home (the export draws one experiment): a format item opens its hub, a feedback item /feedback/{format} (ST-16), an assessment item /student/assessments/{assessmentId} (ST-12).',
+    ],
+    [
+      'Before access',
+      'Help & support',
+      'secondary',
+      '/student/help',
+      'built',
+      'ST-v1 StudentFinal.dc.html `homeVM` (01-newst)',
+    ],
+    [
+      'Earlier work only',
+      'See earlier work',
+      'secondary',
+      '/student/courses',
+      'built',
+      'ST-v1 StudentFinal.dc.html `homeVM` ended / withdrawn (01-ended, 01-withdrawn)',
+      'The export’s destination: My courses, where the course of earlier work is kept (`ST-01.earlier-only`).',
+    ],
+  ]),
+  'ST-02': pageRows('ST-02', '/student/courses', [
+    [
+      'Tabs',
+      'Courses · All experiments',
+      'secondary',
+      '/student/courses?tab=experiments',
+      'built',
+      'ST-v1 StudentFinal.dc.html `nav.rk-tabs` “My courses” (ST-04)',
+    ],
+    [
+      'Course section',
+      'Open course',
+      'secondary',
+      '/student/courses/{courseId}',
+      'built',
+      'ST-v1 StudentFinal.dc.html `courseCard` (02-learn, 02-paused)',
+    ],
+    [
+      'Course section · experiment',
+      'Open experiment',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'ST-v1 StudentFinal.dc.html `xcard` (02-learn)',
+      'Not while the institution is paused or the account inactive; a licence wait keeps it (PC-45).',
+    ],
+    [
+      'No access yet',
+      'Help & support',
+      'secondary',
+      '/student/help',
+      'built',
+      'ST-v1 StudentFinal.dc.html `C.none` (02-newst)',
+    ],
+    [
+      'Earlier work row',
+      'View earlier work',
+      'secondary',
+      '/student/progress',
+      'not-rendered',
+      'ST-v1 StudentFinal.dc.html `C.earlier` (02-ended, 02-withdrawn)',
+      'ST-15 Progress is built (Phase 3), but its earlier-work view is not built while SACC-14 is open: the service gives no earlier-work row (PC-23), so the action would lead to nothing (`ST-02.earlier-rows`).',
+    ],
+    [
+      'Failed state',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'ST-v1 StudentFinal.dc.html `C.failed` (02-learn-failed)',
+    ],
+  ]),
+  // ST-04 All experiments, My courses' second tab.
+  'ST-04': pageRows('ST-04', '/student/courses?tab=experiments', [
+    [
+      'Tabs',
+      'Courses',
+      'secondary',
+      '/student/courses',
+      'built',
+      'ST-v1 StudentFinal.dc.html `nav.rk-tabs` “My courses”',
+    ],
+    [
+      'Toolbar',
+      'Search · Format · Remove filter (chip) · Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'ST-v1 StudentFinal.dc.html `sv-toolbar` (04-learn, 04-learn-x-nomatch)',
+    ],
+    [
+      'Experiment row',
+      'Open experiment',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'ST-v1 StudentFinal.dc.html `xcard` (04-learn)',
+    ],
+    [
+      'No match',
+      'Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'ST-v1 StudentFinal.dc.html `X.nomatch` (04-learn-x-nomatch)',
+    ],
+    [
+      'Failed state',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'ST-v1 StudentFinal.dc.html `C.failed` (04-learn-failed)',
+    ],
+  ]),
+  'ST-03': pageRows('ST-03', '/student/courses/{courseId}', [
+    [
+      'Breadcrumb',
+      'My courses',
+      'secondary',
+      '/student/courses',
+      'built',
+      'ST-v1 StudentFinal.dc.html ST-03 `rk-crumbs` (03-learn, 03-paused)',
+    ],
+    [
+      'Experiment row',
+      'Open experiment',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      'ST-v1 StudentFinal.dc.html `courseVM` rows (03-learn)',
+    ],
+    [
+      'Course with earlier work only',
+      'Back to My courses',
+      'primary',
+      '/student/courses',
+      'built',
+      "ST-v1 StudentFinal.dc.html `msg('course-none')` (03-ended)",
+      'With Help & support; “See your earlier work” is not rendered while SACC-14 is open (`ST-03.no-experiments`).',
+    ],
+  ]),
+  'ST-19': pageRows('ST-19', '/student/experiments/{experimentId}', [
+    [
+      'Breadcrumb',
+      'My courses',
+      'secondary',
+      '/student/courses',
+      'built',
+      'ST-v1 StudentFinal.dc.html `M.crumbs` (19-learn, 19-withdrawn, 19-ended)',
+    ],
+    [
+      'Message',
+      'Back to My courses',
+      'primary',
+      '/student/courses',
+      'built',
+      "ST-v1 StudentFinal.dc.html `msg('notgiven' | 'withdrawn' | 'ended')`",
+      'The plain button when the message lists experiments to open instead.',
+    ],
+    [
+      'Experiments you can open',
+      'Open experiment',
+      'secondary',
+      '/student/experiments/{experimentId}',
+      'built',
+      "ST-v1 StudentFinal.dc.html `msg('notgiven')` expAlt (19-learn)",
+    ],
+    [
+      'Message',
+      'Help & support',
+      'secondary',
+      '/student/help',
+      'built',
+      'ST-v1 StudentFinal.dc.html `msg` help (19-learn, 19-withdrawn, 19-ended)',
+    ],
+  ]),
+};

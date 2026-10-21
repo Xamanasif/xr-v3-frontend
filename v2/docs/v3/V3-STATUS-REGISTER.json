@@ -17,7 +17,7 @@
     "v3SeedSource": 5,
     "lockedLanding": 2,
     "pendingDesign": 116,
-    "migrated": 90
+    "migrated": 109
   },
   "designedByType": {
     "action": 1,
@@ -484,14 +484,17 @@
       "designed": true,
       "v46ProposedRoute": "/student",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/student/st-01-home"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-01-home",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — Home: continue learning with the next step (the export's single rule), the experiment cover, also in this experiment, up next; new student, licence wait, paused, ended or withdrawn (one message), inactive",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Illustrative simulation stages are NOT product data: no stage tracker or “stage N of 3” anywhere. Dependency: the real activity's stage names and count, and a per-student stage fact in the runtime data."
     },
     {
       "id": "ST-02",
@@ -502,14 +505,17 @@
       "designed": true,
       "v46ProposedRoute": "/student/courses",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/student/st-02-my-courses"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-02-my-courses",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — my courses as course sections with experiment rows and format chips; no courses, licence wait, paused, ended, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No read holds the BITS course code and area on course cards, row descriptions and dates, or earlier-work rows; left out."
     },
     {
       "id": "ST-03",
@@ -520,13 +526,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/courses/[courseId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/student/st-03-course"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-03-course",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the course with its experiments; licence wait, no experiments, course not available",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -538,13 +547,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/courses?tab=experiments",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/student/st-04-all-experiments"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-04-all-experiments",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — all my experiments with search, the format filter, chips and count; no match, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -556,13 +568,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/student/st-05-experiment-hub"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-05-experiment-hub",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the experiment hub: head with the course code, five section tabs, the Overview with the next step, about, formats and resources summary; the Assessment tab (none, to do, in progress, waiting, not released, released)",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -574,13 +589,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]/resources",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-06-resources"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-06-resources",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — resources with opened status and open in a new tab; failed open, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -592,13 +610,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]/simulation",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-07-simulation"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-07-simulation",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — choose a format: cards with progress facts and the one gold action, formats not included or not published",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -610,14 +631,17 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]/simulation/web",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-08-web-simulation"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-08-web-simulation",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the WEB launch page: launch or continue (the Phase-7 sample activity in a new tab), first opened, last saved, reported by the simulation, launch failure",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The sample activity stays the Phase-7 new-tab stand-in (/prototype/web-activity); the export's in-tab ST-08a activity is not built."
     },
     {
       "id": "ST-09",
@@ -628,13 +652,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]/simulation/[format]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-09-format"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-09-format",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the VR format page: authorised device, setup steps, progress reported from the headset; no device, licence wait, paused; AR and MR refusals",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -646,13 +673,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]/progress",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-10-experiment-progress"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-10-experiment-progress",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — progress for this experiment per format with feedback and the assessment line",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -664,13 +694,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/assessments",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/student/st-11-assessments"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-11-assessments",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — assessments in To do, Submitted and Results tabs with counts; none, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -682,13 +715,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/assessments/[assessmentId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/student/st-12-assessment-intro"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-12-assessment-intro",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — before you start: rules, attempts, release terms; to do, in progress, waiting, not released, not passed with an attempt left, passed, no attempt left, can't start",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -700,13 +736,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/assessments/[assessmentId]/attempt",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/student/st-13-attempt"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-13-attempt",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the focused attempt: questions, autosave (saving, saved, save failed), the submit dialog, submit failure, answers submitted",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -718,13 +757,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/assessments/[assessmentId]/result",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/student/st-14-result"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-14-result",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the result: not submitted, waiting, not released, passed, not passed with Try again, answers reviewed",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -736,14 +778,17 @@
       "designed": true,
       "v46ProposedRoute": "/student/progress",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-15-progress"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-15-progress",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — progress across experiments with the status filter, count, per-format rows, feedback and the assessment line; no match, paused, ended, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Earlier-work groups and the “access ended on <date>” line are left out (no read holds them)."
     },
     {
       "id": "ST-16",
@@ -754,13 +799,16 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]/feedback/[format]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-16-feedback"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-16-feedback",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — format feedback: the rating statements, comments, errors, failure; not open yet",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -772,16 +820,17 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId]/feedback/[format] (sent state)",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
+        "status": "V3 presentation (Student export ST-v1), implemented",
         "paths": [
           "apps/web/src/features/student/st-16-feedback/feedback-sent.tsx",
-          "apps/web/src/features/student/st-16-feedback/format-feedback.tsx"
+          "apps/web/src/features/student/st-16-feedback/format-feedback.tsx",
+          "apps/web/src/features/student/shared"
         ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — feedback sent, read-only",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -793,14 +842,17 @@
       "designed": true,
       "v46ProposedRoute": "/student/device",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P3)",
-        "paths": ["apps/web/src/features/student/st-18-my-device"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-18-my-device",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — my device: the authorised device, request a transfer (form, errors, sent, forwarded, approved, no Institute Admin), no device, paused; not available card",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The transfer reference is hidden; the offering rule is the product's (unchanged)."
     },
     {
       "id": "ST-19",
@@ -811,14 +863,17 @@
       "designed": true,
       "v46ProposedRoute": "/student/experiments/[experimentId] (not-available state)",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P2)",
-        "paths": ["apps/web/src/features/student/st-19-not-available"]
+        "status": "V3 presentation (Student export ST-v1), implemented",
+        "paths": [
+          "apps/web/src/features/student/st-19-not-available",
+          "apps/web/src/features/student/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export ST-v1 (design/v3-refined-b/roles/ST-v1; archive XR-V3-Student-FINAL-Source.zip, SHA-256 029b9dfb…c268, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — experiment not available: not given (with the experiments you can open), withdrawn, ended, paused, inactive",
+      "browserChecked": "product build with the test-hook bridge (the Student exists only after the sample journeys) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No read holds the ended date, the withdrawal cause or earlier-work rows; left out."
     },
     {
       "id": "ST-20",

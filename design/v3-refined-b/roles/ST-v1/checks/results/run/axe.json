@@ -1,0 +1,2501 @@
+{
+ "summary": {},
+ "cases": [
+  {
+   "file": "01-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "01-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "01-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "01-newst@1440",
+   "violations": []
+  },
+  {
+   "file": "01-vrnow@1440",
+   "violations": []
+  },
+  {
+   "file": "01-vrprog@1440",
+   "violations": []
+  },
+  {
+   "file": "01-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "01-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "01-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "01-ended@1440",
+   "violations": []
+  },
+  {
+   "file": "01-withdrawn@1440",
+   "violations": []
+  },
+  {
+   "file": "01-inactive@1440",
+   "violations": []
+  },
+  {
+   "file": "01-nodevice@1440",
+   "violations": []
+  },
+  {
+   "file": "01-inprog@1440",
+   "violations": []
+  },
+  {
+   "file": "01-waitmark@1440",
+   "violations": []
+  },
+  {
+   "file": "01-released@1440",
+   "violations": []
+  },
+  {
+   "file": "01-device@1440",
+   "violations": []
+  },
+  {
+   "file": "01-learn-menu@1440",
+   "violations": []
+  },
+  {
+   "file": "01-learn-acct@1440",
+   "violations": []
+  },
+  {
+   "file": "02-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "02-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "02-newst@1440",
+   "violations": []
+  },
+  {
+   "file": "02-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "02-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "02-ended@1440",
+   "violations": []
+  },
+  {
+   "file": "02-withdrawn@1440",
+   "violations": []
+  },
+  {
+   "file": "02-learn-loading@1440",
+   "violations": []
+  },
+  {
+   "file": "02-learn-failed@1440",
+   "violations": []
+  },
+  {
+   "file": "03-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "03-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "03-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "03-ended@1440",
+   "violations": []
+  },
+  {
+   "file": "03-newst@1440",
+   "violations": []
+  },
+  {
+   "file": "04-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "04-learn-x-nomatch@1440",
+   "violations": []
+  },
+  {
+   "file": "04-ended@1440",
+   "violations": []
+  },
+  {
+   "file": "04-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "05-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "05-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "05-newst@1440",
+   "violations": []
+  },
+  {
+   "file": "05-vrnow@1440",
+   "violations": []
+  },
+  {
+   "file": "05-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "05-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "05-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "05-ended@1440",
+   "violations": []
+  },
+  {
+   "file": "05-withdrawn@1440",
+   "violations": []
+  },
+  {
+   "file": "06-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "06-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "06-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "06-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "06-learn-res-fail@1440",
+   "violations": []
+  },
+  {
+   "file": "07-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "07-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "07-vrnow@1440",
+   "violations": []
+  },
+  {
+   "file": "07-vrprog@1440",
+   "violations": []
+  },
+  {
+   "file": "07-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "07-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "07-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "05as-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "05as-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "05as-inprog@1440",
+   "violations": []
+  },
+  {
+   "file": "05as-waitmark@1440",
+   "violations": []
+  },
+  {
+   "file": "05as-notrel@1440",
+   "violations": []
+  },
+  {
+   "file": "05as-released@1440",
+   "violations": []
+  },
+  {
+   "file": "05as-notpassed@1440",
+   "violations": []
+  },
+  {
+   "file": "10-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "10-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "10-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "10-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "08-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "08-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "08-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "08-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "08-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "08-learn-launch-fail@1440",
+   "violations": []
+  },
+  {
+   "file": "08a-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "08a-learn-act-done@1440",
+   "violations": []
+  },
+  {
+   "file": "08a-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "09-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "09-vrprog@1440",
+   "violations": []
+  },
+  {
+   "file": "09-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "09-vrnow@1440",
+   "violations": []
+  },
+  {
+   "file": "09-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "09-licence@1440",
+   "violations": []
+  },
+  {
+   "file": "09-learn-setup-open@1440",
+   "violations": []
+  },
+  {
+   "file": "09-nodevice@1440",
+   "violations": []
+  },
+  {
+   "file": "09ar-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "09mr-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "11-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "11-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "11-newst@1440",
+   "violations": []
+  },
+  {
+   "file": "11-inprog@1440",
+   "violations": []
+  },
+  {
+   "file": "11-assess-loading@1440",
+   "violations": []
+  },
+  {
+   "file": "11-assess-failed@1440",
+   "violations": []
+  },
+  {
+   "file": "11sub-waitmark@1440",
+   "violations": []
+  },
+  {
+   "file": "11sub-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "11res-released@1440",
+   "violations": []
+  },
+  {
+   "file": "11res-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "12-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "12-inprog@1440",
+   "violations": []
+  },
+  {
+   "file": "12-waitmark@1440",
+   "violations": []
+  },
+  {
+   "file": "12-notrel@1440",
+   "violations": []
+  },
+  {
+   "file": "12-released@1440",
+   "violations": []
+  },
+  {
+   "file": "12-notpassed@1440",
+   "violations": []
+  },
+  {
+   "file": "12-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "13-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "13-inprog@1440",
+   "violations": []
+  },
+  {
+   "file": "13-assess-att-two@1440",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-dialog@1440",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-savefail@1440",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-subfail@1440",
+   "violations": []
+  },
+  {
+   "file": "13-waitmark@1440",
+   "violations": []
+  },
+  {
+   "file": "14-released@1440",
+   "violations": []
+  },
+  {
+   "file": "14-notpassed@1440",
+   "violations": []
+  },
+  {
+   "file": "14-waitmark@1440",
+   "violations": []
+  },
+  {
+   "file": "14-notrel@1440",
+   "violations": []
+  },
+  {
+   "file": "14-assess@1440",
+   "violations": []
+  },
+  {
+   "file": "15-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "15-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "15-granted@1440",
+   "violations": []
+  },
+  {
+   "file": "15-newst@1440",
+   "violations": []
+  },
+  {
+   "file": "15-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "15-ended@1440",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-filter@1440",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-nomatch@1440",
+   "violations": []
+  },
+  {
+   "file": "15-learn-loading@1440",
+   "violations": []
+  },
+  {
+   "file": "15-learn-failed@1440",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-errors@1440",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-fail@1440",
+   "violations": []
+  },
+  {
+   "file": "16v-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "16w-vrdone@1440",
+   "violations": []
+  },
+  {
+   "file": "16w-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "18-device@1440",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-form@1440",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-error@1440",
+   "violations": []
+  },
+  {
+   "file": "18-dtrsent@1440",
+   "violations": []
+  },
+  {
+   "file": "18-dtrfwd@1440",
+   "violations": []
+  },
+  {
+   "file": "18-dtrappr@1440",
+   "violations": []
+  },
+  {
+   "file": "18-dtrnoia@1440",
+   "violations": []
+  },
+  {
+   "file": "18-nodevice@1440",
+   "violations": []
+  },
+  {
+   "file": "18-paused@1440",
+   "violations": []
+  },
+  {
+   "file": "19-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "19-withdrawn@1440",
+   "violations": []
+  },
+  {
+   "file": "19-ended@1440",
+   "violations": []
+  },
+  {
+   "file": "xs05-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "xs07-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "xs07f-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "xs03-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "xs06-learn@1440",
+   "violations": []
+  },
+  {
+   "file": "04-learn-loading@1440",
+   "violations": []
+  },
+  {
+   "file": "04-learn-failed@1440",
+   "violations": []
+  },
+  {
+   "file": "06-learn-loading@1440",
+   "violations": []
+  },
+  {
+   "file": "06-learn-failed@1440",
+   "violations": []
+  },
+  {
+   "file": "XS07f-learn-help-error@1440",
+   "violations": []
+  },
+  {
+   "file": "01-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "01-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "01-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "01-newst@1024",
+   "violations": []
+  },
+  {
+   "file": "01-vrnow@1024",
+   "violations": []
+  },
+  {
+   "file": "01-vrprog@1024",
+   "violations": []
+  },
+  {
+   "file": "01-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "01-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "01-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "01-ended@1024",
+   "violations": []
+  },
+  {
+   "file": "01-withdrawn@1024",
+   "violations": []
+  },
+  {
+   "file": "01-inactive@1024",
+   "violations": []
+  },
+  {
+   "file": "01-nodevice@1024",
+   "violations": []
+  },
+  {
+   "file": "01-inprog@1024",
+   "violations": []
+  },
+  {
+   "file": "01-waitmark@1024",
+   "violations": []
+  },
+  {
+   "file": "01-released@1024",
+   "violations": []
+  },
+  {
+   "file": "01-device@1024",
+   "violations": []
+  },
+  {
+   "file": "01-learn-menu@1024",
+   "violations": []
+  },
+  {
+   "file": "01-learn-acct@1024",
+   "violations": []
+  },
+  {
+   "file": "02-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "02-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "02-newst@1024",
+   "violations": []
+  },
+  {
+   "file": "02-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "02-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "02-ended@1024",
+   "violations": []
+  },
+  {
+   "file": "02-withdrawn@1024",
+   "violations": []
+  },
+  {
+   "file": "02-learn-loading@1024",
+   "violations": []
+  },
+  {
+   "file": "02-learn-failed@1024",
+   "violations": []
+  },
+  {
+   "file": "03-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "03-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "03-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "03-ended@1024",
+   "violations": []
+  },
+  {
+   "file": "03-newst@1024",
+   "violations": []
+  },
+  {
+   "file": "04-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "04-learn-x-nomatch@1024",
+   "violations": []
+  },
+  {
+   "file": "04-ended@1024",
+   "violations": []
+  },
+  {
+   "file": "04-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "05-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "05-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "05-newst@1024",
+   "violations": []
+  },
+  {
+   "file": "05-vrnow@1024",
+   "violations": []
+  },
+  {
+   "file": "05-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "05-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "05-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "05-ended@1024",
+   "violations": []
+  },
+  {
+   "file": "05-withdrawn@1024",
+   "violations": []
+  },
+  {
+   "file": "06-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "06-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "06-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "06-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "06-learn-res-fail@1024",
+   "violations": []
+  },
+  {
+   "file": "07-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "07-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "07-vrnow@1024",
+   "violations": []
+  },
+  {
+   "file": "07-vrprog@1024",
+   "violations": []
+  },
+  {
+   "file": "07-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "07-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "07-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "05as-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "05as-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "05as-inprog@1024",
+   "violations": []
+  },
+  {
+   "file": "05as-waitmark@1024",
+   "violations": []
+  },
+  {
+   "file": "05as-notrel@1024",
+   "violations": []
+  },
+  {
+   "file": "05as-released@1024",
+   "violations": []
+  },
+  {
+   "file": "05as-notpassed@1024",
+   "violations": []
+  },
+  {
+   "file": "10-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "10-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "10-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "10-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "08-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "08-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "08-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "08-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "08-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "08-learn-launch-fail@1024",
+   "violations": []
+  },
+  {
+   "file": "08a-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "08a-learn-act-done@1024",
+   "violations": []
+  },
+  {
+   "file": "08a-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "09-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "09-vrprog@1024",
+   "violations": []
+  },
+  {
+   "file": "09-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "09-vrnow@1024",
+   "violations": []
+  },
+  {
+   "file": "09-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "09-licence@1024",
+   "violations": []
+  },
+  {
+   "file": "09-learn-setup-open@1024",
+   "violations": []
+  },
+  {
+   "file": "09-nodevice@1024",
+   "violations": []
+  },
+  {
+   "file": "09ar-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "09mr-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "11-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "11-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "11-newst@1024",
+   "violations": []
+  },
+  {
+   "file": "11-inprog@1024",
+   "violations": []
+  },
+  {
+   "file": "11-assess-loading@1024",
+   "violations": []
+  },
+  {
+   "file": "11-assess-failed@1024",
+   "violations": []
+  },
+  {
+   "file": "11sub-waitmark@1024",
+   "violations": []
+  },
+  {
+   "file": "11sub-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "11res-released@1024",
+   "violations": []
+  },
+  {
+   "file": "11res-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "12-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "12-inprog@1024",
+   "violations": []
+  },
+  {
+   "file": "12-waitmark@1024",
+   "violations": []
+  },
+  {
+   "file": "12-notrel@1024",
+   "violations": []
+  },
+  {
+   "file": "12-released@1024",
+   "violations": []
+  },
+  {
+   "file": "12-notpassed@1024",
+   "violations": []
+  },
+  {
+   "file": "12-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "13-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "13-inprog@1024",
+   "violations": []
+  },
+  {
+   "file": "13-assess-att-two@1024",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-dialog@1024",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-savefail@1024",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-subfail@1024",
+   "violations": []
+  },
+  {
+   "file": "13-waitmark@1024",
+   "violations": []
+  },
+  {
+   "file": "14-released@1024",
+   "violations": []
+  },
+  {
+   "file": "14-notpassed@1024",
+   "violations": []
+  },
+  {
+   "file": "14-waitmark@1024",
+   "violations": []
+  },
+  {
+   "file": "14-notrel@1024",
+   "violations": []
+  },
+  {
+   "file": "14-assess@1024",
+   "violations": []
+  },
+  {
+   "file": "15-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "15-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "15-granted@1024",
+   "violations": []
+  },
+  {
+   "file": "15-newst@1024",
+   "violations": []
+  },
+  {
+   "file": "15-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "15-ended@1024",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-filter@1024",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-nomatch@1024",
+   "violations": []
+  },
+  {
+   "file": "15-learn-loading@1024",
+   "violations": []
+  },
+  {
+   "file": "15-learn-failed@1024",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-errors@1024",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-fail@1024",
+   "violations": []
+  },
+  {
+   "file": "16v-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "16w-vrdone@1024",
+   "violations": []
+  },
+  {
+   "file": "16w-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "18-device@1024",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-form@1024",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-error@1024",
+   "violations": []
+  },
+  {
+   "file": "18-dtrsent@1024",
+   "violations": []
+  },
+  {
+   "file": "18-dtrfwd@1024",
+   "violations": []
+  },
+  {
+   "file": "18-dtrappr@1024",
+   "violations": []
+  },
+  {
+   "file": "18-dtrnoia@1024",
+   "violations": []
+  },
+  {
+   "file": "18-nodevice@1024",
+   "violations": []
+  },
+  {
+   "file": "18-paused@1024",
+   "violations": []
+  },
+  {
+   "file": "19-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "19-withdrawn@1024",
+   "violations": []
+  },
+  {
+   "file": "19-ended@1024",
+   "violations": []
+  },
+  {
+   "file": "xs05-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "xs07-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "xs07f-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "xs03-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "xs06-learn@1024",
+   "violations": []
+  },
+  {
+   "file": "04-learn-loading@1024",
+   "violations": []
+  },
+  {
+   "file": "04-learn-failed@1024",
+   "violations": []
+  },
+  {
+   "file": "06-learn-loading@1024",
+   "violations": []
+  },
+  {
+   "file": "06-learn-failed@1024",
+   "violations": []
+  },
+  {
+   "file": "XS07f-learn-help-error@1024",
+   "violations": []
+  },
+  {
+   "file": "01-learn@768",
+   "violations": []
+  },
+  {
+   "file": "01-assess@768",
+   "violations": []
+  },
+  {
+   "file": "01-granted@768",
+   "violations": []
+  },
+  {
+   "file": "01-newst@768",
+   "violations": []
+  },
+  {
+   "file": "01-vrnow@768",
+   "violations": []
+  },
+  {
+   "file": "01-vrprog@768",
+   "violations": []
+  },
+  {
+   "file": "01-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "01-licence@768",
+   "violations": []
+  },
+  {
+   "file": "01-paused@768",
+   "violations": []
+  },
+  {
+   "file": "01-ended@768",
+   "violations": []
+  },
+  {
+   "file": "01-withdrawn@768",
+   "violations": []
+  },
+  {
+   "file": "01-inactive@768",
+   "violations": []
+  },
+  {
+   "file": "01-nodevice@768",
+   "violations": []
+  },
+  {
+   "file": "01-inprog@768",
+   "violations": []
+  },
+  {
+   "file": "01-waitmark@768",
+   "violations": []
+  },
+  {
+   "file": "01-released@768",
+   "violations": []
+  },
+  {
+   "file": "01-device@768",
+   "violations": []
+  },
+  {
+   "file": "01-learn-menu@768",
+   "violations": []
+  },
+  {
+   "file": "01-learn-acct@768",
+   "violations": []
+  },
+  {
+   "file": "02-learn@768",
+   "violations": []
+  },
+  {
+   "file": "02-granted@768",
+   "violations": []
+  },
+  {
+   "file": "02-newst@768",
+   "violations": []
+  },
+  {
+   "file": "02-licence@768",
+   "violations": []
+  },
+  {
+   "file": "02-paused@768",
+   "violations": []
+  },
+  {
+   "file": "02-ended@768",
+   "violations": []
+  },
+  {
+   "file": "02-withdrawn@768",
+   "violations": []
+  },
+  {
+   "file": "02-learn-loading@768",
+   "violations": []
+  },
+  {
+   "file": "02-learn-failed@768",
+   "violations": []
+  },
+  {
+   "file": "03-learn@768",
+   "violations": []
+  },
+  {
+   "file": "03-paused@768",
+   "violations": []
+  },
+  {
+   "file": "03-licence@768",
+   "violations": []
+  },
+  {
+   "file": "03-ended@768",
+   "violations": []
+  },
+  {
+   "file": "03-newst@768",
+   "violations": []
+  },
+  {
+   "file": "04-learn@768",
+   "violations": []
+  },
+  {
+   "file": "04-learn-x-nomatch@768",
+   "violations": []
+  },
+  {
+   "file": "04-ended@768",
+   "violations": []
+  },
+  {
+   "file": "04-paused@768",
+   "violations": []
+  },
+  {
+   "file": "05-learn@768",
+   "violations": []
+  },
+  {
+   "file": "05-granted@768",
+   "violations": []
+  },
+  {
+   "file": "05-newst@768",
+   "violations": []
+  },
+  {
+   "file": "05-vrnow@768",
+   "violations": []
+  },
+  {
+   "file": "05-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "05-licence@768",
+   "violations": []
+  },
+  {
+   "file": "05-paused@768",
+   "violations": []
+  },
+  {
+   "file": "05-ended@768",
+   "violations": []
+  },
+  {
+   "file": "05-withdrawn@768",
+   "violations": []
+  },
+  {
+   "file": "06-learn@768",
+   "violations": []
+  },
+  {
+   "file": "06-granted@768",
+   "violations": []
+  },
+  {
+   "file": "06-paused@768",
+   "violations": []
+  },
+  {
+   "file": "06-licence@768",
+   "violations": []
+  },
+  {
+   "file": "06-learn-res-fail@768",
+   "violations": []
+  },
+  {
+   "file": "07-learn@768",
+   "violations": []
+  },
+  {
+   "file": "07-granted@768",
+   "violations": []
+  },
+  {
+   "file": "07-vrnow@768",
+   "violations": []
+  },
+  {
+   "file": "07-vrprog@768",
+   "violations": []
+  },
+  {
+   "file": "07-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "07-licence@768",
+   "violations": []
+  },
+  {
+   "file": "07-paused@768",
+   "violations": []
+  },
+  {
+   "file": "05as-assess@768",
+   "violations": []
+  },
+  {
+   "file": "05as-learn@768",
+   "violations": []
+  },
+  {
+   "file": "05as-inprog@768",
+   "violations": []
+  },
+  {
+   "file": "05as-waitmark@768",
+   "violations": []
+  },
+  {
+   "file": "05as-notrel@768",
+   "violations": []
+  },
+  {
+   "file": "05as-released@768",
+   "violations": []
+  },
+  {
+   "file": "05as-notpassed@768",
+   "violations": []
+  },
+  {
+   "file": "10-learn@768",
+   "violations": []
+  },
+  {
+   "file": "10-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "10-granted@768",
+   "violations": []
+  },
+  {
+   "file": "10-paused@768",
+   "violations": []
+  },
+  {
+   "file": "08-learn@768",
+   "violations": []
+  },
+  {
+   "file": "08-granted@768",
+   "violations": []
+  },
+  {
+   "file": "08-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "08-paused@768",
+   "violations": []
+  },
+  {
+   "file": "08-licence@768",
+   "violations": []
+  },
+  {
+   "file": "08-learn-launch-fail@768",
+   "violations": []
+  },
+  {
+   "file": "08a-learn@768",
+   "violations": []
+  },
+  {
+   "file": "08a-learn-act-done@768",
+   "violations": []
+  },
+  {
+   "file": "08a-granted@768",
+   "violations": []
+  },
+  {
+   "file": "09-learn@768",
+   "violations": []
+  },
+  {
+   "file": "09-vrprog@768",
+   "violations": []
+  },
+  {
+   "file": "09-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "09-vrnow@768",
+   "violations": []
+  },
+  {
+   "file": "09-paused@768",
+   "violations": []
+  },
+  {
+   "file": "09-licence@768",
+   "violations": []
+  },
+  {
+   "file": "09-learn-setup-open@768",
+   "violations": []
+  },
+  {
+   "file": "09-nodevice@768",
+   "violations": []
+  },
+  {
+   "file": "09ar-learn@768",
+   "violations": []
+  },
+  {
+   "file": "09mr-learn@768",
+   "violations": []
+  },
+  {
+   "file": "11-assess@768",
+   "violations": []
+  },
+  {
+   "file": "11-learn@768",
+   "violations": []
+  },
+  {
+   "file": "11-newst@768",
+   "violations": []
+  },
+  {
+   "file": "11-inprog@768",
+   "violations": []
+  },
+  {
+   "file": "11-assess-loading@768",
+   "violations": []
+  },
+  {
+   "file": "11-assess-failed@768",
+   "violations": []
+  },
+  {
+   "file": "11sub-waitmark@768",
+   "violations": []
+  },
+  {
+   "file": "11sub-assess@768",
+   "violations": []
+  },
+  {
+   "file": "11res-released@768",
+   "violations": []
+  },
+  {
+   "file": "11res-assess@768",
+   "violations": []
+  },
+  {
+   "file": "12-assess@768",
+   "violations": []
+  },
+  {
+   "file": "12-inprog@768",
+   "violations": []
+  },
+  {
+   "file": "12-waitmark@768",
+   "violations": []
+  },
+  {
+   "file": "12-notrel@768",
+   "violations": []
+  },
+  {
+   "file": "12-released@768",
+   "violations": []
+  },
+  {
+   "file": "12-notpassed@768",
+   "violations": []
+  },
+  {
+   "file": "12-learn@768",
+   "violations": []
+  },
+  {
+   "file": "13-assess@768",
+   "violations": []
+  },
+  {
+   "file": "13-inprog@768",
+   "violations": []
+  },
+  {
+   "file": "13-assess-att-two@768",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-dialog@768",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-savefail@768",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-subfail@768",
+   "violations": []
+  },
+  {
+   "file": "13-waitmark@768",
+   "violations": []
+  },
+  {
+   "file": "14-released@768",
+   "violations": []
+  },
+  {
+   "file": "14-notpassed@768",
+   "violations": []
+  },
+  {
+   "file": "14-waitmark@768",
+   "violations": []
+  },
+  {
+   "file": "14-notrel@768",
+   "violations": []
+  },
+  {
+   "file": "14-assess@768",
+   "violations": []
+  },
+  {
+   "file": "15-learn@768",
+   "violations": []
+  },
+  {
+   "file": "15-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "15-granted@768",
+   "violations": []
+  },
+  {
+   "file": "15-newst@768",
+   "violations": []
+  },
+  {
+   "file": "15-paused@768",
+   "violations": []
+  },
+  {
+   "file": "15-ended@768",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-filter@768",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-nomatch@768",
+   "violations": []
+  },
+  {
+   "file": "15-learn-loading@768",
+   "violations": []
+  },
+  {
+   "file": "15-learn-failed@768",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-errors@768",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-fail@768",
+   "violations": []
+  },
+  {
+   "file": "16v-learn@768",
+   "violations": []
+  },
+  {
+   "file": "16w-vrdone@768",
+   "violations": []
+  },
+  {
+   "file": "16w-learn@768",
+   "violations": []
+  },
+  {
+   "file": "18-device@768",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-form@768",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-error@768",
+   "violations": []
+  },
+  {
+   "file": "18-dtrsent@768",
+   "violations": []
+  },
+  {
+   "file": "18-dtrfwd@768",
+   "violations": []
+  },
+  {
+   "file": "18-dtrappr@768",
+   "violations": []
+  },
+  {
+   "file": "18-dtrnoia@768",
+   "violations": []
+  },
+  {
+   "file": "18-nodevice@768",
+   "violations": []
+  },
+  {
+   "file": "18-paused@768",
+   "violations": []
+  },
+  {
+   "file": "19-learn@768",
+   "violations": []
+  },
+  {
+   "file": "19-withdrawn@768",
+   "violations": []
+  },
+  {
+   "file": "19-ended@768",
+   "violations": []
+  },
+  {
+   "file": "xs05-learn@768",
+   "violations": []
+  },
+  {
+   "file": "xs07-learn@768",
+   "violations": []
+  },
+  {
+   "file": "xs07f-learn@768",
+   "violations": []
+  },
+  {
+   "file": "xs03-learn@768",
+   "violations": []
+  },
+  {
+   "file": "xs06-learn@768",
+   "violations": []
+  },
+  {
+   "file": "04-learn-loading@768",
+   "violations": []
+  },
+  {
+   "file": "04-learn-failed@768",
+   "violations": []
+  },
+  {
+   "file": "06-learn-loading@768",
+   "violations": []
+  },
+  {
+   "file": "06-learn-failed@768",
+   "violations": []
+  },
+  {
+   "file": "XS07f-learn-help-error@768",
+   "violations": []
+  },
+  {
+   "file": "01-learn@375",
+   "violations": []
+  },
+  {
+   "file": "01-assess@375",
+   "violations": []
+  },
+  {
+   "file": "01-granted@375",
+   "violations": []
+  },
+  {
+   "file": "01-newst@375",
+   "violations": []
+  },
+  {
+   "file": "01-vrnow@375",
+   "violations": []
+  },
+  {
+   "file": "01-vrprog@375",
+   "violations": []
+  },
+  {
+   "file": "01-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "01-licence@375",
+   "violations": []
+  },
+  {
+   "file": "01-paused@375",
+   "violations": []
+  },
+  {
+   "file": "01-ended@375",
+   "violations": []
+  },
+  {
+   "file": "01-withdrawn@375",
+   "violations": []
+  },
+  {
+   "file": "01-inactive@375",
+   "violations": []
+  },
+  {
+   "file": "01-nodevice@375",
+   "violations": []
+  },
+  {
+   "file": "01-inprog@375",
+   "violations": []
+  },
+  {
+   "file": "01-waitmark@375",
+   "violations": []
+  },
+  {
+   "file": "01-released@375",
+   "violations": []
+  },
+  {
+   "file": "01-device@375",
+   "violations": []
+  },
+  {
+   "file": "01-learn-menu@375",
+   "violations": []
+  },
+  {
+   "file": "01-learn-acct@375",
+   "violations": []
+  },
+  {
+   "file": "02-learn@375",
+   "violations": []
+  },
+  {
+   "file": "02-granted@375",
+   "violations": []
+  },
+  {
+   "file": "02-newst@375",
+   "violations": []
+  },
+  {
+   "file": "02-licence@375",
+   "violations": []
+  },
+  {
+   "file": "02-paused@375",
+   "violations": []
+  },
+  {
+   "file": "02-ended@375",
+   "violations": []
+  },
+  {
+   "file": "02-withdrawn@375",
+   "violations": []
+  },
+  {
+   "file": "02-learn-loading@375",
+   "violations": []
+  },
+  {
+   "file": "02-learn-failed@375",
+   "violations": []
+  },
+  {
+   "file": "03-learn@375",
+   "violations": []
+  },
+  {
+   "file": "03-paused@375",
+   "violations": []
+  },
+  {
+   "file": "03-licence@375",
+   "violations": []
+  },
+  {
+   "file": "03-ended@375",
+   "violations": []
+  },
+  {
+   "file": "03-newst@375",
+   "violations": []
+  },
+  {
+   "file": "04-learn@375",
+   "violations": []
+  },
+  {
+   "file": "04-learn-x-nomatch@375",
+   "violations": []
+  },
+  {
+   "file": "04-ended@375",
+   "violations": []
+  },
+  {
+   "file": "04-paused@375",
+   "violations": []
+  },
+  {
+   "file": "05-learn@375",
+   "violations": []
+  },
+  {
+   "file": "05-granted@375",
+   "violations": []
+  },
+  {
+   "file": "05-newst@375",
+   "violations": []
+  },
+  {
+   "file": "05-vrnow@375",
+   "violations": []
+  },
+  {
+   "file": "05-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "05-licence@375",
+   "violations": []
+  },
+  {
+   "file": "05-paused@375",
+   "violations": []
+  },
+  {
+   "file": "05-ended@375",
+   "violations": []
+  },
+  {
+   "file": "05-withdrawn@375",
+   "violations": []
+  },
+  {
+   "file": "06-learn@375",
+   "violations": []
+  },
+  {
+   "file": "06-granted@375",
+   "violations": []
+  },
+  {
+   "file": "06-paused@375",
+   "violations": []
+  },
+  {
+   "file": "06-licence@375",
+   "violations": []
+  },
+  {
+   "file": "06-learn-res-fail@375",
+   "violations": []
+  },
+  {
+   "file": "07-learn@375",
+   "violations": []
+  },
+  {
+   "file": "07-granted@375",
+   "violations": []
+  },
+  {
+   "file": "07-vrnow@375",
+   "violations": []
+  },
+  {
+   "file": "07-vrprog@375",
+   "violations": []
+  },
+  {
+   "file": "07-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "07-licence@375",
+   "violations": []
+  },
+  {
+   "file": "07-paused@375",
+   "violations": []
+  },
+  {
+   "file": "05as-assess@375",
+   "violations": []
+  },
+  {
+   "file": "05as-learn@375",
+   "violations": []
+  },
+  {
+   "file": "05as-inprog@375",
+   "violations": []
+  },
+  {
+   "file": "05as-waitmark@375",
+   "violations": []
+  },
+  {
+   "file": "05as-notrel@375",
+   "violations": []
+  },
+  {
+   "file": "05as-released@375",
+   "violations": []
+  },
+  {
+   "file": "05as-notpassed@375",
+   "violations": []
+  },
+  {
+   "file": "10-learn@375",
+   "violations": []
+  },
+  {
+   "file": "10-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "10-granted@375",
+   "violations": []
+  },
+  {
+   "file": "10-paused@375",
+   "violations": []
+  },
+  {
+   "file": "08-learn@375",
+   "violations": []
+  },
+  {
+   "file": "08-granted@375",
+   "violations": []
+  },
+  {
+   "file": "08-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "08-paused@375",
+   "violations": []
+  },
+  {
+   "file": "08-licence@375",
+   "violations": []
+  },
+  {
+   "file": "08-learn-launch-fail@375",
+   "violations": []
+  },
+  {
+   "file": "08a-learn@375",
+   "violations": []
+  },
+  {
+   "file": "08a-learn-act-done@375",
+   "violations": []
+  },
+  {
+   "file": "08a-granted@375",
+   "violations": []
+  },
+  {
+   "file": "09-learn@375",
+   "violations": []
+  },
+  {
+   "file": "09-vrprog@375",
+   "violations": []
+  },
+  {
+   "file": "09-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "09-vrnow@375",
+   "violations": []
+  },
+  {
+   "file": "09-paused@375",
+   "violations": []
+  },
+  {
+   "file": "09-licence@375",
+   "violations": []
+  },
+  {
+   "file": "09-learn-setup-open@375",
+   "violations": []
+  },
+  {
+   "file": "09-nodevice@375",
+   "violations": []
+  },
+  {
+   "file": "09ar-learn@375",
+   "violations": []
+  },
+  {
+   "file": "09mr-learn@375",
+   "violations": []
+  },
+  {
+   "file": "11-assess@375",
+   "violations": []
+  },
+  {
+   "file": "11-learn@375",
+   "violations": []
+  },
+  {
+   "file": "11-newst@375",
+   "violations": []
+  },
+  {
+   "file": "11-inprog@375",
+   "violations": []
+  },
+  {
+   "file": "11-assess-loading@375",
+   "violations": []
+  },
+  {
+   "file": "11-assess-failed@375",
+   "violations": []
+  },
+  {
+   "file": "11sub-waitmark@375",
+   "violations": []
+  },
+  {
+   "file": "11sub-assess@375",
+   "violations": []
+  },
+  {
+   "file": "11res-released@375",
+   "violations": []
+  },
+  {
+   "file": "11res-assess@375",
+   "violations": []
+  },
+  {
+   "file": "12-assess@375",
+   "violations": []
+  },
+  {
+   "file": "12-inprog@375",
+   "violations": []
+  },
+  {
+   "file": "12-waitmark@375",
+   "violations": []
+  },
+  {
+   "file": "12-notrel@375",
+   "violations": []
+  },
+  {
+   "file": "12-released@375",
+   "violations": []
+  },
+  {
+   "file": "12-notpassed@375",
+   "violations": []
+  },
+  {
+   "file": "12-learn@375",
+   "violations": []
+  },
+  {
+   "file": "13-assess@375",
+   "violations": []
+  },
+  {
+   "file": "13-inprog@375",
+   "violations": []
+  },
+  {
+   "file": "13-assess-att-two@375",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-dialog@375",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-savefail@375",
+   "violations": []
+  },
+  {
+   "file": "13-inprog-att-subfail@375",
+   "violations": []
+  },
+  {
+   "file": "13-waitmark@375",
+   "violations": []
+  },
+  {
+   "file": "14-released@375",
+   "violations": []
+  },
+  {
+   "file": "14-notpassed@375",
+   "violations": []
+  },
+  {
+   "file": "14-waitmark@375",
+   "violations": []
+  },
+  {
+   "file": "14-notrel@375",
+   "violations": []
+  },
+  {
+   "file": "14-assess@375",
+   "violations": []
+  },
+  {
+   "file": "15-learn@375",
+   "violations": []
+  },
+  {
+   "file": "15-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "15-granted@375",
+   "violations": []
+  },
+  {
+   "file": "15-newst@375",
+   "violations": []
+  },
+  {
+   "file": "15-paused@375",
+   "violations": []
+  },
+  {
+   "file": "15-ended@375",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-filter@375",
+   "violations": []
+  },
+  {
+   "file": "15-learn-p-nomatch@375",
+   "violations": []
+  },
+  {
+   "file": "15-learn-loading@375",
+   "violations": []
+  },
+  {
+   "file": "15-learn-failed@375",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-errors@375",
+   "violations": []
+  },
+  {
+   "file": "16v-vrdone-fb-fail@375",
+   "violations": []
+  },
+  {
+   "file": "16v-learn@375",
+   "violations": []
+  },
+  {
+   "file": "16w-vrdone@375",
+   "violations": []
+  },
+  {
+   "file": "16w-learn@375",
+   "violations": []
+  },
+  {
+   "file": "18-device@375",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-form@375",
+   "violations": []
+  },
+  {
+   "file": "18-device-dev-error@375",
+   "violations": []
+  },
+  {
+   "file": "18-dtrsent@375",
+   "violations": []
+  },
+  {
+   "file": "18-dtrfwd@375",
+   "violations": []
+  },
+  {
+   "file": "18-dtrappr@375",
+   "violations": []
+  },
+  {
+   "file": "18-dtrnoia@375",
+   "violations": []
+  },
+  {
+   "file": "18-nodevice@375",
+   "violations": []
+  },
+  {
+   "file": "18-paused@375",
+   "violations": []
+  },
+  {
+   "file": "19-learn@375",
+   "violations": []
+  },
+  {
+   "file": "19-withdrawn@375",
+   "violations": []
+  },
+  {
+   "file": "19-ended@375",
+   "violations": []
+  },
+  {
+   "file": "xs05-learn@375",
+   "violations": []
+  },
+  {
+   "file": "xs07-learn@375",
+   "violations": []
+  },
+  {
+   "file": "xs07f-learn@375",
+   "violations": []
+  },
+  {
+   "file": "xs03-learn@375",
+   "violations": []
+  },
+  {
+   "file": "xs06-learn@375",
+   "violations": []
+  },
+  {
+   "file": "04-learn-loading@375",
+   "violations": []
+  },
+  {
+   "file": "04-learn-failed@375",
+   "violations": []
+  },
+  {
+   "file": "06-learn-loading@375",
+   "violations": []
+  },
+  {
+   "file": "06-learn-failed@375",
+   "violations": []
+  },
+  {
+   "file": "XS07f-learn-help-error@375",
+   "violations": []
+  },
+  {
+   "file": "StudentFinal.dc.html@1440",
+   "violations": []
+  },
+  {
+   "file": "StudentFinal.dc.html@1024",
+   "violations": []
+  },
+  {
+   "file": "StudentFinal.dc.html@768",
+   "violations": []
+  },
+  {
+   "file": "StudentFinal.dc.html@375",
+   "violations": []
+  }
+ ]
+}

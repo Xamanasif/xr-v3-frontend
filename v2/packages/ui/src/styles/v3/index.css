@@ -28,15 +28,19 @@
  * - `fa-scoped.css` is GENERATED the same way from the Faculty role stylesheet (`fa.css`) of the
  *   owner-approved Faculty export (design/v3-refined-b/roles/FA-v1/): the teaching, authoring and
  *   marking components of its 21 screens (`fa-` classes). Never edit it.
+ * - `st-scoped.css` is GENERATED the same way from the Student role stylesheet
+ *   (`v3-student-final.css`) of the owner-approved Student export (design/v3-refined-b/roles/ST-v1/):
+ *   the focused-task shell and page helpers (`st-` classes) and the learning, assessment, progress
+ *   and device components of its 19 screens (`sv-` classes). Never edit it.
  * - `patch.css` holds the central, versioned corrections (V3P-nn): accessibility and correctness
  *   fixes and the isolation from the v46 product layer. No aesthetic change goes there.
  * - The layer statement repeats the product statement of `@xr/ui/styles.css` and apps/web
  *   globals.css with `xr.v3` after `xr.product`. `xr.v3` is a sublayer of `xr`, so it follows
  *   `xr.v46` and `xr.product` and precedes `utilities` whichever chunk loads first:
- *   v46 < product deltas < V3 (foundation < XS < SA < VE < CM < RV < IA < FA < patches) < composition utilities.
+ *   v46 < product deltas < V3 (foundation < XS < SA < VE < CM < RV < IA < FA < ST < patches) < composition utilities.
  */
 @layer properties, theme, xr.v46, xr.product, xr.v3, utilities;
-@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.ia, xr.v3.fa, xr.v3.patch;
+@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.ia, xr.v3.fa, xr.v3.st, xr.v3.patch;
 
 @import './rb-scoped.css' layer(xr.v3.rb);
 @import './xs-scoped.css' layer(xr.v3.xs);
@@ -46,4 +50,5 @@
 @import './rv-scoped.css' layer(xr.v3.rv);
 @import './ia-scoped.css' layer(xr.v3.ia);
 @import './fa-scoped.css' layer(xr.v3.fa);
+@import './st-scoped.css' layer(xr.v3.st);
 @import './patch.css' layer(xr.v3.patch);

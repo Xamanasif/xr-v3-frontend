@@ -338,7 +338,11 @@ test('one tab, the product build: activation → course codes, import, group and
   // 5. Arun: Home, My courses (the institution's code) and All experiments show the experiment.
   await signIn(page, 'arun.kumar@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/student');
-  await expect(main(page).getByRole('link', { name: `Open ${SHELL}` })).toBeVisible();
+  await expect(
+    main(page)
+      .getByRole('link', { name: `Open experiment, ${SHELL}`, exact: true })
+      .filter({ visible: true }),
+  ).toBeVisible();
   await sidebar(page, '/student/courses');
   await expect(main(page)).toContainText('MEC-523');
   await reachAndClick(
@@ -348,9 +352,9 @@ test('one tab, the product build: activation → course codes, import, group and
     }),
   );
   await page.waitForURL('**/student/courses?tab=experiments');
-  await expect(main(page).locator('.xw-erow')).toHaveCount(1);
-  await expect(main(page).locator('.xw-erow')).toContainText(SHELL);
-  await expect(main(page)).toContainText('1 experiment given to you');
+  await expect(main(page).locator('.sv-xpanel li.sv-xli')).toHaveCount(1);
+  await expect(main(page).locator('.sv-xpanel li.sv-xli')).toContainText(SHELL);
+  await expect(main(page)).toContainText('1 experiment in 1 course');
   await checkState(page, 'My courses');
   await signOut(page, ARUN);
 
@@ -370,10 +374,13 @@ test('one tab, the product build: activation → course codes, import, group and
 
   await signIn(page, 'arun.kumar@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/student');
-  await expect(main(page)).not.toContainText(`Open ${SHELL}`);
+  // ST-01 (ST-v1): the open link reads "Open experiment" (named with the experiment) — none now.
+  await expect(main(page).getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(main(page)).not.toContainText('Open experiment');
+  await expect(main(page).getByRole('link', { name: new RegExp(SHELL) })).toHaveCount(0);
   // TEST NAVIGATION: All experiments through the app router (a typed address resets the world).
   await openInTab(page, '/student/courses?tab=experiments');
-  await expect(main(page).locator('.xw-erow')).toHaveCount(0);
+  await expect(main(page).locator('.sv-xpanel li.sv-xli')).toHaveCount(0);
   await expect(main(page)).toContainText('Your institution hasn’t given you access yet');
   await signOut(page, ARUN);
 
@@ -386,7 +393,7 @@ test('one tab, the product build: activation → course codes, import, group and
       name: 'All experiments',
     }),
   );
-  await expect(main(page).locator('.xw-erow')).toContainText(SHELL);
+  await expect(main(page).locator('.sv-xpanel li.sv-xli')).toContainText(SHELL);
   await signOut(page, RAHUL);
 
   // 7. Faculty: added (IA-10) → Assign a course (IA-15) → the record (IA-09) and the tab (IA-08).

@@ -1,101 +1,105 @@
 'use client';
 
 import type { MyCourseRow, MyExperimentRow } from '@xr/contracts/draft';
-import { FormatSet, Link } from '@xr/ui';
-import { Fragment } from 'react';
+import {
+  ButtonLink,
+  StExperimentListFormats,
+  StExperimentListKicker,
+  StListRow,
+  StRowText,
+  StRowTitle,
+  type StExperimentFormat,
+} from '@xr/ui/v3';
+import { useId } from 'react';
 
 import { stateWords } from '@/copy/state-copy';
-import {
-  COURSE_PAGE,
-  formatCode,
-  noLicenceForYouWords,
-  openExperimentLabel,
-  progressLabel,
-  STUDENT_WORDS,
-} from '@/copy/student';
+import { openExperimentName, ST_FORMAT_NAMES, ST_OPEN_EXPERIMENT } from '@/copy/st-shared';
+import { progressLabel, yourFormatsLabel } from '@/copy/student';
 import { myExperimentAddress } from '@/nav/student';
 
-import { CodeThen } from './student-states';
-import { availableFormats, type Closure, givenFormats, undecidedOf } from './student-view';
+import { formatChipOf } from './format-progress';
+import { type Closure, givenFormats, undecidedOf } from './student-view';
 
 /**
- * One given experiment (B2-11 f1 `div.xw-erow`; ST-03, and ST-04 since Package 2B): name, "<code> ·
- * <course>", the formats available to the Student, each given format's progress word, and "Open"
- * (the hub). Paused (f6): the given formats off with "Paused — …. Your work is kept." and no
- * "Open". A supplied licence wait keeps "Open" with the Student's words (PC-45); an undecided gate
- * shows no can / can't statement.
+ * Where a row sits (the export's `xcard`): inside a course section on My courses (`course`, an
+ * `h4` under the course's `h3`), on the course page (`course-page`, an `h3`) or in All
+ * experiments (`list`, an `h3` after its course code and course).
+ */
+export type ExperimentRowPlace = 'course' | 'course-page' | 'list';
+
+/**
+ * The formats of a given experiment as the row draws them (`fmtStatus`): each given format's chip
+ * and one line — its own progress when it opens now, the hold first when it is held (paused, an
+ * inactive account, a supplied licence wait, not right now), then the progress once started.
+ */
+export function rowFormatsOf(experiment: MyExperimentRow, closure: Closure): StExperimentFormat[] {
+  return givenFormats(experiment).map((row) => {
+    const chip = formatChipOf(row.format, row.availability, experiment.closure, closure);
+    const run = progressLabel(row.progress);
+    const text =
+      chip.kind === 'held'
+        ? row.progress === 'not-started'
+          ? chip.access
+          : `${chip.access} · ${run.toLowerCase()}`
+        : run;
+    return {
+      chip: { code: chip.code, kind: chip.kind, glyph: chip.glyph },
+      name: ST_FORMAT_NAMES[chip.code],
+      text,
+    };
+  });
+}
+
+/**
+ * One given experiment (the export's `xcard`: `li.sv-li.sv-xli`; ST-02 inside its course, ST-03,
+ * ST-04): its name, each given format with its words and "Open experiment" (the hub). The
+ * institution's pause or an inactive account keeps it listed with no way in (the shell's banner
+ * says why); a supplied licence wait keeps "Open experiment" (PC-45: the hub names the wait); an
+ * undecided gate shows no format and no can / can't statement (`ST-03.policy-open`). The read
+ * holds no description, so none is drawn (`ST-02.v3-rows`).
  */
 export function ExperimentRow({
   experiment,
   course,
   closure,
+  place,
 }: {
   readonly experiment: MyExperimentRow;
   readonly course: MyCourseRow;
   readonly closure: Closure;
+  readonly place: ExperimentRowPlace;
 }) {
-  const undecided = undecidedOf(experiment);
-  const given = givenFormats(experiment);
-  const available = availableFormats(experiment);
-  // A supplied licence wait (B3-02) closes the experiment for now: its formats read off with the
-  // Student's words; the hub still opens (PC-45).
-  const waitingPlan =
-    experiment.closure?.kind === 'waiting-for-a-licence' ? experiment.closure.planId : null;
-  const closedLine =
-    closure === 'paused'
-      ? COURSE_PAGE.pausedRow
-      : closure === 'inactive'
-        ? stateWords('ST-03.inactive-row')
-        : waitingPlan !== null
-          ? noLicenceForYouWords(waitingPlan)
-          : null;
+  const titleId = useId();
+  const undecided = undecidedOf(experiment) !== null;
+  const canOpen = !undecided && closure === null;
   return (
-    <div className="xw-erow">
-      <div className="xw-erow-main">
-        <h3 className="xw-erow-title">{experiment.name}</h3>
-        <span className="xr-meta">
-          <CodeThen code={course.codeShown}>{course.name}</CodeThen>
-        </span>
-        {undecided !== null ? (
-          <span className="xw-inherit">{stateWords('ST-03.policy-open')}</span>
-        ) : closedLine !== null ? (
-          <span className="xw-inherit">
-            <FormatSet formats={given.map((row) => formatCode(row.format))} variant="off" compact />
-            <span>{closedLine}</span>
-          </span>
-        ) : (
-          <>
-            {available.length > 0 ? (
-              <span className="xw-inherit">
-                {STUDENT_WORDS.availableToYou}{' '}
-                <FormatSet formats={available.map(formatCode)} variant="yours" compact />
-              </span>
-            ) : null}
-            {given.length > 0 ? (
-              <span className="xw-inherit">
-                {given.map((row, index) => (
-                  <Fragment key={row.format}>
-                    {index > 0 ? ' · ' : null}
-                    <span>
-                      <strong className="text-ink">{formatCode(row.format)}</strong>{' '}
-                      {progressLabel(row.progress)}
-                    </span>
-                  </Fragment>
-                ))}
-              </span>
-            ) : null}
-          </>
-        )}
-      </div>
-      {undecided === null && (closedLine === null || waitingPlan !== null) ? (
-        <Link
-          className="xr-btn xr-btn--secondary"
-          href={myExperimentAddress(experiment.experimentId)}
-          aria-label={openExperimentLabel(experiment.name)}
-        >
-          {COURSE_PAGE.open}
-        </Link>
+    <StListRow
+      variant="experiment"
+      end={
+        canOpen ? (
+          <ButtonLink
+            href={myExperimentAddress(experiment.experimentId)}
+            aria-label={openExperimentName(experiment.name)}
+          >
+            {ST_OPEN_EXPERIMENT}
+          </ButtonLink>
+        ) : undefined
+      }
+    >
+      {place === 'list' ? (
+        <StExperimentListKicker code={course.codeShown} course={course.name} />
       ) : null}
-    </div>
+      <StRowTitle id={titleId} level={place === 'course' ? 4 : 3}>
+        {experiment.name}
+      </StRowTitle>
+      {undecided ? (
+        <StRowText>{stateWords('ST-03.policy-open')}</StRowText>
+      ) : (
+        <StExperimentListFormats
+          label={yourFormatsLabel(experiment.name)}
+          formats={rowFormatsOf(experiment, closure)}
+        />
+      )}
+    </StListRow>
   );
 }

@@ -40,14 +40,14 @@ async function links(page: Page): Promise<string[][]> {
 }
 
 const SKIP = ['Skip to main content', '#main'];
-// `xr-nav-text` + rail tooltip `xr-tip` (text content). Package 2A builds the Student's Home and My
-// courses, Phase 3 their Progress, which the sidebar renders before Help.
-const SIDEBAR_HELP = ['HelpHelp', '/student/help'];
+// The Student's V3 rail (ST-v1): Home, My courses, Assessments and Progress, then Help & support in
+// its foot.
+const SIDEBAR_HELP = ['Help & support', '/student/help'];
 const SIDEBAR = [
-  ['HomeHome', '/student'],
-  ['My coursesMy courses', '/student/courses'],
-  ['AssessmentsAssessments', '/student/assessments'],
-  ['ProgressProgress', '/student/progress'],
+  ['Home', '/student'],
+  ['My courses', '/student/courses'],
+  ['Assessments', '/student/assessments'],
+  ['Progress', '/student/progress'],
   SIDEBAR_HELP,
 ];
 // The Help views' own breadcrumb, in the page (XS `XsHelp`): the shell's top bar names the view.
@@ -58,7 +58,7 @@ test.describe('every rendered link is in the link-target ledger', () => {
 
   test('Help — My reports (with reports)', async ({ page }) => {
     await openAs(page, RAHUL.person, '/student/help');
-    await expect(page.locator('main.xr-page ul.xs-reports > li')).toHaveCount(1);
+    await expect(page.locator('main#main ul.xs-reports > li')).toHaveCount(1);
     expect(await links(page)).toEqual([
       SKIP,
       ...SIDEBAR,
@@ -189,10 +189,11 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
     const tab = await page.context().newPage();
     await openAs(tab, entry.person, `${entry.base}/help`);
     await waitForShell(tab);
-    // The v46 sidebar, or a V3 rail (the Super Admin's SA-v1, the Vendor's VE-v1, the Content
+    // Every workspace's V3 rail (the Super Admin's SA-v1, the Vendor's VE-v1, the Content
     // Manager's CM-v1, the Academic Reviewer's RV-v1, the Institute Admin's IA-v1, the Faculty
-    // member's FA-v1), whose Help sits in a navigation of its own in the rail foot.
-    const side = tab.locator('aside.xr-side, aside.rb-rail');
+    // member's FA-v1, the Student's ST-v1), whose Help sits in a navigation of its own in the rail
+    // foot.
+    const side = tab.locator('aside.rb-rail');
     if (entry.role === 'vendor') {
       // VE-01 Overview and VE-02 My experiments, then Help & support.
       await expect(side.locator('a[href]')).toHaveCount(3);
@@ -285,18 +286,16 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
       ]);
       await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/admin/help');
     } else {
-      // Package 2A: the Student's Home and My courses. Phase 3: Progress. Phase 4B: the Student's
-      // Assessments. (The Institute Admin's and the Faculty member's destinations and Phase 5's
-      // Vendor, Content Manager and Academic Reviewer destinations are in the V3 rail, above.)
+      // The Student: Package 2A's Home and My courses, Phase 3's Progress and Phase 4B's
+      // Assessments, then Help & support.
+      expect(entry.role).toBe('student');
+      await expect(side.locator('a[href]')).toHaveCount(5);
       expect(
         await side
-          .locator('nav a[href]')
+          .locator('nav[aria-label="Student navigation"] a[href]')
           .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
       ).toEqual(['/student', '/student/courses', '/student/assessments', '/student/progress']);
-      await expect(side.locator('.xr-side-foot a[href]')).toHaveAttribute(
-        'href',
-        `${entry.base}/help`,
-      );
+      await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/student/help');
     }
     await tab.close();
   }
@@ -309,16 +308,15 @@ test('following every ledger link is client-side: one document, one world, one s
   await expect(page.getByRole('heading', { name: 'We can’t find that page' })).toBeVisible();
   const mark = await markDocument(page);
   const start = await inspectWorld(page);
-  // After a client-side move focus is in the new page: `main` on a v46 page; the page's own H1 on
-  // an Entry & shared page drawn in V3 (Help: the XS export's shell patch XS-P2).
+  // After a client-side move focus is in the new page: in the Student's V3 shell (ST-v1), the
+  // page's own H1 (the export's "route change → page heading"; Help: the XS export's XS-P2).
   const step = async (click: () => Promise<void>, url: string, heading: string) => {
     await click();
     await page.waitForURL(`${TEST_HOOKS_URL}${url}`);
     const title = page.getByRole('heading', { level: 1, name: heading });
     await expect(title).toBeVisible();
     await expectSameDocument(page, mark);
-    if (url.includes('/help')) await expect(title).toBeFocused();
-    else await expect(page.locator('main.xr-page#main')).toBeFocused();
+    await expect(title).toBeFocused();
   };
   const main = page.locator('main');
   // PU-15 → Back to Home (the Student's Home, ST-01, since Package 2A); PU-15 → Help.
@@ -407,7 +405,8 @@ test('choosing a destination in the drawer moves focus to the new page, never to
   );
   await openAs(page, RAHUL.person, '/student/help/report');
   await expect(page.getByRole('heading', { level: 1, name: 'Report a problem' })).toBeVisible();
-  await page.getByRole('button', { name: 'Open menu' }).click();
+  // The Student's V3 shell (ST-v1): the top bar's "Menu" opens the drawer.
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await expect(page.getByRole('button', { name: 'Close menu' })).toBeFocused();
   await sidebarHelp(page).focus();
   await page.keyboard.press('Enter');
@@ -416,11 +415,11 @@ test('choosing a destination in the drawer moves focus to the new page, never to
   const title = page.getByRole('heading', { level: 1, name: 'Help & support' });
   await expect(title).toBeFocused();
   // The same destination again: the page does not change, focus still leaves the hidden drawer.
-  await page.getByRole('button', { name: 'Open menu' }).click();
+  await page.getByRole('button', { name: 'Menu', exact: true }).click();
   await sidebarHelp(page).focus();
   await page.keyboard.press('Enter');
   await expect(title).toBeFocused();
-  await expect(page.getByRole('button', { name: 'Open menu' })).toHaveAttribute(
+  await expect(page.getByRole('button', { name: 'Menu', exact: true })).toHaveAttribute(
     'aria-expanded',
     'false',
   );

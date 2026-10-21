@@ -1,29 +1,28 @@
 /**
- * The words of ST-15 Progress and ST-16 / ST-17 Format feedback are the frozen boards' B3-05 and
- * B3-06 (and B2-10 f5 for the Home's Up next button): each drawn phrase is found verbatim in their
- * markup or script, the composed ones with the board's own values; what no board draws is a
- * provisional entry of the state-copy register, waiting on a named decision.
+ * The words of ST-15 Progress and ST-16 / ST-17 Format feedback are the owner-approved V3 Student
+ * export's (ST-v1 `StudentFinal.dc.html`: its template and the script that fills it) — each drawn
+ * phrase found verbatim, each composed one with the script's own composition — and none names a
+ * record by its internal reference (lead decision 3). The Home's Up next button stays B2-10's
+ * (home's describe). What the export does not draw is a provisional entry of the state-copy
+ * register, waiting on a named decision.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, stExport } from '@/test-support/boards';
 
 import {
   answersHeading,
   answerWords,
-  beforePauseWords,
   courseChip,
   experimentCount,
+  FEEDBACK_NOT_OPEN,
   FEEDBACK_PAGE,
-  feedbackSentWords,
   feedbackTitle,
-  givenThroughWords,
-  lastSavedWords,
-  lastSessionWords,
-  openFormatWords,
-  PROGRESS_DETAILS,
+  PROGRESS_ASSESSMENT,
   PROGRESS_PAGE,
+  progressCount,
   RATING_LABELS,
+  removeFilterWords,
   sentLine,
   STATEMENT_INDEXES,
   statementLegend,
@@ -34,27 +33,23 @@ import {
 import { STATE_COPY } from './state-copy';
 import { STATE_COPY_PROGRESS_FEEDBACK } from './state-copy-progress-feedback';
 
-/** A board's text with tags removed and entities read, then its raw markup (attributes, script). */
-function words(file: string): string {
-  const raw = board(file);
-  return `${raw.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${raw}`;
-}
+/** Text as it reads: the export's no-break spaces that keep a date on one line (`nbd`) read as
+ * spaces. */
+const plain = <T extends string | null | undefined>(text: T): T =>
+  (text == null ? text : text.replace(/\u00a0/g, ' ')) as T;
 
-const B3_05 = words('B3-05-Progress.dc.html');
-const B3_06 = words('B3-06-Format-Feedback.dc.html');
-const B3_04 = words('B3-04-AR-VR-MR-Format.dc.html');
-const B3_02 = words('B3-02-Simulation-Choose-Format.dc.html');
-const B2_10 = words('B2-10-Student-Home.dc.html');
+const MAIN = stExport('StudentFinal.dc.html');
+const TEMPLATE = MAIN.slice(0, MAIN.indexOf('<script type="text/x-dc"'));
+const SCRIPT = MAIN.slice(MAIN.indexOf('<script type="text/x-dc"'));
+const DRAWN = `${TEMPLATE.replace(/&amp;/g, '&')}\n${SCRIPT}`;
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT)-\d+/;
+const B2_10 = board('B2-10-Student-Home.dc.html');
 
-/** IST instants of the walk (B3-00 "Rahul’s learning"). */
+/** IST instants of the walk (Rahul's learning). */
 const AT = {
-  webOpened: '2026-10-12T04:35:00.000Z', // 12 Oct 2026, 10:05
-  webSaved: '2026-10-12T05:50:00.000Z', // 12 Oct 2026, 11:20
-  webDone: '2026-10-14T10:00:00.000Z', // 14 Oct 2026, 15:30
-  webFeedback: '2026-10-14T10:12:00.000Z', // 14 Oct 2026, 15:42
-  vrSession: '2026-10-16T08:40:00.000Z', // 16 Oct 2026, 14:10
-  vrDone: '2026-10-20T05:45:00.000Z', // 20 Oct 2026, 11:15
   vrFeedback: '2026-10-20T06:00:00.000Z', // 20 Oct 2026, 11:30
+  deadline: '2026-11-14T18:29:00.000Z', // 14 Nov 2026, 23:59
+  released: '2026-11-16T05:30:00.000Z', // 16 Nov 2026
 };
 
 function strings(value: unknown): string[] {
@@ -64,77 +59,103 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-describe('ST-15 Progress (B3-05)', () => {
-  it.each(strings(PROGRESS_PAGE))('“%s” is on B3-05', (phrase) => {
-    expect(B3_05).toContain(phrase);
+describe('ST-15 Progress (ST-v1 `progress`, `progVM`, `progExp`)', () => {
+  it.each(strings(PROGRESS_PAGE))('“%s” is drawn in the export', (phrase) => {
+    expect(DRAWN).toContain(phrase);
   });
 
-  it('the Status options and the composed words are the board’s', () => {
-    const boardValue = { 'in-progress': 'prog', completed: 'done', 'not-started': 'none' };
+  it('the Status options, the chips and the count are the export’s compositions', () => {
+    const exportValue = { 'in-progress': 'prog', completed: 'done', 'not-started': 'none' };
     for (const [status, label] of STATUS_OPTIONS) {
-      expect(B3_05).toContain(`<option value="${boardValue[status]}">${label}</option>`);
+      expect(TEMPLATE).toContain(`<option value="${exportValue[status]}">${label}</option>`);
     }
-    // The chips as the script builds them ('Status: ' + LBL[s.st], 'Course: ' + s.crs).
-    expect(B3_05).toContain("'Status: ' + LBL[s.st]");
-    expect(statusChip('Not started')).toBe('Status: Not started');
-    expect(B3_05).toContain("c.aria = 'Remove ' + c.label");
-    expect(B3_05).toContain("'Course: ' + s.crs");
-    expect(courseChip('ME ZG523')).toBe('Course: ME ZG523');
-    expect(B3_05).toContain("count: show ? '1 experiment' : '0 experiments'");
+    expect(SCRIPT).toContain("label: 'Status: ' + { prog: 'In progress'");
+    expect(statusChip('Completed')).toBe('Status: Completed');
+    expect(SCRIPT).toContain("label: 'Course: ' + C.own");
+    expect(courseChip('MEC-523')).toBe('Course: MEC-523');
+    expect(SCRIPT).toContain("c.aria = 'Remove filter ' + c.label");
+    expect(removeFilterWords('Status: Completed')).toBe('Remove filter Status: Completed');
+    expect(SCRIPT).toContain("d: '1 experiment'");
     expect(experimentCount(1)).toBe('1 experiment');
-    expect(experimentCount(0)).toBe('0 experiments');
-    expect(B3_05).toContain(givenThroughWords('SACC-0310'));
-    expect(B3_05).toContain(lastSavedWords(AT.webSaved));
-    expect(B3_05).toContain(beforePauseWords('Completed 14 Oct 2026'));
-    expect(B3_05).toContain(beforePauseWords('Not started'));
-    expect(B3_05).toContain(feedbackSentWords(AT.webFeedback));
-    expect(B3_05).toContain(feedbackSentWords(AT.vrFeedback));
-    expect(B3_05).toContain(openFormatWords('vr'));
-    expect(B3_02).toContain(openFormatWords('web'));
-    expect(B3_04).toContain(lastSessionWords(AT.vrSession));
+    expect(experimentCount(2)).toBe('2 experiments');
+    expect(SCRIPT).toContain(
+      "V.count = chips.length ? (show ? 1 : 0) + ' of 1 experiment' : '1 experiment in 1 course'",
+    );
+    expect(progressCount(1, 1, 1, false)).toBe('1 experiment in 1 course');
+    expect(progressCount(0, 1, 1, true)).toBe('0 of 1 experiment');
+    expect(progressCount(1, 1, 1, true)).toBe('1 of 1 experiment');
   });
 
-  it('the details rows are the board’s', () => {
-    expect(B3_05).toContain(
-      `${PROGRESS_DETAILS.firstOpened(AT.webOpened)} · ${PROGRESS_DETAILS.completed(AT.webDone)}`,
+  it('the assessment line is `progExp`’s', () => {
+    const name = 'Heat Exchanger — post-lab';
+    expect(SCRIPT).toContain(`a.st === 'none' ? '${PROGRESS_ASSESSMENT.noneSet}'`);
+    expect(SCRIPT).toContain("A.name + ' · to do · due ' + this.nbd(A.deadline)");
+    expect(plain(PROGRESS_ASSESSMENT.toDo(name, AT.deadline))).toBe(
+      `${name} · to do · due 14 Nov 2026, 23:59`,
     );
-    expect(B3_05).toContain(
-      `${PROGRESS_DETAILS.firstOpened(AT.webOpened)} · ${PROGRESS_DETAILS.lastSaved(AT.webSaved)}`,
+    expect(SCRIPT).toContain("A.name + ' · attempt in progress'");
+    expect(PROGRESS_ASSESSMENT.inProgress(name)).toBe(`${name} · attempt in progress`);
+    expect(SCRIPT).toContain("A.name + ' · submitted, waiting for marking'");
+    expect(PROGRESS_ASSESSMENT.waiting(name)).toBe(`${name} · submitted, waiting for marking`);
+    expect(SCRIPT).toContain("A.name + ' · marked, result not released yet'");
+    expect(PROGRESS_ASSESSMENT.notReleased(name)).toBe(`${name} · marked, result not released yet`);
+    expect(SCRIPT).toContain(
+      "A.name + ' · ' + (sc >= A.passm ? 'passed' : 'not passed') + ' · ' + sc + ' of ' + A.total + ' marks · released '",
     );
-    expect(B3_05).toContain(
-      `${PROGRESS_DETAILS.firstSession(AT.vrSession)} · ${PROGRESS_DETAILS.completed(AT.vrDone)}`,
+    expect(plain(PROGRESS_ASSESSMENT.released(name, true, 12, 16, AT.released))).toBe(
+      `${name} · passed · 12 of 16 marks · released 16 Nov 2026`,
     );
-    expect(B3_05).toContain(`<dt>${PROGRESS_DETAILS.feedbackKey('web')}</dt>`);
-    expect(B3_05).toContain(`<dd>${PROGRESS_DETAILS.sent(AT.webFeedback)}</dd>`);
+    expect(SCRIPT).toContain(
+      `{ todo: '${PROGRESS_ASSESSMENT.open}', prog: '${PROGRESS_ASSESSMENT.continueAttempt}', ready: '${PROGRESS_ASSESSMENT.seeResult}' }`,
+    );
+  });
+
+  it('the grant line names no grant (lead decision 3)', () => {
+    expect(SCRIPT).toContain(`given: '${PROGRESS_PAGE.given}'`);
+    for (const phrase of strings(PROGRESS_PAGE)) expect(phrase).not.toMatch(REFERENCE);
   });
 });
 
-describe('ST-16 / ST-17 Format feedback (B3-06)', () => {
-  it.each(strings(FEEDBACK_PAGE))('“%s” is on B3-06', (phrase) => {
-    expect(B3_06).toContain(phrase);
+describe('ST-16 / ST-17 Format feedback (ST-v1 `feedback`, `fbVM`, `msg(fb-not)`)', () => {
+  it.each(strings(FEEDBACK_PAGE))('“%s” is drawn in the export', (phrase) => {
+    expect(DRAWN).toContain(phrase);
   });
 
-  it('the statements, the scale and the composed words are the board’s', () => {
+  it('the statements, the scale and the composed words are the export’s', () => {
     expect(STATEMENT_INDEXES).toHaveLength(5);
     for (const index of STATEMENT_INDEXES) {
-      expect(B3_06).toContain(statementLegend(index).replace(/^\d\. /, ''));
+      expect(SCRIPT).toContain(statementLegend(index).replace(/^\d\. /, ''));
     }
-    expect(B3_06).toContain("t: n + '. ' + t");
-    for (const label of Object.values(RATING_LABELS)) expect(B3_06).toContain(`"${label}"`);
-    expect(B3_06).toContain(feedbackTitle('vr'));
-    expect(B3_06).toContain(feedbackTitle('web'));
-    expect(B3_06).toContain(answersHeading('vr'));
-    expect(B3_06).toContain(answersHeading('web'));
-    // 'Thank you. Sent {{ f.when }}. Feedback can’t be changed after it’s sent.' with f.when.
-    expect(B3_06).toContain(
-      'Thank you. Sent {{ f.when }}. Feedback can’t be changed after it’s sent.',
+    expect(SCRIPT).toContain("t: n + '. ' + t");
+    for (const label of Object.values(RATING_LABELS)) expect(SCRIPT).toContain(`'${label}'`);
+    expect(SCRIPT).toContain("h1: sent ? 'Feedback on ' + f + ' sent' : 'Feedback on ' + f");
+    expect(feedbackTitle('vr')).toBe('Feedback on VR');
+    expect(TEMPLATE).toContain('Your answers · {{ FB.code }}');
+    expect(answersHeading('web')).toBe('Your answers · WEB');
+    expect(TEMPLATE).toContain('Sent {{ FB.when }}. Feedback can’t be changed after it’s sent.');
+    expect(plain(sentLine(AT.vrFeedback))).toBe(
+      'Sent 20 Oct 2026, 11:30. Feedback can’t be changed after it’s sent.',
     );
-    expect(sentLine(AT.vrFeedback)).toBe(
-      'Thank you. Sent 20 Oct 2026, 11:30. Feedback can’t be changed after it’s sent.',
-    );
-    expect(B3_06).toContain("s.ans[i + 1] + ' — ' + D.scale[s.ans[i + 1] - 1]");
+    expect(SCRIPT).toContain("v ? v + ' — ' + SC[v - 1]");
     expect(answerWords(4)).toBe('4 — Agree');
-    expect(B3_06).toContain("commentText: s.comments.trim() || '—'");
+    expect(SCRIPT).toContain("V.commentText = sent.comments || '—'");
+  });
+
+  it('“isn’t open yet” is `msg(fb-not)`’s', () => {
+    expect(SCRIPT).toContain("k: E.t + ' · Feedback'");
+    expect(FEEDBACK_NOT_OPEN.kicker('Shell-and-Tube Heat Exchanger')).toBe(
+      'Shell-and-Tube Heat Exchanger · Feedback',
+    );
+    expect(SCRIPT).toContain("'Feedback on ' + r.fmt + ' isn’t open yet'");
+    expect(FEEDBACK_NOT_OPEN.title('vr')).toBe('Feedback on VR isn’t open yet');
+    expect(SCRIPT).toContain(
+      "'You can give feedback on ' + r.fmt + ' once ' + r.fmt + ' is recorded as completed. Each format has its own feedback.'",
+    );
+    expect(FEEDBACK_NOT_OPEN.line('web')).toBe(
+      'You can give feedback on WEB once WEB is recorded as completed. Each format has its own feedback.',
+    );
+    expect(SCRIPT).toContain("p('Back to ' + (r.fmt === 'VR' ? 'VR' : 'WEB')");
+    expect(FEEDBACK_NOT_OPEN.back('vr')).toBe('Back to VR');
   });
 });
 
@@ -150,6 +171,7 @@ describe('the register', () => {
       expect(STATE_COPY[id as keyof typeof STATE_COPY]).toBe(entry);
       expect(entry.status).toBe('provisional');
       expect(entry.decisions.length).toBeGreaterThan(0);
+      if (entry.words !== null) expect(entry.words, id).not.toMatch(REFERENCE);
     }
     expect(STATE_COPY_PROGRESS_FEEDBACK['ST-16.not-eligible'].decisions).toEqual(['T-12', 'T-25']);
   });

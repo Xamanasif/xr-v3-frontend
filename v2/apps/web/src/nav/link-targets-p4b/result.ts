@@ -2,46 +2,54 @@ import type { LedgerEntry } from '../link-targets';
 import { pageRows } from '../link-targets-p3/rows';
 
 const RESULT = '/student/assessments/{assessmentId}/result';
-const HUB = '/student/experiments/{experimentId}';
+const TAB = '/student/experiments/{experimentId}/assessment';
 
 /**
- * Phase 4B link targets: ST-14 Result (B4-13). One primary per drawn state: "Back to experiment"
- * (the hub, B2-12) on the released result and on the waiting and not-released messages; "Back to
- * the assessment" (ST-12) on the "Not submitted yet" message. "Try again" is a command
- * (`startAttempt`), then the new attempt (ST-13).
+ * Phase 4B link targets, V3 (ST-v1 `is.ares`, LINK-MAP 14-*): ST-14 Result. The released result's
+ * one primary is "Try again" when it is offered (a command, `startAttempt`, then ST-13); "Back to
+ * experiment" (the hub's Assessment tab) is a plain button on every state; "Back to the assessment"
+ * (ST-12) on "Not submitted yet". The marks by question jump to each answer.
  */
 export const P4B_RESULT_LINK_TARGETS: readonly LedgerEntry[] = pageRows('ST-14', RESULT, [
   [
-    'Top bar crumbs',
+    'Breadcrumb',
     'Assessments',
     'secondary',
     '/student/assessments',
     'built',
-    'B4-13 f0 `ol.xr-crumbs` (→ B4-11 ST-11)',
+    'ST-v1 LINK-MAP 14-released `nav.rk-crumbs` (→ ST-11)',
   ],
   [
-    'Top bar crumbs',
+    'Breadcrumb',
     '<assessment name>',
     'secondary',
     '/student/assessments/{assessmentId}',
     'built',
-    'B4-13 f0 `ol.xr-crumbs` (→ B4-11 f11 ST-12)',
+    'ST-v1 LINK-MAP 14-released `nav.rk-crumbs` (→ ST-12)',
   ],
   [
-    'Released result',
-    'Back to experiment',
-    'primary',
-    HUB,
-    'built',
-    'B4-13 f0, f3, f5 `a.xr-btn--primary` (→ B2-12 ST-05)',
+    'Marks by question',
+    '(each question’s mark)',
+    'secondary',
+    '#Rs-ans-1',
+    'in-page',
+    'ST-v1 LINK-MAP 14-released `ol.sv-byq a.sv-byq-i` (focus moves to the answer)',
   ],
   [
     'Released result, not passed with an attempt left',
     'Try again',
-    'secondary',
+    'primary',
     null,
     'in-page',
-    'B4-13 f3 `a.xr-btn--secondary` (`AssessmentService.startAttempt`, then ST-13 B4-12; state-copy `ST-14.try-again`)',
+    'ST-v1 LINK-MAP 14-notpassed `div.sv-score-retry a.rb-btn--primary` (`AssessmentService.startAttempt`, then ST-13; state-copy `ST-14.try-again`)',
+  ],
+  [
+    'Released result',
+    'Back to experiment',
+    'secondary',
+    TAB,
+    'built',
+    'ST-v1 LINK-MAP 14-released `div.sv-review-foot a.rb-btn` (→ the hub’s Assessment tab)',
   ],
   [
     'Released result',
@@ -49,38 +57,38 @@ export const P4B_RESULT_LINK_TARGETS: readonly LedgerEntry[] = pageRows('ST-14',
     'secondary',
     '/student/progress',
     'built',
-    'B4-13 f0, f3, f5 `a.xr-btn--text` (→ B3-05 ST-15)',
+    'ST-v1 LINK-MAP 14-released `a.sv-link` (→ ST-15)',
   ],
   [
     'Submitted — waiting for marking',
     'Back to experiment',
-    'primary',
-    HUB,
+    'secondary',
+    TAB,
     'built',
-    'B4-13 f1, f4 `a.xr-btn--primary` (→ B2-12 ST-05)',
+    'ST-v1 LINK-MAP 14-waitmark `div.sv-refuse-act a.rb-btn` (→ the hub’s Assessment tab)',
   ],
   [
     'Result not released yet',
     'Back to experiment',
-    'primary',
-    HUB,
+    'secondary',
+    TAB,
     'built',
-    'B4-13 f2 `a.xr-btn--primary` (→ B2-12 ST-05)',
+    'ST-v1 LINK-MAP 14-notrel `div.sv-refuse-act a.rb-btn`',
   ],
   [
     'Not submitted yet',
     'Back to the assessment',
-    'primary',
+    'secondary',
     '/student/assessments/{assessmentId}',
     'built',
-    'B4-13 `r.notSub` `a.xr-btn--primary` (→ B4-11 f11 ST-12; state-copy `ST-14.attempt-shown`)',
+    'ST-v1 LINK-MAP 14-assess `div.sv-refuse-act a.rb-btn` (→ ST-12; state-copy `ST-14.attempt-shown`)',
   ],
   [
     'Failed state',
     'Try again',
-    'primary',
+    'secondary',
     null,
     'in-page',
-    'state-copy `ST-14.failed` (the Student failed pattern, B2-11 f10 `button.xr-btn--primary`)',
+    'state-copy `ST-14.failed` (`section.sv-msg button.rb-btn.sv-msg-btn`)',
   ],
 ]);

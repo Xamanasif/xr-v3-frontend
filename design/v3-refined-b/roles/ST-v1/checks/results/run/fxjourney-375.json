@@ -1,0 +1,423 @@
+{
+ "results": [
+  {
+   "name": "J1 Home: Hello, Rahul with the stage tracker and one gold action (Continue WEB)",
+   "ok": true
+  },
+  {
+   "name": "J1 course link → ST-03 Course, focus on the H1",
+   "ok": true
+  },
+  {
+   "name": "J1 Open experiment → ST-05 Overview",
+   "ok": true
+  },
+  {
+   "name": "J1 Resources tab → ST-06, three items listed",
+   "ok": true
+  },
+  {
+   "name": "J1 opening a resource records the time; progress is not touched",
+   "ok": true
+  },
+  {
+   "name": "J1 Simulation tab → ST-07: two format cards, WEB marked Next step, gold Continue WEB",
+   "ok": true
+  },
+  {
+   "name": "J1 Continue WEB → ST-08 launch page with the stage tracker",
+   "ok": true
+  },
+  {
+   "name": "J1 Continue WEB opens the sample activity (ST-08a), stage 2 is now",
+   "ok": true
+  },
+  {
+   "name": "J1 stage 2 finished → stage 3 now, place saved",
+   "ok": true
+  },
+  {
+   "name": "J1 activity complete: WEB recorded as completed, focus on the done card",
+   "ok": true
+  },
+  {
+   "name": "J1 back on ST-08: Completed, recorded by the platform, gold Give feedback on WEB",
+   "ok": true
+  },
+  {
+   "name": "J1 Progress (ST-15) agrees: WEB completed by the platform, gold Give feedback on WEB",
+   "ok": true
+  },
+  {
+   "name": "J2 → ST-16 rating sheet: five statements, scale named once",
+   "ok": true
+  },
+  {
+   "name": "J2 submitting with nothing rated: error summary focused, five ratings missing",
+   "ok": true
+  },
+  {
+   "name": "J2 error link moves focus to the first rating of statement 1",
+   "ok": true
+  },
+  {
+   "name": "J2 all five rated: the errors clear",
+   "ok": true
+  },
+  {
+   "name": "J2 sent (ST-17): thank-you band, answers read-only on the same scale",
+   "ok": true
+  },
+  {
+   "name": "J2 Home next step moves on to VR",
+   "ok": true
+  },
+  {
+   "name": "J3 ST-11: the row is led by its due date, gold Open",
+   "ok": true
+  },
+  {
+   "name": "J3 Open → ST-12: Before you start, three rules, deadline block and key facts",
+   "ok": true
+  },
+  {
+   "name": "J3 Start assessment → ST-13 attempt: one sheet, four questions, focus on the H1",
+   "ok": true
+  },
+  {
+   "name": "J3 three answered: count, numbers and strip agree",
+   "ok": true
+  },
+  {
+   "name": "J3 Next unanswered → question 4",
+   "ok": true
+  },
+  {
+   "name": "J3 all four answered",
+   "ok": true
+  },
+  {
+   "name": "J3 Submit opens the confirmation dialog, focus inside it",
+   "ok": true
+  },
+  {
+   "name": "J3 Escape closes the dialog, focus back on Submit",
+   "ok": true
+  },
+  {
+   "name": "J3 submitted: done card focused, waiting for marking",
+   "ok": true
+  },
+  {
+   "name": "J3 result page withheld (compact message): Submitted — waiting for marking",
+   "ok": true
+  },
+  {
+   "name": "J3 ST-11: To do is empty and says where the assessment is; Submitted holds it",
+   "ok": true
+  },
+  {
+   "name": "J3 Submitted tab: the row is led by \"Result after\"",
+   "ok": true
+  },
+  {
+   "name": "J3 released result: score panel 11 of 16, Passed, marks by question",
+   "ok": true
+  },
+  {
+   "name": "J3 marks-by-question link jumps to question 2",
+   "ok": true
+  },
+  {
+   "name": "J3 answer review: correct answer shown only where it differs",
+   "ok": true
+  },
+  {
+   "name": "J3 not passed: Try again in the score panel, the one gold action",
+   "ok": true
+  },
+  {
+   "name": "J4 Open VR → ST-09: Set up VR, setup steps open, authorised headset shown",
+   "ok": true
+  },
+  {
+   "name": "J4 My device → ST-18 with the authorised headset and one gold action",
+   "ok": true
+  },
+  {
+   "name": "J4 Request a device transfer opens the form, focus on New device",
+   "ok": true
+  },
+  {
+   "name": "J4 empty request: field error and focus on the field",
+   "ok": true
+  },
+  {
+   "name": "J4 request sent: status with your Institute Admin, three dated steps; no reference, as in the baseline for this scenario",
+   "ok": true
+  },
+  {
+   "name": "J4 device scenario: the new request shows its status, its three dated steps and From / To, and no internal record identifier",
+   "ok": true
+  },
+  {
+   "name": "J4 forwarded: two steps done, BITS decides now",
+   "ok": true
+  },
+  {
+   "name": "J4 VR in progress: Continue on your headset, last session in the header",
+   "ok": true
+  },
+  {
+   "name": "J4 VR completed: gold Give feedback on VR",
+   "ok": true
+  },
+  {
+   "name": "J5 paused Home: no gold, the pause said in the banner",
+   "ok": true
+  },
+  {
+   "name": "J5 paused WEB page: no launch, the student’s completion kept in the header",
+   "ok": true
+  },
+  {
+   "name": "J5 waiting for a licence: Not available to you yet, no launch",
+   "ok": true
+  },
+  {
+   "name": "J5 VR not available right now: said once, WEB still opens",
+   "ok": true
+  },
+  {
+   "name": "J5 AR refusal: compact card with the formats you can use",
+   "ok": true
+  },
+  {
+   "name": "J5 AR refusal → Continue WEB → ST-08",
+   "ok": true
+  },
+  {
+   "name": "J5 MR refusal",
+   "ok": true
+  },
+  {
+   "name": "J5 ST-19 not given: experiments you can open",
+   "ok": true
+  },
+  {
+   "name": "J5 ST-19 → Open experiment → ST-05",
+   "ok": true
+  },
+  {
+   "name": "J5 withdrawn: no longer given, your work as recorded",
+   "ok": true
+  },
+  {
+   "name": "J5 withdrawn → See your earlier work → ST-15",
+   "ok": true
+  },
+  {
+   "name": "J5 ended: access ended with the date",
+   "ok": true
+  },
+  {
+   "name": "J5 My device when not eligible: refusal",
+   "ok": true
+  },
+  {
+   "name": "J5 feedback before completion: refusal with Back to VR",
+   "ok": true
+  },
+  {
+   "name": "J5 assessment not set: refusal",
+   "ok": true
+  },
+  {
+   "name": "J5 inactive account: the borrowed XS-08 message, unchanged form",
+   "ok": true
+  },
+  {
+   "name": "J6 Tab from the H1 on ST-08: Continue WEB, then Report a problem",
+   "ok": true
+  },
+  {
+   "name": "J6 drawer opens, focus on Close",
+   "ok": true
+  },
+  {
+   "name": "J6 Escape closes, focus back to Menu",
+   "ok": true
+  },
+  {
+   "name": "J6 page checks on every page visited (one H1, ≤ 1 gold, no # links)",
+   "ok": true
+  },
+  {
+   "name": "J6 no console errors",
+   "ok": true
+  }
+ ],
+ "seen": [
+  {
+   "label": "ST-01 learn",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-03 learn",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-05 learn",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-06 learn",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-07 learn",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-08 learn",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-08a stage 2",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-08a done",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-08 done",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-15 after completion",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-16 form",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-17 sent",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-11 assess",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-12 assess",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-13 attempt",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-14 waiting",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-14 released",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-09 learn",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-18 device",
+   "h1": 1,
+   "gold": 1,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-18 sent",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-01 paused",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-09 AR",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  },
+  {
+   "label": "ST-19",
+   "h1": 1,
+   "gold": 0,
+   "ids": [],
+   "bare": 0
+  }
+ ]
+}

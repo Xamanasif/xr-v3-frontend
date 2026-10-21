@@ -121,8 +121,8 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
   /**
    * Each export and its file count. An export that ships its own `SHA256SUMS.txt` is checked
    * against it (XS-v6); one that ships none is checked against the list recorded at intake beside
-   * its folder, `<folder>.SHA256SUMS.txt` (SA-v1, VE-v1, CM-v1, RV-v1, IA-v1, FA-v1), so nothing is
-   * added inside the export.
+   * its folder, `<folder>.SHA256SUMS.txt` (SA-v1, VE-v1, CM-v1, RV-v1, IA-v1, FA-v1, ST-v1), so
+   * nothing is added inside the export.
    */
   const EXPORTS = {
     'XS-v6': { files: 125, sums: 'inside' },
@@ -132,6 +132,7 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
     'RV-v1': { files: 120, sums: 'beside' },
     'IA-v1': { files: 151, sums: 'beside' },
     'FA-v1': { files: 227, sums: 'beside' },
+    'ST-v1': { files: 299, sums: 'beside' },
   } as const;
   const sumsOf = (folder: keyof typeof EXPORTS) =>
     EXPORTS[folder].sums === 'inside'
@@ -173,14 +174,15 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
   it('each export is built on this foundation, and the roles index names it', () => {
     const index = readFileSync(join(roles, 'README.md'), 'utf8');
     for (const folder of Object.keys(EXPORTS)) {
-      // Seven lock layouts: `baseFiles["project/core.css"]` (XS),
+      // Eight lock layouts: `baseFiles["project/core.css"]` (XS),
       // `byteIdenticalCopiesInProject["core.css"]` (SA), `sharedFilesShipped["project/core.css"]`
       // (VE), `baseFilesShipped["project/core.css"]` (CM), `copiedBaseFiles["project/core.css"]`
       // (RV), `byteIdenticalCopies["project/core.css"]` (IA) or `baseFilesUsed["project/core.css"]`
-      // (FA), each with the sheet's SHA-256.
+      // (FA), each with the sheet's SHA-256, or `baseFiles["project/core.css"]` with it as
+      // `finalSha256` (ST).
       const exportLock = readJson(join(roles, folder, 'FOUNDATION-LOCK.json')) as {
         foundationId: string;
-        baseFiles?: Record<string, { sha256: string }>;
+        baseFiles?: Record<string, { sha256?: string; finalSha256?: string }>;
         byteIdenticalCopiesInProject?: Record<string, { sha256: string }>;
         sharedFilesShipped?: Record<string, { sha256: string }>;
         baseFilesShipped?: Record<string, { sha256: string }>;
@@ -192,6 +194,7 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
       for (const sheet of ['core.css', 'rb.css', 'rb-kit.css']) {
         const recorded =
           exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
+          exportLock.baseFiles?.[`project/${sheet}`]?.finalSha256 ??
           exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256 ??
           exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256 ??
           exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256 ??
@@ -336,18 +339,18 @@ describe('scope boundary: only migrated screens load the V3 layer (ADR-0010)', (
     );
     expect(unnamed).toEqual([]);
     // Today: the Entry & shared surfaces (XS), the Super Admin (SA), the Vendor (VE), the Content
-    // Manager (CM), the Academic Reviewer (RV), the Institute Admin (IA) and the Faculty member
-    // (FA), and nothing of the locked landing or another role's page.
+    // Manager (CM), the Academic Reviewer (RV), the Institute Admin (IA), the Faculty member (FA)
+    // and the Student (ST), and nothing of the locked landing.
     expect(new Set(screens.map((screen) => screen.id.slice(0, 2)))).toEqual(
-      new Set(['XS', 'SA', 'VE', 'CM', 'RV', 'IA', 'FA']),
+      new Set(['XS', 'SA', 'VE', 'CM', 'RV', 'IA', 'FA', 'ST']),
     );
     for (const file of importers) {
       expect(file, file).toMatch(
-        /^apps\/web\/src\/(?:features\/shared\/|features\/admin\/|features\/vendor\/|features\/content-manager\/|features\/reviewer\/|features\/institute\/|features\/faculty\/|app\/\(auth\)\/layout\.tsx$|app\/_workspace\/workspace-route\.tsx$)/,
+        /^apps\/web\/src\/(?:features\/shared\/|features\/admin\/|features\/vendor\/|features\/content-manager\/|features\/reviewer\/|features\/institute\/|features\/faculty\/|features\/student\/|app\/\(auth\)\/layout\.tsx$|app\/_workspace\/workspace-route\.tsx$)/,
       );
     }
     summary.push(
-      `V3 layer loaded by ${importers.length} web sources (XS, SA, VE, CM, RV, IA, FA), all on the comparison map`,
+      `V3 layer loaded by ${importers.length} web sources (XS, SA, VE, CM, RV, IA, FA, ST), all on the comparison map`,
     );
   });
 

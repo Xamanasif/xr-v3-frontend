@@ -5,8 +5,10 @@ import { checkState } from '../support/screen-checks';
 import { currentSidebarItem } from '../support/workspace';
 
 /**
- * Phase 3, the Student's format pages on the test-hook build, at 1440, 1024, 768 and 375: ST-08
- * WEB simulation (B3-03) and ST-09 AR / VR / MR format (B3-04). Each drawn state passes
+ * The Student's format pages on the test-hook build, at 1440, 1024, 768 and 375, as the V3 Student
+ * export draws them (ST-v1 `StudentFinal.dc.html`, `fpageVM`, `msg('ar' | 'mr')`): ST-08 WEB
+ * simulation and ST-09 AR / VR / MR (the H1 is the record title; the launch surface's title is
+ * its h2). No stage is drawn (lead decision 1), no plan named (lead decision 3). Each drawn state passes
  * `checkState` (axe WCAG A/AA, one h1, visible focus targets, 24 × 24 targets, no developer
  * surface, no sideways scroll). TE-3 is unsigned: "Launch WEB" opens the published `.example` WEB
  * link in a new tab (fulfilled here, never fetched) and stores nothing (AD-16) — "In progress" and
@@ -34,7 +36,9 @@ async function open(
 }
 
 const main = (page: Page) => page.locator('main');
-const status = (page: Page) => main(page).locator('.xl-fmtpanel .xr-status');
+const status = (page: Page) => main(page).locator('.rk-head .rk-meta .xr-st');
+const launchTitle = (page: Page) => main(page).locator('section.sv-launch h2.sv-sec-t');
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB|SACC|ATT|ASMT)-\d+/;
 
 /** The sample WEB links end in `.example`: the new tab gets a stand-in page, never the network. */
 async function fulfilExampleLinks(page: Page): Promise<void> {
@@ -67,14 +71,17 @@ async function pauseGodavari(page: Page): Promise<void> {
 }
 
 test.describe('ST-08 WEB simulation', () => {
-  test('Launch WEB opens the WEB link in a new tab and stores nothing; the runtime’s reports move it on (B3-03 f1 → f0 → f3)', async ({
+  test('Launch WEB opens the WEB link in a new tab and stores nothing; the runtime’s reports move it on', async ({
     page,
   }) => {
     await fulfilExampleLinks(page);
     await open(page, 'after-flow-b', RAHUL, WEB);
-    await checkState(page, 'Start the WEB simulation');
+    await checkState(page, 'WEB simulation');
+    await expect(launchTitle(page)).toHaveText('Start the WEB simulation');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/student/courses');
     await expect(status(page)).toHaveText('Not started');
+    await expect(main(page)).not.toContainText(/stage/i);
+    await expect(main(page)).not.toContainText(REFERENCE);
 
     const popup = page.waitForEvent('popup');
     await reachAndClick(page, main(page).getByRole('button', { name: 'Launch WEB' }));
@@ -89,7 +96,7 @@ test.describe('ST-08 WEB simulation', () => {
     // AD-16: the launch wrote nothing — the status is still the service's "Not started".
     await expect(status(page)).toHaveText('Not started');
     await expect(main(page).getByRole('button', { name: 'Launch WEB' })).toBeVisible();
-    await checkState(page, 'Start the WEB simulation');
+    await checkState(page, 'WEB simulation');
 
     await reportRuntime(page, {
       person: RAHUL,
@@ -97,10 +104,10 @@ test.describe('ST-08 WEB simulation', () => {
       format: 'web',
       kind: 'opened',
     });
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Continue where you left off');
+    await expect(launchTitle(page)).toHaveText('Continue where you left off');
     await expect(status(page)).toHaveText('In progress');
     await expect(main(page).getByRole('button', { name: 'Continue WEB' })).toBeVisible();
-    await checkState(page, 'Continue where you left off');
+    await checkState(page, 'WEB simulation');
 
     await reportRuntime(page, {
       person: RAHUL,
@@ -108,18 +115,16 @@ test.describe('ST-08 WEB simulation', () => {
       format: 'web',
       kind: 'completed',
     });
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('You’ve completed WEB');
+    await expect(launchTitle(page)).toHaveText('You’ve completed WEB');
     await expect(main(page).getByRole('link', { name: 'Give feedback on WEB' })).toHaveAttribute(
       'href',
       `/student/experiments/${SHELL}/feedback/web`,
     );
     await expect(main(page).getByRole('button')).toHaveCount(0);
-    await checkState(page, 'You’ve completed WEB');
+    await checkState(page, 'WEB simulation');
   });
 
-  test('the simulation didn’t open: nothing lost, Try again opens it (B3-03 f2)', async ({
-    page,
-  }) => {
+  test('the simulation didn’t open: nothing lost, Try again opens it', async ({ page }) => {
     await fulfilExampleLinks(page);
     await open(page, 'after-flow-b', RAHUL, WEB);
     await expect(main(page).getByRole('button', { name: 'Launch WEB' })).toBeVisible();
@@ -137,7 +142,8 @@ test.describe('ST-08 WEB simulation', () => {
     await expect(alert).toContainText(
       'Nothing was lost. Try again, or report a problem if it keeps happening.',
     );
-    await checkState(page, 'Start the WEB simulation');
+    await expect(alert).toBeFocused();
+    await checkState(page, 'WEB simulation');
     const popup = page.waitForEvent('popup');
     await reachAndClick(page, main(page).getByRole('button', { name: 'Try again' }));
     const tab = await popup;
@@ -149,57 +155,65 @@ test.describe('ST-08 WEB simulation', () => {
     ).toBeVisible();
   });
 
-  test('completed with feedback sent: See your feedback (B3-03 f4, after Flow C)', async ({
-    page,
-  }) => {
+  test('completed with feedback sent: See your feedback (after Flow C)', async ({ page }) => {
     await open(page, 'after-flow-c', RAHUL, WEB);
-    await checkState(page, 'You’ve completed WEB');
+    await checkState(page, 'WEB simulation');
+    await expect(launchTitle(page)).toHaveText('You’ve completed WEB');
     await expect(status(page)).toHaveText('Completed 14 Oct 2026');
-    await expect(main(page)).toContainText('Feedback sent 14 Oct 2026, 15:42');
+    await expect(main(page)).toContainText('Reported by the simulation at 15:30');
+    await expect(main(page)).toContainText('Thank you — your feedback on WEB is recorded.');
     await expect(main(page).getByRole('link', { name: 'See your feedback' })).toBeVisible();
     await expect(main(page).getByRole('link', { name: /Give feedback/ })).toHaveCount(0);
   });
 
-  test('paused (B3-03 f5)', async ({ page }) => {
+  test('paused', async ({ page }) => {
     await open(page, 'after-flow-b', RAHUL, WEB);
     await expect(main(page).getByRole('button', { name: 'Launch WEB' })).toBeVisible();
     await pauseGodavari(page);
-    await checkState(page, 'You can’t open the simulation right now');
+    await expect(launchTitle(page)).toHaveText('You can’t open the simulation right now');
+    await checkState(page, 'WEB simulation');
     await expect(status(page)).toHaveText('Paused');
     await expect(main(page).getByRole('button')).toHaveCount(0);
   });
 
-  test('a supplied licence wait: Arun Kumar, later sample (B3-03 f6)', async ({ page }) => {
+  test('a supplied licence wait: Arun Kumar, later sample — no plan named', async ({ page }) => {
     await open(page, 'later-sample', ARUN, WEB);
-    await checkState(page, 'Not available to you yet');
+    await checkState(page, 'WEB simulation');
+    await expect(launchTitle(page)).toHaveText('Not available to you yet');
     await expect(status(page)).toHaveText('Waiting for a licence');
     await expect(main(page)).toContainText(
-      'No licence is available for you on ACC-0107 right now. Your institution can tell you more.',
+      'No licence is available for you right now. Your institution can tell you more.',
     );
+    await expect(main(page)).not.toContainText(REFERENCE);
   });
 });
 
 test.describe('ST-09 AR / VR / MR format', () => {
-  test('VR: Set up VR → Continue on your headset → Give feedback on VR, from reported sessions (B3-04 f1, f0, f2)', async ({
+  test('VR: Set up VR → Continue on your headset → Give feedback on VR, from reported sessions', async ({
     page,
   }) => {
     await open(page, 'after-flow-b', RAHUL, VR);
-    await checkState(page, 'Set up VR');
+    await checkState(page, 'VR on your headset');
+    await expect(launchTitle(page)).toHaveText('Set up VR');
     await expect(status(page)).toHaveText('Not started');
     await expect(main(page)).toContainText('ME lab VR headset, asset tag GIT-VR-03');
     await expect(main(page).getByRole('link', { name: 'My device' })).toHaveAttribute(
       'href',
       '/student/device',
     );
-    // Information only: no launch button for VR (T-14).
-    await expect(main(page).getByRole('button')).toHaveCount(0);
-    const steps = main(page).locator('.xl-steps > li');
+    // Information only: no launch button for VR (T-14); the one button is the steps' disclosure.
+    await expect(main(page).getByRole('button')).toHaveCount(1);
+    const steps = main(page).locator('ol.sv-howto > li');
     await expect(steps).toHaveCount(4);
     await expect(steps.nth(1)).toContainText(
       'Open the Shell-and-Tube Heat Exchanger app on the headset.',
     );
-    await reachAndClick(page, main(page).getByText('View setup steps'));
-    await expect(steps.first()).toBeHidden();
+    await reachAndClick(page, main(page).getByRole('button', { name: 'Hide setup steps' }));
+    await expect(steps).toHaveCount(0);
+    await expect(main(page).getByRole('button', { name: 'View setup steps' })).toHaveAttribute(
+      'aria-expanded',
+      'false',
+    );
 
     await reportRuntime(page, {
       person: RAHUL,
@@ -207,10 +221,10 @@ test.describe('ST-09 AR / VR / MR format', () => {
       format: 'vr',
       kind: 'session',
     });
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Continue on your headset');
+    await expect(launchTitle(page)).toHaveText('Continue on your headset');
     await expect(status(page)).toHaveText('In progress');
     await expect(main(page)).toContainText('Last session reported');
-    await checkState(page, 'Continue on your headset');
+    await checkState(page, 'VR on your headset');
 
     await reportRuntime(page, {
       person: RAHUL,
@@ -218,40 +232,42 @@ test.describe('ST-09 AR / VR / MR format', () => {
       format: 'vr',
       kind: 'completed',
     });
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('You’ve completed VR');
+    await expect(launchTitle(page)).toHaveText('You’ve completed VR');
     await expect(main(page)).toContainText('Reported from the headset at');
     await expect(main(page).getByRole('link', { name: 'Give feedback on VR' })).toHaveAttribute(
       'href',
       `/student/experiments/${SHELL}/feedback/vr`,
     );
-    await checkState(page, 'You’ve completed VR');
+    await checkState(page, 'VR on your headset');
   });
 
-  test('VR completed 20 Oct with feedback sent (after Flow C; B3-12 f3, f4)', async ({ page }) => {
+  test('VR completed 20 Oct with feedback sent (after Flow C)', async ({ page }) => {
     await open(page, 'after-flow-c', RAHUL, VR);
-    await checkState(page, 'You’ve completed VR');
+    await checkState(page, 'VR on your headset');
+    await expect(launchTitle(page)).toHaveText('You’ve completed VR');
     await expect(status(page)).toHaveText('Completed 20 Oct 2026');
     await expect(main(page)).toContainText('Thank you — your feedback on VR is recorded.');
     await expect(main(page).getByRole('link', { name: 'See your feedback' })).toBeVisible();
   });
 
-  test('VR paused (B3-04 f5)', async ({ page }) => {
+  test('VR paused', async ({ page }) => {
     await open(page, 'after-flow-b', RAHUL, VR);
-    await expect(page.getByRole('heading', { level: 1 })).toHaveText('Set up VR');
+    await expect(launchTitle(page)).toHaveText('Set up VR');
     await pauseGodavari(page);
-    await checkState(page, 'You can’t use VR right now');
-    await expect(main(page).locator('.xl-dev')).toHaveCount(0);
+    await expect(launchTitle(page)).toHaveText('You can’t use VR right now');
+    await checkState(page, 'VR on your headset');
+    await expect(main(page).locator('.sv-launch-dev')).toHaveCount(0);
   });
 
-  test('AR not included (B3-04 f3), MR not available (f4), an unknown format not found', async ({
-    page,
-  }) => {
+  test('AR not included, MR not available, an unknown format not found', async ({ page }) => {
     await open(page, 'after-flow-b', RAHUL, `${SIMULATION}/ar`);
     await checkState(page, 'AR isn’t included for your institution');
     await expect(main(page)).toContainText(
       'AR is published for this experiment, but your institution’s access includes WEB and VR only.',
     );
-    await expect(main(page).locator('.xr-msg').getByRole('link')).toHaveAttribute(
+    const refusal = main(page).locator('.sv-refuse');
+    await expect(refusal.getByRole('list')).toContainText('Browser');
+    await expect(refusal.getByRole('link', { name: 'Back to Simulation' })).toHaveAttribute(
       'href',
       SIMULATION,
     );

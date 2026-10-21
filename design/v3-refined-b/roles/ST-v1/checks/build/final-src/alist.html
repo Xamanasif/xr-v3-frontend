@@ -1,0 +1,67 @@
+      <!-- ══════════ ST-11 Assessments: each assessment as a row led by its key date (due, result after, released),
+           with the state and one action; empty tabs say where the assessment is instead. ══════════ -->
+      <sc-if value="{{ is.alist }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ S.dateLong }}</p>
+          <h1 class="rb-h1" id="st-h1" tabindex="-1">Assessments</h1>
+          <p class="rk-sub">Assessments for the experiments you have</p>
+        </div>
+      </div>
+      <sc-if value="{{ AL.noneAtAll }}" hint-placeholder-val="{{ false }}">
+      <!-- a compact empty state that states the fact for each experiment you have; no actions added -->
+      <section class="sv-card sv-msg" aria-labelledby="st-al-none">
+        <span class="sv-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span>
+        <div class="sv-msg-main">
+          <h2 class="sv-msg-t" id="st-al-none">No assessments yet</h2>
+          <p class="sv-msg-d">{{ AL.noneD }}</p>
+          <sc-if value="{{ AL.hasExps }}" hint-placeholder-val="{{ true }}">
+          <ul class="sv-facts" aria-label="Your experiments">
+            <sc-for list="{{ AL.exps }}" as="e" hint-placeholder-count="1"><li><span class="sv-facts-main"><span class="sv-facts-t">{{ e.t }}</span><span class="sv-facts-c">{{ e.c }}</span></span><span class="sv-facts-s">{{ e.s }}</span></li></sc-for>
+          </ul>
+          </sc-if>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ AL.showTabs }}" hint-placeholder-val="{{ true }}">
+      <nav class="rk-tabs sv-tabs" aria-label="Assessments">
+        <sc-for list="{{ AL.tabs }}" as="t" hint-placeholder-count="3"><a class="rk-tab" href="{{ t.href }}" aria-current="{{ t.cur }}" onClick="{{ t.go }}">{{ t.t }}<sc-if value="{{ t.hasN }}" hint-placeholder-val="{{ true }}"><span class="st-tabn" aria-hidden="true">{{ t.n }}</span><span class="xr-sr">, {{ t.n }}</span></sc-if></a></sc-for>
+      </nav>
+      <section class="sv-card sv-alist" aria-labelledby="st-al-h">
+        <h2 class="xr-sr" id="st-al-h">{{ AL.tabTitle }}</h2>
+        <sc-if value="{{ AL.loading }}" hint-placeholder-val="{{ false }}">
+        <div class="sv-loading" aria-busy="true"><p class="rk-loading-msg" role="status">Loading your assessments…</p><div class="sv-skel" aria-hidden="true"><span class="rk-skel"></span><span class="rk-skel"></span><span class="rk-skel"></span></div></div>
+        </sc-if>
+        <sc-if value="{{ AL.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="sv-pstate sv-pstate--row" role="alert">
+          <span class="sv-msg-ico sv-msg-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-cloud"></use></svg></span>
+          <div><h3 class="sv-msg-t">We couldn’t load your assessments</h3><p class="sv-msg-d">Nothing has changed. Try again.</p></div>
+          <button type="button" class="rb-btn" onClick="{{ AL.retry }}">Try again</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ AL.empty }}" hint-placeholder-val="{{ false }}">
+        <div class="sv-pstate sv-pstate--row" role="status">
+          <span class="sv-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#sti-clip"></use></svg></span>
+          <div><p class="sv-msg-t">{{ AL.emptyText }}</p><p class="sv-msg-d">{{ AL.emptyD }}</p></div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ AL.has }}" hint-placeholder-val="{{ true }}">
+        <ul class="sv-list">
+          <sc-for list="{{ AL.rows }}" as="r" hint-placeholder-count="1">
+          <li class="sv-li sv-ali">
+            <div class="sv-li-lead sv-ali-when"><p class="sv-eyebrow">{{ r.whenK }}</p><div class="{{ r.when.cls }}"><p class="sv-when-d">{{ r.when.d }}</p><p class="sv-when-t">{{ r.when.t }}</p></div></div>
+            <div class="sv-li-main">
+              <p class="sv-li-k">{{ r.kicker }}</p>
+              <h3 class="sv-li-t">{{ r.name }}</h3>
+              <p class="sv-li-d sv-clamp2">{{ r.desc }}</p>
+              <p class="sv-li-m"><span class="{{ r.pillCls }}"><i></i>{{ r.pill }}</span><span>{{ r.sub }}</span></p>
+            </div>
+            <div class="sv-li-end"><a class="{{ r.btnCls }}" href="{{ r.href }}" onClick="{{ r.go }}" aria-label="{{ r.aria }}">{{ r.act }}</a></div>
+          </li>
+          </sc-for>
+        </ul>
+        </sc-if>
+      </section>
+      </sc-if>
+      </sc-if>
+

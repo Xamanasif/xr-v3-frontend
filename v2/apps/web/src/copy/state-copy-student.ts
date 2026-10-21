@@ -21,9 +21,9 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-01',
     state: 'Which experiment the Home’s first card names',
     words: null,
-    rule: '“Continue where you left off” names the experiment the service’s `continue` names (the one last worked on, with each given format’s progress word, never a percentage). With nothing opened yet, “Start here” names the experiment of the first format item the service lists in Up next (only what the Student can open now). Neither: no card. Its button opens the experiment hub (ST-05).',
+    rule: 'V3 (Student export ST-v1 `homeVM`): the cover names the experiment the service’s `continue` names (the one last worked on); with nothing opened yet, the experiment of the first format item the service lists in Up next; when nothing can be opened now (the institution’s pause, a licence wait), the first experiment listed in the Student’s courses. Its heading: “Start here” (nothing started), “Continue learning” (a step to take), “Your experiment” (held, or nothing waiting). It shows the course code and course (a link to ST-03), “Open experiment” (the hub, ST-05) while it can be opened, the hub’s description, one next step (`ST-01.next-step`), “Also in this experiment” / “In this experiment” (its resources, each given format with its own progress word — never a percentage —, its assessment; each a link while it can be opened) and “What you’re learning” (the hub’s outcomes). The cover experiment’s hub (`getExperimentHub`) is the one more read on the page; without its answer the cover shows no description, outcomes, resources or assessment.',
     basis:
-      'B2-10 f1 (“Start here”, 9 Oct, nothing opened), f4 (“Continue where you left off”, later sample); StudentAccessService.getMyHome `continue`, `upNext`',
+      'Student export ST-v1 `homeVM`, `nextStep` (01-learn, 01-granted, 01-paused, 01-licence renders); B2-10 f1, f4; StudentAccessService.getMyHome `continue`, `upNext`; getExperimentHub `experiment`, `resourceSummary`, `assessment`',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -31,9 +31,9 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-01',
     state: 'What Up next lists',
     words: null,
-    rule: 'The service’s Up next items in its order, leaving out the format items of the experiment the first card names (B2-10 f1, f4: “Nothing else is waiting for you right now.” beside that card), at most three, with “<n> of at most 3”. A format item of another experiment opens its hub (“Open experiment”). A feedback item’s “Give feedback” opens that format’s feedback (ST-16, Phase 3; the service lists it only for a format with its own completion and no feedback yet). An assessment item keeps its words and its “Open assessment” opens that assessment’s Before you start (ST-12; Phase 4B, B4-11 f10). An assessment is named from the Student’s own assessments list.',
+    rule: 'V3: the cover experiment’s own Up next items become its one next step (`ST-01.next-step`: a feedback item → “Give feedback on <format>”, an assessment item → “Open assessment”). The export draws one experiment; the service’s items for the Student’s other experiments stay as “Up next” in the Home’s side column under the cover’s parts, in its order, at most three: a format item opens its hub, a feedback item that format’s feedback (ST-16), an assessment item its Before you start (ST-12) — named from the Student’s own assessments list (B4-11 f10).',
     basis:
-      'B2-10 f1, f4, f5 (f5 is the pattern frame of the three item types: “Sample wording for later states”; it lists a format of the card’s own experiment, which f4 does not); B4-11 f10',
+      'Student export ST-v1 `homeVM` (one experiment); B2-10 f5 (the three item types); B4-11 f10',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -60,9 +60,9 @@ export const STATE_COPY_STUDENT = {
     state:
       'Nothing is given now, only earlier work (the only grant withdrawn, or the access ended, after some work)',
     words: 'No experiments are given to you right now',
-    rule: 'B2-10 f8 and B2-13 f1 name the experiment and the cause (“ended on 7 Oct 2027”, “Your institution withdrew it”); while SACC-14 is open the Student’s reads give neither (PC-23: no row, words or progress — only the course’s earlier-work flag), so the Home says what My courses says (B2-11 f7, f8 heading) and lists the course as earlier work. “See earlier work” is not rendered: Progress (ST-15, Phase 3) is built but has no earlier-work row to show while SACC-14 is open (`ST-15.earlier-only`).',
+    rule: 'The export (`homeVM` ended / withdrawn) draws the cover with “Your access ended on <date>” / “It’s no longer given to you” and “See earlier work”; while SACC-14 is open the Student’s reads give no experiment, cause or date (PC-23: only the course’s earlier-work flag), so the Home shows one message with these words and the export’s “See earlier work”, which opens My courses (its destination in the export) where the course is kept.',
     basis:
-      'B2-11 f7, f8 heading reused; B2-10 f8, B2-13 f1 (not reproducible: the cause and the name are not read); StudentAccessService.getMyHome `myCourses[].earlierWork`',
+      'Student export ST-v1 `homeVM` (01-ended, 01-withdrawn) — not reproducible: the experiment, cause and date are not read; B2-11 f7, f8 heading; StudentAccessService.getMyHome `myCourses[].earlierWork`',
     status: 'provisional',
     decisions: ['SACC-14', 'VD-12'],
   },
@@ -79,10 +79,20 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-01',
     state: 'Which states show the My courses section and “View all courses”',
     words: null,
-    rule: 'As drawn: none before access (f0) and for an inactive account (f7); the course rows without “View all courses” when the institution is paused (f6) or only earlier work is left (f8); rows and “View all courses” otherwise (f1, f4, f9). A course of earlier work only has no “Open course” (its experiments are not listed while SACC-14 is open).',
-    basis: 'B2-10 f0, f1, f4, f6, f7, f8, f9',
+    rule: 'V3: the Home has no My courses section (the export draws none): the cover’s course link opens the course, the rail opens My courses, and “See earlier work” opens My courses when only earlier work is left.',
+    basis: 'Student export ST-v1 ST-01 template (`is.home`); B2-10 f0 … f9 (v46)',
     status: 'provisional',
     decisions: ['VD-12', 'SACC-14'],
+  },
+  'ST-01.next-step': {
+    screen: 'ST-01',
+    state: 'The cover’s one next step',
+    words: null,
+    rule: 'The export’s `nextStep`, in its order, on the product’s answers: held — the institution’s pause (“You can’t open experiments right now”), an inactive account, an undecided rule (`ST-19.undecided`), a supplied licence wait (“You’re waiting for a licence”, never naming the plan); a given format in progress → “Continue WEB” (the WEB page) / “Open <format>”; a feedback item the service lists for the experiment → “Give feedback on <format>” (ST-16); nothing started and no resource opened → “Open resources” (ST-06); nothing started → “Choose a format” (ST-07); its assessment to do → “Open assessment” (ST-12, “<name> is due <deadline>.” from the Student’s own assessments), in progress → “Continue attempt” (ST-13); an available format not started → “Open <format>”; else “Nothing else is waiting for you right now”. No stage tracker and no “stage N of 3” (lead decision 1); no “Last saved” or completion date (the Home reads none).',
+    basis:
+      'Student export ST-v1 `nextStep`, `homeVM` step (01-learn, 01-granted, 01-assess, 01-inprog, 01-vrprog, 01-paused, 01-licence); lead decision 1',
+    status: 'provisional',
+    decisions: ['VD-12'],
   },
   // ---- ST-02 My courses (B2-11) ----
   'ST-02.format-list': {
@@ -108,8 +118,9 @@ export const STATE_COPY_STUDENT = {
     state:
       'A course row whose experiments the Student cannot open now and is not drawn (an inactive account, a licence wait, an undecided overlap)',
     words: null,
-    rule: 'The row shows its name and code only — no count or format clause, and “Open course” stays (its experiments are listed there with their own words). The shell banner says why for an inactive account (XS-08); the row has no word for a licence wait (contract gap in the sample adapter README) or an undecided overlap (OD-B2-01, OD-B2-02, GRP-05).',
-    basis: 'B2-11 draws the paused row (f5) only; StudentAccessService.listMyCourses rows',
+    rule: 'V3: every course section shows “<n> experiment(s) given to you” — the experiments listed in it, held ones too — and “Open course”; its experiments are listed in it with their formats’ words (“Paused”, “Inactive”, “Waiting for a licence”, the undecided line `ST-03.policy-open`) and “Open experiment” only while they open (a licence wait keeps it). The status pill: “Paused” for the institution’s pause, “Waiting for a licence” when an experiment in it waits. The shell banner says why for an inactive account (XS-08).',
+    basis:
+      'Student export ST-v1 `courseCard`, `xcard`, `fmtStatus` (02-learn, 02-paused, 02-licence); StudentAccessService.listMyCourses rows with getMyCourse per listed course (the All experiments read)',
     status: 'provisional',
     decisions: ['VD-12', 'OD-B2-01', 'OD-B2-02', 'GRP-05'],
   },
@@ -121,6 +132,16 @@ export const STATE_COPY_STUDENT = {
     basis: 'B2-11 f7, f8; B2-10 f8; StudentAccessService.listMyCourses `earlierWork`',
     status: 'provisional',
     decisions: ['SACC-14', 'DEV-21'],
+  },
+  'ST-02.v3-rows': {
+    screen: 'ST-02',
+    state: 'What the V3 course sections and experiment rows leave out (ST-02, ST-03, ST-04)',
+    words: null,
+    rule: 'Not drawn, because no Student read holds them: the BITS course code and the engineering area of a course (`myCourseRow` has the code shown only), each experiment’s description, the format lines’ dates (“saved 12 Oct”, “completed 14 Oct”), the earlier experiments’ rows (“Your work, as recorded”) and “View earlier work” (SACC-14). A hub or catalogue read per row would hold some of them; per-row reads are not added.',
+    basis:
+      'Student export ST-v1 `courseCard`, `xcard`, `fmtStatus`, `coursesVM` earlier; contract `myCourseRow`, `myExperimentRow`; lead decision 2',
+    status: 'provisional',
+    decisions: ['SACC-14', 'VD-12'],
   },
   // ---- ST-03 Course (B2-11 f1, f6, f14) ----
   'ST-03.loading': {
@@ -153,9 +174,9 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-03',
     state: 'A course with earlier work only (reached by its address)',
     words: 'No experiments are given to you right now',
-    rule: 'The header shows no count; the section shows this heading in place of rows (B2-11 f7 heading).',
+    rule: "V3: the export’s course-none message (`msg('course-none')`) — the crumb “My courses › <course>”, the course code and name, “This course has no experiments for you right now”, “Your earlier work is kept.”, “Back to My courses” and Help & support; “See your earlier work” is not rendered (SACC-14: Progress has no earlier-work row). These words stay the register’s for the other places that read them.",
     basis:
-      'B2-11 f7, f8 heading reused; the read lists no experiment while SACC-14 is open (PC-23)',
+      "Student export ST-v1 `msg('course-none')` (03-ended); B2-11 f7, f8 heading; the read lists no experiment while SACC-14 is open (PC-23)",
     status: 'provisional',
     decisions: ['SACC-14', 'VD-12'],
   },
@@ -163,17 +184,9 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-03',
     state: 'The course of an inactive Student',
     words: null,
-    rule: 'As the paused course (B2-11 f6) with B2-10 f7’s words: the notice “Your account is inactive” / “You can’t open experiments until your institution reactivates your account. Your work is kept.”, each experiment’s formats off with “Your account is inactive. Your work is kept.”, no “Open”, no status pill.',
+    rule: 'V3: as the paused course (the export’s 03-paused): the shell’s banner names the inactive account (XS-08), no notice in the page; each given format held with “Inactive” (`ST-05.inactive-format`), no “Open experiment”, no status pill.',
     basis:
       'B2-10 f7 words; B2-11 f6 pattern; the session banner (XS-08) carries the inactive account',
-    status: 'provisional',
-    decisions: ['VD-12', 'P2-09'],
-  },
-  'ST-03.inactive-row': {
-    screen: 'ST-03',
-    state: 'An experiment row of an inactive Student',
-    words: 'Your account is inactive. Your work is kept.',
-    basis: 'B2-10 f7 (“Your account is inactive”, “Your work is kept.”); B2-11 f6 row pattern',
     status: 'provisional',
     decisions: ['VD-12', 'P2-09'],
   },
@@ -209,7 +222,7 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-05',
     state: 'The hub’s tabs and its actions (Phase 3)',
     words: null,
-    rule: 'Since Phase 3 the tab strip renders Overview, Resources, Simulation and Progress (ST-06, ST-07, ST-10), the header’s one “Next step: …” line with its button (`ST-05.next-step`) and the cards’ actions (`ST-05.card-actions`). The Assessment tab and any assessment action lead to Phase-4 screens (ST-11 … ST-14) and are not rendered (DEV-21); the Assessment card keeps its words.',
+    rule: 'V3 (ST-v1 `hubVM`, `overviewVM`): the head (crumbs, the course code shown and the course, the name) and five section tabs — Overview, Resources, Simulation, Assessment, Progress — on every hub page; the Overview’s formats, Learning resources and Assessment each carry their own action, the next step tagged (`ST-05.next-step`). The format chips beside the name, the next-stage cards and the “Next step: …” line are not drawn in V3.',
     basis: 'B2-12 f0 … f3, f5; B3-01; B3-02',
     status: 'provisional',
     decisions: ['DEV-21'],
@@ -264,7 +277,7 @@ export const STATE_COPY_STUDENT = {
     screen: 'ST-05',
     state: 'The Assessment card when the faculty has set one',
     words: null,
-    rule: 'The Student’s assessment status in B4-11’s words (“To do”, “Attempt in progress”, “Waiting for marking”, “Result not released yet”, “Result ready”); no marks; “Open assessment” is not rendered (Phase 4, DEV-21).',
+    rule: 'The Student’s assessment status in B4-11’s words (“To do”, “Attempt in progress”, “Waiting for marking”, “Result not released yet”, “Result ready”); no marks. V3: with its one action — “Open assessment” (ST-12), “Continue attempt” (ST-13), “View” / “See result” (ST-14). The name and deadline are not in the hub read.',
     basis: 'B2-12 draws only “none set” (f0 … f3); B4-11 f0 … f4 status words',
     status: 'provisional',
     decisions: ['VD-12', 'DEV-21'],
@@ -409,7 +422,7 @@ export const STATE_COPY_STUDENT = {
     state:
       'A supplied licence wait closes the experiment for now (later sample only; the gate refuses “waiting for a licence”)',
     words: null,
-    rule: 'The hub header keeps “Available to you” for the given formats (as B3-02 draws it); the Simulation step reads “No licence is available for you on <plan> right now.” (B3-02’s words) with “Nothing to do here yet.”; ST-03’s experiment row shows its given formats off with the same sentence and keeps “Open”. Home and My courses count only what opens now (Phase-0 rows), so a waiting experiment is not counted there.',
+    rule: 'V3: the head says it once — the pill “Waiting for a licence” with “Your institution can tell you more.” — and names no plan (lead decision 3); each format reads “Waiting for a licence” with its progress kept and no action; Learning resources “They open when you have a licence.”. On Home, My courses and a course the waiting experiment’s rows say “Waiting for a licence” (its course card carries the pill), and the counts (“<n> experiment(s) given to you”) include it with the other held experiments.',
     basis:
       'B3-02 “Waiting for a licence · Arun Kumar (later sample)” (format chooser, Phase 3); PC-45; independent review of Package 2A',
     status: 'provisional',

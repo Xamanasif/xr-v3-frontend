@@ -1,0 +1,68 @@
+      <!-- ST-07 Simulation — choose a format: the formats you can use as two cards (what you need, your progress, one
+           action — the larger surface is for the choice itself); formats that aren't yours as compact rows with the reason. -->
+      <sc-if value="{{ HB.isSim }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-chooser" aria-labelledby="st-fr-h">
+        <div class="sv-sh-row"><h2 class="sv-sh" id="st-fr-h">Choose a format</h2><p class="sv-sh-note">{{ SM.note }}</p></div>
+        <ul class="sv-fcards" aria-label="Your formats">
+          <sc-for list="{{ SM.cards }}" as="f" hint-placeholder-count="2">
+          <li class="{{ f.cls }}" aria-labelledby="{{ f.hid }}">
+            <div class="sv-fcard-h">
+              <span class="{{ f.fmtCls }}" aria-hidden="true">{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ f.glyph }}"></use></svg></sc-if></span>
+              <h3 class="sv-fcard-t" id="{{ f.hid }}">{{ f.name }}<span class="xr-sr"> ({{ f.code }})</span></h3>
+              <sc-if value="{{ f.isNext }}" hint-placeholder-val="{{ false }}"><span class="sv-tag">Next step</span></sc-if>
+            </div>
+            <p class="sv-fcard-acc">{{ f.access }}</p>
+            <p class="sv-fcard-need">{{ f.need }}</p>
+            <sc-if value="{{ f.hasDevice }}" hint-placeholder-val="{{ false }}"><p class="sv-fcard-dev"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-vr"></use></svg><span>Your headset: {{ f.device }}</span></p></sc-if>
+            <div class="sv-fcard-prog">
+              <p><span class="{{ f.pillCls }}"><i></i>{{ f.pill }}</span></p>
+              <sc-if value="{{ f.hasStages }}" hint-placeholder-val="{{ false }}"><ol class="sv-steps sv-fcard-stages" aria-label="Stages of the sample WEB activity"><sc-for list="{{ f.stages }}" as="g" hint-placeholder-count="3"><li class="{{ g.cls }}" aria-label="{{ g.aria }}"><p class="sv-steps-k" aria-hidden="true">{{ g.k }}<sc-if value="{{ g.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#sti-check"></use></svg></sc-if></p><p class="sv-steps-s" aria-hidden="true">{{ g.s }}</p></li></sc-for></ol></sc-if>
+              <sc-if value="{{ f.hasFacts }}" hint-placeholder-val="{{ true }}"><ul class="sv-fcard-facts"><sc-for list="{{ f.facts }}" as="x" hint-placeholder-count="1"><li>{{ x }}</li></sc-for></ul></sc-if>
+              <sc-if value="{{ f.hasWhy }}" hint-placeholder-val="{{ false }}"><p class="sv-fcard-why"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-info"></use></svg><span>{{ f.why }}</span></p></sc-if>
+            </div>
+            <sc-if value="{{ f.hasActs }}" hint-placeholder-val="{{ true }}"><div class="sv-fcard-act"><sc-for list="{{ f.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}" aria-label="{{ a.aria }}">{{ a.label }}</a></sc-for></div></sc-if>
+          </li>
+          </sc-for>
+        </ul>
+        <div class="sv-chooser-off">
+          <h3 class="sv-subk" id="st-fr-off">Not available to you</h3>
+          <ul class="sv-xrows" aria-labelledby="st-fr-off">
+            <sc-for list="{{ SM.off }}" as="f" hint-placeholder-count="2"><li class="sv-xrow"><span class="sv-xrow-b" aria-hidden="true"><span class="{{ f.fmtCls }}">{{ f.code }}</span></span><p class="sv-xrow-t"><b>{{ f.name }}</b><span class="xr-sr"> ({{ f.code }}), </span><span class="sv-frow-sep" aria-hidden="true"> · </span><span class="sv-xrow-r">{{ f.reason }}</span></p></li></sc-for>
+          </ul>
+        </div>
+      </section>
+      </sc-if>
+
+      <!-- ST-10 Progress for this experiment: the same compact rows as ST-15, scoped to this experiment -->
+      <sc-if value="{{ HB.isPT }}" hint-placeholder-val="{{ false }}">
+      <section class="sv-card sv-ptab" aria-labelledby="st-fr-h">
+        <div class="sv-card-h"><div><h2 class="sv-sec-t" id="st-fr-h">Your progress, format by format</h2><p class="sv-ptab-intro">Each format has its own progress, with no overall percentage. Opening resources isn’t counted here.</p></div><p class="sv-sh-note">{{ PT.exp.given }}</p></div>
+        <sc-if value="{{ PT.exp.note.show }}" hint-placeholder-val="{{ false }}"><p class="sv-holdnote sv-ptab-note"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#{{ PT.exp.note.ico }}"></use></svg><span>{{ PT.exp.note.d }}</span></p></sc-if>
+        <div class="sv-pexp sv-pexp--flat">
+          <table class="sv-ptable">
+            <caption class="xr-sr">{{ PT.exp.capt }}</caption>
+            <thead><tr><th scope="col">Your format</th><th scope="col">Progress</th><th scope="col">Details</th><th scope="col"><span class="xr-sr">Action</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{ PT.exp.mine }}" as="f" hint-placeholder-count="2">
+              <tr>
+                <th scope="row" class="sv-pc-f"><span class="sv-pc-fx"><span class="{{ f.fmtCls }}" aria-hidden="true">{{ f.code }}<sc-if value="{{ f.hasGlyph }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#{{ f.glyph }}"></use></svg></sc-if></span><span class="sv-pc-name"><b>{{ f.name }}</b><span class="xr-sr"> ({{ f.code }})</span><span class="sv-pc-acc">{{ f.access }}</span></span></span></th>
+                <td class="sv-pc-p"><span class="{{ f.pillCls }}"><i></i>{{ f.pill }}</span></td>
+                <td class="sv-pc-d"><sc-for list="{{ f.facts }}" as="x" hint-placeholder-count="2"><span class="sv-pc-fact">{{ x }}</span></sc-for></td>
+                <td class="sv-pc-x"><sc-for list="{{ f.acts }}" as="a" hint-placeholder-count="1"><a class="{{ a.cls }}" href="{{ a.href }}" onClick="{{ a.go }}" aria-label="{{ a.aria }}">{{ a.label }}</a></sc-for></td>
+              </tr>
+              </sc-for>
+            </tbody>
+          </table>
+          <sc-if value="{{ PT.exp.hasOff }}" hint-placeholder-val="{{ true }}">
+          <div class="sv-poff">
+            <h3 class="sv-subk" id="{{ PT.exp.offId }}">Not available to you</h3>
+            <ul class="sv-xrows" aria-labelledby="{{ PT.exp.offId }}">
+              <sc-for list="{{ PT.exp.off }}" as="f" hint-placeholder-count="2"><li class="sv-xrow"><span class="sv-xrow-b" aria-hidden="true"><span class="{{ f.fmtCls }}">{{ f.code }}</span></span><p class="sv-xrow-t"><b>{{ f.name }}</b><span class="xr-sr"> ({{ f.code }}), </span><span class="sv-frow-sep" aria-hidden="true"> · </span><span class="sv-xrow-r">{{ f.reason }}</span></p></li></sc-for>
+            </ul>
+          </div>
+          </sc-if>
+          <p class="sv-pas"><span class="sv-pas-k">Assessment</span><span>{{ PT.exp.asmt }}</span><sc-if value="{{ PT.exp.hasAsmtLink }}" hint-placeholder-val="{{ false }}"><a class="sv-link" href="{{ PT.exp.asmtLink.href }}" onClick="{{ PT.exp.asmtLink.go }}">{{ PT.exp.asmtLink.label }}<svg viewBox="0 0 24 24" aria-hidden="true"><use href="#sti-right"></use></svg></a></sc-if></p>
+        </div>
+      </section>
+      </sc-if>
+

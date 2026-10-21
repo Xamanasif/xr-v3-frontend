@@ -1,15 +1,15 @@
 /**
  * A migrated role's workspace in the V3 Refined B shell (the Super Admin, owner-approved export
  * design/v3-refined-b/roles/SA-v1, the Vendor, roles/VE-v1, the Content Manager, roles/CM-v1, the
- * Academic Reviewer, roles/RV-v1, the Institute Admin, roles/IA-v1, and the Faculty member,
- * roles/FA-v1): the rail as the export's
+ * Academic Reviewer, roles/RV-v1, the Institute Admin, roles/IA-v1, the Faculty member,
+ * roles/FA-v1, and the Student, roles/ST-v1): the rail as the export's
  * `sa-core.js` draws it — the reserved
  * logo slot, the workspace, the seven destinations with the export's glyphs and the Requests count,
  * "Help & support" in the rail foot — the top line with today's date, the XS account menu with the
  * V3 button, the XS-08 banner first in the page, the skip link to `main#main`. Layout (the drawer
  * below 1024 px) is proved in the browser suites; jsdom has no layout.
  */
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import { assertNoAxeViolations } from '@xr/testing/axe';
 import { V3_ICON_PATHS } from '@xr/ui/v3';
 import { describe, expect, it, vi } from 'vitest';
@@ -23,6 +23,7 @@ import {
   iaExport,
   rvExport,
   saExport,
+  stExport,
   veExport,
 } from '@/test-support/boards';
 
@@ -53,7 +54,7 @@ function renderShell(overrides: Partial<V3RoleShellProps> = {}) {
 }
 
 describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
-  it('is moved, with the Vendor (VE-v1), the Content Manager (CM-v1), the Academic Reviewer (RV-v1), the Institute Admin (IA-v1) and the Faculty member (FA-v1); every other role keeps its v46 shell', () => {
+  it('is moved, with the Vendor (VE-v1), the Content Manager (CM-v1), the Academic Reviewer (RV-v1), the Institute Admin (IA-v1), the Faculty member (FA-v1) and the Student (ST-v1): every role', () => {
     expect([...V3_SHELL_ROLES]).toEqual([
       'super_admin',
       'vendor',
@@ -61,6 +62,7 @@ describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
       'academic_reviewer',
       'tenant_admin',
       'faculty',
+      'student',
     ]);
   });
 
@@ -619,6 +621,189 @@ describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
     expect(banner()).toHaveClass('rk-banner');
     expect(banner()).toHaveTextContent(
       'Your account is inactive. Contact your institution administrator.',
+    );
+  });
+
+  it("the Student's rail: four destinations with the export's glyphs, the institution, no count", () => {
+    const built = new Set<ScreenKey>([
+      'XS-07',
+      ...WORKSPACE_NAV.student.destinations.map((item) => item.screen),
+    ]);
+    const { rerender } = render(
+      <V3RoleShell
+        role="student"
+        person={boardPerson('student')}
+        screen="ST-01"
+        built={built}
+        today="2026-10-12T09:00:00+05:30"
+        onSignOut={vi.fn()}
+      >
+        <h1 tabIndex={-1}>Page</h1>
+      </V3RoleShell>,
+    );
+    const root = stExport('StudentFinal.dc.html');
+    const rail = screen.getByRole('complementary', { name: 'Student workspace' });
+    expect(root).toContain('<aside class="rb-rail" aria-label="Student workspace">');
+    const nav = within(rail).getByRole('navigation', { name: 'Student navigation' });
+    expect(root).toContain('<nav class="rb-nav" aria-label="Student navigation">');
+    const links = within(nav).getAllByRole('link');
+    expect(links.map((link) => link.querySelector('span')!.textContent)).toEqual([
+      'Home',
+      'My courses',
+      'Assessments',
+      'Progress',
+    ]);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/student',
+      '/student/courses',
+      '/student/assessments',
+      '/student/progress',
+    ]);
+    expect(links[0]).toHaveAttribute('aria-current', 'page');
+    // The export's rail glyphs, path for path: its shell's `nav` list names each item's
+    // `sti-…` symbol (`[key, label, glyph, link]`).
+    const symbol = (id: string) =>
+      new RegExp(`<symbol id="${id}" viewBox="0 0 24 24"><path d="([^"]+)"></path>`).exec(
+        root,
+      )?.[1];
+    for (const link of links) {
+      const label = link.querySelector('span')!.textContent!;
+      const id = new RegExp(`\\['\\w+', '${label}', '(sti-[\\w-]+)'`).exec(root)?.[1];
+      expect(id, label).toBeDefined();
+      expect(link.querySelector('svg path')!.getAttribute('d'), label).toBe(symbol(id!));
+    }
+    // My courses and Assessments are the Student's own book and clipboard (the v46 Student
+    // sidebar's), not the Faculty member's.
+    expect(links[1]!.querySelector('svg path')!.getAttribute('d')).toBe(V3_ICON_PATHS.myCourses);
+    expect(links[1]!.querySelector('svg path')!.getAttribute('d')).not.toBe(V3_ICON_PATHS.book);
+    expect(links[2]!.querySelector('svg path')!.getAttribute('d')).toBe(V3_ICON_PATHS.assessments);
+    expect(links[2]!.querySelector('svg path')!.getAttribute('d')).not.toBe(
+      V3_ICON_PATHS.clipboardCheck,
+    );
+    // No count on any item.
+    expect(rail.querySelectorAll('.rb-count')).toHaveLength(0);
+    expect(within(rail).getByText('Student')).toHaveClass('rb-ws-role');
+    expect(within(rail).getByText('Godavari Institute of Technology')).toHaveClass('rb-ws-inst');
+    expect(root).toContain(
+      '<p class="rb-ws"><span class="rb-ws-role">Student</span><span class="rb-ws-inst">{{ S.inst }}</span></p>',
+    );
+    // The date alone in the top line, on Home too (`S.dateLong`, the clock's long date).
+    expect(document.querySelector('header.rb-top p.rb-top-date')).toHaveTextContent(
+      /^Monday 12 October 2026$/,
+    );
+    expect(root).toContain('<p class="rb-top-date">{{ S.dateLong }}</p>');
+    // Every page of a hub, a format or feedback marks My courses; the attempt's neighbours
+    // (Before you start, Result) mark Assessments; Progress marks Progress.
+    for (const [owner, current] of [
+      ['ST-05', 'My courses'],
+      ['ST-12', 'Assessments'],
+      ['ST-15', 'Progress'],
+    ] as const) {
+      rerender(
+        <V3RoleShell
+          role="student"
+          person={boardPerson('student')}
+          screen={owner}
+          built={built}
+          today="2026-10-12T09:00:00+05:30"
+          onSignOut={vi.fn()}
+        />,
+      );
+      expect(within(nav).getByRole('link', { name: current }), owner).toHaveAttribute(
+        'aria-current',
+        'page',
+      );
+    }
+    const help = within(within(rail).getByRole('navigation', { name: 'Help' })).getByRole('link');
+    expect(help).toHaveTextContent('Help & support');
+    expect(help).toHaveAttribute('href', '/student/help');
+    expect(root).toContain(
+      '<use href="#sti-help"></use></svg><span>Help &amp; support</span></a></nav>',
+    );
+    expect(help.querySelector('svg path')!.getAttribute('d')).toBe(symbol('sti-help'));
+  });
+
+  it("offers My device in the Student's account menu while the Student holds AR, VR or MR (as the v46 shell)", () => {
+    const built = new Set<ScreenKey>([
+      'XS-07',
+      'ST-18',
+      ...WORKSPACE_NAV.student.destinations.map((item) => item.screen),
+    ]);
+    const menuItems = (deviceEligible: boolean) => {
+      const view = render(
+        <V3RoleShell
+          role="student"
+          person={boardPerson('student')}
+          screen="ST-01"
+          built={built}
+          deviceEligible={deviceEligible}
+          today="2026-10-12T09:00:00+05:30"
+          onSignOut={vi.fn()}
+        >
+          <h1 tabIndex={-1}>Page</h1>
+        </V3RoleShell>,
+      );
+      const button = screen.getByRole('button', { name: /^Account menu, / });
+      expect(button).toHaveClass('rb-acct');
+      act(() => button.click());
+      const panel = document.getElementById(button.getAttribute('aria-controls')!)!;
+      const items = within(panel)
+        .getAllByRole('link')
+        .map((link) => [link.textContent, link.getAttribute('href')]);
+      view.unmount();
+      return items;
+    };
+    expect(menuItems(true)).toEqual([
+      ['My device', '/student/device'],
+      ['Help & support', '/student/help'],
+    ]);
+    // The export's menu: My device first, while the Student's access allows it (`devEligible`).
+    const root = stExport('StudentFinal.dc.html');
+    expect(root).toContain("acctItems.push(Object.assign({ t: 'My device', ico: 'sti-vr'");
+    expect(menuItems(false)).toEqual([['Help & support', '/student/help']]);
+  });
+
+  it("opens the Student's page with the XS-08 banner, paused or inactive", () => {
+    const { container, rerender } = render(
+      <V3RoleShell
+        role="student"
+        person={boardPerson('student')}
+        screen="ST-01"
+        banner="paused"
+        today="2026-10-12T09:00:00+05:30"
+        onSignOut={vi.fn()}
+      >
+        <h1 tabIndex={-1}>Page</h1>
+      </V3RoleShell>,
+    );
+    const banner = () => container.querySelector('main#main')!.firstElementChild as HTMLElement;
+    expect(banner()).toHaveClass('rk-banner');
+    expect(banner()).toHaveTextContent('Your institution’s access is paused — your work is kept.');
+    expect(within(banner()).getByRole('link', { name: 'Help' })).toHaveAttribute(
+      'href',
+      '/student/help',
+    );
+    rerender(
+      <V3RoleShell
+        role="student"
+        person={boardPerson('student')}
+        screen="ST-01"
+        banner="inactive"
+        today="2026-10-12T09:00:00+05:30"
+        onSignOut={vi.fn()}
+      >
+        <h1 tabIndex={-1}>Page</h1>
+      </V3RoleShell>,
+    );
+    expect(banner()).toHaveClass('rk-banner');
+    expect(banner()).toHaveTextContent(
+      'Your account is inactive. Contact your institution administrator.',
+    );
+    // The export's two banners, the same words.
+    const root = stExport('StudentFinal.dc.html');
+    expect(root).toContain('<p>Your institution’s access is paused — your work is kept.</p>');
+    expect(root).toContain(
+      '<p>Your account is inactive. Contact your institution administrator.</p>',
     );
   });
 

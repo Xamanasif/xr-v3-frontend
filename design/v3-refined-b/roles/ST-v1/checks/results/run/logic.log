@@ -1,0 +1,6 @@
+methods changed (presentation): actVM, alistVM, attVM, courseVM, coursesVM, devVM, fbVM, fpageVM, homeVM, introVM, msg, progVM, renderVals, resVM, resultVM, xcard
+methods added (presentation): asmtTabVM, courseCard, dayNum, fmtChip, fmtStatus, holdReason, nbd, nextStep, offFormats, overviewVM, progExp, progTabVM, runWord, simVM, webStages, whenOf
+routes compared: 690
+view models scanned: 437
+
+1206 passed, 0 failed
