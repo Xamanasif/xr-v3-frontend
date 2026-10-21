@@ -2,18 +2,35 @@
 
 import type { ExperimentId, QuestionImportReport } from '@xr/domain';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
-  FailedState,
-  Icon,
-  Link,
-  LoadingState,
+  ButtonLink,
+  FaAuthor,
+  FaBankSideTitle,
+  FaChecklist,
+  FaFormColumn,
+  FaFormFoot,
+  FaFormSection,
+  FaImportColumns,
+  FaImportDest,
+  FaImportFigures,
+  FaImportFile,
+  FaImportFileField,
+  FaImportFileRow,
+  FaImportRowCheck,
+  FaImportTemplate,
+  FaMessageCard,
+  FaResult,
+  FaResultText,
+  FaSide,
+  FaSideSection,
+  FaSteps,
+  ListState,
+  LoadingRows,
   Notice,
-  PageContent,
-  PageHeader,
-  StatusPill,
-  Stepper,
-} from '@xr/ui';
+  PageHead,
+  Surface,
+} from '@xr/ui/v3';
 import {
   type ChangeEvent,
   type ReactNode,
@@ -25,11 +42,11 @@ import {
 } from 'react';
 
 import {
-  errorCountWords,
-  IMPORT_CONFIRM_LINE,
   IMPORT_QUESTIONS,
+  importConfirmLine,
   importedLine,
   importFileRefusalWords,
+  importIntoBankLine,
   importQuestionsButton,
   importQuietLine,
   importStepWords,
@@ -37,11 +54,7 @@ import {
   noExplanationWords,
   QUESTION_CHOOSER_WORDS,
   QUESTION_TEMPLATE_DOWNLOAD,
-  QUESTION_TEMPLATE_LINE,
-  questionsWords,
-  readyCountWords,
-  rowsWords,
-  warningCountWords,
+  QUESTION_TEMPLATE_GUIDE,
 } from '@/copy/question-tools';
 import { stateWords } from '@/copy/state-copy';
 import { questionBankAddress, questionToolPlacement } from '@/nav/faculty';
@@ -50,45 +63,44 @@ import { useCreateOptions } from '@/queries/teaching';
 import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { NoExperiment } from '../fa-14-question-bank/question-bank';
-import {
-  importReducer,
-  type ImportState,
-  problemLines,
-  QUESTION_TEMPLATE_COLUMNS,
-  reportCounts,
-  START,
-} from './import-view';
+import { importReducer, type ImportState, problemLines, reportCounts, START } from './import-view';
 
-/** The ids B4-08 focuses (`Ii-h`, `Ii-choose`) and the chooser's description. */
+/** The ids the page focuses (the H1, the chooser) and the chooser's parts. */
 const IDS = {
   title: 'qimport-title',
+  fileTitle: 'qimport-file-l',
   choose: 'qimport-choose',
   input: 'qimport-file',
   status: 'qimport-file-status',
   error: 'qimport-file-e',
+  done: 'qimport-done',
+  template: 'qimport-tpl',
 } as const;
 
 type FocusTarget = 'title' | 'choose';
 
 /**
- * FA-17 Import questions — board B4-08 f5 … f9, at `/faculty/question-bank/import`
- * (`?experimentId=`).
+ * FA-17 Import questions — the V3 export's import (FA-v1 `Main.dc.html` "FA-17 Import questions"),
+ * at `/faculty/question-bank/import` (`?experimentId=`).
  *
  * - **The experiment** is the address's, else the first one taught (`getCreateOptions`): its bank
- *   receives the questions (`FA-17.experiment`). Unknown or out of scope → the in-shell not-found.
- * - **Three steps in the page**, then the result. The heading names the step ("Step 1 of 3" ·
- *   "Choose a file") and takes focus on every change, as B4-08 `focus(pid + '-h')` does.
- * - **Step 1 · Choose a file** (f5, f9): the template (its ten columns and the `data:` download)
- *   and a real file chooser — the file is read as text in the browser (up to 1 MB) and nothing is
- *   uploaded. "Check file" sends its name and text to `QuestionBankService.previewQuestionImport`,
- *   a check that writes nothing; its file refusals show under the chooser, which takes focus.
- * - **Step 2 · Check rows** (f6): the counts, and each row problem in words — "Error — blocks
- *   import" or "Warning" (an empty explanation). Any error blocks the whole import (the interim
- *   T-24 all-or-nothing, `FA-17.commit-mode`): "Choose the corrected file" returns to step 1.
- * - **Step 3 · Confirm import** (f7): "Import N questions" sends `commitQuestionImport` once; the
+ *   receives the questions (`FA-17.experiment`). Unknown or out of scope → the in-shell not-found;
+ *   none taught → the drawn “Nothing to import into yet” card.
+ * - **Three steps in the page** (the stepper above the form column, the template beside it), then
+ *   the result. The heading names the step (“Step 1 of 3” · “Choose a file”) and takes focus on
+ *   every change.
+ * - **Step 1 · Choose a file**: a real file chooser — the file is read as text in the browser (up
+ *   to 1 MB) and nothing is uploaded. “Check file” sends its name and text to
+ *   `QuestionBankService.previewQuestionImport`, a check that writes nothing; its file refusals
+ *   show under the chooser, which takes focus.
+ * - **Step 2 · Check rows**: the figures (Rows · Ready · With errors · With warnings) and each row
+ *   problem in words — “Error — blocks import” or “Warning” (an empty explanation). Any error
+ *   blocks the whole import (the interim T-24 all-or-nothing, `FA-17.commit-mode`): “Choose
+ *   another file” returns to step 1.
+ * - **Step 3 · Confirm import**: “Import N questions” sends `commitQuestionImport` once; the
  *   questions go into the bank only, never into an assessment.
- * - **Result** (f8): "Import finished", the new IDs, "Open question bank", "Import another file".
+ * - **Result**: “Import finished” with how many were added (never the references they were given),
+ *   “Open question bank”, “Import another file”.
  */
 export function ImportQuestions() {
   useShellPage(questionToolPlacement('FA-17', IMPORT_QUESTIONS.title));
@@ -204,108 +216,162 @@ export function ImportQuestions() {
     focusOn('title');
   };
 
+  const back = () => {
+    dispatch({ type: 'back' });
+    focusOn('title');
+  };
+
   const done = state.done;
   const title = done ? IMPORT_QUESTIONS.importedTitle : IMPORT_QUESTIONS.steps[state.step - 1]!;
-  const overline = done ? IMPORT_QUESTIONS.title : importStepWords(state.step);
+  const eyebrow = done ? IMPORT_QUESTIONS.title : importStepWords(state.step);
 
   let body: ReactNode;
   if (optionsFailed) {
     body = (
-      <FailedState title={stateWords('FA-17.failed')} onRetry={() => void options.refetch()}>
-        {stateWords('FA-14.failed.line')}
-      </FailedState>
+      <Surface>
+        <ListState
+          kind="failed"
+          title={stateWords('FA-17.failed')}
+          action={
+            <Button onClick={() => void options.refetch()}>{stateWords('FA-14.try-again')}</Button>
+          }
+        >
+          {stateWords('FA-14.failed.line')}
+        </ListState>
+      </Surface>
     );
   } else if (taught === null) {
-    body = <LoadingState label={stateWords('FA-17.loading')} surface="section" />;
+    body = (
+      <Surface busy>
+        <LoadingRows message={stateWords('FA-17.loading')} rows={2} />
+      </Surface>
+    );
   } else if (experiment === null) {
-    body = <NoExperiment />;
-  } else if (done) {
-    body = <ResultStep added={done} bankHref={bankHref} onRestart={restart} />;
+    body = (
+      <FaMessageCard
+        icon="upload"
+        title={IMPORT_QUESTIONS.noCourseTitle}
+        titleId="qimport-none"
+        actions={<ButtonLink href={bankHref}>{IMPORT_QUESTIONS.backToBank}</ButtonLink>}
+      >
+        {IMPORT_QUESTIONS.noCourseLine}
+      </FaMessageCard>
+    );
   } else {
+    let step: ReactNode;
+    if (done) {
+      step = <ResultStep added={done} bankHref={bankHref} onRestart={restart} />;
+    } else if (state.step === 1) {
+      step = (
+        <ChooseStep
+          state={state}
+          busy={preview.busy}
+          experimentName={experiment.name}
+          cancelHref={bankHref}
+          chooseRef={chooseRef}
+          onChosen={onChosen}
+          onCheck={() => check(state.file, false)}
+        />
+      );
+    } else if (state.report === null) {
+      step = null;
+    } else if (state.step === 2) {
+      step = (
+        <CheckStep
+          report={state.report}
+          onBack={back}
+          onChooseAnother={() => {
+            dispatch({ type: 'choose-fixed' });
+            preview.reset();
+            focusOn('choose');
+          }}
+          onContinue={() => {
+            dispatch({ type: 'continue' });
+            focusOn('title');
+          }}
+        />
+      );
+    } else {
+      step = (
+        <ConfirmStep
+          report={state.report}
+          experimentName={experiment.name}
+          busy={commit.busy || preview.busy}
+          onBack={back}
+          onImport={onImport}
+        />
+      );
+    }
     body = (
       <>
-        <Stepper
-          label={IMPORT_QUESTIONS.title}
-          steps={IMPORT_QUESTIONS.steps}
-          current={state.step}
-          doneWords={false}
-          className="mb-6"
-        />
-        {state.step === 1 ? (
-          <ChooseStep
-            state={state}
-            busy={preview.busy}
-            experimentName={experiment.name}
-            cancelHref={bankHref}
-            chooseRef={chooseRef}
-            onChosen={onChosen}
-            onCheck={() => check(state.file, false)}
-          />
-        ) : state.report === null ? null : state.step === 2 ? (
-          <CheckStep
-            report={state.report}
-            onBack={() => {
-              dispatch({ type: 'back' });
-              focusOn('title');
+        {done ? null : (
+          <FaSteps
+            label={IMPORT_QUESTIONS.stepsLabel}
+            steps={IMPORT_QUESTIONS.steps.map((label, index) => ({
+              key: label,
+              label,
+              state:
+                index + 1 < state.step ? 'done' : index + 1 === state.step ? 'current' : 'todo',
+            }))}
+            stateWords={{
+              done: IMPORT_QUESTIONS.stepDone,
+              current: IMPORT_QUESTIONS.stepCurrent,
+              todo: IMPORT_QUESTIONS.stepTodo,
             }}
-            onChooseFixed={() => {
-              dispatch({ type: 'choose-fixed' });
-              preview.reset();
-              focusOn('choose');
-            }}
-            onContinue={() => {
-              dispatch({ type: 'continue' });
-              focusOn('title');
-            }}
-          />
-        ) : (
-          <ConfirmStep
-            report={state.report}
-            busy={commit.busy || preview.busy}
-            onBack={() => {
-              dispatch({ type: 'back' });
-              focusOn('title');
-            }}
-            onImport={onImport}
           />
         )}
+        <FaAuthor single={done !== null}>
+          <FaFormColumn labelledBy={IDS.title}>{step}</FaFormColumn>
+          {done ? null : <TemplateSide />}
+        </FaAuthor>
       </>
     );
   }
 
   return (
-    <PageContent wrap="read">
-      <PageHeader
-        className="mt-2 mb-4"
-        back={<BackLink href={bankHref}>{IMPORT_QUESTIONS.back}</BackLink>}
-        overline={overline}
+    <>
+      <PageHead
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: IMPORT_QUESTIONS.back, href: bankHref }]}
+            current={IMPORT_QUESTIONS.title}
+          />
+        }
+        eyebrow={eyebrow}
         title={title}
         titleId={IDS.title}
         titleFocusTarget
         titleRef={titleRef}
       />
       {body}
-    </PageContent>
+    </>
   );
 }
 
-/** The step's footer (`xw-flow-foot`): the way back first, the step's action last. */
-function FlowFoot({
-  start,
-  children,
-}: {
-  readonly start: ReactNode;
-  readonly children: ReactNode;
-}) {
+/** The template beside the steps: its line and download, then its columns. */
+function TemplateSide() {
   return (
-    <div className="xw-flow-foot">
-      {start}
-      <div className="xw-actions">{children}</div>
-    </div>
+    <FaSide labelledBy={IDS.template}>
+      <FaSideSection>
+        <FaBankSideTitle id={IDS.template}>{IMPORT_QUESTIONS.templateTitle}</FaBankSideTitle>
+        <FaImportTemplate
+          line={IMPORT_QUESTIONS.templateLine}
+          download={{
+            label: IMPORT_QUESTIONS.download,
+            href: QUESTION_TEMPLATE_DOWNLOAD.href,
+            fileName: QUESTION_TEMPLATE_DOWNLOAD.fileName,
+          }}
+        />
+      </FaSideSection>
+      <FaSideSection>
+        <FaBankSideTitle level={3}>{IMPORT_QUESTIONS.columnsTitle}</FaBankSideTitle>
+        <FaImportColumns columns={QUESTION_TEMPLATE_GUIDE} />
+      </FaSideSection>
+    </FaSide>
   );
 }
 
-// ---- Step 1 · Choose a file (B4-08 f5, f9) ----
+// ---- Step 1 · Choose a file ----
 
 function ChooseStep({
   state,
@@ -326,202 +392,142 @@ function ChooseStep({
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   return (
-    <div className="xr-section flex flex-col gap-[18px] p-6">
-      <div>
-        <h2 className="xr-h3 m-0 mb-1.5">{IMPORT_QUESTIONS.templateHeading}</h2>
-        <p className="xr-body m-0 mb-2.5 text-ink-2">
-          {QUESTION_TEMPLATE_LINE.map((run, index) =>
-            typeof run === 'string' ? run : <strong key={index}>{run.column}</strong>,
-          )}
-        </p>
-        <ul className="xw-cols" aria-label={IMPORT_QUESTIONS.columnsLabel}>
-          {QUESTION_TEMPLATE_COLUMNS.map((column) => (
-            <li key={column}>{column}</li>
-          ))}
-        </ul>
-        <p className="m-0 mt-3">
-          <a
-            className="inline-flex items-center gap-1.5 font-[600]"
-            href={QUESTION_TEMPLATE_DOWNLOAD.href}
-            download={QUESTION_TEMPLATE_DOWNLOAD.fileName}
+    <>
+      <FaFormSection>
+        <FaImportFileField
+          titleId={IDS.fileTitle}
+          title={IMPORT_QUESTIONS.fileTitle}
+          hint={IMPORT_QUESTIONS.fileHint}
+          error={state.fileError ? { id: IDS.error, text: state.fileError } : null}
+          foot={IMPORT_QUESTIONS.csvOnly}
+        >
+          {/* The browser's own chooser, opened by the drawn button (state-copy FA-17.chooser). */}
+          <FaImportFile
+            labelledBy={IDS.fileTitle}
+            fileName={state.file?.name ?? null}
+            noFile={IMPORT_QUESTIONS.noFile}
+            statusId={IDS.status}
+            button={{
+              id: IDS.choose,
+              label: IMPORT_QUESTIONS.choose,
+              ref: chooseRef,
+              describedBy: state.fileError ? `${IDS.status} ${IDS.error}` : IDS.status,
+            }}
+            input={{ id: IDS.input, accept: '.csv,text/csv', onChange: onChosen, ref: inputRef }}
+            onChoose={() => inputRef.current?.click()}
+          />
+        </FaImportFileField>
+        <FaImportDest>{importQuietLine(experimentName)}</FaImportDest>
+      </FaFormSection>
+      <FaFormFoot
+        start={<ButtonLink href={cancelHref}>{IMPORT_QUESTIONS.cancel}</ButtonLink>}
+        end={
+          <Button
+            variant="primary"
+            size="lg"
+            busy={busy}
+            busyLabel={IMPORT_QUESTIONS.checking}
+            onClick={onCheck}
           >
-            <Icon name="download" />
-            {IMPORT_QUESTIONS.download}
-          </a>
-        </p>
-      </div>
-      <div className="xw-file">
-        {state.file ? (
-          <span className="xw-file-name" id={IDS.status}>
-            <Icon name="fileText" />
-            {state.file.name}
-          </span>
-        ) : (
-          <span className="xr-meta" id={IDS.status}>
-            {IMPORT_QUESTIONS.noFile}
-          </span>
-        )}
-        <Button
-          ref={chooseRef}
-          id={IDS.choose}
-          variant="secondary"
-          size="sm"
-          icon="readyToPublish"
-          aria-describedby={state.fileError ? `${IDS.status} ${IDS.error}` : IDS.status}
-          onClick={() => inputRef.current?.click()}
-        >
-          {IMPORT_QUESTIONS.choose}
-        </Button>
-        {/* The browser's own chooser, opened by the drawn button (state-copy FA-17.chooser). */}
-        <input
-          ref={inputRef}
-          id={IDS.input}
-          className="xr-sr"
-          type="file"
-          accept=".csv,text/csv"
-          tabIndex={-1}
-          aria-hidden="true"
-          aria-labelledby={IDS.choose}
-          onChange={onChosen}
-        />
-      </div>
-      {state.fileError ? (
-        <span className="xw-ferr" role="alert" id={IDS.error}>
-          <Icon name="failed" />
-          {state.fileError}
-        </span>
-      ) : null}
-      <p className="xr-meta m-0">{importQuietLine(experimentName)}</p>
-      <FlowFoot
-        start={
-          <Link className="xr-btn xr-btn--text" href={cancelHref}>
-            {IMPORT_QUESTIONS.cancel}
-          </Link>
+            {IMPORT_QUESTIONS.check}
+          </Button>
         }
-      >
-        <Button
-          variant="primary"
-          busy={busy}
-          busyLabel={IMPORT_QUESTIONS.checking}
-          onClick={onCheck}
-        >
-          {IMPORT_QUESTIONS.check}
-        </Button>
-      </FlowFoot>
-    </div>
+      />
+    </>
   );
 }
 
-// ---- Step 2 · Check rows (B4-08 f6) ----
+// ---- Step 2 · Check rows ----
 
 function CheckStep({
   report,
   onBack,
-  onChooseFixed,
+  onChooseAnother,
   onContinue,
 }: {
   readonly report: QuestionImportReport;
   readonly onBack: () => void;
-  readonly onChooseFixed: () => void;
+  readonly onChooseAnother: () => void;
   readonly onContinue: () => void;
 }) {
   const counts = reportCounts(report);
   const lines = problemLines(report);
-  const columns = IMPORT_QUESTIONS.tableColumns;
+  const { figures, tableColumns } = IMPORT_QUESTIONS;
   return (
-    <div className="xr-section flex flex-col gap-[18px] p-6">
-      <p className="xw-file-name m-0">
-        <Icon name="fileText" />
-        {report.fileName}
-      </p>
-      <div className="xw-counts" role="status">
-        <span className="xw-tag">{rowsWords(counts.rows)}</span>
-        <span className="xw-tag">
-          <Icon name="done" />
-          {readyCountWords(counts.ready)}
-        </span>
+    <>
+      <FaFormSection>
+        <FaImportFileRow>{report.fileName}</FaImportFileRow>
+        <FaImportFigures
+          figures={[
+            { key: 'rows', term: figures.rows, value: counts.rows },
+            { key: 'ready', term: figures.ready, value: counts.ready, tone: 'ok' },
+            {
+              key: 'errors',
+              term: figures.errors,
+              value: counts.errors,
+              tone: counts.errors > 0 ? 'err' : 'none',
+            },
+            {
+              key: 'warnings',
+              term: figures.warnings,
+              value: counts.warnings,
+              tone: counts.warnings > 0 ? 'warn' : 'none',
+            },
+          ]}
+        />
         {counts.errors > 0 ? (
-          // B4-08 draws the error count tag inline (no class): v46 err tokens, PF-13's border.
-          <span className="xw-tag border-[var(--xr-x-err-line)] bg-err-bg text-err">
-            <Icon name="failed" />
-            {errorCountWords(counts.errors)}
-          </span>
+          <Notice tone="warn" icon="alertCircle" title={IMPORT_QUESTIONS.blockedTitle}>
+            {IMPORT_QUESTIONS.blockedLine}
+          </Notice>
         ) : null}
-        {counts.warnings > 0 ? (
-          <span className="xw-tag xw-tag--warn">
-            <Icon name="warning" />
-            {warningCountWords(counts.warnings)}
-          </span>
+        {lines.length > 0 ? (
+          <FaImportRowCheck
+            title={IMPORT_QUESTIONS.tableTitle}
+            caption={IMPORT_QUESTIONS.tableTitle}
+            headers={tableColumns}
+            rows={lines.map((line) => ({
+              key: line.key,
+              row: line.row,
+              question: line.question,
+              fix: line.words,
+              type:
+                line.severity === 'error'
+                  ? IMPORT_QUESTIONS.errorType
+                  : IMPORT_QUESTIONS.warningType,
+              severity: line.severity,
+            }))}
+          />
         ) : null}
-      </div>
-      {counts.errors > 0 ? (
-        <Notice tone="err" role="status" title={IMPORT_QUESTIONS.blockedTitle}>
-          {IMPORT_QUESTIONS.blockedLine}
-        </Notice>
-      ) : null}
-      {lines.length > 0 ? (
-        <div className="xr-table-wrap">
-          <table className="xr-table">
-            <caption className="xr-sr">{IMPORT_QUESTIONS.tableCaption}</caption>
-            <thead>
-              <tr>
-                <th scope="col">{columns.row}</th>
-                <th scope="col">{columns.question}</th>
-                <th scope="col">{columns.fix}</th>
-                <th scope="col">{columns.type}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {lines.map((line) => (
-                <tr key={line.key}>
-                  <td className="xr-num" data-label={columns.row}>
-                    {line.row}
-                  </td>
-                  <td data-label={columns.question}>{line.question}</td>
-                  <td data-label={columns.fix}>{line.words}</td>
-                  <td data-label={columns.type}>
-                    {line.severity === 'error' ? (
-                      <StatusPill tone="err">{IMPORT_QUESTIONS.errorType}</StatusPill>
-                    ) : (
-                      <StatusPill tone="wait">{IMPORT_QUESTIONS.warningType}</StatusPill>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : null}
-      <FlowFoot
-        start={
-          <Button variant="text" onClick={onBack}>
-            {IMPORT_QUESTIONS.backStep}
-          </Button>
+      </FaFormSection>
+      <FaFormFoot
+        start={<Button onClick={onBack}>{IMPORT_QUESTIONS.backStep}</Button>}
+        end={
+          counts.errors > 0 ? (
+            <Button variant="primary" size="lg" onClick={onChooseAnother}>
+              {IMPORT_QUESTIONS.chooseAnother}
+            </Button>
+          ) : (
+            <Button variant="primary" size="lg" onClick={onContinue}>
+              {IMPORT_QUESTIONS.continue}
+            </Button>
+          )
         }
-      >
-        {counts.errors > 0 ? (
-          <Button variant="primary" icon="readyToPublish" onClick={onChooseFixed}>
-            {IMPORT_QUESTIONS.chooseFixed}
-          </Button>
-        ) : (
-          <Button variant="primary" onClick={onContinue}>
-            {IMPORT_QUESTIONS.continue}
-          </Button>
-        )}
-      </FlowFoot>
-    </div>
+      />
+    </>
   );
 }
 
-// ---- Step 3 · Confirm import (B4-08 f7) ----
+// ---- Step 3 · Confirm import ----
 
 function ConfirmStep({
   report,
+  experimentName,
   busy,
   onBack,
   onImport,
 }: {
   readonly report: QuestionImportReport;
+  readonly experimentName: string;
   readonly busy: boolean;
   readonly onBack: () => void;
   readonly onImport: () => void;
@@ -529,38 +535,47 @@ function ConfirmStep({
   const counts = reportCounts(report);
   const noExplanation = noExplanationWords(counts.noExplanation);
   return (
-    <div className="xr-section flex flex-col gap-[18px] p-6">
-      <p className="xr-lead m-0">
-        <strong className="text-ink">{questionsWords(counts.ready)}</strong>
-        {IMPORT_CONFIRM_LINE.middle}
-        <strong className="text-ink">{report.fileName}</strong>
-        {IMPORT_CONFIRM_LINE.end}
-      </p>
-      <ul className="m-0 flex flex-col gap-1.5 pl-5 text-[15px] leading-[22px] text-ink-2">
-        <li>{IMPORT_QUESTIONS.notInAssessment}</li>
-        {noExplanation ? <li>{noExplanation}</li> : null}
-      </ul>
-      <FlowFoot
-        start={
-          <Button variant="text" onClick={onBack}>
-            {IMPORT_QUESTIONS.backStep}
+    <>
+      <FaFormSection>
+        <FaResultText>{importConfirmLine(counts.ready, report.fileName)}</FaResultText>
+        <FaChecklist
+          flush
+          label={IMPORT_QUESTIONS.whatImportingDoes}
+          items={[
+            { key: 'bank', text: importIntoBankLine(experimentName), done: true },
+            { key: 'assessment', text: IMPORT_QUESTIONS.notInAssessment, done: true },
+            ...(noExplanation
+              ? [
+                  {
+                    key: 'explanation',
+                    text: noExplanation,
+                    done: false,
+                    icon: 'infoDisc' as const,
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </FaFormSection>
+      <FaFormFoot
+        start={<Button onClick={onBack}>{IMPORT_QUESTIONS.backStep}</Button>}
+        end={
+          <Button
+            variant="primary"
+            size="lg"
+            busy={busy}
+            busyLabel={IMPORT_QUESTIONS.importing}
+            onClick={onImport}
+          >
+            {importQuestionsButton(counts.ready)}
           </Button>
         }
-      >
-        <Button
-          variant="primary"
-          busy={busy}
-          busyLabel={IMPORT_QUESTIONS.importing}
-          onClick={onImport}
-        >
-          {importQuestionsButton(counts.ready)}
-        </Button>
-      </FlowFoot>
-    </div>
+      />
+    </>
   );
 }
 
-// ---- Result (B4-08 f8) ----
+// ---- Result ----
 
 function ResultStep({
   added,
@@ -572,18 +587,22 @@ function ResultStep({
   readonly onRestart: () => void;
 }) {
   return (
-    <div className="xw-stack">
-      <Notice tone="ok" title={IMPORT_QUESTIONS.finished}>
-        {importedLine(added)}
+    <FaResult
+      id={IDS.done}
+      actions={
+        <>
+          <ButtonLink variant="primary" size="lg" href={bankHref}>
+            {IMPORT_QUESTIONS.openBank}
+          </ButtonLink>
+          <Button variant="ghost" size="lg" onClick={onRestart}>
+            {IMPORT_QUESTIONS.again}
+          </Button>
+        </>
+      }
+    >
+      <Notice tone="ok" role="status" title={IMPORT_QUESTIONS.finished}>
+        {importedLine(added.length)}
       </Notice>
-      <div className="xw-actions">
-        <Link className="xr-btn xr-btn--primary" href={bankHref}>
-          {IMPORT_QUESTIONS.openBank}
-        </Link>
-        <Button variant="text" onClick={onRestart}>
-          {IMPORT_QUESTIONS.again}
-        </Button>
-      </div>
-    </div>
+    </FaResult>
   );
 }

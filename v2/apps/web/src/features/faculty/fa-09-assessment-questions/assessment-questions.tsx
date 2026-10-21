@@ -2,23 +2,53 @@
 
 import type { AssessmentView, QuestionBankRow, ServiceError } from '@xr/contracts/draft';
 import type { AssessmentQuestionRef, QuestionId } from '@xr/domain';
-import { Button, FailedState, Icon, IconButton, Link, LoadingState, Notice, Section } from '@xr/ui';
-import { type KeyboardEvent, useEffect, useRef, useState } from 'react';
+import { FailedState, LoadingState } from '@xr/ui';
+import {
+  Button,
+  ButtonLink,
+  FaAside,
+  FaBankAvailable,
+  FaCount,
+  FaMainSheet,
+  FaPanel,
+  FaQuestionHead,
+  FaQuiet,
+  FaRecordAdd,
+  FaRecordColumns,
+  FaRecordOrder,
+  FaRecordQuestions,
+  FaRecordQuestionsFoot,
+  FaRecordSection,
+  Hint,
+  ListState,
+  Notice,
+  PendingHint,
+  TextLink,
+  V46Island,
+} from '@xr/ui/v3';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 
 import {
   addedMessage,
   addLabel,
-  bankRowSub,
   deletedLine,
-  movedMessage,
+  keepWords,
+  madeVersionLine,
   moveDownLabel,
+  movedMessage,
   moveUpLabel,
-  newVersionLine,
+  orderLabel,
   panelMeta,
+  pinnedHint,
+  questionLead,
   QUESTIONS_WORDS,
-  removedMessage,
   removeLabel,
+  splitWords,
+  typeAndMarks,
   updatedMessage,
+  updatedVersionLabel,
+  versionLead,
+  versionTitle,
 } from '@/copy/assessment-record';
 import { marksWords, QUESTION_TYPE_WORDS, questionsAndMarks } from '@/copy/assessment-words';
 import { ASSESSMENT_QUESTIONS_EMPTY_LINE, BANK_TOOLS } from '@/copy/question-tools';
@@ -30,6 +60,8 @@ import {
   newQuestionAddress,
 } from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
+import { useSubmissions } from '@/queries/faculty-assessment-work';
+import { useSession } from '@/queries/session';
 import { useAssessmentRecord, useFacultyAssessments, useQuestionBank } from '@/queries/teaching';
 import { useCommand } from '@/queries/use-command';
 
@@ -37,35 +69,40 @@ import {
   AssessmentFallback,
   AssessmentFrame,
   type AssessmentFrameView,
+  otherActor,
+  TAB_HEADING_ID,
   useAssessmentPage,
 } from '../shared/assessment-frame';
+import { earlierSubmissions, versionChange } from '../fa-08-assessment-summary/assessment-summary';
 
-/** The focus targets the boards name (`Qq-msg`, `Qq-ph`, `Qq-r-<id>`). */
+/** The focus targets (the export's `fa-msg`, `fa-aq-ph`, `fa-aq-open`, `fa-aq-<id>`). */
 const MESSAGE_ID = 'questions-msg';
 const PANEL_TITLE_ID = 'questions-bank-title';
 const OPENER_ID = 'questions-open-bank';
 const rowId = (questionId: string) => `questions-row-${questionId}`;
 
 /**
- * FA-09 Assessment · Questions — board B4-05 f1, f2, f5 … f8, at
- * `/faculty/assessments/[assessmentId]/questions`, inside the record frame.
+ * FA-09 Assessment · Questions in the V3 Refined B design (FA-v1 `Main.dc.html` "FA-09 Questions",
+ * `vmQuestionsTab`), at `/faculty/assessments/[assessmentId]/questions`, inside the record frame.
  *
  * - **The questions in order**, each as the assessment PINS it (the pinned version's text, type
- *   and marks — never a newer bank version on its own), with its Q-id, Move up / Move down and
- *   Remove (`AssessmentService.updateQuestions`). A newer version in the bank says so, and "Use
- *   updated version" pins it (`useUpdatedVersion`); a question deleted from the bank keeps its copy.
- * - **Add from question bank** opens the side panel (`aside.xr-dpanel` beside the list from 860 px
+ *   and marks — never a newer bank version on its own), named by its position and its words (never
+ *   its reference), with Move up / Move down and Remove (`AssessmentService.updateQuestions`). A
+ *   newer version in the bank says so, and "Use updated version" pins it (`useUpdatedVersion`); a
+ *   question deleted from the bank keeps its copy.
+ * - **Add from question bank** opens the side panel (`aside.rk-aside` beside the list from 860 px
  *   of content, below it under that): the experiment's bank questions not in this assessment
  *   (`QuestionBankService.listQuestions`, deleted ones left out), each with "Add". Its title takes
  *   focus; the close button or Escape returns focus to the opener.
  * - **New question** opens FA-15 for this experiment, which returns here with `?added=<id>`: the
- *   panel then opens with that question first — the Faculty member adds it; nothing is attached
- *   on its own.
- * - Every change says what happened in place (the boards' messages) and, when the service made a
- *   new version because Students have submitted, "This makes a new version". Refusals re-read the
- *   record and say so; nothing is written for them. "Draft with assistance" (FA-16) and "Import"
- *   (FA-17) open those pages for the assessment's experiment: what they add goes into the bank
- *   only, and is added here from the bank panel (Phase 4B).
+ *   page then says it was saved to the bank and offers "Add this question to the assessment" —
+ *   nothing is attached on its own.
+ * - Every change says what happened in place (the export's messages) and, when the service made a
+ *   new version because Students have submitted, "This made version 2" with whose submissions keep
+ *   which version (`listSubmissions`). While Students have submitted the current version, the page
+ *   says who before a change. Refusals re-read the record and say so; nothing is written for them.
+ *   "Draft with assistance" (FA-16) and "Import" (FA-17) open those pages for the assessment's
+ *   experiment: what they add goes into the bank only, and is added here from the bank panel.
  */
 export function AssessmentQuestions({ assessmentId }: { readonly assessmentId: string }) {
   const navigation = useAppNavigation();
@@ -92,7 +129,18 @@ type Pending = {
   readonly action: 'remove' | 'add' | 'move' | 'update';
   readonly questionId: string;
 };
-type Message = { readonly tone: 'ok' | 'err'; readonly words: string };
+/** What the page says after an action: what happened (and the version it made), or a refusal. */
+type Message =
+  /** `madeVersion`: the change made this version (its line names whose submissions keep which). */
+  | { readonly tone: 'ok'; readonly words: string; readonly madeVersion?: number }
+  | { readonly tone: 'err'; readonly words: string }
+  /** Back from FA-15: the question is offered, never attached on its own. */
+  | { readonly tone: 'offer'; readonly questionId: string };
+/** What happened, and the version it made (if it made one). */
+function okMessage(words: string, madeVersion: number | undefined): Message {
+  return madeVersion === undefined ? { tone: 'ok', words } : { tone: 'ok', words, madeVersion };
+}
+
 type ChangeAnswer =
   | {
       readonly ok: true;
@@ -105,6 +153,7 @@ interface PinnedRow {
   readonly questionId: string;
   readonly text: string;
   readonly type: string;
+  readonly written: boolean;
   readonly marks: string;
   readonly newerVersion: number | null;
   readonly deletedAt: string | null;
@@ -113,10 +162,12 @@ interface PinnedRow {
 function pinnedRows(record: AssessmentView): PinnedRow[] {
   return record.questions.map(({ ref, question, newerVersion, deletedFromBank }) => {
     const pinned = question.versions.find((version) => version.version === ref.questionVersion);
+    const body = pinned?.body ?? question.body;
     return {
       questionId: ref.questionId,
       text: pinned?.text ?? question.text,
-      type: QUESTION_TYPE_WORDS[(pinned?.body ?? question.body).type],
+      type: QUESTION_TYPE_WORDS[body.type],
+      written: body.type === 'written',
       marks: marksWords(pinned?.marks ?? question.marks),
       newerVersion: deletedFromBank ? null : newerVersion,
       deletedAt: deletedFromBank ? (question.deleted?.at ?? null) : null,
@@ -131,24 +182,34 @@ function QuestionsBody({
   readonly view: AssessmentFrameView;
   readonly addedId: string | null;
 }) {
-  const { assessment, totalMarks } = view.record;
+  const session = useSession();
+  const viewer = session.status === 'signed-in' ? session.personId : null;
+  const { assessment, totalMarks, submittedOnCurrentVersion } = view.record;
+  const own = otherActor(assessment.createdBy, viewer) === null;
   const experiment = view.experiment?.experiment.name ?? stateWords('FA-08.experiment-unknown');
-  const [panelOpen, setPanelOpen] = useState(addedId !== null);
-  const [message, setMessage] = useState<Message | null>(null);
-  const [madeNewVersion, setMadeNewVersion] = useState(false);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [message, setMessage] = useState<Message | null>(
+    addedId !== null ? { tone: 'offer', questionId: addedId } : null,
+  );
   const [pending, setPending] = useState<Pending | null>(null);
   const [focus, setFocus] = useState<{ readonly id: string; readonly turn: number } | null>(
-    addedId !== null ? { id: PANEL_TITLE_ID, turn: 0 } : null,
+    addedId !== null ? { id: MESSAGE_ID, turn: 0 } : null,
   );
   const update = useCommand((ports) => ports.assessments.updateQuestions);
   const pinUpdated = useCommand((ports) => ports.assessments.useUpdatedVersion);
   const record = useAssessmentRecord(assessment.id);
   const list = useFacultyAssessments();
-  const bank = useQuestionBank(assessment.experimentId, null, panelOpen);
+  const bank = useQuestionBank(assessment.experimentId, null, panelOpen || addedId !== null);
+  // Who submitted (the pinned hint, the versions' keep line): one aggregate read.
+  const submissions = useSubmissions(
+    assessment.id,
+    own && view.row !== null && view.row.submitted > 0,
+  );
+  const submissionRows = submissions.data?.ok ? submissions.data.value : null;
 
-  // Focus follows each action, once the page shows its result (B4-05 script `focus(…)`). The
-  // first one — the panel opened on the way back from FA-15 — waits a tick, as the boards do, so
-  // the route's own focus on arrival does not take it back.
+  // Focus follows each action, once the page shows its result (the export's `focusLater`). The
+  // first one — the offer on the way back from FA-15 — waits a tick, so the route's own focus on
+  // arrival does not take it back.
   useEffect(() => {
     if (!focus) return;
     const timer = window.setTimeout(() => document.getElementById(focus.id)?.focus(), 0);
@@ -159,31 +220,38 @@ function QuestionsBody({
   const rows = pinnedRows(view.record);
   const refs: readonly AssessmentQuestionRef[] = assessment.questions;
 
-  const say = (words: string, tone: Message['tone'] = 'ok') => {
-    setMessage({ tone, words });
+  const say = (next: Message) => {
+    setMessage(next);
     focusOn(MESSAGE_ID);
   };
 
   const refused = (error: ServiceError) => {
     if (error.kind === 'validation-failed') {
-      say(stateWords('FA-09.last-question'), 'err');
+      say({ tone: 'err', words: stateWords('FA-09.last-question') });
       return;
     }
     if (error.kind === 'policy-open') {
-      say(stateWords('FA-09.policy-open'), 'err');
+      say({ tone: 'err', words: stateWords('FA-09.policy-open') });
       return;
     }
     // The record moved on (stale revision, nothing to change, a question gone): read it again.
     void record.refetch();
     void list.refetch();
     if (panelOpen) void bank.refetch();
-    say(stateWords('FA-09.stale'), 'err');
+    say({ tone: 'err', words: stateWords('FA-09.stale') });
   };
+
+  /**
+   * "This made version 2. Rahul Verma’s submission keeps version 1; …" after a new version — read
+   * from the submissions as they are now (named once that read has answered).
+   */
+  const versionLine = (version: number) =>
+    madeVersionLine(version, keepWords(version, earlierSubmissions(submissionRows, version)));
 
   const change = (
     action: Pending,
     send: () => Promise<ChangeAnswer>,
-    done: (assessment: Assessment) => void,
+    done: (assessment: Assessment, madeVersion: number | undefined) => void,
   ) => {
     if (pending) return;
     setPending(action);
@@ -194,13 +262,15 @@ function QuestionsBody({
           refused(answer.error);
           return;
         }
-        if (answer.value.newVersion) setMadeNewVersion(true);
-        done(answer.value.assessment);
+        done(
+          answer.value.assessment,
+          answer.value.newVersion ? answer.value.assessment.version : undefined,
+        );
       },
       // Failed for now: nothing changed (state-copy `FA-09.unavailable`).
       () => {
         setPending(null);
-        say(stateWords('FA-09.unavailable'), 'err');
+        say({ tone: 'err', words: stateWords('FA-09.unavailable') });
       },
     );
   };
@@ -212,7 +282,7 @@ function QuestionsBody({
     change(
       { action: 'remove', questionId },
       sendQuestions(refs.filter((ref) => ref.questionId !== questionId)),
-      () => say(removedMessage(questionId)),
+      (_next, madeVersion) => say(okMessage(QUESTIONS_WORDS.removed, madeVersion)),
     );
 
   const move = (index: number, by: -1 | 1) => {
@@ -222,13 +292,13 @@ function QuestionsBody({
     const moved = order[index]!;
     order[index] = order[to]!;
     order[to] = moved;
-    change({ action: 'move', questionId: moved.questionId }, sendQuestions(order), () => {
-      setMessage({ tone: 'ok', words: movedMessage(moved.questionId, to + 1) });
+    change({ action: 'move', questionId: moved.questionId }, sendQuestions(order), (_n, made) => {
+      setMessage(okMessage(movedMessage(index + 1, to + 1), made));
       focusOn(rowId(moved.questionId));
     });
   };
 
-  const pinNewer = (questionId: string) =>
+  const pinNewer = (questionId: string, position: number) =>
     change(
       { action: 'update', questionId },
       () =>
@@ -237,7 +307,7 @@ function QuestionsBody({
           questionId: questionId as QuestionId,
           expectedRev: assessment.rev,
         }),
-      () => say(updatedMessage(questionId)),
+      (_next, madeVersion) => say(okMessage(updatedMessage(position), madeVersion)),
     );
 
   const add = (row: QuestionBankRow) =>
@@ -247,7 +317,7 @@ function QuestionsBody({
         ...refs,
         { questionId: row.question.id, questionVersion: row.question.version },
       ]),
-      (next) => say(addedMessage(row.question.id, next.questions.length)),
+      (next, madeVersion) => say(okMessage(addedMessage(next.questions.length), madeVersion)),
     );
 
   const openPanel = () => {
@@ -261,187 +331,215 @@ function QuestionsBody({
 
   const busy = (action: Pending['action'], questionId: string) =>
     pending?.action === action && pending.questionId === questionId;
-  const submitted = view.row?.submitted ?? 0;
+  const bankRows = bank.data?.ok ? bank.data.value : null;
+  const offered =
+    message?.tone === 'offer'
+      ? (bankRows?.find(
+          (row) => row.question.id === message.questionId && row.question.deleted === null,
+        ) ?? null)
+      : null;
+  const pinnedNames =
+    own && submittedOnCurrentVersion > 0 && submissionRows !== null
+      ? [
+          ...new Set(
+            submissionRows
+              .filter((row) => row.attempt.assessmentVersion === assessment.version)
+              .map((row) => row.student.fullName),
+          ),
+        ]
+      : [];
+  const written = rows.filter((row) => row.written).length;
+  const made = versionChange(assessment, viewer);
+  const versionNote =
+    assessment.version > 1 && !(message?.tone === 'ok' && message.madeVersion !== undefined) ? (
+      <Notice
+        tone="info"
+        icon="infoDisc"
+        space="below"
+        title={versionTitle(assessment.version, assessment.versionSince)}
+      >
+        {`${versionLead(made.change, made.who)} ${keepWords(
+          assessment.version,
+          earlierSubmissions(submissionRows, assessment.version),
+        )}`}
+      </Notice>
+    ) : null;
+
+  const newQuestion = newQuestionAddress({
+    experimentId: assessment.experimentId,
+    returnTo: assessmentAddress(assessment.id, 'questions'),
+  });
+
+  const main = (
+    <FaMainSheet labelledBy={TAB_HEADING_ID}>
+      <FaRecordSection>
+        <FaQuestionHead
+          title={QUESTIONS_WORDS.title}
+          titleId={TAB_HEADING_ID}
+          focusable
+          aside={
+            own ? (
+              <FaRecordAdd
+                buttons={
+                  <>
+                    {panelOpen ? null : (
+                      <Button id={OPENER_ID} icon="stack" iconSize={20} onClick={openPanel}>
+                        {QUESTIONS_WORDS.addFromBank}
+                      </Button>
+                    )}
+                    <ButtonLink href={newQuestion} icon="add" iconSize={20}>
+                      {QUESTIONS_WORDS.newQuestion}
+                    </ButtonLink>
+                  </>
+                }
+                or={QUESTIONS_WORDS.or}
+                links={[
+                  <TextLink key="draft" href={draftQuestionsAddress(assessment.experimentId)}>
+                    {BANK_TOOLS.draftWithAssistance}
+                  </TextLink>,
+                  <TextLink key="import" href={importQuestionsAddress(assessment.experimentId)}>
+                    {BANK_TOOLS.import}
+                  </TextLink>,
+                ]}
+              />
+            ) : undefined
+          }
+        >
+          <FaCount>{questionsAndMarks(rows.length, totalMarks)}</FaCount>
+          {rows.length > 0 ? <Hint>{splitWords(rows.length - written, written)}</Hint> : null}
+        </FaQuestionHead>
+        {message?.tone === 'ok' ? (
+          <Notice tone="ok" role="status" id={MESSAGE_ID} space="below" title={message.words}>
+            {message.madeVersion === undefined ? undefined : versionLine(message.madeVersion)}
+          </Notice>
+        ) : message?.tone === 'err' ? (
+          <Notice
+            tone="warn"
+            icon="alertCircle"
+            role="alert"
+            id={MESSAGE_ID}
+            space="below"
+            title={message.words}
+          />
+        ) : message?.tone === 'offer' ? (
+          <Notice
+            tone="ok"
+            role="status"
+            id={MESSAGE_ID}
+            space="below"
+            wrapActions
+            title={QUESTIONS_WORDS.savedTitle}
+            actions={
+              offered ? (
+                <Button busy={busy('add', offered.question.id)} onClick={() => add(offered)}>
+                  {QUESTIONS_WORDS.offer}
+                </Button>
+              ) : undefined
+            }
+          >
+            {QUESTIONS_WORDS.savedLine}
+          </Notice>
+        ) : null}
+        {versionNote}
+        {pinnedNames.length > 0 ? (
+          <PendingHint space="below">{pinnedHint(pinnedNames)}</PendingHint>
+        ) : null}
+        {rows.length > 0 ? (
+          <FaRecordQuestions
+            items={rows.map((row, index) => {
+              const position = index + 1;
+              const notes: { key: string; text: ReactNode; action?: ReactNode }[] = [];
+              if (row.newerVersion !== null) {
+                notes.push({
+                  key: 'newer',
+                  text: QUESTIONS_WORDS.newerVersion,
+                  action: own ? (
+                    <Button
+                      aria-label={updatedVersionLabel(position)}
+                      busy={busy('update', row.questionId)}
+                      onClick={() => pinNewer(row.questionId, position)}
+                    >
+                      {QUESTIONS_WORDS.useUpdated}
+                    </Button>
+                  ) : undefined,
+                });
+              }
+              if (row.deletedAt) notes.push({ key: 'deleted', text: deletedLine(row.deletedAt) });
+              return {
+                key: row.questionId,
+                id: rowId(row.questionId),
+                number: position,
+                lead: questionLead(position),
+                text: row.text,
+                type: row.type,
+                written: row.written,
+                marks: row.marks,
+                notes,
+                actions: own ? (
+                  <>
+                    <FaRecordOrder
+                      label={orderLabel(position)}
+                      up={{
+                        label: moveUpLabel(position),
+                        disabled: index === 0,
+                        onClick: () => move(index, -1),
+                      }}
+                      down={{
+                        label: moveDownLabel(position),
+                        disabled: index === rows.length - 1,
+                        onClick: () => move(index, 1),
+                      }}
+                    />
+                    <Button
+                      variant="ghost"
+                      aria-label={removeLabel(position)}
+                      busy={busy('remove', row.questionId)}
+                      onClick={() => remove(row.questionId)}
+                    >
+                      {QUESTIONS_WORDS.remove}
+                    </Button>
+                  </>
+                ) : undefined,
+              };
+            })}
+          />
+        ) : (
+          <ListState kind="empty" icon="stack" title={QUESTIONS_WORDS.emptyTitle}>
+            {ASSESSMENT_QUESTIONS_EMPTY_LINE}
+          </ListState>
+        )}
+        <FaRecordQuestionsFoot>{QUESTIONS_WORDS.footNote}</FaRecordQuestionsFoot>
+      </FaRecordSection>
+    </FaMainSheet>
+  );
 
   return (
-    <div className={panelOpen ? 'xr-decide' : undefined}>
-      <Section
-        title={QUESTIONS_WORDS.title}
-        metaLive
-        meta={questionsAndMarks(rows.length, totalMarks)}
-      >
-        {/* The drawn toolbar row: Add from question bank, New question, and the text links to
-            FA-16 Draft with assistance and FA-17 Import for the assessment's experiment. */}
-        <div className="xw-actions min-h-14 [padding:0_24px_16px]">
-          {panelOpen ? null : (
-            <Button variant="primary" size="sm" icon="add" id={OPENER_ID} onClick={openPanel}>
-              {QUESTIONS_WORDS.addFromBank}
-            </Button>
-          )}
-          <Link
-            className="xr-btn xr-btn--secondary xr-btn--sm"
-            href={newQuestionAddress({
-              experimentId: assessment.experimentId,
-              returnTo: assessmentAddress(assessment.id, 'questions'),
-            })}
-          >
-            {QUESTIONS_WORDS.newQuestion}
-          </Link>
-          <Link
-            className="xr-btn xr-btn--text"
-            href={draftQuestionsAddress(assessment.experimentId)}
-          >
-            <Icon name="assist" />
-            {BANK_TOOLS.draftWithAssistance}
-          </Link>
-          <Link
-            className="xr-btn xr-btn--text"
-            href={importQuestionsAddress(assessment.experimentId)}
-          >
-            <Icon name="readyToPublish" />
-            {BANK_TOOLS.import}
-          </Link>
-        </div>
-        <div id={MESSAGE_ID} tabIndex={-1} className="[padding:0_24px]">
-          {message ? (
-            <p
-              className={`xa-save ${message.tone === 'ok' ? 'is-ok' : 'is-err'} [margin:0_0_12px]`}
-              role={message.tone === 'ok' ? 'status' : 'alert'}
-            >
-              <Icon name={message.tone === 'ok' ? 'done' : 'failed'} />
-              {message.words}
-            </p>
-          ) : null}
-          {madeNewVersion ? (
-            <div className="[margin:0_0_16px]">
-              <Notice tone="warn" title={QUESTIONS_WORDS.newVersionTitle}>
-                {newVersionLine(Math.max(submitted, 1))}
-              </Notice>
-            </div>
-          ) : null}
-        </div>
-        {rows.length > 0 ? (
-          <ul className="xr-rows">
-            {rows.map((row, index) => (
-              <li
-                key={row.questionId}
-                className="xr-row items-start"
-                id={rowId(row.questionId)}
-                tabIndex={-1}
-              >
-                <div className="xr-row-main items-start">
-                  <span className="xl-n" aria-hidden="true">
-                    {index + 1}
-                  </span>
-                  <div className="xr-row-text">
-                    <span className="xr-row-title">{row.text}</span>
-                    <span className="xa-qrow-meta">
-                      <span className="xa-tag">{row.type}</span>
-                      <span>{row.marks}</span>
-                      <span className="xr-id">{row.questionId}</span>
-                      {row.deletedAt ? (
-                        <span className="xl-inline text-ink-3">
-                          <Icon name="info" size={16} />
-                          {deletedLine(row.deletedAt)}
-                        </span>
-                      ) : null}
-                    </span>
-                    {row.newerVersion !== null ? (
-                      <span className="xa-qrow-meta text-warn">
-                        <Icon name="info" size={16} />
-                        {QUESTIONS_WORDS.newerVersion}
-                        <Button
-                          variant="text"
-                          className="min-h-8"
-                          busy={busy('update', row.questionId)}
-                          onClick={() => pinNewer(row.questionId)}
-                        >
-                          {QUESTIONS_WORDS.useUpdated}
-                        </Button>
-                      </span>
-                    ) : null}
-                  </div>
-                </div>
-                <div className="xw-actions flex-none">
-                  <span className="xa-order">
-                    <IconButton
-                      icon="chevronUp"
-                      label={moveUpLabel(index + 1)}
-                      disabled={index === 0}
-                      className={index === 0 ? 'opacity-35' : undefined}
-                      onClick={() => move(index, -1)}
-                    />
-                    <IconButton
-                      icon="chevronDown"
-                      label={moveDownLabel(index + 1)}
-                      disabled={index === rows.length - 1}
-                      className={index === rows.length - 1 ? 'opacity-35' : undefined}
-                      onClick={() => move(index, 1)}
-                    />
-                  </span>
-                  <Button
-                    variant="text"
-                    className="min-h-9"
-                    aria-label={removeLabel(index + 1)}
-                    busy={busy('remove', row.questionId)}
-                    onClick={() => remove(row.questionId)}
-                  >
-                    {QUESTIONS_WORDS.remove}
-                  </Button>
-                </div>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <div className="xr-section-body">
-            <div className="xr-empty">
-              <span className="xr-empty-icon">
-                <Icon name="questionBank" />
-              </span>
-              <h3 className="xr-h3 m-0">{QUESTIONS_WORDS.emptyTitle}</h3>
-              <p className="xr-body m-0 text-ink-2">{ASSESSMENT_QUESTIONS_EMPTY_LINE}</p>
-              <div className="flex flex-wrap gap-3">
-                <Button variant="primary" onClick={openPanel}>
-                  {QUESTIONS_WORDS.addFromBank}
-                </Button>
-                <Link
-                  className="xr-btn xr-btn--secondary"
-                  href={newQuestionAddress({
-                    experimentId: assessment.experimentId,
-                    returnTo: assessmentAddress(assessment.id, 'questions'),
-                  })}
-                >
-                  {QUESTIONS_WORDS.newQuestion}
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
-        <div className="xr-section-body [padding-top:12px]">
-          <p className="xl-meta m-0">{QUESTIONS_WORDS.footNote}</p>
-        </div>
-      </Section>
-      {panelOpen ? (
-        <BankPanel
-          experiment={experiment}
-          bank={bank}
-          inAssessment={new Set(refs.map((ref) => ref.questionId))}
-          addedId={addedId}
-          busyId={pending?.action === 'add' ? pending.questionId : null}
-          onAdd={add}
-          onClose={closePanel}
-        />
-      ) : null}
-    </div>
+    <FaRecordColumns
+      aside={
+        panelOpen && own ? (
+          <FaAside labelledBy={PANEL_TITLE_ID}>
+            <BankPanel
+              experiment={experiment}
+              bank={bank}
+              inAssessment={new Set(refs.map((ref) => ref.questionId))}
+              busyId={pending?.action === 'add' ? pending.questionId : null}
+              onAdd={add}
+              onClose={closePanel}
+            />
+          </FaAside>
+        ) : undefined
+      }
+    >
+      {main}
+    </FaRecordColumns>
   );
 }
 
-/** B4-05 f7: "From your question bank · <experiment> · not in this assessment". */
+/** "From your question bank" — "<experiment> · not in this assessment". */
 function BankPanel({
   experiment,
   bank,
   inAssessment,
-  addedId,
   busyId,
   onAdd,
   onClose,
@@ -449,73 +547,60 @@ function BankPanel({
   readonly experiment: string;
   readonly bank: ReturnType<typeof useQuestionBank>;
   readonly inAssessment: ReadonlySet<string>;
-  readonly addedId: string | null;
   readonly busyId: string | null;
   readonly onAdd: (row: QuestionBankRow) => void;
   readonly onClose: () => void;
 }) {
-  const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key !== 'Escape') return;
-    event.preventDefault();
-    onClose();
-  };
   const answer = bank.data;
   const available = answer?.ok
-    ? answer.value
-        .filter((row) => row.question.deleted === null && !inAssessment.has(row.question.id))
-        // The question just written in FA-15 first (state-copy `FA-09.added-from-editor`).
-        .toSorted((a, b) => Number(b.question.id === addedId) - Number(a.question.id === addedId))
+    ? answer.value.filter(
+        (row) => row.question.deleted === null && !inAssessment.has(row.question.id),
+      )
     : [];
   return (
-    <aside className="xr-dpanel" aria-labelledby={PANEL_TITLE_ID} onKeyDown={onKeyDown}>
-      <div className="flex items-center justify-between gap-2">
-        <h2 id={PANEL_TITLE_ID} className="xr-dpanel-title" tabIndex={-1}>
-          {QUESTIONS_WORDS.panelTitle}
-        </h2>
-        <IconButton icon="close" label={QUESTIONS_WORDS.closePanel} onClick={onClose} />
-      </div>
-      <span className="xl-meta">{panelMeta(experiment)}</span>
+    <FaPanel
+      titleId={PANEL_TITLE_ID}
+      title={QUESTIONS_WORDS.panelTitle}
+      focusable
+      close={{ label: QUESTIONS_WORDS.closePanel, onClose }}
+    >
+      <Hint>{panelMeta(experiment)}</Hint>
       {bank.isError || (answer && !answer.ok) ? (
-        <FailedState title={stateWords('FA-09.bank-failed')} onRetry={() => void bank.refetch()} />
+        <V46Island>
+          <FailedState
+            title={stateWords('FA-09.bank-failed')}
+            onRetry={() => void bank.refetch()}
+          />
+        </V46Island>
       ) : !answer ? (
-        <LoadingState label={stateWords('FA-09.bank-loading')} surface={null} lines={2} />
+        <V46Island>
+          <LoadingState label={stateWords('FA-09.bank-loading')} surface={null} lines={2} />
+        </V46Island>
       ) : available.length > 0 ? (
-        <ul className="m-0 p-0 [list-style:none]">
-          {available.map((row) => (
-            <li
-              key={row.question.id}
-              className="flex flex-col gap-1.5 [border-top:1px_solid_var(--xr-line)] [padding:12px_0]"
-            >
-              <span className="font-[600] text-ink">{row.question.text}</span>
-              <span className="xr-meta">
-                {bankRowSub(
-                  row.question.id,
-                  QUESTION_TYPE_WORDS[row.question.body.type],
-                  marksWords(row.question.marks),
-                )}
-              </span>
-              {row.question.id === addedId ? (
-                <span className="xa-save is-ok">
-                  <Icon name="done" />
-                  {stateWords('FA-09.added-from-editor')}
-                </span>
-              ) : null}
+        <FaBankAvailable
+          items={available.map((row) => ({
+            key: row.question.id,
+            text: row.question.text,
+            line: typeAndMarks(
+              QUESTION_TYPE_WORDS[row.question.body.type],
+              marksWords(row.question.marks),
+            ),
+            action: (
               <Button
-                variant="secondary"
-                size="sm"
-                className="self-start"
-                aria-label={addLabel(row.question.id)}
+                icon="add"
+                iconSize={20}
+                aria-label={addLabel(row.question.text)}
                 busy={busyId === row.question.id}
                 onClick={() => onAdd(row)}
               >
                 {QUESTIONS_WORDS.add}
               </Button>
-            </li>
-          ))}
-        </ul>
+            ),
+          }))}
+        />
       ) : (
-        <p className="xr-body m-0 text-ink-2">{QUESTIONS_WORDS.panelEmpty}</p>
+        <FaQuiet>{QUESTIONS_WORDS.panelEmpty}</FaQuiet>
       )}
-    </aside>
+    </FaPanel>
   );
 }

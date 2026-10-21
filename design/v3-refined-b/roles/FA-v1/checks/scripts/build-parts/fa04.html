@@ -1,0 +1,77 @@
+        <sc-if value="{{ CR.isE }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ XE.empty }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface fr-msgcard" aria-labelledby="fa-exps-none">
+          <div class="fa-inlinemsg">
+            <span class="fa-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-box"></use></svg></span>
+            <h2 class="rb-h2" id="fa-exps-none">No experiments yet</h2>
+            <p class="fa-msg-d">Experiments appear here when your Institute Admin assigns you a course that your institution holds.</p>
+          </div>
+        </section>
+        </sc-if>
+        <sc-if value="{{ XE.notEmpty }}" hint-placeholder-val="{{ true }}">
+        <section class="rk-surface" aria-labelledby="fa-exps-h">
+          <h2 class="xr-sr" id="fa-exps-h">Experiments you teach</h2>
+          <div class="rk-toolbar">
+            <div class="rk-tools fr-tools" role="search" aria-label="Filter experiments">
+              <div class="rk-field rk-search">
+                <label class="rk-label" for="fa-x-q">Search</label>
+                <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-search"></use></svg><input id="fa-x-q" class="rk-input" type="search" placeholder="Experiment or course" autocomplete="off" value="{{ XE.q }}" onChange="{{ XE.onQ }}"></div>
+              </div>
+              <div class="rk-field fa-field-sel">
+                <label class="rk-label" for="fa-x-fm">Format</label>
+                <div class="rk-selwrap"><select id="fa-x-fm" class="rk-select" value="{{ XE.fm }}" onChange="{{ XE.onFm }}"><option value="all">All formats</option><sc-for list="{{ XE.fmOpts }}" as="o" hint-placeholder-count="2"><option value="{{ o }}">{{ o }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+              </div>
+              <div class="rk-field fa-field-sel">
+                <label class="rk-label" for="fa-x-act">Student activity</label>
+                <div class="rk-selwrap"><select id="fa-x-act" class="rk-select" value="{{ XE.act }}" onChange="{{ XE.onAct }}"><option value="all">All</option><option value="some">With activity</option><option value="none">No activity yet</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+              </div>
+            </div>
+            <div class="rk-statusline">
+              <sc-if value="{{ XE.ok }}" hint-placeholder-val="{{ true }}"><p class="rk-count" role="status">{{ XE.count }}</p></sc-if>
+              <sc-for list="{{ XE.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-x"></use></svg></button></span></sc-for>
+              <sc-if value="{{ XE.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ XE.clear }}">Clear filters</button></sc-if>
+            </div>
+          </div>
+          <sc-if value="{{ XE.has }}" hint-placeholder-val="{{ true }}">
+          <div class="fa-tablewrap">
+            <table class="rk-table fa-table fr-xtable">
+              <caption>Experiments you teach</caption>
+              <thead><tr><th scope="col" class="fr-c-exp">Experiment</th><th scope="col" class="fr-c-act">Student activity, by format</th><th scope="col">Assessment</th></tr></thead>
+              <tbody>
+                <sc-for list="{{ XE.rows }}" as="r" hint-placeholder-count="1">
+                <tr onClick="{{ r.open }}">
+                  <td class="fa-c-main"><a class="rk-rowlink" href="#FA-05" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}">{{ r.t }}</a><span class="fa-cellsub">{{ r.course }}</span><span class="fr-cellfm"><span class="fr-k">Formats your institution has</span><span class="rk-fmts" aria-label="{{ r.fmAria }}"><sc-for list="{{ r.fm }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></span></td>
+                  <td><span class="fa-lbl">Student activity, by format</span><sc-if value="{{ r.hasStu }}" hint-placeholder-val="{{ true }}"><ul class="fr-prog fr-prog--cell" aria-label="{{ r.progAria }}"><sc-for list="{{ r.prog }}" as="f" hint-placeholder-count="2"><li class="fr-prog-row"><span class="xr-fmt">{{ f.code }}</span><span class="{{ f.unitsCls }}" aria-hidden="true"><sc-for list="{{ f.units }}" as="x" hint-placeholder-count="5"><i class="{{ x }}"></i></sc-for></span><p class="fr-prog-t"><span><b>{{ f.done }}</b> completed</span><span><b>{{ f.prog }}</b> in progress</span><span><b>{{ f.none }}</b> not started</span></p></li></sc-for></ul><span class="fa-cellsub fr-cellfoot">{{ r.reach }}</span></sc-if><sc-if value="{{ r.noStu }}" hint-placeholder-val="{{ false }}"><span class="fa-quiet">No students have it yet</span></sc-if></td>
+                  <td><span class="fa-lbl">Assessment</span><span class="{{ r.stCls }}"><i></i>{{ r.stLabel }}</span><sc-if value="{{ r.hasAsm }}" hint-placeholder-val="{{ true }}"><span class="fr-cellname">{{ r.asm }}</span></sc-if><span class="fa-cellsub">{{ r.asmD }}</span></td>
+                </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          </sc-if>
+          <sc-if value="{{ XE.none }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="status">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-search"></use></svg></span>
+            <p class="rk-state-t">No experiment matches these filters</p>
+            <p class="rk-state-d">Only experiments in your courses that your institution holds are listed. Try fewer filters or a different spelling.</p>
+            <button type="button" class="rb-btn" onClick="{{ XE.clear }}">Clear filters</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ XE.loading }}" hint-placeholder-val="{{ false }}">
+          <div aria-busy="true">
+            <p class="rk-loading-msg" role="status">Loading your experiments…</p>
+            <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+            <div class="rk-skel-row" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ XE.failed }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="alert">
+            <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-cloud"></use></svg></span>
+            <p class="rk-state-t">We couldn’t load your experiments</p>
+            <p class="rk-state-d">Nothing has changed. Try again.</p>
+            <button type="button" class="rb-btn" onClick="{{ XE.retry }}">Try again</button>
+          </div>
+          </sc-if>
+        </section>
+        </sc-if>
+        </sc-if>

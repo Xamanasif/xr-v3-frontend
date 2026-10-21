@@ -146,6 +146,24 @@ export function iaExport(file: string): string {
   return readFileSync(join(IA_EXPORT_DIRECTORY, file), 'utf8');
 }
 
+/**
+ * The owner-approved Faculty export (FA-v1), read only: its live role root (`Main.dc.html`,
+ * START-HERE "Live role preview") and sheet (`fa.css`).
+ */
+export const FA_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'FA-v1',
+  'project',
+);
+
+/** An FA export file's source (`Main.dc.html`, `fa.css`, …), by file name. */
+export function faExport(file: string): string {
+  return readFileSync(join(FA_EXPORT_DIRECTORY, file), 'utf8');
+}
+
 /** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
 export function xsContract(): {
   readonly components: readonly {

@@ -1,0 +1,1810 @@
+{
+ "role": "Faculty",
+ "foundation": "XR-V3-RB-1.0",
+ "ownedIds": 21,
+ "statusDate": "21 Oct 2026",
+ "overall": {
+  "design": "DESIGN COMPLETE — 21 of 21 owned IDs redesigned in one consistent Refined B design (5 in the R1 checkpoint, 16 in the final pass); 111 subviews registered: 102 redesigned, 9 reviewed and unchanged",
+  "preview": "CONNECTED PREVIEW COMPLETE — one role-preview root (Main.dc.html) with every destination connected; six live starting points (1440, 1024, 768, 375)",
+  "assembly": "ASSEMBLY PENDING XS — account menu, Help, signed-out and refusal surfaces remain faithful borrowed implementations until the XS package is delivered",
+  "approval": "FINAL — the owner approved this complete-role design"
+ },
+ "owned": [
+  {
+   "id": "FA-01",
+   "name": "Overview",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-01)",
+   "liveEntry": "Main.dc.html → Rail › Overview",
+   "design": "REDESIGNED — R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P1",
+    "P4",
+    "P8",
+    "P9"
+   ],
+   "whatChanged": "Priority band sized to its items with one gold Mark now and the names and dates behind each count; Coming up with date tiles, days left and the release rule; Your teaching with one unit meter per format; composed new-teacher and no-course states.",
+   "subviews": [
+    {
+     "subview": "Populated · needs attention, coming up, your teaching",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-Overview"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "One item needs attention · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-One-item"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "New teacher, no students yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-New-teacher",
+      "FA01-New-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-No-courses"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA01-Overview.dc.html (1440 px · Populated · needs attention, coming up, your teaching)",
+    "project/FA01-One-item.dc.html (1440 px · One item needs attention · 26 Oct)",
+    "project/FA01-New-teacher.dc.html (1440 px · New teacher, no students yet)",
+    "project/FA01-New-phone.dc.html (375 px · New teacher, no students yet)",
+    "project/FA01-No-courses.dc.html (1440 px · No courses assigned)",
+    "project/FA01-Coteach.dc.html (1440 px · Co-teacher)",
+    "project/FA01-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA01-1440.png",
+    "responsive/FA01-1024.png",
+    "responsive/FA01-768.png",
+    "responsive/FA01-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J3, J4, J5e, J8a, J8c, J9g",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-02",
+   "name": "My courses (Courses tab)",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/courses",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-02)",
+   "liveEntry": "Main.dc.html → Rail › My courses",
+   "design": "REDESIGNED — R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P3",
+    "P8"
+   ],
+   "whatChanged": "Course ledger: tinted course header with code, title, assignment source and three figures; one aligned row per experiment with formats, students, assessment, deadline and marking waiting; no nested cards.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-My-courses"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "New teacher, no students yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-None"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA02-My-courses.dc.html (1440 px · Populated)",
+    "project/FA02-New.dc.html (1440 px · New teacher, no students yet)",
+    "project/FA02-None.dc.html (1440 px · No courses assigned)",
+    "project/FA02-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA02-1440.png",
+    "responsive/FA02-1024.png",
+    "responsive/FA02-768.png",
+    "responsive/FA02-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J8a, J9a, J9g",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-03",
+   "name": "Course (teaching view)",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/courses/[courseId]",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-03)",
+   "liveEntry": "Main.dc.html → My courses › a course",
+   "design": "REDESIGNED — R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P2",
+    "P4"
+   ],
+   "whatChanged": "Plan-tint identity band with figures; one panel per experiment with its description and held formats in the header, then Student activity (meters and words) and Assessment side by side, with one Mark action.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-Course"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No assessment yet · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-No-assessment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "New teacher, no students yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA03-Course.dc.html (1440 px · Populated)",
+    "project/FA03-No-assessment.dc.html (1440 px · No assessment yet · 26 Oct)",
+    "project/FA03-New.dc.html (1440 px · New teacher, no students yet)",
+    "project/FA03-Coteach.dc.html (1440 px · Co-teacher)",
+    "project/FA03-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA03-1440.png",
+    "responsive/FA03-1024.png",
+    "responsive/FA03-768.png",
+    "responsive/FA03-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J8a, J8b",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-04",
+   "name": "Experiments (tab of My courses)",
+   "kind": "tab",
+   "v46ProposedRoute": "/faculty/courses?tab=experiments",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-04)",
+   "liveEntry": "Main.dc.html → My courses › Experiments tab",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7",
+    "P4",
+    "P8"
+   ],
+   "whatChanged": "Refined table: experiment with its course and the formats your institution holds; student activity as one unit meter per format with counts in words (was plain “WEB: 2 of 5 completed” lines); assessment cell with state, name and deadline. Without an experiment: the compact message card used across the role, without filters.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-Experiments"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No experiment matches the filters",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA04-No-match"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "Loading",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA04-Loading"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "Couldn’t load",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA04-Failed"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "No student activity yet (new teacher)",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-No-courses"
+     ],
+     "note": "compact message card (P8) replaces the filters and an empty table"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA04-Experiments.dc.html (1440 px · Populated)",
+    "project/FA04-No-match.dc.html (1440 px · No experiment matches the filters)",
+    "project/FA04-Loading.dc.html (1440 px · Loading)",
+    "project/FA04-Failed.dc.html (1440 px · Couldn’t load)",
+    "project/FA04-New.dc.html (1440 px · No student activity yet (new teacher))",
+    "project/FA04-No-courses.dc.html (1440 px · No courses assigned)",
+    "project/FA04-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA04-1440.png",
+    "responsive/FA04-1024.png",
+    "responsive/FA04-768.png",
+    "responsive/FA04-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J7b, J9a, J9g, J9h",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-05",
+   "name": "Experiment (teaching view)",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/experiments/[experimentId]",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-05)",
+   "liveEntry": "Main.dc.html → An experiment from Overview, a course or Experiments",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P2",
+    "P4",
+    "P5"
+   ],
+   "whatChanged": "Plan-tint identity band: course code, “Experiment you teach · course”, the name and three figures (formats held, formats your students have used, students with access). Student activity as meters with a link to the students; About with learning outcomes and resources; navy Assessment panel with deadline and days left, submissions meter, marking waiting, a gold Mark that opens the oldest waiting submission, and Open assessment — or Create assessment. The assessment panel names the attempt (“Attempt 1 of 2 · submitted …”) instead of its internal id.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-Experiment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No assessment yet · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-No-assessment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No students with access yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA05-Experiment.dc.html (1440 px · Populated)",
+    "project/FA05-No-assessment.dc.html (1440 px · No assessment yet · 26 Oct)",
+    "project/FA05-New.dc.html (1440 px · No students with access yet)",
+    "project/FA05-Coteach.dc.html (1440 px · Co-teacher)",
+    "project/FA05-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA05-1440.png",
+    "responsive/FA05-1024.png",
+    "responsive/FA05-768.png",
+    "responsive/FA05-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J9a, J9g, J9h",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-06",
+   "name": "Assessments",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/assessments",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-06)",
+   "liveEntry": "Main.dc.html → Rail › Assessments",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7",
+    "P9",
+    "P8"
+   ],
+   "whatChanged": "Refined table with Deadline (date and days left) and Submissions (unit meter, students submitted, marking waiting) in their own columns, and the state on the right. Without a course: the compact message card. Rows carry the assessment’s name, with “Created by …” only for a colleague’s assessment; the internal id has gone.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA06-Assessments"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No assessment yet, with Create · 26 Oct",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA06-None-yet"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA06-No-courses"
+     ],
+     "note": "compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA06-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA06-Assessments.dc.html (1440 px · Populated)",
+    "project/FA06-None-yet.dc.html (1440 px · No assessment yet, with Create · 26 Oct)",
+    "project/FA06-No-courses.dc.html (1440 px · No courses assigned)",
+    "project/FA06-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA06-1440.png",
+    "responsive/FA06-1024.png",
+    "responsive/FA06-768.png",
+    "responsive/FA06-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J7c, J9b, J9c, J9g",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-07",
+   "name": "Create assessment (4 steps)",
+   "kind": "step",
+   "v46ProposedRoute": "/faculty/assessments/new?step=1…4",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-07)",
+   "liveEntry": "Main.dc.html → Assessments › Create assessment, or an experiment",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "A stepper that fits a phone (only the current step is labelled there); every step a sectioned form: experiment cards with formats and reach; name and introduction, then the three rules aligned in one row and the release options side by side; questions as checkbox cards with other ways to add below; preview as a rules list and numbered questions with type tags. The side summary ticks what is done and, at step 4, lists what happens when you create it. Questions are chosen and previewed by their text, type and marks, and the result card says the assessment is created and ready without printing its id.",
+   "subviews": [
+    {
+     "subview": "Step 1 · experiment",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step1"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Step 2 · rules with errors",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step2-errors",
+      "FA07-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Step 3 · questions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step3"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Step 4 · preview and create",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step4",
+      "FA07-Step4-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Created and ready",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Created"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Saved as a draft",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Saved-draft"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Experiment already has an assessment",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-One-per-experiment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-No-courses"
+     ],
+     "note": "compact message card (P8) instead of an empty step 1"
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA07-Step1.dc.html (1440 px · Step 1 · experiment)",
+    "project/FA07-Step2-errors.dc.html (1440 px · Step 2 · rules with errors)",
+    "project/FA07-Phone.dc.html (375 px · Step 2 · rules with errors)",
+    "project/FA07-Step3.dc.html (1440 px · Step 3 · questions)",
+    "project/FA07-Step4.dc.html (1440 px · Step 4 · preview and create)",
+    "project/FA07-Step4-phone.dc.html (375 px · Step 4 · preview and create)",
+    "project/FA07-Created.dc.html (1440 px · Created and ready)",
+    "project/FA07-Saved-draft.dc.html (1440 px · Saved as a draft)",
+    "project/FA07-One-per-experiment.dc.html (1440 px · Experiment already has an assessment)",
+    "project/FA07-No-courses.dc.html (1440 px · No courses assigned)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA07-1440.png",
+    "responsive/FA07-1024.png",
+    "responsive/FA07-768.png",
+    "responsive/FA07-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1 (four widths), J9g",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-08",
+   "name": "Assessment · Summary",
+   "kind": "tab",
+   "v46ProposedRoute": "/faculty/assessments/[assessmentId]",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-08)",
+   "liveEntry": "Main.dc.html → Assessments › an assessment",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P2",
+    "P4"
+   ],
+   "whatChanged": "Tinted record band shared by FA-08 to FA-12: course and experiment, the name (balanced wrap), state · ID · version · marking waiting, and figures for the deadline (days left), students submitted (meter) and questions. Summary: readiness, rules as set, who it reaches; navy Submissions panel with the waiting names oldest first and one gold Mark next. Tabs scroll on a phone with the current tab kept in view. The band shows the state, version, who created it and what is waiting — not the assessment id.",
+   "subviews": [
+    {
+     "subview": "Ready, 2 waiting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Summary"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Draft, no questions yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Draft"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Version 2 after submissions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Version2"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA08-Summary.dc.html (1440 px · Ready, 2 waiting)",
+    "project/FA08-Draft.dc.html (1440 px · Draft, no questions yet)",
+    "project/FA08-Version2.dc.html (1440 px · Version 2 after submissions)",
+    "project/FA08-Coteach.dc.html (1440 px · Co-teacher)",
+    "project/FA08-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA08-1440.png",
+    "responsive/FA08-1024.png",
+    "responsive/FA08-768.png",
+    "responsive/FA08-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J3, J7a, J9b, J9c, J9i",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-09",
+   "name": "Assessment · Questions",
+   "kind": "tab",
+   "v46ProposedRoute": "/faculty/assessments/[assessmentId]/questions",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-09)",
+   "liveEntry": "Main.dc.html → Assessment › Questions tab",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7",
+    "P2"
+   ],
+   "whatChanged": "Head with total marks and the split between automatic and written marks; actions in order of use (Add from question bank, New question, then Draft with assistance · Import); numbered rows with type tag, marks and ID; larger move controls; navy bank panel whose close button returns focus. Rows, the add-from-bank panel and every message name questions by their position or text; move, remove and “use updated version” read “question 2” rather than a bank id.",
+   "subviews": [
+    {
+     "subview": "4 questions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Questions"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Add from question bank panel",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Add-from-bank"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Added after submissions · version 2",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-New-version"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher, read only",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA09-Questions.dc.html (1440 px · 4 questions)",
+    "project/FA09-Add-from-bank.dc.html (1440 px · Add from question bank panel)",
+    "project/FA09-New-version.dc.html (1440 px · Added after submissions · version 2)",
+    "project/FA09-Coteach.dc.html (1440 px · Co-teacher, read only)",
+    "project/FA09-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA09-1440.png",
+    "responsive/FA09-1024.png",
+    "responsive/FA09-768.png",
+    "responsive/FA09-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J7a, J9b, J9c",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-10",
+   "name": "Assessment · Settings",
+   "kind": "tab",
+   "v46ProposedRoute": "/faculty/assessments/[assessmentId]/settings",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-10)",
+   "liveEntry": "Main.dc.html → Assessment › Settings tab",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "Sectioned form (Name and introduction · Rules · When students see results) with the three rules aligned in one row; a How changes apply panel: the current version, who submitted it and which changes make a new version.",
+   "subviews": [
+    {
+     "subview": "Settings",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Settings"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Errors",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Errors"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Rule change after submissions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Rule-change"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Release change warning",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Release-change"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher, read only",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA10-Settings.dc.html (1440 px · Settings)",
+    "project/FA10-Errors.dc.html (1440 px · Errors)",
+    "project/FA10-Rule-change.dc.html (1440 px · Rule change after submissions)",
+    "project/FA10-Release-change.dc.html (1440 px · Release change warning)",
+    "project/FA10-Coteach.dc.html (1440 px · Co-teacher, read only)",
+    "project/FA10-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA10-1440.png",
+    "responsive/FA10-1024.png",
+    "responsive/FA10-768.png",
+    "responsive/FA10-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J7a, J9b, J9c, J9i",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-11",
+   "name": "Assessment · Preview",
+   "kind": "tab",
+   "v46ProposedRoute": "/faculty/assessments/[assessmentId]/preview",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-11)",
+   "liveEntry": "Main.dc.html → Assessment › Preview tab",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P5"
+   ],
+   "whatChanged": "A reading sheet at reading width with a Student view / Answer key switch and the no-attempt note; an “As students see it” head with facts and the introduction; numbered question cards. Answer key mode: one band saying only you see the key and the guidance; explanations and guidance as ruled notes.",
+   "subviews": [
+    {
+     "subview": "As students see it",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA11-Student-view"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "With the answer key",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA11-Answer-key",
+      "FA11-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Preview couldn’t load",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA11-Failed"
+     ],
+     "note": "the state itself; it sits under the redesigned record band"
+    },
+    {
+     "subview": "Co-teacher refusal",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA11-Coteach"
+     ],
+     "note": "the existing refusal; it sits under the redesigned record band"
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA11-Student-view.dc.html (1440 px · As students see it)",
+    "project/FA11-Answer-key.dc.html (1440 px · With the answer key)",
+    "project/FA11-Phone.dc.html (375 px · With the answer key)",
+    "project/FA11-Failed.dc.html (1440 px · Preview couldn’t load)",
+    "project/FA11-Coteach.dc.html (1440 px · Co-teacher refusal)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA11-1440.png",
+    "responsive/FA11-1024.png",
+    "responsive/FA11-768.png",
+    "responsive/FA11-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J4b, J9b, J9c",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-12",
+   "name": "Assessment · Submissions",
+   "kind": "tab",
+   "v46ProposedRoute": "/faculty/assessments/[assessmentId]/submissions",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-12)",
+   "liveEntry": "Main.dc.html → Assessment › Submissions tab",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7",
+    "P4"
+   ],
+   "whatChanged": "Toolbar with the count, a gold Mark next and Export CSV; the filter as one segmented control; while waiting the score shows “— of 16” with the automatic part; the release column says Not yet or Released with the rule beneath. The student column reads “Attempt 1 of 2”, and an export is named after the assessment (submissions-heat-exchanger-post-lab.csv).",
+   "subviews": [
+    {
+     "subview": "2 waiting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Submissions"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "One marked, result not released",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Marked"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher refusal",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA12-Coteach"
+     ],
+     "note": "the existing refusal; it sits under the redesigned record band"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA12-Submissions.dc.html (1440 px · 2 waiting)",
+    "project/FA12-Marked.dc.html (1440 px · One marked, result not released)",
+    "project/FA12-Coteach.dc.html (1440 px · Co-teacher refusal)",
+    "project/FA12-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA12-1440.png",
+    "responsive/FA12-1024.png",
+    "responsive/FA12-768.png",
+    "responsive/FA12-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J3, J4b, J9b, J9c, J9i",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-14",
+   "name": "Question bank (Questions · Drafts to review)",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/question-bank",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-14)",
+   "liveEntry": "Main.dc.html → Rail › Question bank",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7",
+    "P6"
+   ],
+   "whatChanged": "Head actions in order of use (Add a question, Draft with assistance, Import); the questions table shows a type tag and the ID with its version, and a compact Used in; drafts become review cards with options, key and guidance beside How review works. The quiet line under a question carries its version (and the experiment, when there is more than one) instead of its bank id; search is by words in the question; the delete dialog and its confirmation name the question.",
+   "subviews": [
+    {
+     "subview": "Questions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Question-bank"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafts to review",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Drafts",
+      "FA14-Drafts-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Delete a used question · dialog",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Delete"
+     ],
+     "note": "the kit dialog and its focus handling are unchanged; its title and confirmation name the question instead of its id"
+    },
+    {
+     "subview": "Question deleted, history kept",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Deleted"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No question matches",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-No-match"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Empty bank (new teacher)",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA14-Empty"
+     ],
+     "note": "the empty state itself; the head actions above follow the new order"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA14-Question-bank.dc.html (1440 px · Questions)",
+    "project/FA14-Drafts.dc.html (1440 px · Drafts to review)",
+    "project/FA14-Drafts-phone.dc.html (375 px · Drafts to review)",
+    "project/FA14-Delete.dc.html (1440 px · Delete a used question · dialog)",
+    "project/FA14-Deleted.dc.html (1440 px · Question deleted, history kept)",
+    "project/FA14-No-match.dc.html (1440 px · No question matches)",
+    "project/FA14-Empty.dc.html (1440 px · Empty bank (new teacher))",
+    "project/FA14-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA14-1440.png",
+    "responsive/FA14-1024.png",
+    "responsive/FA14-768.png",
+    "responsive/FA14-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J2, J5c, J9d, J9g, J9i",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-15",
+   "name": "Add / edit question",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/question-bank/new · /faculty/question-bank/[questionId]",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-15)",
+   "liveEntry": "Main.dc.html → Question bank › Add a question or Edit",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "Sectioned form (type cards in one row; question and answer; marks and explanation) with a side panel: this question’s facts (version, where it is used, when added — or when its ID is given) and what students see, when. The meta line and the side facts show the version; the id and the “Question ID · given when you save” fact have gone, and saving reports “Saved as version 2.”",
+   "subviews": [
+    {
+     "subview": "Add a question",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Errors",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-Errors",
+      "FA15-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Edit a used question",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-Used"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Review a draft",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-Draft-review"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA15-New.dc.html (1440 px · Add a question)",
+    "project/FA15-Errors.dc.html (1440 px · Errors)",
+    "project/FA15-Phone.dc.html (375 px · Errors)",
+    "project/FA15-Used.dc.html (1440 px · Edit a used question)",
+    "project/FA15-Draft-review.dc.html (1440 px · Review a draft)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA15-1440.png",
+    "responsive/FA15-1024.png",
+    "responsive/FA15-768.png",
+    "responsive/FA15-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J1, J2, J9d",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-16",
+   "name": "Draft questions with assistance",
+   "kind": "step",
+   "v46ProposedRoute": "/faculty/question-bank/draft",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-16)",
+   "liveEntry": "Main.dc.html → Question bank › Draft with assistance",
+   "design": "REDESIGNED — R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "Numbered steps (material · types · count) with type cards and a 3/5 choice; How drafting works at the side; drafts show options and the key for review and collapse into a bank line once added. Final pass: the no-course state uses the role’s compact message card. An added draft collapses to “In your question bank · …” instead of showing the id it was given.",
+   "subviews": [
+    {
+     "subview": "Choices",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Draft"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Nothing chosen",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Errors"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Busy"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafts to review",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Drafts-list",
+      "FA16-List-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafting failed",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Failed"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-No-courses"
+     ],
+     "note": "final pass: compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA16-Draft.dc.html (1440 px · Choices)",
+    "project/FA16-Errors.dc.html (1440 px · Nothing chosen)",
+    "project/FA16-Busy.dc.html (1440 px · Drafting)",
+    "project/FA16-Drafts-list.dc.html (1440 px · Drafts to review)",
+    "project/FA16-List-phone.dc.html (375 px · Drafts to review)",
+    "project/FA16-Failed.dc.html (1440 px · Drafting failed)",
+    "project/FA16-No-courses.dc.html (1440 px · No courses assigned)",
+    "project/FA16-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA16-1440.png",
+    "responsive/FA16-1024.png",
+    "responsive/FA16-768.png",
+    "responsive/FA16-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J6, J6b, J8e",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-17",
+   "name": "Import questions (CSV)",
+   "kind": "step",
+   "v46ProposedRoute": "/faculty/question-bank/import",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-17)",
+   "liveEntry": "Main.dc.html → Question bank › Import",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P6",
+    "P7"
+   ],
+   "whatChanged": "Stepper; the file picker with the template’s columns as a side reference; the check as four figures (rows, ready, with errors, with warnings) above the row table; confirm with counts by type; a done card. The finished notice says how many questions were added, without listing the ids assigned.",
+   "subviews": [
+    {
+     "subview": "Choose a file",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Choose"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Not a CSV file",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Not-CSV"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Row errors block the import",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Row-errors",
+      "FA17-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Confirm",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Confirm"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Imported",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Done"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA17-Choose.dc.html (1440 px · Choose a file)",
+    "project/FA17-Not-CSV.dc.html (1440 px · Not a CSV file)",
+    "project/FA17-Row-errors.dc.html (1440 px · Row errors block the import)",
+    "project/FA17-Phone.dc.html (375 px · Row errors block the import)",
+    "project/FA17-Confirm.dc.html (1440 px · Confirm)",
+    "project/FA17-Done.dc.html (1440 px · Imported)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA17-1440.png",
+    "responsive/FA17-1024.png",
+    "responsive/FA17-768.png",
+    "responsive/FA17-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J2, J9f, J9g",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-18",
+   "name": "Marking queue",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/marking",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-18)",
+   "liveEntry": "Main.dc.html → Rail › Marking",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7",
+    "P1",
+    "P8"
+   ],
+   "whatChanged": "Toolbar with the waiting count, the oldest wait and one gold Mark next; assessment filter and a segmented Waiting / Marked / All; rows show when each answer was submitted and how long ago. Rows read “Attempt 1 of 2”, and the row action is announced as “Mark Rahul Verma”.",
+   "subviews": [
+    {
+     "subview": "2 waiting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-Marking"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "All, one marked",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-All"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Nothing waiting · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-Nothing-waiting"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-No-courses"
+     ],
+     "note": "compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA18-Marking.dc.html (1440 px · 2 waiting)",
+    "project/FA18-All.dc.html (1440 px · All, one marked)",
+    "project/FA18-Nothing-waiting.dc.html (1440 px · Nothing waiting · 26 Oct)",
+    "project/FA18-No-courses.dc.html (1440 px · No courses assigned)",
+    "project/FA18-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA18-1440.png",
+    "responsive/FA18-1024.png",
+    "responsive/FA18-768.png",
+    "responsive/FA18-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J3, J5d, J9e, J9g",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-19",
+   "name": "Mark a submission",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/marking/[attemptId]",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-19)",
+   "liveEntry": "Main.dc.html → Marking › Mark, or Overview › Mark now",
+   "design": "REDESIGNED — R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P5"
+   ],
+   "whatChanged": "Automatic marks as a strip; the answer at reading width; guidance as a quiet ruled note; a panel with a large score field, feedback, the live total and Save mark, then Confirm marks last with its lock note. Same calculation and dialog. The band reads “Waiting for marking · Submitted … · attempt 1 of 2”, and the confirm dialog names the assessment — neither shows the attempt id.",
+   "subviews": [
+    {
+     "subview": "Waiting for marking",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Mark"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Mark out of range",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Invalid-mark"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Mark saved, not confirmed",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Saved",
+      "FA19-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Confirm marks · dialog",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Confirm"
+     ],
+     "note": "the kit dialog, its wording and its focus handling are unchanged apart from the sub-line, which names the assessment instead of the attempt id"
+    },
+    {
+     "subview": "Confirmed, read only",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Confirmed"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Result released · 15 Nov",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Released"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA19-Mark.dc.html (1440 px · Waiting for marking)",
+    "project/FA19-Invalid-mark.dc.html (1440 px · Mark out of range)",
+    "project/FA19-Saved.dc.html (1440 px · Mark saved, not confirmed)",
+    "project/FA19-Phone.dc.html (375 px · Mark saved, not confirmed)",
+    "project/FA19-Confirm.dc.html (1440 px · Confirm marks · dialog)",
+    "project/FA19-Confirmed.dc.html (1440 px · Confirmed, read only)",
+    "project/FA19-Released.dc.html (1440 px · Result released · 15 Nov)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA19-1440.png",
+    "responsive/FA19-1024.png",
+    "responsive/FA19-768.png",
+    "responsive/FA19-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J3 (four widths), J5d, J8d, J9a, J9e",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-20",
+   "name": "Students (progress and follow-up)",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/students",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-20)",
+   "liveEntry": "Main.dc.html → Rail › Students",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7",
+    "P4",
+    "P8"
+   ],
+   "whatChanged": "Per-format summary meters for all students with access above the roster; the roster shows per-format status, assessment status and last activity with the inactivity tag; Export CSV in the toolbar.",
+   "subviews": [
+    {
+     "subview": "All students",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Students"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Inactive 14 days or more",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Inactive"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No student matches",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-No-match"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No students yet",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA20-No-students"
+     ],
+     "note": "the empty state itself; only the as-of line above it was reworded"
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-No-courses"
+     ],
+     "note": "compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA20-Students.dc.html (1440 px · All students)",
+    "project/FA20-Inactive.dc.html (1440 px · Inactive 14 days or more)",
+    "project/FA20-No-match.dc.html (1440 px · No student matches)",
+    "project/FA20-No-students.dc.html (1440 px · No students yet)",
+    "project/FA20-No-courses.dc.html (1440 px · No courses assigned)",
+    "project/FA20-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA20-1440.png",
+    "responsive/FA20-1024.png",
+    "responsive/FA20-768.png",
+    "responsive/FA20-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J4, J9e, J9g, J9i",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-21",
+   "name": "Student detail (per experiment)",
+   "kind": "page",
+   "v46ProposedRoute": "/faculty/students/[studentId]",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-21)",
+   "liveEntry": "Main.dc.html → Students › a student",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P4"
+   ],
+   "whatChanged": "A person page keeps the plain head (name, ID, last activity, inactivity tag) with no aggregate figures. Progress by format as compact rows — per format only, no overall verdict; resources with opened status; navy Assessment panel with the attempt, the total “11 of 16 marks · Passed · pass mark 8”, the release note, and Mark their answers or View marks. The assessment panel names the attempt; the student’s own institution id (GIT-2026-0418) stays, because it is not an internal technical id.",
+   "subviews": [
+    {
+     "subview": "Waiting for marking",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Student"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Marked, result not released",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Marked"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Result released · 15 Nov",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Released"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Inactive student",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Inactive"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA21-Student.dc.html (1440 px · Waiting for marking)",
+    "project/FA21-Marked.dc.html (1440 px · Marked, result not released)",
+    "project/FA21-Released.dc.html (1440 px · Result released · 15 Nov)",
+    "project/FA21-Inactive.dc.html (1440 px · Inactive student)",
+    "project/FA21-Coteach.dc.html (1440 px · Co-teacher)",
+    "project/FA21-Phone.dc.html (375 px · Phone 375)"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA21-1440.png",
+    "responsive/FA21-1024.png",
+    "responsive/FA21-768.png",
+    "responsive/FA21-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J3, J4, J4b, J9e",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  },
+  {
+   "id": "FA-22",
+   "name": "Export CSV (action on FA-12 and FA-20)",
+   "kind": "action",
+   "v46ProposedRoute": "(action) Export CSV on FA-20 / FA-12",
+   "source": "project/Main.dc.html (one role-preview root; view selected by screen ID FA-12 / FA-20)",
+   "liveEntry": "Main.dc.html → Export CSV on FA-12 and FA-20",
+   "design": "REDESIGNED — Final pass",
+   "patterns": [
+    "P7"
+   ],
+   "whatChanged": "The export confirmation band lines up with the refined toolbars, and the preview of exported rows scrolls sideways without wrapping cells. Same columns and rows; CSV only.",
+   "subviews": [
+    {
+     "subview": "On Submissions (FA-12)",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Export"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "On Students (FA-20)",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Export",
+      "FA20-Export-phone"
+     ],
+     "note": ""
+    }
+   ],
+   "inspectionBoards": [
+    "project/FA12-Export.dc.html (1440 px · On Submissions (FA-12))",
+    "project/FA20-Export.dc.html (1440 px · On Students (FA-20))",
+    "project/FA20-Export-phone.dc.html (375 px · On Students (FA-20))"
+   ],
+   "responsiveScreenshots": [
+    "responsive/FA22-1440.png",
+    "responsive/FA22-1024.png",
+    "responsive/FA22-768.png",
+    "responsive/FA22-375.png"
+   ],
+   "evidence": {
+    "rendered": "every listed board and the four-width strip: no console error, no horizontal page scroll",
+    "exercised": "J3, J4",
+    "sourceChecked": "structural accessibility scan: 0 issues; link crawl: every in-role link lands on its screen"
+   },
+   "status": [
+    "DESIGN COMPLETE",
+    "CONNECTED PREVIEW COMPLETE",
+    "FINAL — APPROVED"
+   ]
+  }
+ ],
+ "excluded": [
+  {
+   "id": "FA-13",
+   "note": "not designed (prior decision); no Make available / open / close control anywhere"
+  },
+  {
+   "id": "FA-23",
+   "note": "not designed; no Reports destination"
+  },
+  {
+   "id": "FA-24",
+   "note": "not designed"
+  }
+ ],
+ "sharedDependencies": [
+  {
+   "id": "XS-05",
+   "name": "Account menu and menu drawer",
+   "ownedBy": "XS (shared surfaces team)",
+   "useHere": "borrowed v46 shared behaviour rebuilt with V3 tokens; replace with the delivered XS component",
+   "boards": [
+    "project/XS-Account-menu.dc.html",
+    "project/XS-Menu-phone.dc.html"
+   ],
+   "status": "ASSEMBLY PENDING XS",
+   "design": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "id": "XS-07",
+   "name": "Help & support",
+   "ownedBy": "XS (shared surfaces team)",
+   "useHere": "borrowed v46 shared behaviour rebuilt with V3 tokens; replace with the delivered XS component",
+   "boards": [
+    "project/XS-Help.dc.html",
+    "project/XS-Help-report.dc.html"
+   ],
+   "status": "ASSEMBLY PENDING XS",
+   "design": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "id": "XS-03",
+   "name": "Signed out",
+   "ownedBy": "XS (shared surfaces team)",
+   "useHere": "borrowed v46 shared behaviour rebuilt with V3 tokens; replace with the delivered XS component",
+   "boards": [
+    "project/XS-Signed-out.dc.html"
+   ],
+   "status": "ASSEMBLY PENDING XS",
+   "design": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "id": "XS-06",
+   "name": "Not your workspace · scoped refusals",
+   "ownedBy": "XS (shared surfaces team)",
+   "useHere": "borrowed v46 shared behaviour rebuilt with V3 tokens; replace with the delivered XS component",
+   "boards": [
+    "project/XS-Not-your-workspace.dc.html",
+    "project/Refusal-Course.dc.html",
+    "project/Refusal-Co-teacher-marking.dc.html"
+   ],
+   "status": "ASSEMBLY PENDING XS",
+   "design": "REVIEWED AND UNCHANGED"
+  }
+ ]
+}

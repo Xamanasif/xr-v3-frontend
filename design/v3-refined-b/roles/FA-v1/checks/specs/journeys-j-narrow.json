@@ -1,0 +1,2485 @@
+[
+ {
+  "name": "J1-create-chain-1024",
+  "file": "fa/T-j-oct26.dc.html",
+  "width": 1024,
+  "steps": [
+   {
+    "expect": [
+     "Overview",
+     "Monday 26 October 2026"
+    ],
+    "label": "Overview on 26 Oct 2026"
+   },
+   {
+    "click": "#fa-main .fa-te a:has-text(\"Shell-and-Tube Heat Exchanger\")",
+    "expect": [
+     "No assessment for this experiment yet"
+    ],
+    "label": "experiment from Your teaching"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Create assessment\")",
+    "expect": [
+     "Step 1 of 4",
+     "Choose the experiment"
+    ],
+    "label": "create from the experiment"
+   },
+   {
+    "assert": "document.getElementById('fa-cw-e-ste').checked === true",
+    "label": "experiment already chosen"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 2 of 4",
+     "Set the rules"
+    ]
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Check this step",
+     "Enter a name for the assessment",
+     "Enter a pass mark from 0 to 100, as a whole number",
+     "Choose when students see their result"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "rules start empty and are required"
+   },
+   {
+    "fill": "#fa-cw-name",
+    "value": "Heat Exchanger — post-lab"
+   },
+   {
+    "fill": "#fa-cw-pass",
+    "value": "50"
+   },
+   {
+    "fill": "#fa-cw-att",
+    "value": "2"
+   },
+   {
+    "fill": "#fa-cw-dl",
+    "value": "14 Nov 2026, 23:59"
+   },
+   {
+    "click": "#fa-cw-r-after"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 3 of 4",
+     "Add questions"
+    ],
+    "label": "rules accepted"
+   },
+   {
+    "click": "#fa-cw-q-Q-0101"
+   },
+   {
+    "click": "#fa-cw-q-Q-0104"
+   },
+   {
+    "click": "#fa-cw-q-Q-0106",
+    "expect": "3 questions · 14 marks",
+    "label": "three question types chosen"
+   },
+   {
+    "click": "#fa-main a:has-text(\"New question\")",
+    "expect": [
+     "Add a question",
+     "Create assessment"
+    ],
+    "label": "new question from the create flow"
+   },
+   {
+    "click": "#fa-qe-t-sc"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Which arrangement can bring the cold outlet above the hot outlet?"
+   },
+   {
+    "fill": "#fa-qe-o0",
+    "value": "Counter flow"
+   },
+   {
+    "fill": "#fa-qe-o1",
+    "value": "Parallel flow"
+   },
+   {
+    "click": "#fa-qe-c0"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Step 3 of 4",
+     "Saved to your question bank.",
+     "It’s ticked below.",
+     "4 questions · 16 marks"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "back in step 3 with the new question ticked"
+   },
+   {
+    "assert": "document.getElementById('fa-cw-q-Q-0107').checked && document.getElementById('fa-cw-q-Q-0101').checked",
+    "label": "earlier ticks kept"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 4 of 4",
+     "Preview and create",
+     "50% · 8 of 16 marks",
+     "Which arrangement can bring the cold outlet above the hot outlet?"
+    ],
+    "label": "preview step"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": [
+     "Step 3 of 4",
+     "4 questions · 16 marks"
+    ],
+    "label": "back to questions, state kept"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": "Step 2 of 4",
+    "assert": "document.getElementById('fa-cw-name').value === 'Heat Exchanger — post-lab' && document.getElementById('fa-cw-r-after').checked",
+    "label": "back to rules, values kept"
+   },
+   {
+    "click": "#fa-cw-next"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": "Step 4 of 4"
+   },
+   {
+    "click": "#fa-cw-next",
+    "wait": 1000,
+    "expect": [
+     "Assessment created",
+     "Ready"
+    ],
+    "expectFocus": "fa-cw-done",
+    "label": "created and ready"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Open assessment\")",
+    "expect": [
+     "Ready to use",
+     "4 questions · 16 marks"
+    ]
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "As students see it"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "Only you see the answer key and the marking guidance",
+     "Correct"
+    ],
+    "label": "answer key only for Faculty"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Overview\")",
+    "expect": [
+     "Coming up",
+     "Heat Exchanger — post-lab",
+     "0 of 5 students submitted"
+    ],
+    "label": "overview shows the new deadline",
+    "shot": "overview-after"
+   }
+  ]
+ },
+ {
+  "name": "J2-bank-chain-1024",
+  "file": "fa/T-j-qb.dc.html",
+  "width": 1024,
+  "steps": [
+   {
+    "expect": [
+     "Question bank",
+     "6 questions"
+    ],
+    "label": "bank opens with 6 questions"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Add a question\")",
+    "expect": "Add a question",
+    "expectFocus": "fa-h1",
+    "label": "Add a question opens the editor, focus on heading"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": [
+     "Check this question",
+     "Choose the question type",
+     "Enter the question",
+     "Enter the marks, as a whole number of 1 or more"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "empty save shows error summary, focus moves to it"
+   },
+   {
+    "click": "#fa-errs a:has-text(\"Choose the question type\")",
+    "expectFocus": "fa-qe-t-sc",
+    "label": "error link moves focus to the type field"
+   },
+   {
+    "click": "#fa-qe-t-tf",
+    "expect": "The statement is",
+    "label": "true/false shows only its fields"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Adding heat transfer area raises the duty at the same inlet temperatures and flow rates."
+   },
+   {
+    "click": "#fa-qe-tf-true"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2"
+   },
+   {
+    "fill": "#fa-qe-expl",
+    "value": "More area raises UA and NTU, so the exchanger transfers more heat."
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved to your question bank.",
+     "7 questions",
+     "Adding heat transfer area raises the duty"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "save returns to the bank with Q-0107 and a message"
+   },
+   {
+    "click": "[aria-label=\"Edit question: How is the number of transfer units (NTU) defined?\"]",
+    "expect": [
+     "Edit question",
+     "Used in 1 assessment: Heat Exchanger — post-lab"
+    ],
+    "label": "editing a used question warns about versions"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "How is the number of transfer units (NTU) of a heat exchanger defined?"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved as version 2.",
+     "keeps version 1",
+     "Single choice\nVersion 2"
+    ],
+    "label": "used question saves version 2"
+   },
+   {
+    "click": "[aria-label=\"Edit question: In a counter-flow exchanger, what can happen that cannot happen in parallel flow?\"]",
+    "expectNot": "Used in 1 assessment",
+    "label": "unused question has no version warning"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": "Nothing to save",
+    "expectFocus": "fa-msg",
+    "label": "saving without changes says nothing to save"
+   },
+   {
+    "click": "#fa-main .fa-formfoot a:has-text(\"Cancel\")",
+    "expect": "7 questions",
+    "label": "cancel returns to the bank"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": "3 drafts to review",
+    "expectFocus": "fa-tabh",
+    "label": "drafts tab"
+   },
+   {
+    "click": "[aria-label=\"Review and edit draft: What is the log mean temperature difference (LMTD) used for?\"]",
+    "expect": [
+     "Review a draft",
+     "Draft — needs your review"
+    ],
+    "label": "review a draft in the editor"
+   },
+   {
+    "click": "role=button[name=\"Add to bank\"]",
+    "wait": 900,
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts to review"
+    ],
+    "label": "reviewed draft added as Q-0108, back on drafts tab"
+   },
+   {
+    "click": "[aria-label^=\"Discard draft: Counter flow always\"]",
+    "expect": [
+     "Draft discarded. Nothing was added to your bank.",
+     "1 draft to review"
+    ],
+    "label": "discard leaves the bank unchanged"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "8 questions",
+     "From a draft you reviewed"
+    ],
+    "label": "questions tab shows the reviewed draft"
+   },
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Import\")",
+    "expect": [
+     "Choose a file",
+     "Download the template (CSV)"
+    ],
+    "label": "import step 1"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "expect": "Choose a CSV file first",
+    "expectFocus": "fa-im-choose",
+    "label": "check without a file"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "post-lab.xlsx",
+      "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text": "PK..."
+     }
+    ],
+    "wait": 400,
+    "expect": "is a spreadsheet workbook",
+    "label": "XLSX refused"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "my-questions.csv",
+      "text": "type,question,option_a,option_b,option_c,option_d,correct,marks,explanation,marking_guidance\r\ntrue or false,Fouling lowers U.,,,,,TRUE,2,Fouling adds a resistance.,\r\nwritten answer,Explain what NTU measures.,,,,,,six,,\r\n"
+     }
+    ],
+    "wait": 400,
+    "expect": "my-questions.csv",
+    "label": "own CSV chosen"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Rows\n2",
+     "Ready\n1",
+     "With errors\n1",
+     "marks “six” isn’t a whole number of 1 or more."
+    ],
+    "label": "own CSV row validation"
+   },
+   {
+    "click": "role=button[name=\"Choose another file\"]",
+    "expect": "Choose a file",
+    "label": "choose another file"
+   },
+   {
+    "click": "role=button[name=\"Use the sample file\"]",
+    "expect": "post-lab-questions.csv"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Check rows",
+     "With errors\n2",
+     "With warnings\n1",
+     "correct is “E”, but the question has options A–D only.",
+     "type “multi-select” isn’t available",
+     "explanation is empty. The question imports without one.",
+     "Nothing is imported while the file has errors"
+    ],
+    "label": "sample file: 2 errors block, 1 warning"
+   },
+   {
+    "click": "role=button[name=\"Choose the corrected file\"]",
+    "wait": 1000,
+    "expect": [
+     "post-lab-questions-corrected.csv",
+     "Ready\n8",
+     "With warnings\n1",
+     "With errors\n0"
+    ],
+    "expectNot": "with errors",
+    "label": "corrected file: 8 ready"
+   },
+   {
+    "click": "role=button[name=\"Continue\"]",
+    "expect": [
+     "Confirm import",
+     "8 questions will be added to your bank from post-lab-questions-corrected.csv.",
+     "One has no explanation"
+    ],
+    "label": "confirm step"
+   },
+   {
+    "click": "role=button[name=\"Import 8 questions\"]",
+    "wait": 1100,
+    "expect": [
+     "Import finished",
+     "8 questions were added to your bank. None is in an assessment yet."
+    ],
+    "expectFocus": "fa-im-done",
+    "label": "import finished with sequential IDs"
+   },
+   {
+    "click": "role=link[name=\"Open question bank\"]",
+    "expect": "16 questions",
+    "label": "bank now has 16 questions"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")",
+    "expect": "Heat Exchanger — post-lab"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "Ready to use"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "Questions in order",
+     "A newer version is in your question bank."
+    ],
+    "label": "assessment shows the newer bank version of Q-0102"
+   },
+   {
+    "click": "#fa-aq-open",
+    "expect": "Which quantity is the ratio C_min ÷ C_max?",
+    "label": "bank panel lists imported questions"
+   },
+   {
+    "click": "[aria-label=\"Add to this assessment: Which quantity is the ratio C_min ÷ C_max?\"]",
+    "expect": [
+     "Added as question 5.",
+     "This made version 2.",
+     "keep version 1; new attempts use version 2."
+    ],
+    "label": "attaching a question makes version 2; submissions keep version 1"
+   },
+   {
+    "click": "[aria-label=\"Use the updated version of question 2\"]",
+    "expect": "Question 2 now uses the version in your bank.",
+    "label": "use updated version"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "How is the number of transfer units (NTU) of a heat exchanger defined?",
+     "Which quantity is the ratio C_min ÷ C_max?"
+    ],
+    "label": "preview shows updated and attached questions",
+    "shot": "preview-after"
+   }
+  ]
+ },
+ {
+  "name": "J3-marking-chain-1024",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1024,
+  "steps": [
+   {
+    "expect": [
+     "Needs your attention",
+     "Written answers to mark",
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "overview shows 2 written answers to mark"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark now\")",
+    "expect": [
+     "Rahul Verma",
+     "Waiting for marking",
+     "Marking guidance · only you see this",
+     "4 of 6 marks"
+    ],
+    "label": "Mark now opens the oldest answer (Rahul)"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a mark for question 4",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "confirm without a mark is refused"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "12"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a whole number from 0 to 10",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "out-of-range mark refused"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "7"
+   },
+   {
+    "fill": "#fa-mk-fb",
+    "value": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab."
+   },
+   {
+    "click": "role=button[name=\"Save mark\"]",
+    "expect": "Mark saved — not confirmed yet",
+    "expectFocus": "fa-mk-saved",
+    "label": "save keeps the mark editable"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Marking\")",
+    "expect": [
+     "Mark saved — not confirmed yet",
+     "2 written answers waiting"
+    ],
+    "label": "queue shows the saved, unconfirmed mark"
+   },
+   {
+    "click": "[aria-label=\"Mark Rahul Verma\"]",
+    "assert": "document.getElementById('fa-mk-Q-0106').value === '7'",
+    "label": "saved mark is kept"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": [
+     "Confirm marks for Rahul Verma?",
+     "Rahul’s total becomes 11 of 16 marks — passed (pass mark 8).",
+     "Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment."
+    ],
+    "expectFocus": "fa-dlg-t",
+    "label": "confirm dialog opens with focus on its title"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-ok"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel",
+    "label": "Tab stays inside the dialog"
+   },
+   {
+    "press": "Shift+Tab",
+    "expectFocus": "fa-dlg-ok",
+    "label": "Shift+Tab wraps too"
+   },
+   {
+    "press": "Escape",
+    "expectNot": "Confirm marks for Rahul Verma?",
+    "expectFocus": "fa-mk-confirm",
+    "label": "Escape closes and returns focus"
+   },
+   {
+    "click": "#fa-mk-confirm"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "wait": 1000,
+    "expect": [
+     "Marks confirmed",
+     "11 of 16 marks",
+     "Passed · pass mark 8",
+     "Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59"
+    ],
+    "expectFocus": "fa-mk-done",
+    "label": "confirmed, read-only"
+   },
+   {
+    "assert": "!document.getElementById('fa-mk-Q-0106') && document.querySelector('nav[aria-label=\"Faculty navigation\"]').innerText.indexOf('Marking\\n1') >= 0",
+    "label": "no mark field after confirming; rail count is 1"
+   },
+   {
+    "click": "#fa-main a:has-text(\"See submissions\")",
+    "expect": [
+     "11 of 16",
+     "Passed · pass mark 8",
+     "Not yet\nafter the deadline, 14 Nov 2026, 23:59",
+     "1 waiting for marking"
+    ],
+    "label": "Submissions reflect the confirmed mark"
+   },
+   {
+    "click": "role=button[name=\"Export CSV\"]",
+    "expect": [
+     "Exported submissions-heat-exchanger-post-lab.csv · 2 rows",
+     "11 of 16"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export reflects the outcome"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark next\")",
+    "expect": [
+     "Priya Natarajan",
+     "Waiting for marking"
+    ],
+    "label": "Mark next opens Priya"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Overview\")",
+    "expect": [
+     "Written answer to mark",
+     "Priya Natarajan"
+    ],
+    "label": "overview updated"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": [
+     "Marked",
+     "11 of 16 marks\nPassed · pass mark 8",
+     "Result not released to Rahul yet"
+    ],
+    "label": "student detail reflects the outcome",
+    "shot": "student-after"
+   }
+  ]
+ },
+ {
+  "name": "J4-students-followup-1024",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1024,
+  "steps": [
+   {
+    "click": "#fa-main a:has-text(\"View students\")",
+    "expect": [
+     "Inactive 14 days or more",
+     "2 of 5 students",
+     "Imran Shaikh",
+     "Karthik Rao",
+     "Inactive 19 days",
+     "Inactive 26 days"
+    ],
+    "expectNot": "Priya Natarajan",
+    "label": "overview follow-up opens the inactive filter"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Karthik Rao\")",
+    "expect": [
+     "No activity since access was given (12 Oct 2026)",
+     "Inactive 26 days",
+     "Not started",
+     "Not opened"
+    ],
+    "label": "inactive student detail"
+   },
+   {
+    "click": "#fa-main .rk-crumbs a:has-text(\"Students\")",
+    "expect": "2 of 5 students",
+    "label": "back keeps the filter"
+   },
+   {
+    "click": "#fa-sl-export",
+    "expect": [
+     "Exported students-shell-and-tube-heat-exchanger.csv · 2 rows",
+     "none since access (12 Oct 2026)"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export of the filtered list"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": "No student matches these filters",
+    "label": "no-match state"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Clear filters\")",
+    "expect": "5 students"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": [
+     "2 of 5 students",
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "waiting-for-marking filter"
+   },
+   {
+    "click": "[aria-label=\"Remove filter Progress: Waiting for marking\"]",
+    "expect": "5 students",
+    "expectFocus": "fa-sl-prog",
+    "label": "chip removal returns focus"
+   }
+  ]
+ },
+ {
+  "name": "J4b-coteacher-refusals-1024",
+  "file": "fa/T-j-co.dc.html",
+  "width": 1024,
+  "steps": [
+   {
+    "expect": [
+     "Dr Anita Desai",
+     "Overview"
+    ],
+    "label": "co-teacher overview"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")",
+    "expect": [
+     "Not shown to co-teachers",
+     "5 students"
+    ],
+    "label": "students list hides assessment details"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": "aren’t shown to co-teachers while sharing between co-teachers is being decided",
+    "label": "student detail refusal note"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "created this assessment",
+    "label": "assessment summary with co-teacher note"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": "Submissions aren’t available to you yet",
+    "label": "submissions refused"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "This preview isn’t available to you yet",
+    "expectNot": "Answer key",
+    "label": "answer key refused"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Marking\")",
+    "expect": [
+     "Nothing is waiting for you",
+     "aren’t shown to co-teachers"
+    ],
+    "label": "marking queue refusal note"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Question bank\")",
+    "expect": [
+     "Your question bank is empty",
+     "Questions other Faculty wrote for your experiments aren’t shown here"
+    ],
+    "label": "bank refusal note"
+   }
+  ]
+ },
+ {
+  "name": "J1-create-chain-768",
+  "file": "fa/T-j-oct26.dc.html",
+  "width": 768,
+  "steps": [
+   {
+    "expect": [
+     "Overview",
+     "Monday 26 October 2026"
+    ],
+    "label": "Overview on 26 Oct 2026"
+   },
+   {
+    "click": "#fa-main .fa-te a:has-text(\"Shell-and-Tube Heat Exchanger\")",
+    "expect": [
+     "No assessment for this experiment yet"
+    ],
+    "label": "experiment from Your teaching"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Create assessment\")",
+    "expect": [
+     "Step 1 of 4",
+     "Choose the experiment"
+    ],
+    "label": "create from the experiment"
+   },
+   {
+    "assert": "document.getElementById('fa-cw-e-ste').checked === true",
+    "label": "experiment already chosen"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 2 of 4",
+     "Set the rules"
+    ]
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Check this step",
+     "Enter a name for the assessment",
+     "Enter a pass mark from 0 to 100, as a whole number",
+     "Choose when students see their result"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "rules start empty and are required"
+   },
+   {
+    "fill": "#fa-cw-name",
+    "value": "Heat Exchanger — post-lab"
+   },
+   {
+    "fill": "#fa-cw-pass",
+    "value": "50"
+   },
+   {
+    "fill": "#fa-cw-att",
+    "value": "2"
+   },
+   {
+    "fill": "#fa-cw-dl",
+    "value": "14 Nov 2026, 23:59"
+   },
+   {
+    "click": "#fa-cw-r-after"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 3 of 4",
+     "Add questions"
+    ],
+    "label": "rules accepted"
+   },
+   {
+    "click": "#fa-cw-q-Q-0101"
+   },
+   {
+    "click": "#fa-cw-q-Q-0104"
+   },
+   {
+    "click": "#fa-cw-q-Q-0106",
+    "expect": "3 questions · 14 marks",
+    "label": "three question types chosen"
+   },
+   {
+    "click": "#fa-main a:has-text(\"New question\")",
+    "expect": [
+     "Add a question",
+     "Create assessment"
+    ],
+    "label": "new question from the create flow"
+   },
+   {
+    "click": "#fa-qe-t-sc"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Which arrangement can bring the cold outlet above the hot outlet?"
+   },
+   {
+    "fill": "#fa-qe-o0",
+    "value": "Counter flow"
+   },
+   {
+    "fill": "#fa-qe-o1",
+    "value": "Parallel flow"
+   },
+   {
+    "click": "#fa-qe-c0"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Step 3 of 4",
+     "Saved to your question bank.",
+     "It’s ticked below.",
+     "4 questions · 16 marks"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "back in step 3 with the new question ticked"
+   },
+   {
+    "assert": "document.getElementById('fa-cw-q-Q-0107').checked && document.getElementById('fa-cw-q-Q-0101').checked",
+    "label": "earlier ticks kept"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 4 of 4",
+     "Preview and create",
+     "50% · 8 of 16 marks",
+     "Which arrangement can bring the cold outlet above the hot outlet?"
+    ],
+    "label": "preview step"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": [
+     "Step 3 of 4",
+     "4 questions · 16 marks"
+    ],
+    "label": "back to questions, state kept"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": "Step 2 of 4",
+    "assert": "document.getElementById('fa-cw-name').value === 'Heat Exchanger — post-lab' && document.getElementById('fa-cw-r-after').checked",
+    "label": "back to rules, values kept"
+   },
+   {
+    "click": "#fa-cw-next"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": "Step 4 of 4"
+   },
+   {
+    "click": "#fa-cw-next",
+    "wait": 1000,
+    "expect": [
+     "Assessment created",
+     "Ready"
+    ],
+    "expectFocus": "fa-cw-done",
+    "label": "created and ready"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Open assessment\")",
+    "expect": [
+     "Ready to use",
+     "4 questions · 16 marks"
+    ]
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "As students see it"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "Only you see the answer key and the marking guidance",
+     "Correct"
+    ],
+    "label": "answer key only for Faculty"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Overview\")",
+    "expect": [
+     "Coming up",
+     "Heat Exchanger — post-lab",
+     "0 of 5 students submitted"
+    ],
+    "label": "overview shows the new deadline",
+    "shot": "overview-after"
+   }
+  ]
+ },
+ {
+  "name": "J2-bank-chain-768",
+  "file": "fa/T-j-qb.dc.html",
+  "width": 768,
+  "steps": [
+   {
+    "expect": [
+     "Question bank",
+     "6 questions"
+    ],
+    "label": "bank opens with 6 questions"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Add a question\")",
+    "expect": "Add a question",
+    "expectFocus": "fa-h1",
+    "label": "Add a question opens the editor, focus on heading"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": [
+     "Check this question",
+     "Choose the question type",
+     "Enter the question",
+     "Enter the marks, as a whole number of 1 or more"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "empty save shows error summary, focus moves to it"
+   },
+   {
+    "click": "#fa-errs a:has-text(\"Choose the question type\")",
+    "expectFocus": "fa-qe-t-sc",
+    "label": "error link moves focus to the type field"
+   },
+   {
+    "click": "#fa-qe-t-tf",
+    "expect": "The statement is",
+    "label": "true/false shows only its fields"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Adding heat transfer area raises the duty at the same inlet temperatures and flow rates."
+   },
+   {
+    "click": "#fa-qe-tf-true"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2"
+   },
+   {
+    "fill": "#fa-qe-expl",
+    "value": "More area raises UA and NTU, so the exchanger transfers more heat."
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved to your question bank.",
+     "7 questions",
+     "Adding heat transfer area raises the duty"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "save returns to the bank with Q-0107 and a message"
+   },
+   {
+    "click": "[aria-label=\"Edit question: How is the number of transfer units (NTU) defined?\"]",
+    "expect": [
+     "Edit question",
+     "Used in 1 assessment: Heat Exchanger — post-lab"
+    ],
+    "label": "editing a used question warns about versions"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "How is the number of transfer units (NTU) of a heat exchanger defined?"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved as version 2.",
+     "keeps version 1",
+     "Single choice\nVersion 2"
+    ],
+    "label": "used question saves version 2"
+   },
+   {
+    "click": "[aria-label=\"Edit question: In a counter-flow exchanger, what can happen that cannot happen in parallel flow?\"]",
+    "expectNot": "Used in 1 assessment",
+    "label": "unused question has no version warning"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": "Nothing to save",
+    "expectFocus": "fa-msg",
+    "label": "saving without changes says nothing to save"
+   },
+   {
+    "click": "#fa-main .fa-formfoot a:has-text(\"Cancel\")",
+    "expect": "7 questions",
+    "label": "cancel returns to the bank"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": "3 drafts to review",
+    "expectFocus": "fa-tabh",
+    "label": "drafts tab"
+   },
+   {
+    "click": "[aria-label=\"Review and edit draft: What is the log mean temperature difference (LMTD) used for?\"]",
+    "expect": [
+     "Review a draft",
+     "Draft — needs your review"
+    ],
+    "label": "review a draft in the editor"
+   },
+   {
+    "click": "role=button[name=\"Add to bank\"]",
+    "wait": 900,
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts to review"
+    ],
+    "label": "reviewed draft added as Q-0108, back on drafts tab"
+   },
+   {
+    "click": "[aria-label^=\"Discard draft: Counter flow always\"]",
+    "expect": [
+     "Draft discarded. Nothing was added to your bank.",
+     "1 draft to review"
+    ],
+    "label": "discard leaves the bank unchanged"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "8 questions",
+     "From a draft you reviewed"
+    ],
+    "label": "questions tab shows the reviewed draft"
+   },
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Import\")",
+    "expect": [
+     "Choose a file",
+     "Download the template (CSV)"
+    ],
+    "label": "import step 1"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "expect": "Choose a CSV file first",
+    "expectFocus": "fa-im-choose",
+    "label": "check without a file"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "post-lab.xlsx",
+      "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text": "PK..."
+     }
+    ],
+    "wait": 400,
+    "expect": "is a spreadsheet workbook",
+    "label": "XLSX refused"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "my-questions.csv",
+      "text": "type,question,option_a,option_b,option_c,option_d,correct,marks,explanation,marking_guidance\r\ntrue or false,Fouling lowers U.,,,,,TRUE,2,Fouling adds a resistance.,\r\nwritten answer,Explain what NTU measures.,,,,,,six,,\r\n"
+     }
+    ],
+    "wait": 400,
+    "expect": "my-questions.csv",
+    "label": "own CSV chosen"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Rows\n2",
+     "Ready\n1",
+     "With errors\n1",
+     "marks “six” isn’t a whole number of 1 or more."
+    ],
+    "label": "own CSV row validation"
+   },
+   {
+    "click": "role=button[name=\"Choose another file\"]",
+    "expect": "Choose a file",
+    "label": "choose another file"
+   },
+   {
+    "click": "role=button[name=\"Use the sample file\"]",
+    "expect": "post-lab-questions.csv"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Check rows",
+     "With errors\n2",
+     "With warnings\n1",
+     "correct is “E”, but the question has options A–D only.",
+     "type “multi-select” isn’t available",
+     "explanation is empty. The question imports without one.",
+     "Nothing is imported while the file has errors"
+    ],
+    "label": "sample file: 2 errors block, 1 warning"
+   },
+   {
+    "click": "role=button[name=\"Choose the corrected file\"]",
+    "wait": 1000,
+    "expect": [
+     "post-lab-questions-corrected.csv",
+     "Ready\n8",
+     "With warnings\n1",
+     "With errors\n0"
+    ],
+    "expectNot": "with errors",
+    "label": "corrected file: 8 ready"
+   },
+   {
+    "click": "role=button[name=\"Continue\"]",
+    "expect": [
+     "Confirm import",
+     "8 questions will be added to your bank from post-lab-questions-corrected.csv.",
+     "One has no explanation"
+    ],
+    "label": "confirm step"
+   },
+   {
+    "click": "role=button[name=\"Import 8 questions\"]",
+    "wait": 1100,
+    "expect": [
+     "Import finished",
+     "8 questions were added to your bank. None is in an assessment yet."
+    ],
+    "expectFocus": "fa-im-done",
+    "label": "import finished with sequential IDs"
+   },
+   {
+    "click": "role=link[name=\"Open question bank\"]",
+    "expect": "16 questions",
+    "label": "bank now has 16 questions"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Assessments\")",
+    "expect": "Heat Exchanger — post-lab"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "Ready to use"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "Questions in order",
+     "A newer version is in your question bank."
+    ],
+    "label": "assessment shows the newer bank version of Q-0102"
+   },
+   {
+    "click": "#fa-aq-open",
+    "expect": "Which quantity is the ratio C_min ÷ C_max?",
+    "label": "bank panel lists imported questions"
+   },
+   {
+    "click": "[aria-label=\"Add to this assessment: Which quantity is the ratio C_min ÷ C_max?\"]",
+    "expect": [
+     "Added as question 5.",
+     "This made version 2.",
+     "keep version 1; new attempts use version 2."
+    ],
+    "label": "attaching a question makes version 2; submissions keep version 1"
+   },
+   {
+    "click": "[aria-label=\"Use the updated version of question 2\"]",
+    "expect": "Question 2 now uses the version in your bank.",
+    "label": "use updated version"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "How is the number of transfer units (NTU) of a heat exchanger defined?",
+     "Which quantity is the ratio C_min ÷ C_max?"
+    ],
+    "label": "preview shows updated and attached questions",
+    "shot": "preview-after"
+   }
+  ]
+ },
+ {
+  "name": "J3-marking-chain-768",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 768,
+  "steps": [
+   {
+    "expect": [
+     "Needs your attention",
+     "Written answers to mark"
+    ],
+    "label": "overview shows 2 written answers to mark"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark now\")",
+    "expect": [
+     "Rahul Verma",
+     "Waiting for marking",
+     "Marking guidance · only you see this",
+     "4 of 6 marks"
+    ],
+    "label": "Mark now opens the oldest answer (Rahul)"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a mark for question 4",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "confirm without a mark is refused"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "12"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a whole number from 0 to 10",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "out-of-range mark refused"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "7"
+   },
+   {
+    "fill": "#fa-mk-fb",
+    "value": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab."
+   },
+   {
+    "click": "role=button[name=\"Save mark\"]",
+    "expect": "Mark saved — not confirmed yet",
+    "expectFocus": "fa-mk-saved",
+    "label": "save keeps the mark editable"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Marking\")",
+    "expect": [
+     "Mark saved — not confirmed yet",
+     "2 written answers waiting"
+    ],
+    "label": "queue shows the saved, unconfirmed mark"
+   },
+   {
+    "click": "[aria-label=\"Mark Rahul Verma\"]",
+    "assert": "document.getElementById('fa-mk-Q-0106').value === '7'",
+    "label": "saved mark is kept"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": [
+     "Confirm marks for Rahul Verma?",
+     "Rahul’s total becomes 11 of 16 marks — passed (pass mark 8).",
+     "Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment."
+    ],
+    "expectFocus": "fa-dlg-t",
+    "label": "confirm dialog opens with focus on its title"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-ok"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel",
+    "label": "Tab stays inside the dialog"
+   },
+   {
+    "press": "Shift+Tab",
+    "expectFocus": "fa-dlg-ok",
+    "label": "Shift+Tab wraps too"
+   },
+   {
+    "press": "Escape",
+    "expectNot": "Confirm marks for Rahul Verma?",
+    "expectFocus": "fa-mk-confirm",
+    "label": "Escape closes and returns focus"
+   },
+   {
+    "click": "#fa-mk-confirm"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "wait": 1000,
+    "expect": [
+     "Marks confirmed",
+     "11 of 16 marks",
+     "Passed · pass mark 8",
+     "Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59"
+    ],
+    "expectFocus": "fa-mk-done",
+    "label": "confirmed, read-only"
+   },
+   {
+    "assert": "!document.getElementById('fa-mk-Q-0106')",
+    "label": "no mark field after confirming; rail count is 1"
+   },
+   {
+    "click": "#fa-main a:has-text(\"See submissions\")",
+    "expect": [
+     "11 of 16",
+     "Passed · pass mark 8",
+     "Not yet\nafter the deadline, 14 Nov 2026, 23:59",
+     "1 waiting for marking"
+    ],
+    "label": "Submissions reflect the confirmed mark"
+   },
+   {
+    "click": "role=button[name=\"Export CSV\"]",
+    "expect": [
+     "Exported submissions-heat-exchanger-post-lab.csv · 2 rows",
+     "11 of 16"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export reflects the outcome"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark next\")",
+    "expect": [
+     "Priya Natarajan",
+     "Waiting for marking"
+    ],
+    "label": "Mark next opens Priya"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Overview\")",
+    "expect": "Written answer to mark",
+    "label": "overview updated"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Students\")"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": [
+     "Marked",
+     "11 of 16 marks\nPassed · pass mark 8",
+     "Result not released to Rahul yet"
+    ],
+    "label": "student detail reflects the outcome",
+    "shot": "student-after"
+   }
+  ]
+ },
+ {
+  "name": "J4-students-followup-768",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 768,
+  "steps": [
+   {
+    "click": "#fa-main a:has-text(\"View students\")",
+    "expect": [
+     "Inactive 14 days or more",
+     "2 of 5 students",
+     "Imran Shaikh",
+     "Karthik Rao",
+     "Inactive 19 days",
+     "Inactive 26 days"
+    ],
+    "expectNot": "Priya Natarajan",
+    "label": "overview follow-up opens the inactive filter"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Karthik Rao\")",
+    "expect": [
+     "No activity since access was given (12 Oct 2026)",
+     "Inactive 26 days",
+     "Not started",
+     "Not opened"
+    ],
+    "label": "inactive student detail"
+   },
+   {
+    "click": "#fa-main .rk-crumbs a:has-text(\"Students\")",
+    "expect": "2 of 5 students",
+    "label": "back keeps the filter"
+   },
+   {
+    "click": "#fa-sl-export",
+    "expect": [
+     "Exported students-shell-and-tube-heat-exchanger.csv · 2 rows",
+     "none since access (12 Oct 2026)"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export of the filtered list"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": "No student matches these filters",
+    "label": "no-match state"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Clear filters\")",
+    "expect": "5 students"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": [
+     "2 of 5 students",
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "waiting-for-marking filter"
+   },
+   {
+    "click": "[aria-label=\"Remove filter Progress: Waiting for marking\"]",
+    "expect": "5 students",
+    "expectFocus": "fa-sl-prog",
+    "label": "chip removal returns focus"
+   }
+  ]
+ },
+ {
+  "name": "J4b-coteacher-refusals-768",
+  "file": "fa/T-j-co.dc.html",
+  "width": 768,
+  "steps": [
+   {
+    "expect": [
+     "AD",
+     "Overview"
+    ],
+    "label": "co-teacher overview"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Students\")",
+    "expect": [
+     "Not shown to co-teachers",
+     "5 students"
+    ],
+    "label": "students list hides assessment details"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": "aren’t shown to co-teachers while sharing between co-teachers is being decided",
+    "label": "student detail refusal note"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Assessments\")"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "created this assessment",
+    "label": "assessment summary with co-teacher note"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": "Submissions aren’t available to you yet",
+    "label": "submissions refused"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "This preview isn’t available to you yet",
+    "expectNot": "Answer key",
+    "label": "answer key refused"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Marking\")",
+    "expect": [
+     "Nothing is waiting for you",
+     "aren’t shown to co-teachers"
+    ],
+    "label": "marking queue refusal note"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Question bank\")",
+    "expect": [
+     "Your question bank is empty",
+     "Questions other Faculty wrote for your experiments aren’t shown here"
+    ],
+    "label": "bank refusal note"
+   }
+  ]
+ },
+ {
+  "name": "J1-create-chain-375",
+  "file": "fa/T-j-oct26.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "expect": [
+     "Overview",
+     "Monday 26 October 2026"
+    ],
+    "label": "Overview on 26 Oct 2026"
+   },
+   {
+    "click": "#fa-main .fa-te a:has-text(\"Shell-and-Tube Heat Exchanger\")",
+    "expect": [
+     "No assessment for this experiment yet"
+    ],
+    "label": "experiment from Your teaching"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Create assessment\")",
+    "expect": [
+     "Step 1 of 4",
+     "Choose the experiment"
+    ],
+    "label": "create from the experiment"
+   },
+   {
+    "assert": "document.getElementById('fa-cw-e-ste').checked === true",
+    "label": "experiment already chosen"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 2 of 4",
+     "Set the rules"
+    ]
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Check this step",
+     "Enter a name for the assessment",
+     "Enter a pass mark from 0 to 100, as a whole number",
+     "Choose when students see their result"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "rules start empty and are required"
+   },
+   {
+    "fill": "#fa-cw-name",
+    "value": "Heat Exchanger — post-lab"
+   },
+   {
+    "fill": "#fa-cw-pass",
+    "value": "50"
+   },
+   {
+    "fill": "#fa-cw-att",
+    "value": "2"
+   },
+   {
+    "fill": "#fa-cw-dl",
+    "value": "14 Nov 2026, 23:59"
+   },
+   {
+    "click": "#fa-cw-r-after"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 3 of 4",
+     "Add questions"
+    ],
+    "label": "rules accepted"
+   },
+   {
+    "click": "#fa-cw-q-Q-0101"
+   },
+   {
+    "click": "#fa-cw-q-Q-0104"
+   },
+   {
+    "click": "#fa-cw-q-Q-0106",
+    "expect": "3 questions · 14 marks",
+    "label": "three question types chosen"
+   },
+   {
+    "click": "#fa-main a:has-text(\"New question\")",
+    "expect": [
+     "Add a question",
+     "Create assessment"
+    ],
+    "label": "new question from the create flow"
+   },
+   {
+    "click": "#fa-qe-t-sc"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Which arrangement can bring the cold outlet above the hot outlet?"
+   },
+   {
+    "fill": "#fa-qe-o0",
+    "value": "Counter flow"
+   },
+   {
+    "fill": "#fa-qe-o1",
+    "value": "Parallel flow"
+   },
+   {
+    "click": "#fa-qe-c0"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Step 3 of 4",
+     "Saved to your question bank.",
+     "It’s ticked below.",
+     "4 questions · 16 marks"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "back in step 3 with the new question ticked"
+   },
+   {
+    "assert": "document.getElementById('fa-cw-q-Q-0107').checked && document.getElementById('fa-cw-q-Q-0101').checked",
+    "label": "earlier ticks kept"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 4 of 4",
+     "Preview and create",
+     "50% · 8 of 16 marks",
+     "Which arrangement can bring the cold outlet above the hot outlet?"
+    ],
+    "label": "preview step"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": [
+     "Step 3 of 4",
+     "4 questions · 16 marks"
+    ],
+    "label": "back to questions, state kept"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": "Step 2 of 4",
+    "assert": "document.getElementById('fa-cw-name').value === 'Heat Exchanger — post-lab' && document.getElementById('fa-cw-r-after').checked",
+    "label": "back to rules, values kept"
+   },
+   {
+    "click": "#fa-cw-next"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": "Step 4 of 4"
+   },
+   {
+    "click": "#fa-cw-next",
+    "wait": 1000,
+    "expect": [
+     "Assessment created",
+     "Ready"
+    ],
+    "expectFocus": "fa-cw-done",
+    "label": "created and ready"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Open assessment\")",
+    "expect": [
+     "Ready to use",
+     "4 questions · 16 marks"
+    ]
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "As students see it"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "Only you see the answer key and the marking guidance",
+     "Correct"
+    ],
+    "label": "answer key only for Faculty"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Overview\")",
+    "expect": [
+     "Coming up",
+     "Heat Exchanger — post-lab",
+     "0 of 5 students submitted"
+    ],
+    "label": "overview shows the new deadline",
+    "shot": "overview-after"
+   }
+  ]
+ },
+ {
+  "name": "J2-bank-chain-375",
+  "file": "fa/T-j-qb.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "expect": [
+     "Question bank",
+     "6 questions"
+    ],
+    "label": "bank opens with 6 questions"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Add a question\")",
+    "expect": "Add a question",
+    "expectFocus": "fa-h1",
+    "label": "Add a question opens the editor, focus on heading"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": [
+     "Check this question",
+     "Choose the question type",
+     "Enter the question",
+     "Enter the marks, as a whole number of 1 or more"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "empty save shows error summary, focus moves to it"
+   },
+   {
+    "click": "#fa-errs a:has-text(\"Choose the question type\")",
+    "expectFocus": "fa-qe-t-sc",
+    "label": "error link moves focus to the type field"
+   },
+   {
+    "click": "#fa-qe-t-tf",
+    "expect": "The statement is",
+    "label": "true/false shows only its fields"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Adding heat transfer area raises the duty at the same inlet temperatures and flow rates."
+   },
+   {
+    "click": "#fa-qe-tf-true"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2"
+   },
+   {
+    "fill": "#fa-qe-expl",
+    "value": "More area raises UA and NTU, so the exchanger transfers more heat."
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved to your question bank.",
+     "7 questions",
+     "Adding heat transfer area raises the duty"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "save returns to the bank with Q-0107 and a message"
+   },
+   {
+    "click": "[aria-label=\"Edit question: How is the number of transfer units (NTU) defined?\"]",
+    "expect": [
+     "Edit question",
+     "Used in 1 assessment: Heat Exchanger — post-lab"
+    ],
+    "label": "editing a used question warns about versions"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "How is the number of transfer units (NTU) of a heat exchanger defined?"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved as version 2.",
+     "keeps version 1",
+     "Single choice\nVersion 2"
+    ],
+    "label": "used question saves version 2"
+   },
+   {
+    "click": "[aria-label=\"Edit question: In a counter-flow exchanger, what can happen that cannot happen in parallel flow?\"]",
+    "expectNot": "Used in 1 assessment",
+    "label": "unused question has no version warning"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": "Nothing to save",
+    "expectFocus": "fa-msg",
+    "label": "saving without changes says nothing to save"
+   },
+   {
+    "click": "#fa-main .fa-formfoot a:has-text(\"Cancel\")",
+    "expect": "7 questions",
+    "label": "cancel returns to the bank"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": "3 drafts to review",
+    "expectFocus": "fa-tabh",
+    "label": "drafts tab"
+   },
+   {
+    "click": "[aria-label=\"Review and edit draft: What is the log mean temperature difference (LMTD) used for?\"]",
+    "expect": [
+     "Review a draft",
+     "Draft — needs your review"
+    ],
+    "label": "review a draft in the editor"
+   },
+   {
+    "click": "role=button[name=\"Add to bank\"]",
+    "wait": 900,
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts to review"
+    ],
+    "label": "reviewed draft added as Q-0108, back on drafts tab"
+   },
+   {
+    "click": "[aria-label^=\"Discard draft: Counter flow always\"]",
+    "expect": [
+     "Draft discarded. Nothing was added to your bank.",
+     "1 draft to review"
+    ],
+    "label": "discard leaves the bank unchanged"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "8 questions",
+     "From a draft you reviewed"
+    ],
+    "label": "questions tab shows the reviewed draft"
+   },
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Import\")",
+    "expect": [
+     "Choose a file",
+     "Download the template (CSV)"
+    ],
+    "label": "import step 1"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "expect": "Choose a CSV file first",
+    "expectFocus": "fa-im-choose",
+    "label": "check without a file"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "post-lab.xlsx",
+      "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text": "PK..."
+     }
+    ],
+    "wait": 400,
+    "expect": "is a spreadsheet workbook",
+    "label": "XLSX refused"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "my-questions.csv",
+      "text": "type,question,option_a,option_b,option_c,option_d,correct,marks,explanation,marking_guidance\r\ntrue or false,Fouling lowers U.,,,,,TRUE,2,Fouling adds a resistance.,\r\nwritten answer,Explain what NTU measures.,,,,,,six,,\r\n"
+     }
+    ],
+    "wait": 400,
+    "expect": "my-questions.csv",
+    "label": "own CSV chosen"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Rows\n2",
+     "Ready\n1",
+     "With errors\n1",
+     "marks “six” isn’t a whole number of 1 or more."
+    ],
+    "label": "own CSV row validation"
+   },
+   {
+    "click": "role=button[name=\"Choose another file\"]",
+    "expect": "Choose a file",
+    "label": "choose another file"
+   },
+   {
+    "click": "role=button[name=\"Use the sample file\"]",
+    "expect": "post-lab-questions.csv"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Check rows",
+     "With errors\n2",
+     "With warnings\n1",
+     "correct is “E”, but the question has options A–D only.",
+     "type “multi-select” isn’t available",
+     "explanation is empty. The question imports without one.",
+     "Nothing is imported while the file has errors"
+    ],
+    "label": "sample file: 2 errors block, 1 warning"
+   },
+   {
+    "click": "role=button[name=\"Choose the corrected file\"]",
+    "wait": 1000,
+    "expect": [
+     "post-lab-questions-corrected.csv",
+     "Ready\n8",
+     "With warnings\n1",
+     "With errors\n0"
+    ],
+    "expectNot": "with errors",
+    "label": "corrected file: 8 ready"
+   },
+   {
+    "click": "role=button[name=\"Continue\"]",
+    "expect": [
+     "Confirm import",
+     "8 questions will be added to your bank from post-lab-questions-corrected.csv.",
+     "One has no explanation"
+    ],
+    "label": "confirm step"
+   },
+   {
+    "click": "role=button[name=\"Import 8 questions\"]",
+    "wait": 1100,
+    "expect": [
+     "Import finished",
+     "8 questions were added to your bank. None is in an assessment yet."
+    ],
+    "expectFocus": "fa-im-done",
+    "label": "import finished with sequential IDs"
+   },
+   {
+    "click": "role=link[name=\"Open question bank\"]",
+    "expect": "16 questions",
+    "label": "bank now has 16 questions"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Assessments\")",
+    "expect": "Heat Exchanger — post-lab"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "Ready to use"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "Questions in order",
+     "A newer version is in your question bank."
+    ],
+    "label": "assessment shows the newer bank version of Q-0102"
+   },
+   {
+    "click": "#fa-aq-open",
+    "expect": "Which quantity is the ratio C_min ÷ C_max?",
+    "label": "bank panel lists imported questions"
+   },
+   {
+    "click": "[aria-label=\"Add to this assessment: Which quantity is the ratio C_min ÷ C_max?\"]",
+    "expect": [
+     "Added as question 5.",
+     "This made version 2.",
+     "keep version 1; new attempts use version 2."
+    ],
+    "label": "attaching a question makes version 2; submissions keep version 1"
+   },
+   {
+    "click": "[aria-label=\"Use the updated version of question 2\"]",
+    "expect": "Question 2 now uses the version in your bank.",
+    "label": "use updated version"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "How is the number of transfer units (NTU) of a heat exchanger defined?",
+     "Which quantity is the ratio C_min ÷ C_max?"
+    ],
+    "label": "preview shows updated and attached questions",
+    "shot": "preview-after"
+   }
+  ]
+ },
+ {
+  "name": "J3-marking-chain-375",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "expect": [
+     "Needs your attention",
+     "Written answers to mark"
+    ],
+    "label": "overview shows 2 written answers to mark"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark now\")",
+    "expect": [
+     "Rahul Verma",
+     "Waiting for marking",
+     "Marking guidance · only you see this",
+     "4 of 6 marks"
+    ],
+    "label": "Mark now opens the oldest answer (Rahul)"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a mark for question 4",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "confirm without a mark is refused"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "12"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a whole number from 0 to 10",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "out-of-range mark refused"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "7"
+   },
+   {
+    "fill": "#fa-mk-fb",
+    "value": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab."
+   },
+   {
+    "click": "role=button[name=\"Save mark\"]",
+    "expect": "Mark saved — not confirmed yet",
+    "expectFocus": "fa-mk-saved",
+    "label": "save keeps the mark editable"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Marking\")",
+    "expect": [
+     "Mark saved — not confirmed yet",
+     "2 written answers waiting"
+    ],
+    "label": "queue shows the saved, unconfirmed mark"
+   },
+   {
+    "click": "[aria-label=\"Mark Rahul Verma\"]",
+    "assert": "document.getElementById('fa-mk-Q-0106').value === '7'",
+    "label": "saved mark is kept"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": [
+     "Confirm marks for Rahul Verma?",
+     "Rahul’s total becomes 11 of 16 marks — passed (pass mark 8).",
+     "Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment."
+    ],
+    "expectFocus": "fa-dlg-t",
+    "label": "confirm dialog opens with focus on its title"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-ok"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel",
+    "label": "Tab stays inside the dialog"
+   },
+   {
+    "press": "Shift+Tab",
+    "expectFocus": "fa-dlg-ok",
+    "label": "Shift+Tab wraps too"
+   },
+   {
+    "press": "Escape",
+    "expectNot": "Confirm marks for Rahul Verma?",
+    "expectFocus": "fa-mk-confirm",
+    "label": "Escape closes and returns focus"
+   },
+   {
+    "click": "#fa-mk-confirm"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "wait": 1000,
+    "expect": [
+     "Marks confirmed",
+     "11 of 16 marks",
+     "Passed · pass mark 8",
+     "Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59"
+    ],
+    "expectFocus": "fa-mk-done",
+    "label": "confirmed, read-only"
+   },
+   {
+    "assert": "!document.getElementById('fa-mk-Q-0106')",
+    "label": "no mark field after confirming; rail count is 1"
+   },
+   {
+    "click": "#fa-main a:has-text(\"See submissions\")",
+    "expect": [
+     "11 of 16",
+     "Passed · pass mark 8",
+     "Not yet\nafter the deadline, 14 Nov 2026, 23:59",
+     "1 waiting for marking"
+    ],
+    "label": "Submissions reflect the confirmed mark"
+   },
+   {
+    "click": "role=button[name=\"Export CSV\"]",
+    "expect": [
+     "Exported submissions-heat-exchanger-post-lab.csv · 2 rows",
+     "11 of 16"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export reflects the outcome"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark next\")",
+    "expect": [
+     "Priya Natarajan",
+     "Waiting for marking"
+    ],
+    "label": "Mark next opens Priya"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Overview\")",
+    "expect": "Written answer to mark",
+    "label": "overview updated"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Students\")"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": [
+     "Marked",
+     "11 of 16 marks\nPassed · pass mark 8",
+     "Result not released to Rahul yet"
+    ],
+    "label": "student detail reflects the outcome",
+    "shot": "student-after"
+   }
+  ]
+ },
+ {
+  "name": "J4-students-followup-375",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "click": "#fa-main a:has-text(\"View students\")",
+    "expect": [
+     "Inactive 14 days or more",
+     "2 of 5 students",
+     "Imran Shaikh",
+     "Karthik Rao",
+     "Inactive 19 days",
+     "Inactive 26 days"
+    ],
+    "expectNot": "Priya Natarajan",
+    "label": "overview follow-up opens the inactive filter"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Karthik Rao\")",
+    "expect": [
+     "No activity since access was given (12 Oct 2026)",
+     "Inactive 26 days",
+     "Not started",
+     "Not opened"
+    ],
+    "label": "inactive student detail"
+   },
+   {
+    "click": "#fa-main .rk-crumbs a:has-text(\"Students\")",
+    "expect": "2 of 5 students",
+    "label": "back keeps the filter"
+   },
+   {
+    "click": "#fa-sl-export",
+    "expect": [
+     "Exported students-shell-and-tube-heat-exchanger.csv · 2 rows",
+     "none since access (12 Oct 2026)"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export of the filtered list"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": "No student matches these filters",
+    "label": "no-match state"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Clear filters\")",
+    "expect": "5 students"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": [
+     "2 of 5 students",
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "waiting-for-marking filter"
+   },
+   {
+    "click": "[aria-label=\"Remove filter Progress: Waiting for marking\"]",
+    "expect": "5 students",
+    "expectFocus": "fa-sl-prog",
+    "label": "chip removal returns focus"
+   }
+  ]
+ },
+ {
+  "name": "J4b-coteacher-refusals-375",
+  "file": "fa/T-j-co.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "expect": [
+     "AD",
+     "Overview"
+    ],
+    "label": "co-teacher overview"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Students\")",
+    "expect": [
+     "Not shown to co-teachers",
+     "5 students"
+    ],
+    "label": "students list hides assessment details"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": "aren’t shown to co-teachers while sharing between co-teachers is being decided",
+    "label": "student detail refusal note"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Assessments\")"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "created this assessment",
+    "label": "assessment summary with co-teacher note"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": "Submissions aren’t available to you yet",
+    "label": "submissions refused"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "This preview isn’t available to you yet",
+    "expectNot": "Answer key",
+    "label": "answer key refused"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Marking\")",
+    "expect": [
+     "Nothing is waiting for you",
+     "aren’t shown to co-teachers"
+    ],
+    "label": "marking queue refusal note"
+   },
+   {
+    "click": "#fa-menu",
+    "wait": 300
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Question bank\")",
+    "expect": [
+     "Your question bank is empty",
+     "Questions other Faculty wrote for your experiments aren’t shown here"
+    ],
+    "label": "bank refusal note"
+   }
+  ]
+ }
+]

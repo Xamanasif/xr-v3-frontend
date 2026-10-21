@@ -1,0 +1,101 @@
+[
+ {
+  "name": "FA14-Delete",
+  "fileA": "fa/T-FA14-Delete.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-FA14-Delete.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": ".rk-dialog",
+  "width": 1440
+ },
+ {
+  "name": "FA19-Confirm",
+  "fileA": "fa/T-FA19-Confirm.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-FA19-Confirm.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": ".rk-dialog",
+  "width": 1440
+ },
+ {
+  "name": "FA14-Empty",
+  "fileA": "fa/T-FA14-Empty.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-FA14-Empty.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": "#fa-main .rk-state",
+  "width": 1440
+ },
+ {
+  "name": "FA20-No-students",
+  "fileA": "fa/T-FA20-No-students.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-FA20-No-students.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": "#fa-main .rk-state",
+  "width": 1440
+ },
+ {
+  "name": "FA11-Failed",
+  "fileA": "fa/T-FA11-Failed.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-FA11-Failed.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": "#fa-main .rk-state",
+  "width": 1440
+ },
+ {
+  "name": "FA11-Coteach",
+  "fileA": "fa/T-FA11-Coteach.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-FA11-Coteach.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": "#fa-main .fa-inlinemsg",
+  "width": 1440
+ },
+ {
+  "name": "FA12-Coteach",
+  "fileA": "fa/T-FA12-Coteach.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-FA12-Coteach.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": "#fa-main .fa-inlinemsg",
+  "width": 1440
+ },
+ {
+  "name": "XS-Account-menu",
+  "fileA": "fa/T-XS-Account-menu.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-XS-Account-menu.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": "#fa-acct-menu",
+  "width": 1440
+ },
+ {
+  "name": "XS-Menu-phone",
+  "fileA": "fa/T-XS-Menu-phone.dc.html",
+  "dirA": "tw-pub",
+  "faA": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/canvas/project",
+  "fileB": "fa/T-XS-Menu-phone.dc.html",
+  "dirB": "tw-post",
+  "faB": "/tmp/claude-0/-home-claude/bf602a36-23f7-56f8-ac78-ab3074c9f426/scratchpad/final/project",
+  "sel": ".rb-drawer",
+  "width": 375
+ }
+]

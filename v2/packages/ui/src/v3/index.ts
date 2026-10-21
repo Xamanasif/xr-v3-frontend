@@ -278,6 +278,13 @@ export * from './ia-plan.js';
 export * from './ia-access.js';
 export * from './ia-people.js';
 export * from './ia-requests.js';
+// The Faculty role's patterns (FA-v1): what more than one screen group draws, then what one screen
+// group alone draws, one module per group.
+export * from './fa.js';
+export * from './fa-teaching.js';
+export * from './fa-assessments.js';
+export * from './fa-bank.js';
+export * from './fa-marking.js';
 export {
   PlanBand,
   CourseGroup,

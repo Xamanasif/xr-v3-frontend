@@ -121,8 +121,8 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
   /**
    * Each export and its file count. An export that ships its own `SHA256SUMS.txt` is checked
    * against it (XS-v6); one that ships none is checked against the list recorded at intake beside
-   * its folder, `<folder>.SHA256SUMS.txt` (SA-v1, VE-v1, CM-v1, RV-v1, IA-v1), so nothing is added
-   * inside the export.
+   * its folder, `<folder>.SHA256SUMS.txt` (SA-v1, VE-v1, CM-v1, RV-v1, IA-v1, FA-v1), so nothing is
+   * added inside the export.
    */
   const EXPORTS = {
     'XS-v6': { files: 125, sums: 'inside' },
@@ -131,6 +131,7 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
     'CM-v1': { files: 140, sums: 'beside' },
     'RV-v1': { files: 120, sums: 'beside' },
     'IA-v1': { files: 151, sums: 'beside' },
+    'FA-v1': { files: 227, sums: 'beside' },
   } as const;
   const sumsOf = (folder: keyof typeof EXPORTS) =>
     EXPORTS[folder].sums === 'inside'
@@ -172,10 +173,11 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
   it('each export is built on this foundation, and the roles index names it', () => {
     const index = readFileSync(join(roles, 'README.md'), 'utf8');
     for (const folder of Object.keys(EXPORTS)) {
-      // Six lock layouts: `baseFiles["project/core.css"]` (XS),
+      // Seven lock layouts: `baseFiles["project/core.css"]` (XS),
       // `byteIdenticalCopiesInProject["core.css"]` (SA), `sharedFilesShipped["project/core.css"]`
       // (VE), `baseFilesShipped["project/core.css"]` (CM), `copiedBaseFiles["project/core.css"]`
-      // (RV) or `byteIdenticalCopies["project/core.css"]` (IA), each with the sheet's SHA-256.
+      // (RV), `byteIdenticalCopies["project/core.css"]` (IA) or `baseFilesUsed["project/core.css"]`
+      // (FA), each with the sheet's SHA-256.
       const exportLock = readJson(join(roles, folder, 'FOUNDATION-LOCK.json')) as {
         foundationId: string;
         baseFiles?: Record<string, { sha256: string }>;
@@ -184,6 +186,7 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
         baseFilesShipped?: Record<string, { sha256: string }>;
         copiedBaseFiles?: Record<string, { sha256: string }>;
         byteIdenticalCopies?: Record<string, { sha256: string }>;
+        baseFilesUsed?: Record<string, { sha256: string }>;
       };
       expect(exportLock.foundationId, folder).toBe(lock.foundationId);
       for (const sheet of ['core.css', 'rb.css', 'rb-kit.css']) {
@@ -193,7 +196,8 @@ describe('owner-approved role exports design/v3-refined-b/roles (uncached integr
           exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256 ??
           exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256 ??
           exportLock.copiedBaseFiles?.[`project/${sheet}`]?.sha256 ??
-          exportLock.byteIdenticalCopies?.[`project/${sheet}`]?.sha256;
+          exportLock.byteIdenticalCopies?.[`project/${sheet}`]?.sha256 ??
+          exportLock.baseFilesUsed?.[`project/${sheet}`]?.sha256;
         expect(recorded, `${folder} ${sheet}`).toBe(
           lock.baseFiles[`references/v3/project/${sheet}`],
         );
@@ -332,18 +336,18 @@ describe('scope boundary: only migrated screens load the V3 layer (ADR-0010)', (
     );
     expect(unnamed).toEqual([]);
     // Today: the Entry & shared surfaces (XS), the Super Admin (SA), the Vendor (VE), the Content
-    // Manager (CM), the Academic Reviewer (RV) and the Institute Admin (IA), and nothing of the
-    // locked landing or another role's page.
+    // Manager (CM), the Academic Reviewer (RV), the Institute Admin (IA) and the Faculty member
+    // (FA), and nothing of the locked landing or another role's page.
     expect(new Set(screens.map((screen) => screen.id.slice(0, 2)))).toEqual(
-      new Set(['XS', 'SA', 'VE', 'CM', 'RV', 'IA']),
+      new Set(['XS', 'SA', 'VE', 'CM', 'RV', 'IA', 'FA']),
     );
     for (const file of importers) {
       expect(file, file).toMatch(
-        /^apps\/web\/src\/(?:features\/shared\/|features\/admin\/|features\/vendor\/|features\/content-manager\/|features\/reviewer\/|features\/institute\/|app\/\(auth\)\/layout\.tsx$|app\/_workspace\/workspace-route\.tsx$)/,
+        /^apps\/web\/src\/(?:features\/shared\/|features\/admin\/|features\/vendor\/|features\/content-manager\/|features\/reviewer\/|features\/institute\/|features\/faculty\/|app\/\(auth\)\/layout\.tsx$|app\/_workspace\/workspace-route\.tsx$)/,
       );
     }
     summary.push(
-      `V3 layer loaded by ${importers.length} web sources (XS, SA, VE, CM, RV, IA), all on the comparison map`,
+      `V3 layer loaded by ${importers.length} web sources (XS, SA, VE, CM, RV, IA, FA), all on the comparison map`,
     );
   });
 

@@ -31,6 +31,7 @@ export const STATE_COPY_ASSESSMENT_SETTINGS = {
     screen: 'FA-10',
     state: 'Before saving a changed rule or result release, when one student has submitted',
     words: '1 student has submitted.',
+    rule: 'Who submitted the current version, in the warnings and “How changes apply”, while the submissions are not read yet: once `listSubmissions` answers, the export’s words name them (“Rahul Verma has submitted.”).',
     basis: 'B4-06 f1, f2 “Rahul Verma has submitted.” — the service gives the count, not the names',
     status: 'provisional',
     decisions: ['VD-12'],
@@ -61,38 +62,6 @@ export const STATE_COPY_ASSESSMENT_SETTINGS = {
     status: 'provisional',
     decisions: ['VD-12', 'OD-B4-13'],
   },
-  'FA-10.release-title': {
-    screen: 'FA-10',
-    state:
-      'f2’s title: the result option or release date changed after a submission on this version',
-    words: 'This changes when students see their result',
-    basis:
-      'B4-06 f2 “This changes when a submitted student sees their result” — the sample domain keeps a submitted attempt on the release terms of the version it answered (`resultView` reads the attempt’s snapshot), so the board’s claim is not stated until the owner decides (P4-06)',
-    status: 'provisional',
-    decisions: ['VD-12', 'P4-06'],
-  },
-  'FA-10.release-warning': {
-    screen: 'FA-10',
-    state:
-      'f2: the result option or release date changed after a submission on this version (with f1, since the change makes a new version)',
-    words:
-      'Submissions already made keep the result terms of the version they answered; new attempts use these.',
-    rule: 'Shown with f1 “This makes a new version” (a release change is versioned like any rule) until the settings are saved. Whether a release change should reach submissions already made is the open decision P4-06: B4-06 f2 says it does; the sample domain keeps their version. The words say what the build does.',
-    basis:
-      'B4-06 f2 “If you save, he sees his result on the new terms.” without a name or gendered pronoun',
-    status: 'provisional',
-    decisions: ['VD-12', 'P4-06'],
-  },
-  'FA-10.saved-new-version': {
-    screen: 'FA-10',
-    state: 'Saved, and the service answers that the change made a new version',
-    words: 'Settings saved as version {n}. Earlier submissions keep the version they answered.',
-    rule: '{n} is the assessment’s version after the save. Without a new version: the drawn “Settings saved.”',
-    basis:
-      'B4-06 script `msg` “Settings saved as version 2. Rahul Verma’s submission keeps version 1.” — the service names no student',
-    status: 'provisional',
-    decisions: ['VD-12', 'OD-B4-13', 'P4-06'],
-  },
   'FA-10.saved-release-changed': {
     screen: 'FA-10',
     state: 'Saved, and the service answers that the result release changed',
@@ -109,14 +78,6 @@ export const STATE_COPY_ASSESSMENT_SETTINGS = {
     words: null,
     rule: 'The answer shows at the top of the form in `#Es-saved`, which takes focus (the board’s `focus(pid + "-saved")`); the warnings go until something is changed again. A refusal of the values shows the error summary instead, which takes focus.',
     basis: 'B4-06 script `save`',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-10.unchanged': {
-    screen: 'FA-10',
-    state: 'Save settings with nothing changed (the service answers that nothing changed)',
-    words: 'Nothing has changed, so there was nothing to save.',
-    basis: 'Board 04 “State grammar” (what happened + what to do); B4-06 draws no unchanged save',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -205,25 +166,6 @@ export const STATE_COPY_ASSESSMENT_SETTINGS = {
   },
 
   // ---- FA-11 Assessment · Preview (B4-06 f5, f6) ---------------------------------------------
-  'FA-11.as-a-student': {
-    screen: 'FA-11',
-    state: 'The Student view’s line before the questions',
-    words: 'As a student sees it:',
-    rule: 'Followed by “4 questions · 16 marks · due 14 Nov 2026, 23:59 · no time limit.” (the pinned questions and their marks).',
-    basis:
-      'B4-06 f5 “As Rahul sees it: …” — there is no student to choose; the preview is the same for every student',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-11.no-deadline': {
-    screen: 'FA-11',
-    state: 'The Student view’s line for an assessment without a deadline (a draft)',
-    words: null,
-    rule: 'The “due …” part is left out: “As a student sees it: 2 questions · 4 marks · no time limit.”',
-    basis: 'B4-06 f5; nothing is pre-filled (BC6)',
-    status: 'provisional',
-    decisions: ['VD-12', 'BC6'],
-  },
   'FA-11.view-address': {
     screen: 'FA-11',
     state: 'The view switch and the address',
@@ -251,37 +193,11 @@ export const STATE_COPY_ASSESSMENT_SETTINGS = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
-  'FA-11.empty.title': {
-    screen: 'FA-11',
-    state: 'An assessment with no question yet (a draft)',
-    words: 'No questions to preview yet',
-    basis:
-      'Board 04 “State grammar” Empty formula; B4-05 f1 “0 questions · 0 marks”; B4-06 draws no empty preview',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-11.empty.line': {
-    screen: 'FA-11',
-    state: 'The empty preview’s line',
-    words: 'Questions you add on the Questions tab appear here as students will see them.',
-    basis: 'Board 04 “State grammar” Empty formula (why + what to do)',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
   'FA-11.loading': {
     screen: 'FA-11',
     state: 'The preview loading (screen readers), below the record’s header and tabs',
     words: 'Loading the preview',
     basis: 'Board 04 “State grammar” Loading formula; `FA-shared.record-loading`',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-11.failed': {
-    screen: 'FA-11',
-    state: 'The preview failed to load (service unavailable)',
-    words: 'The preview didn’t load. Nothing was lost.',
-    rule: 'With `FA-shared.record-failed.line` and “Try again”, which reads again.',
-    basis: 'Board 04 “State grammar” Failed + retry formula; `FA-shared.record-failed`',
     status: 'provisional',
     decisions: ['VD-12'],
   },

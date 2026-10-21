@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Checks and evidence</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./fa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:var(--link,#3B49B8)}a:hover{color:#141B5E}
+/* doc-board styles (fd- prefix): these boards only; not part of the role stylesheet */
+.fd{display:flex;flex-direction:column;gap:28px;max-width:1280px}
+.fd-head{display:flex;flex-direction:column;gap:10px}
+.fd-status{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;min-height:30px;padding:4px 14px;border-radius:999px;background:var(--gold-tint);border:1px solid var(--gold-line);color:var(--gold-ink);font:700 14px/20px var(--sans);letter-spacing:.02em}
+.fd-lead{max-width:62em;font:400 17px/27px var(--sans);color:var(--ink-2)}
+.fd-figs{display:flex;flex-wrap:wrap;gap:0;margin:0;padding:18px 22px;border:1px solid var(--rb-line);border-radius:18px;background:var(--paper)}
+.fd-fig{display:flex;flex-direction:column;gap:2px;padding:0 28px;border-left:1px solid var(--rb-line)}
+.fd-fig:first-child{padding-left:0;border-left:0}
+.fd-fig dt{order:2;font:500 14px/20px var(--sans);color:var(--ink-3)}
+.fd-fig dd{order:1;margin:0;font:700 30px/36px var(--sans);color:var(--navy);font-variant-numeric:tabular-nums}
+.fd-sec{padding:24px 26px}
+.fd-sec > h2{margin-bottom:6px}
+.fd-sec > .rk-hint{margin-bottom:16px}
+.fd-legend{display:flex;flex-wrap:wrap;gap:10px 28px;margin:0;padding:0;list-style:none;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.fd-legend li{display:flex;gap:10px;align-items:flex-start;max-width:36em}
+.fd-reg{width:100%;border-collapse:collapse}
+.fd-reg > thead th{padding:10px 14px;border-bottom:1px solid var(--rb-line);background:#F7F8FC;color:var(--ink-3);font:600 14px/20px var(--sans);text-align:left}
+.fd-reg > tbody > tr > td{padding:16px 14px;vertical-align:top;border-bottom:1px solid var(--rb-line);color:var(--ink-2);font:400 15px/22px var(--sans)}
+.fd-reg > tbody > tr:last-child > td{border-bottom:0}
+.fd-id{display:block;font:700 16px/22px var(--sans);color:var(--navy)}
+.fd-name{display:block;font:600 15px/21px var(--sans);color:var(--ink)}
+.fd-meta{display:block;margin-top:4px;font:500 13.5px/19px var(--sans);color:var(--ink-3)}
+.fd-what{max-width:40em}
+.fd-subs{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;list-style:none}
+.fd-subs li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:start}
+.fd-subs .fd-sub{font:500 14.5px/21px var(--sans);color:var(--ink)}
+.fd-subs .fd-b{grid-column:1 / -1;font:400 13.5px/19px var(--sans);color:var(--ink-3)}
+.fd-subs .fd-b a{font-weight:600}
+.fd-pill{display:inline-flex;align-items:center;min-height:24px;padding:2px 10px;border-radius:999px;font:700 13px/18px var(--sans);letter-spacing:.02em;white-space:nowrap}
+.fd-pill--r{background:var(--rb-sel-tint);color:var(--indigo-2)}
+.fd-pill--u{background:#F2F8F4;color:var(--ok);border:1px solid #D3E8DA}
+.fd-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}
+.fd-list{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.fd-list li{position:relative;padding-left:18px;font:400 15.5px/24px var(--sans);color:var(--ink-2)}
+.fd-list li::before{content:"";position:absolute;left:2px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--indigo)}
+.fd-list b{color:var(--ink);font-weight:650}
+.fd-kv{display:grid;grid-template-columns:220px minmax(0,1fr);gap:10px 24px;margin:0}
+.fd-kv dt{font:600 14.5px/22px var(--sans);color:var(--ink)}
+.fd-kv dd{margin:0;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.fd-mono{font:500 13.5px/20px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);word-break:break-all}
+.fd-grid{width:100%;border-collapse:collapse}
+.fd-grid th,.fd-grid td{padding:8px 10px;border-bottom:1px solid var(--rb-line);font:500 14px/20px var(--sans);color:var(--ink-2);text-align:left}
+.fd-grid th{background:#F7F8FC;color:var(--ink-3);font-weight:600}
+.fd-ok{color:var(--ok);font-weight:700}
+.fd-bad{color:var(--err);font-weight:700}
+</style>
+</helmet>
+<div class="xr rb">
+  <div class="fa-pubpage">
+    <header class="fa-pubtop"><span class="fa-publogo">Official WILP logo</span><span class="fa-pubname">XR Learning Platform · Faculty · final complete-role design</span></header>
+    <main class="fa-pubbody">
+      <div class="fd">
+<div class="fd-head"><span class="fd-status">DESIGN COMPLETE · FINAL — APPROVED BY THE OWNER</span><h1 class="rb-h1">Checks and evidence</h1>
+<p class="fd-lead">What was rendered and exercised on this exact build, in a local Chromium (Playwright) with the Design runtime. The scripts, specifications and raw results are in the source package under <code>checks/</code>; screenshots are in the screenshot package.</p></div>
+<dl class="fd-figs"><div class="fd-fig"><dt>Renders checked</dt><dd>219</dd></div><div class="fd-fig"><dt>Journey steps passed</dt><dd>1086 of 1086</dd></div><div class="fd-fig"><dt>Links crawled, all landing right</dt><dd>442 · 0 not ok</dd></div><div class="fd-fig"><dt>Boards scanned, structural issues</dt><dd>219 · 0</dd></div><div class="fd-fig"><dt>Pixel-identical after consolidation</dt><dd>219 of 219</dd></div></dl>
+<section class="rk-surface fd-sec" aria-labelledby="fd-r"><h2 class="rb-h2" id="fd-r">Responsive · every owned ID at four widths</h2><p class="rk-hint">Each cell: page height in px, with no horizontal page scroll, no console error and no element running off the page (wide CSV previews scroll inside their own region). Screenshots: <code>responsive/</code>.</p><table class="fd-grid"><caption class="xr-sr">Responsive results</caption><thead><tr><th scope="col">ID · state</th><th scope="col">1440</th><th scope="col">1024</th><th scope="col">768</th><th scope="col">375</th></tr></thead><tbody><tr><th scope="row">FA-01</th><td><span class="fd-ok">✓</span> 961</td><td><span class="fd-ok">✓</span> 1579</td><td><span class="fd-ok">✓</span> 1579</td><td><span class="fd-ok">✓</span> 2015</td></tr><tr><th scope="row">FA-02</th><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 1088</td></tr><tr><th scope="row">FA-03</th><td><span class="fd-ok">✓</span> 973</td><td><span class="fd-ok">✓</span> 1267</td><td><span class="fd-ok">✓</span> 1267</td><td><span class="fd-ok">✓</span> 1555</td></tr><tr><th scope="row">FA-04</th><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 943</td><td><span class="fd-ok">✓</span> 943</td><td><span class="fd-ok">✓</span> 978</td></tr><tr><th scope="row">FA-05</th><td><span class="fd-ok">✓</span> 1054</td><td><span class="fd-ok">✓</span> 1500</td><td><span class="fd-ok">✓</span> 1500</td><td><span class="fd-ok">✓</span> 2037</td></tr><tr><th scope="row">FA-06</th><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 900</td></tr><tr><th scope="row">FA-07</th><td><span class="fd-ok">✓</span> 1326</td><td><span class="fd-ok">✓</span> 1842</td><td><span class="fd-ok">✓</span> 1842</td><td><span class="fd-ok">✓</span> 2263</td></tr><tr><th scope="row">FA-08</th><td><span class="fd-ok">✓</span> 1420</td><td><span class="fd-ok">✓</span> 1868</td><td><span class="fd-ok">✓</span> 1868</td><td><span class="fd-ok">✓</span> 2358</td></tr><tr><th scope="row">FA-09</th><td><span class="fd-ok">✓</span> 1177</td><td><span class="fd-ok">✓</span> 1414</td><td><span class="fd-ok">✓</span> 1414</td><td><span class="fd-ok">✓</span> 1936</td></tr><tr><th scope="row">FA-10</th><td><span class="fd-ok">✓</span> 1867</td><td><span class="fd-ok">✓</span> 2188</td><td><span class="fd-ok">✓</span> 2209</td><td><span class="fd-ok">✓</span> 2898</td></tr><tr><th scope="row">FA-11</th><td><span class="fd-ok">✓</span> 2370</td><td><span class="fd-ok">✓</span> 2436</td><td><span class="fd-ok">✓</span> 2436</td><td><span class="fd-ok">✓</span> 3178</td></tr><tr><th scope="row">FA-12</th><td><span class="fd-ok">✓</span> 931</td><td><span class="fd-ok">✓</span> 1104</td><td><span class="fd-ok">✓</span> 1104</td><td><span class="fd-ok">✓</span> 1339</td></tr><tr><th scope="row">FA-14</th><td><span class="fd-ok">✓</span> 1309</td><td><span class="fd-ok">✓</span> 1766</td><td><span class="fd-ok">✓</span> 1766</td><td><span class="fd-ok">✓</span> 2187</td></tr><tr><th scope="row">FA-15</th><td><span class="fd-ok">✓</span> 1765</td><td><span class="fd-ok">✓</span> 2408</td><td><span class="fd-ok">✓</span> 2408</td><td><span class="fd-ok">✓</span> 2650</td></tr><tr><th scope="row">FA-16</th><td><span class="fd-ok">✓</span> 1167</td><td><span class="fd-ok">✓</span> 1571</td><td><span class="fd-ok">✓</span> 1571</td><td><span class="fd-ok">✓</span> 2214</td></tr><tr><th scope="row">FA-17</th><td><span class="fd-ok">✓</span> 1260</td><td><span class="fd-ok">✓</span> 1956</td><td><span class="fd-ok">✓</span> 1956</td><td><span class="fd-ok">✓</span> 2240</td></tr><tr><th scope="row">FA-18</th><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 988</td><td><span class="fd-ok">✓</span> 988</td><td><span class="fd-ok">✓</span> 1082</td></tr><tr><th scope="row">FA-19</th><td><span class="fd-ok">✓</span> 1042</td><td><span class="fd-ok">✓</span> 1779</td><td><span class="fd-ok">✓</span> 1779</td><td><span class="fd-ok">✓</span> 2380</td></tr><tr><th scope="row">FA-20</th><td><span class="fd-ok">✓</span> 1148</td><td><span class="fd-ok">✓</span> 2075</td><td><span class="fd-ok">✓</span> 2075</td><td><span class="fd-ok">✓</span> 2304</td></tr><tr><th scope="row">FA-21</th><td><span class="fd-ok">✓</span> 900</td><td><span class="fd-ok">✓</span> 1151</td><td><span class="fd-ok">✓</span> 1151</td><td><span class="fd-ok">✓</span> 1305</td></tr><tr><th scope="row">FA-22</th><td><span class="fd-ok">✓</span> 1585</td><td><span class="fd-ok">✓</span> 2536</td><td><span class="fd-ok">✓</span> 2536</td><td><span class="fd-ok">✓</span> 2876</td></tr></tbody></table></section>
+<section class="rk-surface fd-sec" aria-labelledby="fd-j"><h2 class="rb-h2" id="fd-j">Interaction · connected journeys</h2><p class="rk-hint">Real clicks, typing and keys inside one live preview per journey; each step checks the visible text, focus or an assertion.</p><table class="fd-grid"><caption class="xr-sr">Journeys</caption><thead><tr><th scope="col">Set</th><th scope="col">What it drives</th><th scope="col">Widths</th><th scope="col">Steps passed</th></tr></thead><tbody><tr><th scope="row">J1–J4</th><td>create · bank · marking · students · co-teacher chains</td><td>1440</td><td class="fd-ok">117 of 117</td></tr><tr><th scope="row">J1–J4 narrow</th><td>the same five chains</td><td>1024 · 768 · 375</td><td class="fd-ok">369 of 369</td></tr><tr><th scope="row">J5</th><td>drawer, account menu, delete dialog, 15 Nov release, no courses</td><td>375 · 1440</td><td class="fd-ok">48 of 48</td></tr><tr><th scope="row">J6</th><td>draft with assistance, drafting fails</td><td>1440</td><td class="fd-ok">20 of 20</td></tr><tr><th scope="row">J6 phone</th><td>draft with assistance, drafting fails</td><td>375</td><td class="fd-ok">20 of 20</td></tr><tr><th scope="row">J7</th><td>settings and questions, list filters</td><td>1440</td><td class="fd-ok">31 of 31</td></tr><tr><th scope="row">J8</th><td>R1 screens: overview, courses, new teacher, marking total, drafting</td><td>1440</td><td class="fd-ok">43 of 43</td></tr><tr><th scope="row">J8 narrow</th><td>R1 screens</td><td>768 · 375</td><td class="fd-ok">106 of 106</td></tr><tr><th scope="row">J9</th><td>final pass: experiment chain, record tabs, bank cards, queue and students, import figures, phone and tablet sweeps, keyboard focus</td><td>1440 · 768 · 375</td><td class="fd-ok">128 of 128</td></tr><tr><th scope="row">J10</th><td>the message, dialog and export chains again, with an internal-ID guard on every step</td><td>1440</td><td class="fd-ok">204 of 204</td></tr></tbody></table></section>
+<section class="rk-surface fd-sec" aria-labelledby="fd-id2"><h2 class="rb-h2" id="fd-id2">Internal technical IDs</h2><ul class="fd-list"><li><b>219 boards</b> swept for ASMT-, ATT-, Q- and D- identifiers in visible text, <code>aria-label</code>, <code>title</code>, <code>placeholder</code>, <code>alt</code> and screen-reader text: <b>0 found</b>.</li><li>J10 repeats the chains that produce messages, notices and dialogs with the same guard on every step: <b>204 of 204</b> steps pass.</li><li>Kept on purpose: academic course codes, institution-issued student IDs and the CSV “student ID” column; stable keys in routing, element ids and the question search.</li><li>One identifier remains in the role, on a borrowed surface: Help &amp; support answers a sent report with “Your reference is SUP-0231”. XS-07 is owned by the shared XS contract, so it is flagged for its owner rather than changed here.</li></ul></section>
+<div class="fd-cols"><section class="rk-surface fd-sec" aria-labelledby="fd-a"><h2 class="rb-h2" id="fd-a">Accessibility and keyboard</h2><ul class="fd-list"><li><b>219 boards</b> scanned for unnamed controls, unlabelled fields, duplicate IDs, broken ARIA references, placeholder links, one h1 per view and stray copy: <b>0 issues</b>.</li><li>Keyboard focus ring on every stop tabbed through FA-08, FA-10, FA-12, FA-14 drafts and FA-20 (38 stops), on the control or its row.</li><li>Drawer and account menu trap and return focus; Escape closes; the delete and confirm-marks dialogs return focus; the bank panel’s close returns focus to its button.</li><li>Text below 13 px: only the kit’s WEB / AR / VR / MR format chips (12 px, foundation component).</li><li>Long text stress test (names and titles 3–5× longer) at 1440 and 375 on 23 screens: no horizontal scroll, no clipped text.</li></ul></section><section class="rk-surface fd-sec" aria-labelledby="fd-f"><h2 class="rb-h2" id="fd-f">Consistency and foundation</h2><ul class="fd-list"><li>Foundation hashes unchanged: core.css <span class="fd-mono">6b2be4610415…</span>, rb.css <span class="fd-mono">d2390e1e7bf2…</span>, rb-kit.css <span class="fd-mono">812daa6c8f4a…</span>.</li><li>Role stylesheet <code>fa.css</code> <span class="fd-mono">e8aa113a30a4…</span>: one file, additive, existing tokens only.</li><li>Consolidation: <b>219 of 219</b> renders pixel-identical before and after; no rule used by a rendered state was lost.</li><li>R1 carry-over: <b>29 of 51</b> R1-screen boards pixel-identical to the R1 checkpoint you saw. FA-02 and FA-03 are untouched; the rest differ only by the two later owner decisions — sparse-state consistency (FA-01 and FA-16 no-course cards) and internal ids leaving the labels (FA-16 and FA-19).</li><li>10 boards pixel-identical to the published build where the register says unchanged; dialogs, refusals and empty states compared element by element.</li></ul></section></div>
+<section class="rk-surface fd-sec" aria-labelledby="fd-n"><h2 class="rb-h2" id="fd-n">Not tested here</h2><ul class="fd-list"><li>A real backend, real files on disk (exports show the rows; the import template is a data: CSV link) and real drafting assistance — all are labelled sample stand-ins.</li><li>Screen readers beyond the structural scan (names, labels, roles, live regions were checked in markup; no NVDA / VoiceOver session).</li><li>Browsers other than Chromium, and zoom above 100 %.</li><li>Cross-role effects (a student seeing a released result) — documented, not linked.</li></ul></section>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2957}}'>
+// Static checks board for owner review; it imports nothing.
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

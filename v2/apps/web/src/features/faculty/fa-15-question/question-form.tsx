@@ -1,12 +1,24 @@
 'use client';
 
 import type { ServiceError, ValidationFailed } from '@xr/contracts/draft';
-import type { ChoiceKey, ExperimentId, Question, QuestionId, QuestionType } from '@xr/domain';
-import { Button, ErrorSummary, Field, FieldError, Link, Notice, Textarea, TextInput } from '@xr/ui';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import type { ExperimentId, Question, QuestionId } from '@xr/domain';
+import {
+  Button,
+  ButtonLink,
+  ErrorSummary,
+  FaFormColumn,
+  FaFormFoot,
+  FaFormMessages,
+  Notice,
+} from '@xr/ui/v3';
+import { type FormEvent, type ReactNode, useEffect, useRef, useState } from 'react';
 
-import { QUESTION_TYPE_WORDS, QUESTION_TYPES } from '@/copy/assessment-words';
-import { correctLabel, optionLabel, QUESTION_EDITOR, savedUsedMessage } from '@/copy/question-bank';
+import {
+  QUESTION_EDITOR,
+  savedUsedLine,
+  savedVersionWords,
+  usedNoticeTitle,
+} from '@/copy/question-bank';
 import { stateWords } from '@/copy/state-copy';
 import { QUESTION_BANK_ADDRESS, questionBankAddress } from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
@@ -15,35 +27,19 @@ import { useCommand } from '@/queries/use-command';
 
 import { noteRouteFocus } from '../../shared/workspace-frame/route-focus';
 import { BANK_MESSAGE_ID } from '../fa-14-question-bank/question-bank';
+import {
+  EMPTY_QUESTION,
+  QUESTION_FIELDS,
+  type QuestionDraft,
+  type QuestionField,
+  QuestionFields,
+  questionFieldTarget,
+} from './question-fields';
 import { withAdded } from './return-to';
 
-const CHOICES: readonly ChoiceKey[] = ['A', 'B', 'C', 'D'];
+export { EMPTY_QUESTION, type QuestionDraft };
 
-/** The form's values as typed; each type keeps its own answer fields (`FA-15.type-switch`). */
-export interface QuestionDraft {
-  readonly type: QuestionType | null;
-  readonly text: string;
-  readonly options: Readonly<Record<ChoiceKey, string>>;
-  readonly correctChoice: ChoiceKey | null;
-  readonly statement: 'true' | 'false' | null;
-  readonly guidance: string;
-  readonly marks: string;
-  readonly explanation: string;
-}
-
-/** Nothing chosen and nothing typed (B4-07 `qeInit`). */
-export const EMPTY_QUESTION: QuestionDraft = {
-  type: null,
-  text: '',
-  options: { A: '', B: '', C: '', D: '' },
-  correctChoice: null,
-  statement: null,
-  guidance: '',
-  marks: '',
-  explanation: '',
-};
-
-/** A bank question's current version, as the form shows it again (f4). */
+/** A bank question's current version, as the form shows it again. */
 export function draftOf(question: Question): QuestionDraft {
   const { body } = question;
   return {
@@ -85,23 +81,8 @@ function inputOf(experimentId: string, draft: QuestionDraft) {
   };
 }
 
-type QuestionField = 'type' | 'text' | 'options' | 'correct' | 'marks';
-const QUESTION_FIELDS: ReadonlySet<string> = new Set([
-  'type',
-  'text',
-  'options',
-  'correct',
-  'marks',
-]);
-
-/** The control each error and its summary link point to (B4-07 `#Qe-type`, `#Qe-opts` …). */
-const FIELD_IDS: Readonly<Record<QuestionField, string>> = {
-  type: 'qe-type',
-  text: 'qe-text',
-  options: 'qe-opts',
-  correct: 'qe-correct',
-  marks: 'qe-marks',
-};
+/** The form's ids' prefix: the summary is `qe-err`, the notice `qe-saved`. */
+const PREFIX = 'qe';
 
 function questionFieldErrors(error: ValidationFailed): FormFieldError<QuestionField>[] {
   return formFieldErrors(error, (path) =>
@@ -114,33 +95,40 @@ export type FormOutcome = 'saved' | 'stale' | 'policy-open' | 'gone' | 'deleted'
 
 interface FormNotice {
   readonly tone: 'ok' | 'err';
-  readonly text: string;
+  readonly title: string;
+  readonly line?: string;
 }
 
 /**
- * The FA-15 form (B4-07 f3 … f8): Question type (three cards, nothing chosen for a new question),
- * Question, the chosen type's answer — Answer options A–D with one "Correct" radio, "The statement
- * is" True / False, or Marking guidance (optional, free text for whoever marks it) — Marks,
- * Explanation (optional), Cancel and "Save question". The service checks the values and answers
- * the drawn words (`FA-15.*` keys; summary "Check this question", which takes focus); typing in a
- * field clears its error. Single correct answer only, three types only, no automatic grading.
+ * The FA-15 form (the export's form column): the three sections (`QuestionFields`), Cancel and
+ * "Save question". Messages sit at its top (`div.fa-fmsg--stack`): the error summary "Check this
+ * question" (which takes focus), the saved or failed notice (which takes focus), the conflict
+ * warning and the used question's notice (`aboveFields`, from the page). The service checks the
+ * values and answers the words (`FA-15.*` keys); typing in a field clears its error. Single correct
+ * answer only, three types only, no automatic grading.
  */
 export function QuestionForm({
+  labelledBy,
   experimentId,
   initial,
   editing,
   returnTo,
+  aboveFields,
   onOutcome,
 }: {
+  /** The form's name: the page's H1. */
+  readonly labelledBy: string;
   readonly experimentId: string;
   readonly initial: QuestionDraft;
-  /** The question being edited: its ID, the revision read and the assessments that use it. */
+  /** The question being edited: its key, the revision read and the assessments that use it. */
   readonly editing: {
     readonly id: string;
     readonly rev: number;
     readonly usedNames: readonly string[];
   } | null;
   readonly returnTo: string | null;
+  /** The page's own notices at the form's top (the conflict, the used question's notice). */
+  readonly aboveFields?: ReactNode;
   readonly onOutcome: (outcome: FormOutcome) => void;
 }) {
   const navigation = useAppNavigation();
@@ -160,13 +148,12 @@ export function QuestionForm({
     if (focusNotice > 0) noticeRef.current?.focus();
   }, [focusNotice]);
 
-  const clear = (...fields: QuestionField[]) =>
-    setErrors((current) => current.filter((error) => !fields.includes(error.field)));
   const change = (patch: Partial<QuestionDraft>, ...fields: QuestionField[]) => {
     setDraft((current) => ({ ...current, ...patch }));
-    if (fields.length > 0) clear(...fields);
+    if (fields.length > 0) {
+      setErrors((current) => current.filter((error) => !fields.includes(error.field)));
+    }
   };
-  const errorOf = (field: QuestionField) => errors.find((error) => error.field === field)?.message;
   const say = (next: FormNotice) => {
     setNotice(next);
     setFocusNotice((current) => current + 1);
@@ -193,11 +180,11 @@ export function QuestionForm({
         onOutcome('gone');
         return;
       default:
-        say({ tone: 'err', text: stateWords('FA-15.unavailable') });
+        say({ tone: 'err', title: stateWords('FA-15.unavailable') });
     }
   };
   // Failed for now: every value stays and the page says it didn't save (`FA-15.unavailable`).
-  const unavailable = () => say({ tone: 'err', text: stateWords('FA-15.unavailable') });
+  const unavailable = () => say({ tone: 'err', title: stateWords('FA-15.unavailable') });
 
   const submit = (event: FormEvent) => {
     event.preventDefault();
@@ -227,219 +214,71 @@ export function QuestionForm({
         navigation.navigate(returnTo);
         return;
       }
+      // Every edit is a new version (`FA-15.saved-edit`); a used question's assessments keep theirs.
       say({
         tone: 'ok',
-        text:
-          editing.usedNames.length > 0
-            ? savedUsedMessage(editing.usedNames)
-            : stateWords('FA-15.saved-edit'),
+        title: savedVersionWords(answer.value.question.version),
+        line: editing.usedNames.length > 0 ? savedUsedLine(editing.usedNames) : undefined,
       });
     }, unavailable);
   };
 
-  const describedBy = (...ids: (string | false | undefined)[]) =>
-    ids.filter(Boolean).join(' ') || undefined;
-
+  const hasTop = errors.length > 0 || notice !== null || Boolean(aboveFields);
   return (
-    <form
-      className="xr-section flex flex-col gap-5 p-6"
-      noValidate
-      aria-label={editing ? QUESTION_EDITOR.editTitle : QUESTION_EDITOR.addTitle}
-      onSubmit={submit}
-    >
-      {errors.length > 0 ? (
-        <ErrorSummary
-          key={attempt}
-          id="qe-err"
-          title={facultySummaryTitle('FA-15', errors.length)}
-          items={errors.map((error) => ({
-            fieldId: FIELD_IDS[error.field],
-            summaryText: error.summaryText,
-          }))}
-        />
-      ) : null}
-      <div id="qe-saved" ref={noticeRef} tabIndex={-1}>
-        {notice ? (
-          <Notice
-            tone={notice.tone}
-            role={notice.tone === 'ok' ? 'status' : 'alert'}
-            title={notice.text}
-          />
-        ) : null}
-      </div>
-      <fieldset
-        className="xr-fieldset m-0 min-w-0 border-0 p-0"
-        id={FIELD_IDS.type}
-        tabIndex={-1}
-        aria-describedby={describedBy(errorOf('type') && 'qe-type-e', 'qe-type-h')}
-      >
-        <legend className="xr-label mb-2">{QUESTION_EDITOR.type}</legend>
-        {errorOf('type') ? <FieldError id="qe-type-e">{errorOf('type')}</FieldError> : null}
-        <div className="xr-choice-list flex-row flex-wrap">
-          {QUESTION_TYPES.map((type) => (
-            <label
-              key={type}
-              className={draft.type === type ? 'xr-choice is-checked' : 'xr-choice'}
-              htmlFor={`qe-ty-${type}`}
+    <FaFormColumn as="form" labelledBy={labelledBy} onSubmit={submit}>
+      {hasTop ? (
+        <FaFormMessages stack>
+          {errors.length > 0 ? (
+            <ErrorSummary
+              spaced
+              key={attempt}
+              id={`${PREFIX}-err`}
+              title={facultySummaryTitle('FA-15', errors.length)}
+              items={errors.map((error) => ({
+                fieldId: questionFieldTarget(PREFIX, error.field, draft.type),
+                summaryText: error.summaryText,
+              }))}
+            />
+          ) : null}
+          {notice ? (
+            <Notice
+              id={`${PREFIX}-saved`}
+              ref={noticeRef}
+              tone={notice.tone === 'ok' ? 'ok' : 'warn'}
+              icon={notice.tone === 'ok' ? undefined : 'alertCircle'}
+              role={notice.tone === 'ok' ? 'status' : 'alert'}
+              title={notice.title}
             >
-              <input
-                type="radio"
-                id={`qe-ty-${type}`}
-                name="qe-ty"
-                checked={draft.type === type}
-                onChange={() => change({ type }, 'type')}
-              />
-              <span>
-                <span className="xr-choice-title">{QUESTION_TYPE_WORDS[type]}</span>
-              </span>
-            </label>
-          ))}
-        </div>
-        <span className="xr-hint mt-1.5 block" id="qe-type-h">
-          {QUESTION_EDITOR.typeHint}
-        </span>
-      </fieldset>
-      <Field id={FIELD_IDS.text} label={QUESTION_EDITOR.text} error={errorOf('text')}>
-        <Textarea
-          className="min-h-22"
-          value={draft.text}
-          onChange={(event) => change({ text: event.target.value }, 'text')}
-        />
-      </Field>
-      {draft.type === 'multiple-choice' ? (
-        <fieldset
-          className="xr-fieldset m-0 min-w-0 border-0 p-0"
-          id={FIELD_IDS.options}
-          tabIndex={-1}
-          aria-describedby={describedBy(
-            FIELD_IDS.correct,
-            errorOf('options') && 'qe-opts-e',
-            errorOf('correct') && 'qe-correct-e',
-          )}
-        >
-          <legend className="xr-label mb-1">{QUESTION_EDITOR.options}</legend>
-          <span className="xr-hint mb-2 block" id={FIELD_IDS.correct} tabIndex={-1}>
-            {QUESTION_EDITOR.optionsHint}
-          </span>
-          {errorOf('options') ? <FieldError id="qe-opts-e">{errorOf('options')}</FieldError> : null}
-          {errorOf('correct') ? (
-            <FieldError id="qe-correct-e">{errorOf('correct')}</FieldError>
+              {notice.line}
+            </Notice>
           ) : null}
-          <ul className="m-0 flex list-none flex-col gap-3 p-0">
-            {CHOICES.map((choice, index) => (
-              <li
-                key={choice}
-                className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-x-4 gap-y-2"
-              >
-                <Field id={`qe-o${index}`} label={optionLabel(choice)}>
-                  <TextInput
-                    autoComplete="off"
-                    value={draft.options[choice]}
-                    onChange={(event) =>
-                      change(
-                        { options: { ...draft.options, [choice]: event.target.value } },
-                        'options',
-                      )
-                    }
-                  />
-                </Field>
-                <label className="xr-check min-h-11 items-center p-0" htmlFor={`qe-c${index}`}>
-                  <input
-                    type="radio"
-                    id={`qe-c${index}`}
-                    name="qe-correct-choice"
-                    aria-label={correctLabel(choice)}
-                    checked={draft.correctChoice === choice}
-                    onChange={() => change({ correctChoice: choice }, 'correct')}
-                  />
-                  {QUESTION_EDITOR.correct}
-                </label>
-              </li>
-            ))}
-          </ul>
-        </fieldset>
+          {aboveFields}
+        </FaFormMessages>
       ) : null}
-      {draft.type === 'true-false' ? (
-        <fieldset
-          className="xr-fieldset m-0 min-w-0 border-0 p-0"
-          id={FIELD_IDS.correct}
-          tabIndex={-1}
-          aria-describedby={describedBy(errorOf('correct') && 'qe-correct-e')}
-        >
-          <legend className="xr-label mb-2">{QUESTION_EDITOR.statementIs}</legend>
-          {errorOf('correct') ? (
-            <FieldError id="qe-correct-e">{errorOf('correct')}</FieldError>
-          ) : null}
-          <div className="xr-choice-list flex-row flex-wrap">
-            {(['true', 'false'] as const).map((value) => (
-              <label
-                key={value}
-                className={draft.statement === value ? 'xr-choice is-checked' : 'xr-choice'}
-                htmlFor={`qe-tf-${value}`}
-              >
-                <input
-                  type="radio"
-                  id={`qe-tf-${value}`}
-                  name="qe-tf"
-                  checked={draft.statement === value}
-                  onChange={() => change({ statement: value }, 'correct')}
-                />
-                <span>{value === 'true' ? QUESTION_EDITOR.true : QUESTION_EDITOR.false}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      ) : null}
-      {draft.type === 'written' ? (
-        <Field
-          id="qe-guide"
-          label={QUESTION_EDITOR.guidance}
-          marker={QUESTION_EDITOR.optional}
-          hint={QUESTION_EDITOR.guidanceHint}
-        >
-          <Textarea
-            className="min-h-24"
-            value={draft.guidance}
-            onChange={(event) => change({ guidance: event.target.value })}
-          />
-        </Field>
-      ) : null}
-      <Field
-        id={FIELD_IDS.marks}
-        label={QUESTION_EDITOR.marks}
-        hint={QUESTION_EDITOR.marksHint}
-        error={errorOf('marks')}
-      >
-        <TextInput
-          className="max-w-[120px]"
-          inputMode="numeric"
-          autoComplete="off"
-          value={draft.marks}
-          onChange={(event) => change({ marks: event.target.value }, 'marks')}
-        />
-      </Field>
-      <Field
-        id="qe-expl"
-        label={QUESTION_EDITOR.explanation}
-        marker={QUESTION_EDITOR.optional}
-        hint={QUESTION_EDITOR.explanationHint}
-      >
-        <Textarea
-          className="min-h-20"
-          value={draft.explanation}
-          onChange={(event) => change({ explanation: event.target.value })}
-        />
-      </Field>
-      <div className="xw-flow-foot">
-        <Link className="xr-btn xr-btn--text" href={returnTo ?? bankHref}>
-          {QUESTION_EDITOR.cancel}
-        </Link>
-        <div className="xw-actions">
-          <Button variant="primary" type="submit" busy={busy} busyLabel={QUESTION_EDITOR.saving}>
+      <QuestionFields prefix={PREFIX} values={draft} errors={errors} onChange={change} />
+      <FaFormFoot
+        start={<ButtonLink href={returnTo ?? bankHref}>{QUESTION_EDITOR.cancel}</ButtonLink>}
+        end={
+          <Button
+            variant="primary"
+            size="lg"
+            type="submit"
+            busy={busy}
+            busyLabel={QUESTION_EDITOR.saving}
+          >
             {QUESTION_EDITOR.save}
           </Button>
-        </div>
-      </div>
-    </form>
+        }
+      />
+    </FaFormColumn>
+  );
+}
+
+/** The used question's notice (`QE.used`): which assessments use it, and what saving changes. */
+export function UsedNotice({ names }: { readonly names: readonly string[] }) {
+  return (
+    <Notice tone="info" icon="infoDisc" title={usedNoticeTitle(names)}>
+      {names.length > 1 ? QUESTION_EDITOR.usedNoticeSeveral : QUESTION_EDITOR.usedNotice}
+    </Notice>
   );
 }

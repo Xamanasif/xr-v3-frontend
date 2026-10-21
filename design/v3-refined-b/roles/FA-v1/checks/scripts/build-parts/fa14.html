@@ -1,0 +1,170 @@
+      <!-- ═══ FA-14 Question bank (tabs: Questions · Drafts to review) ═══ -->
+      <sc-if value="{{ is.qb }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ sh.date }}</p>
+          <h1 class="rb-h1" id="fa-h1" tabindex="-1">Question bank</h1>
+          <p class="rk-sub">{{ QB.sub }}</p>
+        </div>
+        <sc-if value="{{ QB.canAdd }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-head-act">
+          <a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-15" onClick="{{ QB.addQ }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-plus"></use></svg>Add a question</a>
+          <a class="rb-btn rb-btn--lg" href="#FA-16" onClick="{{ QB.toDraft }}">Draft with assistance</a>
+          <a class="rb-btn rb-btn--ghost rb-btn--lg" href="#FA-17" onClick="{{ QB.toImport }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-upload"></use></svg>Import</a>
+        </div>
+        </sc-if>
+      </div>
+      <sc-if value="{{ QB.noCourse }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface fr-msgcard" aria-labelledby="fa-qb-none">
+        <div class="fa-inlinemsg">
+          <span class="fa-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-stack"></use></svg></span>
+          <h2 class="rb-h2" id="fa-qb-none">Your question bank opens with your first course</h2>
+          <p class="fa-msg-d">Questions belong to the experiments you teach. Your Institute Admin hasn’t assigned you a course yet.</p>
+          <div class="fa-msg-act"><a class="rb-btn" href="#XS-07" onClick="{{ nav.help }}">Help &amp; support</a></div>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ QB.hasCourse }}" hint-placeholder-val="{{ true }}">
+      <div class="fa-recordtabs">
+        <nav class="rk-tabs fa-tabs" aria-label="Question bank">
+          <a class="rk-tab" href="#FA-14" aria-current="{{ QB.cq }}" onClick="{{ QB.goQ }}">Questions<span class="fa-tabn" aria-hidden="true">{{ QB.nQ }}</span><span class="xr-sr">, {{ QB.nQ }}</span></a>
+          <a class="rk-tab" href="#FA-14" aria-current="{{ QB.cd }}" onClick="{{ QB.goD }}">Drafts to review<span class="fa-tabn" aria-hidden="true">{{ QB.nD }}</span><span class="xr-sr">, {{ QB.nD }}</span></a>
+        </nav>
+
+        <sc-if value="{{ QB.tabQ }}" hint-placeholder-val="{{ true }}">
+        <section class="rk-surface" aria-labelledby="fa-tabh">
+          <div class="rk-toolbar">
+            <div class="fr-tbar">
+              <div class="fr-tbar-t"><h2 class="rb-h2" id="fa-tabh" tabindex="-1">Questions</h2><sc-if value="{{ QB.hasAny }}" hint-placeholder-val="{{ true }}"><p class="rk-hint">{{ QB.split }}</p></sc-if></div>
+            </div>
+            <sc-if value="{{ QB.hasAny }}" hint-placeholder-val="{{ true }}">
+            <div class="rk-tools fr-tools" role="search" aria-label="Filter questions">
+              <div class="rk-field rk-search">
+                <label class="rk-label" for="fa-qb-q">Search</label>
+                <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-search"></use></svg><input id="fa-qb-q" class="rk-input" type="search" placeholder="Words or question ID" autocomplete="off" value="{{ QB.q }}" onChange="{{ QB.onQ }}"></div>
+              </div>
+              <sc-if value="{{ QB.multiExp }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-field fa-field-sel">
+                <label class="rk-label" for="fa-qb-exp">Experiment</label>
+                <div class="rk-selwrap"><select id="fa-qb-exp" class="rk-select" value="{{ QB.exp }}" onChange="{{ QB.onExp }}"><option value="all">All experiments</option><sc-for list="{{ QB.expOpts }}" as="o" hint-placeholder-count="1"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+              </div>
+              </sc-if>
+              <div class="rk-field fa-field-sel">
+                <label class="rk-label" for="fa-qb-type">Type</label>
+                <div class="rk-selwrap"><select id="fa-qb-type" class="rk-select" value="{{ QB.type }}" onChange="{{ QB.onType }}"><option value="all">All types</option><option value="sc">Single choice</option><option value="tf">True or false</option><option value="w">Written answer</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+              </div>
+            </div>
+            <div class="rk-statusline">
+              <p class="rk-count" role="status">{{ QB.count }}</p>
+              <sc-for list="{{ QB.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-x"></use></svg></button></span></sc-for>
+              <sc-if value="{{ QB.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ QB.clear }}">Clear filters</button></sc-if>
+            </div>
+            </sc-if>
+            <sc-if value="{{ QB.hasMsg }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--ok" id="fa-msg" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><p class="rk-notice-t">{{ QB.msg }}</p><sc-if value="{{ QB.hasMsgD }}" hint-placeholder-val="{{ false }}"><p class="rk-notice-d">{{ QB.msgD }}</p></sc-if></div></sc-if>
+          </div>
+          <sc-if value="{{ QB.has }}" hint-placeholder-val="{{ true }}">
+          <div class="fa-tablewrap">
+            <table class="rk-table fa-table fr-btable fr-ptable">
+              <caption>Questions in your bank</caption>
+              <thead><tr><th scope="col" class="fr-c-q">Question</th><th scope="col" class="fa-desk">Marks</th><th scope="col" class="fr-c-used">Used in</th><th scope="col" class="fa-desk">Added</th><th scope="col"><span class="xr-sr">Actions</span></th></tr></thead>
+              <tbody>
+                <sc-for list="{{ QB.rows }}" as="r" hint-placeholder-count="3">
+                <tr class="fa-static">
+                  <td class="fa-c-main fr-c-wide"><span class="fa-qt fa-cellline">{{ r.t }}</span><span class="fr-qmeta"><span class="{{ r.typeCls }}">{{ r.type }}</span><span class="fa-id">{{ r.idv }}</span><span class="fa-mob fr-qmeta-m">{{ r.marks }}</span><span class="fa-mob">added {{ r.added }}</span></span><sc-if value="{{ r.fromDraft }}" hint-placeholder-val="{{ false }}"><span class="fa-cellline" style="margin-top: 8px"><span class="fa-tag"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg>From a draft you reviewed</span></span></sc-if></td>
+                  <td class="fa-nowrap fa-desk"><span class="fr-qmeta-m">{{ r.marks }}</span></td>
+                  <td class="fr-c-wide fr-c-inl"><span class="fa-lbl">Used in</span><span class="{{ r.usedCls }}">{{ r.usedMain }}</span><sc-if value="{{ r.hasUsedNote }}" hint-placeholder-val="{{ false }}"><span class="fa-cellsub">{{ r.usedNote }}</span></sc-if></td>
+                  <td class="fa-nowrap fa-desk">{{ r.added }}</td>
+                  <td class="fa-nowrap fr-c-wide"><div class="fa-cellacts"><a class="rb-btn" href="#FA-15" aria-label="{{ r.editAria }}" onClick="{{ r.edit }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-edit"></use></svg>Edit</a><button type="button" class="rb-btn rb-btn--ghost" id="{{ r.delId }}" aria-label="{{ r.delAria }}" onClick="{{ r.askDel }}">Delete</button></div></td>
+                </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          </sc-if>
+          <sc-if value="{{ QB.noMatch }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="status">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-search"></use></svg></span>
+            <p class="rk-state-t">No question matches these filters</p>
+            <p class="rk-state-d">Try fewer filters, other words, or a question ID such as Q-0104.</p>
+            <button type="button" class="rb-btn" onClick="{{ QB.clear }}">Clear filters</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ QB.isEmpty }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state rk-state--roomy">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-stack"></use></svg></span>
+            <p class="rk-state-t">Your question bank is empty</p>
+            <p class="rk-state-d">Add a question, draft some with assistance from the experiment’s material, or import a file. Questions stay here until you use them in an assessment.</p>
+            <sc-if value="{{ QB.hasOthers }}" hint-placeholder-val="{{ false }}"><p class="rk-locked" style="max-width: 34em; margin-top: 10px; text-align: left"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>{{ QB.othersText }}</span></p></sc-if>
+          </div>
+          </sc-if>
+          <sc-if value="{{ QB.hasDel }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-deleted" aria-labelledby="fa-qb-delh" role="region">
+            <h3 class="fr-k" id="fa-qb-delh">Deleted</h3>
+            <ul class="fa-deleted">
+              <sc-for list="{{ QB.delRows }}" as="d" hint-placeholder-count="1"><li><span class="fa-id">{{ d.id }}</span> {{ d.t }} — {{ d.when }}</li></sc-for>
+            </ul>
+          </div>
+          </sc-if>
+        </section>
+        <sc-if value="{{ QB.showOthersNote }}" hint-placeholder-val="{{ false }}"><p class="rk-locked"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>{{ QB.othersText }}</span></p></sc-if>
+        </sc-if>
+
+        <sc-if value="{{ QB.tabD }}" hint-placeholder-val="{{ false }}">
+        <div class="fr-author">
+          <section class="rk-surface fr-form" aria-labelledby="fa-tabh">
+            <div class="fr-fsec">
+              <div class="fr-qhead"><div class="fr-qhead-t"><h2 class="rb-h2" id="fa-tabh" tabindex="-1">Drafts to review</h2><p class="rk-hint">Drafts never go into your bank on their own. Review each one, then add it or discard it.</p></div><sc-if value="{{ QB.hasDrafts }}" hint-placeholder-val="{{ true }}"><p class="rk-count fr-pickcount" role="status">{{ QB.draftCount }}</p></sc-if></div>
+              <sc-if value="{{ QB.hasMsg }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--ok" id="fa-msg" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><p class="rk-notice-t">{{ QB.msg }}</p><sc-if value="{{ QB.hasMsgD }}" hint-placeholder-val="{{ false }}"><p class="rk-notice-d">{{ QB.msgD }}</p></sc-if></div></sc-if>
+              <sc-if value="{{ QB.hasDrafts }}" hint-placeholder-val="{{ true }}">
+              <ul class="fr-dlist">
+                <sc-for list="{{ QB.drafts }}" as="d" hint-placeholder-count="2">
+                <li class="fr-dcard" id="{{ d.rid }}" tabindex="-1">
+                  <div class="fr-dcard-top">
+                    <div class="fr-dcard-tags"><span class="xr-st xr-st--warn"><i></i>Draft — needs your review</span><span class="fa-tag">Drafted with assistance</span></div>
+                    <p class="fr-dcard-m">{{ d.meta }}</p>
+                  </div>
+                  <p class="fr-dcard-t">{{ d.t }}</p>
+                  <sc-if value="{{ d.showOpts }}" hint-placeholder-val="{{ true }}">
+                  <ul class="fr-dopts" aria-label="Answer options in this draft">
+                    <sc-for list="{{ d.opts }}" as="o" hint-placeholder-count="4"><li class="{{ o.cls }}"><b aria-hidden="true">{{ o.l }}</b><span>{{ o.t }}</span><sc-if value="{{ o.key }}" hint-placeholder-val="{{ false }}"><span class="fr-dopt-k"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg>Correct</span></sc-if></li></sc-for>
+                  </ul>
+                  </sc-if>
+                  <sc-if value="{{ d.showTf }}" hint-placeholder-val="{{ false }}"><p class="fr-dkey"><b>Correct answer</b><span>{{ d.tfAns }}</span></p></sc-if>
+                  <sc-if value="{{ d.showGuide }}" hint-placeholder-val="{{ false }}"><p class="fr-dkey"><b>Marking guidance</b><span>{{ d.guide }}</span></p></sc-if>
+                  <div class="fr-dcard-act">
+                    <a class="rb-btn" href="#FA-15" aria-label="{{ d.revAria }}" onClick="{{ d.review }}">Review and edit</a>
+                    <button type="button" class="rb-btn" aria-label="{{ d.addAria }}" onClick="{{ d.add }}">Add to bank</button>
+                    <button type="button" class="rb-btn rb-btn--ghost" aria-label="{{ d.disAria }}" onClick="{{ d.discard }}">Discard</button>
+                  </div>
+                </li>
+                </sc-for>
+              </ul>
+              </sc-if>
+              <sc-if value="{{ QB.noDrafts }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-state">
+                <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-draft"></use></svg></span>
+                <p class="rk-state-t">No drafts to review</p>
+                <p class="rk-state-d">Drafts you ask for appear here until you add or discard them.</p>
+                <a class="rb-btn" href="#FA-16" onClick="{{ QB.toDraft }}">Draft with assistance</a>
+              </div>
+              </sc-if>
+            </div>
+          </section>
+          <aside class="fr-side" aria-labelledby="fa-qb-side">
+            <div class="rk-surface">
+              <div class="fr-side-sec">
+                <h2 class="rb-h2" id="fa-qb-side">How review works</h2>
+                <ol class="fr-howto">
+                  <li><b>Check it against the material</b><span>Each draft was made with assistance from the material you chose.</span></li>
+                  <li><b>Edit what isn’t right</b><span>Review and edit opens the draft as a question you can change.</span></li>
+                  <li><b>Add it or discard it</b><span>Only what you add goes into your bank and gets a question ID.</span></li>
+                </ol>
+              </div>
+            </div>
+          </aside>
+        </div>
+        </sc-if>
+      </div>
+      </sc-if>
+      </sc-if>
+

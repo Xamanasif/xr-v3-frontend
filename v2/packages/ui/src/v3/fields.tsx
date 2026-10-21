@@ -137,8 +137,17 @@ export interface TextInputProps extends Omit<
   readonly ref?: Ref<HTMLInputElement>;
 }
 
-/** `input.rk-input` (44 px), wired by its Field. */
-export function TextInput({ ref, type = 'text', invalid = false, ...rest }: TextInputProps) {
+/**
+ * `input.rk-input` (44 px), wired by its Field. `short`: at most 240 px wide for a small number
+ * (`rk-x-input-short`, V3P-17: the Faculty export's inline `max-width` on FA-15's "Marks").
+ */
+export function TextInput({
+  ref,
+  type = 'text',
+  invalid = false,
+  short = false,
+  ...rest
+}: TextInputProps & { readonly short?: boolean }) {
   const control = useControlWiring('TextInput');
   return (
     <input
@@ -147,7 +156,7 @@ export function TextInput({ ref, type = 'text', invalid = false, ...rest }: Text
       aria-invalid={control['aria-invalid'] ?? (invalid ? true : undefined)}
       ref={ref}
       type={type}
-      className="rk-input"
+      className={joinClasses('rk-input', short && 'rk-x-input-short')}
     />
   );
 }
@@ -416,6 +425,11 @@ export interface ErrorSummaryProps {
    */
   readonly autoFocus?: boolean;
   readonly ref?: Ref<HTMLDivElement>;
+  /**
+   * Opt-in: 4 px between the links (`rk-x-errsum-spaced`, V3P-17), so links of about the same
+   * length, one per 22 px line, still leave each a 24 px target (WCAG 2.5.8; the Faculty forms).
+   */
+  readonly spaced?: boolean;
 }
 
 /**
@@ -430,6 +444,7 @@ export function ErrorSummary({
   id,
   autoFocus = true,
   ref,
+  spaced = false,
 }: ErrorSummaryProps) {
   const Link = useLinkComponent();
   const node = useRef<HTMLDivElement | null>(null);
@@ -462,7 +477,13 @@ export function ErrorSummary({
     focusField(fieldId);
   };
   return (
-    <div ref={attach} className="rk-errsum" role="alert" id={id} tabIndex={-1}>
+    <div
+      ref={attach}
+      className={joinClasses('rk-errsum', spaced && 'rk-x-errsum-spaced')}
+      role="alert"
+      id={id}
+      tabIndex={-1}
+    >
       <p className="rk-errsum-t">{title}</p>
       {items.length > 0 ? (
         <ul>
@@ -479,10 +500,20 @@ export function ErrorSummary({
   );
 }
 
-/** What is still missing before the decision button works (`p.rk-pending`, clock icon). */
-export function PendingHint({ children }: { readonly children: ReactNode }) {
+/**
+ * What is still missing before the decision button works (`p.rk-pending`, clock icon). `space`
+ * `below` sets it 14 px over what follows (`rk-x-pending-below`, V3P-17: the Faculty export's
+ * inline spacing on FA-09's "… submitted on this version" line).
+ */
+export function PendingHint({
+  space,
+  children,
+}: {
+  readonly space?: 'below';
+  readonly children: ReactNode;
+}) {
   return (
-    <p className="rk-pending">
+    <p className={joinClasses('rk-pending', space === 'below' && 'rk-x-pending-below')}>
       <Glyph name="clock" />
       {children}
     </p>
@@ -527,13 +558,20 @@ export interface HintProps {
   /**
    * The note that closes a section under its table (`table`, 10 px above: `rk-x-hint-table`) or
    * under its definition list (`list`, 12 px above: `rk-x-hint-list`) — the Super Admin export's
-   * inline spacings (V3P-12).
+   * inline spacings (V3P-12); under a boxed block (`box`, 14 px above: `rk-x-hint-box`) or under a
+   * line (`line`, 8 px above: `rk-x-hint-line`) — the Faculty export's (V3P-17, FA-08's "Created
+   * by …" under the introduction and the reach note).
    */
-  readonly under?: 'table' | 'list';
+  readonly under?: 'table' | 'list' | 'box' | 'line';
   readonly children: ReactNode;
 }
 
-const HINT_UNDER = { table: 'rk-x-hint-table', list: 'rk-x-hint-list' } as const;
+const HINT_UNDER = {
+  table: 'rk-x-hint-table',
+  list: 'rk-x-hint-list',
+  box: 'rk-x-hint-box',
+  line: 'rk-x-hint-line',
+} as const;
 
 /** A hint line on its own (`p.rk-hint`), e.g. "Access term: Yearly. Additional licences follow …". */
 export function Hint({ id, under, children }: HintProps) {

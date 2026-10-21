@@ -2,17 +2,41 @@
 
 import type { CreateOption, QuestionBankRow } from '@xr/contracts/draft';
 import type { Assessment, AssessmentReadiness } from '@xr/domain';
+import { FailedState, LoadingState } from '@xr/ui';
 import {
   Button,
-  FailedState,
+  ButtonLink,
+  FaChecklist,
+  FaCreateExperiments,
+  FaCreatePicker,
+  FaCreateResultStatus,
+  FaCreateSideNote,
+  FaCreateSideTitle,
+  FaCreateSummary,
+  FaFormatBadges,
+  FaFormFoot,
+  FaFormSection,
+  FaKey,
+  FaActions,
+  FaPickCount,
+  FaQuestionHead,
+  FaQuiet,
+  FaRecordIntro,
+  FaRecordLine,
+  FaRecordQuestions,
+  FaRecordRules,
+  FaResult,
+  FaResultText,
+  FaSide,
+  FaSideSection,
   FieldError,
-  Icon,
-  Link,
-  LoadingState,
+  Hint,
   Notice,
-  Skeleton,
-} from '@xr/ui';
-import type { ReactNode } from 'react';
+  StatusPill,
+  V46Island,
+} from '@xr/ui/v3';
+import type { FormatCode } from '@xr/ui';
+import type { ReactNode, Ref } from 'react';
 
 import {
   deadlineWords,
@@ -20,23 +44,26 @@ import {
   QUESTION_TYPE_WORDS,
   questionsAndMarks,
   READINESS_WORDS,
-  releaseValueWords,
-  rulesChecklistLine,
-  rulesSummaryLine,
 } from '@/copy/assessment-words';
 import {
   ADD_QUESTIONS,
-  bankRowSub,
   CHOOSE_EXPERIMENT,
   CREATE_ASSESSMENT,
   CREATE_RESULT,
+  createSeesWords,
+  existsLine,
   experimentCourseLine,
+  formatsHeldLabel,
+  openAssessmentWords,
+  passMarkWithMarks,
   PREVIEW_STEP,
-  previewQuestionHead,
   readyLine,
-  resultNoticeTitle,
+  studentsWithAccessWords,
   THIS_ASSESSMENT,
+  typedReleaseWords,
+  typedRulesLine,
 } from '@/copy/assessments';
+import { assessmentName } from '@/copy/fa-shared';
 import { BANK_TOOLS } from '@/copy/question-tools';
 import { stateWords } from '@/copy/state-copy';
 import {
@@ -53,23 +80,7 @@ import { type FormFieldError, RulesFields, type RulesField } from '../shared/rul
 import { FIELD_IDS, ID_PREFIX, typedRules } from './create-assessment-view';
 import type { CreateDraft } from './create-draft';
 
-/** The step's footer (`div.xw-flow-foot`): the way back first, the step's actions last. */
-function FlowFoot({
-  start,
-  children,
-}: {
-  readonly start: ReactNode;
-  readonly children: ReactNode;
-}) {
-  return (
-    <div className="xw-flow-foot">
-      {start}
-      <div className="xw-actions">{children}</div>
-    </div>
-  );
-}
-
-/** What every step's "Save as draft" needs (steps 2–4; B4-04 `canDraft`). */
+/** What every step's "Save as draft" needs (steps 2–4). */
 export interface DraftAction {
   readonly onDraft: () => void;
   readonly busy: boolean;
@@ -77,55 +88,71 @@ export interface DraftAction {
 
 function SaveAsDraft({ action }: { readonly action: DraftAction }) {
   return (
-    <Button
-      variant="secondary"
-      onClick={action.onDraft}
-      busy={action.busy}
-      busyLabel={stateWords('FA-07.saving')}
-    >
+    <Button onClick={action.onDraft} busy={action.busy} busyLabel={stateWords('FA-07.saving')}>
       {CREATE_ASSESSMENT.saveAsDraft}
     </Button>
   );
 }
 
-// ---- Step 1 · Choose the experiment (B4-04 f1, f8) ----------------------------------------------
+/** "Back" and the step's actions (`div.fa-formfoot`). */
+function StepFoot({
+  onBack,
+  draftAction,
+  children,
+}: {
+  readonly onBack: () => void;
+  readonly draftAction: DraftAction;
+  readonly children: ReactNode;
+}) {
+  return (
+    <FaFormFoot
+      start={<Button onClick={onBack}>{CREATE_ASSESSMENT.goBack}</Button>}
+      end={
+        <>
+          <SaveAsDraft action={draftAction} />
+          {children}
+        </>
+      }
+    />
+  );
+}
 
-/** One experiment the Faculty member teaches, as a radio card (`label.xr-choice`, two sub lines). */
-function ExperimentChoice({
+// ---- Step 1 · Choose the experiment ----------------------------------------------------------
+
+/** "ME ZG523 · Thermodynamics & Heat Transfer · No assessment yet" — the course from the teaching read. */
+function ExperimentLine({
   option,
-  checked,
   existingName,
-  onPick,
 }: {
   readonly option: CreateOption;
-  readonly checked: boolean;
   readonly existingName: string | null;
-  readonly onPick: (experimentId: string) => void;
 }) {
-  // "ME ZG523 · Thermodynamics & Heat Transfer": the course is the teaching view's own read.
   const teaching = useTeachingExperiment(option.experimentId);
   const courseName = teaching.data?.ok ? teaching.data.value.experiment.courseName : null;
-  const line = experimentCourseLine(option.courseCode, courseName);
-  const id = `${ID_PREFIX}-e-${option.experimentId}`;
+  const course = experimentCourseLine(option.courseCode, courseName);
+  const assessment =
+    option.existingAssessmentId === null
+      ? CHOOSE_EXPERIMENT.noAssessment
+      : `${CHOOSE_EXPERIMENT.hasAssessment}${assessmentName(existingName)}`;
+  return <>{course ? `${course} · ${assessment}` : assessment}</>;
+}
+
+/** The formats the institution holds and the students who have the experiment (the teaching read). */
+function ExperimentMeta({ option }: { readonly option: CreateOption }) {
+  const teaching = useTeachingExperiment(option.experimentId);
+  if (!teaching.data?.ok) return null;
+  const view = teaching.data.value;
+  const formats = view.formatsInstitutionHas.map((format) => format.toUpperCase() as FormatCode);
+  // Each student with access has exactly one status in every format the institution has.
+  const first = view.perFormatCounts[0];
+  const reach = first ? first.completed + first.inProgress + first.notStarted : 0;
   return (
-    <label className="xr-choice" htmlFor={id}>
-      <input
-        type="radio"
-        id={id}
-        name={`${ID_PREFIX}-exp`}
-        checked={checked}
-        onChange={() => onPick(option.experimentId)}
-      />
-      <span>
-        <span className="xr-choice-title">{option.name}</span>
-        {line ? <span className="xr-choice-sub">{line}</span> : null}
-        <span className="xr-choice-sub">
-          {option.existingAssessmentId === null
-            ? CHOOSE_EXPERIMENT.noAssessment
-            : `${CHOOSE_EXPERIMENT.hasAssessment}${existingName ?? option.existingAssessmentId}`}
-        </span>
-      </span>
-    </label>
+    <>
+      {formats.length > 0 ? (
+        <FaFormatBadges formats={formats} label={formatsHeldLabel(formats)} />
+      ) : null}
+      <span>{studentsWithAccessWords(reach)}</span>
+    </>
   );
 }
 
@@ -135,8 +162,6 @@ export function ExperimentStep({
   existingNames,
   error,
   onPick,
-  onCancel,
-  onContinue,
 }: {
   readonly options: readonly CreateOption[];
   readonly chosen: CreateOption | null;
@@ -144,73 +169,80 @@ export function ExperimentStep({
   readonly existingNames: ReadonlyMap<string, string>;
   readonly error: string | undefined;
   readonly onPick: (experimentId: string) => void;
-  readonly onCancel: () => void;
-  readonly onContinue: () => void;
 }) {
-  const errorId = `${FIELD_IDS.experiment}-e`;
   const existingId = chosen?.existingAssessmentId ?? null;
+  const existing = existingId === null ? null : assessmentName(existingNames.get(existingId));
   return (
-    <div className="xr-section flex flex-col gap-[18px] p-6">
-      <fieldset
-        className="xr-fieldset m-0 min-w-0 border-0 p-0"
+    <FaFormSection>
+      <FaCreateExperiments
         id={FIELD_IDS.experiment}
-        tabIndex={-1}
-        aria-describedby={error ? errorId : undefined}
-      >
-        <legend className="xr-legend mb-2 text-[16px] font-[700] text-ink">
-          {CHOOSE_EXPERIMENT.legend}
-        </legend>
-        {error ? <FieldError id={errorId}>{error}</FieldError> : null}
-        {options.length > 0 ? (
-          <div className="xr-choice-list">
-            {options.map((option) => (
-              <ExperimentChoice
-                key={option.experimentId}
-                option={option}
-                checked={chosen?.experimentId === option.experimentId}
-                existingName={
-                  option.existingAssessmentId === null
-                    ? null
-                    : (existingNames.get(option.existingAssessmentId) ?? null)
-                }
-                onPick={onPick}
-              />
-            ))}
-          </div>
-        ) : (
-          <p className="xr-body m-0 text-ink-2">{stateWords('FA-07.no-experiments')}</p>
-        )}
-      </fieldset>
-      {existingId !== null ? (
-        // f8: one assessment per experiment is the open decision's interim (OD-B4-01).
-        <Notice tone="warn" title={CHOOSE_EXPERIMENT.exists}>
-          {CHOOSE_EXPERIMENT.existsBefore}
-          <Link href={assessmentAddress(existingId)}>
-            {existingNames.get(existingId) ?? existingId}
-          </Link>
-          {CHOOSE_EXPERIMENT.existsAfter}
+        name={`${ID_PREFIX}-exp`}
+        legend={CHOOSE_EXPERIMENT.legend}
+        legendHint={CHOOSE_EXPERIMENT.note}
+        options={options.map((option) => ({
+          value: option.experimentId,
+          title: option.name,
+          line: (
+            <ExperimentLine
+              option={option}
+              existingName={
+                option.existingAssessmentId === null
+                  ? null
+                  : (existingNames.get(option.existingAssessmentId) ?? null)
+              }
+            />
+          ),
+          meta: <ExperimentMeta option={option} />,
+        }))}
+        value={chosen?.experimentId ?? null}
+        onChange={onPick}
+        error={error}
+      />
+      {options.length === 0 ? <FaQuiet>{stateWords('FA-07.no-experiments')}</FaQuiet> : null}
+      {existingId !== null && existing !== null ? (
+        // One assessment per experiment is the open decision's interim (OD-B4-01).
+        <Notice
+          tone="info"
+          icon="infoDisc"
+          role="status"
+          title={CHOOSE_EXPERIMENT.exists}
+          actions={
+            <ButtonLink href={assessmentAddress(existingId)}>
+              {openAssessmentWords(existing)}
+            </ButtonLink>
+          }
+        >
+          {existsLine(existing)}
         </Notice>
       ) : null}
-      <p className="xw-note m-0">
-        <Icon name="readOnly" />
-        <span>{CHOOSE_EXPERIMENT.note}</span>
-      </p>
-      <FlowFoot
-        start={
-          <Link className="xr-btn xr-btn--text" href={ASSESSMENTS_ADDRESS} onClick={onCancel}>
-            {CREATE_ASSESSMENT.cancel}
-          </Link>
-        }
-      >
-        <Button variant="primary" onClick={onContinue}>
-          {CREATE_ASSESSMENT.continue}
-        </Button>
-      </FlowFoot>
-    </div>
+    </FaFormSection>
   );
 }
 
-// ---- Step 2 · Set the rules (B4-04 f2, f3, f11) -------------------------------------------------
+export function ExperimentFoot({
+  onCancel,
+  onContinue,
+}: {
+  readonly onCancel: () => void;
+  readonly onContinue: () => void;
+}) {
+  return (
+    <FaFormFoot
+      start={
+        <ButtonLink href={ASSESSMENTS_ADDRESS} onClick={onCancel}>
+          {CREATE_ASSESSMENT.cancel}
+        </ButtonLink>
+      }
+      end={
+        <Button variant="primary" size="lg" onClick={onContinue}>
+          {CREATE_ASSESSMENT.continue}
+        </Button>
+      }
+    />
+  );
+}
+
+// ---- Step 2 · Set the rules ------------------------------------------------------------------
 
 export function RulesStep({
   draft,
@@ -228,7 +260,7 @@ export function RulesStep({
   readonly draftAction: DraftAction;
 }) {
   return (
-    <div className="xr-section flex flex-col gap-5 p-6">
+    <>
       <RulesFields
         idPrefix={ID_PREFIX}
         draft={draft.rules}
@@ -236,23 +268,16 @@ export function RulesStep({
         errors={errors}
         variant="create"
       />
-      <FlowFoot
-        start={
-          <Button variant="text" onClick={onBack}>
-            {CREATE_ASSESSMENT.goBack}
-          </Button>
-        }
-      >
-        <SaveAsDraft action={draftAction} />
-        <Button variant="primary" onClick={onContinue}>
+      <StepFoot onBack={onBack} draftAction={draftAction}>
+        <Button variant="primary" size="lg" onClick={onContinue}>
           {CREATE_ASSESSMENT.continue}
         </Button>
-      </FlowFoot>
-    </div>
+      </StepFoot>
+    </>
   );
 }
 
-// ---- Step 3 · Add questions (B4-04 f4) ----------------------------------------------------------
+// ---- Step 3 · Add questions --------------------------------------------------------------------
 
 /** The bank as step 3 reads it: loading, failed, or its rows. */
 export type BankState =
@@ -262,23 +287,27 @@ export type BankState =
 
 export function QuestionsStep({
   experimentId,
-  experimentName,
+  experimentLine,
   bank,
   questionIds,
   totalText,
   error,
+  added,
   onToggle,
   onBack,
   onContinue,
   draftAction,
 }: {
   readonly experimentId: string;
-  readonly experimentName: string;
+  /** "Shell-and-Tube Heat Exchanger · ME ZG523". */
+  readonly experimentLine: string;
   readonly bank: BankState;
   readonly questionIds: readonly string[];
-  /** "4 questions · 16 marks" or "No questions yet". */
+  /** "4 questions · 16 marks" or "No questions chosen yet". */
   readonly totalText: string;
   readonly error: string | undefined;
+  /** A question just written in FA-15 came back ticked: the notice says so. */
+  readonly added: boolean;
   readonly onToggle: (questionId: string) => void;
   readonly onBack: () => void;
   readonly onContinue: () => void;
@@ -289,101 +318,80 @@ export function QuestionsStep({
     experimentId,
     returnTo: createAssessmentAddress({ step: 'questions', experimentId }),
   });
+  const errorId = `${FIELD_IDS.questions}-e`;
   return (
-    <div className="xr-section flex flex-col gap-4 p-6" id={FIELD_IDS.questions} tabIndex={-1}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="xr-h3 m-0">
-          {ADD_QUESTIONS.fromBank}
-          {experimentName}
-        </h2>
-        <span className="xr-meta" role="status">
-          {totalText}
-        </span>
-      </div>
-      {error ? <FieldError id={`${FIELD_IDS.questions}-e`}>{error}</FieldError> : null}
-      {bank.kind === 'loading' ? (
-        <LoadingState
-          label={stateWords('FA-07.bank-loading')}
-          surface={null}
-          className="flex flex-col gap-3"
-          skeleton={
-            <>
-              <Skeleton />
-              <Skeleton className="w-[70%]" />
-              <Skeleton className="w-[55%]" />
-            </>
-          }
-        />
-      ) : bank.kind === 'failed' ? (
-        <FailedState title={stateWords('FA-07.bank-failed')} onRetry={bank.retry}>
-          {stateWords('FA-06.failed.line')}
-        </FailedState>
-      ) : bank.rows.length === 0 ? (
-        <p className="xr-body m-0 text-ink-2">{stateWords('FA-07.bank-empty')}</p>
-      ) : (
-        <ul className="xw-pick" aria-label={ADD_QUESTIONS.listLabel}>
-          {bank.rows.map(({ question }) => {
-            const id = `${ID_PREFIX}-b-${question.id}`;
-            return (
-              <li key={question.id}>
-                <div className="xw-pick-row">
-                  <label htmlFor={id}>
-                    <input
-                      type="checkbox"
-                      id={id}
-                      checked={questionIds.includes(question.id)}
-                      onChange={() => onToggle(question.id)}
-                    />
-                    <span className="xw-pick-name">
-                      <span className="font-[600]">{question.text}</span>
-                      <span className="xr-meta">
-                        {bankRowSub(
-                          question.id,
-                          QUESTION_TYPE_WORDS[question.body.type],
-                          marksWords(question.marks),
-                        )}
-                      </span>
-                    </span>
-                  </label>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      )}
-      {/* B4-04 f4: New question (FA-15), Draft with assistance (FA-16) and Import (FA-17, Phase 4B)
-          for this experiment; neither tool adds to the assessment on its own. */}
-      <div className="xw-actions">
-        <Link className="xr-btn xr-btn--text" href={newQuestion}>
-          <Icon name="add" />
-          {ADD_QUESTIONS.newQuestion}
-        </Link>
-        <Link className="xr-btn xr-btn--text" href={draftQuestionsAddress(experimentId)}>
-          <Icon name="assist" />
-          {BANK_TOOLS.draftWithAssistance}
-        </Link>
-        <Link className="xr-btn xr-btn--text" href={importQuestionsAddress(experimentId)}>
-          <Icon name="readyToPublish" />
-          {BANK_TOOLS.import}
-        </Link>
-      </div>
-      <FlowFoot
-        start={
-          <Button variant="text" onClick={onBack}>
-            {CREATE_ASSESSMENT.goBack}
-          </Button>
-        }
-      >
-        <SaveAsDraft action={draftAction} />
-        <Button variant="primary" onClick={onContinue}>
+    <>
+      <FaFormSection>
+        <FaQuestionHead title={ADD_QUESTIONS.title} aside={<FaPickCount>{totalText}</FaPickCount>}>
+          <Hint>{experimentLine}</Hint>
+        </FaQuestionHead>
+        {added ? (
+          <Notice tone="ok" role="status" title={ADD_QUESTIONS.savedTitle}>
+            {ADD_QUESTIONS.savedLine}
+          </Notice>
+        ) : null}
+        {bank.kind === 'loading' ? (
+          <V46Island>
+            <LoadingState
+              label={stateWords('FA-07.bank-loading')}
+              surface={null}
+              className="flex flex-col gap-3"
+              lines={3}
+            />
+          </V46Island>
+        ) : bank.kind === 'failed' ? (
+          <V46Island>
+            <FailedState title={stateWords('FA-07.bank-failed')} onRetry={bank.retry}>
+              {stateWords('FA-06.failed.line')}
+            </FailedState>
+          </V46Island>
+        ) : bank.rows.length === 0 ? (
+          <div id={FIELD_IDS.questions} tabIndex={-1}>
+            <FaQuiet>{ADD_QUESTIONS.noBank}</FaQuiet>
+            {error ? <FieldError id={errorId}>{error}</FieldError> : null}
+          </div>
+        ) : (
+          <FaCreatePicker
+            id={FIELD_IDS.questions}
+            legend={ADD_QUESTIONS.listLabel}
+            options={bank.rows.map(({ question }) => ({
+              value: question.id,
+              title: question.text,
+              line: `${QUESTION_TYPE_WORDS[question.body.type]} · ${marksWords(question.marks)}`,
+            }))}
+            chosen={questionIds}
+            onToggle={onToggle}
+            error={error}
+          />
+        )}
+      </FaFormSection>
+      {/* New question (FA-15), Draft with assistance (FA-16) and Import (FA-17) for this
+          experiment; neither tool adds to the assessment on its own. */}
+      <FaFormSection tone="tint">
+        <FaKey>{ADD_QUESTIONS.otherWays}</FaKey>
+        <FaActions>
+          <ButtonLink href={newQuestion} icon="add" iconSize={20}>
+            {ADD_QUESTIONS.newQuestion}
+          </ButtonLink>
+          <ButtonLink href={draftQuestionsAddress(experimentId)}>
+            {BANK_TOOLS.draftWithAssistance}
+          </ButtonLink>
+          <ButtonLink href={importQuestionsAddress(experimentId)} icon="upload" iconSize={20}>
+            {BANK_TOOLS.import}
+          </ButtonLink>
+        </FaActions>
+        <Hint>{ADD_QUESTIONS.marksNote}</Hint>
+      </FaFormSection>
+      <StepFoot onBack={onBack} draftAction={draftAction}>
+        <Button variant="primary" size="lg" onClick={onContinue}>
           {CREATE_ASSESSMENT.continue}
         </Button>
-      </FlowFoot>
-    </div>
+      </StepFoot>
+    </>
   );
 }
 
-// ---- Step 4 · Preview and create (B4-04 f5) -----------------------------------------------------
+// ---- Step 4 · Preview and create ---------------------------------------------------------------
 
 export function PreviewStep({
   draft,
@@ -402,115 +410,163 @@ export function PreviewStep({
 }) {
   const rules = typedRules(draft.rules);
   const marks = picked.reduce((sum, row) => sum + row.question.marks, 0);
+  // The service's own formula (pass mark × total; its rounding is open, M22).
+  const passMarks = rules.passMarkPercent === null ? null : (rules.passMarkPercent * marks) / 100;
+  const intro = draft.rules.introduction.trim();
   return (
-    <div className="xr-section flex flex-col gap-[18px] p-6">
-      <p className="xr-body m-0 text-ink-2">{PREVIEW_STEP.lead}</p>
-      <dl className="xl-kv">
-        <dt>{PREVIEW_STEP.name}</dt>
-        <dd>{draft.rules.name.trim()}</dd>
-        <dt>{PREVIEW_STEP.questions}</dt>
-        <dd>{questionsAndMarks(picked.length, marks)}</dd>
-        <dt>{PREVIEW_STEP.passMark}</dt>
-        <dd>{rules.passMarkPercent === null ? '' : `${rules.passMarkPercent}%`}</dd>
-        <dt>{PREVIEW_STEP.attempts}</dt>
-        <dd>{rules.attemptsAllowed ?? ''}</dd>
-        <dt>{PREVIEW_STEP.deadline}</dt>
-        <dd>{rules.deadline === null ? '' : deadlineWords(rules.deadline)}</dd>
-        <dt>{PREVIEW_STEP.release}</dt>
-        <dd>{releaseValueWords(rules.release) ?? ''}</dd>
-      </dl>
-      <ol className="xa-qs">
-        {picked.map(({ question }, index) => (
-          <li key={question.id} className="xa-q gap-[6px] [padding:16px_20px]">
-            <span className="xa-q-n">
-              {previewQuestionHead(
-                index + 1,
-                QUESTION_TYPE_WORDS[question.body.type],
-                marksWords(question.marks),
-              )}
-            </span>
-            <p className="xr-body m-0 font-[600]">{question.text}</p>
-          </li>
-        ))}
-      </ol>
-      <FlowFoot
-        start={
-          <Button variant="text" onClick={onBack}>
-            {CREATE_ASSESSMENT.goBack}
-          </Button>
-        }
-      >
-        <SaveAsDraft action={draftAction} />
+    <>
+      <FaFormSection>
+        <FaRecordLine>{PREVIEW_STEP.lead}</FaRecordLine>
+        <FaRecordRules
+          items={[
+            { key: 'name', term: PREVIEW_STEP.name, value: draft.rules.name.trim() },
+            {
+              key: 'questions',
+              term: PREVIEW_STEP.questions,
+              value: questionsAndMarks(picked.length, marks),
+            },
+            {
+              key: 'pass',
+              term: PREVIEW_STEP.passMark,
+              value:
+                rules.passMarkPercent === null
+                  ? draft.rules.passMark
+                  : passMarkWithMarks(rules.passMarkPercent, passMarks, marks),
+            },
+            {
+              key: 'attempts',
+              term: PREVIEW_STEP.attempts,
+              value: rules.attemptsAllowed === null ? '' : String(rules.attemptsAllowed),
+            },
+            {
+              key: 'deadline',
+              term: PREVIEW_STEP.deadline,
+              value: rules.deadline === null ? '' : deadlineWords(rules.deadline),
+            },
+            {
+              key: 'release',
+              term: PREVIEW_STEP.release,
+              value: releaseWords(rules.release),
+            },
+            { key: 'time', term: PREVIEW_STEP.timeLimit, value: PREVIEW_STEP.none },
+          ]}
+        />
+        <FaRecordIntro label={PREVIEW_STEP.introduction} quiet={intro === ''}>
+          {intro === '' ? PREVIEW_STEP.none : intro}
+        </FaRecordIntro>
+      </FaFormSection>
+      <FaFormSection title={PREVIEW_STEP.listTitle}>
+        <FaRecordQuestions
+          items={picked.map(({ question }, index) => ({
+            key: question.id,
+            number: index + 1,
+            text: question.text,
+            type: QUESTION_TYPE_WORDS[question.body.type],
+            written: question.body.type === 'written',
+            marks: marksWords(question.marks),
+          }))}
+        />
+      </FaFormSection>
+      <StepFoot onBack={onBack} draftAction={draftAction}>
         <Button
           variant="primary"
+          size="lg"
           onClick={onCreate}
           busy={creating}
           busyLabel={CREATE_ASSESSMENT.creating}
         >
           {CREATE_ASSESSMENT.create}
         </Button>
-      </FlowFoot>
-    </div>
+      </StepFoot>
+    </>
   );
 }
 
-// ---- The result (B4-04 f6, f7) ------------------------------------------------------------------
+/** "After the deadline", "On a date — 20 Nov 2026, 09:00" (the export's `relText`). */
+function releaseWords(release: ReturnType<typeof typedRules>['release']): string {
+  if (release === null) return '';
+  if (release.option === 'on-date')
+    return `On a date — ${release.releaseDate === null ? '' : deadlineWords(release.releaseDate)}`;
+  return release.option === 'after-deadline' ? 'After the deadline' : 'Immediately after marking';
+}
+
+// ---- The result -----------------------------------------------------------------------------------
 
 export function ResultSection({
   assessment,
   readiness,
   experimentName,
+  marks,
+  resultRef,
   onAnother,
 }: {
   readonly assessment: Assessment;
   readonly readiness: AssessmentReadiness;
   readonly experimentName: string;
+  /** The questions' marks (the questions ticked when it was created). */
+  readonly marks: number;
+  readonly resultRef?: Ref<HTMLDivElement>;
   readonly onAnother: () => void;
 }) {
   const ready = readiness === 'ready';
-  const checklist = [
-    {
-      key: 'rules',
-      text: CREATE_RESULT.nameAndRules,
-      ok: assessment.name.trim() !== '' && rulesChecklistLine(assessment.rules) !== null,
-    },
-    {
-      key: 'questions',
-      text: CREATE_RESULT.atLeastOneQuestion,
-      ok: assessment.questions.length > 0,
-    },
-  ];
+  const rules = assessment.rules;
+  const rulesSet =
+    rules.passMarkPercent !== null &&
+    rules.attemptsAllowed !== null &&
+    rules.deadline !== null &&
+    rules.release !== null &&
+    (rules.release.option !== 'on-date' || rules.release.releaseDate !== null);
+  const questions = assessment.questions.length;
   return (
-    <div className="xr-section flex flex-col gap-4 p-6">
-      <Notice
-        tone={ready ? 'ok' : 'warn'}
-        title={resultNoticeTitle(assessment.id, READINESS_WORDS[readiness].label)}
-      >
-        {ready ? readyLine(experimentName) : CREATE_RESULT.draftLine}
-      </Notice>
-      <ul className="xa-check" aria-label={CREATE_RESULT.checklist}>
-        {checklist.map((item) => (
-          <li key={item.key}>
-            <span className={item.ok ? 'is-ok' : 'is-no'}>
-              <Icon name={item.ok ? 'done' : 'clock'} />
-            </span>
-            {item.text}
-          </li>
-        ))}
-      </ul>
-      <div className="xw-actions">
-        <Link className="xr-btn xr-btn--primary" href={assessmentAddress(assessment.id)}>
-          {CREATE_RESULT.open}
-        </Link>
-        <Button variant="secondary" onClick={onAnother}>
-          {CREATE_RESULT.another}
-        </Button>
-      </div>
-    </div>
+    <FaResult
+      id={`${ID_PREFIX}-done`}
+      resultRef={resultRef}
+      actions={
+        <>
+          <ButtonLink variant="primary" size="lg" href={assessmentAddress(assessment.id)}>
+            {CREATE_RESULT.open}
+          </ButtonLink>
+          <ButtonLink size="lg" href={ASSESSMENTS_ADDRESS}>
+            {CREATE_RESULT.backToAssessments}
+          </ButtonLink>
+          <Button size="lg" onClick={onAnother}>
+            {CREATE_RESULT.another}
+          </Button>
+        </>
+      }
+    >
+      <FaCreateResultStatus>
+        <StatusPill tone={ready ? 'ok' : 'neutral'} size="lg">
+          {READINESS_WORDS[readiness].label}
+        </StatusPill>
+      </FaCreateResultStatus>
+      <FaResultText>{ready ? readyLine(experimentName) : CREATE_RESULT.draftLine}</FaResultText>
+      <FaChecklist
+        flush
+        label={CREATE_RESULT.checklist}
+        items={[
+          {
+            key: 'name',
+            text: CREATE_RESULT.nameCheck,
+            done: assessment.name.trim() !== '',
+          },
+          {
+            key: 'rules',
+            text: rulesSet ? CREATE_RESULT.rulesSet : CREATE_RESULT.rulesNotFinished,
+            done: rulesSet,
+          },
+          {
+            key: 'questions',
+            text: questions > 0 ? questionsAndMarks(questions, marks) : CREATE_RESULT.noQuestion,
+            done: questions > 0,
+          },
+        ]}
+      />
+    </FaResult>
   );
 }
 
-// ---- This assessment (B4-04 f1 … f5; collapsible below 860 px of content, f8, f11) -------------
+// ---- This assessment ------------------------------------------------------------------------------
 
 export interface SummaryValues {
   readonly experiment: string | null;
@@ -518,52 +574,91 @@ export interface SummaryValues {
   readonly picked: readonly QuestionBankRow[];
 }
 
-/** "4 questions · 16 marks", or "No questions yet" (B4-04 `totalText`). */
-export function totalWords(picked: readonly QuestionBankRow[]): string {
-  if (picked.length === 0) return THIS_ASSESSMENT.noQuestions;
+/** "4 questions · 16 marks", or `none` (step 3 "No questions chosen yet", the side "None yet"). */
+export function totalWords(picked: readonly QuestionBankRow[], none: string): string {
+  if (picked.length === 0) return none;
   return questionsAndMarks(
     picked.length,
     picked.reduce((sum, row) => sum + row.question.marks, 0),
   );
 }
 
+/** "This assessment" beside steps 1–3; "When you create it" beside step 4. */
 export function ThisAssessment({
   values,
-  variant,
+  step4,
+  experimentName,
 }: {
   readonly values: SummaryValues;
-  readonly variant: 'aside' | 'bar';
+  readonly step4: boolean;
+  readonly experimentName: string | null;
 }) {
-  const list = (
-    <dl>
-      <dt>{THIS_ASSESSMENT.experiment}</dt>
-      <dd>{values.experiment ?? THIS_ASSESSMENT.notChosen}</dd>
-      <dt>{THIS_ASSESSMENT.name}</dt>
-      <dd>{values.draft.rules.name.trim() || THIS_ASSESSMENT.notNamed}</dd>
-      <dt>{THIS_ASSESSMENT.rules}</dt>
-      <dd>{rulesSummaryLine(typedRules(values.draft.rules)) ?? THIS_ASSESSMENT.notSet}</dd>
-      <dt>{THIS_ASSESSMENT.questions}</dt>
-      <dd>{totalWords(values.picked)}</dd>
-    </dl>
-  );
-  if (variant === 'bar') {
-    return (
-      <details className="xw-sumbar">
-        <summary>
-          {THIS_ASSESSMENT.title}
-          <Icon name="chevronDown" />
-        </summary>
-        {list}
-      </details>
-    );
-  }
-  const headingId = `${ID_PREFIX}-sum`;
+  const titleId = `${ID_PREFIX}-sum`;
+  const rules = typedRules(values.draft.rules);
+  const rulesLine = typedRulesLine({
+    passMark: rules.passMarkPercent === null ? null : String(rules.passMarkPercent),
+    attempts: rules.attemptsAllowed,
+    deadline: rules.deadline === null ? null : deadlineWords(rules.deadline),
+    release:
+      rules.release === null
+        ? null
+        : typedReleaseWords(
+            rules.release.option,
+            rules.release.releaseDate === null ? null : deadlineWords(rules.release.releaseDate),
+          ),
+  });
+  const rulesDone =
+    rules.passMarkPercent !== null &&
+    rules.attemptsAllowed !== null &&
+    rules.deadline !== null &&
+    rules.release !== null &&
+    (rules.release.option !== 'on-date' || rules.release.releaseDate !== null);
+  const name = values.draft.rules.name.trim();
+  const item = (key: string, label: string, value: string, done: boolean) => ({
+    key,
+    label,
+    value,
+    done,
+    state: done ? THIS_ASSESSMENT.done : THIS_ASSESSMENT.notDone,
+  });
   return (
-    <aside className="xw-sum" aria-labelledby={headingId}>
-      <h2 id={headingId} className="xw-sum-title">
-        {THIS_ASSESSMENT.title}
-      </h2>
-      {list}
-    </aside>
+    <FaSide labelledBy={titleId}>
+      <FaSideSection>
+        <FaCreateSideTitle id={titleId}>
+          {step4 ? THIS_ASSESSMENT.whenCreated : THIS_ASSESSMENT.title}
+        </FaCreateSideTitle>
+        {step4 ? (
+          <FaChecklist
+            side
+            label={THIS_ASSESSMENT.createLabel}
+            items={[
+              { key: 'sees', text: createSeesWords(experimentName ?? ''), done: true },
+              { key: 'marked', text: THIS_ASSESSMENT.markedAutomatically, done: true },
+              { key: 'later', text: THIS_ASSESSMENT.changeLater, done: true },
+            ]}
+          />
+        ) : (
+          <FaCreateSummary
+            items={[
+              item(
+                'experiment',
+                THIS_ASSESSMENT.experiment,
+                values.experiment ?? THIS_ASSESSMENT.notChosen,
+                values.experiment !== null,
+              ),
+              item('name', THIS_ASSESSMENT.name, name || THIS_ASSESSMENT.notNamed, name !== ''),
+              item('rules', THIS_ASSESSMENT.rules, rulesLine ?? THIS_ASSESSMENT.notSet, rulesDone),
+              item(
+                'questions',
+                THIS_ASSESSMENT.questions,
+                totalWords(values.picked, THIS_ASSESSMENT.noQuestions),
+                values.picked.length > 0,
+              ),
+            ]}
+          />
+        )}
+        <FaCreateSideNote>{THIS_ASSESSMENT.note}</FaCreateSideNote>
+      </FaSideSection>
+    </FaSide>
   );
 }

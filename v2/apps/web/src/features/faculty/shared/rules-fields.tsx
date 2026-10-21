@@ -2,25 +2,29 @@
 
 import type { ServiceError, ValidationFailed } from '@xr/contracts/draft';
 import type { Assessment, ReleaseOption } from '@xr/domain';
-import { ChoiceCard, ChoiceList, Field, Icon, RadioGroup, Textarea, TextInput } from '@xr/ui';
-import type { ReactNode } from 'react';
-
 import {
-  instantToTyped,
-  RELEASE_OPTIONS,
-  RULES_FORM,
-  typedDateTimeToInstant,
-} from '@/copy/assessment-words';
+  FA_RELEASE_DATE_FIELD,
+  FaChoiceGroup,
+  FaCreateRuleFields,
+  FaFormSection,
+  Field,
+  Hint,
+  Textarea,
+  TextInput,
+} from '@xr/ui/v3';
+
+import { instantToTyped, RELEASE_OPTIONS, typedDateTimeToInstant } from '@/copy/assessment-words';
+import { RULES_WORDS } from '@/copy/assessments';
 import { facultySummaryTitle, type FormFieldError, type RulesField } from '@/queries/faculty-forms';
 
 /**
  * The assessment's name, introduction and rules as one form, shared by FA-07 step 2 "Set the
- * rules" (B4-04 f2, f3, f11) and FA-10 Settings (B4-06 f0 … f4): Assessment name · Introduction
- * (optional) · Pass mark (%) · Attempts allowed · Deadline · When students see their result and
- * answers (three cards, none chosen for you — T-19) · Release date (only for "On a date") · the
- * "no time limit" line. Every value is the assessment's own and starts empty for a new one —
- * nothing is pre-filled (BC6); no timer and no time limit exist (T-22). The values are sent as
- * typed; the service checks them and answers the drawn words (`FA-07.*` message keys).
+ * rules" and FA-10 Settings: Assessment name · Introduction (optional) · Pass mark (%) · Attempts
+ * allowed · Deadline · When students see their result and answers (three cards, none chosen for
+ * you — T-19) · Release date (only for "On a date"). Every value is the assessment's own and starts
+ * empty for a new one — nothing is pre-filled (BC6); no timer and no time limit exist (T-22). The
+ * values are sent as typed; the service checks them and answers the drawn words (`FA-07.*` message
+ * keys).
  */
 export interface RulesDraft {
   readonly name: string;
@@ -106,137 +110,144 @@ export function rulesFieldIds(prefix: string): Readonly<Record<RulesField, strin
   };
 }
 
+/** The section headings' ids (`<prefix>-g1` "Name and introduction", `<prefix>-g2` "Rules"). */
+function sectionIds(prefix: string) {
+  return { names: `${prefix}-g1`, rules: `${prefix}-g2` };
+}
+
+/**
+ * The rules form's sections in the V3 Refined B design (FA-v1 `Main.dc.html` FA-07 step 2 and
+ * FA-10): "Name and introduction" (the name, the optional introduction), "Rules" (pass mark,
+ * attempts allowed and deadline side by side, `div.fa-fields3`), then "When students see their
+ * result and answers" (three cards, none chosen for you — T-19) with the release date for "On a
+ * date". FA-07 closes with the "no time limit" line; FA-10 says it in its head. The values are
+ * sent as typed; the service checks them and answers the words each field shows.
+ */
 export function RulesFields({
   idPrefix,
   draft,
   onChange,
   errors,
   variant,
-  notices,
 }: {
-  /** The board's id prefix (`Cc` on B4-04, `Es` on B4-06). */
+  /** The id prefix (`Cc` on FA-07, `Es` on FA-10). */
   readonly idPrefix: string;
   readonly draft: RulesDraft;
   readonly onChange: (field: RulesField, value: string) => void;
   readonly errors: readonly FormFieldError<RulesField>[];
-  /** B4-04's "No time limit and no timer…" or B4-06's "No time limit. …". */
+  /** FA-07 (`h2` section titles, the "no time limit" line) or FA-10 (`h3`, under the tab's H2). */
   readonly variant: 'create' | 'settings';
-  /** Notices drawn after the result choice, before the "No time limit" line (B4-06 f1, f2). */
-  readonly notices?: ReactNode;
 }) {
   const ids = rulesFieldIds(idPrefix);
+  const groups = sectionIds(idPrefix);
+  const level = variant === 'create' ? 2 : 3;
   const errorOf = (field: RulesField) => errors.find((error) => error.field === field)?.message;
   return (
     <>
-      <Field id={ids.name} label={RULES_FORM.name} error={errorOf('name')}>
-        <TextInput
-          className="max-w-[520px]"
-          autoComplete="off"
-          value={draft.name}
-          onChange={(event) => onChange('name', event.target.value)}
-        />
-      </Field>
-      <Field
-        id={ids.introduction}
-        label={RULES_FORM.introduction}
-        marker={RULES_FORM.optional}
-        hint={RULES_FORM.introductionHint}
-        error={errorOf('introduction')}
+      <FaFormSection
+        group
+        title={RULES_WORDS.nameSection}
+        titleId={groups.names}
+        headingLevel={level}
       >
-        <Textarea
-          className="min-h-24"
-          value={draft.introduction}
-          onChange={(event) => onChange('introduction', event.target.value)}
-        />
-      </Field>
-      <div className="flex flex-wrap gap-x-8 gap-y-5">
-        <Field
-          id={ids.passMark}
-          label={RULES_FORM.passMark}
-          hint={RULES_FORM.passMarkHint}
-          error={errorOf('passMark')}
-        >
+        <Field id={ids.name} label={RULES_WORDS.name} error={errorOf('name')}>
           <TextInput
-            className="max-w-[140px]"
-            inputMode="numeric"
             autoComplete="off"
-            value={draft.passMark}
-            onChange={(event) => onChange('passMark', event.target.value)}
+            value={draft.name}
+            onChange={(event) => onChange('name', event.target.value)}
           />
         </Field>
         <Field
-          id={ids.attempts}
-          label={RULES_FORM.attempts}
-          hint={RULES_FORM.attemptsHint}
-          error={errorOf('attempts')}
+          id={ids.introduction}
+          label={RULES_WORDS.introduction}
+          hint={RULES_WORDS.introductionHint}
+          error={errorOf('introduction')}
         >
-          <TextInput
-            className="max-w-[140px]"
-            inputMode="numeric"
-            autoComplete="off"
-            value={draft.attempts}
-            onChange={(event) => onChange('attempts', event.target.value)}
+          <Textarea
+            value={draft.introduction}
+            onChange={(event) => onChange('introduction', event.target.value)}
           />
         </Field>
-      </div>
-      <Field
-        id={ids.deadline}
-        label={RULES_FORM.deadline}
-        hint={RULES_FORM.deadlineHint}
-        error={errorOf('deadline')}
+      </FaFormSection>
+      <FaFormSection
+        group
+        title={RULES_WORDS.rulesSection}
+        titleId={groups.rules}
+        headingLevel={level}
       >
-        <TextInput
-          className="max-w-[320px]"
-          autoComplete="off"
-          value={draft.deadline}
-          onChange={(event) => onChange('deadline', event.target.value)}
-        />
-      </Field>
-      <RadioGroup
-        id={ids.releaseOption}
-        name={ids.releaseOption}
-        className="[&>legend]:mb-1"
-        legend={RULES_FORM.release}
-        legendClass="xr-label"
-        hint={RULES_FORM.releaseHint}
-        hintClassName="block mb-2"
-        errorPlacement="before-options"
-        error={errorOf('releaseOption')}
-        value={draft.releaseOption}
-        onValueChange={(value) => onChange('releaseOption', value)}
-      >
-        <ChoiceList>
-          {RELEASE_OPTIONS.map((entry) => (
-            <ChoiceCard
-              key={entry.option}
-              id={`${ids.releaseOption}-${entry.option}`}
-              value={entry.option}
-              title={entry.title}
-              sub={entry.sub}
+        <FaCreateRuleFields>
+          <Field
+            id={ids.passMark}
+            label={RULES_WORDS.passMark}
+            hint={RULES_WORDS.passMarkHint}
+            error={errorOf('passMark')}
+          >
+            <TextInput
+              inputMode="numeric"
+              autoComplete="off"
+              value={draft.passMark}
+              onChange={(event) => onChange('passMark', event.target.value)}
             />
-          ))}
-        </ChoiceList>
-      </RadioGroup>
-      {draft.releaseOption === 'on-date' ? (
-        <Field
-          id={ids.releaseDate}
-          label={RULES_FORM.releaseDate}
-          hint={RULES_FORM.releaseDateHint}
-          error={errorOf('releaseDate')}
-        >
-          <TextInput
-            className="max-w-[320px]"
-            autoComplete="off"
-            value={draft.releaseDate}
-            onChange={(event) => onChange('releaseDate', event.target.value)}
-          />
-        </Field>
-      ) : null}
-      {notices}
-      <p className="xl-open m-0">
-        <Icon name="info" size={16} />
-        <span>{variant === 'create' ? RULES_FORM.noTimerCreate : RULES_FORM.noTimerSettings}</span>
-      </p>
+          </Field>
+          <Field
+            id={ids.attempts}
+            label={RULES_WORDS.attempts}
+            hint={RULES_WORDS.attemptsHint}
+            error={errorOf('attempts')}
+          >
+            <TextInput
+              inputMode="numeric"
+              autoComplete="off"
+              value={draft.attempts}
+              onChange={(event) => onChange('attempts', event.target.value)}
+            />
+          </Field>
+          <Field
+            id={ids.deadline}
+            label={RULES_WORDS.deadline}
+            hint={RULES_WORDS.deadlineHint}
+            error={errorOf('deadline')}
+          >
+            <TextInput
+              autoComplete="off"
+              value={draft.deadline}
+              onChange={(event) => onChange('deadline', event.target.value)}
+            />
+          </Field>
+        </FaCreateRuleFields>
+      </FaFormSection>
+      <FaFormSection>
+        <FaChoiceGroup<ReleaseOption>
+          id={ids.releaseOption}
+          name={ids.releaseOption}
+          legend={RULES_WORDS.release}
+          legendHint={RULES_WORDS.releaseHint}
+          options={RELEASE_OPTIONS.map((entry) => ({
+            value: entry.option,
+            title: entry.title,
+            description: entry.sub,
+          }))}
+          value={draft.releaseOption}
+          onChange={(value) => onChange('releaseOption', value)}
+          error={errorOf('releaseOption')}
+        />
+        {draft.releaseOption === 'on-date' ? (
+          <Field
+            id={ids.releaseDate}
+            className={FA_RELEASE_DATE_FIELD}
+            label={RULES_WORDS.releaseDate}
+            hint={RULES_WORDS.releaseDateHint}
+            error={errorOf('releaseDate')}
+          >
+            <TextInput
+              autoComplete="off"
+              value={draft.releaseDate}
+              onChange={(event) => onChange('releaseDate', event.target.value)}
+            />
+          </Field>
+        ) : null}
+        {variant === 'create' ? <Hint>{RULES_WORDS.noTimer}</Hint> : null}
+      </FaFormSection>
     </>
   );
 }

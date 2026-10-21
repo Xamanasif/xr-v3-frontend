@@ -595,3 +595,213 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 :where(.xr) .rk-label.rk-x-label-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
   margin-bottom: 8px;
 }
+
+/*
+ * V3P-17 · The Faculty export's inline styles, its one unconfined rule, two product fixes and its
+ * cascade (design/v3-refined-b/roles/FA-v1, `project/Main.dc.html` and `project/fa.css`).
+ *
+ * Inline styles. The export sets these with `style=`; product code takes no inline style, so each
+ * is a product class on the element the export styles, set by its component. Values exactly as
+ * the export writes them:
+ * - `.rb-eyebrow-date.rk-x-date-flush` `margin-bottom: 0` — the date over the identity and record
+ *   bands (FA-03, FA-05, FA-08 … FA-12). `FaIdentityBand` (fa.tsx).
+ * - `section.rk-x-sec-stack` `display: flex; flex-direction: column; gap: 16px` — FA-03's
+ *   "Experiments". `FaCourseExperiments` (fa-teaching.tsx).
+ * - `.fa-check.rk-x-check-flush` `margin-top: 0` — the checklist right under a result line (FA-07
+ *   created, FA-17 confirm). `FaChecklist` `flush` (fa.tsx).
+ * - `.fa-actions.rk-x-actions-above` `margin-top: 16px` — FA-08's "Add questions" under the ready
+ *   checklist. `FaActions` `apart` (fa.tsx).
+ * - `.rk-hint.rk-x-hint-box` `margin-top: 14px` and `.rk-hint.rk-x-hint-line` `margin-top: 8px` —
+ *   FA-08's "Created by …" under the introduction box and the reach note under its line. `Hint`
+ *   `under="box" | "line"` (fields.tsx).
+ * - `.rk-notice.rk-x-notice-below` `margin-bottom: 14px` and `.rk-pending.rk-x-pending-below`
+ *   `margin-bottom: 14px` — FA-09's message and version notices and its "… submitted on this
+ *   version" line over the questions. `Notice` `space="below"` (notices.tsx), `PendingHint`
+ *   `space="below"` (fields.tsx).
+ * - `.fa-cellline.rk-x-cellline-tight` `margin-top: 8px` — FA-14's "From a draft you reviewed".
+ *   `FaCellLine` `apart` (fa.tsx). `.fa-cellline.rk-x-cellline-snug` `margin-top: 6px` — FA-20's
+ *   inactivity tag. `FaStudentsLastActivity` (fa-marking.tsx).
+ * - `.rk-input.rk-x-input-short` `max-width: 240px` — FA-15's "Marks" (and the same form reviewing a
+ *   draft in place on FA-16). `TextInput` `short` (fields.tsx).
+ * - `.rk-sec.rk-x-sec-flush` `padding-bottom: 0` — FA-16's error summary and failure sections over
+ *   the steps. `FaDraftFormMessage` (fa-bank.tsx).
+ * - `.rk-next.rk-x-next-pull` `margin-top: -6px` and `.rk-notice.rk-x-notice-above`
+ *   `margin-top: 16px` — FA-16's line under "Drafts to review" and the message under it.
+ *   `FaDraftListSurface` (fa-bank.tsx), `Notice` `space="above"`.
+ * - `.rk-hint.rk-x-hint-head` `margin-top: 6px` and `p.rk-x-dl-line` `margin-top: 12px` — FA-17's
+ *   template line and its download. `FaImportTemplate` (fa-bank.tsx).
+ * - `.rk-locked.rk-x-locked-note` `max-width: 34em; margin-top: 10px; text-align: left` — FA-18's
+ *   co-teacher note under "Nothing is waiting for you". `FaQueueLockedNote` `inState`
+ *   (fa-marking.tsx).
+ * - `.fa-quiet.rk-x-quiet-snug` `margin-top: 6px` — FA-19's "This assessment has no choice
+ *   questions." `FaAutoMarks` (fa-marking.tsx).
+ * - `.rk-table.rk-x-table-wide` `min-width: 1000px` — FA-20's exported rows (FA-22). `FaExportBand`
+ *   `wide` (fa.tsx).
+ * Two earlier patches' classes have the very values: the group errors' `margin-top: 10px` (FA-07
+ * ×3, FA-10, FA-15 ×4, FA-16 ×3) is V3P-13's `rk-x-ferr-above` (`FaChoiceGroup`, `FaBankFieldset`,
+ * `FaDraftGroup`, FA-07's pickers), and the notes' `margin-top: 12px` under a list or a line (FA-05
+ * outcomes, FA-10's side note, FA-21 ×2) is V3P-12's `rk-x-hint-list` (`FaExperimentHint`,
+ * `Hint under="list"`). Of the export's 47 `style=`, 39 are on product elements (above) and 8 are
+ * not product: the hidden icon sprite (the product draws each icon inline); the borrowed XS-07
+ * surfaces the delivered XS components draw (Help & support's message wrapper, "My reports" and
+ * the screenshot field); the drawer brand's `padding-top: 0` (the shell's); and three notes the
+ * product does not draw — FA-09's and FA-10's co-teacher lines (the service refuses a colleague's
+ * record on those tabs: the held-back card) and FA-14's note on colleagues' questions (no read
+ * holds whether a colleague wrote any).
+ *
+ * The unconfined rule. fa.css ends part 2 with `.rk-panel-head h2:focus{outline:none}`, its one
+ * selector without an `fa-` class: from the `xr.v3.fa` layer it would remove the focus outline of
+ * every `.rk-panel-head h2` in a V3 root (the Super Admin's decision panel among them). The
+ * generator leaves it out of fa-scoped.css; it is restored here on the Faculty panels only, whose
+ * heads carry `rk-x-panel-head-quiet` (`FaPanel`, `FaMarksPanel`).
+ *
+ * Three product fixes, each confined to the Faculty element:
+ * - FA-16 "How many drafts" (`.fa-segpick`): fa.css hides each radio at `opacity: 0` over its label
+ *   and rings the label (`label:has(input:focus-visible)`), so the keyboard reaches a control no
+ *   one can see (BC13; the focus harness refuses it). As the product's rating scale does
+ *   (st-16-feedback/rating-scale.tsx), the radio stays the label-sized cover but is painted as
+ *   nothing — no appearance, border or background, fully opaque — so the focused control is the
+ *   visible choice itself; its own ring is dropped, the label's stays.
+ * - FA-09's offer "Add this question to the assessment" (`.rk-notice.rk-x-notice-wrap`, `Notice`
+ *   `wrapActions`): the button keeps the foundation's `white-space: nowrap`, wider than the
+ *   notice's column at 375 px, so the page scrolls sideways; here its label wraps instead.
+ * - The Faculty forms' error summaries (`.rk-errsum.rk-x-errsum-spaced`, `ErrorSummary` `spaced`:
+ *   FA-07, FA-10, FA-15, FA-16): one link per 22 px line, so links of about the same length (FA-16's
+ *   "Choose the material to draft from", "Choose at least one question type", "Choose how many
+ *   drafts you want") sit closer than a 24 px target allows (WCAG 2.5.8; axe `target-size`); 4 px
+ *   between them.
+ *
+ * And the export's cascade, checked as for V3P-15: the export loads core.css, rb.css, rb-kit.css,
+ * then fa.css unlayered, while the product's `xr.v3.fa` layer wins whatever the specificity.
+ * Comparing both cascades on every element and longhand an `fa-` rule sets, on every Faculty screen
+ * state reached through the product (FA-01 … FA-21 with their tabs, filters, chips, no match, empty
+ * and calm states; FA-07's steps, errors and result; FA-09's bank panel and offer; FA-10's error;
+ * FA-11's two views; the Export CSV bands; FA-14's Drafts tab and delete dialog; FA-15's errors;
+ * FA-16's form, errors, drafts and editor; FA-17's steps; FA-18 waiting, marked, all and empty;
+ * FA-19 invalid, saved, confirming and confirmed; without a course: 81 states on the after-flow-c
+ * and after-flow-d worlds as Dr S. Ranganathan and a Faculty member with no course, at 1440, 1024,
+ * 768 and 375, at rest and with hover / focus forced) finds these elements, and only these, where
+ * they differ; the rule restores, on exactly the elements both rules match, the declaration the
+ * export's winning rule gives:
+ * - Focus (core.css `.xr :where(a, button, …, [tabindex]):focus-visible` 0,2,0 over `.fa-scrollx`,
+ *   `.fa-iconbtn`, `.fa-savednote`, `.fa-panel-x` 0,1,0 and `.fa-seg button` 0,1,1): the keyboard
+ *   focus ring's 6 px corners on the exported rows' scroll region (FA-12, FA-20), FA-09's move and
+ *   remove buttons and its bank panel's close button, FA-19's saved-mark note and the Show / Preview
+ *   as segments (FA-11, FA-12, FA-18).
+ */
+:where(.xr) .rb-eyebrow-date.rk-x-date-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 0;
+}
+
+:where(.xr) section.rk-x-sec-stack:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+:where(.xr) .fa-check.rk-x-check-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 0;
+}
+
+:where(.xr) .fa-actions.rk-x-actions-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 16px;
+}
+
+:where(.xr) .rk-hint.rk-x-hint-box:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 14px;
+}
+
+:where(.xr) .rk-hint.rk-x-hint-line:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 8px;
+}
+
+:where(.xr) .rk-notice.rk-x-notice-below:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 14px;
+}
+
+:where(.xr) .rk-pending.rk-x-pending-below:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-bottom: 14px;
+}
+
+:where(.xr) .fa-cellline.rk-x-cellline-tight:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 8px;
+}
+
+:where(.xr) .rk-input.rk-x-input-short:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  max-width: 240px;
+}
+
+:where(.xr) .rk-sec.rk-x-sec-flush:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  padding-bottom: 0;
+}
+
+:where(.xr) .rk-next.rk-x-next-pull:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: -6px;
+}
+
+:where(.xr) .rk-notice.rk-x-notice-above:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 16px;
+}
+
+:where(.xr) .rk-hint.rk-x-hint-head:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 6px;
+}
+
+:where(.xr) p.rk-x-dl-line:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 12px;
+}
+
+:where(.xr) .rk-locked.rk-x-locked-note:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  max-width: 34em;
+  margin-top: 10px;
+  text-align: left;
+}
+
+:where(.xr) .fa-quiet.rk-x-quiet-snug:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 6px;
+}
+
+:where(.xr) .rk-table.rk-x-table-wide:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  min-width: 1000px;
+}
+
+:where(.xr) .fa-cellline.rk-x-cellline-snug:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 6px;
+}
+
+:where(.xr)
+  .rk-panel-head.rk-x-panel-head-quiet
+  h2:focus:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  outline: none;
+}
+
+:where(.xr) .fa-segpick input:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  opacity: 1;
+}
+
+:where(.xr) .fa-segpick input:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  outline: none;
+}
+
+:where(.xr)
+  .rk-notice.rk-x-notice-wrap
+  .rk-notice-act
+  .rb-btn:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  white-space: normal;
+  text-align: center;
+}
+
+:where(.xr) .rk-errsum.rk-x-errsum-spaced li + li:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  margin-top: 4px;
+}
+
+:where(.xr) .fa-scrollx:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
+:where(.xr) .fa-seg button:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
+:where(.xr) .fa-iconbtn:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
+:where(.xr) .fa-savednote:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
+:where(.xr) .fa-panel-x:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  border-radius: 6px;
+}

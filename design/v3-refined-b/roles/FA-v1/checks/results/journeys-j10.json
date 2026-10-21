@@ -1,0 +1,1317 @@
+[
+ {
+  "name": "J10-J1-create-chain",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "Overview on 26 Oct 2026 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "experiment from Your teaching · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "create from the experiment · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "experiment already chosen · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "rules start empty and are required · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "rules accepted · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "three question types chosen · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "new question from the create flow · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "back in step 3 with the new question ticked · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "earlier ticks kept · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 25,
+    "ok": true,
+    "label": "preview step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 26,
+    "ok": true,
+    "label": "back to questions, state kept · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 27,
+    "ok": true,
+    "label": "back to rules, values kept · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 28,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 29,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 30,
+    "ok": true,
+    "label": "created and ready · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 31,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 32,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 33,
+    "ok": true,
+    "label": "answer key only for Faculty · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 34,
+    "ok": true,
+    "label": "overview shows the new deadline · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J2-bank-chain",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "bank opens with 6 questions · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "Add a question opens the editor, focus on heading · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "empty save shows error summary, focus moves to it · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "error link moves focus to the type field · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "true/false shows only its fields · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "save returns to the bank with Q-0107 and a message · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "editing a used question warns about versions · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "used question saves version 2 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "unused question has no version warning · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "saving without changes says nothing to save · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "cancel returns to the bank · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "drafts tab · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "review a draft in the editor · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "reviewed draft added as Q-0108, back on drafts tab · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "discard leaves the bank unchanged · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "questions tab shows the reviewed draft · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "import step 1 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "check without a file · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "XLSX refused · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 25,
+    "ok": true,
+    "label": "own CSV chosen · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 26,
+    "ok": true,
+    "label": "own CSV row validation · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 27,
+    "ok": true,
+    "label": "choose another file · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 28,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 29,
+    "ok": true,
+    "label": "sample file: 2 errors block, 1 warning · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 30,
+    "ok": true,
+    "label": "corrected file: 8 ready · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 31,
+    "ok": true,
+    "label": "confirm step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 32,
+    "ok": true,
+    "label": "import finished with sequential IDs · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 33,
+    "ok": true,
+    "label": "bank now has 16 questions · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 34,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 35,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 36,
+    "ok": true,
+    "label": "assessment shows the newer bank version of Q-0102 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 37,
+    "ok": true,
+    "label": "bank panel lists imported questions · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 38,
+    "ok": true,
+    "label": "attaching a question makes version 2; submissions keep version 1 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 39,
+    "ok": true,
+    "label": "use updated version · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 40,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 41,
+    "ok": true,
+    "label": "preview shows updated and attached questions · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J3-marking-chain",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "overview shows 2 written answers to mark · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "Mark now opens the oldest answer (Rahul) · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "confirm without a mark is refused · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "out-of-range mark refused · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "save keeps the mark editable · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "queue shows the saved, unconfirmed mark · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "saved mark is kept · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "confirm dialog opens with focus on its title · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "Tab stays inside the dialog · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "Shift+Tab wraps too · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "Escape closes and returns focus · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "confirmed, read-only · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "no mark field after confirming; rail count is 1 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "Submissions reflect the confirmed mark · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "export reflects the outcome · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "Mark next opens Priya · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "overview updated · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 25,
+    "ok": true,
+    "label": "student detail reflects the outcome · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J4-students-followup",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "overview follow-up opens the inactive filter · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "inactive student detail · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "back keeps the filter · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "export of the filtered list · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "no-match state · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "waiting-for-marking filter · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "chip removal returns focus · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J4b-coteacher-refusals",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "co-teacher overview · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "students list hides assessment details · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "student detail refusal note · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "assessment summary with co-teacher note · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "submissions refused · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "answer key refused · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "marking queue refusal note · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "bank refusal note · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J5c-delete-dialog",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "delete dialog for an unused question · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "no assessment note for an unused question · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "Escape returns focus to Delete · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "deleted, history kept · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "used question warns · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "cancel keeps it · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "no-match · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "type filter + chip · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J5d-released-15-nov",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "15 Nov queue: Priya waiting · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "released result line · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "after the deadline the release is immediate (pinned terms) · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "Priya confirmed, nothing else waiting · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "rail count gone · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J6-draft-with-assistance",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "open drafting from the bank; stand-in is labelled · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "validation · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "pasted text required · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "busy state · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "three drafts, single choice and written, round-robin · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "add one · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "discard one · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "review the last draft · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "reviewed draft added, back on the list · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "bank shows both reviewed drafts · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "the earlier three drafts are still waiting (nothing added on its own) · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J7a-settings-and-questions",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "settings show this assessment's own values · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "release change warning (P4-06 wording) · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "cancel restores saved values · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "settings errors · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "rule change after submissions warns · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "saved as version 2 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "after version 2 nothing is pinned to it, so no warning · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "summary shows the version · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "reorder (version 2 has no submissions, so no new version) · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "no extra version when nothing is pinned to version 2 · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "remove keeps the question in the bank · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "submissions filter no-match · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "attempts show their pinned version · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J9b-assessment-record",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-06 deadline and submissions columns · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "FA-08 band figures and the submissions panel with names, oldest first · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "FA-09 split of automatic and written marks · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "add-from-bank panel opens, focus on its heading · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "closing the panel returns focus to Add from question bank · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-10 sectioned form with How changes apply · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "FA-11 student view shows no key and no explanation · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "FA-11 answer key mode · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "FA-12 waiting rows show the automatic part only · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "FA-12 Mark next opens the oldest · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J9d-bank-drafts-and-editor",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-14 drafts as cards with options, key and guidance · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "add a draft from its card · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "the added draft is in the bank · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "FA-15 side panel facts for a used question · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "cancel returns to the bank · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-15 new question: the side panel says it is not in an assessment yet · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J9e-queue-and-students",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-18 count, oldest wait and age per row · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "filter by assessment · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "Mark next opens the oldest · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "FA-20 per-format summary above the roster · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "progress filter: waiting for marking · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-21 panel with Mark their answers · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "FA-21 Mark their answers opens FA-19 for that student · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J10-J9f-import-figures",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-17 step 1 with the template beside it · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "row check figures flag errors · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "corrected file: no error figure · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "confirm step · no internal ID on screen or in any accessible name",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "imported · no internal ID on screen or in any accessible name",
+    "why": ""
+   }
+  ],
+  "errors": []
+ }
+]

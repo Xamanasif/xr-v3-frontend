@@ -1,52 +1,33 @@
 import type { StateCopyEntry } from './state-copy';
 
 /**
- * The state-copy entries of Phase 4A’s FA-14 Question bank and FA-15 Add / edit question (B4-07) — part of the one register (`state-copy.ts`,
- * VD-12): every state string or rule these screens show that their board does not draw word for
- * word, with its basis and the decisions it waits on. Decision ids never appear in visible copy.
+ * The state-copy entries of FA-14 Question bank and FA-15 Add / edit question — part of the one
+ * register (`state-copy.ts`, VD-12): every state string or rule these screens show that the
+ * owner-approved V3 export (design/v3-refined-b/roles/FA-v1 `project/Main.dc.html`) does not draw
+ * word for word, with its basis and the decisions it waits on. Decision ids never appear in
+ * visible copy, and no words name a question or an assessment by its internal reference (the
+ * owner's identifier rule, 21 Oct 2026).
  */
 export const STATE_COPY_QUESTION_BANK = {
-  // ---- FA-14 Question bank (B4-07 f0, f2, f7, f9) ----------------------------------------------
-  // Since Phase 4B the header's “Draft with assistance” and “Import”, the empty bank's drawn line
-  // and “Import”, and the Drafts to review tab render as B4-07 draws them; the tab's rule is
-  // `FA-14.drafts-tab` in `state-copy-question-tools.ts`.
+  // ---- FA-14 Question bank ----------------------------------------------------------------------
+  // The Drafts to review tab's rule is `FA-14.drafts-tab` in `state-copy-question-tools.ts`.
   'FA-14.experiment': {
     screen: 'FA-14',
     state: 'Which experiment’s questions the bank shows',
     words: null,
-    rule: 'The experiment named by `?experimentId=`, else the first experiment the Faculty member teaches (in the order the service lists them). The Experiment filter lists the taught experiments and replaces the address (no history entry). An experiment outside the Faculty member’s teaching scope, or unknown, is the in-shell not-found page.',
+    rule: 'The experiment named by `?experimentId=`, else the first experiment the Faculty member teaches (in the order the service lists them); the page head names it (“Your questions for <experiment> · <code>. …”). With more than one experiment taught, the Experiment filter lists them and replaces the address (no history entry); with one, no Experiment filter. The service reads one experiment’s questions at a time, so the export’s “All experiments” is not offered. An experiment outside the Faculty member’s teaching scope, or unknown, is the in-shell not-found page.',
     basis:
-      'B4-07 f0 toolbar “Experiment” (one option drawn); Appendix A register “FA-14 · ?experimentId=”; the service answers out-of-scope experiments as not permitted',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-14.no-experiment': {
-    screen: 'FA-14',
-    state: 'The Faculty member teaches no experiment yet (no course mapped in Faculty courses)',
-    words: 'Your Institute Admin hasn’t assigned you courses yet',
-    rule: 'An empty state under the page title, with the line “When they assign you a course in Faculty courses, you can add questions for its experiments here.” — no “Add a question”, no toolbar. FA-15 shows the same in place of its form.',
-    basis:
-      'B4-01 f2 “No courses yet” (“Your Institute Admin hasn’t assigned you courses yet”); B4-07 draws no frame without an experiment',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-14.no-experiment.line': {
-    screen: 'FA-14',
-    state: 'The no-experiment state’s line',
-    words:
-      'When they assign you a course in Faculty courses, you can add questions for its experiments here.',
-    basis:
-      'B4-01 f2 line “When they assign you a course in Faculty courses, its experiments … appear here.”',
+      'FA-v1 Main.dc.html FA-14 `QB.multiExp`, `QB.sub`; Appendix A register “FA-14 · ?experimentId=”; QuestionBankService.listQuestions (one experiment); the service answers out-of-scope experiments as not permitted',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'FA-14.loading': {
     screen: 'FA-14',
-    state: 'The questions loading (screen readers)',
-    words: 'Loading questions',
-    rule: 'Skeleton rows in the table’s place under the toolbar, `aria-busy` and the words in a polite status; the count is empty until the list arrives.',
+    state: 'The questions loading',
+    words: 'Loading questions…',
+    rule: 'Skeleton rows in the table’s place under the toolbar with these words above them (`rk-loading-msg`, a polite status); the count and the type split are empty until the list arrives.',
     basis:
-      'B4-02 f4 “Loading” (“Loading your experiments”, skeleton rows); B4-07 draws no loading frame',
+      'The V3 kit’s list loading (rb-kit.css `rk-skel-row`); the export draws no loading frame',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -54,8 +35,9 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-14',
     state: 'The questions (or the taught experiments) failed to load',
     words: 'We couldn’t load the question bank',
-    rule: 'With B4-02 f5’s line “Nothing has changed. Try again.” and its primary “Try again”, which reads again — in the section’s body, never a section inside a section.',
-    basis: 'B4-02 f5 “We couldn’t load your experiments”; B4-07 draws no failure',
+    rule: 'The V3 list state for a failed read (an alert) with the line “Nothing has changed. Try again.” and “Try again”, which reads again — in the Questions section, in the table’s place.',
+    basis:
+      'The V3 kit’s failed list state (rb-kit.css `rk-state`); the Faculty failed formula; the export draws no failure',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -63,7 +45,7 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-14',
     state: 'The failed state’s line',
     words: 'Nothing has changed. Try again.',
-    basis: 'B4-02 f5 (the Faculty boards’ failed line)',
+    basis: 'The Faculty failed formula (`fa-shared.ts` `FACULTY_FAILED_WORDS`)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -71,34 +53,17 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-14',
     state: 'The failed state’s button (FA-14 and FA-15)',
     words: 'Try again',
-    basis: 'B4-02 f5 `button.xr-btn--primary` “Try again”',
+    basis: 'The Faculty failed formula (`fa-shared.ts` `FACULTY_FAILED_WORDS`)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'FA-14.used-several': {
     screen: 'FA-14',
-    state: 'A question used in more than one assessment',
+    state: 'The “Used in” cell',
     words: null,
-    rule: '“Used in <n> assessments” (the plural of the drawn “Used in 1 assessment”).',
-    basis: 'B4-07 f0 “Used in 1 assessment”; the board script writes the singular for any count',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-14.no-match': {
-    screen: 'FA-14',
-    state: 'The search or the Type filter matches no question',
-    words: null,
-    rule: 'The drawn “No question matches.” in the section body, followed by a text button “Clear filters” that clears the search and the type (B4-02 f3’s grammar); the count reads “0 questions”.',
+    rule: 'The assessments that use the question by name, joined “A, B and C” (the export’s `names`), from the Faculty member’s assessments (AssessmentService.listAssessments, one read for the page); while their names cannot be read, how many (“1 assessment”, “2 assessments”). None: “Not yet”. The export’s “None now · earlier versions keep it” is not shown: the bank’s read holds no fact for a question only earlier assessment versions use.',
     basis:
-      'B4-07 script `noMatch` (“No question matches.”); B4-02 f3 “No experiment matches. Clear filters”',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-14.clear-filters': {
-    screen: 'FA-14',
-    state: 'The no-match line’s way back',
-    words: 'Clear filters',
-    basis: 'B4-02 f3 `button.xr-btn--text` “Clear filters”',
+      'FA-v1 Main.dc.html FA-14 `r.usedMain`, `r.used`, `r.usedNote`; QuestionBankService.listQuestions (`usedIn`: a count)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -106,18 +71,18 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-14',
     state: 'Searching and filtering by type',
     words: null,
-    rule: 'Both apply at once to the experiment’s list: the search matches the question’s words or its ID, ignoring case; the count counts what is shown. Below 600 px of content the Type filter is not shown, as f9 draws it (no “More filters”).',
+    rule: 'Both apply at once to the experiment’s list: the search matches the question’s words (and its stored key, which is never shown), ignoring case; the count reads “3 of 6 questions” while a filter applies. Each applied filter is a chip whose remove button clears it; “Clear filters” clears both and returns focus to the search field. Both fields show at every width.',
     basis:
-      'B4-07 script `qbView` (`(text + id).includes(q)`, `type === s.type`); f9 (the Type filter hidden by `xr-filter-2`)',
+      'FA-v1 Main.dc.html FA-14 `vmBank` (`(v.t + id).indexOf(q)`, `QB.chips`, `QB.count`, `QB.clear`); the 375 px render',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'FA-14.labelled-rows': {
     screen: 'FA-14',
-    state: 'The table below 760 px of content (f9)',
+    state: 'The table below 760 px of content',
     words: null,
-    rule: 'The rows stack as f9 draws them: question and ID, type tag, marks, used, added, Edit and Delete — without a label before each value (f9’s cells carry none).',
-    basis: 'B4-07 f9 “Mobile 375 · bank” (`td` without `data-label`)',
+    rule: 'The rows stack as the export’s phone rows: the question, its type tag with the marks and “added <date>” beside it, “Used in” with its label, then Edit and Delete.',
+    basis: 'FA-v1 Main.dc.html FA-14 `fa-ptable` rows (`fa-mob`, `fa-lbl`); the 375 px render',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -125,8 +90,9 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-14',
     state: 'After a question is deleted on this visit',
     words: null,
-    rule: 'The drawn message “<ID> deleted from your question bank. Its history is kept.” takes focus, and a “Deleted” list under the table names each question deleted on this visit, “<ID> <question> — deleted <date> · history kept”. The bank reads active questions only, so the list does not survive leaving the page.',
-    basis: 'B4-07 script `doDel`, `delRows` (“Deleted”; “— deleted 7 Nov 2026 · history kept”)',
+    rule: 'The drawn message “Question deleted from your question bank.” (“Its history is kept.”, and the assessments that keep their copy) takes focus, and the drawn “Deleted” box under the list names each question deleted on this visit, “<question> — deleted <date> · history kept”. The bank reads active questions only, so the box does not survive leaving the page.',
+    basis:
+      'FA-v1 Main.dc.html FA-14 `dlgBank.ok`, `QB.delRows` (“Deleted”; “deleted 7 Nov 2026 · history kept”)',
     status: 'provisional',
     decisions: ['VD-12', 'ND-15'],
   },
@@ -135,9 +101,9 @@ export const STATE_COPY_QUESTION_BANK = {
     state:
       'Deleting a question several assessments use, or one whose assessments could not be named',
     words: null,
-    rule: '“It is used in A and B.” (names joined by commas and a final “and”) “Those assessments keep their copy, so nothing changes for students.” While the assessments’ names cannot be read, “It is used in <n> assessment(s).”',
+    rule: 'The dialog’s third point: “It is used in A and B. Those assessments keep their copy, so nothing changes for students.” (names joined “A, B and C”); while the assessments’ names cannot be read, “It is used in <n> assessments. …”. After the delete, “A and B keep their copy, so nothing changes for students.”',
     basis:
-      'B4-07 f2 “It is used in Heat Exchanger — post-lab. That assessment keeps its copy, so nothing changes for students.”',
+      'FA-v1 Main.dc.html `dlgBank` (“It is used in … That assessment keeps its copy / Those assessments keep their copy, so nothing changes for students.”)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -146,7 +112,7 @@ export const STATE_COPY_QUESTION_BANK = {
     state: 'Deleting (the dialog’s busy button)',
     words: 'Deleting…',
     basis:
-      'Board 10 “States · focus, validation, busy” (“the label says what is happening”); B4-07 draws no busy delete',
+      'Board 10 “States · focus, validation, busy” (“the label says what is happening”); the export draws no busy delete',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -154,8 +120,8 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-14',
     state: 'Deleting failed for now (service unavailable)',
     words: 'The question wasn’t deleted. Nothing has changed. Try again.',
-    rule: 'The dialog stays open with this error notice and can be confirmed again.',
-    basis: 'Appendix F §6.6 “command unavailable → nothing changes”; B4-07 draws no failure',
+    rule: 'The dialog stays open with this warning notice in its body (an alert) and can be confirmed again.',
+    basis: 'Appendix F §6.6 “command unavailable → nothing changes”; the export draws no failure',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -164,7 +130,7 @@ export const STATE_COPY_QUESTION_BANK = {
     state:
       'Deleting was refused: the question changed or was deleted meanwhile, or it is out of reach',
     words: 'Nothing was deleted. The list has been read again.',
-    rule: 'The dialog closes, the list is read again and this message (an error line in the message slot) takes focus.',
+    rule: 'The dialog closes, the list is read again and this message (a warning notice in the message slot) takes focus.',
     basis: 'Appendix G P1-21 interim (“Refetch and render the current drawn state”)',
     status: 'provisional',
     decisions: ['P1-21'],
@@ -175,7 +141,7 @@ export const STATE_COPY_QUESTION_BANK = {
     words:
       'Nothing was deleted. Whether you can delete a question a colleague added hasn’t been decided yet.',
     basis:
-      'The service answers an open decision (a shared or per-person bank); B4-07 draws no co-teaching',
+      'The service answers an open decision (a shared or per-person bank); the export draws only its note about colleagues’ questions',
     status: 'provisional',
     decisions: ['OD-B4-17'],
   },
@@ -183,26 +149,26 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-14',
     state: 'Back on the bank after adding a question (FA-15 without a return address)',
     words: null,
-    rule: 'The drawn “Saved to your question bank as <ID>.” in the message slot (`p.xa-save.is-ok`), with focus; the address drops its `added=` once read.',
-    basis: 'B4-07 script `qeView.save` (“Saved to your question bank as Q-0107.”) and `#Kb-msg`',
+    rule: 'The drawn “Saved to your question bank.” with “It isn’t in any assessment yet.” in the message slot, with focus, once the question is in the list; the address drops its `added=` once read.',
+    basis: 'FA-v1 Main.dc.html `qeCommit` (a new question: “Saved to your question bank.”)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
-  // ---- FA-15 Add / edit question (B4-07 f3 … f8) -----------------------------------------------
+  // ---- FA-15 Add / edit question ------------------------------------------------------------------
   'FA-15.experiment': {
     screen: 'FA-15',
     state: 'Which experiment a new question is for',
     words: null,
-    rule: 'The experiment named by `?experimentId=`, else the first taught experiment (as FA-14); its name is the overline. An experiment outside the teaching scope is the in-shell not-found page. An edited question keeps its own experiment.',
-    basis: 'B4-07 f3 `span.xr-overline` “Shell-and-Tube Heat Exchanger”; Appendix A register',
+    rule: 'The experiment named by `?experimentId=`, else the first taught experiment (as FA-14); “<experiment> · <code>” is the eyebrow. An experiment outside the teaching scope is the in-shell not-found page; with none taught, FA-14’s no-course card shows in place of the form. An edited question keeps its own experiment.',
+    basis: 'FA-v1 Main.dc.html FA-15 `QE.ctx`; Appendix A register',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'FA-15.loading': {
     screen: 'FA-15',
-    state: 'The question (or the taught experiments) loading (screen readers)',
-    words: 'Loading the question',
-    basis: 'Board 04 “State grammar” Loading formula; B4-07 draws no loading frame',
+    state: 'The question (or the taught experiments) loading',
+    words: 'Loading the question…',
+    basis: 'The V3 kit’s loading line (`rk-loading-msg`); the export draws no loading frame',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -210,8 +176,8 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-15',
     state: 'The question (or the taught experiments) failed to load',
     words: 'We couldn’t load the question',
-    rule: 'With “Nothing has changed. Try again.” and a primary “Try again”, which reads again.',
-    basis: 'B4-02 f5 failed formula; B4-07 draws no failure',
+    rule: 'With “Nothing has changed. Try again.” and “Try again”, which reads again (the V3 failed list state).',
+    basis: 'The Faculty failed formula; the export draws no failure',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -219,8 +185,8 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-15',
     state: 'Switching the question type',
     words: null,
-    rule: 'Nothing is chosen for a new question. Each type keeps what was typed for it while the form is open; Save sends only the chosen type’s answer fields (options and the correct one; true or false; marking guidance).',
-    basis: 'B4-07 script `qeInit` (the type starts empty), `isMc` / `isTf` / `isW`',
+    rule: 'Nothing is chosen for a new question (the drawn “Choose the question type to set its answer.” stands in for the answer fields). Each type keeps what was typed for it while the form is open; Save sends only the chosen type’s answer fields (options and the correct one; true or false; marking guidance).',
+    basis: 'FA-v1 Main.dc.html FA-15 `QE.noType`, `isSc` / `isTf` / `isW`',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -228,18 +194,18 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-15',
     state: 'A new question saved',
     words: null,
-    rule: 'Back to the bank for its experiment, which says “Saved to your question bank as <ID>.” With a `returnTo` address (a same-origin path under /faculty/; anything else is ignored) it goes there instead, with `added=<ID>` appended — Create assessment (step 3) and an assessment’s Questions tab pick the question up from it. Cancel goes to `returnTo` too.',
-    basis:
-      'B4-07 script `qeView.save` (“Saved to your question bank as Q-0107.”); FA-07 / FA-09 “Add a question” from the bank picker',
+    rule: 'Back to the bank for its experiment, which says “Saved to your question bank.” With a `returnTo` address (a same-origin path under /faculty/; anything else is ignored) it goes there instead, with `added=<key>` appended — Create assessment (step 3) and an assessment’s Questions tab pick the question up from it. Cancel and the crumb go to `returnTo` too.',
+    basis: 'FA-v1 Main.dc.html `qeCommit` (a new question); FA-07 / FA-09 “Add a question”',
     status: 'provisional',
     decisions: ['VD-12'],
   },
   'FA-15.saved-edit': {
     screen: 'FA-15',
-    state: 'An edit saved for a question no assessment uses',
-    words: 'Saved as a new version.',
-    rule: 'In the form’s notice slot (`div.xr-notice--ok`), with focus; the form stays. A used question’s words are drawn (“Saved as a new version. <assessment> keeps the version it has until you choose “Use updated version” there.”).',
-    basis: 'B4-07 script `qeView.save` (the used question’s words); the unused case is undrawn',
+    state: 'An edit saved',
+    words: null,
+    rule: 'Every saved edit is a new version (the domain’s rule), so the notice says “Saved as version <n>.”; for a question assessments use, under it “<assessment> keeps the version it has until you choose “Use updated version” on its Questions tab. Earlier submissions are never changed.” In the form’s notice slot, with focus; the form stays (with a `returnTo` address the page goes there instead).',
+    basis:
+      'FA-v1 Main.dc.html `qeCommit` (“Saved as version ” + n; the used notice’s “keeps the version it has until you choose “Use updated version” on its Questions tab”)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -247,8 +213,8 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-15',
     state: 'Editing a question several assessments use',
     words: null,
-    rule: 'The notice title “Used in <n> assessments: A, B”; its line “… The assessments keep the version they have until you choose “Use updated version” on their Questions tab. …”; saved: “Saved as a new version. A and B keep the version they have …”.',
-    basis: 'B4-07 f4 notice (one assessment)',
+    rule: 'The notice title “Used in <n> assessments: A and B”; its line “… The assessments keep the version they have until you choose “Use updated version” on their Questions tab. …”; saved: “A and B keep the version they have …”. The side panel’s “Used in” names them.',
+    basis: 'FA-v1 Main.dc.html FA-15 `QE.usedT`, `QE.usedD` (one assessment)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -257,9 +223,9 @@ export const STATE_COPY_QUESTION_BANK = {
     state: 'The address names a question deleted from the bank',
     words:
       'This question was deleted from your question bank. Its history is kept, so it can’t be edited.',
-    rule: 'A quiet notice under the title, with no form.',
+    rule: 'A notice under the title, with no form.',
     basis:
-      'B4-07 script `delRows` (“history kept”); the service refuses editing a deleted question',
+      'FA-v1 Main.dc.html FA-14 `QB.delRows` (“history kept”); the service refuses editing a deleted question',
     status: 'provisional',
     decisions: ['VD-12', 'ND-15'],
   },
@@ -268,9 +234,9 @@ export const STATE_COPY_QUESTION_BANK = {
     state: 'The question was added by a colleague on a course both teach',
     words:
       'A colleague added this question. Whether you can change it hasn’t been decided yet, so it can’t be edited here.',
-    rule: 'A quiet notice under the title, with no form (also when saving is answered this way).',
+    rule: 'A notice under the title, with no form (also when saving is answered this way).',
     basis:
-      'The service answers an open decision (a shared or per-person bank); B4-07 draws no co-teaching',
+      'The service answers an open decision (a shared or per-person bank); the export draws no editor for a colleague’s question',
     status: 'provisional',
     decisions: ['OD-B4-17'],
   },
@@ -281,7 +247,7 @@ export const STATE_COPY_QUESTION_BANK = {
       'This question changed while you were editing it. Its latest version is shown — make your change again.',
     rule: 'The question is read again and the form shows it (what was typed is not kept, so nothing is overwritten silently); this warning stays above the form until the next save.',
     basis:
-      'Appendix G P1-21 interim (“Refetch and render the current drawn state”); B4-07 draws no conflict',
+      'Appendix G P1-21 interim (“Refetch and render the current drawn state”); the export draws no conflict',
     status: 'provisional',
     decisions: ['P1-21'],
   },
@@ -289,9 +255,9 @@ export const STATE_COPY_QUESTION_BANK = {
     screen: 'FA-15',
     state: 'Saving failed for now (service unavailable)',
     words: 'The question wasn’t saved. Everything you typed is still here — try again.',
-    rule: 'An error notice in the form’s notice slot, with focus; every value stays and can be saved again.',
+    rule: 'A warning notice in the form’s notice slot, with focus; every value stays and can be saved again.',
     basis:
-      'Appendix F §6.6 “command unavailable → nothing changes … answers kept”; B4-07 draws no failure',
+      'Appendix F §6.6 “command unavailable → nothing changes … answers kept”; the export draws no failure',
     status: 'provisional',
     decisions: ['VD-12'],
   },

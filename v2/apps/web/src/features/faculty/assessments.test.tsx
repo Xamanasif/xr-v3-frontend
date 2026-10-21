@@ -13,9 +13,8 @@ import userEvent from '@testing-library/user-event';
 import { type AssessmentId, type AttemptId, type ExperimentId, unsafeBrand } from '@xr/domain';
 import { asPersonId, beginSession, faults } from '@xr/sample-platform/testing';
 import { type ReactNode, type RefObject, useEffect, useMemo, useState } from 'react';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { RULES_FORM } from '@/copy/assessment-words';
 import {
   ADD_QUESTIONS,
   ASSESSMENTS_PAGE,
@@ -23,13 +22,14 @@ import {
   CREATE_ASSESSMENT,
   CREATE_RESULT,
   PREVIEW_STEP,
+  RULES_WORDS,
   THIS_ASSESSMENT,
 } from '@/copy/assessments';
 import { STATE_COPY } from '@/copy/state-copy';
 import { STATE_COPY_ASSESSMENTS } from '@/copy/state-copy-assessments';
 import { type AppNavigation, NavigationProvider } from '@/nav/navigation';
 import type { PlatformRuntime } from '@/platform/runtime';
-import { board } from '@/test-support/boards';
+import { faExport } from '@/test-support/boards';
 import {
   NotFoundSignal,
   renderInTab,
@@ -143,11 +143,42 @@ const h1 = () => screen.getByRole('heading', { level: 1 });
 const errorSummary = () => document.getElementById('Cc-err');
 const summaryLinks = () =>
   [...(errorSummary()?.querySelectorAll('li a') ?? [])].map((link) => link.textContent);
-const aside = () => screen.getByRole('complementary', { name: THIS_ASSESSMENT.title });
-const asideValues = () => [...aside().querySelectorAll('dd')].map((value) => value.textContent);
+const aside = () =>
+  screen.getByRole('complementary', { name: /^(This assessment|When you create it)$/ });
+/** "This assessment": each part's value (`p.fa-sum-v`). */
+const asideValues = () =>
+  [...aside().querySelectorAll('.fa-sum-v')].map((value) => value.textContent);
+/** Each part's state, as read: "Experiment (done)", "Name (not done yet)". */
+const asideStates = () => [...aside().querySelectorAll('.fa-k')].map((key) => key.textContent);
 const rows = () => [...document.querySelectorAll<HTMLTableRowElement>('main tbody tr')];
+/** A row's cells without the phone labels (`span.fa-lbl`). */
 const cellsOf = (row: HTMLTableRowElement) =>
-  [...row.querySelectorAll('td')].map((cell) => cell.textContent ?? '');
+  [...row.querySelectorAll('td')].map((cell) => {
+    const copy = cell.cloneNode(true) as HTMLElement;
+    for (const label of copy.querySelectorAll('.fa-lbl')) label.remove();
+    return copy.textContent ?? '';
+  });
+const countLine = () => main().querySelector('.rk-statusline [role="status"]');
+
+/** Any internal reference: an assessment's, an attempt's, a question's, a draft's (the owner's rule). */
+const REFERENCE = /\b(?:ASMT|ATT|Q|D|REQ|ACC|UPD|DTR|SUB|SUP)-\d+/;
+
+/**
+ * No reference in the document's words (screen-reader-only words included), in a field's value,
+ * in any `aria-label`, `title` or `placeholder`, or in the browser tab (WHAT-CHANGED P10).
+ */
+function expectNoReferences() {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const control of document.querySelectorAll('input, textarea')) {
+    expect((control as HTMLInputElement | HTMLTextAreaElement).value).not.toMatch(REFERENCE);
+  }
+  for (const element of document.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '').not.toMatch(REFERENCE);
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 async function waitForStep(title: string) {
   await waitFor(() => expect(h1()).toHaveTextContent(title));
@@ -160,18 +191,25 @@ async function toRules(user: ReturnType<typeof userEvent.setup>) {
   await waitForStep('Set the rules');
 }
 
-/** Step 2 with every rule, as B4-04 f4's sample (typed, never defaults). */
+/** Step 2 with every rule, as the export's sample (typed, never defaults). */
 async function fillRules(user: ReturnType<typeof userEvent.setup>) {
-  await user.type(screen.getByLabelText(RULES_FORM.name), 'Heat Exchanger — post-lab');
-  await user.type(screen.getByLabelText(RULES_FORM.passMark), '50');
-  await user.type(screen.getByLabelText(RULES_FORM.attempts), '2');
-  await user.type(screen.getByLabelText(RULES_FORM.deadline), '14 Nov 2026, 23:59');
+  await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
+  await user.type(screen.getByLabelText(RULES_WORDS.passMark), '50');
+  await user.type(screen.getByLabelText(RULES_WORDS.attempts), '2');
+  await user.type(screen.getByLabelText(RULES_WORDS.deadline), '14 Nov 2026, 23:59');
   await user.click(screen.getByRole('radio', { name: /After the deadline/ }));
 }
 
-async function tick(user: ReturnType<typeof userEvent.setup>, questionId: string) {
-  await user.click(await screen.findByRole('checkbox', { name: new RegExp(questionId) }));
+/** A bank question's box, named by its words (never its reference). */
+async function tick(user: ReturnType<typeof userEvent.setup>, words: string) {
+  await user.click(await screen.findByRole('checkbox', { name: words }));
 }
+
+const Q0101 = 'What does the effectiveness (ε) of a heat exchanger compare?';
+const Q0102 = 'How is the number of transfer units (NTU) defined?';
+const Q0104 = 'Fouling on the tube surfaces lowers the overall heat transfer coefficient U.';
+const Q0106 =
+  'Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.';
 
 /** Rahul answers the written question and submits (the Student's own ports, the same world). */
 async function rahulSubmits(sample: Sample, assessmentId: string) {
@@ -213,11 +251,11 @@ async function saveDraftBehind(sample: Sample, questions: readonly string[] = []
   );
 }
 
-// ---- the words are B4-04's ---------------------------------------------------------------------
+// ---- the words are the export's ------------------------------------------------------------------
 
-describe('B4-04 words', () => {
-  const B4_04 = (() => {
-    const raw = board('B4-04-Assessments-and-Create.dc.html');
+describe('FA-v1 words (FA-06, FA-07)', () => {
+  const EXPORT = (() => {
+    const raw = faExport('Main.dc.html');
     return `${raw
       .replace(/<[^>]+>/g, ' ')
       .replace(/&amp;/g, '&')
@@ -231,18 +269,36 @@ describe('B4-04 words', () => {
         : value && typeof value === 'object'
           ? Object.values(value).flatMap(strings)
           : [];
+  // The product's own words the export does not draw (each a state-copy entry or the role's
+  // shared words): "Create another" (`FA-07.result`), the toolbar's "Search" label is the export's.
+  // A colleague's submissions line says the export's in the product's words for co-teaching (B8-03
+  // allows no role-name variant; checked below).
+  const PRODUCT_ONLY = new Set<string>([
+    CREATE_RESULT.another,
+    ASSESSMENTS_PAGE.coTeacherSubmissions,
+  ]);
   const drawn = [
     ...strings(ASSESSMENTS_PAGE),
     ...strings(CREATE_ASSESSMENT),
     ...strings(CHOOSE_EXPERIMENT),
+    ...strings(RULES_WORDS),
     ...strings(THIS_ASSESSMENT),
     ...strings(ADD_QUESTIONS),
     ...strings(PREVIEW_STEP),
     ...strings(CREATE_RESULT),
-  ].map((phrase) => phrase.trim());
+  ]
+    .map((phrase) => phrase.trim())
+    .filter((phrase) => !PRODUCT_ONLY.has(phrase));
 
-  it.each(drawn)('“%s” is on B4-04', (phrase) => {
-    expect(B4_04).toContain(phrase);
+  it.each(drawn)('“%s” is in the export', (phrase) => {
+    expect(EXPORT).toContain(phrase);
+  });
+
+  it('a colleague’s submissions line is the export’s, in the product’s words for co-teaching', () => {
+    expect(EXPORT).toContain('Submissions aren’t shown to co-teachers yet');
+    expect(ASSESSMENTS_PAGE.coTeacherSubmissions).toBe(
+      'Submissions aren’t shown to co-teaching colleagues yet',
+    );
   });
 
   it('every undrawn word is a provisional register entry, read from the one register', () => {
@@ -254,68 +310,94 @@ describe('B4-04 words', () => {
   });
 });
 
-// ---- FA-06 Assessments (B4-04 f0, f9, f10) -------------------------------------------------------
+// ---- FA-06 Assessments -------------------------------------------------------------------------
 
-describe('FA-06 — the assessments as the service lists them (B4-04 f0)', () => {
-  it('the header, the toolbar and the row: name, experiment, state, deadline and submissions, Open', async () => {
+describe('FA-06 — the assessments as the service lists them', () => {
+  it('the head, the toolbar and the row: name, experiment, deadline, submissions, state', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
     show(runtime, LIST);
-    expect(await screen.findByRole('heading', { level: 2, name: 'All assessments' })).toBeVisible();
+    expect(await screen.findByRole('heading', { level: 2, name: 'All assessments' })).toBeTruthy();
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
     expect(h1()).toHaveTextContent('Assessments');
-    expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
-      'Assessments for experiments you teach',
+    expect(main().querySelector('.rk-head .rk-sub')).toHaveTextContent(
+      'Assessments for the experiments you teach. Rules and pass marks belong to each assessment.',
     );
+    await waitFor(() => expect(rows()).toHaveLength(1));
     const create = within(main()).getByRole('link', { name: 'Create assessment' });
     expect(create).toHaveAttribute('href', NEW);
-    expect(create).toHaveClass('xr-btn', 'xr-btn--primary');
-    // The shell: Assessments current, the top bar "Assessments" with no crumb.
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Assessments');
+    expect(create).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
+    expect(create.querySelector('svg')).not.toBeNull();
+    // The shell: Assessments current.
     expect(
       screen.getByRole('navigation', { name: /Faculty/ }).querySelector('[aria-current="page"]'),
     ).toHaveAttribute('href', LIST);
 
-    await waitFor(() => expect(rows()).toHaveLength(1));
     const section = screen.getByRole('region', { name: 'All assessments' });
-    expect(section.querySelector('.xr-section-head .xr-meta')).toHaveTextContent('1 assessment');
-    expect(within(section).getByLabelText('Search assessments')).toHaveAttribute(
+    expect(countLine()).toHaveTextContent('1 assessment');
+    const tools = within(section).getByRole('search', { name: 'Filter assessments' });
+    expect(within(tools).getByLabelText('Search')).toHaveAttribute(
       'placeholder',
       'Name or experiment',
     );
     const options = (label: string) =>
-      [...within(section).getByLabelText(label).querySelectorAll('option')].map(
+      [...within(tools).getByLabelText(label).querySelectorAll('option')].map(
         (option) => option.textContent,
       );
     expect(options('Course')).toEqual(['All courses', 'ME ZG523']);
-    expect(options('State')).toEqual(['All states', 'Draft', 'Ready', 'Waiting for marking']);
-    expect(within(section).getByLabelText('State').closest('.xr-field')).toHaveClass('xr-filter-2');
+    expect(options('State')).toEqual([
+      'All states',
+      'Draft — not ready',
+      'Ready',
+      'Waiting for marking',
+    ]);
+    expect(within(tools).getByLabelText('State').closest('.rk-field')).toHaveClass('fa-field-sel');
+    expect(section.querySelector('table caption')).toHaveTextContent(
+      'Assessments for the experiments you teach',
+    );
     expect([...section.querySelectorAll('th')].map((header) => header.textContent)).toEqual([
       'Assessment',
       'Experiment',
+      'Deadline',
+      'Submissions',
       'State',
-      'Deadline and submissions',
-      'Action',
     ]);
-    expect(rows()).toHaveLength(1);
     const cells = cellsOf(rows()[0]!);
-    expect(cells[0]).toBe('Heat Exchanger — post-labASMT-0009');
-    expect(cells[1]).toBe('Shell-and-Tube Heat ExchangerME ZG523');
-    expect(cells[2]).toBe('Ready');
-    // One Godavari student has the experiment in this world (the board's "1 of 5" is sample).
-    expect(cells[3]).toBe('Due 14 Nov 2026, 23:59 · 1 of 1 submitted');
-    expect(rows()[0]!.querySelector('.xr-status--ok')).toHaveTextContent('Ready');
-    expect(
-      within(rows()[0]!).getByRole('link', { name: 'Heat Exchanger — post-lab' }),
-    ).toHaveAttribute('href', '/faculty/assessments/ASMT-0009');
-    const open = within(rows()[0]!).getByRole('link', { name: 'Open Heat Exchanger — post-lab' });
-    expect(open).toHaveTextContent(/^Open$/);
-    expect(open).toHaveAttribute('href', '/faculty/assessments/ASMT-0009');
-    expect(open).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(cells[0]).toBe('Heat Exchanger — post-lab');
+    expect(cells[1]).toBe('Shell-and-Tube Heat ExchangerME ZG523 · Thermodynamics & Heat Transfer');
+    // After Flow D the deadline has passed (today is the session's 15 Nov 2026).
+    expect(cells[2]).toBe('14 Nov 2026, 23:59Deadline passed');
+    // One Godavari student has the experiment in this world (the export's "2 of 5" is sample).
+    expect(cells[3]).toBe('1 of 1 students submitted');
+    expect(rows()[0]!.querySelector('.fa-cellmeter .fa-units i.is-sub')).not.toBeNull();
+    expect(cells[4]).toBe('Ready');
+    expect(rows()[0]!.querySelector('.xr-st--ok')).toHaveTextContent('Ready');
+    // The whole row opens the record; its link is named by content, never the reference.
+    const link = within(rows()[0]!).getByRole('link', {
+      name: 'Open Heat Exchanger — post-lab, Ready',
+    });
+    expect(link).toHaveAttribute('href', '/faculty/assessments/ASMT-0009');
+    expect(link).toHaveClass('rk-rowlink');
     // No availability or release control, nothing that opens marking (T-18; DEV-21).
     expect(main()).not.toHaveTextContent(/Make available|Publish|Release|Mark now|Mark next/);
+    expectNoReferences();
   });
 
-  it('a submission waiting for a written answer’s marks: the wait pill, and the State filter', async () => {
+  it('a press on the row follows its link', async () => {
+    const user = userEvent.setup();
+    const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
+    show(runtime, LIST);
+    await waitFor(() => expect(rows()).toHaveLength(1));
+    const link = within(rows()[0]!).getByRole('link');
+    const followed = vi.fn();
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      followed();
+    });
+    await user.click(rows()[0]!.querySelectorAll('td')[2]!);
+    expect(followed).toHaveBeenCalledTimes(1);
+  });
+
+  it('days left while Ready and open; a submission waiting for marking; the State filter', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     const created = ok(
@@ -337,83 +419,106 @@ describe('FA-06 — the assessments as the service lists them (B4-04 f0)', () =>
     await rahulSubmits(sample, created.id);
     show(runtime, LIST);
     await waitFor(() => expect(rows()).toHaveLength(1));
-    const cell = rows()[0]!.querySelectorAll('td')[3]!;
-    expect(cell).toHaveTextContent(
-      'Due 14 Nov 2026, 23:59 · 1 of 1 submitted · 1 waiting for marking',
-    );
-    expect(cell.querySelector('.xr-status--wait')).toHaveTextContent('1 waiting for marking');
+    const cells = cellsOf(rows()[0]!);
+    // Today on the session's clock is 27 Oct 2026 after Flow C: 18 days to 14 Nov.
+    expect(cells[2]).toBe('14 Nov 2026, 23:5918 days left');
+    expect(rows()[0]!.querySelector('.fa-left')).toHaveTextContent('18 days left');
+    expect(cells[3]).toBe('1 of 1 students submitted1 waiting for marking');
+    expect(rows()[0]!.querySelector('.fa-xwait')).toHaveTextContent('1 waiting for marking');
 
     await user.selectOptions(screen.getByLabelText('State'), 'Waiting for marking');
     expect(rows()).toHaveLength(1);
-    expect(document.querySelector('.xr-section-head [role="status"]')).toHaveTextContent(
-      '1 of 1 assessment',
-    );
-    await user.selectOptions(screen.getByLabelText('State'), 'Draft');
-    expect(rows()).toHaveLength(0);
+    expect(countLine()).toHaveTextContent('1 of 1 assessment');
     expect(
-      screen.getByRole('heading', { level: 2, name: 'No assessments match these filters' }),
+      screen.getByRole('button', { name: 'Remove filter State: Waiting for marking' }),
     ).toBeVisible();
+    await user.selectOptions(screen.getByLabelText('State'), 'Draft — not ready');
+    expect(rows()).toHaveLength(0);
+    expect(main()).toHaveTextContent('No assessment matches these filters');
+    expectNoReferences();
   });
 
-  it('search and the filters narrow the list; no match; “Clear filters” brings the rows back', async () => {
+  it('search and the filters narrow the list; chips; no match; “Clear filters” brings the rows back', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
     show(runtime, LIST);
     await waitFor(() => expect(rows()).toHaveLength(1));
-    const search = screen.getByLabelText('Search assessments');
+    const search = screen.getByLabelText('Search');
     await user.type(search, 'shell-and');
     expect(rows()).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Remove filter Search: “shell-and”' })).toBeVisible();
     await user.clear(search);
+    // The search still matches the reference the service keys it by; no row prints it.
     await user.type(search, 'asmt-0009');
     expect(rows()).toHaveLength(1);
     await user.type(search, 'x');
     expect(rows()).toHaveLength(0);
-    expect(main()).toHaveTextContent('Check the spelling, or choose another course or state.');
-    expect(document.querySelector('.xr-section-head [role="status"]')).toHaveTextContent(
-      '0 of 1 assessment',
+    expect(main().querySelector('.rk-state')).toHaveTextContent(
+      'No assessment matches these filtersTry fewer filters or a different spelling of the name or experiment.',
     );
-    await user.click(screen.getByRole('button', { name: 'Clear filters' }));
+    expect(countLine()).toHaveTextContent('0 of 1 assessment');
+    const clears = screen.getAllByRole('button', { name: 'Clear filters' });
+    await user.click(clears[clears.length - 1]!);
     expect(rows()).toHaveLength(1);
     expect(search).toHaveValue('');
-    expect(search).toHaveFocus();
+    await waitFor(() => expect(search).toHaveFocus());
     await user.selectOptions(screen.getByLabelText('Course'), 'ME ZG523');
     await user.selectOptions(screen.getByLabelText('State'), 'Ready');
     expect(rows()).toHaveLength(1);
+    // Removing a chip moves focus to the field it filtered.
+    await user.click(screen.getByRole('button', { name: 'Remove filter Course: ME ZG523' }));
+    expect(screen.getByLabelText('Course')).toHaveFocus();
+    expect(screen.getByLabelText('Course')).toHaveValue('');
   });
 
-  it('“No assessments yet” before any (f9), with Create assessment', async () => {
+  it('“No assessments yet” before any, with Create assessment', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     show(runtime, LIST);
-    expect(
-      await screen.findByRole('heading', { level: 2, name: 'No assessments yet' }),
-    ).toBeVisible();
-    expect(main().querySelector('.xr-empty')).toHaveTextContent(
-      'Create an assessment for an experiment you teach. You can save a draft while you add questions.',
+    expect(await screen.findByText('No assessments yet')).toBeVisible();
+    const state = main().querySelector('.rk-state.rk-state--roomy')!;
+    expect(state).toHaveTextContent(
+      'No assessments yetCreate an assessment for an experiment you teach. You can save a draft while you add questions.',
     );
-    expect(main().querySelector('.xr-empty .xr-empty-icon')).not.toBeNull();
+    expect(state.querySelector('.rk-state-ico svg')).not.toBeNull();
+    // The head draws its action once there is an assessment; the empty state draws it here.
     const creates = screen.getAllByRole('link', { name: 'Create assessment' });
-    expect(creates).toHaveLength(2);
-    for (const link of creates) {
-      expect(link).toHaveAttribute('href', NEW);
-      expect(link).toHaveClass('xr-btn--primary');
-    }
-    expect(creates[1]!.querySelector('svg')).toBeNull();
-    expect(document.querySelector('.xr-toolbar')).toBeNull();
+    expect(creates).toHaveLength(1);
+    expect(creates[0]).toHaveAttribute('href', NEW);
+    expect(creates[0]).toHaveClass('rb-btn--primary');
+    expect(creates[0]!.querySelector('svg')).toBeNull();
+    expect(document.querySelector('.rk-toolbar')).toBeNull();
   });
 
-  it('a draft (f10): Draft — not ready, what it lacks, “Continue setting up”', async () => {
+  it('no course assigned: the message card, nothing to create', async () => {
+    const { runtime } = await tabPlatform(DESAI, 'after-flow-c');
+    show(runtime, LIST);
+    const card = await screen.findByRole('region', { name: 'No assessments yet' });
+    expect(card).toHaveClass('rk-surface', 'fa-msgcard');
+    expect(card).toHaveTextContent(
+      'Assessments appear here when your Institute Admin assigns you a course.',
+    );
+    expect(screen.queryByRole('link', { name: 'Create assessment' })).toBeNull();
+    expect(document.querySelector('table')).toBeNull();
+  });
+
+  it('a draft: Draft — not ready and what it lacks', async () => {
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     await saveDraftBehind(sample);
     show(runtime, LIST);
     await waitFor(() => expect(rows()).toHaveLength(1));
     const cells = cellsOf(rows()[0]!);
-    expect(cells[2]).toBe('Draft — not ready');
-    expect(rows()[0]!.querySelector('.xr-status--wait')).toHaveTextContent('Draft — not ready');
-    expect(cells[3]).toBe('Rules set · no questions yet · students can’t see it');
-    const action = within(rows()[0]!).getByRole('link', {
-      name: 'Continue setting up Heat Exchanger — post-lab',
-    });
-    expect(action).toHaveAttribute('href', '/faculty/assessments/ASMT-0009');
+    expect(cells[2]).toBe('14 Nov 2026, 23:59');
+    expect(cells[3]).toBe('No questions yet · students can’t see it');
+    expect(cells[4]).toBe('Draft — not ready');
+    const pill = rows()[0]!.querySelector('.xr-st')!;
+    expect(pill).toHaveTextContent('Draft — not ready');
+    expect(pill.className).toBe('xr-st');
+    expect(
+      within(rows()[0]!).getByRole('link', {
+        name: 'Open Heat Exchanger — post-lab, Draft — not ready',
+      }),
+    ).toHaveAttribute('href', '/faculty/assessments/ASMT-0009');
+    expectNoReferences();
   });
 
   it('announces loading; a failed read has Try again, which reads again', async () => {
@@ -424,55 +529,69 @@ describe('FA-06 — the assessments as the service lists them (B4-04 f0)', () =>
     expect(document.querySelector('[aria-busy="true"] [role="status"]')).toHaveTextContent(
       'Loading assessments',
     );
-    expect(
-      await screen.findByRole('heading', { level: 2, name: 'We couldn’t load the assessments' }),
-    ).toBeVisible();
-    expect(document.querySelector('.xr-empty')).toHaveTextContent(
-      'Nothing has changed. Try again.',
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent(
+      'We couldn’t load the assessmentsNothing has changed. Try again.',
     );
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(await screen.findByRole('heading', { level: 2, name: 'All assessments' })).toBeVisible();
+    await user.click(within(alert).getByRole('button', { name: 'Try again' }));
+    expect(h1()).toHaveFocus();
+    await waitFor(() => expect(document.querySelectorAll('tbody tr')).toHaveLength(1));
   });
 });
 
-// ---- FA-07 Create assessment (B4-04 f1 … f8, f11) ----------------------------------------------
+// ---- FA-07 Create assessment -------------------------------------------------------------------
 
-describe('FA-07 — step 1, choose the experiment (B4-04 f1)', () => {
-  it('the stepper, the experiments taught, the note, Cancel and Continue, and an empty summary', async () => {
+describe('FA-07 — step 1, choose the experiment', () => {
+  it('the crumbs, the steps, the experiments taught, Cancel and Continue, and an empty summary', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     show(runtime, NEW);
     const radio = await screen.findByRole('radio', { name: new RegExp(SHELL_NAME) });
     expect(h1()).toHaveTextContent('Choose the experiment');
-    expect(main().querySelector('.xr-phead .xr-overline')).toHaveTextContent('Step 1 of 4');
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Create assessment');
-    expect(main().querySelector('a.xr-back')).toHaveAttribute('href', LIST);
-    const stepper = screen.getByRole('list', { name: 'Create assessment' });
-    expect([...stepper.querySelectorAll('.xr-step-label')].map((step) => step.textContent)).toEqual(
-      ['Experiment', 'Rules', 'Questions', 'Preview'],
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent('Step 1 of 4');
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(crumbs).getByRole('link', { name: 'Assessments' })).toHaveAttribute('href', LIST);
+    expect(crumbs.querySelector('[aria-current="page"]')).toHaveTextContent('Create assessment');
+    const steps = screen.getByRole('list', { name: 'Steps to create an assessment' });
+    expect([...steps.querySelectorAll('.fa-step-l')].map((step) => step.textContent)).toEqual([
+      'Experiment',
+      'Rules',
+      'Questions',
+      'Preview',
+    ]);
+    expect(steps.querySelector('[aria-current="step"]')).toHaveTextContent(
+      '1Experiment, current step',
     );
-    expect(stepper.querySelector('[aria-current="step"]')).toHaveTextContent('Step 1Experiment');
-    const card = radio.closest('label.xr-choice')!;
+    const card = radio.closest('label.rk-choice')!;
+    expect(card).toHaveClass('fa-expchoice');
     await waitFor(() =>
-      expect([...card.querySelectorAll('.xr-choice-sub')].map((sub) => sub.textContent)).toEqual([
-        'ME ZG523 · Thermodynamics & Heat Transfer',
-        'No assessment yet',
-      ]),
+      expect(card.querySelector('.rk-choice-d')).toHaveTextContent(
+        'ME ZG523 · Thermodynamics & Heat Transfer · No assessment yet',
+      ),
     );
+    await waitFor(() =>
+      expect(card.querySelector('.fa-expchoice-m')).toHaveTextContent('WEBVR1 student with access'),
+    );
+    expect(
+      within(card as HTMLElement).getByRole('img', {
+        name: 'Formats your institution has: WEB, VR',
+      }),
+    ).toBeVisible();
     expect(radio).not.toBeChecked();
-    expect(within(main()).getByRole('group', { name: 'Experiments you teach' })).toBeVisible();
-    expect(main().querySelector('.xw-note')).toHaveTextContent(
-      'Students get the formats their institution holds. Assessments are set per experiment, not per format.',
+    expect(within(main()).getByRole('group', { name: /^Experiment/ })).toBeVisible();
+    expect(main()).toHaveTextContent(
+      'Assessments are set per experiment, not per format. Students get the formats their institution holds.',
     );
     expect(screen.getByRole('link', { name: 'Cancel' })).toHaveAttribute('href', LIST);
     expect(screen.queryByRole('button', { name: 'Save as draft' })).toBeNull();
-    expect(asideValues()).toEqual([
-      'Not chosen yet',
-      'Not named yet',
-      'Not set yet',
-      'No questions yet',
+    expect(asideValues()).toEqual(['Not chosen yet', 'Not named yet', 'Not set yet', 'None yet']);
+    expect(asideStates()).toEqual([
+      'Experiment (not done yet)',
+      'Name (not done yet)',
+      'Rules (not done yet)',
+      'Questions (not done yet)',
     ]);
-    // Below 860 px of content the same summary is a collapsible block (f8, f11).
-    expect(main().querySelector('details.xw-sumbar summary')).toHaveTextContent('This assessment');
+    expect(aside()).toHaveTextContent('Nothing is saved until you create it or save a draft.');
+    expectNoReferences();
   });
 
   it('Continue with nothing chosen: “Choose an experiment”, the summary takes focus', async () => {
@@ -485,15 +604,17 @@ describe('FA-07 — step 1, choose the experiment (B4-04 f1)', () => {
     expect(errorSummary()).toHaveTextContent('Check this step');
     expect(summaryLinks()).toEqual(['Choose an experiment']);
     expect(document.getElementById('Cc-exp-e')).toHaveTextContent('Choose an experiment');
+    expect(document.getElementById('Cc-exp')).toHaveClass('is-invalid');
     await user.click(screen.getByRole('link', { name: 'Choose an experiment' }));
-    // The fieldset takes focus (`tabindex="-1"`, as drawn).
-    expect(document.getElementById('Cc-exp')).toHaveFocus();
+    // The link moves focus into the group: its first option.
+    expect(screen.getByRole('radio', { name: new RegExp(SHELL_NAME) })).toHaveFocus();
     await user.click(screen.getByRole('radio', { name: new RegExp(SHELL_NAME) }));
     expect(errorSummary()).toBeNull();
-    expect(asideValues()[0]).toBe('Shell-and-Tube Heat Exchanger · ME ZG523');
+    expect(asideValues()[0]).toBe(SHELL_NAME);
+    expect(asideStates()[0]).toBe('Experiment (done)');
   });
 
-  it('an experiment that already has an assessment (f8): the notice, then the refusal on Continue', async () => {
+  it('an experiment that already has an assessment: the notice, then the refusal on Continue', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
     const { moves } = show(runtime, NEW);
@@ -504,14 +625,13 @@ describe('FA-07 — step 1, choose the experiment (B4-04 f1)', () => {
       ),
     );
     await user.click(radio);
-    const notice = main().querySelector('.xr-notice--warn')!;
+    const notice = main().querySelector('.rk-notice--info')!;
     expect(notice).toHaveTextContent(
-      'This experiment already has an assessmentOpen Heat Exchanger — post-lab to change its questions or rules. One assessment per experiment is how this works for now (open decision).',
+      'This experiment already has an assessmentOpen Heat Exchanger — post-lab to change its questions or rules. One assessment per experiment is how this works for now.Open Heat Exchanger — post-lab',
     );
-    expect(within(notice as HTMLElement).getByRole('link')).toHaveAttribute(
-      'href',
-      '/faculty/assessments/ASMT-0009',
-    );
+    expect(
+      within(notice as HTMLElement).getByRole('link', { name: 'Open Heat Exchanger — post-lab' }),
+    ).toHaveAttribute('href', '/faculty/assessments/ASMT-0009');
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(summaryLinks()).toEqual(['This experiment already has an assessment']);
     expect(document.getElementById('Cc-exp-e')).toHaveTextContent(
@@ -519,18 +639,24 @@ describe('FA-07 — step 1, choose the experiment (B4-04 f1)', () => {
     );
     expect(h1()).toHaveTextContent('Choose the experiment');
     expect(moves).toEqual([]);
+    expectNoReferences();
   });
 
-  it('a Faculty member with no course mapped: no experiment to choose', async () => {
-    const user = userEvent.setup();
+  it('a Faculty member with no course mapped: nothing to set an assessment on', async () => {
     const { runtime } = await tabPlatform(DESAI, 'after-flow-c');
     show(runtime, NEW);
-    expect(
-      await screen.findByText(/Your Institute Admin hasn’t assigned you courses yet/),
-    ).toBeVisible();
+    const card = await screen.findByRole('region', { name: 'Nothing to set an assessment on yet' });
+    expect(card).toHaveClass('fa-msgcard');
+    expect(card).toHaveTextContent(
+      'Assessments are set per experiment you teach. Your Institute Admin hasn’t assigned you a course yet.',
+    );
+    expect(within(card).getByRole('link', { name: 'Back to Assessments' })).toHaveAttribute(
+      'href',
+      LIST,
+    );
     expect(screen.queryByRole('radio')).toBeNull();
-    await user.click(screen.getByRole('button', { name: 'Continue' }));
-    expect(summaryLinks()).toEqual(['Choose an experiment']);
+    expect(screen.queryByRole('button', { name: 'Continue' })).toBeNull();
+    expect(screen.queryByRole('list', { name: 'Steps to create an assessment' })).toBeNull();
   });
 
   it('?experimentId= chooses the experiment (FA-05’s way in)', async () => {
@@ -539,7 +665,7 @@ describe('FA-07 — step 1, choose the experiment (B4-04 f1)', () => {
     await waitFor(() =>
       expect(screen.getByRole('radio', { name: new RegExp(SHELL_NAME) })).toBeChecked(),
     );
-    expect(asideValues()[0]).toBe('Shell-and-Tube Heat Exchanger · ME ZG523');
+    expect(asideValues()[0]).toBe(SHELL_NAME);
   });
 
   it('announces loading while the experiments you teach are read', async () => {
@@ -562,43 +688,42 @@ describe('FA-07 — step 1, choose the experiment (B4-04 f1)', () => {
   });
 });
 
-describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → f6)', () => {
-  it('rules start empty and are checked with the drawn words; questions from the bank; Create; FA-06 and the Student see it', async () => {
+describe('FA-07 — the whole flow on the one world (after-flow-c)', () => {
+  it('rules start empty and are checked with the service’s words; questions from the bank; Create; FA-06 and the Student see it', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     const { moves } = show(runtime, NEW);
     await toRules(user);
     expect(moves).toEqual(['push /faculty/assessments/new?step=rules']);
     expect(h1()).toHaveFocus();
-    expect(main().querySelector('.xr-phead .xr-overline')).toHaveTextContent('Step 2 of 4');
-    // f2: every field blank, no release option chosen — nothing pre-filled (BC6, T-19).
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent('Step 2 of 4');
+    expect(
+      screen.getByRole('list', { name: 'Steps to create an assessment' }).querySelector('.is-done'),
+    ).toHaveTextContent('Experiment, done');
+    // Every field blank, no release option chosen — nothing pre-filled (BC6, T-19).
     for (const label of [
-      RULES_FORM.name,
-      RULES_FORM.introduction,
-      RULES_FORM.passMark,
-      RULES_FORM.attempts,
-      RULES_FORM.deadline,
+      RULES_WORDS.name,
+      RULES_WORDS.introduction,
+      RULES_WORDS.passMark,
+      RULES_WORDS.attempts,
+      RULES_WORDS.deadline,
     ]) {
-      expect(screen.getByLabelText(new RegExp(`^${label.replace(/[()]/g, '\\$&')}`))).toHaveValue(
-        '',
-      );
+      expect(screen.getByLabelText(label)).toHaveValue('');
     }
     for (const radio of screen.getAllByRole('radio')) expect(radio).not.toBeChecked();
+    expect(screen.getByRole('group', { name: 'Name and introduction' })).toBeVisible();
+    expect(screen.getByRole('group', { name: 'Rules' })).toBeVisible();
+    expect(screen.getByLabelText(RULES_WORDS.passMark).closest('.fa-fields3')).not.toBeNull();
     expect(main()).toHaveTextContent(
       'No time limit and no timer. Every value here is set for this assessment only — nothing comes pre-filled.',
     );
     expect(main()).not.toHaveTextContent(/timer:|time limit \(|minutes/i);
     expect(screen.getByRole('button', { name: 'Save as draft' })).toBeVisible();
-    expect(asideValues()).toEqual([
-      'Shell-and-Tube Heat Exchanger · ME ZG523',
-      'Not named yet',
-      'Not set yet',
-      'No questions yet',
-    ]);
+    expect(asideValues()).toEqual([SHELL_NAME, 'Not named yet', 'Not set yet', 'None yet']);
 
-    // f3: the step's check, as the contract checks it.
-    await user.type(screen.getByLabelText(RULES_FORM.name), 'Heat Exchanger — post-lab');
-    await user.type(screen.getByLabelText(RULES_FORM.passMark), '50.5');
+    // The step's check, as the contract checks it.
+    await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
+    await user.type(screen.getByLabelText(RULES_WORDS.passMark), '50.5');
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(errorSummary()).toHaveFocus();
     expect(summaryLinks()).toEqual([
@@ -607,7 +732,7 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
       'Enter the deadline',
       'Choose when students see their result',
     ]);
-    expect(screen.getByLabelText(RULES_FORM.passMark)).toHaveAttribute('aria-invalid', 'true');
+    expect(screen.getByLabelText(RULES_WORDS.passMark)).toHaveAttribute('aria-invalid', 'true');
     expect(document.getElementById('Cc-pass-e')).toHaveTextContent(
       'Enter a pass mark from 0 to 100, as a whole number',
     );
@@ -616,35 +741,39 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
     );
     expect(asideValues()[1]).toBe('Heat Exchanger — post-lab');
     expect(asideValues()[2]).toBe('Pass mark 50.5%');
+    expect(asideStates()[2]).toBe('Rules (not done yet)');
     expect(h1()).toHaveTextContent('Set the rules');
     expect(moves).toHaveLength(1);
 
     // Typing in a field takes its error away.
-    await user.clear(screen.getByLabelText(RULES_FORM.passMark));
-    await user.type(screen.getByLabelText(RULES_FORM.passMark), '50');
+    await user.clear(screen.getByLabelText(RULES_WORDS.passMark));
+    await user.type(screen.getByLabelText(RULES_WORDS.passMark), '50');
     expect(document.getElementById('Cc-pass-e')).toBeNull();
     expect(summaryLinks()).toHaveLength(3);
-    await user.type(screen.getByLabelText(RULES_FORM.attempts), '2');
-    await user.type(screen.getByLabelText(RULES_FORM.deadline), '14 Nov 2026, 23:59');
+    await user.type(screen.getByLabelText(RULES_WORDS.attempts), '2');
+    await user.type(screen.getByLabelText(RULES_WORDS.deadline), '14 Nov 2026, 23:59');
     await user.click(screen.getByRole('radio', { name: /After the deadline/ }));
     expect(asideValues()[2]).toBe(
-      'Pass mark 50% · 2 attempts · due 14 Nov 2026, 23:59 · results: after the deadline',
+      'Pass mark 50% · 2 attempts · due 14 Nov 2026, 23:59 · results after the deadline',
     );
+    expect(asideStates()[2]).toBe('Rules (done)');
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitForStep('Add questions');
 
-    // f4: the bank's questions for this experiment; Continue needs one.
-    const list = await screen.findByRole('list', { name: 'Questions' });
+    // The bank's questions for this experiment, named by their words; Continue needs one.
+    const list = await screen.findByRole('group', { name: 'Questions for this assessment' });
     expect(within(list).getAllByRole('checkbox')).toHaveLength(6);
-    expect(main()).toHaveTextContent('From your question bank · Shell-and-Tube Heat Exchanger');
-    expect(within(list).getAllByRole('listitem')[0]).toHaveTextContent(
-      'What does the effectiveness (ε) of a heat exchanger compare?Q-0101 · Multiple choice · 2 marks',
+    expect(main()).toHaveTextContent(
+      'From your question bankShell-and-Tube Heat Exchanger · ME ZG523',
     );
+    expect(main().querySelector('.fa-pickcount')).toHaveTextContent('No questions chosen yet');
+    const first = within(list).getByRole('checkbox', { name: Q0101 });
+    expect(first).toHaveAccessibleDescription('Multiple choice · 2 marks');
     expect(screen.getByRole('link', { name: 'New question' })).toHaveAttribute(
       'href',
       '/faculty/question-bank/new?experimentId=shell-and-tube-heat-exchanger&returnTo=%2Ffaculty%2Fassessments%2Fnew%3Fstep%3Dquestions%26experimentId%3Dshell-and-tube-heat-exchanger',
     );
-    // Phase 4B: the drafting and import tools open for this experiment (B4-04 f4).
+    // Phase 4B: the drafting and import tools open for this experiment.
     expect(screen.getByRole('link', { name: 'Draft with assistance' })).toHaveAttribute(
       'href',
       '/faculty/question-bank/draft?experimentId=shell-and-tube-heat-exchanger',
@@ -653,27 +782,29 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
       'href',
       '/faculty/question-bank/import?experimentId=shell-and-tube-heat-exchanger',
     );
+    expect(main()).toHaveTextContent(
+      'Questions keep the marks set in your bank. Choice questions are marked automatically; you mark written answers.',
+    );
+    expectNoReferences();
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     expect(summaryLinks()).toEqual(['Add at least one question, or save as a draft']);
     expect(document.getElementById('Cc-qs-e')).toHaveTextContent(
       'Add at least one question, or save as a draft',
     );
-    await tick(user, 'Q-0106');
-    await tick(user, 'Q-0101');
-    await tick(user, 'Q-0104');
+    await tick(user, Q0106);
+    await tick(user, Q0101);
+    await tick(user, Q0104);
     expect(errorSummary()).toBeNull();
-    expect(main().querySelector('.xr-section [role="status"]')).toHaveTextContent(
-      '3 questions · 14 marks',
-    );
+    expect(main().querySelector('.fa-pickcount')).toHaveTextContent('3 questions · 14 marks');
     expect(asideValues()[3]).toBe('3 questions · 14 marks');
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitForStep('Preview and create');
 
-    // f5: what students will see before they start, in the bank's order.
+    // What students will see before they start, in the bank's order.
     expect(main()).toHaveTextContent(
       'What students will see before they start. Previewing creates no attempt.',
     );
-    const facts = main().querySelector('dl.xl-kv')!;
+    const facts = main().querySelector('dl.fa-rules')!;
     expect([...facts.querySelectorAll('dt')].map((term) => term.textContent)).toEqual([
       'Name',
       'Questions',
@@ -681,19 +812,35 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
       'Attempts allowed',
       'Deadline',
       'Result and answers',
+      'Time limit',
     ]);
     expect([...facts.querySelectorAll('dd')].map((value) => value.textContent)).toEqual([
       'Heat Exchanger — post-lab',
       '3 questions · 14 marks',
-      '50%',
+      '50% · 7 of 14 marks',
       '2',
       '14 Nov 2026, 23:59',
       'After the deadline',
+      'None',
     ]);
-    expect([...main().querySelectorAll('.xa-q-n')].map((head) => head.textContent)).toEqual([
-      'Question 1 · Multiple choice · 2 marks',
-      'Question 2 · True or false · 2 marks',
-      'Question 3 · Written answer · 10 marks',
+    expect(main().querySelector('.fa-introbox')).toHaveTextContent('IntroductionNone');
+    expect(
+      [...main().querySelectorAll('ol.fa-qlist > li.fa-q')].map((item) => item.textContent),
+    ).toEqual([
+      `1${Q0101}Multiple choice2 marks`,
+      `2${Q0104}True or false2 marks`,
+      `3${Q0106}Written answer10 marks`,
+    ]);
+    // Beside step 4: what creating does.
+    expect(aside()).toHaveTextContent('When you create it');
+    expect(
+      [...screen.getByRole('list', { name: 'What creating does' }).querySelectorAll('li')].map(
+        (item) => item.textContent,
+      ),
+    ).toEqual([
+      `Students who have ${SHELL_NAME} can see it in Assessments and start it.`,
+      'Choice questions are marked automatically; you mark written answers.',
+      'You can change it later from its tabs. A change after students submit makes a new version.',
     ]);
     // Previewing created nothing.
     expect(ok(await asPersonId(sample, RANGANATHAN).assessments.listAssessments())).toEqual([]);
@@ -701,18 +848,30 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
     await user.click(screen.getByRole('button', { name: 'Create assessment' }));
     await waitForStep('Assessment created');
     expect(h1()).toHaveFocus();
-    expect(main().querySelector('.xr-phead .xr-overline')).toHaveTextContent('Create assessment');
-    expect(screen.queryByRole('list', { name: 'Create assessment' })).toBeNull();
-    expect(main().querySelector('.xr-notice--ok')).toHaveTextContent(
-      'ASMT-0009 · ReadyStudents who have Shell-and-Tube Heat Exchanger can now see it in Assessments and start it.',
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent('Create assessment');
+    expect(screen.queryByRole('list', { name: 'Steps to create an assessment' })).toBeNull();
+    expect(
+      screen.queryByRole('complementary', { name: /^(This assessment|When you create it)$/ }),
+    ).toBeNull();
+    const result = main().querySelector('.fa-result')!;
+    expect(result.querySelector('.xr-st.xr-st--ok.rk-st-lg')).toHaveTextContent('Ready');
+    expect(result.querySelector('.fa-result-t')).toHaveTextContent(
+      'Students who have Shell-and-Tube Heat Exchanger can now see it in Assessments and start it.',
     );
     const checklist = screen.getByRole('list', { name: 'Ready checklist' });
-    expect(checklist.querySelectorAll('.is-ok')).toHaveLength(2);
-    expect(checklist).toHaveTextContent('Name and rulesAt least one question');
+    expect(checklist.querySelectorAll('li.is-ok')).toHaveLength(3);
+    expect([...checklist.querySelectorAll('li')].map((item) => item.textContent)).toEqual([
+      'Name and introduction',
+      'Rules set for this assessment',
+      '3 questions · 14 marks',
+    ]);
     expect(screen.getByRole('link', { name: 'Open assessment' })).toHaveAttribute(
       'href',
       '/faculty/assessments/ASMT-0009',
     );
+    expect(screen.getByRole('link', { name: 'Back to Assessments' })).toHaveAttribute('href', LIST);
+    // The created card names the assessment's readiness, never its reference.
+    expectNoReferences();
 
     // The one world: the record as the service holds it…
     const view = ok(
@@ -747,7 +906,7 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
     await fillRules(user);
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitForStep('Add questions');
-    await tick(user, 'Q-0101');
+    await tick(user, Q0101);
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitForStep('Preview and create');
     await user.click(screen.getByRole('button', { name: 'Create assessment' }));
@@ -755,40 +914,38 @@ describe('FA-07 — the whole flow on the one world (after-flow-c, B4-04 f1 → 
 
     act(() => routerRef.current!(LIST));
     await waitFor(() => expect(rows()).toHaveLength(1));
-    expect(cellsOf(rows()[0]!)[2]).toBe('Ready');
-    expect(cellsOf(rows()[0]!)[3]).toBe('Due 14 Nov 2026, 23:59 · 0 of 1 submitted');
+    expect(cellsOf(rows()[0]!)[4]).toBe('Ready');
+    expect(cellsOf(rows()[0]!)[3]).toBe('0 of 1 students submitted');
 
     // FA-07 again starts empty, and its experiment now has an assessment.
     act(() => routerRef.current!(NEW));
     const radio = await screen.findByRole('radio', { name: new RegExp(SHELL_NAME) });
     expect(radio).not.toBeChecked();
-    expect(radio.closest('label')).toHaveTextContent(
-      'Already has an assessment: Heat Exchanger — post-lab',
+    await waitFor(() =>
+      expect(radio.closest('label')).toHaveTextContent(
+        'Already has an assessment: Heat Exchanger — post-lab',
+      ),
     );
   });
 
-  it('“Create another” starts again at step 1 with nothing kept', async () => {
+  it('“Create another” starts again at step 1 with nothing kept; “Back to Assessments” is FA-06', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     const { moves } = show(runtime, NEW);
     await toRules(user);
-    await user.type(screen.getByLabelText(RULES_FORM.name), 'Heat Exchanger — post-lab');
+    await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
     await user.click(screen.getByRole('button', { name: 'Save as draft' }));
     await waitForStep('Saved as draft');
+    expect(screen.getByRole('link', { name: 'Back to Assessments' })).toHaveAttribute('href', LIST);
     await user.click(screen.getByRole('button', { name: 'Create another' }));
     await waitForStep('Choose the experiment');
     expect(moves.at(-1)).toBe('push /faculty/assessments/new');
     expect(h1()).toHaveFocus();
-    expect(asideValues()).toEqual([
-      'Not chosen yet',
-      'Not named yet',
-      'Not set yet',
-      'No questions yet',
-    ]);
+    expect(asideValues()).toEqual(['Not chosen yet', 'Not named yet', 'Not set yet', 'None yet']);
   });
 });
 
-describe('FA-07 — Save as draft (B4-04 f7)', () => {
+describe('FA-07 — Save as draft', () => {
   it('needs a name only: “Enter a name to save a draft”', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
@@ -808,37 +965,42 @@ describe('FA-07 — Save as draft (B4-04 f7)', () => {
     await fillRules(user);
     await user.click(screen.getByRole('button', { name: 'Save as draft' }));
     await waitForStep('Saved as draft');
-    expect(main().querySelector('.xr-phead .xr-overline')).toHaveTextContent('Create assessment');
-    expect(main().querySelector('.xr-notice--warn')).toHaveTextContent(
-      'ASMT-0009 · Draft — not readyStudents can’t see a draft. Finish what’s missing below.',
+    expect(main().querySelector('.rk-head .rk-eyebrow')).toHaveTextContent('Create assessment');
+    const result = main().querySelector('.fa-result')!;
+    expect(result.querySelector('.xr-st.rk-st-lg')).toHaveTextContent('Draft — not ready');
+    expect(result.querySelector('.fa-result-t')).toHaveTextContent(
+      'Students can’t see a draft. Finish what’s missing on the assessment.',
     );
     const checklist = screen.getByRole('list', { name: 'Ready checklist' });
     const items = [...checklist.querySelectorAll('li')];
-    expect(items[0]!.querySelector('.is-ok')).not.toBeNull();
-    expect(items[0]).toHaveTextContent('Name and rules');
-    expect(items[1]!.querySelector('.is-no')).not.toBeNull();
-    expect(items[1]).toHaveTextContent('At least one question');
+    expect(items[0]).toHaveClass('is-ok');
+    expect(items[0]).toHaveTextContent('Name and introduction');
+    expect(items[1]).toHaveClass('is-ok');
+    expect(items[1]).toHaveTextContent('Rules set for this assessment');
+    expect(items[2]).toHaveClass('is-no');
+    expect(items[2]).toHaveTextContent('At least one question — none yet');
     expect(screen.getByRole('link', { name: 'Open assessment' })).toHaveAttribute(
       'href',
       '/faculty/assessments/ASMT-0009',
     );
+    expectNoReferences();
 
     expect(ok(await asPersonId(sample, RAHUL).assessments.listMyAssessments())).toEqual([]);
     act(() => routerRef.current!(LIST));
     await waitFor(() => expect(rows()).toHaveLength(1));
-    expect(cellsOf(rows()[0]!).slice(2, 4)).toEqual([
+    expect(cellsOf(rows()[0]!).slice(3, 5)).toEqual([
+      'No questions yet · students can’t see it',
       'Draft — not ready',
-      'Rules set · no questions yet · students can’t see it',
     ]);
   });
 
-  it('from step 3 with questions: the draft keeps them', async () => {
+  it('from step 2 with some rules: the draft keeps them; the checklist says what is missing', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     show(runtime, NEW);
     await toRules(user);
-    await user.type(screen.getByLabelText(RULES_FORM.name), 'Heat Exchanger — post-lab');
-    await user.type(screen.getByLabelText(RULES_FORM.passMark), '50');
+    await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
+    await user.type(screen.getByLabelText(RULES_WORDS.passMark), '50');
     await user.click(screen.getByRole('button', { name: 'Save as draft' }));
     await waitForStep('Saved as draft');
     const view = ok(
@@ -850,9 +1012,41 @@ describe('FA-07 — Save as draft (B4-04 f7)', () => {
     expect(view.assessment.rules.passMarkPercent).toBe(50);
     expect(view.assessment.rules.attemptsAllowed).toBeNull();
     const items = [...screen.getByRole('list', { name: 'Ready checklist' }).querySelectorAll('li')];
-    expect(items.map((item) => item.querySelector('span')?.className)).toEqual(['is-no', 'is-no']);
+    expect(items.map((item) => item.className)).toEqual(['is-ok', 'is-no', 'is-no']);
+    expect(items[1]).toHaveTextContent('Rules — not finished');
+  });
+
+  it('from step 3 with questions: the draft keeps them', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
+    show(runtime, NEW);
+    await toRules(user);
+    await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
+    await fillRulesRest(user);
+    await user.click(screen.getByRole('button', { name: 'Continue' }));
+    await waitForStep('Add questions');
+    await tick(user, Q0101);
+    await user.click(screen.getByRole('button', { name: 'Save as draft' }));
+    await waitForStep('Saved as draft');
+    const view = ok(
+      await asPersonId(sample, RANGANATHAN).assessments.getAssessment(
+        unsafeBrand<AssessmentId>('ASMT-0009'),
+      ),
+    );
+    expect(view.questions.map((entry) => entry.ref.questionId)).toEqual(['Q-0101']);
+    expect(screen.getByRole('list', { name: 'Ready checklist' })).toHaveTextContent(
+      '1 question · 2 marks',
+    );
   });
 });
+
+/** The rules but the name (step 2 after the name was typed). */
+async function fillRulesRest(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(screen.getByLabelText(RULES_WORDS.passMark), '50');
+  await user.type(screen.getByLabelText(RULES_WORDS.attempts), '2');
+  await user.type(screen.getByLabelText(RULES_WORDS.deadline), '14 Nov 2026, 23:59');
+  await user.click(screen.getByRole('radio', { name: /After the deadline/ }));
+}
 
 describe('FA-07 — refusals and failures', () => {
   it('the bank failing in step 3: Try again reads it again; what was chosen stays', async () => {
@@ -867,11 +1061,13 @@ describe('FA-07 — refusals and failures', () => {
     await waitForStep('Add questions');
     expect(await screen.findByText('We couldn’t load your question bank')).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(await screen.findByRole('list', { name: 'Questions' })).toBeVisible();
+    expect(
+      await screen.findByRole('group', { name: 'Questions for this assessment' }),
+    ).toBeVisible();
     expect(asideValues()[1]).toBe('Heat Exchanger — post-lab');
   });
 
-  it('the service refuses: the experiment got an assessment meanwhile → step 1 with f8, everything kept', async () => {
+  it('the service refuses: the experiment got an assessment meanwhile → step 1, everything kept', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     const { moves } = show(runtime, NEW);
@@ -885,13 +1081,13 @@ describe('FA-07 — refusals and failures', () => {
     expect(summaryLinks()).toEqual(['This experiment already has an assessment']);
     expect(errorSummary()).toHaveFocus();
     await waitFor(() =>
-      expect(main().querySelector('.xr-notice--warn')).toHaveTextContent(
+      expect(main().querySelector('.rk-notice--info')).toHaveTextContent(
         'Open Heat Exchanger — post-lab to change its questions or rules.',
       ),
     );
     expect(asideValues()[1]).toBe('Heat Exchanger — post-lab');
     expect(asideValues()[2]).toBe(
-      'Pass mark 50% · 2 attempts · due 14 Nov 2026, 23:59 · results: after the deadline',
+      'Pass mark 50% · 2 attempts · due 14 Nov 2026, 23:59 · results after the deadline',
     );
   });
 
@@ -903,7 +1099,7 @@ describe('FA-07 — refusals and failures', () => {
     await fillRules(user);
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitForStep('Add questions');
-    await tick(user, 'Q-0102');
+    await tick(user, Q0102);
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitForStep('Preview and create');
     faults(sample).failNext('AssessmentService.createAssessment');
@@ -924,13 +1120,13 @@ describe('FA-07 — kept between the steps and across “New question” (FA-15)
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     const { moves, routerRef } = show(runtime, NEW);
     await toRules(user);
-    await user.type(screen.getByLabelText(RULES_FORM.name), 'Heat Exchanger — post-lab');
+    await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
     await user.click(screen.getByRole('button', { name: 'Back' }));
     await waitForStep('Choose the experiment');
     expect(screen.getByRole('radio', { name: new RegExp(SHELL_NAME) })).toBeChecked();
     act(() => routerRef.current!(`${NEW}?step=rules`));
     await waitForStep('Set the rules');
-    expect(screen.getByLabelText(RULES_FORM.name)).toHaveValue('Heat Exchanger — post-lab');
+    expect(screen.getByLabelText(RULES_WORDS.name)).toHaveValue('Heat Exchanger — post-lab');
     // The preview's address before the rules are complete: the rules step, in place.
     act(() => routerRef.current!(`${NEW}?step=preview`));
     await waitFor(() => expect(moves.at(-1)).toBe('replace /faculty/assessments/new?step=rules'));
@@ -947,15 +1143,16 @@ describe('FA-07 — kept between the steps and across “New question” (FA-15)
     await fillRules(user);
     await user.click(screen.getByRole('button', { name: 'Continue' }));
     await waitForStep('Add questions');
-    await tick(user, 'Q-0101');
+    await tick(user, Q0101);
     const href = screen.getByRole('link', { name: 'New question' }).getAttribute('href')!;
     act(() => routerRef.current!(href));
     expect(await screen.findByTestId('elsewhere')).toHaveTextContent('/faculty/question-bank/new');
     // FA-15 adds the question (its receipt refreshes the tab) and goes back to `returnTo`.
+    const text = 'Counter flow can cross the outlet temperatures.';
     const answer = await asPersonId(sample, RANGANATHAN).questionBank.addQuestion({
       experimentId: unsafeBrand<ExperimentId>(SHELL),
       type: 'true-false',
-      text: 'Counter flow can cross the outlet temperatures.',
+      text,
       options: {},
       correct: 'true',
       marks: '3',
@@ -971,19 +1168,27 @@ describe('FA-07 — kept between the steps and across “New question” (FA-15)
     const returnTo = new URLSearchParams(href.split('?')[1]).get('returnTo')!;
     act(() => routerRef.current!(`${returnTo}&added=${added.id}`));
     await waitForStep('Add questions');
-    await waitFor(() =>
-      expect(screen.getByRole('checkbox', { name: new RegExp(added.id) })).toBeChecked(),
+    await waitFor(() => expect(screen.getByRole('checkbox', { name: text })).toBeChecked());
+    expect(screen.getByRole('checkbox', { name: Q0101 })).toBeChecked();
+    // The page says so: saved to the bank, ticked here, and it can be unticked.
+    const notice = main().querySelector('.rk-notice--ok')!;
+    expect(notice).toHaveTextContent(
+      'Saved to your question bank.It’s ticked below. You can untick it.',
     );
-    expect(screen.getByRole('checkbox', { name: /Q-0101/ })).toBeChecked();
     expect(moves.at(-1)).toBe(
       'replace /faculty/assessments/new?step=questions&experimentId=shell-and-tube-heat-exchanger',
     );
     expect(asideValues()).toEqual([
-      'Shell-and-Tube Heat Exchanger · ME ZG523',
+      SHELL_NAME,
       'Heat Exchanger — post-lab',
-      'Pass mark 50% · 2 attempts · due 14 Nov 2026, 23:59 · results: after the deadline',
+      'Pass mark 50% · 2 attempts · due 14 Nov 2026, 23:59 · results after the deadline',
       '2 questions · 5 marks',
     ]);
+    expectNoReferences();
+    // The notice goes with the step.
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await waitForStep('Set the rules');
+    expect(main().querySelector('.rk-notice--ok')).toBeNull();
   });
 
   it('Cancel drops what was typed', async () => {
@@ -991,7 +1196,7 @@ describe('FA-07 — kept between the steps and across “New question” (FA-15)
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     const { routerRef } = show(runtime, NEW);
     await toRules(user);
-    await user.type(screen.getByLabelText(RULES_FORM.name), 'Heat Exchanger — post-lab');
+    await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
     await user.click(screen.getByRole('button', { name: 'Back' }));
     await waitForStep('Choose the experiment');
     await user.click(screen.getByRole('link', { name: 'Cancel' }));
@@ -1007,9 +1212,9 @@ describe('FA-07 — kept between the steps and across “New question” (FA-15)
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     const { routerRef } = show(runtime, NEW);
     await toRules(user);
-    await user.type(screen.getByLabelText(RULES_FORM.name), 'Heat Exchanger — post-lab');
+    await user.type(screen.getByLabelText(RULES_WORDS.name), 'Heat Exchanger — post-lab');
     act(() => routerRef.current!(LIST));
-    await screen.findByRole('heading', { level: 2, name: 'No assessments yet' });
+    await screen.findByText('No assessments yet');
     // A new sign-in (a new session key) in the same tab and world.
     beginSession(sample, RANGANATHAN);
     await act(async () => {

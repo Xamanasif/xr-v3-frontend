@@ -27,8 +27,9 @@ import {
  *     answers save as he goes; Submit → DL-1 → Answers submitted → his result page says
  *     "Submitted — waiting for marking" with no figure (ST-14), Assessments lists it under
  *     Submitted (ST-11);
- *  4. Dr S. Ranganathan: Overview "Mark 1 written answer" → Marking (FA-18) → Mark a submission
- *     (FA-19): the choice questions were marked automatically by the sample stand-in (owner
+ *  4. Dr S. Ranganathan: Overview's "Written answer to mark" with "Mark now" for the oldest
+ *     submission (V3 FA-v1) → Marking (FA-18) → Mark a submission (FA-19, the one "Mark now"
+ *     opens): the choice questions were marked automatically by the sample stand-in (owner
  *     answer to P4-01, PC-60); he marks the written answer, confirms through DL-1 (read-only
  *     afterwards) → the assessment's Submissions (FA-12): Marked, the score, released → Export
  *     CSV (FA-22) → Students (FA-20) → Rahul's detail (FA-21) → Export CSV of the list;
@@ -101,14 +102,22 @@ async function choose(radio: Locator): Promise<void> {
   await expect(radio).toBeChecked();
 }
 
-/** The assessment record's tab strip, brought into view first at 375 (it scrolls sideways). */
+/**
+ * The assessment record's tab strip (V3 FA-v1: the navigation "<name> sections"), brought into
+ * view first at 375 (it scrolls sideways).
+ */
 async function recordTab(page: Page, name: RegExp): Promise<void> {
-  const tab = page.getByRole('navigation', { name: ASSESSMENT }).getByRole('link', { name });
+  const tab = page
+    .getByRole('navigation', { name: `${ASSESSMENT} sections` })
+    .getByRole('link', { name });
   await tab.scrollIntoViewIfNeeded();
   await reachAndClick(page, tab);
 }
 
-/** A question written in FA-15 from the record's Questions tab, then added from the bank panel. */
+/**
+ * A question written in FA-15 from the record's Questions tab, then added from the offer the page
+ * makes on return (V3 FA-v1 FA-09: the page's message; earlier the bank panel).
+ */
 async function writeAndAdd(
   page: Page,
   record: string,
@@ -122,15 +131,16 @@ async function writeAndAdd(
   await fill(form);
   await reachAndClick(page, form.getByRole('button', { name: 'Save question' }));
   await page.waitForURL(`**${record}/questions`);
-  const offered = page
-    .getByRole('complementary', { name: 'From your question bank' })
-    .locator('li')
-    .first();
-  await expect(offered).toContainText('Just added to your question bank');
+  const offered = page.locator('#questions-msg');
+  await expect(offered).toContainText('Saved to your question bank.');
+  await expect(offered).toContainText(
+    'It isn’t in this assessment yet. Add it only if you want it here.',
+  );
   await reachAndClick(
     page,
-    offered.getByRole('button', { name: /^Add Q-\d{4} to this assessment$/ }),
+    offered.getByRole('button', { name: 'Add this question to the assessment' }),
   );
+  await expect(offered.locator('.rk-notice-t')).toHaveText(/^Added as question \d+\.$/);
 }
 
 test('one tab, the product build: Flow D — assessment → attempt → submission → marking → result by its own setting', async ({
@@ -245,14 +255,16 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await page.waitForURL((url) => url.pathname === '/faculty');
   await expect(h1(page)).toHaveText('Overview');
   await sidebar(page, '/faculty/courses');
-  await reachAndClick(page, page.getByRole('link', { name: `Open course ${THERMO}` }));
+  // V3 (FA-v1) names the course card's link with its code too.
+  await reachAndClick(page, page.getByRole('link', { name: `Open course ME ZG523 ${THERMO}` }));
   await page.waitForURL('**/faculty/courses/thermodynamics-heat-transfer');
   await reachAndClick(page, main(page).getByRole('link', { name: 'Open experiment' }));
   await page.waitForURL('**/faculty/experiments/shell-and-tube-heat-exchanger');
   await reachAndClick(
     page,
+    // V3 (FA-v1 FA-05): the experiment's assessment is the side panel "Assessment".
     page
-      .getByRole('region', { name: 'Assessment' })
+      .getByRole('complementary', { name: 'Assessment' })
       .getByRole('link', { name: 'Create assessment' }),
   );
   await page.waitForURL('**/faculty/assessments/new?experimentId=shell-and-tube-heat-exchanger');
@@ -281,7 +293,10 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   await first.getByRole('textbox', { name: 'Marks' }).fill('2');
   await reachAndClick(page, first.getByRole('button', { name: 'Save question' }));
   await page.waitForURL('**/faculty/assessments/new?step=questions**');
-  await expect(page.getByRole('list', { name: 'Questions' }).getByRole('checkbox')).toBeChecked();
+  // V3 (FA-v1 FA-07): the bank's questions are the group "Questions for this assessment".
+  await expect(
+    page.getByRole('group', { name: 'Questions for this assessment' }).getByRole('checkbox'),
+  ).toBeChecked();
   await reachAndClick(page, page.getByRole('button', { name: 'Continue' }));
   await page.waitForURL('**/faculty/assessments/new?step=preview**');
   await reachAndClick(page, page.getByRole('button', { name: 'Create assessment' }));
@@ -366,30 +381,44 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   // 4. Dr S. Ranganathan marks the written answer; the record and the Students list follow.
   await signIn(page, 's.ranganathan@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/faculty');
-  await expect(main(page)).toContainText('1 written answer to mark');
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Mark 1 written answer' }));
-  await page.waitForURL((url) => url.pathname === '/faculty/marking');
+  // V3 (FA-v1 FA-01): the priority band's one item, its students, and "Mark now" for the oldest
+  // submission (FA-19); the queue (FA-18) lists the same submission.
+  const waiting = page.getByRole('region', { name: 'Needs your attention' }).locator('li.rb-pi');
+  await expect(waiting.locator('.rb-pi-big')).toHaveText('1');
+  await expect(waiting.locator('.rb-pi-kind')).toHaveText('Written answer to mark');
+  const markNow = waiting.getByRole('link', { name: `Mark now: Rahul Verma, ${ASSESSMENT}` });
+  const oldest = await markNow.getAttribute('href');
+  expect(oldest).toMatch(/^\/faculty\/marking\/ATT-\d{4}$/);
+  await sidebar(page, '/faculty/marking');
   await expect(currentSidebarItem(page)).toHaveAttribute('href', '/faculty/marking');
   await checkState(page, 'Marking');
-  await reachAndClick(page, main(page).getByRole('link', { name: 'Mark Rahul Verma' }));
-  await page.waitForURL(/\/faculty\/marking\/ATT-\d{4}$/);
+  await expect(main(page).getByRole('link', { name: 'Mark Rahul Verma' })).toHaveAttribute(
+    'href',
+    oldest!,
+  );
+  await sidebar(page, '/faculty');
+  await reachAndClick(page, markNow);
+  await page.waitForURL((url) => url.pathname === oldest);
   await expect(h1(page)).toHaveText('Rahul Verma');
   // The choice questions were marked automatically (the sample stand-in, PC-60): 4 of 4.
   await expect(main(page)).toContainText('Marked automatically');
   await expect(main(page)).toContainText('4 of 4 marks');
   await expect(main(page)).toContainText(RAHUL_ANSWER);
   await checkState(page, 'Rahul Verma');
-  await page.getByRole('textbox', { name: 'Mark for question 3' }).fill('7');
+  // V3 (FA-v1 FA-19): the score field "Your mark", named with its question.
+  await page.getByRole('textbox', { name: /^Your mark Question 3\b/ }).fill('7');
   await page.getByRole('textbox', { name: /^Feedback for Rahul/ }).fill(FEEDBACK);
   await reachAndClick(page, main(page).getByRole('button', { name: 'Confirm marks' }));
   const confirm = page.getByRole('dialog', { name: 'Confirm marks for Rahul Verma?' });
-  await expect(confirm).toContainText('Confirmed marks can’t be changed.');
+  await expect(confirm).toContainText(
+    'The marks become read-only. They can’t be changed after you confirm.',
+  );
   await reachAndClick(page, confirm.getByRole('button', { name: 'Confirm marks' }));
   const done = page.locator('#ms-mdone');
-  await expect(done.locator('.xr-status--ok')).toHaveText('Marks confirmed');
+  await expect(done.locator('.rk-notice--ok .rk-notice-t')).toHaveText('Marks confirmed');
   await expect(done).toContainText('· Dr S. Ranganathan');
   // Read-only afterwards: no mark field, no Confirm.
-  await expect(page.getByRole('textbox', { name: 'Mark for question 3' })).toHaveCount(0);
+  await expect(page.getByRole('textbox', { name: /^Your mark/ })).toHaveCount(0);
   await expect(page.getByRole('button', { name: 'Confirm marks' })).toHaveCount(0);
 
   await sidebar(page, '/faculty/assessments');
@@ -422,11 +451,15 @@ test('one tab, the product build: Flow D — assessment → attempt → submissi
   expect(submissionsText).toContain(',Marked,11 of 14,"Released ');
 
   await sidebar(page, '/faculty/students');
-  await expect(main(page)).toContainText('1 of 1 student');
+  // V3 (FA-v1 FA-20): the list's count line says the whole list ("1 student"; "n of N" once filtered).
+  await expect(main(page).locator('.rk-statusline [role="status"]')).toHaveText('1 student');
   await reachAndClick(page, page.getByRole('link', { name: 'Open Rahul Verma' }));
   await page.waitForURL(/\/faculty\/students\/[^/?]+\?experimentId=shell-and-tube-heat-exchanger$/);
   await expect(h1(page)).toHaveText('Rahul Verma');
-  await expect(page.getByRole('region', { name: 'Assessment' })).toContainText('Marked 11 of 14');
+  // V3 (FA-v1 FA-21): the side panel "Assessment" — Marked, and the total.
+  const assessmentPanel = page.getByRole('complementary', { name: 'Assessment' });
+  await expect(assessmentPanel).toContainText('Marked');
+  await expect(assessmentPanel).toContainText('11 of 14 marks');
   await checkState(page, 'Rahul Verma');
   await sidebar(page, '/faculty/students');
   const studentsCsv = page.waitForEvent('download');

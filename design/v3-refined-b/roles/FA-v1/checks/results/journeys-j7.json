@@ -1,0 +1,209 @@
+[
+ {
+  "name": "J7a-settings-and-questions",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "settings show this assessment's own values",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "release change warning (P4-06 wording)",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "cancel restores saved values",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-st-pass\",\"value\":\"\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-st-dl\",\"value\":\"next Friday\"}",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "settings errors",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"click\":\"#fa-errs a:has-text(\\\"Enter a pass mark\\\")\",\"expectFocus\":\"fa-st-pass\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-st-pass\",\"value\":\"60\"}",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-st-dl\",\"value\":\"14 Nov 2026, 23:59\"}",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "rule change after submissions warns",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "saved as version 2",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "after version 2 nothing is pinned to it, so no warning",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "{\"click\":\"role=button[name=\\\"Cancel changes\\\"]\",\"assert\":\"document.getElementById('fa-st-r-after').checked\"}",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "summary shows the version",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Questions\\\")\",\"expect\":\"Questions in order\"}",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "reorder (version 2 has no submissions, so no new version)",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "no extra version when nothing is pinned to version 2",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "remove keeps the question in the bank",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Submissions\\\")\",\"expect\":\"2 submissions · 2 waiting for marking\"}",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "submissions filter no-match",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "attempts show their pinned version",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J7b-experiments-filters",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "{\"expect\":[\"Shell-and-Tube Heat Exchanger\",\"1 experiment\"]}",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "search no-match",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "chip removal",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "format filter",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main .rk-statusline button:has-text(\\\"Clear filters\\\")\",\"expect\":\"1 experiment\"}",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J7c-assessment-filters",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "{\"expect\":[\"Heat Exchanger — post-lab\",\"1 assessment\"]}",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "state filter no-match",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "waiting filter",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-al-q\",\"value\":\"post-lab\",\"expect\":\"1 of 1 assessment\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main .rk-statusline button:has-text(\\\"Clear filters\\\")\",\"expect\":\"1 assessment\",\"expectFocus\":\"f",
+    "why": ""
+   }
+  ],
+  "errors": []
+ }
+]

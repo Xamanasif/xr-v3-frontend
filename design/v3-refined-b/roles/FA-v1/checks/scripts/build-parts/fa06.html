@@ -1,0 +1,84 @@
+      <!-- ═══ FA-06 Assessments ═══ -->
+      <sc-if value="{{ is.al }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ sh.date }}</p>
+          <h1 class="rb-h1" id="fa-h1" tabindex="-1">Assessments</h1>
+          <p class="rk-sub">Assessments for the experiments you teach. Rules and pass marks belong to each assessment.</p>
+        </div>
+        <sc-if value="{{ AL.hasAny }}" hint-placeholder-val="{{ true }}"><div class="rk-head-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-07" onClick="{{ AL.create }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-plus"></use></svg>Create assessment</a></div></sc-if>
+      </div>
+      <sc-if value="{{ AL.noCourse }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface fr-msgcard" aria-labelledby="fa-al-none">
+        <div class="fa-inlinemsg">
+          <span class="fa-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-clip"></use></svg></span>
+          <h2 class="rb-h2" id="fa-al-none">No assessments yet</h2>
+          <p class="fa-msg-d">Assessments appear here when your Institute Admin assigns you a course.</p>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ AL.canCreate }}" hint-placeholder-val="{{ true }}">
+      <section class="rk-surface" aria-labelledby="fa-al-h">
+        <h2 class="xr-sr" id="fa-al-h">All assessments</h2>
+        <sc-if value="{{ AL.hasAny }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-toolbar">
+          <div class="rk-tools fr-tools" role="search" aria-label="Filter assessments">
+            <div class="rk-field rk-search">
+              <label class="rk-label" for="fa-al-q">Search</label>
+              <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-search"></use></svg><input id="fa-al-q" class="rk-input" type="search" placeholder="Name or experiment" autocomplete="off" value="{{ AL.q }}" onChange="{{ AL.onQ }}"></div>
+            </div>
+            <div class="rk-field fa-field-sel">
+              <label class="rk-label" for="fa-al-c">Course</label>
+              <div class="rk-selwrap"><select id="fa-al-c" class="rk-select" value="{{ AL.c }}" onChange="{{ AL.onC }}"><option value="all">All courses</option><sc-for list="{{ AL.cOpts }}" as="o" hint-placeholder-count="1"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+            </div>
+            <div class="rk-field fa-field-sel">
+              <label class="rk-label" for="fa-al-st">State</label>
+              <div class="rk-selwrap"><select id="fa-al-st" class="rk-select" value="{{ AL.st }}" onChange="{{ AL.onSt }}"><option value="all">All states</option><option value="draft">Draft — not ready</option><option value="ready">Ready</option><option value="wait">Waiting for marking</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+            </div>
+          </div>
+          <div class="rk-statusline">
+            <p class="rk-count" role="status">{{ AL.count }}</p>
+            <sc-for list="{{ AL.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-x"></use></svg></button></span></sc-for>
+            <sc-if value="{{ AL.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ AL.clear }}">Clear filters</button></sc-if>
+          </div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ AL.has }}" hint-placeholder-val="{{ true }}">
+        <div class="fa-tablewrap">
+          <table class="rk-table fa-table fr-atable fr-ptable fr-ptable2">
+            <caption>Assessments for the experiments you teach</caption>
+            <thead><tr><th scope="col" class="fr-c-name">Assessment</th><th scope="col">Experiment</th><th scope="col">Deadline</th><th scope="col" class="fr-c-subs">Submissions</th><th scope="col">State</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ AL.rows }}" as="r" hint-placeholder-count="1">
+              <tr onClick="{{ r.open }}">
+                <td class="fa-c-main"><a class="rk-rowlink" href="#FA-08" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}">{{ r.name }}</a><span class="fa-cellsub">{{ r.sub }}</span></td>
+                <td class="fr-c-wide fr-c-nolbl"><span class="fa-lbl">Experiment</span><span class="fr-cellname">{{ r.exp }}</span><span class="fa-cellsub">{{ r.code }}</span></td>
+                <td class="fa-nowrap"><span class="fa-lbl">Deadline</span><span class="fr-cellname fa-num">{{ r.due }}</span><sc-if value="{{ r.hasLeft }}" hint-placeholder-val="{{ true }}"><span class="fr-left">{{ r.left }}</span></sc-if><sc-if value="{{ r.hasDueNote }}" hint-placeholder-val="{{ false }}"><span class="fa-cellsub">{{ r.dueNote }}</span></sc-if></td>
+                <td><span class="fa-lbl">Submissions</span><sc-if value="{{ r.showSubs }}" hint-placeholder-val="{{ true }}"><span class="fr-cellmeter"><span class="{{ r.subsCls }}" aria-hidden="true"><sc-for list="{{ r.subsUnits }}" as="x" hint-placeholder-count="5"><i class="{{ x }}"></i></sc-for></span><span class="fr-cellline">{{ r.subs }}</span></span></sc-if><sc-if value="{{ r.noMeter }}" hint-placeholder-val="{{ false }}"><span class="fa-cellsub fr-cellsub0">{{ r.subs }}</span></sc-if><sc-if value="{{ r.hasWait }}" hint-placeholder-val="{{ true }}"><span class="fr-xwait"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ r.wait }}</span></sc-if></td>
+                <td class="fr-c-st"><span class="fa-lbl">State</span><span class="{{ r.stCls }}"><i></i>{{ r.st }}</span></td>
+              </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        </sc-if>
+        <sc-if value="{{ AL.none }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-search"></use></svg></span>
+          <p class="rk-state-t">No assessment matches these filters</p>
+          <p class="rk-state-d">Try fewer filters or a different spelling of the name or experiment.</p>
+          <button type="button" class="rb-btn" onClick="{{ AL.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ AL.empty }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state rk-state--roomy">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-clip"></use></svg></span>
+          <p class="rk-state-t">No assessments yet</p>
+          <p class="rk-state-d">{{ AL.emptyText }}</p>
+          <sc-if value="{{ AL.canCreate }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--primary" href="#FA-07" onClick="{{ AL.create }}">Create assessment</a></sc-if>
+        </div>
+        </sc-if>
+      </section>
+      </sc-if>
+      </sc-if>
+

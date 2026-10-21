@@ -1,0 +1,755 @@
+{
+ "foundationId": "XR-V3-RB-1.0",
+ "baseSource": "Owner-uploaded Refined Direction B individual sources and HANDOFF(1).md",
+ "baseFilesUsed": {
+  "project/core.css": {
+   "sha256": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+   "packSha256": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+   "identical": true,
+   "from": "references/v3/project/core.css"
+  },
+  "project/rb.css": {
+   "sha256": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+   "packSha256": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+   "identical": true,
+   "from": "references/v3/project/rb.css"
+  },
+  "project/rb-kit.css": {
+   "sha256": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+   "packSha256": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+   "identical": true,
+   "from": "references/v3/project/rb-kit.css"
+  }
+ },
+ "baseFilesNotCopied": {
+  "references/v3/HANDOFF-original.md": "3598572e00da8148a47f5abda743eb868c3020d8405ac8f4530581f8e49cae67",
+  "references/v3/design-tokens.json": "98b94673f7363b4bf64f7e9dde24fd29ecde9eb0cc3889e230caf4c497b1d5a3",
+  "references/v3/project/IA01.dc.html": "f06c6e3e2fd8900a2a9f34360e11363f6ab506fb1d5676e4d4e0b0265a524b92",
+  "references/v3/project/IA02.dc.html": "71280219faa1f3910cff66ed65b9b2a7ee3664afc97398dc630bb5614c98a54f",
+  "references/v3/project/SA01.dc.html": "3cdd6a194b3441d628b335d254782009bc8cecea92dda48667474ccf258e91fc",
+  "references/v3/project/SA02.dc.html": "4d88600e819c3b89b14efdfaf37914e23c57414e23fb947f1386ff5cda1d0496",
+  "references/v3/project/canvas.json": "2131cfa9fcd0fb2a1889ed30ec943ada2c31638cca9f13cb17a91447233ff030"
+ },
+ "statement": "The three shared stylesheets are byte-identical to the supplied V3 pack and are linked in the order core.css → rb.css → rb-kit.css → fa.css. All Faculty styling is in one additive role stylesheet, fa.css (consolidated in the final pass from the published fa.css and the refinement rules; see COMPONENT-EXTENSIONS.md). No V3 reference board, V1 board, master CSS or locked landing file was edited or copied into this canvas.",
+ "localAdditions": {
+  "project/Checks.dc.html": {
+   "sha256": "f9333eb8ea8232bcdab54abb822de692154f398507383bec84d32157108d2da6",
+   "bytes": 16457,
+   "kind": "static review board (coverage, changes or checks)"
+  },
+  "project/Coverage-Register.dc.html": {
+   "sha256": "415584e3a0bdb722212cfee0d00ec4a7930147e1acce21d9f2a26fda9f607d9a",
+   "bytes": 47490,
+   "kind": "static review board (coverage, changes or checks)"
+  },
+  "project/FA01-Coteach.dc.html": {
+   "sha256": "aa5a1c334e53e6aa818bfe24110bfdbac83885b6699cd9d5b4d6287750228eec",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA01-New-phone.dc.html": {
+   "sha256": "a3ae2a112525f12619441b4e831568556a9091d3999094a9e07f7ef6e3b940cf",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA01-New-teacher.dc.html": {
+   "sha256": "b075ae0e8a7b882db7af4c3346f00cba70faa6f7b458eae36c251719a278e07a",
+   "bytes": 988,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA01-No-courses.dc.html": {
+   "sha256": "880f2edfaca45581c756022316aae3d0b2a6729eaa71fb0456b132353b5f5448",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA01-One-item.dc.html": {
+   "sha256": "d6402d461b8d7779be50c495f10794c07a40dd3ab0d4cedb8c725bbe11e163b9",
+   "bytes": 998,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA01-Overview.dc.html": {
+   "sha256": "52d32c75ba2471553c3accba1add5bfdfc3155c0a9d18446a6a1fcabe106bdbd",
+   "bytes": 982,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA01-Phone.dc.html": {
+   "sha256": "0ba22868b300304b2bb81b8534103e3320c114348fe5b9cec56f5467eee393d2",
+   "bytes": 976,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA02-My-courses.dc.html": {
+   "sha256": "56d311512462f795182bf297f77f378fd343ed2384346d047f4db7dbb8a08cfb",
+   "bytes": 984,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA02-New.dc.html": {
+   "sha256": "1ca88838196dc6dc6c6e1d204714fd8e267ef7ce6351217fb98ab91ca23ca680",
+   "bytes": 988,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA02-None.dc.html": {
+   "sha256": "42a044c3d3160dd2842ec5a4e5ccb274f9936fc5555cbab2e31a11bdddea7a2c",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA02-Phone.dc.html": {
+   "sha256": "df92be12a2710d7261243da0952cf5764a1d017de5d519eceb4c3d213cc0d30c",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA03-Coteach.dc.html": {
+   "sha256": "1fb11a3a6d4d28370d90fb525f08d75bea6d953ae0775bbe985dc3246ece09ba",
+   "bytes": 995,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA03-Course.dc.html": {
+   "sha256": "40e2fbb18e9969d6ee5dede3bf6e0ee7b20aa7b453806a2e50fb9cafaa4b3c67",
+   "bytes": 997,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA03-New.dc.html": {
+   "sha256": "fefa15743eb00f719fdc4795c0ea797cbfb95a9cd73f52ca4acd79657bc9bbc4",
+   "bytes": 1005,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA03-No-assessment.dc.html": {
+   "sha256": "94c06dc30c95bda5ae268e6966d6cbfe0170d7075038639ee300ceaae530e218",
+   "bytes": 1008,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA03-Phone.dc.html": {
+   "sha256": "432ec5272a9bba18404393fab9b8fb7694fd3eaa16aee3898b870737bcb36564",
+   "bytes": 991,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA04-Experiments.dc.html": {
+   "sha256": "33c8c76432177fdd381495e764d398b8d2e2443561a041162b6e43ca47fc0b6a",
+   "bytes": 985,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA04-Failed.dc.html": {
+   "sha256": "afd0ed7e37bb29f3518337a396f8f05378758c66f979d920da08a43cd0dc4149",
+   "bytes": 1000,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA04-Loading.dc.html": {
+   "sha256": "deb47babbee7f4285e7625a0343e73b7ef12ff52d380a283561e86f4c14d1093",
+   "bytes": 994,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA04-New.dc.html": {
+   "sha256": "944f73dfa35a38e6bf31e3b78960856a8edce25d829b243b571c3b7604ce18c3",
+   "bytes": 983,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA04-No-courses.dc.html": {
+   "sha256": "b7dc0dda08668390514185943bf7ad28e223f334578df4eb1a89a6e4d291218a",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA04-No-match.dc.html": {
+   "sha256": "589c468e8114c0c556a93cad26ccfd46a39da53b5c67e1e991c0cc4c5f4010ab",
+   "bytes": 1008,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA04-Phone.dc.html": {
+   "sha256": "2557724e19c8db1dc7118419b696ea279513dfe867045e4f9f09c2a14d08c9e3",
+   "bytes": 977,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA05-Coteach.dc.html": {
+   "sha256": "ef8895538f2884217b52811f59a8e6330431fe4ecfb3480e1225f0b959b7c385",
+   "bytes": 980,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA05-Experiment.dc.html": {
+   "sha256": "1d9e8a1a73158e436ceec468f972291c2bc9e9e1a9385bc92514a160c1e44f81",
+   "bytes": 986,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA05-New.dc.html": {
+   "sha256": "3bbe1e92bbc1ecc726e154a928243b1d1d697a1fc21655010a399383b84cc4e2",
+   "bytes": 989,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA05-No-assessment.dc.html": {
+   "sha256": "c813df85e046b49b090d31138c4669c7075c4cf67a17ae1985ce6bdfe8951a38",
+   "bytes": 993,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA05-Phone.dc.html": {
+   "sha256": "6b3f314656de929c71c789126b795b6ee588e3c2ce1346953c09e8ca1034ae3e",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA06-Assessments.dc.html": {
+   "sha256": "ca5ed2c54dc65fce8a7dc14616894d92f5f446e55f985276091dd06d14847be8",
+   "bytes": 985,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA06-No-courses.dc.html": {
+   "sha256": "fa9400c95aca683d97bda835a0ea4f334c030fafa03647df928eddf07846a0f9",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA06-None-yet.dc.html": {
+   "sha256": "5ffa7ab371f6da09f0296b0a947086a2f607ff3d56c5bb1e583b4abbc41bfbd4",
+   "bytes": 991,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA06-Phone.dc.html": {
+   "sha256": "5f495d6191213f64c7d5581d7725c101f5b6980dc6843e4b5826526608e85ac5",
+   "bytes": 977,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Created.dc.html": {
+   "sha256": "cc893c123018a0093d926edcdb02fc9c8e773acabd1eb564c399c82cd2bba375",
+   "bytes": 1010,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-No-courses.dc.html": {
+   "sha256": "207069051e2f6321ce2549c61b07f95c90b664dc44265dda5891e33b7685445f",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-One-per-experiment.dc.html": {
+   "sha256": "d22dba361a08314fa4841e0c5b22184be534cc551c22887a839d7200d5ad40bb",
+   "bytes": 1013,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Phone.dc.html": {
+   "sha256": "0cb74dd8349cb0ca34db14b4e3944c1f9ef189b80fae6a0d270fdcc499d39b54",
+   "bytes": 1002,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Saved-draft.dc.html": {
+   "sha256": "d55dcfc4cf6178d061330b1de3532941b0f4ba2a22e5286d2044ffc9b1acdcbf",
+   "bytes": 1005,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Step1.dc.html": {
+   "sha256": "412df5009497508d544c75e14f012661b4d6812c441b398ffd2d93472532a14b",
+   "bytes": 994,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Step2-errors.dc.html": {
+   "sha256": "583bfcb56b812d3b7b39ad31fe050414beed6975d223f2de002cfaddddbc23e9",
+   "bytes": 1024,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Step3.dc.html": {
+   "sha256": "929f83cb370f60eb42f449ca074827b7ed3399c5f91ffdce135a66dcbfee2b73",
+   "bytes": 1010,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Step4-phone.dc.html": {
+   "sha256": "f15597cad4dde13726294f626245927032a053db03fae378c84f891f7d772c94",
+   "bytes": 1002,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA07-Step4.dc.html": {
+   "sha256": "df6db9bf33a9a2f76316608c4735ef58707a0f81eb29da8950df0028c48db6f7",
+   "bytes": 1019,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA08-Coteach.dc.html": {
+   "sha256": "420bcf1cafd59313014dc3ce02dab11255a3a95d555a8330bbb63f0c8ecbfc33",
+   "bytes": 980,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA08-Draft.dc.html": {
+   "sha256": "a60d4c6d83abe3405f15a840bc6ea20e60eed9395b600736dee4cbbb4dd31e61",
+   "bytes": 1016,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA08-Phone.dc.html": {
+   "sha256": "427335a7d34e080c0631000064527e1eb37bfa1c337845e6ad0f1ba2bc10e512",
+   "bytes": 975,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA08-Summary.dc.html": {
+   "sha256": "ffb4b6630b548a9968750df5d14551a37a18066de8516d95f98d41feeea16d1b",
+   "bytes": 990,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA08-Version2.dc.html": {
+   "sha256": "671c97ffbf53b930e4f7bcc2d2c3e2bbd6dd558966fd787a0d51544d11549eb5",
+   "bytes": 1006,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA09-Add-from-bank.dc.html": {
+   "sha256": "fa17ac89c73fb7086392a16ed5ec2fa9d74eefbb864bef2d97405671c230f644",
+   "bytes": 1013,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA09-Coteach.dc.html": {
+   "sha256": "24ed1089a6ac367a1d4258b026d144c00298e4bb9bbb7547ab417e8ac6d93bbc",
+   "bytes": 991,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA09-New-version.dc.html": {
+   "sha256": "25f22151e452eb2240bf6a89dc2766171f7121f9a8805949180a0491d9a34857",
+   "bytes": 1023,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA09-Phone.dc.html": {
+   "sha256": "de8f511cb84bdd34955ae3132606922b0756f671ac5349d7e80d35ec13185557",
+   "bytes": 977,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA09-Questions.dc.html": {
+   "sha256": "05a256e95a3630ab9ecdca98d4ab97f2ad53f83a792e3200ebc3e983c9c1306f",
+   "bytes": 987,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA10-Coteach.dc.html": {
+   "sha256": "c9c620da0613173335593f1c2a360fd363fb8b1b09061e881e15f05928d600da",
+   "bytes": 991,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA10-Errors.dc.html": {
+   "sha256": "b745997a202a759a7cde1cb4a53e5ba331883bf71ec46ccf500a6e6bc71f1414",
+   "bytes": 999,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA10-Phone.dc.html": {
+   "sha256": "d7646f1970a30fb25e0a5331a9613a36f2547bc8daa0cd6916da3d9eb2697e27",
+   "bytes": 976,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA10-Release-change.dc.html": {
+   "sha256": "b9f1385699ebba7382a4b72eedfd15ce079c1973d21c037a846d369e4cc5770b",
+   "bytes": 1017,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA10-Rule-change.dc.html": {
+   "sha256": "e700ea17bcde36f8afbc852d7cde863fadc6eff507e382235b874a8768d37e8f",
+   "bytes": 1026,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA10-Settings.dc.html": {
+   "sha256": "944c3991360086ed95650c7e91d0158def9d5a612debf2b753f4a1d8d196b353",
+   "bytes": 971,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA11-Answer-key.dc.html": {
+   "sha256": "095da08441dd79dd3da6c97343144ae68a0b2dcfbc74298858babeff07dea4cc",
+   "bytes": 1006,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA11-Coteach.dc.html": {
+   "sha256": "27090bad0fdb9795413481cf6c11d5555411c663be3aa024275fb1dedc55fabe",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA11-Failed.dc.html": {
+   "sha256": "c139985c9915711cfc04aaf063ce55393a21dd51fef614ddc6612cf2c6b55eee",
+   "bytes": 1014,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA11-Phone.dc.html": {
+   "sha256": "fb65665f5f4d11ddd41b93a7c7938d0976b1cabb6d8f2a2e01e11afa4875affc",
+   "bytes": 1002,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA11-Student-view.dc.html": {
+   "sha256": "518f43e6d8f16b4f960f6fe14a4af31d2f132248dd4306557077a0470ad01f52",
+   "bytes": 992,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA12-Coteach.dc.html": {
+   "sha256": "e689d7938cacf2659e6ea4712b2f5a10a96c23e683e91284fffad05397fc26a1",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA12-Export.dc.html": {
+   "sha256": "bac631d508597c2bf7ed177687b923af04eca93eb9f08e222b162a32cf677c87",
+   "bytes": 1017,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA12-Marked.dc.html": {
+   "sha256": "d1b6d4c5894863ad9ef36ab046b8d2e8e4725571f156443b60d5a78fb9e79431",
+   "bytes": 1016,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA12-Phone.dc.html": {
+   "sha256": "bf14ccd58a3220fccfc6aaf5e2ab3edffa71e85f8e9a825052164e8a88a096da",
+   "bytes": 979,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA12-Submissions.dc.html": {
+   "sha256": "fc41003408700c237c9c5e7f74a67180ffae68f80503dbddd3a835bc12a1eb7d",
+   "bytes": 985,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-Delete.dc.html": {
+   "sha256": "e4b9725b37554178b05a6a1a5b1416298b4eca38d0545d24c0a20c17d611b7f3",
+   "bytes": 1018,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-Deleted.dc.html": {
+   "sha256": "d6f384db39f6506c9243b19f616c62ef31d80e07ffc23b4cc8798acaf08d8989",
+   "bytes": 1025,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-Drafts-phone.dc.html": {
+   "sha256": "3fcb953caa93bd031bf2801de7b4c8f2c7f4fd8b25fda34c75b0890a243b4e6b",
+   "bytes": 1014,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-Drafts.dc.html": {
+   "sha256": "50c3837cf26bb8e1889c4ff43391fb79e1c7313d01fe7dab3f2ad890b0779f30",
+   "bytes": 1009,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-Empty.dc.html": {
+   "sha256": "44de767e71c300c9a1b8576a9ade843c53cca7c5345fbb702f8cf44b23b3f1f7",
+   "bytes": 983,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-No-match.dc.html": {
+   "sha256": "2917bd48672625de54cf69e664611f6d8c6451bafe8253bbeb24ff2aadc87eb0",
+   "bytes": 1012,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-Phone.dc.html": {
+   "sha256": "13e6ea495a363ffc01ac08669e7fac77e0704b1d77f2d26cb32f8f25a75ab34a",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA14-Question-bank.dc.html": {
+   "sha256": "7e3409a636529b21c7c28f87c472f5a1d83637e8a45b2c60c12bd22ece2cae15",
+   "bytes": 989,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA15-Draft-review.dc.html": {
+   "sha256": "b7deac6523a7c57228e2aff785c61321ff2e16916fba42a083a76b9cb72dd2f2",
+   "bytes": 989,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA15-Errors.dc.html": {
+   "sha256": "748b6238866645ab2be0b2de14776aabc3c5a762e62da873967b29da4933fa40",
+   "bytes": 1013,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA15-New.dc.html": {
+   "sha256": "a64072f2f08bff3ea8f3ed24c12d16599a6c9359a6794507c6a3f47d667bab0d",
+   "bytes": 977,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA15-Phone.dc.html": {
+   "sha256": "ee2358dbf6146e6866772a97a88bdec7e9c20280a18a5690ba6e8adf2d43f0cb",
+   "bytes": 998,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA15-Used.dc.html": {
+   "sha256": "e5b517921dc025982bd9e0033c47ff17296de8ef9489b9b2a185ff7d68dd05f3",
+   "bytes": 1001,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-Busy.dc.html": {
+   "sha256": "9805436eb4cf4aad4fd87e8049ab1af6a7b90c2fb649af3a47c61aefd2f55cd1",
+   "bytes": 995,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-Draft.dc.html": {
+   "sha256": "7874500086ea2e54bf7ee4c8741c805ba96e5459bae5bd08119c6138c53faf6d",
+   "bytes": 995,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-Drafts-list.dc.html": {
+   "sha256": "0df5e4da98689120e5b17eab6c8f734b0ca6d540c5893199b27072f4d13a0495",
+   "bytes": 1005,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-Errors.dc.html": {
+   "sha256": "5b24964526760375ff5848a3877a22e9797f34da795f0e32194e6a93174c8ba2",
+   "bytes": 1007,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-Failed.dc.html": {
+   "sha256": "d1c050a8356e6d1bf322f54be13a4802425084b89d5095774c3f1b8f81a1eac2",
+   "bytes": 1004,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-List-phone.dc.html": {
+   "sha256": "d500b272b3b870f6eb56b472d88d7373bdf6b0049a46cbbd3caf3e030e8ea96d",
+   "bytes": 1010,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-No-courses.dc.html": {
+   "sha256": "24be152a468cca96cae57373bc6e9c19bb361ade93e3b1fd2d965ab292b549c8",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA16-Phone.dc.html": {
+   "sha256": "dca8e253202d9a019364838b75f25ffc16a40e0d0645f8d640c5263d1b462734",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA17-Choose.dc.html": {
+   "sha256": "211b2a5c409bb5a09d422f1cf396717280d5741679591ba2c79b337d3d28c3e9",
+   "bytes": 986,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA17-Confirm.dc.html": {
+   "sha256": "bbc6543d5a651ea504a08491763c303c5d16d7cdbcde5b07d7ed59af2278fd71",
+   "bytes": 1002,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA17-Done.dc.html": {
+   "sha256": "b98da97329601c15348068a1b1733f325b1ab7d1b40fcaf21f161becbef80366",
+   "bytes": 995,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA17-Not-CSV.dc.html": {
+   "sha256": "d02516eee145c0484a302fef4229279d455a5d23cadbbbc843c403ce9b6928c4",
+   "bytes": 1003,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA17-Phone.dc.html": {
+   "sha256": "f43b74c7182f1d43ffd4a1d9511a5b50acc9b19824d41b77880883db41a7f981",
+   "bytes": 1008,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA17-Row-errors.dc.html": {
+   "sha256": "00d3b6a774fdc87a92a4f3868d304e432624dc156e8e3a34025acda49b59e4a1",
+   "bytes": 1020,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA18-All.dc.html": {
+   "sha256": "4ab379d411eb1411710fce664c06e4f594c0700692208799f920bb7452009756",
+   "bytes": 1027,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA18-Marking.dc.html": {
+   "sha256": "6021c2463a2053c8ea327865c9588be9d912359eabba80dfc5241d3d56e51c49",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA18-No-courses.dc.html": {
+   "sha256": "d430c0609906b940ec7b547f48fe1e3e4cf07b3c02ba1938f0b4cb0c748064f8",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA18-Nothing-waiting.dc.html": {
+   "sha256": "1d3df4c435bb8b9106de3f20e6c65ec2bb88991c3f9daeb494b1d58b80159ffd",
+   "bytes": 989,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA18-Phone.dc.html": {
+   "sha256": "43ff845a28adbbaee8d5a5cc56b187be60d0da3ca57c92f2125cb546ccfe4306",
+   "bytes": 975,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA19-Confirm.dc.html": {
+   "sha256": "af494b8a0cd38dd88109cf5f1baf1b3aa55b96074d5af57316aa45e205d31531",
+   "bytes": 1034,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA19-Confirmed.dc.html": {
+   "sha256": "2b1693bff5146828fcc7c23696ffe39de0260e7da961f62278a07fb83fe84db6",
+   "bytes": 1038,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA19-Invalid-mark.dc.html": {
+   "sha256": "2d71c17b6f255d30c30b797f6fcad469a18ecd6bcac82392a0bffdc563c5ed5c",
+   "bytes": 1023,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA19-Mark.dc.html": {
+   "sha256": "9fcbd479a390663f87e3a081588e61edd6afbca5234c63f8cf59ea0977dad788",
+   "bytes": 1010,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA19-Phone.dc.html": {
+   "sha256": "af4179af08108465a42ab9c647d6a930b694f78340abe81cc8bb8b0aca5118fa",
+   "bytes": 1025,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA19-Released.dc.html": {
+   "sha256": "f5918a7fb800fddc40707abf4a6c4df5418b38e124e9df4a0ff01f6161250764",
+   "bytes": 1010,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA19-Saved.dc.html": {
+   "sha256": "997de0c3c929dc75825ad96ef5a2161fb39eaf1a99b21ac9d7491cdeeee9b112",
+   "bytes": 1035,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-Export-phone.dc.html": {
+   "sha256": "84a6447bd9b3b8485abedce8cdf0433e6aebf0b696b27dcee6b30149d4cf4cbc",
+   "bytes": 1029,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-Export.dc.html": {
+   "sha256": "ceeb772c86e8951636f6c4dbd218d624772f5dabad5de757512bfb26412e2921",
+   "bytes": 1024,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-Inactive.dc.html": {
+   "sha256": "b04085ca38baf1a66228a3b2eac82a329f7cefef493677131526cd5b2767d62d",
+   "bytes": 1019,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-No-courses.dc.html": {
+   "sha256": "38a299bc0484e45ea6764dbdbf201bddca1be711612021fc9bedf3e9d182cf43",
+   "bytes": 981,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-No-match.dc.html": {
+   "sha256": "102ec7caff1cfe93777613625283330368109f1b1f108cc45b44d606e17522f8",
+   "bytes": 1011,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-No-students.dc.html": {
+   "sha256": "63d7c0cc378436abc15c829a048518b54450405f018bf47d532f7a81ea4fd16c",
+   "bytes": 975,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-Phone.dc.html": {
+   "sha256": "22566e3766226dc9592c10b19cb4fee666115f6111f435344196c5a9043f15b2",
+   "bytes": 976,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA20-Students.dc.html": {
+   "sha256": "ed8196fd9b6c9e3912a2b778a9eeee4e024a3d171e2a919e2c0a4858fd0591cb",
+   "bytes": 978,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA21-Coteach.dc.html": {
+   "sha256": "9a43d6a4ea70eb4f28b2ad08d8a6ca02be33645a1cea3e0fec3353b2501a5f7d",
+   "bytes": 1007,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA21-Inactive.dc.html": {
+   "sha256": "f46b298272d8c36e1a714c3b65b026903a8d7edeeffe32d7ea3d51078db2ac58",
+   "bytes": 1009,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA21-Marked.dc.html": {
+   "sha256": "f00e9e023b2a80cf717e2f7a2bf05eac80ba402381344988d4d2bd4080d62296",
+   "bytes": 1041,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA21-Phone.dc.html": {
+   "sha256": "be5f2ce36c728f6243b4aec4b715f6585b378d5dd8eb1a5c7eb9dd1e126bec41",
+   "bytes": 1011,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA21-Released.dc.html": {
+   "sha256": "959128478612595b5cea4ba6221f24f7478c59d9da6c0d1f63c43ffac78107d7",
+   "bytes": 1018,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/FA21-Student.dc.html": {
+   "sha256": "134d9b64be32a15e663673b38e461db5ff9ce7dd1cd4c3be901df97708b26c6c",
+   "bytes": 1027,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/Live-Coteach.dc.html": {
+   "sha256": "b1179b8e38066c354ea67d48413a6fc52fd67733b1cbad280ecc9f4919acafce",
+   "bytes": 994,
+   "kind": "live starting point (imports Main)"
+  },
+  "project/Live-Laptop.dc.html": {
+   "sha256": "d228d0ab4822ac90a8e4f55f6afa44b21e4c966fcf23d6465de80f27e008dc98",
+   "bytes": 990,
+   "kind": "live starting point (imports Main)"
+  },
+  "project/Live-New.dc.html": {
+   "sha256": "a2b10ee9a082edbe1883036e8c5042dddafd88fced212012f634515940aa6e04",
+   "bytes": 991,
+   "kind": "live starting point (imports Main)"
+  },
+  "project/Live-Oct26.dc.html": {
+   "sha256": "f9d9f9758bf1584c120c939566309d625f572018921e8160e5ce00fae6811cd5",
+   "bytes": 1008,
+   "kind": "live starting point (imports Main)"
+  },
+  "project/Live-Phone.dc.html": {
+   "sha256": "15f3d7d90a0b410372fdb7819869fd2d7e1f88c354d246d2b1cfda11690f08cd",
+   "bytes": 986,
+   "kind": "live starting point (imports Main)"
+  },
+  "project/Live-Tablet.dc.html": {
+   "sha256": "e2eb9096a83e26b8cb2c4adee7b3260397714dc445141884deff5415feed986e",
+   "bytes": 987,
+   "kind": "live starting point (imports Main)"
+  },
+  "project/Main.dc.html": {
+   "sha256": "031c15cbcd935c13e7211299c1baf6bbcc1ca9a7260c16b9f2f9ea41efbdb311",
+   "bytes": 364375,
+   "kind": "role preview root (all views and logic)"
+  },
+  "project/Refusal-Co-teacher-marking.dc.html": {
+   "sha256": "04149e9ed35dc744aa0f136fd56be55715eade030c6fbdc9e5fa0df5a9790b3e",
+   "bytes": 1018,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/Refusal-Course.dc.html": {
+   "sha256": "d730a87b3c5f6b65efdce0f40550f76b3281b420238c24cd5ca09305a607b41f",
+   "bytes": 1001,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/What-changed.dc.html": {
+   "sha256": "0d18e1eda4c2fc4e1a066b4e3aced7f4d9d752e9d197998e7098ed8ca9904ab1",
+   "bytes": 12647,
+   "kind": "static review board (coverage, changes or checks)"
+  },
+  "project/XS-Account-menu.dc.html": {
+   "sha256": "b6058d2b914f740af041b6b4e876d71f2cd22dd16aa16c37ca2f909c4f0a2ec5",
+   "bytes": 1001,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/XS-Help-report.dc.html": {
+   "sha256": "03eaca9b6c20e109539bd468d213f7f8d468487b92c89f535f32407628db9743",
+   "bytes": 1013,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/XS-Help.dc.html": {
+   "sha256": "c4c623fa6150f15bbfa171d286ed918f1c2f15d8ae5c72d3075b35102ccba76f",
+   "bytes": 990,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/XS-Menu-phone.dc.html": {
+   "sha256": "0d4a8c1e39482e8a1a41d0e6b2220eab26b5df4c7623d2aa1b2890adad4d014c",
+   "bytes": 1007,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/XS-Not-your-workspace.dc.html": {
+   "sha256": "37328cbdd91216f32f7c08609892258a166a9cb0fd529e079c0911d817c9ac19",
+   "bytes": 990,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/XS-Signed-out.dc.html": {
+   "sha256": "d76558f56efa0c60d03e321fdadd41d76cdff358abe5cc95f0b3358332c755b9",
+   "bytes": 982,
+   "kind": "inspection board (imports Main)"
+  },
+  "project/canvas.json": {
+   "sha256": "fdb7465ccee43fafbf68acd7e4b3b1d028ad92247a0f230466f499a893f75e58",
+   "bytes": 33471,
+   "kind": "canvas layout"
+  },
+  "project/fa.css": {
+   "sha256": "e8aa113a30a4059f857344bac809114e8c293d673ee0f33efd069e34aa800f8d",
+   "bytes": 69146,
+   "kind": "role stylesheet (the only Faculty extension; additive)"
+  }
+ },
+ "lockedLandingScreenIds": [
+  "PU-01",
+  "PU-14"
+ ],
+ "lockedLandingTouched": false,
+ "independentRoleTheme": false,
+ "roleStylesheet": {
+  "file": "project/fa.css",
+  "sha256": "e8aa113a30a4059f857344bac809114e8c293d673ee0f33efd069e34aa800f8d",
+  "bytes": 69146,
+  "publishedVersionSha256": "9fe94eca3a4aa4d4854aba20b5d0a96287ac1a796f09cb821361f4e59aba2f82",
+  "note": "Replaces the published fa.css; the R1 checkpoint’s separate fa-r1.css no longer exists."
+ },
+ "checkedOn": "21 Oct 2026"
+}

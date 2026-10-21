@@ -1,30 +1,48 @@
 /**
- * The words of Phase 4B’s FA-18 Marking queue and FA-19 Mark a submission (board B4-09 f0 … f5,
- * f7, f8), and of the two Faculty Overview actions they make possible (B4-01 f0, f4: “Mark <n>
- * written answer”, “Mark now” and the inactive-students row’s “View students”). Every phrase is the
- * frozen boards’ own, found verbatim in their markup or script (`marking.test.ts`); the composed
- * lines take the boards’ forms with the records’ values (names, numbers, dates are never copied
- * from the boards). What B4-09 and B4-01 do not word is a provisional entry of the state-copy
- * register (`state-copy-marking.ts`, VD-12).
+ * The words of FA-18 Marking queue and FA-19 Mark a submission as the owner-approved Faculty export
+ * draws them (V3 Refined B, design/v3-refined-b/roles/FA-v1 `project/Main.dc.html` FA-18, FA-19,
+ * the Confirm marks dialog and the script's `vmQueue`, `vmMark`, `dlgMark`, `relPlan`,
+ * `relSentence`), and of the two Faculty Overview actions they make possible (FA-01, the teaching
+ * group's: “Mark <n> written answer”, “Mark now” and the inactive-students row's “View students”).
+ * Every phrase is the export's own, found verbatim in its template or script (`marking.test.ts`);
+ * the composed lines take the script's forms with the records' values (names, numbers and dates
+ * are never copied from the export). No line names an attempt or an assessment by its internal
+ * reference (the owner's identifier rule): a submission is the Student's, an attempt is “Attempt 1”.
+ * What the export does not word is a provisional entry of the state-copy register
+ * (`state-copy-marking.ts`).
  */
 import { QUESTION_TYPE_WORDS } from './assessment-words';
 import { stateWords } from './state-copy';
 
-// ---- FA-18 Marking queue (B4-09 f0, f4, f5) ----------------------------------------------------
+/** “1 day”, “2 days” (the export's `plural`). */
+function plural(count: number, one: string): string {
+  return `${count} ${count === 1 ? one : `${one}s`}`;
+}
+
+// ---- FA-18 Marking queue -------------------------------------------------------------------------
 
 export const MARKING_QUEUE = {
-  /** `div.xr-phead-actions > a.xr-btn--primary` (shown while any answer waits). */
-  markNext: 'Mark next',
-  /** `section.xr-section` “Written answers”. */
+  /** `p.rk-sub` under the title. */
+  lead: 'Written answers from your assessments, oldest first. Choice questions are marked automatically.',
+  /** No course taught: the compact message card. */
+  noCourseTitle: 'Nothing to mark yet',
+  noCourseLine:
+    'Written answers appear here once you teach a course with an assessment. Your Institute Admin hasn’t assigned you a course yet.',
+  /** The surface's heading (`h2#fa-mq-h`). */
   sectionTitle: 'Written answers',
-  /** The toolbar’s Assessment filter and its first option. */
+  /** The toolbar's one gold primary (shown while any answer waits). */
+  markNext: 'Mark next',
+  /** `div.rk-tools[role=search]`. */
+  filters: 'Filter written answers',
+  /** The Assessment filter and its first option. */
   assessment: 'Assessment',
   allAssessments: 'All assessments',
-  /** `div.xr-seg[role=group][aria-label=Show]`: Waiting · Marked · All. */
+  /** `div.fa-seg[role=group][aria-label=Show]`: Waiting · Marked · All. */
   show: 'Show',
   waiting: 'Waiting',
   marked: 'Marked',
   all: 'All',
+  caption: 'Written answers, oldest first',
   columns: {
     student: 'Student',
     assessment: 'Assessment',
@@ -32,23 +50,54 @@ export const MARKING_QUEUE = {
     status: 'Status',
     action: 'Action',
   },
-  /** `span.xr-status--wait` / `span.xr-status--ok`. */
+  /** The labels a row's cells take on phones (`span.fa-lbl`). */
+  cellLabels: { assessment: 'Assessment', submitted: 'Submitted', status: 'Status' },
   statusWaiting: 'Waiting for marking',
   statusMarked: 'Marked',
-  /** The row’s action: “Mark” while it waits, “View” once its marks are confirmed. */
+  /** Under a waiting row's status once its mark is saved. */
+  savedNote: 'Mark saved — not confirmed yet',
+  /** The row's action: “Mark” while it waits (`rb-btn`), “View marks” once confirmed (ghost). */
   mark: 'Mark',
-  view: 'View',
-  /** A filter that leaves no row while answers exist (B4-09 `noMatch`). */
-  noMatch: 'Nothing matches these filters.',
-  /** f5 “Nothing waiting”: `div.xr-empty` with the done icon in the ok tint. */
+  view: 'View marks',
+  /** A filter that leaves no row while answers exist (`MQ.noMatchT`, `MQ.noMatchD`). */
+  noMatchTitle: 'Nothing matches these filters',
+  noMatchLine: 'Try another assessment, or show all written answers.',
+  /** The same under Marked. */
+  noConfirmedTitle: 'No confirmed marks here yet',
+  noConfirmedLine: 'Answers you mark and confirm are listed here.',
+  showAll: 'Show all written answers',
+  /** Nothing waiting (`rk-state--roomy`, the inbox glyph). */
   emptyTitle: 'Nothing is waiting for you',
   emptyLine:
     'Written answers appear here, oldest first, as students submit. Choice questions are marked automatically.',
+  /**
+   * Under the empty state while a co-teaching colleague's assessment has submissions. The export's
+   * "… aren’t shown to co-teachers while sharing between co-teachers is being decided." in the
+   * product's words for co-teaching ("a co-teaching colleague"): B8-03 allows no role-name variant.
+   */
+  coteachNote:
+    'Written answers for assessments another Faculty member created aren’t shown to co-teaching colleagues while sharing between colleagues is being decided.',
 } as const;
 
-/** The header’s polite count: “2 written answers waiting”, “1 written answer waiting” (f0, f4, f5). */
+/** The toolbar's count (`span.rk-count[role=status]`): “2 written answers waiting”, “Nothing waiting”. */
 export function waitingCountWords(waiting: number): string {
+  if (waiting === 0) return 'Nothing waiting';
   return waiting === 1 ? '1 written answer waiting' : `${waiting} written answers waiting`;
+}
+
+/** Beside the count (`span.fa-oldest`): “Oldest waiting 2 days”, “Oldest submitted today”. */
+export function oldestWaitingWords(days: number): string {
+  return days <= 0 ? 'Oldest submitted today' : `Oldest waiting ${plural(days, 'day')}`;
+}
+
+/** Under a waiting row's submitted time: “2 days ago”, “Today”. */
+export function submittedAgoWords(days: number): string {
+  return days <= 0 ? 'Today' : `${plural(days, 'day')} ago`;
+}
+
+/** A segmented button's count for screen readers (`span.xr-sr`): “, 2”. */
+export function segmentCountWords(count: number): string {
+  return `, ${count}`;
 }
 
 /** An Assessment option: “Heat Exchanger — post-lab · Shell-and-Tube Heat Exchanger”. */
@@ -57,64 +106,131 @@ export function assessmentOptionWords(assessment: string, experiment: string | n
 }
 
 /**
- * The row’s second line: “Question 4 · written answer” — the written question’s number in the
- * attempt’s version. Several written questions (undrawn): “Questions 4, 5 · written answers”
- * (state-copy `FA-18.several-written`).
+ * A row's attempt (`fa-cellsub` under the Student): “Attempt 1 of 2”, the attempts allowed from the
+ * assessment list FA-18 reads; while they are not known (the list has not answered, or the rule is
+ * not set), “Attempt 1” (state-copy `FA-18.attempt`).
+ */
+export function queueAttemptWords(attempt: number, allowed: number | null): string {
+  return allowed === null
+    ? stateWords('FA-18.attempt').replace('{n}', String(attempt))
+    : `Attempt ${attempt} of ${allowed}`;
+}
+
+/**
+ * The row's second line: “Question 4 · written answer” — the written question's number in the
+ * attempt's version. Several written questions: “Questions 4 and 5 · written answers” (the
+ * export's `wqLabel`, state-copy `FA-18.several-written`).
  */
 export function writtenNumbersWords(numbers: readonly number[]): string {
   if (numbers.length === 1) return `Question ${numbers[0]} · written answer`;
-  return stateWords('FA-18.several-written').replace('{numbers}', numbers.join(', '));
+  const list = `${numbers.slice(0, -1).join(', ')} and ${numbers[numbers.length - 1]}`;
+  return stateWords('FA-18.several-written').replace('{numbers}', list);
 }
 
-/** The row action’s name: “Mark Rahul Verma”, “View marks for Rahul Verma” (B4-09 `r.aria`). */
+/** A marked row's note: “Confirmed 7 Nov 2026, 10:15”. */
+export function confirmedOnWords(when: string): string {
+  return `Confirmed ${when}`;
+}
+
+/** The row action's name: “Mark Rahul Verma”, “View marks for Rahul Verma” (`r.aria`). */
 export function rowActionLabel(student: string, marked: boolean): string {
   return marked ? `View marks for ${student}` : `Mark ${student}`;
 }
 
-// ---- FA-19 Mark a submission (B4-09 f1 … f3, f7, f8) --------------------------------------------
+// ---- FA-19 Mark a submission ---------------------------------------------------------------------
 
 export const MARK_SUBMISSION = {
-  /** The top bar’s title below 1024 px (f2, f3, f7, f8 `span.xr-top-title`). */
+  /** The page's name in the document title (the shell placement). */
   title: 'Mark a submission',
-  /** “Marking guidance” (`details.xa-guide`, open as drawn). */
-  guidance: 'Marking guidance',
-  /** The choice questions’ marks (`section.xr-section` “Marked automatically”). */
+  /** Below 860 px, where the panel sits under the answer (`p.fa-gomark`). */
+  goToMarks: 'Go to the marks',
+  /** The automatic-marks strip (`section.fa-autos`). */
   automatic: 'Marked automatically',
-  /** The panel (`aside.xr-dpanel`) “Your mark”. */
-  panelTitle: 'Your mark',
-  optional: '(optional)',
-  saved: 'Mark saved — not confirmed yet',
-  confirm: 'Confirm marks',
+  noChoice: 'This assessment has no choice questions.',
+  /** The guidance note (`p.fa-guide-k`). */
+  guidance: 'Marking guidance · only you see this',
+  /** A written question left blank. */
+  noAnswer: 'No answer was given.',
+  /** The panel (`div.rk-panel.fa-mpanel`). */
+  panelTitle: 'Marks',
+  /** The score field's label (`label.fa-score-lbl`). */
+  yourMark: 'Your mark',
+  total: 'Total',
   save: 'Save mark',
+  saved: 'Mark saved — not confirmed yet',
+  saveNote: 'Saving keeps your mark editable.',
+  confirm: 'Confirm marks',
   confirming: 'Confirming…',
   cancel: 'Cancel',
   cantChange: 'Confirmed marks can’t be changed.',
-  /** f2: the confirmed, read-only panel. */
+  /** The confirmed, read-only panel (`div.fa-done`). */
   confirmed: 'Marks confirmed',
-  markKey: 'Mark',
   feedbackKey: 'Feedback',
   noFeedback: 'No feedback',
   next: 'Next submission',
+  nothingElse: 'Nothing else is waiting for marking.',
+  seeSubmissions: 'See submissions',
+  statusWaiting: 'Waiting for marking',
+  statusMarked: 'Marked',
+  /** The dialog's first group (`div.rk-dlg-now > h3`) and its read-only line. */
+  confirmNow: 'What confirming does',
+  readOnlyAfter: 'The marks become read-only. They can’t be changed after you confirm.',
 } as const;
 
-/** The overline: “Heat Exchanger — post-lab · Shell-and-Tube Heat Exchanger” (upper-cased by CSS). */
+/** The eyebrow: “Heat Exchanger — post-lab · Shell-and-Tube Heat Exchanger”. */
 export function submissionOverline(assessment: string, experiment: string): string {
   return experiment ? `${assessment} · ${experiment}` : assessment;
 }
 
 /**
- * “Submitted 5 Nov 2026, 18:52 · attempt 1 of 2”; with no attempts rule set, “… · attempt 1”
+ * The meta line after the status: “Submitted 5 Nov 2026, 18:52 · attempt 1 of 2”, with “ · version
+ * 2” when the assessment has more than one version; with no attempts rule set, “… · attempt 1”
  * (state-copy `FA-19.attempts-unset`).
  */
-export function submittedLine(when: string, attempt: number, allowed: number | null): string {
-  return allowed === null
-    ? `Submitted ${when} · ${stateWords('FA-19.attempts-unset').replace('{n}', String(attempt))}`
-    : `Submitted ${when} · attempt ${attempt} of ${allowed}`;
+export function submittedLine(
+  when: string,
+  attempt: number,
+  allowed: number | null,
+  version: number | null = null,
+): string {
+  const attemptWords =
+    allowed === null
+      ? stateWords('FA-19.attempts-unset').replace('{n}', String(attempt))
+      : `attempt ${attempt} of ${allowed}`;
+  return `Submitted ${when} · ${attemptWords}${version === null ? '' : ` · version ${version}`}`;
 }
 
-/** The question card’s heading: “Question 4 · Written answer”. */
-export function writtenQuestionTitle(number: number): string {
-  return `Question ${number} · ${QUESTION_TYPE_WORDS.written}`;
+/** Beside the head while it waits (`p.fa-qpos`): “1 of 2 waiting · oldest first”. */
+export function queuePositionWords(position: number, waiting: number): string {
+  return `${position} of ${waiting} waiting · oldest first`;
+}
+
+/** The panel head's note: “16 marks in total”. */
+export function totalMarksWords(marks: number): string {
+  return `${plural(marks, 'mark')} in total`;
+}
+
+/** The strip's head figure: “4 of 6 marks”. */
+export function automaticMarksWords(awarded: number, outOf: number): string {
+  return `${awarded} of ${outOf} marks`;
+}
+
+/** A choice question in the strip: “Question 1 · Multiple choice” (the product's type words). */
+export function choiceQuestionWords(
+  number: number,
+  type: keyof typeof QUESTION_TYPE_WORDS,
+): string {
+  return `Question ${number} · ${QUESTION_TYPE_WORDS[type]}`;
+}
+
+/** “2 of 2”, “7 of 10” — awarded of the question's marks. */
+export function markOfWords(mark: number, outOf: number): string {
+  return `${mark} of ${outOf}`;
+}
+
+/** The written question's head: “Question 4 of 4 · Written answer”. */
+export function writtenQuestionHead(number: number, questions: number): string {
+  return `Question ${number} of ${questions} · ${QUESTION_TYPE_WORDS.written}`;
 }
 
 /** “Rahul Verma’s answer”. */
@@ -122,34 +238,47 @@ export function answerTitle(student: string): string {
   return `${student}’s answer`;
 }
 
-/** “Question 1” — a choice question’s row under “Marked automatically”. */
-export function questionNumberWords(number: number): string {
-  return `Question ${number}`;
+/** Under “Your mark” (`span.fa-score-q`): “Question 4 · written answer, out of 10”. */
+export function markFieldSub(number: number, max: number): string {
+  return `Question ${number} · written answer, out of ${max}`;
 }
 
-/** “2 of 2”, “7 of 10” — awarded of the question’s marks. */
-export function markOfWords(mark: number, outOf: number): string {
-  return `${mark} of ${outOf}`;
+/** Beside the score (`span.fa-scoreof`): “/ 10”. */
+export function markOutOf(max: number): string {
+  return `/ ${max}`;
 }
 
-/** “4 of 6 marks” — the choice questions’ marks in the section head. */
-export function automaticMarksWords(awarded: number, outOf: number): string {
-  return `${awarded} of ${outOf} marks`;
-}
-
-/** “Mark for question 4”. */
-export function markLabel(number: number): string {
-  return `Mark for question ${number}`;
-}
-
-/** “Out of 10, as a whole number.” */
+/** The score's hint: “A whole number from 0 to 10.”. */
 export function markHint(max: number): string {
-  return `Out of ${max}, as a whole number.`;
+  return `A whole number from 0 to ${max}.`;
 }
 
-/** “Feedback for Rahul” (then “(optional)”). */
+/** “Feedback for Rahul (optional)”. */
 export function feedbackLabel(first: string): string {
-  return `Feedback for ${first}`;
+  return `Feedback for ${first} (optional)`;
+}
+
+/** The live total (`div.fa-total b`): “— of 16” until the mark is a whole number, then “11 of 16”. */
+export function liveTotalWords(total: number | null, outOf: number): string {
+  return `${total === null ? '—' : total} of ${outOf}`;
+}
+
+/** “ · pass mark 8” after a total's line; nothing while the version sets no pass mark. */
+function passMarkTail(passMark: number | null): string {
+  return passMark === null ? '' : ` · pass mark ${passMark}`;
+}
+
+/**
+ * Under the live total: “4 marked automatically + the written mark · pass mark 8”, then “4 marked
+ * automatically + 7 written · pass mark 8”.
+ */
+export function liveTotalLine(
+  auto: number,
+  written: number | null,
+  passMark: number | null,
+): string {
+  const part = written === null ? 'the written mark' : `${written} written`;
+  return `${auto} marked automatically + ${part}${passMarkTail(passMark)}`;
 }
 
 /** “7 Nov 2026, 10:15 · Dr S. Ranganathan” under “Marks confirmed”. */
@@ -157,7 +286,26 @@ export function confirmedByLine(when: string, by: string): string {
   return `${when} · ${by}`;
 }
 
-/** The pinned release terms as the screen reads them (`PinnedRelease`). */
+/** The confirmed total (`div.fa-done-total b`): “11 of 16 marks”. */
+export function doneTotalWords(total: number, outOf: number): string {
+  return `${total} of ${outOf} marks`;
+}
+
+/**
+ * Beside it: “Passed · pass mark 8”, “Not passed · pass mark 8”; with no pass mark set, nothing
+ * (state-copy `FA-19.pass-mark-unset`).
+ */
+export function passOutcomeWords(passed: boolean | null, passMark: number | null): string | null {
+  if (passed === null || passMark === null) return null;
+  return `${passed ? 'Passed' : 'Not passed'} · pass mark ${passMark}`;
+}
+
+/** A confirmed mark's key in the summary list: “Question 4”. */
+export function questionNumberWords(number: number): string {
+  return `Question ${number}`;
+}
+
+/** The pinned release terms as the screens read them (`PinnedRelease`, P4-06: the attempt's version). */
 export interface ReleaseTerms {
   readonly option: 'immediately-after-marking' | 'after-deadline' | 'on-date' | null;
   /** The deadline or the release date, in words (“14 Nov 2026, 23:59”). */
@@ -165,100 +313,101 @@ export interface ReleaseTerms {
 }
 
 /**
- * The confirmed panel’s release line. Not released yet, after the deadline (f2): “Rahul sees the
- * result after the deadline: 14 Nov 2026, 23:59, as set for this assessment.”; released after the
- * deadline (B4-09 `relLine`): “Released to Rahul on 14 Nov 2026, 23:59 — when the deadline
- * passed.” The other options are undrawn (state-copy `FA-19.release.*`).
+ * The result's release once the marks are confirmed (`relSentence`, FA-19's panel and FA-21's
+ * assessment panel): released after the deadline, “Result released to Rahul when the deadline
+ * passed: 14 Nov 2026, 23:59.”; not yet, “Result not released to Rahul yet — after the deadline,
+ * 14 Nov 2026, 23:59, as set for this assessment.” What the export cannot reach (not released yet
+ * though set for immediately after marking; no release setting) is the register's
+ * (`FA-19.release.*`).
  */
-export function releaseLine(first: string, terms: ReleaseTerms, releasedAt: string | null): string {
-  if (releasedAt !== null) {
-    if (terms.option === 'after-deadline')
-      return `Released to ${first} on ${releasedAt} — when the deadline passed.`;
-    const id =
-      terms.option === 'on-date'
-        ? 'FA-19.release.released-on-date'
-        : 'FA-19.release.released-immediately';
-    return stateWords(id).replace('{first}', first).replace('{date}', releasedAt);
+export function resultReleaseLine(
+  first: string,
+  terms: ReleaseTerms,
+  released: boolean,
+  confirmedAt: string | null,
+): string {
+  if (released) {
+    if (terms.option === 'after-deadline' && terms.on !== null)
+      return `Result released to ${first} when the deadline passed: ${terms.on}.`;
+    if (terms.option === 'on-date' && terms.on !== null)
+      return `Result released to ${first} on ${terms.on}, as set for this assessment.`;
+    if (terms.option === 'immediately-after-marking' && confirmedAt !== null)
+      return `Result released to ${first} when the marks were confirmed, ${confirmedAt}.`;
+    return stateWords('FA-19.release.released').replace('{first}', first);
   }
   if (terms.option === 'after-deadline' && terms.on !== null)
-    return `${first} sees the result after the deadline: ${terms.on}, as set for this assessment.`;
+    return `Result not released to ${first} yet — after the deadline, ${terms.on}, as set for this assessment.`;
   if (terms.option === 'on-date' && terms.on !== null)
-    return stateWords('FA-19.release.on-date')
-      .replace('{first}', first)
-      .replace('{date}', terms.on);
+    return `Result not released to ${first} yet — on ${terms.on}, as set for this assessment.`;
   if (terms.option === 'immediately-after-marking')
     return stateWords('FA-19.release.immediately').replace('{first}', first);
   return stateWords('FA-19.release.unset').replace('{first}', first);
 }
 
-/** DL-1’s title: “Confirm marks for Rahul Verma?”. */
+/** The dialog's title: “Confirm marks for Rahul Verma?” (its line names the assessment). */
 export function confirmTitle(student: string): string {
   return `Confirm marks for ${student}?`;
 }
 
-/** DL-1’s first line before the mark: “Question 4: ” (then “7 of 10” in bold and “.”). */
-export function confirmMarkLead(number: number): string {
-  return `Question ${number}: `;
+/** The dialog's first line: “Question 4 is marked 7 of 10.”. */
+export function confirmMarkLine(number: number, mark: number, max: number): string {
+  return `Question ${number} is marked ${mark} of ${max}.`;
 }
 
 /**
- * DL-1’s effect: “Confirmed marks can’t be changed. Rahul sees the result when it’s released —
- * after the deadline, 14 Nov 2026, 23:59.” The other release options are undrawn (state-copy
- * `FA-19.confirm.*`).
+ * The dialog's total: “Rahul’s total becomes 11 of 16 marks — passed (pass mark 8).”; with no pass
+ * mark set, “Rahul’s total becomes 11 of 16 marks.” (state-copy `FA-19.pass-mark-unset`).
  */
-export function confirmEffect(first: string, terms: ReleaseTerms): string {
-  const lead = `${MARK_SUBMISSION.cantChange} ${first} sees the result when it’s released`;
-  if (terms.option === 'after-deadline' && terms.on !== null)
-    return `${lead} — after the deadline, ${terms.on}.`;
-  if (terms.option === 'on-date' && terms.on !== null)
-    return `${lead} — ${stateWords('FA-19.confirm.on-date').replace('{date}', terms.on)}`;
+export function confirmTotalLine(
+  first: string,
+  total: number,
+  outOf: number,
+  passed: boolean | null,
+  passMark: number | null,
+): string {
+  const lead = `${first}’s total becomes ${total} of ${outOf} marks`;
+  if (passed === null || passMark === null) return `${lead}.`;
+  return `${lead} — ${passed ? 'passed' : 'not passed'} (pass mark ${passMark}).`;
+}
+
+/** The dialog's second group (`div.rk-dlg-later > h3`): “When Rahul sees the result”. */
+export function confirmLaterTitle(first: string): string {
+  return `When ${first} sees the result`;
+}
+
+/**
+ * When the Student sees the result, by the pinned version's terms (`relPlan`): `now` lines join
+ * “What confirming does”; the others are the later group's. Immediately after marking, or a
+ * deadline or release date already passed (on the session's clock): “Rahul sees the result as soon
+ * as you confirm, as set for this assessment.” / “… as soon as you confirm — the deadline has
+ * passed.”; else “Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this
+ * assessment.” / “… on 20 Nov 2026, 09:00, as set for this assessment.”. No release setting: the
+ * register's `FA-19.release.unset`.
+ */
+export function confirmReleasePlan(
+  first: string,
+  terms: ReleaseTerms,
+  releasePassed: boolean,
+): { readonly now: boolean; readonly text: string } {
   if (terms.option === 'immediately-after-marking')
-    return `${lead} — ${stateWords('FA-19.confirm.immediately')}`;
-  return `${lead}.`;
-}
-
-// ---- FA-01 Overview: the Phase-4B actions (B4-01 f0, f4) -----------------------------------------
-
-export const OVERVIEW_ACTIONS = {
-  /** The written-answers row’s action (→ FA-18 for that assessment). */
-  markNow: 'Mark now',
-  /** The inactive-students row’s action (→ FA-20 for that experiment). */
-  viewStudents: 'View students',
-} as const;
-
-/**
- * The header’s one primary: “Mark 1 written answer” (f0, f4); several, “Mark 3 written answers”
- * (state-copy `FA-01.mark-header-many`).
- */
-export function markHeaderWords(answers: number): string {
-  return answers === 1
-    ? 'Mark 1 written answer'
-    : stateWords('FA-01.mark-header-many').replace('{n}', String(answers));
-}
-
-/**
- * “2 students inactive for 14 days or more” (f0, f4); one Student (undrawn), “1 student inactive
- * for 14 days or more” (state-copy `FA-01.inactive-one`).
- */
-export function inactiveTitle(students: number, days: number): string {
-  return students === 1
-    ? stateWords('FA-01.inactive-one').replace('{days}', String(days))
-    : `${students} students inactive for ${days} days or more`;
-}
-
-/** Names drawn on the inactive row before “and <n> more” (state-copy `FA-01.inactive-names`). */
-export const INACTIVE_NAMES_SHOWN = 3;
-
-/**
- * “Imran Shaikh, Karthik Rao · Shell-and-Tube Heat Exchanger” (f0, f4); beyond three names,
- * “A, B, C and 2 more · <experiment>” (state-copy `FA-01.inactive-names`).
- */
-export function inactiveSub(names: readonly string[], experiment: string): string {
-  const shown = names.slice(0, INACTIVE_NAMES_SHOWN).join(', ');
-  const rest = names.length - INACTIVE_NAMES_SHOWN;
-  const list =
-    rest > 0
-      ? `${shown} ${stateWords('FA-01.inactive-names').replace('{n}', String(rest))}`
-      : shown;
-  return `${list} · ${experiment}`;
+    return {
+      now: true,
+      text: `${first} sees the result as soon as you confirm, as set for this assessment.`,
+    };
+  if (terms.option === null || terms.on === null)
+    return { now: false, text: stateWords('FA-19.release.unset').replace('{first}', first) };
+  if (releasePassed)
+    return {
+      now: true,
+      text: `${first} sees the result as soon as you confirm — ${
+        terms.option === 'on-date' ? 'the release date' : 'the deadline'
+      } has passed.`,
+    };
+  return {
+    now: false,
+    text:
+      terms.option === 'on-date'
+        ? `${first} sees the result on ${terms.on}, as set for this assessment.`
+        : `${first} sees the result after the deadline: ${terms.on}, as set for this assessment.`,
+  };
 }

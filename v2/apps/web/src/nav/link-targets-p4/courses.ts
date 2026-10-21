@@ -7,40 +7,49 @@ const COURSE = '/faculty/courses/{courseId}';
 const EXPERIMENT = '/faculty/experiments/{experimentId}';
 
 /**
- * Phase 4A link targets: FA-02 My courses, FA-03 Course and FA-04 Experiments (B4-02). No page
- * draws a primary action outside its failed state; "Try again" is recorded as a command, as the
- * other list pages record it. FA-03's "Students on this experiment" opens FA-20 for that
- * experiment since Phase 4B built it.
+ * Link targets: FA-02 My courses, FA-04 Experiments and FA-03 Course, as the owner-approved V3
+ * export draws them (FA-v1 LINK-MAP FA-02, FA-03, FA-04; `Main.dc.html`). FA-02 and FA-04 draw no
+ * primary; FA-03's experiment panels draw "Mark <n> written answers" (the oldest waiting
+ * submission, FA-19) or "Create assessment" (FA-07) as each Assessment column's primary. "Try
+ * again" is recorded as a command, as the other list pages record it.
  */
 export const P4_FACULTY_COURSES_LINK_TARGETS: readonly LedgerEntry[] = [
   ...pageRows('FA-02', MY_COURSES, [
-    ['Section tabs', 'Courses', 'secondary', MY_COURSES, 'built', 'B4-02 f0, f2, f7 `nav.xr-tabs`'],
+    ['Tabs', 'Courses', 'secondary', MY_COURSES, 'built', 'FA-v1 LINK-MAP FA-02 `nav.rk-tabs`'],
     [
-      'Section tabs',
+      'Tabs',
       'Experiments',
       'secondary',
       EXPERIMENTS_TAB,
       'built',
-      'B4-02 f0, f2, f7 `nav.xr-tabs` (→ FA-04, Appendix A rule T2)',
+      'FA-v1 LINK-MAP FA-02 `nav.rk-tabs` (→ FA-04, Appendix A rule T2)',
     ],
     [
-      'Course row',
+      'Course ledger · course head',
       'Open course',
       'secondary',
       COURSE,
       'built',
-      'B4-02 f0, f7 `a.xr-btn--secondary.xr-btn--sm` (→ FA-03)',
+      'FA-v1 LINK-MAP FA-02 “Open course ME ZG523 …” `a.rb-btn` (→ FA-03)',
+    ],
+    [
+      'Course ledger · experiment row',
+      '<experiment name>',
+      'secondary',
+      EXPERIMENT,
+      'built',
+      'FA-v1 LINK-MAP FA-02 `a.fa-exp-link` (→ FA-05)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-02.failed`'],
   ]),
   ...pageRows('FA-04', EXPERIMENTS_TAB, [
     [
       'Toolbar',
-      'Search experiments · Format · Activity · Remove (chip) · Clear filters',
+      'Search · Format · Student activity · Remove filter (chip) · Clear filters',
       'secondary',
       null,
       'in-page',
-      'B4-02 f2, f3, f8 (script: chips for Format and Activity)',
+      'FA-v1 Main.dc.html FA-04 (`vmCourses`: chips for search, format and activity)',
       'Filters apply at once; nothing is stored.',
     ],
     [
@@ -49,45 +58,75 @@ export const P4_FACULTY_COURSES_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       EXPERIMENT,
       'built',
-      'B4-02 f2, f8 (`td a strong` → B4-03 FA-05)',
+      'FA-v1 LINK-MAP FA-04 “Open Shell-and-Tube Heat Exchanger” `a.rk-rowlink` (the row press follows it; → FA-05)',
     ],
     [
-      'Experiment row',
-      'Open',
+      'No match',
+      'Clear filters',
       'secondary',
-      EXPERIMENT,
-      'built',
-      'B4-02 f2, f8 `a.xr-btn--secondary.xr-btn--sm` (→ B4-03 FA-05)',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-04 `div.rk-state`',
     ],
-    ['No match', 'Clear filters', 'secondary', null, 'in-page', 'B4-02 f3'],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'B4-02 f5'],
+    [
+      'Failed state',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-04 `div.rk-state[role=alert]`',
+    ],
   ]),
   ...pageRows('FA-03', COURSE, [
-    ['Back link', 'My courses', 'secondary', MY_COURSES, 'built', 'B4-02 f1 `a.xr-back`'],
     [
-      'Experiment card',
-      '<experiment name>',
+      'Breadcrumb',
+      'My courses',
       'secondary',
-      EXPERIMENT,
+      MY_COURSES,
       'built',
-      'B4-02 f1 (`h3.xl-exp-title a` → B4-03 FA-05)',
+      'FA-v1 LINK-MAP FA-03 `nav.rk-crumbs`',
     ],
     [
-      'Experiment card',
+      'Experiment panel',
       'Open experiment',
       'secondary',
       EXPERIMENT,
       'built',
-      'B4-02 f1 `a.xr-btn--secondary` (→ B4-03 FA-05)',
+      'FA-v1 LINK-MAP FA-03 “Open experiment Shell-and-Tube Heat Exchanger” `a.rb-btn` (→ FA-05)',
     ],
     [
-      'Experiment card',
+      'Experiment panel · Student activity',
       'Students on this experiment',
       'secondary',
       '/faculty/students?experimentId={experimentId}',
       'built',
-      'B4-02 f1 `a.xr-btn--text` (→ B4-10 FA-20)',
-      'FA-20 for that experiment (Phase 4B).',
+      'FA-v1 LINK-MAP FA-03 `a.rb-link` (→ FA-20)',
+      'FA-20 for that experiment.',
+    ],
+    [
+      'Experiment panel · Assessment',
+      'Mark <n> written answers',
+      'primary',
+      '/faculty/marking/{attemptId}',
+      'built',
+      'FA-v1 LINK-MAP FA-03 “Mark 2 written answers for …” `a.rb-btn--primary` (→ FA-19)',
+      'The oldest waiting submission of that assessment (one marking-queue read for the page); Marking (FA-18) for it until the queue answers.',
+    ],
+    [
+      'Experiment panel · Assessment',
+      'Open assessment · Continue setting up',
+      'secondary',
+      '/faculty/assessments/{assessmentId}',
+      'built',
+      'FA-v1 LINK-MAP FA-03 “Open assessment” `a.rb-btn` (→ FA-08)',
+    ],
+    [
+      'Experiment panel · no assessment yet',
+      'Create assessment',
+      'primary',
+      '/faculty/assessments/new?experimentId={experimentId}',
+      'built',
+      'FA-v1 LINK-MAP FA-03 (No assessment) “Create assessment” `a.rb-btn--primary` (→ FA-07)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-03.failed`'],
   ]),

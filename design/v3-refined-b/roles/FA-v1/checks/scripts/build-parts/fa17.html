@@ -1,0 +1,163 @@
+      <!-- ═══ FA-17 Import questions (CSV, three steps) ═══ -->
+      <sc-if value="{{ is.im }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ IM.backHref }}" onClick="{{ IM.goBack }}">{{ IM.backCrumb }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-right"></use></svg><span aria-current="page">Import questions</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rk-eyebrow">{{ IM.over }}</p>
+          <h1 class="rb-h1" id="fa-h1" tabindex="-1">{{ IM.title }}</h1>
+        </div>
+      </div>
+      <sc-if value="{{ IM.noCourse }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface fr-msgcard" aria-labelledby="fa-im-none">
+        <div class="fa-inlinemsg">
+          <span class="fa-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-upload"></use></svg></span>
+          <h2 class="rb-h2" id="fa-im-none">Nothing to import into yet</h2>
+          <p class="fa-msg-d">Imported questions belong to an experiment you teach. Your Institute Admin hasn’t assigned you a course yet.</p>
+          <div class="fa-msg-act"><a class="rb-btn" href="#FA-14" onClick="{{ nav.bank }}">Back to Question bank</a></div>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ IM.hasCourse }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ IM.notDone }}" hint-placeholder-val="{{ true }}">
+      <ol class="fa-steps fr-stepper" aria-label="Steps to import questions">
+        <sc-for list="{{ IM.steps }}" as="x" hint-placeholder-count="3"><li class="{{ x.cls }}" aria-current="{{ x.cur }}"><span class="fa-step-n" aria-hidden="true"><sc-if value="{{ x.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#fai-check"></use></svg></sc-if><sc-if value="{{ x.todo }}" hint-placeholder-val="{{ true }}">{{ x.n }}</sc-if></span><span class="fr-step-l">{{ x.label }}</span><span class="xr-sr">{{ x.sr }}</span></li></sc-for>
+      </ol>
+      </sc-if>
+      <div class="{{ IM.layoutCls }}">
+      <section class="rk-surface fr-form" aria-labelledby="fa-h1">
+        <sc-if value="{{ IM.s1 }}" hint-placeholder-val="{{ true }}">
+        <div class="fr-fsec">
+          <div class="rk-field">
+            <h2 class="fr-fsec-t" id="fa-im-file-l">Your CSV file</h2>
+            <p class="rk-hint">One row per question, in the template’s columns.</p>
+            <div class="fa-file fr-file" role="group" aria-labelledby="fa-im-file-l">
+              <svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-file"></use></svg>
+              <sc-if value="{{ IM.hasFile }}" hint-placeholder-val="{{ false }}"><span class="fa-file-name">{{ IM.file }}</span></sc-if>
+              <sc-if value="{{ IM.noFile }}" hint-placeholder-val="{{ true }}"><span class="fa-file-name is-none">No file chosen</span></sc-if>
+              <input type="file" id="fa-im-file" accept=".csv,text/csv" tabindex="-1" aria-hidden="true" onChange="{{ IM.onFile }}">
+              <button type="button" class="rb-btn" id="fa-im-choose" aria-describedby="{{ IM.errDesc }}" onClick="{{ IM.pick }}">Choose a CSV file</button>
+              <button type="button" class="rb-btn rb-btn--ghost" onClick="{{ IM.useSample }}">Use the sample file</button>
+            </div>
+            <sc-if value="{{ IM.hasErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-im-err" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ IM.err }}</p></sc-if>
+            <p class="rk-hint">CSV only. The sample file is part of this preview: it has two rows with errors so you can see how they’re reported.</p>
+          </div>
+          <p class="fr-dest"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-stack"></use></svg><span>{{ IM.dest }}</span></p>
+        </div>
+        <div class="fa-formfoot">
+          <div class="fa-formfoot-l"><a class="rb-btn" href="{{ IM.backHref }}" onClick="{{ IM.goBack }}">Cancel</a></div>
+          <div class="fa-formfoot-r">
+            <sc-if value="{{ IM.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ IM.check }}">Check file</button></sc-if>
+            <sc-if value="{{ IM.busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" disabled="{{ true }}" aria-live="polite">Checking rows…</button></sc-if>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ IM.s2 }}" hint-placeholder-val="{{ false }}">
+        <div class="fr-fsec">
+          <p class="fr-filerow"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-file"></use></svg><span class="rk-strong" id="fa-im-h" tabindex="-1">{{ IM.file }}</span></p>
+          <sc-if value="{{ IM.hasFileErr }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-notice rk-notice--warn" role="alert"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg><p class="rk-notice-t">This file can’t be checked</p><p class="rk-notice-d">{{ IM.fileErr }}</p></div>
+          </sc-if>
+          <sc-if value="{{ IM.hasRep }}" hint-placeholder-val="{{ true }}">
+          <dl class="fr-repfigs" role="status">
+            <div><dt>Rows</dt><dd>{{ IM.nTotal }}</dd></div>
+            <div class="is-ok"><dt>Ready</dt><dd>{{ IM.nOk }}</dd></div>
+            <div class="{{ IM.errFigCls }}"><dt>With errors</dt><dd>{{ IM.nErr }}</dd></div>
+            <div class="{{ IM.warnFigCls }}"><dt>With warnings</dt><dd>{{ IM.nWarn }}</dd></div>
+          </dl>
+          <sc-if value="{{ IM.hasErrors }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-notice rk-notice--warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg><p class="rk-notice-t">Nothing is imported while the file has errors</p><p class="rk-notice-d">Fix the rows marked Error in your file, then choose it again. For now, a file imports whole or not at all.</p></div>
+          </sc-if>
+          <sc-if value="{{ IM.hasProblems }}" hint-placeholder-val="{{ true }}">
+          <div class="fr-rowcheck">
+            <h2 class="fr-fsec-t">Rows that need attention</h2>
+            <div class="fa-tablewrap fr-boxtable">
+              <table class="rk-table fa-table fr-ptable">
+                <caption>Rows that need attention</caption>
+                <thead><tr><th scope="col">Row</th><th scope="col">Question</th><th scope="col">What to fix</th><th scope="col">Type</th></tr></thead>
+                <tbody>
+                  <sc-for list="{{ IM.problems }}" as="p" hint-placeholder-count="2">
+                  <tr class="fa-static">
+                    <td class="fa-nowrap fa-c-main fr-c-inl"><span class="fa-lbl">Row</span><span class="rk-strong">{{ p.row }}</span></td>
+                    <td class="fr-c-wide fr-c-nolbl"><span class="fa-lbl">Question</span>{{ p.q }}</td>
+                    <td class="fr-c-wide"><span class="fa-lbl">What to fix</span>{{ p.msg }}</td>
+                    <td class="fr-c-st"><span class="fa-lbl">Type</span><sc-if value="{{ p.isErr }}" hint-placeholder-val="{{ true }}"><span class="xr-st xr-st--err"><i></i>Error — blocks import</span></sc-if><sc-if value="{{ p.isWarn }}" hint-placeholder-val="{{ false }}"><span class="xr-st xr-st--warn"><i></i>Warning</span></sc-if></td>
+                  </tr>
+                  </sc-for>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          </sc-if>
+          </sc-if>
+        </div>
+        <div class="fa-formfoot">
+          <div class="fa-formfoot-l"><button type="button" class="rb-btn" onClick="{{ IM.back }}">Back</button></div>
+          <div class="fa-formfoot-r">
+            <sc-if value="{{ IM.blocked }}" hint-placeholder-val="{{ true }}">
+            <sc-if value="{{ IM.canFixSample }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ IM.useFixed }}">Choose the corrected file</button></sc-if>
+            <sc-if value="{{ IM.ownFile }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ IM.chooseAnother }}">Choose another file</button></sc-if>
+            </sc-if>
+            <sc-if value="{{ IM.canGo }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ IM.toConfirm }}">Continue</button></sc-if>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ IM.s3 }}" hint-placeholder-val="{{ false }}">
+        <div class="fr-fsec">
+          <p class="fr-result-t" id="fa-im-h" tabindex="-1">{{ IM.confirmText }}</p>
+          <dl class="fr-repfigs">
+            <sc-for list="{{ IM.byType }}" as="b" hint-placeholder-count="3"><div><dt>{{ b.k }}</dt><dd>{{ b.v }}</dd></div></sc-for>
+          </dl>
+          <ul class="fa-check" aria-label="What importing does" style="margin-top: 0">
+            <li class="is-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><span>They go into your question bank for {{ IM.expT }}.</span></li>
+            <li class="is-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><span>They aren’t added to any assessment. You choose where to use them.</span></li>
+            <sc-if value="{{ IM.hasWarn }}" hint-placeholder-val="{{ true }}"><li class="is-no"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><span>{{ IM.warnLine }}</span></li></sc-if>
+          </ul>
+        </div>
+        <div class="fa-formfoot">
+          <div class="fa-formfoot-l"><button type="button" class="rb-btn" onClick="{{ IM.back }}">Back</button></div>
+          <div class="fa-formfoot-r">
+            <sc-if value="{{ IM.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ IM.doImport }}">{{ IM.importBtn }}</button></sc-if>
+            <sc-if value="{{ IM.busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" disabled="{{ true }}" aria-live="polite">Importing…</button></sc-if>
+          </div>
+        </div>
+        </sc-if>
+
+        <sc-if value="{{ IM.done }}" hint-placeholder-val="{{ false }}">
+        <div class="fr-fsec rk-done fr-result" id="fa-im-done" tabindex="-1">
+          <div class="rk-notice rk-notice--ok" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><p class="rk-notice-t">Import finished</p><p class="rk-notice-d">{{ IM.doneText }}</p></div>
+          <div class="fa-actions">
+            <a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-14" onClick="{{ IM.openBank }}">Open question bank</a>
+            <sc-if value="{{ IM.hasRet }}" hint-placeholder-val="{{ false }}"><a class="rb-btn rb-btn--lg" href="{{ IM.backHref }}" onClick="{{ IM.goBack }}">{{ IM.retLabel }}</a></sc-if>
+            <button type="button" class="rb-btn rb-btn--ghost rb-btn--lg" onClick="{{ IM.again }}">Import another file</button>
+          </div>
+        </div>
+        </sc-if>
+      </section>
+      <sc-if value="{{ IM.notDone }}" hint-placeholder-val="{{ true }}">
+      <aside class="fr-side" aria-labelledby="fa-im-tpl">
+        <div class="rk-surface">
+          <div class="fr-side-sec">
+            <h2 class="rb-h2" id="fa-im-tpl">The template</h2>
+            <p class="rk-hint" style="margin-top: 6px">One row per question. A file imports whole or not at all.</p>
+            <p style="margin-top: 12px"><a class="rb-link fr-dl" href="data:text/csv;charset=utf-8,type%2Cquestion%2Coption_a%2Coption_b%2Coption_c%2Coption_d%2Ccorrect%2Cmarks%2Cexplanation%2Cmarking_guidance%0D%0A" download="question-import-template.csv"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-download"></use></svg>Download the template (CSV)</a></p>
+          </div>
+          <div class="fr-side-sec">
+            <h3 class="rk-h3">Columns</h3>
+            <dl class="fr-tpl" aria-label="Template columns">
+              <div><dt>type</dt><dd>single choice, true or false, or written answer</dd></div>
+              <div><dt>question</dt><dd>always required</dd></div>
+              <div><dt>option_a – option_d</dt><dd>choice questions: at least two options</dd></div>
+              <div><dt>correct</dt><dd>A–D, or TRUE / FALSE</dd></div>
+              <div><dt>marks</dt><dd>always required: a whole number, 1 or more</dd></div>
+              <div><dt>explanation</dt><dd>optional</dd></div>
+              <div><dt>marking_guidance</dt><dd>optional, for written answers</dd></div>
+            </dl>
+          </div>
+        </div>
+      </aside>
+      </sc-if>
+      </div>
+      </sc-if>
+      </sc-if>

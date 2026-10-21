@@ -2,26 +2,49 @@
 
 import type { ServiceError } from '@xr/contracts/draft';
 import type { Assessment } from '@xr/domain';
-import { Button, ErrorSummary, Notice } from '@xr/ui';
-import { type FormEvent, useEffect, useRef, useState } from 'react';
+import {
+  Button,
+  ErrorSummary,
+  FaAuthor,
+  FaCreateSideTitle,
+  FaFormFoot,
+  FaFormMessages,
+  FaFormSection,
+  FaRecordLine,
+  FaSettingsForm,
+  FaSettingsHead,
+  FaSettingsVersion,
+  FaSide,
+  FaSideSection,
+  Hint,
+  Notice,
+} from '@xr/ui/v3';
+import { type FormEvent, type Ref, useEffect, useRef, useState } from 'react';
 
+import { keepWords, releaseRuleWords, SUMMARY_WORDS } from '@/copy/assessment-record';
 import {
   newVersionWarning,
+  releaseChangedWords,
   releaseWarning,
-  savedWords,
+  savedAsVersionWords,
   SETTINGS_PAGE,
+  sideLine,
+  sideVersionWords,
 } from '@/copy/assessment-settings';
 import { releaseSummary, typedDateTimeToInstant } from '@/copy/assessment-words';
-import { ASSESSMENT_TAB_TITLES } from '@/copy/faculty-assessment-frame';
+import { dateTime } from '@/copy/dates';
 import { stateWords } from '@/copy/state-copy';
 import { useAppNavigation } from '@/nav/navigation';
+import { useSubmissions } from '@/queries/faculty-assessment-work';
 import { useAssessmentRecord } from '@/queries/teaching';
 import { useCommand } from '@/queries/use-command';
 
+import { earlierSubmissions } from '../fa-08-assessment-summary/assessment-summary';
 import {
   AssessmentFallback,
   AssessmentFrame,
   type AssessmentFrameView,
+  TAB_HEADING_ID,
   useAssessmentPage,
 } from '../shared/assessment-frame';
 import {
@@ -35,29 +58,34 @@ import {
   rulesInputOf,
 } from '../shared/rules-fields';
 
-/** The board's id prefix (`Es-name`, `Es-err`, `Es-saved` …; B4-06 f0). */
+/** The id prefix (`Es-name`, `Es-err`, `Es-saved` …). */
 const PREFIX = 'Es';
 const FIELD_IDS = rulesFieldIds(PREFIX);
 
 /**
- * FA-10 Assessment · Settings — board B4-06 f0 … f4, at `/faculty/assessments/[assessmentId]/settings`.
+ * FA-10 Assessment · Settings in the V3 Refined B design (FA-v1 `Main.dc.html` "FA-10 Settings",
+ * `vmSettings`), at `/faculty/assessments/[assessmentId]/settings`, inside the record frame.
  *
  * - **Reads**: the assessment record's frame (`useAssessmentPage`: the record, the experiment and
- *   the list row whose `submitted` count drives the warnings). Loading, failed and not-found are
- *   the frame's own states.
- * - **The form as drawn** (f0, f4): the shared rules form (`RulesFields`, prefix `Es`) filled with
- *   the record's own values — a draft's empty rules stay empty, no result option is chosen for
- *   you (f3; BC6, T-19) — then Cancel (puts the record's values back, `FA-10.cancel`) and the one
- *   primary "Save settings". No timer, no release control, no "Make available" (T-18, T-22, D4).
- * - **Before saving**: while someone has submitted, a changed pass mark, attempts or deadline shows
- *   f1 "This makes a new version"; a changed result option or release date shows f2 "This changes
- *   when a submitted student sees their result" (both without a name: `FA-10.*-warning`).
+ *   the list row), and — while Students have submitted — `listSubmissions` (one aggregate read) to
+ *   name who submitted in the warnings and the side panel ("Rahul Verma has submitted"); until it
+ *   answers, the counts' words (`FA-10.submitted-*`).
+ * - **The form as drawn**: "Settings" with its line, then the shared rules form (`RulesFields`,
+ *   prefix `Es`) filled with the record's own values — a draft's empty rules stay empty, no result
+ *   option is chosen for you (BC6, T-19) — then "Cancel changes" (puts the record's values back,
+ *   `FA-10.cancel`) and the one primary "Save settings"; beside it, "How changes apply" with the
+ *   version and since when. No timer, no release control, no "Make available" (T-18, T-22).
+ * - **Before saving**: while someone has submitted the current version, a changed pass mark,
+ *   attempts or deadline shows "This makes a new version"; a changed result option or release date
+ *   shows it too (the domain versions it like any rule) with "This changes when results are shown
+ *   for new attempts": submitted attempts keep the result terms of the version they answered (P4-06).
  * - **Save** sends `AssessmentService.updateSettings` once with the revision the page read. The
- *   service checks the values: its drawn words show on the fields and in "Check these settings",
- *   which takes focus; typing in a field clears its error. Saved: "Settings saved." (or the new
- *   version's words) in `#Es-saved`, which takes focus. Stale: the record is read again, the
- *   values stay (`FA-10.stale.*`). Policy-open, unchanged, unavailable: their own words, values
- *   kept. Not found or not permitted: the in-shell not-found.
+ *   service checks the values: its words show on the fields and in "Check these settings", which
+ *   takes focus; typing in a field clears its error. Saved: "Settings saved." or "Settings saved as
+ *   version 2." with whose submissions keep which version, in `#Es-saved`, which takes focus.
+ *   Nothing changed: "Nothing to save — these are the settings already set." Stale: the record is
+ *   read again, the values stay (`FA-10.stale.*`). Policy-open, unavailable: their own words,
+ *   values kept. Not found or not permitted: the in-shell not-found.
  */
 export function AssessmentSettings({ assessmentId }: { readonly assessmentId: string }) {
   const state = useAssessmentPage(assessmentId, 'settings');
@@ -70,7 +98,14 @@ export function AssessmentSettings({ assessmentId }: { readonly assessmentId: st
 }
 
 type Outcome =
-  | { readonly kind: 'saved'; readonly words: string }
+  | {
+      readonly kind: 'saved';
+      readonly words: string;
+      /** The change made this version: its line names whose submissions keep which. */
+      readonly madeVersion?: number;
+      /** "New attempts release their result after the deadline." */
+      readonly release?: string;
+    }
   | { readonly kind: 'unchanged' }
   | { readonly kind: 'stale' }
   | { readonly kind: 'policy-open' }
@@ -103,29 +138,49 @@ function SettingsForm({ view }: { readonly view: AssessmentFrameView }) {
   const [base, setBase] = useState<Assessment>(view.record.assessment);
   const [draft, setDraft] = useState<RulesDraft>(() => rulesDraftOf(view.record.assessment));
   const [errors, setErrors] = useState<readonly FormFieldError<RulesField>[]>([]);
-  // Each refused save shows the summary anew, and it takes focus (B4-06 `focus(pid + '-err')`).
+  // Each refused save shows the summary anew, and it takes focus.
   const [attempt, setAttempt] = useState(0);
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const [answered, setAnswered] = useState(0);
   const [gone, setGone] = useState(false);
   const answerRef = useRef<HTMLDivElement>(null);
 
-  // The answer takes focus when it shows (B4-06 `focus(pid + '-saved')`).
+  // The submissions on the CURRENT version (PC-53): a change makes a new version exactly while
+  // there are any — the result release included, which the domain versions like any rule.
+  const submitted = record.data?.ok
+    ? record.data.value.submittedOnCurrentVersion
+    : view.record.submittedOnCurrentVersion;
+  const submissions = useSubmissions(base.id, (view.row?.submitted ?? 0) > 0);
+  const submissionRows = submissions.data?.ok ? submissions.data.value : null;
+  const names =
+    submissionRows === null
+      ? null
+      : [
+          ...new Set(
+            submissionRows
+              .filter((row) => row.attempt.assessmentVersion === base.version)
+              .map((row) => row.student.fullName),
+          ),
+        ];
+
+  // The answer takes focus when it shows (the export's `focusLater('fa-msg')`).
   useEffect(() => {
     if (answered > 0) answerRef.current?.focus();
   }, [answered]);
 
   if (gone) return navigation.notFound();
 
-  // The submissions on the CURRENT version (PC-53): a change makes a new version exactly while
-  // there are any — the result release included, which the domain versions like any rule.
-  const submitted = record.data?.ok
-    ? record.data.value.submittedOnCurrentVersion
-    : view.record.submittedOnCurrentVersion;
   const baseDraft = rulesDraftOf(base);
   const showWarnings = submitted > 0 && outcome?.kind !== 'saved';
   const warnRelease = showWarnings && releaseChanged(draft, baseDraft);
   const warnRule = showWarnings && (ruleChanged(draft, baseDraft) || warnRelease);
+  const currentRelease =
+    base.rules.release === null
+      ? SUMMARY_WORDS.notChosenYet
+      : releaseRuleWords(
+          base.rules.release.option,
+          base.rules.release.releaseDate === null ? null : dateTime(base.rules.release.releaseDate),
+        );
 
   const change = (field: RulesField, value: string) => {
     setDraft((current) => ({ ...current, [field]: value }));
@@ -173,8 +228,8 @@ function SettingsForm({ view }: { readonly view: AssessmentFrameView }) {
     answer({ kind: 'stale' });
   };
 
-  const save = (event: FormEvent) => {
-    event.preventDefault();
+  const save = (event?: FormEvent) => {
+    event?.preventDefault();
     if (update.busy) return;
     update.run({ id: base.id, ...rulesInputOf(draft, base), expectedRev: base.rev }).then(
       (result) => {
@@ -186,13 +241,14 @@ function SettingsForm({ view }: { readonly view: AssessmentFrameView }) {
         setErrors([]);
         setBase(saved);
         setDraft(rulesDraftOf(saved));
+        const release = releaseSummary(saved.rules.release);
         answer({
           kind: 'saved',
-          words: savedWords({
-            newVersion: result.value.newVersion,
-            version: saved.version,
-            release: result.value.releaseChanged ? releaseSummary(saved.rules.release) : null,
-          }),
+          words: result.value.newVersion ? savedAsVersionWords(saved.version) : SETTINGS_PAGE.saved,
+          ...(result.value.newVersion ? { madeVersion: saved.version } : {}),
+          ...(result.value.releaseChanged && release !== null
+            ? { release: releaseChangedWords(release) }
+            : {}),
         });
       },
       // Failed for now: nothing changed and every value stays (`FA-10.unavailable.*`).
@@ -206,92 +262,157 @@ function SettingsForm({ view }: { readonly view: AssessmentFrameView }) {
     setOutcome(null);
   };
 
+  const sideId = `${PREFIX}-side`;
   return (
-    <div className="max-w-[820px]">
-      <form
-        className="xr-section flex flex-col gap-5 p-6"
-        noValidate
-        aria-label={ASSESSMENT_TAB_TITLES.settings}
-        onSubmit={save}
-      >
+    <FaAuthor>
+      <FaSettingsForm labelledBy={TAB_HEADING_ID} onSubmit={save}>
+        <FaSettingsHead
+          titleId={TAB_HEADING_ID}
+          title={SETTINGS_PAGE.title}
+          line={SETTINGS_PAGE.line}
+        />
         {errors.length > 0 ? (
-          <ErrorSummary
-            key={attempt}
-            id={`${PREFIX}-err`}
-            title={SETTINGS_PAGE.summaryTitle}
-            items={errors.map((error) => ({
-              fieldId: FIELD_IDS[error.field],
-              summaryText: error.summaryText,
-            }))}
-          />
+          <FaFormMessages>
+            <ErrorSummary
+              spaced
+              key={attempt}
+              id={`${PREFIX}-err`}
+              title={SETTINGS_PAGE.summaryTitle}
+              items={errors.map((error) => ({
+                fieldId: FIELD_IDS[error.field],
+                summaryText: error.summaryText,
+              }))}
+            />
+          </FaFormMessages>
         ) : null}
-        <div id={`${PREFIX}-saved`} tabIndex={-1} ref={answerRef}>
-          {outcome ? <OutcomeNotice outcome={outcome} /> : null}
-        </div>
+        {outcome ? (
+          <FaFormMessages>
+            <OutcomeNotice
+              outcome={outcome}
+              noticeRef={answerRef}
+              keep={(version) => keepWords(version, earlierSubmissions(submissionRows, version))}
+            />
+          </FaFormMessages>
+        ) : null}
         <RulesFields
           idPrefix={PREFIX}
           draft={draft}
           errors={errors}
           onChange={change}
           variant="settings"
-          // f1, f2: the drawn notices sit after the result choice, before "No time limit".
-          notices={
-            <>
-              {warnRule ? (
-                <Notice tone="warn" title={SETTINGS_PAGE.newVersionTitle}>
-                  {newVersionWarning(submitted)}
-                </Notice>
-              ) : null}
-              {warnRelease ? (
-                <Notice tone="warn" title={SETTINGS_PAGE.releaseTitle}>
-                  {releaseWarning(submitted)}
-                </Notice>
-              ) : null}
-            </>
-          }
         />
-        <div className="xw-flow-foot">
-          <Button variant="text" onClick={cancel}>
-            {SETTINGS_PAGE.cancel}
-          </Button>
-          <div className="xw-actions">
+        {warnRule || warnRelease ? (
+          <FaFormSection tone="warn">
+            {warnRule ? (
+              <Notice
+                tone="warn"
+                icon="infoDisc"
+                role="status"
+                title={SETTINGS_PAGE.newVersionTitle}
+              >
+                {newVersionWarning(names, submitted)}
+              </Notice>
+            ) : null}
+            {warnRelease ? (
+              <Notice tone="warn" icon="clock" role="status" title={SETTINGS_PAGE.releaseTitle}>
+                {releaseWarning(names, submitted, currentRelease)}
+              </Notice>
+            ) : null}
+          </FaFormSection>
+        ) : null}
+        <FaFormFoot
+          start={<Button onClick={cancel}>{SETTINGS_PAGE.cancel}</Button>}
+          end={
             <Button
               variant="primary"
+              size="lg"
               type="submit"
               busy={update.busy}
               busyLabel={SETTINGS_PAGE.saving}
             >
               {SETTINGS_PAGE.save}
             </Button>
-          </div>
-        </div>
-      </form>
-    </div>
+          }
+        />
+      </FaSettingsForm>
+      <FaSide labelledBy={sideId}>
+        <FaSideSection>
+          <FaCreateSideTitle id={sideId}>{SETTINGS_PAGE.sideTitle}</FaCreateSideTitle>
+          <FaSettingsVersion>
+            {sideVersionWords(base.version, dateTime(base.versionSince))}
+          </FaSettingsVersion>
+          <FaRecordLine>{sideLine(base.version, names, submitted)}</FaRecordLine>
+          <Hint under="list">{SETTINGS_PAGE.sideNameNote}</Hint>
+        </FaSideSection>
+      </FaSide>
+    </FaAuthor>
   );
 }
 
-/** The save's answer in `#Es-saved` (B4-06 `xr-notice--ok` "Settings saved."; the rest undrawn). */
-function OutcomeNotice({ outcome }: { readonly outcome: Outcome }) {
+/** The save's answer in `#Es-saved`: saved (the export's ok notice), or what stopped it. */
+function OutcomeNotice({
+  outcome,
+  noticeRef,
+  keep,
+}: {
+  readonly outcome: Outcome;
+  readonly noticeRef: Ref<HTMLDivElement>;
+  /** Whose submissions keep which version, after a change that made `version`. */
+  readonly keep: (version: number) => string;
+}) {
+  const id = `${PREFIX}-saved`;
   switch (outcome.kind) {
-    case 'saved':
-      return <Notice tone="ok" title={outcome.words} />;
+    case 'saved': {
+      const lines = [
+        ...(outcome.madeVersion === undefined ? [] : [keep(outcome.madeVersion)]),
+        ...(outcome.release === undefined ? [] : [outcome.release]),
+      ];
+      return (
+        <Notice tone="ok" role="status" id={id} ref={noticeRef} title={outcome.words}>
+          {lines.length > 0 ? lines.join(' ') : undefined}
+        </Notice>
+      );
+    }
     case 'unchanged':
-      return <Notice tone="info" title={stateWords('FA-10.unchanged')} />;
+      return (
+        <Notice tone="ok" role="status" id={id} ref={noticeRef} title={SETTINGS_PAGE.unchanged} />
+      );
     case 'stale':
       return (
-        <Notice tone="warn" title={stateWords('FA-10.stale.title')}>
+        <Notice
+          tone="warn"
+          icon="alertCircle"
+          role="alert"
+          id={id}
+          ref={noticeRef}
+          title={stateWords('FA-10.stale.title')}
+        >
           {stateWords('FA-10.stale.line')}
         </Notice>
       );
     case 'policy-open':
       return (
-        <Notice tone="warn" title={stateWords('FA-10.policy-open.title')}>
+        <Notice
+          tone="warn"
+          icon="alertCircle"
+          role="alert"
+          id={id}
+          ref={noticeRef}
+          title={stateWords('FA-10.policy-open.title')}
+        >
           {stateWords('FA-10.policy-open.line')}
         </Notice>
       );
     case 'unavailable':
       return (
-        <Notice tone="err" title={stateWords('FA-10.unavailable.title')}>
+        <Notice
+          tone="warn"
+          icon="alertCircle"
+          role="alert"
+          id={id}
+          ref={noticeRef}
+          title={stateWords('FA-10.unavailable.title')}
+        >
           {stateWords('FA-10.unavailable.line')}
         </Notice>
       );

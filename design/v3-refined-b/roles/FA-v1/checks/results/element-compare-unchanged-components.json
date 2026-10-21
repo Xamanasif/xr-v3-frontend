@@ -1,0 +1,74 @@
+[
+ {
+  "name": "FA14-Delete",
+  "sel": ".rk-dialog",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": false,
+  "samePixels": false
+ },
+ {
+  "name": "FA19-Confirm",
+  "sel": ".rk-dialog",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": false,
+  "samePixels": false
+ },
+ {
+  "name": "FA14-Empty",
+  "sel": "#fa-main .rk-state",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": true,
+  "samePixels": true
+ },
+ {
+  "name": "FA20-No-students",
+  "sel": "#fa-main .rk-state",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": true,
+  "samePixels": true
+ },
+ {
+  "name": "FA11-Failed",
+  "sel": "#fa-main .rk-state",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": false,
+  "samePixels": false
+ },
+ {
+  "name": "FA11-Coteach",
+  "sel": "#fa-main .fa-inlinemsg",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": false,
+  "samePixels": false
+ },
+ {
+  "name": "FA12-Coteach",
+  "sel": "#fa-main .fa-inlinemsg",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": false,
+  "samePixels": false
+ },
+ {
+  "name": "XS-Account-menu",
+  "sel": "#fa-acct-menu",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": false,
+  "samePixels": false
+ },
+ {
+  "name": "XS-Menu-phone",
+  "sel": ".rb-drawer",
+  "a": "ok",
+  "b": "ok",
+  "sameBytes": true,
+  "samePixels": true
+ }
+]

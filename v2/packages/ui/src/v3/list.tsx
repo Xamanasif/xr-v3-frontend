@@ -576,6 +576,17 @@ export interface ListStateProps {
   readonly titleAs?: 'p' | 'h2' | 'h3';
   readonly titleId?: string;
   readonly icon?: V3IconName;
+  /**
+   * Opt-in: a no-match, empty or none-yet state that is itself a polite live region
+   * (`div.rk-state[role=status]`), where no count line announces the change (the Faculty export's
+   * FA-06 and FA-12 no-match states). A failed load is an alert either way.
+   */
+  readonly live?: boolean;
+  /**
+   * Opt-in: the title takes focus after "Try again" (`tabIndex=-1`; the Faculty export's FA-11
+   * failed preview, `h2.rk-state-t#… [tabindex=-1]`).
+   */
+  readonly titleFocusable?: boolean;
 }
 
 /**
@@ -592,11 +603,13 @@ export function ListState({
   titleAs: Title = 'p',
   titleId,
   icon,
+  live = false,
+  titleFocusable = false,
 }: ListStateProps) {
   return (
     <div
       className={joinClasses('rk-state', roomy && 'rk-state--roomy')}
-      role={kind === 'failed' ? 'alert' : undefined}
+      role={kind === 'failed' ? 'alert' : live ? 'status' : undefined}
     >
       <span
         className={joinClasses('rk-state-ico', kind === 'failed' && 'rk-state-ico--err')}
@@ -604,7 +617,7 @@ export function ListState({
       >
         <Glyph name={icon ?? STATE_ICON[kind]} />
       </span>
-      <Title className="rk-state-t" id={titleId}>
+      <Title className="rk-state-t" id={titleId} tabIndex={titleFocusable ? -1 : undefined}>
         {title}
       </Title>
       {children ? <p className="rk-state-d">{children}</p> : null}

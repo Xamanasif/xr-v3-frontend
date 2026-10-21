@@ -1,7 +1,8 @@
 /**
  * A migrated role's workspace in the V3 Refined B shell (the Super Admin, owner-approved export
  * design/v3-refined-b/roles/SA-v1, the Vendor, roles/VE-v1, the Content Manager, roles/CM-v1, the
- * Academic Reviewer, roles/RV-v1, and the Institute Admin, roles/IA-v1): the rail as the export's
+ * Academic Reviewer, roles/RV-v1, the Institute Admin, roles/IA-v1, and the Faculty member,
+ * roles/FA-v1): the rail as the export's
  * `sa-core.js` draws it — the reserved
  * logo slot, the workspace, the seven destinations with the export's glyphs and the Requests count,
  * "Help & support" in the rail foot — the top line with today's date, the XS account menu with the
@@ -18,6 +19,7 @@ import type { ScreenKey } from '@/nav/screens';
 import {
   boardPerson,
   cmExport,
+  faExport,
   iaExport,
   rvExport,
   saExport,
@@ -51,13 +53,14 @@ function renderShell(overrides: Partial<V3RoleShellProps> = {}) {
 }
 
 describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
-  it('is moved, with the Vendor (VE-v1), the Content Manager (CM-v1), the Academic Reviewer (RV-v1) and the Institute Admin (IA-v1); every other role keeps its v46 shell', () => {
+  it('is moved, with the Vendor (VE-v1), the Content Manager (CM-v1), the Academic Reviewer (RV-v1), the Institute Admin (IA-v1) and the Faculty member (FA-v1); every other role keeps its v46 shell', () => {
     expect([...V3_SHELL_ROLES]).toEqual([
       'super_admin',
       'vendor',
       'content_manager',
       'academic_reviewer',
       'tenant_admin',
+      'faculty',
     ]);
   });
 
@@ -441,6 +444,173 @@ describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
         screen="IA-01"
         banner="inactive"
         today="2026-10-22T09:30:00+05:30"
+        onSignOut={vi.fn()}
+      >
+        <h1 tabIndex={-1}>Page</h1>
+      </V3RoleShell>,
+    );
+    expect(banner()).toHaveClass('rk-banner');
+    expect(banner()).toHaveTextContent(
+      'Your account is inactive. Contact your institution administrator.',
+    );
+  });
+
+  it("the Faculty member's rail: six destinations with the export's glyphs, the institution, the Marking count", () => {
+    const built = new Set<ScreenKey>([
+      'XS-07',
+      ...WORKSPACE_NAV.faculty.destinations.map((item) => item.screen),
+    ]);
+    const { rerender } = render(
+      <V3RoleShell
+        role="faculty"
+        person={boardPerson('faculty')}
+        screen="FA-01"
+        built={built}
+        counts={{ marking: 2 }}
+        today="2026-11-07T10:15:00+05:30"
+        onSignOut={vi.fn()}
+      >
+        <h1 tabIndex={-1}>Page</h1>
+      </V3RoleShell>,
+    );
+    const root = faExport('Main.dc.html');
+    const rail = screen.getByRole('complementary', { name: 'Faculty workspace' });
+    expect(root).toContain('<aside class="rb-rail" aria-label="Faculty workspace">');
+    const nav = within(rail).getByRole('navigation', { name: 'Faculty navigation' });
+    expect(root).toContain('<nav class="rb-nav" aria-label="Faculty navigation">');
+    const links = within(nav).getAllByRole('link');
+    expect(links.map((link) => link.querySelector('span')!.textContent)).toEqual([
+      'Overview',
+      'My courses',
+      'Assessments',
+      'Question bank',
+      'Marking',
+      'Students',
+    ]);
+    expect(links.map((link) => link.getAttribute('href'))).toEqual([
+      '/faculty',
+      '/faculty/courses',
+      '/faculty/assessments',
+      '/faculty/question-bank',
+      '/faculty/marking',
+      '/faculty/students',
+    ]);
+    expect(links[0]).toHaveAttribute('aria-current', 'page');
+    // The export's rail glyphs, path for path (`Main.dc.html` rail: `<use href="#fai-…">` of its
+    // sprite).
+    const symbol = (id: string) =>
+      new RegExp(`<symbol id="${id}" viewBox="0 0 24 24"><path d="([^"]+)"></path>`).exec(
+        root,
+      )?.[1];
+    for (const link of links) {
+      const label = link.querySelector('span')!.textContent!;
+      const id = new RegExp(`<use href="#(fai-[\\w-]+)"></use></svg><span>${label}</span>`).exec(
+        root,
+      )?.[1];
+      expect(id, label).toBeDefined();
+      expect(link.querySelector('svg path')!.getAttribute('d'), label).toBe(symbol(id!));
+    }
+    // The Marking pen, the Question bank stack and the Assessments clipboard are the export's own,
+    // not the Content Manager's or the v46 sidebar's.
+    expect(links[4]!.querySelector('svg path')!.getAttribute('d')).toBe(V3_ICON_PATHS.pen);
+    expect(links[3]!.querySelector('svg path')!.getAttribute('d')).toBe(V3_ICON_PATHS.stack);
+    expect(links[2]!.querySelector('svg path')!.getAttribute('d')).toBe(
+      V3_ICON_PATHS.clipboardCheck,
+    );
+    // The Marking count: the figure, decorative, then ", N written answers to mark" (`vmShell`
+    // `countLabel`), singular at 1; none on any other item.
+    expect(links[4]).toHaveAccessibleName('Marking, 2 written answers to mark');
+    expect(links[4]!.querySelector('.rb-count > [aria-hidden="true"]')).toHaveTextContent('2');
+    expect(links[4]!.querySelector('.rb-count > .xr-sr')).toHaveTextContent(
+      ', 2 written answers to mark',
+    );
+    expect(root).toContain(
+      '<span class="rb-count"><span aria-hidden="true">{{ sh.count }}</span><span class="xr-sr">, {{ sh.countLabel }}</span></span>',
+    );
+    expect(root).toContain("countLabel: this.plural(w, 'written answer') + ' to mark'");
+    expect(rail.querySelectorAll('.rb-count')).toHaveLength(1);
+    expect(within(rail).getByText('Faculty')).toHaveClass('rb-ws-role');
+    expect(within(rail).getByText('Godavari Institute of Technology')).toHaveClass('rb-ws-inst');
+    expect(root).toContain(
+      '<p class="rb-ws"><span class="rb-ws-role">Faculty</span><span class="rb-ws-inst">Godavari Institute of Technology</span></p>',
+    );
+    // The date alone in the top line, on the Overview too (`sh.date`, the clock's long date).
+    expect(document.querySelector('header.rb-top p.rb-top-date')).toHaveTextContent(
+      /^Saturday 7 November 2026$/,
+    );
+    expect(root).toContain('<p class="rb-top-date">{{ sh.date }}</p>');
+    expect(root).toContain("long: 'Saturday 7 November 2026'");
+    rerender(
+      <V3RoleShell
+        role="faculty"
+        person={boardPerson('faculty')}
+        screen="FA-19"
+        built={built}
+        counts={{ marking: 1 }}
+        today="2026-11-07T10:15:00+05:30"
+        onSignOut={vi.fn()}
+      />,
+    );
+    expect(within(rail).getByRole('link', { name: /^Marking/ })).toHaveAccessibleName(
+      'Marking, 1 written answer to mark',
+    );
+    expect(within(rail).getByRole('link', { name: /^Marking/ })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    rerender(
+      <V3RoleShell
+        role="faculty"
+        person={boardPerson('faculty')}
+        screen="FA-18"
+        built={built}
+        counts={{ marking: 0 }}
+        today="2026-11-07T10:15:00+05:30"
+        onSignOut={vi.fn()}
+      />,
+    );
+    // Hidden at 0 (`hasCount: w > 0`).
+    expect(rail.querySelector('.rb-count')).toBeNull();
+    expect(within(rail).getByRole('link', { name: 'Marking' })).toHaveAttribute(
+      'aria-current',
+      'page',
+    );
+    const help = within(within(rail).getByRole('navigation', { name: 'Help' })).getByRole('link');
+    expect(help).toHaveTextContent('Help & support');
+    expect(help).toHaveAttribute('href', '/faculty/help');
+    expect(root).toContain(
+      '<use href="#fai-help"></use></svg><span>Help &amp; support</span></a></nav>',
+    );
+    expect(help.querySelector('svg path')!.getAttribute('d')).toBe(symbol('fai-help'));
+  });
+
+  it("opens the Faculty member's page with the XS-08 banner, paused or inactive", () => {
+    const { container, rerender } = render(
+      <V3RoleShell
+        role="faculty"
+        person={boardPerson('faculty')}
+        screen="FA-01"
+        banner="paused"
+        today="2026-11-07T10:15:00+05:30"
+        onSignOut={vi.fn()}
+      >
+        <h1 tabIndex={-1}>Page</h1>
+      </V3RoleShell>,
+    );
+    const banner = () => container.querySelector('main#main')!.firstElementChild as HTMLElement;
+    expect(banner()).toHaveClass('rk-banner');
+    expect(banner()).toHaveTextContent('Your institution’s access is paused — your work is kept.');
+    expect(within(banner()).getByRole('link', { name: 'Help' })).toHaveAttribute(
+      'href',
+      '/faculty/help',
+    );
+    rerender(
+      <V3RoleShell
+        role="faculty"
+        person={boardPerson('faculty')}
+        screen="FA-01"
+        banner="inactive"
+        today="2026-11-07T10:15:00+05:30"
         onSignOut={vi.fn()}
       >
         <h1 tabIndex={-1}>Page</h1>

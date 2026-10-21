@@ -5,31 +5,32 @@ const STUDENTS = '/faculty/students';
 const STUDENT = '/faculty/students/{studentId}';
 
 /**
- * Phase 4B link targets: FA-20 Students with its FA-22 Export CSV, and FA-21 Student detail
- * (B4-10). FA-20 draws no primary: Export CSV is the header's secondary command (f0, f2). FA-21's
- * one primary is "Mark their answers" while an attempt waits for marking (f3) → FA-19; a marked
- * attempt has "See submission" (f4) → the assessment's Submissions (FA-12), as the board links
- * them. There is no messaging or reminder action (T-34).
+ * The link targets of FA-20 Students with its FA-22 Export CSV, and FA-21 Student detail (V3
+ * Refined B, the owner-approved Faculty export FA-v1 `Main.dc.html` FA-20, FA-21; LINK-MAP.json).
+ * FA-20 draws no primary: Export CSV is the toolbar's command. FA-21's one primary is “Mark their
+ * answers” while the latest attempt waits for marking → FA-19; a marked attempt has “View marks”
+ * (→ FA-19, read-only), and “Open the assessment” opens its record (FA-08). There is no messaging
+ * or reminder action (T-34).
  */
 export const P4B_FACULTY_STUDENTS_LINK_TARGETS: readonly LedgerEntry[] = [
   ...pageRows('FA-20', STUDENTS, [
     [
-      'Page header',
+      'Toolbar',
       'Export CSV',
       'secondary',
       null,
       'in-page',
-      'B4-10 f0, f2 `button.xr-btn--secondary` (FA-22; script `exportCsv`)',
-      'The service makes the CSV of the list on show; the browser saves it (state-copy `FA-22.file`).',
+      'FA-v1 FA-20 `div.fa-tbar-act > button#fa-sl-export.rb-btn` (FA-22; `exportCsv`; shown while rows are on show)',
+      'The service makes the CSV of the list on show; the browser saves it and the band shows its rows (state-copy `FA-22.file`).',
     ],
     [
       'Toolbar',
-      'Experiment · Progress · Inactive for · Remove (chip) · Clear filters',
+      'Experiment · Progress · Inactive for · Remove filter (chip) · Clear filters',
       'secondary',
       null,
       'in-page',
-      'B4-10 f0, f1 (script `onProg`, `onInact`, `chips`, `clear`)',
-      'Filters apply at once; the Experiment filter replaces the address (`?experimentId=`).',
+      'FA-v1 FA-20 `div.rk-tools.fa-tools`, `div.rk-statusline` (`onExp`, `onProg`, `onInact`, `chips`, `clear`)',
+      'Filters apply at once; the Experiment filter (more than one taught) replaces the address (`?experimentId=`).',
     ],
     [
       'Student row',
@@ -37,37 +38,52 @@ export const P4B_FACULTY_STUDENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       `${STUDENT}?experimentId={experimentId}`,
       'built',
-      'B4-10 f0, f1, f7 `td a[aria-label="Open …"] strong` (→ FA-21)',
+      'FA-v1 FA-20 `td a.rk-rowlink[aria-label="Open …"]` (the whole row follows it); LINK-MAP FA-20 “Open Rahul Verma” → FA-21',
     ],
-    ['No match', 'Clear filters', 'secondary', null, 'in-page', 'B4-10 script `s.noMatch`'],
+    [
+      'No match',
+      'Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 FA-20 `div.rk-state > button.rb-btn` (`SL.clear`)',
+    ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-20.failed`'],
   ]),
   ...pageRows('FA-21', STUDENT, [
     [
-      'Back link',
+      'Breadcrumb',
       'Students',
       'secondary',
       `${STUDENTS}?experimentId={experimentId}`,
       'built',
-      'B4-10 f3 … f5 `a.xr-back`',
+      'FA-v1 FA-21 `nav.rk-crumbs > a`; LINK-MAP FA-21 “Students” → FA-20',
       'FA-20 for the same experiment.',
     ],
     [
-      'Assessment · waiting for marking (f3)',
+      'Assessment panel · waiting for marking',
       'Mark their answers',
       'primary',
       '/faculty/marking/{attemptId}',
       'built',
-      'B4-10 f3 `a.xr-btn--primary.xr-btn--sm` (→ B4-09 FA-19)',
+      'FA-v1 FA-21 `div.fa-panel-acts > a.rb-btn--primary.rb-btn--lg`; LINK-MAP FA-21 → FA-19',
     ],
     [
-      'Assessment · marked (f4)',
-      'See submission',
+      'Assessment panel · marked',
+      'View marks',
       'secondary',
-      '/faculty/assessments/{assessmentId}/submissions',
+      '/faculty/marking/{attemptId}',
       'built',
-      'B4-10 f4 `a.xr-btn--secondary.xr-btn--sm` (→ B4-06 FA-12)',
-      'The assessment’s Submissions, as the board links it.',
+      'FA-v1 FA-21 `div.fa-panel-acts > a.rb-btn.rb-btn--lg`; LINK-MAP FA-21 “View marks” → FA-19',
+      'FA-19 shows the confirmed marks read-only.',
+    ],
+    [
+      'Assessment panel',
+      'Open the assessment',
+      'secondary',
+      '/faculty/assessments/{assessmentId}',
+      'built',
+      'FA-v1 FA-21 `a.rb-link`; LINK-MAP FA-21 “Open the assessment” → FA-08',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-21.failed`'],
   ]),

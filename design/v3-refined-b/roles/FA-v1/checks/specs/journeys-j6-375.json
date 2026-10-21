@@ -1,0 +1,148 @@
+[
+ {
+  "name": "J6-draft-with-assistance-375",
+  "file": "fa/T-j-dr.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Draft with assistance\")",
+    "expect": [
+     "Draft questions with assistance",
+     "Sample assistance in this preview",
+     "No drafting service is connected or named."
+    ],
+    "label": "open drafting from the bank; stand-in is labelled"
+   },
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "expect": [
+     "Check these choices",
+     "Choose the material to draft from",
+     "Choose at least one question type",
+     "Choose how many drafts you want"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "validation"
+   },
+   {
+    "click": "#fa-dr-src-paste",
+    "expect": "Text to draft from"
+   },
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "expect": "Paste the text to draft from",
+    "label": "pasted text required"
+   },
+   {
+    "click": "#fa-dr-src-brief",
+    "expectNot": "Text to draft from"
+   },
+   {
+    "click": "#fa-dr-t-sc"
+   },
+   {
+    "click": "#fa-dr-t-w"
+   },
+   {
+    "click": "#fa-dr-n"
+   },
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "wait": 200,
+    "expect": "Drafting questions…",
+    "label": "busy state"
+   },
+   {
+    "wait": 1500,
+    "expect": [
+     "Drafts to review",
+     "3 drafts left to review",
+     "Which fluid sets C_min in the effectiveness–NTU method?",
+     "Using your readings, explain how changing the hot-side flow rate affected the effectiveness."
+    ],
+    "expectFocus": "fa-dr-lh",
+    "label": "three drafts, single choice and written, round-robin"
+   },
+   {
+    "click": "[aria-label=\"Add to bank: Which fluid sets C_min in the effectiveness–NTU method?\"]",
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts left to review",
+     "In your bank · reviewed by you"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "add one"
+   },
+   {
+    "click": "[aria-label^=\"Discard draft: Using your readings\"]",
+    "expect": [
+     "Draft discarded. Nothing was added to your bank.",
+     "1 draft left to review"
+    ],
+    "label": "discard one"
+   },
+   {
+    "click": "[aria-label^=\"Review and edit draft:\"]",
+    "expect": [
+     "Review a draft",
+     "Draft — needs your review"
+    ],
+    "label": "review the last draft"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "3"
+   },
+   {
+    "click": "role=button[name=\"Add to bank\"]",
+    "wait": 900,
+    "expect": [
+     "Added to your question bank.",
+     "All reviewed",
+     "Every draft from this request has been added or discarded."
+    ],
+    "label": "reviewed draft added, back on the list"
+   },
+   {
+    "click": "#fa-main .fa-side a:has-text(\"Back to Question bank\")",
+    "expect": [
+     "8 questions",
+     "From a draft you reviewed"
+    ],
+    "label": "bank shows both reviewed drafts"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": "3 drafts to review",
+    "label": "the earlier three drafts are still waiting (nothing added on its own)"
+   }
+  ]
+ },
+ {
+  "name": "J6b-drafting-fails-375",
+  "file": "fa/T-j-drfail.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "wait": 1600,
+    "expect": [
+     "Drafting didn’t work this time",
+     "Nothing was added to your bank. Your choices are kept — try again."
+    ],
+    "expectFocus": "fa-dr-fail",
+    "label": "failure keeps choices"
+   },
+   {
+    "assert": "document.getElementById('fa-dr-src-brief').checked && document.getElementById('fa-dr-t-sc').checked && document.getElementById('fa-dr-n').checked",
+    "label": "choices kept"
+   },
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "wait": 1600,
+    "expect": "3 drafts left to review",
+    "label": "try again works"
+   }
+  ]
+ }
+]

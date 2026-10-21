@@ -1,0 +1,3173 @@
+{
+ "about": "Explicit fixture snapshots for the Faculty design preview. They are illustrative sample records, not platform data, service contracts or canonical product records. The React application keeps its own shared world; reproduce layouts with its facts, never paste these over them. Each scenario is internally coherent and has its own scenarioId and asOf time. The records are exported from Main.dc.html (makeWorld) exactly as the preview builds them.",
+ "institution": "Godavari Institute of Technology (sample)",
+ "scenarios": [
+  {
+   "scenarioId": "nov07",
+   "asOf": "2026-11-07T10:15",
+   "person": "Dr S. Ranganathan (SR)",
+   "describes": "Default world, Saturday 7 November 2026, 10:15. One course and one experiment; five students; ASMT-0009 is ready with four questions; Rahul (ATT-0450) and Priya (ATT-0451) are waiting for marking; three drafts are waiting for review.",
+   "board": "Main.dc.html",
+   "records": {
+    "sc": "nov07",
+    "clock": {
+     "long": "Saturday 7 November 2026",
+     "day": "7 Nov 2026",
+     "iso": "2026-11-07",
+     "time": "10:15",
+     "who": "sr"
+    },
+    "me": "sr",
+    "courses": [
+     {
+      "id": "MEZG523",
+      "code": "ME ZG523",
+      "t": "Thermodynamics & Heat Transfer",
+      "exps": [
+       "ste"
+      ]
+     }
+    ],
+    "exps": {
+     "ste": {
+      "id": "ste",
+      "t": "Shell-and-Tube Heat Exchanger",
+      "crs": "MEZG523",
+      "held": [
+       "WEB",
+       "VR"
+      ],
+      "about": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+      "outcomes": [
+       "Determine log mean temperature difference from measured inlet and outlet conditions",
+       "Compare countercurrent and cocurrent arrangements at matched duty"
+      ],
+      "resources": [
+       {
+        "k": "brief",
+        "t": "Lab brief — Shell-and-Tube Heat Exchanger"
+       },
+       {
+        "k": "pre",
+        "t": "Pre-lab reading — the effectiveness–NTU method"
+       },
+       {
+        "k": "sheet",
+        "t": "Readings sheet"
+       }
+      ]
+     }
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "first": "Rahul",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-14"
+       ],
+       "VR": [
+        "done",
+        "2026-10-20"
+       ]
+      },
+      "last": "2026-11-05",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "12 Oct 2026, 09:40"
+      }
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "first": "Priya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-18"
+       ],
+       "VR": [
+        "prog",
+        ""
+       ]
+      },
+      "last": "2026-11-06",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "15 Oct 2026, 18:05"
+      }
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "first": "Imran",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "prog",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "2026-10-19",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "19 Oct 2026, 11:30"
+      }
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "first": "Divya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "prog",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "2026-11-03",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "3 Nov 2026, 17:20"
+      }
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "first": "Karthik",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "none",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "",
+      "access": "2026-10-12",
+      "res": {}
+     }
+    ],
+    "bank": [
+     {
+      "id": "Q-0101",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "What does the effectiveness (ε) of a heat exchanger compare?",
+        "opts": [
+         "The actual heat transfer with the largest heat transfer possible",
+         "The hot-side flow rate with the cold-side flow rate",
+         "The overall heat transfer coefficient with the surface area",
+         "The hot fluid’s inlet temperature with its outlet temperature"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "ε = q ÷ q_max, where q_max = C_min (T_h,in − T_c,in).",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0102",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "How is the number of transfer units (NTU) defined?",
+        "opts": [
+         "UA ÷ C_min",
+         "C_min ÷ C_max",
+         "q ÷ q_max",
+         "UA ÷ C_max"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "NTU = UA ÷ C_min — the exchanger’s size measured against the smaller heat-capacity rate.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0103",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "In a counter-flow exchanger, what can happen that cannot happen in parallel flow?",
+        "opts": [
+         "The cold fluid can leave hotter than the hot fluid leaves",
+         "The hot fluid can leave colder than the cold fluid enters",
+         "Both fluids can leave at their inlet temperatures",
+         "The heat duty can exceed C_min (T_h,in − T_c,in)"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "In counter flow the cold fluid meets the hottest hot fluid near its exit, so its outlet can rise above the hot outlet.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0104",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "Fouling on the tube surfaces lowers the overall heat transfer coefficient U.",
+        "opts": [],
+        "correct": -1,
+        "tf": "true",
+        "guide": "",
+        "expl": "Fouling adds a thermal resistance in series, so U falls.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0105",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "For the same inlet conditions and UA, parallel flow transfers more heat than counter flow.",
+        "opts": [],
+        "correct": -1,
+        "tf": "false",
+        "guide": "",
+        "expl": "Counter flow keeps a larger mean temperature difference, so it transfers more heat for the same UA.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0106",
+      "exp": "ste",
+      "by": "sr",
+      "added": "22 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "w",
+        "t": "Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.",
+        "opts": [],
+        "correct": -1,
+        "tf": "",
+        "guide": "Look for: fouling adds a thermal resistance; U falls; at the same flow rates the heat duty and the effectiveness fall; the outlet temperatures move towards their inlet values. Give credit for linking this to readings taken in the simulation, and for mentioning cleaning or a fouling allowance in design.",
+        "expl": "Fouling adds a resistance, so U and the heat duty fall at the same flow rates: the hot fluid leaves hotter and the cold fluid leaves cooler.",
+        "marks": 10
+       }
+      ]
+     }
+    ],
+    "drafts": [
+     {
+      "id": "D-1",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "sc",
+       "t": "What is the log mean temperature difference (LMTD) used for?",
+       "opts": [
+        "Sizing an exchanger from Q = U·A·ΔT_lm",
+        "Measuring the fouling resistance directly",
+        "Setting the pump flow rate",
+        "Converting effectiveness into NTU"
+       ],
+       "correct": 0,
+       "tf": "",
+       "guide": "",
+       "expl": "Q = U·A·ΔT_lm links the heat duty, the area and the temperature difference.",
+       "marks": 2
+      }
+     },
+     {
+      "id": "D-2",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "tf",
+       "t": "Counter flow always needs a larger area than parallel flow for the same duty.",
+       "opts": [],
+       "correct": -1,
+       "tf": "false",
+       "guide": "",
+       "expl": "Counter flow needs less area for the same duty because its mean temperature difference is larger.",
+       "marks": 2
+      }
+     },
+     {
+      "id": "D-3",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "w",
+       "t": "Compare countercurrent and cocurrent arrangements at matched duty, using your readings.",
+       "opts": [],
+       "correct": -1,
+       "tf": "",
+       "guide": "Look for: counter flow gives the larger LMTD and needs less area for the same duty; readings from both arrangements are quoted; the temperature cross that only counter flow allows is mentioned.",
+       "expl": "Counter flow gives the larger mean temperature difference, so it needs less area for the same duty.",
+       "marks": 10
+      }
+     }
+    ],
+    "asms": [
+     {
+      "id": "ASMT-0009",
+      "exp": "ste",
+      "by": "sr",
+      "name": "Heat Exchanger — post-lab",
+      "intro": "Four short questions on what you measured in the Shell-and-Tube Heat Exchanger simulation. One answer is written; your faculty marks it.",
+      "created": "26 Oct 2026, 16:40",
+      "readySince": "27 Oct 2026, 11:05",
+      "versions": [
+       {
+        "n": 1,
+        "since": "27 Oct 2026, 11:05",
+        "why": "",
+        "pass": "50",
+        "att": "2",
+        "dl": "14 Nov 2026, 23:59",
+        "rel": "after",
+        "reldate": "",
+        "qs": [
+         {
+          "id": "Q-0101",
+          "v": 1
+         },
+         {
+          "id": "Q-0102",
+          "v": 1
+         },
+         {
+          "id": "Q-0104",
+          "v": 1
+         },
+         {
+          "id": "Q-0106",
+          "v": 1
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "atts": [
+     {
+      "id": "ATT-0450",
+      "asm": "ASMT-0009",
+      "st": "GIT-2026-0418",
+      "ver": 1,
+      "no": 1,
+      "started": "5 Nov 2026, 18:20",
+      "submitted": "5 Nov 2026, 18:52",
+      "subIso": "2026-11-05T18:52",
+      "ans": {
+       "Q-0101": 0,
+       "Q-0102": 1,
+       "Q-0104": "true",
+       "Q-0106": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area."
+      },
+      "marks": {},
+      "draft": {},
+      "fb": "",
+      "confirmed": "",
+      "confirmedIso": "",
+      "by": ""
+     },
+     {
+      "id": "ATT-0451",
+      "asm": "ASMT-0009",
+      "st": "GIT-2026-0431",
+      "ver": 1,
+      "no": 1,
+      "started": "6 Nov 2026, 19:41",
+      "submitted": "6 Nov 2026, 20:10",
+      "subIso": "2026-11-06T20:10",
+      "ans": {
+       "Q-0101": 0,
+       "Q-0102": 0,
+       "Q-0104": "true",
+       "Q-0106": "Fouling builds up on the tubes and acts like insulation. The overall coefficient U drops, so for the same flows the exchanger transfers less heat and both outlet temperatures change less."
+      },
+      "marks": {},
+      "draft": {},
+      "fb": "",
+      "confirmed": "",
+      "confirmedIso": "",
+      "by": ""
+     }
+    ],
+    "reports": [],
+    "seq": {
+     "q": 106,
+     "asm": 9,
+     "d": 3,
+     "sup": 230
+    }
+   }
+  },
+  {
+   "scenarioId": "oct26",
+   "asOf": "2026-10-26T16:40",
+   "person": "Dr S. Ranganathan (SR)",
+   "describes": "Monday 26 October 2026, 16:40, before ASMT-0009 existed. Used to demonstrate creating the assessment, because the one-assessment-per-experiment rule (OD-B4-01) refuses a second one on 7 Nov. Later student activity is removed (derived, see provenance).",
+   "board": "Live-Oct26.dc.html",
+   "records": {
+    "sc": "oct26",
+    "clock": {
+     "long": "Monday 26 October 2026",
+     "day": "26 Oct 2026",
+     "iso": "2026-10-26",
+     "time": "16:40",
+     "who": "sr"
+    },
+    "me": "sr",
+    "courses": [
+     {
+      "id": "MEZG523",
+      "code": "ME ZG523",
+      "t": "Thermodynamics & Heat Transfer",
+      "exps": [
+       "ste"
+      ]
+     }
+    ],
+    "exps": {
+     "ste": {
+      "id": "ste",
+      "t": "Shell-and-Tube Heat Exchanger",
+      "crs": "MEZG523",
+      "held": [
+       "WEB",
+       "VR"
+      ],
+      "about": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+      "outcomes": [
+       "Determine log mean temperature difference from measured inlet and outlet conditions",
+       "Compare countercurrent and cocurrent arrangements at matched duty"
+      ],
+      "resources": [
+       {
+        "k": "brief",
+        "t": "Lab brief — Shell-and-Tube Heat Exchanger"
+       },
+       {
+        "k": "pre",
+        "t": "Pre-lab reading — the effectiveness–NTU method"
+       },
+       {
+        "k": "sheet",
+        "t": "Readings sheet"
+       }
+      ]
+     }
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "first": "Rahul",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-14"
+       ],
+       "VR": [
+        "done",
+        "2026-10-20"
+       ]
+      },
+      "last": "2026-10-20",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "12 Oct 2026, 09:40"
+      }
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "first": "Priya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-18"
+       ],
+       "VR": [
+        "prog",
+        ""
+       ]
+      },
+      "last": "2026-10-22",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "15 Oct 2026, 18:05"
+      }
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "first": "Imran",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "prog",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "2026-10-19",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "19 Oct 2026, 11:30"
+      }
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "first": "Divya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "none",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "",
+      "access": "2026-10-12",
+      "res": {}
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "first": "Karthik",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "none",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "",
+      "access": "2026-10-12",
+      "res": {}
+     }
+    ],
+    "bank": [
+     {
+      "id": "Q-0101",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "What does the effectiveness (ε) of a heat exchanger compare?",
+        "opts": [
+         "The actual heat transfer with the largest heat transfer possible",
+         "The hot-side flow rate with the cold-side flow rate",
+         "The overall heat transfer coefficient with the surface area",
+         "The hot fluid’s inlet temperature with its outlet temperature"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "ε = q ÷ q_max, where q_max = C_min (T_h,in − T_c,in).",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0102",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "How is the number of transfer units (NTU) defined?",
+        "opts": [
+         "UA ÷ C_min",
+         "C_min ÷ C_max",
+         "q ÷ q_max",
+         "UA ÷ C_max"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "NTU = UA ÷ C_min — the exchanger’s size measured against the smaller heat-capacity rate.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0103",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "In a counter-flow exchanger, what can happen that cannot happen in parallel flow?",
+        "opts": [
+         "The cold fluid can leave hotter than the hot fluid leaves",
+         "The hot fluid can leave colder than the cold fluid enters",
+         "Both fluids can leave at their inlet temperatures",
+         "The heat duty can exceed C_min (T_h,in − T_c,in)"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "In counter flow the cold fluid meets the hottest hot fluid near its exit, so its outlet can rise above the hot outlet.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0104",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "Fouling on the tube surfaces lowers the overall heat transfer coefficient U.",
+        "opts": [],
+        "correct": -1,
+        "tf": "true",
+        "guide": "",
+        "expl": "Fouling adds a thermal resistance in series, so U falls.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0105",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "For the same inlet conditions and UA, parallel flow transfers more heat than counter flow.",
+        "opts": [],
+        "correct": -1,
+        "tf": "false",
+        "guide": "",
+        "expl": "Counter flow keeps a larger mean temperature difference, so it transfers more heat for the same UA.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0106",
+      "exp": "ste",
+      "by": "sr",
+      "added": "22 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "w",
+        "t": "Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.",
+        "opts": [],
+        "correct": -1,
+        "tf": "",
+        "guide": "Look for: fouling adds a thermal resistance; U falls; at the same flow rates the heat duty and the effectiveness fall; the outlet temperatures move towards their inlet values. Give credit for linking this to readings taken in the simulation, and for mentioning cleaning or a fouling allowance in design.",
+        "expl": "Fouling adds a resistance, so U and the heat duty fall at the same flow rates: the hot fluid leaves hotter and the cold fluid leaves cooler.",
+        "marks": 10
+       }
+      ]
+     }
+    ],
+    "drafts": [],
+    "asms": [],
+    "atts": [],
+    "reports": [],
+    "seq": {
+     "q": 106,
+     "asm": 8,
+     "d": 3,
+     "sup": 230
+    }
+   }
+  },
+  {
+   "scenarioId": "new",
+   "asOf": "2026-10-09T09:30",
+   "person": "Dr S. Ranganathan (SR)",
+   "describes": "Friday 9 October 2026: course assigned, no students given the experiment yet, and an empty question bank. Shows the new-teacher entry actions instead of invented activity.",
+   "board": "Live-New.dc.html",
+   "records": {
+    "sc": "new",
+    "clock": {
+     "long": "Friday 9 October 2026",
+     "day": "9 Oct 2026",
+     "iso": "2026-10-09",
+     "time": "09:30",
+     "who": "sr"
+    },
+    "me": "sr",
+    "courses": [
+     {
+      "id": "MEZG523",
+      "code": "ME ZG523",
+      "t": "Thermodynamics & Heat Transfer",
+      "exps": [
+       "ste"
+      ]
+     }
+    ],
+    "exps": {
+     "ste": {
+      "id": "ste",
+      "t": "Shell-and-Tube Heat Exchanger",
+      "crs": "MEZG523",
+      "held": [
+       "WEB",
+       "VR"
+      ],
+      "about": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+      "outcomes": [
+       "Determine log mean temperature difference from measured inlet and outlet conditions",
+       "Compare countercurrent and cocurrent arrangements at matched duty"
+      ],
+      "resources": [
+       {
+        "k": "brief",
+        "t": "Lab brief — Shell-and-Tube Heat Exchanger"
+       },
+       {
+        "k": "pre",
+        "t": "Pre-lab reading — the effectiveness–NTU method"
+       },
+       {
+        "k": "sheet",
+        "t": "Readings sheet"
+       }
+      ]
+     }
+    },
+    "students": [],
+    "bank": [],
+    "drafts": [],
+    "asms": [],
+    "atts": [],
+    "reports": [],
+    "seq": {
+     "q": 100,
+     "asm": 8,
+     "d": 3,
+     "sup": 230
+    }
+   }
+  },
+  {
+   "scenarioId": "none",
+   "asOf": "2026-10-09T09:30",
+   "person": "Dr S. Ranganathan (SR)",
+   "describes": "No courses assigned yet. Every destination shows its no-course state.",
+   "board": "FA01-No-courses.dc.html",
+   "records": {
+    "sc": "none",
+    "clock": {
+     "long": "Friday 9 October 2026",
+     "day": "9 Oct 2026",
+     "iso": "2026-10-09",
+     "time": "09:30",
+     "who": "sr"
+    },
+    "me": "sr",
+    "courses": [],
+    "exps": {},
+    "students": [],
+    "bank": [],
+    "drafts": [],
+    "asms": [],
+    "atts": [],
+    "reports": [],
+    "seq": {
+     "q": 100,
+     "asm": 8,
+     "d": 3,
+     "sup": 230
+    }
+   }
+  },
+  {
+   "scenarioId": "coteach",
+   "asOf": "2026-11-07T10:15",
+   "person": "Dr Anita Desai (AD)",
+   "describes": "A second Faculty member on the same course, on 7 Nov 2026. Shows the existing co-teacher refusals (OD-B4-17): no answer key, submissions, marks or colleague questions.",
+   "board": "Live-Coteach.dc.html",
+   "records": {
+    "sc": "coteach",
+    "clock": {
+     "long": "Saturday 7 November 2026",
+     "day": "7 Nov 2026",
+     "iso": "2026-11-07",
+     "time": "10:15",
+     "who": "ad"
+    },
+    "me": "ad",
+    "courses": [
+     {
+      "id": "MEZG523",
+      "code": "ME ZG523",
+      "t": "Thermodynamics & Heat Transfer",
+      "exps": [
+       "ste"
+      ]
+     }
+    ],
+    "exps": {
+     "ste": {
+      "id": "ste",
+      "t": "Shell-and-Tube Heat Exchanger",
+      "crs": "MEZG523",
+      "held": [
+       "WEB",
+       "VR"
+      ],
+      "about": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+      "outcomes": [
+       "Determine log mean temperature difference from measured inlet and outlet conditions",
+       "Compare countercurrent and cocurrent arrangements at matched duty"
+      ],
+      "resources": [
+       {
+        "k": "brief",
+        "t": "Lab brief — Shell-and-Tube Heat Exchanger"
+       },
+       {
+        "k": "pre",
+        "t": "Pre-lab reading — the effectiveness–NTU method"
+       },
+       {
+        "k": "sheet",
+        "t": "Readings sheet"
+       }
+      ]
+     }
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "first": "Rahul",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-14"
+       ],
+       "VR": [
+        "done",
+        "2026-10-20"
+       ]
+      },
+      "last": "2026-11-05",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "12 Oct 2026, 09:40"
+      }
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "first": "Priya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-18"
+       ],
+       "VR": [
+        "prog",
+        ""
+       ]
+      },
+      "last": "2026-11-06",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "15 Oct 2026, 18:05"
+      }
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "first": "Imran",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "prog",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "2026-10-19",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "19 Oct 2026, 11:30"
+      }
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "first": "Divya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "prog",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "2026-11-03",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "3 Nov 2026, 17:20"
+      }
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "first": "Karthik",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "none",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "",
+      "access": "2026-10-12",
+      "res": {}
+     }
+    ],
+    "bank": [
+     {
+      "id": "Q-0101",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "What does the effectiveness (ε) of a heat exchanger compare?",
+        "opts": [
+         "The actual heat transfer with the largest heat transfer possible",
+         "The hot-side flow rate with the cold-side flow rate",
+         "The overall heat transfer coefficient with the surface area",
+         "The hot fluid’s inlet temperature with its outlet temperature"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "ε = q ÷ q_max, where q_max = C_min (T_h,in − T_c,in).",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0102",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "How is the number of transfer units (NTU) defined?",
+        "opts": [
+         "UA ÷ C_min",
+         "C_min ÷ C_max",
+         "q ÷ q_max",
+         "UA ÷ C_max"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "NTU = UA ÷ C_min — the exchanger’s size measured against the smaller heat-capacity rate.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0103",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "In a counter-flow exchanger, what can happen that cannot happen in parallel flow?",
+        "opts": [
+         "The cold fluid can leave hotter than the hot fluid leaves",
+         "The hot fluid can leave colder than the cold fluid enters",
+         "Both fluids can leave at their inlet temperatures",
+         "The heat duty can exceed C_min (T_h,in − T_c,in)"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "In counter flow the cold fluid meets the hottest hot fluid near its exit, so its outlet can rise above the hot outlet.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0104",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "Fouling on the tube surfaces lowers the overall heat transfer coefficient U.",
+        "opts": [],
+        "correct": -1,
+        "tf": "true",
+        "guide": "",
+        "expl": "Fouling adds a thermal resistance in series, so U falls.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0105",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "For the same inlet conditions and UA, parallel flow transfers more heat than counter flow.",
+        "opts": [],
+        "correct": -1,
+        "tf": "false",
+        "guide": "",
+        "expl": "Counter flow keeps a larger mean temperature difference, so it transfers more heat for the same UA.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0106",
+      "exp": "ste",
+      "by": "sr",
+      "added": "22 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "w",
+        "t": "Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.",
+        "opts": [],
+        "correct": -1,
+        "tf": "",
+        "guide": "Look for: fouling adds a thermal resistance; U falls; at the same flow rates the heat duty and the effectiveness fall; the outlet temperatures move towards their inlet values. Give credit for linking this to readings taken in the simulation, and for mentioning cleaning or a fouling allowance in design.",
+        "expl": "Fouling adds a resistance, so U and the heat duty fall at the same flow rates: the hot fluid leaves hotter and the cold fluid leaves cooler.",
+        "marks": 10
+       }
+      ]
+     }
+    ],
+    "drafts": [
+     {
+      "id": "D-1",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "sc",
+       "t": "What is the log mean temperature difference (LMTD) used for?",
+       "opts": [
+        "Sizing an exchanger from Q = U·A·ΔT_lm",
+        "Measuring the fouling resistance directly",
+        "Setting the pump flow rate",
+        "Converting effectiveness into NTU"
+       ],
+       "correct": 0,
+       "tf": "",
+       "guide": "",
+       "expl": "Q = U·A·ΔT_lm links the heat duty, the area and the temperature difference.",
+       "marks": 2
+      }
+     },
+     {
+      "id": "D-2",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "tf",
+       "t": "Counter flow always needs a larger area than parallel flow for the same duty.",
+       "opts": [],
+       "correct": -1,
+       "tf": "false",
+       "guide": "",
+       "expl": "Counter flow needs less area for the same duty because its mean temperature difference is larger.",
+       "marks": 2
+      }
+     },
+     {
+      "id": "D-3",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "w",
+       "t": "Compare countercurrent and cocurrent arrangements at matched duty, using your readings.",
+       "opts": [],
+       "correct": -1,
+       "tf": "",
+       "guide": "Look for: counter flow gives the larger LMTD and needs less area for the same duty; readings from both arrangements are quoted; the temperature cross that only counter flow allows is mentioned.",
+       "expl": "Counter flow gives the larger mean temperature difference, so it needs less area for the same duty.",
+       "marks": 10
+      }
+     }
+    ],
+    "asms": [
+     {
+      "id": "ASMT-0009",
+      "exp": "ste",
+      "by": "sr",
+      "name": "Heat Exchanger — post-lab",
+      "intro": "Four short questions on what you measured in the Shell-and-Tube Heat Exchanger simulation. One answer is written; your faculty marks it.",
+      "created": "26 Oct 2026, 16:40",
+      "readySince": "27 Oct 2026, 11:05",
+      "versions": [
+       {
+        "n": 1,
+        "since": "27 Oct 2026, 11:05",
+        "why": "",
+        "pass": "50",
+        "att": "2",
+        "dl": "14 Nov 2026, 23:59",
+        "rel": "after",
+        "reldate": "",
+        "qs": [
+         {
+          "id": "Q-0101",
+          "v": 1
+         },
+         {
+          "id": "Q-0102",
+          "v": 1
+         },
+         {
+          "id": "Q-0104",
+          "v": 1
+         },
+         {
+          "id": "Q-0106",
+          "v": 1
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "atts": [
+     {
+      "id": "ATT-0450",
+      "asm": "ASMT-0009",
+      "st": "GIT-2026-0418",
+      "ver": 1,
+      "no": 1,
+      "started": "5 Nov 2026, 18:20",
+      "submitted": "5 Nov 2026, 18:52",
+      "subIso": "2026-11-05T18:52",
+      "ans": {
+       "Q-0101": 0,
+       "Q-0102": 1,
+       "Q-0104": "true",
+       "Q-0106": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area."
+      },
+      "marks": {},
+      "draft": {},
+      "fb": "",
+      "confirmed": "",
+      "confirmedIso": "",
+      "by": ""
+     },
+     {
+      "id": "ATT-0451",
+      "asm": "ASMT-0009",
+      "st": "GIT-2026-0431",
+      "ver": 1,
+      "no": 1,
+      "started": "6 Nov 2026, 19:41",
+      "submitted": "6 Nov 2026, 20:10",
+      "subIso": "2026-11-06T20:10",
+      "ans": {
+       "Q-0101": 0,
+       "Q-0102": 0,
+       "Q-0104": "true",
+       "Q-0106": "Fouling builds up on the tubes and acts like insulation. The overall coefficient U drops, so for the same flows the exchanger transfers less heat and both outlet temperatures change less."
+      },
+      "marks": {},
+      "draft": {},
+      "fb": "",
+      "confirmed": "",
+      "confirmedIso": "",
+      "by": ""
+     }
+    ],
+    "reports": [],
+    "seq": {
+     "q": 106,
+     "asm": 9,
+     "d": 3,
+     "sup": 230
+    }
+   }
+  },
+  {
+   "scenarioId": "nov15",
+   "asOf": "2026-11-15T09:00",
+   "person": "Dr S. Ranganathan (SR)",
+   "describes": "Sunday 15 November 2026, 09:00, after the 14 Nov 23:59 deadline. ATT-0450 was marked 7 (confirmed 7 Nov 2026, 10:15), so its result is released; Priya is still waiting.",
+   "board": "FA19-Released.dc.html",
+   "records": {
+    "sc": "nov15",
+    "clock": {
+     "long": "Sunday 15 November 2026",
+     "day": "15 Nov 2026",
+     "iso": "2026-11-15",
+     "time": "09:00",
+     "who": "sr"
+    },
+    "me": "sr",
+    "courses": [
+     {
+      "id": "MEZG523",
+      "code": "ME ZG523",
+      "t": "Thermodynamics & Heat Transfer",
+      "exps": [
+       "ste"
+      ]
+     }
+    ],
+    "exps": {
+     "ste": {
+      "id": "ste",
+      "t": "Shell-and-Tube Heat Exchanger",
+      "crs": "MEZG523",
+      "held": [
+       "WEB",
+       "VR"
+      ],
+      "about": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+      "outcomes": [
+       "Determine log mean temperature difference from measured inlet and outlet conditions",
+       "Compare countercurrent and cocurrent arrangements at matched duty"
+      ],
+      "resources": [
+       {
+        "k": "brief",
+        "t": "Lab brief — Shell-and-Tube Heat Exchanger"
+       },
+       {
+        "k": "pre",
+        "t": "Pre-lab reading — the effectiveness–NTU method"
+       },
+       {
+        "k": "sheet",
+        "t": "Readings sheet"
+       }
+      ]
+     }
+    },
+    "students": [
+     {
+      "id": "GIT-2026-0418",
+      "n": "Rahul Verma",
+      "first": "Rahul",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-14"
+       ],
+       "VR": [
+        "done",
+        "2026-10-20"
+       ]
+      },
+      "last": "2026-11-05",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "12 Oct 2026, 09:40"
+      }
+     },
+     {
+      "id": "GIT-2026-0431",
+      "n": "Priya Natarajan",
+      "first": "Priya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "done",
+        "2026-10-18"
+       ],
+       "VR": [
+        "prog",
+        ""
+       ]
+      },
+      "last": "2026-11-06",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "15 Oct 2026, 18:05"
+      }
+     },
+     {
+      "id": "GIT-2026-0409",
+      "n": "Imran Shaikh",
+      "first": "Imran",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "prog",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "2026-10-19",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "19 Oct 2026, 11:30"
+      }
+     },
+     {
+      "id": "GIT-2026-0411",
+      "n": "Divya Menon",
+      "first": "Divya",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "prog",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "2026-11-03",
+      "access": "2026-10-12",
+      "res": {
+       "brief": "3 Nov 2026, 17:20"
+      }
+     },
+     {
+      "id": "GIT-2026-0415",
+      "n": "Karthik Rao",
+      "first": "Karthik",
+      "exp": "ste",
+      "fm": {
+       "WEB": [
+        "none",
+        ""
+       ],
+       "VR": [
+        "none",
+        ""
+       ]
+      },
+      "last": "",
+      "access": "2026-10-12",
+      "res": {}
+     }
+    ],
+    "bank": [
+     {
+      "id": "Q-0101",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "What does the effectiveness (ε) of a heat exchanger compare?",
+        "opts": [
+         "The actual heat transfer with the largest heat transfer possible",
+         "The hot-side flow rate with the cold-side flow rate",
+         "The overall heat transfer coefficient with the surface area",
+         "The hot fluid’s inlet temperature with its outlet temperature"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "ε = q ÷ q_max, where q_max = C_min (T_h,in − T_c,in).",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0102",
+      "exp": "ste",
+      "by": "sr",
+      "added": "20 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "How is the number of transfer units (NTU) defined?",
+        "opts": [
+         "UA ÷ C_min",
+         "C_min ÷ C_max",
+         "q ÷ q_max",
+         "UA ÷ C_max"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "NTU = UA ÷ C_min — the exchanger’s size measured against the smaller heat-capacity rate.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0103",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "sc",
+        "t": "In a counter-flow exchanger, what can happen that cannot happen in parallel flow?",
+        "opts": [
+         "The cold fluid can leave hotter than the hot fluid leaves",
+         "The hot fluid can leave colder than the cold fluid enters",
+         "Both fluids can leave at their inlet temperatures",
+         "The heat duty can exceed C_min (T_h,in − T_c,in)"
+        ],
+        "correct": 0,
+        "tf": "",
+        "guide": "",
+        "expl": "In counter flow the cold fluid meets the hottest hot fluid near its exit, so its outlet can rise above the hot outlet.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0104",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "Fouling on the tube surfaces lowers the overall heat transfer coefficient U.",
+        "opts": [],
+        "correct": -1,
+        "tf": "true",
+        "guide": "",
+        "expl": "Fouling adds a thermal resistance in series, so U falls.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0105",
+      "exp": "ste",
+      "by": "sr",
+      "added": "21 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "tf",
+        "t": "For the same inlet conditions and UA, parallel flow transfers more heat than counter flow.",
+        "opts": [],
+        "correct": -1,
+        "tf": "false",
+        "guide": "",
+        "expl": "Counter flow keeps a larger mean temperature difference, so it transfers more heat for the same UA.",
+        "marks": 2
+       }
+      ]
+     },
+     {
+      "id": "Q-0106",
+      "exp": "ste",
+      "by": "sr",
+      "added": "22 Oct 2026",
+      "deleted": "",
+      "fromDraft": false,
+      "v": [
+       {
+        "type": "w",
+        "t": "Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.",
+        "opts": [],
+        "correct": -1,
+        "tf": "",
+        "guide": "Look for: fouling adds a thermal resistance; U falls; at the same flow rates the heat duty and the effectiveness fall; the outlet temperatures move towards their inlet values. Give credit for linking this to readings taken in the simulation, and for mentioning cleaning or a fouling allowance in design.",
+        "expl": "Fouling adds a resistance, so U and the heat duty fall at the same flow rates: the hot fluid leaves hotter and the cold fluid leaves cooler.",
+        "marks": 10
+       }
+      ]
+     }
+    ],
+    "drafts": [
+     {
+      "id": "D-1",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "sc",
+       "t": "What is the log mean temperature difference (LMTD) used for?",
+       "opts": [
+        "Sizing an exchanger from Q = U·A·ΔT_lm",
+        "Measuring the fouling resistance directly",
+        "Setting the pump flow rate",
+        "Converting effectiveness into NTU"
+       ],
+       "correct": 0,
+       "tf": "",
+       "guide": "",
+       "expl": "Q = U·A·ΔT_lm links the heat duty, the area and the temperature difference.",
+       "marks": 2
+      }
+     },
+     {
+      "id": "D-2",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "tf",
+       "t": "Counter flow always needs a larger area than parallel flow for the same duty.",
+       "opts": [],
+       "correct": -1,
+       "tf": "false",
+       "guide": "",
+       "expl": "Counter flow needs less area for the same duty because its mean temperature difference is larger.",
+       "marks": 2
+      }
+     },
+     {
+      "id": "D-3",
+      "exp": "ste",
+      "by": "sr",
+      "when": "4 Nov 2026",
+      "src": "The experiment’s lab brief",
+      "status": "review",
+      "q": {
+       "type": "w",
+       "t": "Compare countercurrent and cocurrent arrangements at matched duty, using your readings.",
+       "opts": [],
+       "correct": -1,
+       "tf": "",
+       "guide": "Look for: counter flow gives the larger LMTD and needs less area for the same duty; readings from both arrangements are quoted; the temperature cross that only counter flow allows is mentioned.",
+       "expl": "Counter flow gives the larger mean temperature difference, so it needs less area for the same duty.",
+       "marks": 10
+      }
+     }
+    ],
+    "asms": [
+     {
+      "id": "ASMT-0009",
+      "exp": "ste",
+      "by": "sr",
+      "name": "Heat Exchanger — post-lab",
+      "intro": "Four short questions on what you measured in the Shell-and-Tube Heat Exchanger simulation. One answer is written; your faculty marks it.",
+      "created": "26 Oct 2026, 16:40",
+      "readySince": "27 Oct 2026, 11:05",
+      "versions": [
+       {
+        "n": 1,
+        "since": "27 Oct 2026, 11:05",
+        "why": "",
+        "pass": "50",
+        "att": "2",
+        "dl": "14 Nov 2026, 23:59",
+        "rel": "after",
+        "reldate": "",
+        "qs": [
+         {
+          "id": "Q-0101",
+          "v": 1
+         },
+         {
+          "id": "Q-0102",
+          "v": 1
+         },
+         {
+          "id": "Q-0104",
+          "v": 1
+         },
+         {
+          "id": "Q-0106",
+          "v": 1
+         }
+        ]
+       }
+      ]
+     }
+    ],
+    "atts": [
+     {
+      "id": "ATT-0450",
+      "asm": "ASMT-0009",
+      "st": "GIT-2026-0418",
+      "ver": 1,
+      "no": 1,
+      "started": "5 Nov 2026, 18:20",
+      "submitted": "5 Nov 2026, 18:52",
+      "subIso": "2026-11-05T18:52",
+      "ans": {
+       "Q-0101": 0,
+       "Q-0102": 1,
+       "Q-0104": "true",
+       "Q-0106": "In the WEB run I turned the fouling up and kept both flow rates the same. The hot fluid left hotter than before and the cold fluid left cooler, so less heat was passed across. Fouling is an extra layer of resistance, so U goes down and the effectiveness goes down with it. That is why exchangers are cleaned, or designed with extra area."
+      },
+      "marks": {
+       "Q-0106": 7
+      },
+      "draft": {},
+      "fb": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab.",
+      "confirmed": "7 Nov 2026, 10:15",
+      "confirmedIso": "2026-11-07T10:15",
+      "by": "sr"
+     },
+     {
+      "id": "ATT-0451",
+      "asm": "ASMT-0009",
+      "st": "GIT-2026-0431",
+      "ver": 1,
+      "no": 1,
+      "started": "6 Nov 2026, 19:41",
+      "submitted": "6 Nov 2026, 20:10",
+      "subIso": "2026-11-06T20:10",
+      "ans": {
+       "Q-0101": 0,
+       "Q-0102": 0,
+       "Q-0104": "true",
+       "Q-0106": "Fouling builds up on the tubes and acts like insulation. The overall coefficient U drops, so for the same flows the exchanger transfers less heat and both outlet temperatures change less."
+      },
+      "marks": {},
+      "draft": {},
+      "fb": "",
+      "confirmed": "",
+      "confirmedIso": "",
+      "by": ""
+     }
+    ],
+    "reports": [],
+    "seq": {
+     "q": 106,
+     "asm": 9,
+     "d": 3,
+     "sup": 230
+    }
+   }
+  }
+ ],
+ "provenance": {
+  "fromV46Boards": [
+   "Course ME ZG523 Thermodynamics & Heat Transfer; experiment Shell-and-Tube Heat Exchanger with formats WEB and VR held (B4-01…B4-03).",
+   "Five students, their IDs, per-format progress with completion dates, last activity and access date of 12 Oct 2026 (B4-10, matching Usage B3-10). Rahul opened the lab brief on 12 Oct 2026, 09:40 (B4-10).",
+   "ASMT-0009 \"Heat Exchanger — post-lab\": pass mark 50%, 2 attempts, due 14 Nov 2026, 23:59, results after the deadline, four questions worth 16 marks, created by Dr S. Ranganathan (B4-00, B4-05).",
+   "Question bank Q-0101…Q-0106: texts, types, marks and dates added (B4-07). Options, keys and explanations of Q-0101, Q-0102, Q-0104 and Q-0106, and the marking guidance of Q-0106 (B4-09).",
+   "ATT-0450 (Rahul): started 5 Nov 2026, 18:20, submitted 18:52; choice answers 0, 1 and true; the written answer. ATT-0451 (Priya): submitted 6 Nov 2026, 20:10, with her written answer (B4-09).",
+   "Marked state: Rahul's question 4 marked 7, with the feedback text, confirmed 7 Nov 2026, 10:15 by Dr S. Ranganathan (B4-09, confirmed state).",
+   "Drafts D-1…D-3: texts, types and marks (B4-07, B4-08). Import rows 3, 6 and 7 and their three messages; 8 rows, 6 ready, 2 errors, 1 warning, and the corrected file with 8 ready (B4-08)."
+  ],
+  "illustrativeAddedHere": [
+   "Options, keys and explanations of Q-0103 and Q-0105 (B4-07 gives their texts only).",
+   "Options, correct answers, explanations and marking guidance of drafts D-1…D-3.",
+   "Priya's choice answers (0, 0 and true). B4-09 shows only her written answer.",
+   "Resource-open times for Priya, Imran and Divya (Rahul's comes from B4-10; Karthik has none).",
+   "The 26 Oct 2026 scenario: later activity is removed from the 7 Nov facts. Rahul's last activity becomes 20 Oct, Priya's 22 Oct, and Divya has not started (her first activity is 3 Nov).",
+   "The new-teacher (9 Oct 2026) and no-course scenarios.",
+   "Dr Anita Desai as a co-teacher on ME ZG523. Phase 4A tested the refusal by assigning a second Faculty member; the name is illustrative.",
+   "The 15 Nov 2026 scenario (after the deadline), for the released-result state.",
+   "SUP-0231: a report reference generated inside the preview when a report is sent (counter starts at SUP-0230).",
+   "The five rows of the sample import file that are not one of B4-08's three problem rows, and the corrected rows 3 and 6.",
+   "The drafting stand-in pool: 15 sample drafts (5 single choice, 5 true or false, 5 written)."
+  ],
+  "notIncluded": [
+   "A \"course access ended\" sample. It would need invented 2027 access facts, so it is deferred and not designed as a separate sample.",
+   "Any score, percentage or metric that is not in the records above."
+  ]
+ },
+ "standIns": {
+  "draftingAssistance": "Deterministic and illustrative; no provider is connected or named. Each request takes N drafts round-robin over the chosen types from the pool below, in a fixed order, whichever material is chosen. Drafts are stored with status \"review\" and enter the bank only through Add to bank (or Review → Add to bank).",
+  "draftPool": {
+   "sc": [
+    {
+     "type": "sc",
+     "t": "Which fluid sets C_min in the effectiveness–NTU method?",
+     "opts": [
+      "The fluid with the smaller heat-capacity rate, ṁc_p",
+      "The fluid with the higher inlet temperature",
+      "The fluid on the shell side",
+      "The fluid with the larger mass flow rate"
+     ],
+     "correct": 0,
+     "tf": "",
+     "guide": "",
+     "expl": "C_min is the smaller of the two heat-capacity rates (ṁc_p), whichever side that fluid is on.",
+     "marks": 2
+    },
+    {
+     "type": "sc",
+     "t": "At a fixed capacity ratio, what happens to the effectiveness as NTU increases?",
+     "opts": [
+      "It rises and levels off",
+      "It falls",
+      "It stays the same",
+      "It rises without limit"
+     ],
+     "correct": 0,
+     "tf": "",
+     "guide": "",
+     "expl": "More transfer units means more area for the same C_min, so ε rises towards its limit.",
+     "marks": 2
+    },
+    {
+     "type": "sc",
+     "t": "Why is a correction factor F applied to the LMTD of a two-pass shell-and-tube exchanger?",
+     "opts": [
+      "Its flow is neither pure counter flow nor pure parallel flow",
+      "The two fluids have different densities",
+      "The tubes conduct heat along their length",
+      "The shell loses heat to the room"
+     ],
+     "correct": 0,
+     "tf": "",
+     "guide": "",
+     "expl": "Multi-pass flow mixes counter-flow and parallel-flow sections, so the counter-flow LMTD is multiplied by F ≤ 1.",
+     "marks": 2
+    },
+    {
+     "type": "sc",
+     "t": "What does the capacity ratio C_r compare?",
+     "opts": [
+      "C_min with C_max",
+      "U with A",
+      "q with q_max",
+      "The inlet temperature with the outlet temperature"
+     ],
+     "correct": 0,
+     "tf": "",
+     "guide": "",
+     "expl": "C_r = C_min ÷ C_max, so it lies between 0 and 1.",
+     "marks": 2
+    },
+    {
+     "type": "sc",
+     "t": "Which change raises the heat duty at the same inlet temperatures and flow rates?",
+     "opts": [
+      "Increasing the heat transfer area",
+      "Letting fouling build up on the tubes",
+      "Switching from counter flow to parallel flow",
+      "Shortening the tubes"
+     ],
+     "correct": 0,
+     "tf": "",
+     "guide": "",
+     "expl": "More area raises UA and NTU, so more heat is transferred.",
+     "marks": 2
+    }
+   ],
+   "tf": [
+    {
+     "type": "tf",
+     "t": "When one fluid condenses at constant temperature, the capacity ratio C_r is effectively zero.",
+     "opts": [],
+     "correct": -1,
+     "tf": "true",
+     "guide": "",
+     "expl": "A condensing fluid behaves like one with a very large heat-capacity rate, so C_min ÷ C_max approaches zero.",
+     "marks": 2
+    },
+    {
+     "type": "tf",
+     "t": "The LMTD is always larger than the arithmetic mean of the two end temperature differences.",
+     "opts": [],
+     "correct": -1,
+     "tf": "false",
+     "guide": "",
+     "expl": "The LMTD is smaller than or equal to the arithmetic mean; they are equal only when the two end differences are equal.",
+     "marks": 2
+    },
+    {
+     "type": "tf",
+     "t": "Raising the cold-side flow rate, with everything else unchanged, lowers the cold outlet temperature.",
+     "opts": [],
+     "correct": -1,
+     "tf": "true",
+     "guide": "",
+     "expl": "With more flow, each kilogram of cold fluid picks up less heat, so its outlet temperature falls.",
+     "marks": 2
+    },
+    {
+     "type": "tf",
+     "t": "Designers usually allow for fouling by adding a fouling resistance when they calculate U.",
+     "opts": [],
+     "correct": -1,
+     "tf": "true",
+     "guide": "",
+     "expl": "A fouling factor is added to the thermal resistances, which lowers the design U.",
+     "marks": 2
+    },
+    {
+     "type": "tf",
+     "t": "In parallel flow, the cold fluid can leave hotter than the hot fluid leaves.",
+     "opts": [],
+     "correct": -1,
+     "tf": "false",
+     "guide": "",
+     "expl": "Only counter flow allows this temperature cross; in parallel flow both outlets approach a common temperature.",
+     "marks": 2
+    }
+   ],
+   "w": [
+    {
+     "type": "w",
+     "t": "Using your readings, explain how changing the hot-side flow rate affected the effectiveness.",
+     "opts": [],
+     "correct": -1,
+     "tf": "",
+     "guide": "Look for: readings at two or more hot-side flow rates; the effect on C_hot, C_min and NTU; a conclusion about the effectiveness that follows from the readings.",
+     "expl": "If the hot fluid sets C_min, a higher hot-side flow raises C_min and lowers NTU, so the effectiveness falls even though the duty may rise.",
+     "marks": 10
+    },
+    {
+     "type": "w",
+     "t": "Describe how you found the log mean temperature difference from your measured temperatures.",
+     "opts": [],
+     "correct": -1,
+     "tf": "",
+     "guide": "Look for: the four terminal temperatures; the two end differences for the arrangement used; the LMTD formula applied correctly; units.",
+     "expl": "ΔT_lm = (ΔT_1 − ΔT_2) ÷ ln(ΔT_1 ÷ ΔT_2), using the end differences for the flow arrangement.",
+     "marks": 10
+    },
+    {
+     "type": "w",
+     "t": "Explain why counter flow can give a temperature cross, using your simulation results.",
+     "opts": [],
+     "correct": -1,
+     "tf": "",
+     "guide": "Look for: what a temperature cross is; readings where the cold outlet is above the hot outlet; why parallel flow cannot do this.",
+     "expl": "In counter flow the cold fluid leaves next to the hot inlet, so it can be heated above the hot outlet temperature.",
+     "marks": 10
+    },
+    {
+     "type": "w",
+     "t": "Suggest one change that would raise the exchanger’s duty, and justify it with the ε–NTU relationship.",
+     "opts": [],
+     "correct": -1,
+     "tf": "",
+     "guide": "Look for: a concrete change such as more area, a higher U or counter flow; its effect on NTU or C_r; the resulting change in effectiveness and duty.",
+     "expl": "For example, more area raises NTU, which raises ε and so the duty q = ε C_min (T_h,in − T_c,in).",
+     "marks": 10
+    },
+    {
+     "type": "w",
+     "t": "Compare the duty you measured with the duty the ε–NTU method predicts, and explain any difference.",
+     "opts": [],
+     "correct": -1,
+     "tf": "",
+     "guide": "Look for: both values with units; the size of the difference; reasons such as heat loss, reading error or fouling.",
+     "expl": "Differences usually come from heat lost to the surroundings, reading error, or fouling the prediction left out.",
+     "marks": 10
+    }
+   ]
+  },
+  "objectiveMarking": "Local stand-in: choice and true/false answers are scored against the key of the attempt's pinned version (P4-01 interim). Faculty marks written answers and confirms.",
+  "importSample": {
+   "columns": [
+    "type",
+    "question",
+    "option_a",
+    "option_b",
+    "option_c",
+    "option_d",
+    "correct",
+    "marks",
+    "explanation",
+    "marking_guidance"
+   ],
+   "fileWithErrors": {
+    "name": "post-lab-questions.csv",
+    "text": "type,question,option_a,option_b,option_c,option_d,correct,marks,explanation,marking_guidance\r\nsingle choice,Which quantity is the ratio C_min ÷ C_max?,The capacity ratio C_r,The effectiveness ε,The number of transfer units,The overall coefficient U,A,2,\"C_r = C_min ÷ C_max, between 0 and 1.\",\r\nsingle choice,What does C_min stand for?,The smaller heat-capacity rate,The lowest temperature in the exchanger,The smallest mass flow rate,The smallest tube diameter,E,2,C_min is the smaller of the two heat-capacity rates.,\r\ntrue or false,\"At a fixed capacity ratio, a larger NTU gives a larger effectiveness.\",,,,,TRUE,2,ε rises with NTU at a fixed C_r and levels off at its limit.,\r\ntrue or false,The hot fluid can leave colder than the cold fluid enters.,,,,,FALSE,2,\"Heat flows only from hot to cold, so the hot outlet stays above the cold inlet.\",\r\nmulti-select,Which statements about fouling are true? (choose two),It adds a thermal resistance,It raises U,It lowers the heat duty,It raises the effectiveness,A;C,2,Fouling adds a resistance in series.,\r\nwritten answer,State the units of the overall heat transfer coefficient.,,,,,,4,,\"Look for: W/(m²·K), or the same units written another way.\"\r\nsingle choice,Which arrangement gives the largest LMTD for the same terminal temperatures?,Counter flow,Parallel flow,Cross flow with both fluids unmixed,They are all equal,A,2,Counter flow keeps the largest mean temperature difference.,\r\nwritten answer,Explain how you would find the effectiveness of the exchanger from your simulation readings.,,,,,,10,\"ε = q ÷ q_max, from the measured duty and the two inlet temperatures.\",Look for: the duty from one stream (ṁ c_p ΔT); q_max from C_min and the two inlet temperatures; the ratio taken; units checked.\r\n"
+   },
+   "correctedFile": {
+    "name": "post-lab-questions-corrected.csv",
+    "text": "type,question,option_a,option_b,option_c,option_d,correct,marks,explanation,marking_guidance\r\nsingle choice,Which quantity is the ratio C_min ÷ C_max?,The capacity ratio C_r,The effectiveness ε,The number of transfer units,The overall coefficient U,A,2,\"C_r = C_min ÷ C_max, between 0 and 1.\",\r\nsingle choice,What does C_min stand for?,The smaller heat-capacity rate,The lowest temperature in the exchanger,The smallest mass flow rate,The smallest tube diameter,A,2,C_min is the smaller of the two heat-capacity rates.,\r\ntrue or false,\"At a fixed capacity ratio, a larger NTU gives a larger effectiveness.\",,,,,TRUE,2,ε rises with NTU at a fixed C_r and levels off at its limit.,\r\ntrue or false,The hot fluid can leave colder than the cold fluid enters.,,,,,FALSE,2,\"Heat flows only from hot to cold, so the hot outlet stays above the cold inlet.\",\r\nsingle choice,Which statement about fouling is true?,It adds a thermal resistance,It raises U,It raises the heat duty,It raises the effectiveness,A,2,\"Fouling adds a resistance in series, so U falls.\",\r\nwritten answer,State the units of the overall heat transfer coefficient.,,,,,,4,,\"Look for: W/(m²·K), or the same units written another way.\"\r\nsingle choice,Which arrangement gives the largest LMTD for the same terminal temperatures?,Counter flow,Parallel flow,Cross flow with both fluids unmixed,They are all equal,A,2,Counter flow keeps the largest mean temperature difference.,\r\nwritten answer,Explain how you would find the effectiveness of the exchanger from your simulation readings.,,,,,,10,\"ε = q ÷ q_max, from the measured duty and the two inlet temperatures.\",Look for: the duty from one stream (ṁ c_p ΔT); q_max from C_min and the two inlet temperatures; the ratio taken; units checked.\r\n"
+   },
+   "checkOfFileWithErrors": {
+    "total": 8,
+    "ok": 6,
+    "errors": 2,
+    "warnings": 1,
+    "problems": [
+     {
+      "row": "3",
+      "q": "What does C_min stand for?",
+      "msg": "correct is “E”, but the question has options A–D only.",
+      "k": "err"
+     },
+     {
+      "row": "6",
+      "q": "Which statements about fouling are true? (choose two)",
+      "msg": "type “multi-select” isn’t available. Use single choice, true or false, or written answer.",
+      "k": "err"
+     },
+     {
+      "row": "7",
+      "q": "State the units of the overall heat transfer coefficient.",
+      "msg": "explanation is empty. The question imports without one.",
+      "k": "warn"
+     }
+    ]
+   },
+   "checkOfCorrectedFile": {
+    "total": 8,
+    "ok": 8,
+    "errors": 0,
+    "warnings": 1,
+    "problems": [
+     {
+      "row": "7",
+      "q": "State the units of the overall heat transfer coefficient.",
+      "msg": "explanation is empty. The question imports without one.",
+      "k": "warn"
+     }
+    ]
+   }
+  }
+ },
+ "inspectionPresets": {
+  "menu": "drawer open",
+  "acct": "account menu open",
+  "loading": "FA-04 loading",
+  "failed": "FA-04 could not load",
+  "nomatch": "FA-04 search with no match",
+  "helpform": "XS-07 report form",
+  "cw-step2 / cw-step2err / cw-step3 / cw-step4": "FA-07 at a step (26 Oct)",
+  "cw-created / cw-draft": "FA-07 finished as ready / as a draft",
+  "cw-has": "FA-07 one-per-experiment refusal",
+  "asm-draft": "FA-08 for a draft with rules and no questions (26 Oct)",
+  "v2": "ASMT-0009 version 2 (pass mark changed after submissions)",
+  "panel": "FA-09 bank panel open",
+  "newver": "FA-09 question added after submissions (version 2)",
+  "updated": "Q-0102 has a newer bank version",
+  "deleted": "Q-0101 deleted from the bank",
+  "st-errors / st-warnrule / st-warnrel": "FA-10 errors / rule-change warning / release-change warning",
+  "pv-key / pv-failed": "FA-11 answer key / failed preview",
+  "sb-export": "FA-12 export done",
+  "marked / mk-confirmed": "ATT-0450 confirmed with 7 and the B4-09 feedback",
+  "marked-export": "marked, then FA-12 exported",
+  "qb-drafts / qb-del / qb-deleted / qb-nomatch / qb-filter": "FA-14 drafts tab / delete dialog / deleted / no match / type filter",
+  "qe-err": "FA-15 validation (v46 B4-07 validation frame)",
+  "qe-cw": "FA-15 opened from FA-07",
+  "dr-errors / dr-busy / dr-list / dr-fail / dr-failnext": "FA-16 validation / drafting / drafts listed / failed / next request fails",
+  "im-file / im-xlsx / im-errors / im-confirm / im-done": "FA-17 sample chosen / XLSX refused / row errors / confirm / imported",
+  "mk-err / mk-saved / mk-dialog": "FA-19 invalid mark / saved, not confirmed / confirm dialog open",
+  "mq-all": "FA-18 showing all",
+  "sl-inactive / sl-export / sl-inactive-export / sl-nomatch": "FA-20 inactive 14+ / exported / both / no match",
+  "note": "Presets only set a documented starting state for an inspection board; the sample worlds themselves are unchanged in the final design."
+ },
+ "boards": {
+  "Live-Oct26": {
+   "title": "Live · 26 Oct 2026 · before the assessment exists",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "Live-New": {
+   "title": "Live · new teacher · no students yet",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "Live-Coteach": {
+   "title": "Live · co-teacher Dr Anita Desai",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "Live-Laptop": {
+   "title": "Live · laptop 1024 · 7 Nov 2026",
+   "width": 1024,
+   "scenario": "nov07",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "Live-Tablet": {
+   "title": "Live · tablet 768 · 7 Nov 2026",
+   "width": 768,
+   "scenario": "nov07",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "Live-Phone": {
+   "title": "Live · phone 375 · 7 Nov 2026",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA01-Overview": {
+   "title": "FA-01 Overview · populated",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA01-One-item": {
+   "title": "FA-01 · one item needs attention · 26 Oct",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA01-New-teacher": {
+   "title": "FA-01 · new teacher, no students yet",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA01-No-courses": {
+   "title": "FA-01 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA01-Coteach": {
+   "title": "FA-01 · co-teacher",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA01-Phone": {
+   "title": "FA-01 Overview · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA01-New-phone": {
+   "title": "FA-01 · new teacher · 375",
+   "width": 375,
+   "scenario": "new",
+   "start": "FA-01",
+   "rec": "",
+   "preset": ""
+  },
+  "FA02-My-courses": {
+   "title": "FA-02 My courses · populated",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-02",
+   "rec": "",
+   "preset": ""
+  },
+  "FA02-New": {
+   "title": "FA-02 · new teacher, no students yet",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-02",
+   "rec": "",
+   "preset": ""
+  },
+  "FA02-None": {
+   "title": "FA-02 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-02",
+   "rec": "",
+   "preset": ""
+  },
+  "FA02-Phone": {
+   "title": "FA-02 My courses · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-02",
+   "rec": "",
+   "preset": ""
+  },
+  "FA03-Course": {
+   "title": "FA-03 Course · populated",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-03",
+   "rec": "MEZG523",
+   "preset": ""
+  },
+  "FA03-No-assessment": {
+   "title": "FA-03 · no assessment yet · 26 Oct",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-03",
+   "rec": "MEZG523",
+   "preset": ""
+  },
+  "FA03-New": {
+   "title": "FA-03 · new teacher, no students yet",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-03",
+   "rec": "MEZG523",
+   "preset": ""
+  },
+  "FA03-Coteach": {
+   "title": "FA-03 · co-teacher",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-03",
+   "rec": "MEZG523",
+   "preset": ""
+  },
+  "FA03-Phone": {
+   "title": "FA-03 Course · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-03",
+   "rec": "MEZG523",
+   "preset": ""
+  },
+  "FA04-Experiments": {
+   "title": "FA-04 Experiments · populated",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-04",
+   "rec": "",
+   "preset": ""
+  },
+  "FA04-No-match": {
+   "title": "FA-04 · no experiment matches",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-04",
+   "rec": "",
+   "preset": "nomatch"
+  },
+  "FA04-Loading": {
+   "title": "FA-04 · loading",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-04",
+   "rec": "",
+   "preset": "loading"
+  },
+  "FA04-Failed": {
+   "title": "FA-04 · couldn’t load",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-04",
+   "rec": "",
+   "preset": "failed"
+  },
+  "FA04-No-courses": {
+   "title": "FA-04 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-04",
+   "rec": "",
+   "preset": ""
+  },
+  "FA04-New": {
+   "title": "FA-04 · no student activity yet",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-04",
+   "rec": "",
+   "preset": ""
+  },
+  "FA04-Phone": {
+   "title": "FA-04 Experiments · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-04",
+   "rec": "",
+   "preset": ""
+  },
+  "FA05-Experiment": {
+   "title": "FA-05 Experiment · populated",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-05",
+   "rec": "",
+   "preset": ""
+  },
+  "FA05-No-assessment": {
+   "title": "FA-05 · no assessment yet · 26 Oct",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-05",
+   "rec": "",
+   "preset": ""
+  },
+  "FA05-New": {
+   "title": "FA-05 · no students with access yet",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-05",
+   "rec": "",
+   "preset": ""
+  },
+  "FA05-Coteach": {
+   "title": "FA-05 · co-teacher",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-05",
+   "rec": "",
+   "preset": ""
+  },
+  "FA05-Phone": {
+   "title": "FA-05 Experiment · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-05",
+   "rec": "",
+   "preset": ""
+  },
+  "FA06-Assessments": {
+   "title": "FA-06 Assessments · populated",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-06",
+   "rec": "",
+   "preset": ""
+  },
+  "FA06-None-yet": {
+   "title": "FA-06 · no assessment yet · 26 Oct",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-06",
+   "rec": "",
+   "preset": ""
+  },
+  "FA06-No-courses": {
+   "title": "FA-06 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-06",
+   "rec": "",
+   "preset": ""
+  },
+  "FA06-Phone": {
+   "title": "FA-06 Assessments · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-06",
+   "rec": "",
+   "preset": ""
+  },
+  "FA07-Step1": {
+   "title": "FA-07 · step 1 · experiment · 26 Oct",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": ""
+  },
+  "FA07-Step2-errors": {
+   "title": "FA-07 · step 2 · rules with errors",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-step2err"
+  },
+  "FA07-Step3": {
+   "title": "FA-07 · step 3 · questions",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-step3"
+  },
+  "FA07-Step4": {
+   "title": "FA-07 · step 4 · preview and create",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-step4"
+  },
+  "FA07-Created": {
+   "title": "FA-07 · created and ready",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-created"
+  },
+  "FA07-Saved-draft": {
+   "title": "FA-07 · saved as a draft",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-draft"
+  },
+  "FA07-One-per-experiment": {
+   "title": "FA-07 · experiment already has one",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-has"
+  },
+  "FA07-No-courses": {
+   "title": "FA-07 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-07",
+   "rec": "",
+   "preset": ""
+  },
+  "FA07-Phone": {
+   "title": "FA-07 · step 2 · 375",
+   "width": 375,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-step2"
+  },
+  "FA07-Step4-phone": {
+   "title": "FA-07 · step 4 · 375",
+   "width": 375,
+   "scenario": "oct26",
+   "start": "FA-07",
+   "rec": "",
+   "preset": "cw-step4"
+  },
+  "FA08-Summary": {
+   "title": "FA-08 Summary · ready, 2 waiting",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-08",
+   "rec": "",
+   "preset": ""
+  },
+  "FA08-Draft": {
+   "title": "FA-08 · draft, no questions yet",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-08",
+   "rec": "",
+   "preset": "asm-draft"
+  },
+  "FA08-Version2": {
+   "title": "FA-08 · version 2 after submissions",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-08",
+   "rec": "",
+   "preset": "v2"
+  },
+  "FA08-Coteach": {
+   "title": "FA-08 · co-teacher",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-08",
+   "rec": "",
+   "preset": ""
+  },
+  "FA08-Phone": {
+   "title": "FA-08 Summary · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-08",
+   "rec": "",
+   "preset": ""
+  },
+  "FA09-Questions": {
+   "title": "FA-09 Questions · 4 questions",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-09",
+   "rec": "",
+   "preset": ""
+  },
+  "FA09-Add-from-bank": {
+   "title": "FA-09 · add from question bank panel",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-09",
+   "rec": "",
+   "preset": "panel"
+  },
+  "FA09-New-version": {
+   "title": "FA-09 · added after submissions · version 2",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-09",
+   "rec": "",
+   "preset": "newver"
+  },
+  "FA09-Coteach": {
+   "title": "FA-09 · co-teacher, read only",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-09",
+   "rec": "",
+   "preset": ""
+  },
+  "FA09-Phone": {
+   "title": "FA-09 Questions · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-09",
+   "rec": "",
+   "preset": ""
+  },
+  "FA10-Settings": {
+   "title": "FA-10 Settings",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-10",
+   "rec": "",
+   "preset": ""
+  },
+  "FA10-Errors": {
+   "title": "FA-10 · errors",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-10",
+   "rec": "",
+   "preset": "st-errors"
+  },
+  "FA10-Rule-change": {
+   "title": "FA-10 · rule change after submissions",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-10",
+   "rec": "",
+   "preset": "st-warnrule"
+  },
+  "FA10-Release-change": {
+   "title": "FA-10 · release change warning",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-10",
+   "rec": "",
+   "preset": "st-warnrel"
+  },
+  "FA10-Coteach": {
+   "title": "FA-10 · co-teacher, read only",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-10",
+   "rec": "",
+   "preset": ""
+  },
+  "FA10-Phone": {
+   "title": "FA-10 Settings · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-10",
+   "rec": "",
+   "preset": ""
+  },
+  "FA11-Student-view": {
+   "title": "FA-11 Preview · as students see it",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-11",
+   "rec": "",
+   "preset": ""
+  },
+  "FA11-Answer-key": {
+   "title": "FA-11 · with the answer key",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-11",
+   "rec": "",
+   "preset": "pv-key"
+  },
+  "FA11-Failed": {
+   "title": "FA-11 · preview couldn’t load",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-11",
+   "rec": "",
+   "preset": "pv-failed"
+  },
+  "FA11-Coteach": {
+   "title": "FA-11 · co-teacher",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-11",
+   "rec": "",
+   "preset": ""
+  },
+  "FA11-Phone": {
+   "title": "FA-11 · answer key · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-11",
+   "rec": "",
+   "preset": "pv-key"
+  },
+  "FA12-Submissions": {
+   "title": "FA-12 Submissions · 2 waiting",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-12",
+   "rec": "",
+   "preset": ""
+  },
+  "FA12-Marked": {
+   "title": "FA-12 · one marked, result not released",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-12",
+   "rec": "",
+   "preset": "marked"
+  },
+  "FA12-Export": {
+   "title": "FA-22 Export CSV on FA-12",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-12",
+   "rec": "",
+   "preset": "marked-export"
+  },
+  "FA12-Coteach": {
+   "title": "FA-12 · co-teacher",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-12",
+   "rec": "",
+   "preset": ""
+  },
+  "FA12-Phone": {
+   "title": "FA-12 Submissions · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-12",
+   "rec": "",
+   "preset": ""
+  },
+  "FA14-Question-bank": {
+   "title": "FA-14 Question bank · questions",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-14",
+   "rec": "",
+   "preset": ""
+  },
+  "FA14-Drafts": {
+   "title": "FA-14 · drafts to review",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-14",
+   "rec": "",
+   "preset": "qb-drafts"
+  },
+  "FA14-Delete": {
+   "title": "FA-14 · delete a used question (dialog)",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-14",
+   "rec": "",
+   "preset": "qb-del"
+  },
+  "FA14-Deleted": {
+   "title": "FA-14 · question deleted, history kept",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-14",
+   "rec": "",
+   "preset": "qb-deleted"
+  },
+  "FA14-No-match": {
+   "title": "FA-14 · no question matches",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-14",
+   "rec": "",
+   "preset": "qb-nomatch"
+  },
+  "FA14-Empty": {
+   "title": "FA-14 · empty bank, new teacher",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-14",
+   "rec": "",
+   "preset": ""
+  },
+  "FA14-Phone": {
+   "title": "FA-14 Question bank · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-14",
+   "rec": "",
+   "preset": ""
+  },
+  "FA14-Drafts-phone": {
+   "title": "FA-14 · drafts to review · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-14",
+   "rec": "",
+   "preset": "qb-drafts"
+  },
+  "FA15-New": {
+   "title": "FA-15 Add a question",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-15",
+   "rec": "",
+   "preset": ""
+  },
+  "FA15-Errors": {
+   "title": "FA-15 · add a question with errors",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-15",
+   "rec": "",
+   "preset": "qe-err"
+  },
+  "FA15-Used": {
+   "title": "FA-15 · edit a used question",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-15",
+   "rec": "Q-0102",
+   "preset": ""
+  },
+  "FA15-Draft-review": {
+   "title": "FA-15 · review a draft",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-15",
+   "rec": "D-3",
+   "preset": ""
+  },
+  "FA15-Phone": {
+   "title": "FA-15 · errors · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-15",
+   "rec": "",
+   "preset": "qe-err"
+  },
+  "FA16-Draft": {
+   "title": "FA-16 Draft with assistance · choices",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-16",
+   "rec": "",
+   "preset": ""
+  },
+  "FA16-Errors": {
+   "title": "FA-16 · nothing chosen",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-16",
+   "rec": "",
+   "preset": "dr-errors"
+  },
+  "FA16-Busy": {
+   "title": "FA-16 · drafting",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-16",
+   "rec": "",
+   "preset": "dr-busy"
+  },
+  "FA16-Drafts-list": {
+   "title": "FA-16 · drafts to review",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-16",
+   "rec": "",
+   "preset": "dr-list"
+  },
+  "FA16-Failed": {
+   "title": "FA-16 · drafting failed",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-16",
+   "rec": "",
+   "preset": "dr-fail"
+  },
+  "FA16-No-courses": {
+   "title": "FA-16 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-16",
+   "rec": "",
+   "preset": ""
+  },
+  "FA16-Phone": {
+   "title": "FA-16 · choices · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-16",
+   "rec": "",
+   "preset": ""
+  },
+  "FA16-List-phone": {
+   "title": "FA-16 · drafts to review · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-16",
+   "rec": "",
+   "preset": "dr-list"
+  },
+  "FA17-Choose": {
+   "title": "FA-17 Import · choose a file",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-17",
+   "rec": "",
+   "preset": ""
+  },
+  "FA17-Not-CSV": {
+   "title": "FA-17 · not a CSV file",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-17",
+   "rec": "",
+   "preset": "im-xlsx"
+  },
+  "FA17-Row-errors": {
+   "title": "FA-17 · row errors block the import",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-17",
+   "rec": "",
+   "preset": "im-errors"
+  },
+  "FA17-Confirm": {
+   "title": "FA-17 · confirm",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-17",
+   "rec": "",
+   "preset": "im-confirm"
+  },
+  "FA17-Done": {
+   "title": "FA-17 · imported",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-17",
+   "rec": "",
+   "preset": "im-done"
+  },
+  "FA17-Phone": {
+   "title": "FA-17 · row errors · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-17",
+   "rec": "",
+   "preset": "im-errors"
+  },
+  "FA18-Marking": {
+   "title": "FA-18 Marking · 2 waiting",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-18",
+   "rec": "",
+   "preset": ""
+  },
+  "FA18-All": {
+   "title": "FA-18 · all submissions, one marked",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-18",
+   "rec": "",
+   "preset": "mq-all, marked"
+  },
+  "FA18-Nothing-waiting": {
+   "title": "FA-18 · nothing waiting · 26 Oct",
+   "width": 1440,
+   "scenario": "oct26",
+   "start": "FA-18",
+   "rec": "",
+   "preset": ""
+  },
+  "FA18-No-courses": {
+   "title": "FA-18 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-18",
+   "rec": "",
+   "preset": ""
+  },
+  "FA18-Phone": {
+   "title": "FA-18 Marking · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-18",
+   "rec": "",
+   "preset": ""
+  },
+  "FA19-Mark": {
+   "title": "FA-19 Mark a submission · waiting",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": ""
+  },
+  "FA19-Invalid-mark": {
+   "title": "FA-19 · mark out of range",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": "mk-err"
+  },
+  "FA19-Saved": {
+   "title": "FA-19 · mark saved, not confirmed",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": "mk-saved"
+  },
+  "FA19-Confirm": {
+   "title": "FA-19 · confirm marks (dialog)",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": "mk-dialog"
+  },
+  "FA19-Confirmed": {
+   "title": "FA-19 · confirmed, read only",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": "mk-confirmed"
+  },
+  "FA19-Released": {
+   "title": "FA-19 · result released · 15 Nov",
+   "width": 1440,
+   "scenario": "nov15",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": ""
+  },
+  "FA19-Phone": {
+   "title": "FA-19 · mark saved · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": "mk-saved"
+  },
+  "FA20-Students": {
+   "title": "FA-20 Students · all",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-20",
+   "rec": "",
+   "preset": ""
+  },
+  "FA20-Inactive": {
+   "title": "FA-20 · inactive 14 days or more",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-20",
+   "rec": "",
+   "preset": "sl-inactive"
+  },
+  "FA20-No-match": {
+   "title": "FA-20 · no student matches",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-20",
+   "rec": "",
+   "preset": "sl-nomatch"
+  },
+  "FA20-Export": {
+   "title": "FA-22 Export CSV on FA-20",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-20",
+   "rec": "",
+   "preset": "marked, sl-export"
+  },
+  "FA20-No-students": {
+   "title": "FA-20 · no students yet",
+   "width": 1440,
+   "scenario": "new",
+   "start": "FA-20",
+   "rec": "",
+   "preset": ""
+  },
+  "FA20-No-courses": {
+   "title": "FA-20 · no courses assigned",
+   "width": 1440,
+   "scenario": "none",
+   "start": "FA-20",
+   "rec": "",
+   "preset": ""
+  },
+  "FA20-Phone": {
+   "title": "FA-20 Students · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-20",
+   "rec": "",
+   "preset": ""
+  },
+  "FA20-Export-phone": {
+   "title": "FA-22 Export CSV on FA-20 · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-20",
+   "rec": "",
+   "preset": "marked, sl-export"
+  },
+  "FA21-Student": {
+   "title": "FA-21 Student detail · waiting for marking",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-21",
+   "rec": "GIT-2026-0418",
+   "preset": ""
+  },
+  "FA21-Marked": {
+   "title": "FA-21 · marked, result not released",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-21",
+   "rec": "GIT-2026-0418",
+   "preset": "marked"
+  },
+  "FA21-Released": {
+   "title": "FA-21 · result released · 15 Nov",
+   "width": 1440,
+   "scenario": "nov15",
+   "start": "FA-21",
+   "rec": "GIT-2026-0418",
+   "preset": ""
+  },
+  "FA21-Inactive": {
+   "title": "FA-21 · inactive student",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-21",
+   "rec": "GIT-2026-0415",
+   "preset": ""
+  },
+  "FA21-Coteach": {
+   "title": "FA-21 · co-teacher",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-21",
+   "rec": "GIT-2026-0418",
+   "preset": ""
+  },
+  "FA21-Phone": {
+   "title": "FA-21 Student detail · 375",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-21",
+   "rec": "GIT-2026-0418",
+   "preset": ""
+  },
+  "XS-Account-menu": {
+   "title": "XS-05 Account menu (borrowed)",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "FA-01",
+   "rec": "",
+   "preset": "acct"
+  },
+  "XS-Menu-phone": {
+   "title": "XS-05 Menu drawer · 375 (borrowed)",
+   "width": 375,
+   "scenario": "nov07",
+   "start": "FA-01",
+   "rec": "",
+   "preset": "menu"
+  },
+  "XS-Help": {
+   "title": "XS-07 Help & support (borrowed)",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "XS-07",
+   "rec": "",
+   "preset": ""
+  },
+  "XS-Help-report": {
+   "title": "XS-07 Report a problem (borrowed)",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "XS-07",
+   "rec": "",
+   "preset": "helpform"
+  },
+  "XS-Signed-out": {
+   "title": "XS-03 Signed out (borrowed)",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "XS-03",
+   "rec": "",
+   "preset": ""
+  },
+  "XS-Not-your-workspace": {
+   "title": "XS-06 Not your workspace (borrowed)",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "XS-06",
+   "rec": "",
+   "preset": ""
+  },
+  "Refusal-Course": {
+   "title": "Refusal · course not assigned to you",
+   "width": 1440,
+   "scenario": "nov07",
+   "start": "NF",
+   "rec": "course",
+   "preset": ""
+  },
+  "Refusal-Co-teacher-marking": {
+   "title": "Refusal · co-teacher opens a submission",
+   "width": 1440,
+   "scenario": "coteach",
+   "start": "FA-19",
+   "rec": "ATT-0450",
+   "preset": ""
+  }
+ }
+}

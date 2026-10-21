@@ -33,19 +33,24 @@ export function formatsOf(rows: readonly FacultyStudentRow[]): Technology[] {
 }
 
 /**
- * A CSV file's header cells and how many data rows it holds (FA-22's message): the records are
- * read as RFC 4180 writes them, so a quoted cell with a comma or a line break stays one cell.
+ * A CSV file's records as RFC 4180 writes them (FA-22's band shows the file's rows): a quoted cell
+ * with a comma or a line break stays one cell; a leading byte-order mark is not a character of the
+ * first cell.
  */
-export function csvShape(csv: string): { readonly columns: string[]; readonly rows: number } {
+export function csvRecords(csv: string): {
+  readonly columns: string[];
+  readonly rows: string[][];
+} {
+  const text = csv.startsWith('\uFEFF') ? csv.slice(1) : csv;
   const records: string[][] = [];
   let record: string[] = [];
   let cell = '';
   let quoted = false;
-  for (let index = 0; index < csv.length; index += 1) {
-    const char = csv[index]!;
+  for (let index = 0; index < text.length; index += 1) {
+    const char = text[index]!;
     if (quoted) {
       if (char !== '"') cell += char;
-      else if (csv[index + 1] === '"') {
+      else if (text[index + 1] === '"') {
         cell += '"';
         index += 1;
       } else quoted = false;
@@ -64,6 +69,35 @@ export function csvShape(csv: string): { readonly columns: string[]; readonly ro
     record.push(cell);
     records.push(record);
   }
-  const [columns = [], ...data] = records;
-  return { columns, rows: data.length };
+  const [columns = [], ...rows] = records;
+  return { columns, rows };
+}
+
+/** A CSV file's header cells and how many data rows it holds (FA-22's band title). */
+export function csvShape(csv: string): { readonly columns: string[]; readonly rows: number } {
+  const { columns, rows } = csvRecords(csv);
+  return { columns, rows: rows.length };
+}
+
+/** One format's counts over a list of Students (state-copy `FA-20.summary`). */
+export interface FormatCounts {
+  readonly format: Technology;
+  readonly completed: number;
+  readonly inProgress: number;
+  readonly notStarted: number;
+}
+
+/** Per format the rows hold, how many Students completed it, are in progress, or have not started. */
+export function formatCounts(rows: readonly FacultyStudentRow[]): FormatCounts[] {
+  return formatsOf(rows).map((format) => {
+    const states = rows.map(
+      (row) => row.perFormat.find((view) => view.format === format)?.status ?? 'not-started',
+    );
+    return {
+      format,
+      completed: states.filter((status) => status === 'completed').length,
+      inProgress: states.filter((status) => status === 'in-progress').length,
+      notStarted: states.filter((status) => status === 'not-started').length,
+    };
+  });
 }

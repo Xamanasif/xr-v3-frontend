@@ -1,0 +1,1462 @@
+{
+ "role": "Faculty",
+ "foundation": "XR-V3-RB-1.0",
+ "status": "DESIGN COMPLETE · FINAL — APPROVED BY THE OWNER",
+ "release": "FINAL",
+ "legend": {
+  "REDESIGNED": "Changed in this redesign (R1 checkpoint or the final pass); see “what changed”.",
+  "REVIEWED AND UNCHANGED": "Reviewed at 1440 and 375 and kept: pixel-identical to the published V3 Faculty build, or only the surrounding redesigned page differs (scope note)."
+ },
+ "patterns": {
+  "P1": "Priority band sized to its items, with the people or records behind each count; ivory only for urgent work",
+  "P2": "Plan-tint identity band for a record (course, experiment, assessment) with fact figures",
+  "P3": "Course ledger: tinted group header, column-aligned rows, no nested cards",
+  "P4": "Unit meter beside counts in words, one per format; never a percentage",
+  "P5": "Reading sheet at reading width with an action panel; the final action last with its note",
+  "P6": "Sectioned authoring with a guidance and facts side panel; one primary in the footer",
+  "P7": "Refined table: count, filters and actions in one toolbar; compact sub-lines; phone rows without repeated labels",
+  "P8": "Sparse states: get-ready steps and compact message cards sized to their content",
+  "P9": "Deadlines with days left and the release rule",
+  "P10": "Records are identified by their name, the student’s name, the question’s text or its position — never by an internal technical id"
+ },
+ "ownerDecision": "Owner decision, 21 Oct 2026 — internal technical IDs (ASMT-, ATT-, Q-, D-) are out of every ordinary user-facing label, placeholder, dialog title, notice and accessible name. Academic course codes and institution-issued student IDs stay. Stable keys stay in routing, element ids and the question search, so no business rule changed.",
+ "totals": {
+  "ownedIds": 21,
+  "idsRedesigned": 21,
+  "subviews": 111,
+  "subviewsRedesigned": 102,
+  "subviewsReviewedUnchanged": 9,
+  "sharedSurfaces": 8
+ },
+ "owned": [
+  {
+   "id": "FA-01",
+   "name": "Overview",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P1",
+    "P4",
+    "P8",
+    "P9"
+   ],
+   "whatChanged": "Priority band sized to its items with one gold Mark now and the names and dates behind each count; Coming up with date tiles, days left and the release rule; Your teaching with one unit meter per format; composed new-teacher and no-course states.",
+   "subviews": [
+    {
+     "subview": "Populated · needs attention, coming up, your teaching",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-Overview"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "One item needs attention · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-One-item"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "New teacher, no students yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-New-teacher",
+      "FA01-New-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-No-courses"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA01-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-02",
+   "name": "My courses (Courses tab)",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P3",
+    "P8"
+   ],
+   "whatChanged": "Course ledger: tinted course header with code, title, assignment source and three figures; one aligned row per experiment with formats, students, assessment, deadline and marking waiting; no nested cards.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-My-courses"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "New teacher, no students yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-None"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA02-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-03",
+   "name": "Course (teaching view)",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P2",
+    "P4"
+   ],
+   "whatChanged": "Plan-tint identity band with figures; one panel per experiment with its description and held formats in the header, then Student activity (meters and words) and Assessment side by side, with one Mark action.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-Course"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No assessment yet · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-No-assessment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "New teacher, no students yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA03-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-04",
+   "name": "Experiments (tab of My courses)",
+   "kind": "tab",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7",
+    "P4",
+    "P8"
+   ],
+   "whatChanged": "Refined table: experiment with its course and the formats your institution holds; student activity as one unit meter per format with counts in words (was plain “WEB: 2 of 5 completed” lines); assessment cell with state, name and deadline. Without an experiment: the compact message card used across the role, without filters.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-Experiments"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No experiment matches the filters",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA04-No-match"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "Loading",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA04-Loading"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "Couldn’t load",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA04-Failed"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "No student activity yet (new teacher)",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-No-courses"
+     ],
+     "note": "compact message card (P8) replaces the filters and an empty table"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA04-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-05",
+   "name": "Experiment (teaching view)",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P2",
+    "P4",
+    "P5"
+   ],
+   "whatChanged": "Plan-tint identity band: course code, “Experiment you teach · course”, the name and three figures (formats held, formats your students have used, students with access). Student activity as meters with a link to the students; About with learning outcomes and resources; navy Assessment panel with deadline and days left, submissions meter, marking waiting, a gold Mark that opens the oldest waiting submission, and Open assessment — or Create assessment. The assessment panel names the attempt (“Attempt 1 of 2 · submitted …”) instead of its internal id.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-Experiment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No assessment yet · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-No-assessment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No students with access yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA05-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-06",
+   "name": "Assessments",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7",
+    "P9",
+    "P8"
+   ],
+   "whatChanged": "Refined table with Deadline (date and days left) and Submissions (unit meter, students submitted, marking waiting) in their own columns, and the state on the right. Without a course: the compact message card. Rows carry the assessment’s name, with “Created by …” only for a colleague’s assessment; the internal id has gone.",
+   "subviews": [
+    {
+     "subview": "Populated",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA06-Assessments"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No assessment yet, with Create · 26 Oct",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA06-None-yet"
+     ],
+     "note": "pixel-identical to the published build"
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA06-No-courses"
+     ],
+     "note": "compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA06-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-07",
+   "name": "Create assessment (4 steps)",
+   "kind": "step",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "A stepper that fits a phone (only the current step is labelled there); every step a sectioned form: experiment cards with formats and reach; name and introduction, then the three rules aligned in one row and the release options side by side; questions as checkbox cards with other ways to add below; preview as a rules list and numbered questions with type tags. The side summary ticks what is done and, at step 4, lists what happens when you create it. Questions are chosen and previewed by their text, type and marks, and the result card says the assessment is created and ready without printing its id.",
+   "subviews": [
+    {
+     "subview": "Step 1 · experiment",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step1"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Step 2 · rules with errors",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step2-errors",
+      "FA07-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Step 3 · questions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step3"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Step 4 · preview and create",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Step4",
+      "FA07-Step4-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Created and ready",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Created"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Saved as a draft",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-Saved-draft"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Experiment already has an assessment",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-One-per-experiment"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA07-No-courses"
+     ],
+     "note": "compact message card (P8) instead of an empty step 1"
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-08",
+   "name": "Assessment · Summary",
+   "kind": "tab",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P2",
+    "P4"
+   ],
+   "whatChanged": "Tinted record band shared by FA-08 to FA-12: course and experiment, the name (balanced wrap), state · ID · version · marking waiting, and figures for the deadline (days left), students submitted (meter) and questions. Summary: readiness, rules as set, who it reaches; navy Submissions panel with the waiting names oldest first and one gold Mark next. Tabs scroll on a phone with the current tab kept in view. The band shows the state, version, who created it and what is waiting — not the assessment id.",
+   "subviews": [
+    {
+     "subview": "Ready, 2 waiting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Summary"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Draft, no questions yet",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Draft"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Version 2 after submissions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Version2"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA08-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-09",
+   "name": "Assessment · Questions",
+   "kind": "tab",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7",
+    "P2"
+   ],
+   "whatChanged": "Head with total marks and the split between automatic and written marks; actions in order of use (Add from question bank, New question, then Draft with assistance · Import); numbered rows with type tag, marks and ID; larger move controls; navy bank panel whose close button returns focus. Rows, the add-from-bank panel and every message name questions by their position or text; move, remove and “use updated version” read “question 2” rather than a bank id.",
+   "subviews": [
+    {
+     "subview": "4 questions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Questions"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Add from question bank panel",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Add-from-bank"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Added after submissions · version 2",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-New-version"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher, read only",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA09-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-10",
+   "name": "Assessment · Settings",
+   "kind": "tab",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "Sectioned form (Name and introduction · Rules · When students see results) with the three rules aligned in one row; a How changes apply panel: the current version, who submitted it and which changes make a new version.",
+   "subviews": [
+    {
+     "subview": "Settings",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Settings"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Errors",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Errors"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Rule change after submissions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Rule-change"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Release change warning",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Release-change"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher, read only",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA10-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-11",
+   "name": "Assessment · Preview",
+   "kind": "tab",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P5"
+   ],
+   "whatChanged": "A reading sheet at reading width with a Student view / Answer key switch and the no-attempt note; an “As students see it” head with facts and the introduction; numbered question cards. Answer key mode: one band saying only you see the key and the guidance; explanations and guidance as ruled notes.",
+   "subviews": [
+    {
+     "subview": "As students see it",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA11-Student-view"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "With the answer key",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA11-Answer-key",
+      "FA11-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Preview couldn’t load",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA11-Failed"
+     ],
+     "note": "the state itself; it sits under the redesigned record band"
+    },
+    {
+     "subview": "Co-teacher refusal",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA11-Coteach"
+     ],
+     "note": "the existing refusal; it sits under the redesigned record band"
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-12",
+   "name": "Assessment · Submissions",
+   "kind": "tab",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7",
+    "P4"
+   ],
+   "whatChanged": "Toolbar with the count, a gold Mark next and Export CSV; the filter as one segmented control; while waiting the score shows “— of 16” with the automatic part; the release column says Not yet or Released with the rule beneath. The student column reads “Attempt 1 of 2”, and an export is named after the assessment (submissions-heat-exchanger-post-lab.csv).",
+   "subviews": [
+    {
+     "subview": "2 waiting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Submissions"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "One marked, result not released",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Marked"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher refusal",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA12-Coteach"
+     ],
+     "note": "the existing refusal; it sits under the redesigned record band"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-14",
+   "name": "Question bank (Questions · Drafts to review)",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7",
+    "P6"
+   ],
+   "whatChanged": "Head actions in order of use (Add a question, Draft with assistance, Import); the questions table shows a type tag and the ID with its version, and a compact Used in; drafts become review cards with options, key and guidance beside How review works. The quiet line under a question carries its version (and the experiment, when there is more than one) instead of its bank id; search is by words in the question; the delete dialog and its confirmation name the question.",
+   "subviews": [
+    {
+     "subview": "Questions",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Question-bank"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafts to review",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Drafts",
+      "FA14-Drafts-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Delete a used question · dialog",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Delete"
+     ],
+     "note": "the kit dialog and its focus handling are unchanged; its title and confirmation name the question instead of its id"
+    },
+    {
+     "subview": "Question deleted, history kept",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Deleted"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No question matches",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-No-match"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Empty bank (new teacher)",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA14-Empty"
+     ],
+     "note": "the empty state itself; the head actions above follow the new order"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA14-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-15",
+   "name": "Add / edit question",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "Sectioned form (type cards in one row; question and answer; marks and explanation) with a side panel: this question’s facts (version, where it is used, when added — or when its ID is given) and what students see, when. The meta line and the side facts show the version; the id and the “Question ID · given when you save” fact have gone, and saving reports “Saved as version 2.”",
+   "subviews": [
+    {
+     "subview": "Add a question",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-New"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Errors",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-Errors",
+      "FA15-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Edit a used question",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-Used"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Review a draft",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA15-Draft-review"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-16",
+   "name": "Draft questions with assistance",
+   "kind": "step",
+   "status": "REDESIGNED",
+   "round": "R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P6"
+   ],
+   "whatChanged": "Numbered steps (material · types · count) with type cards and a 3/5 choice; How drafting works at the side; drafts show options and the key for review and collapse into a bank line once added. Final pass: the no-course state uses the role’s compact message card. An added draft collapses to “In your question bank · …” instead of showing the id it was given.",
+   "subviews": [
+    {
+     "subview": "Choices",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Draft"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Nothing chosen",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Errors"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Busy"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafts to review",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Drafts-list",
+      "FA16-List-phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Drafting failed",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Failed"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-No-courses"
+     ],
+     "note": "final pass: compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA16-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-17",
+   "name": "Import questions (CSV)",
+   "kind": "step",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P6",
+    "P7"
+   ],
+   "whatChanged": "Stepper; the file picker with the template’s columns as a side reference; the check as four figures (rows, ready, with errors, with warnings) above the row table; confirm with counts by type; a done card. The finished notice says how many questions were added, without listing the ids assigned.",
+   "subviews": [
+    {
+     "subview": "Choose a file",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Choose"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Not a CSV file",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Not-CSV"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Row errors block the import",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Row-errors",
+      "FA17-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Confirm",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Confirm"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Imported",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA17-Done"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-18",
+   "name": "Marking queue",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7",
+    "P1",
+    "P8"
+   ],
+   "whatChanged": "Toolbar with the waiting count, the oldest wait and one gold Mark next; assessment filter and a segmented Waiting / Marked / All; rows show when each answer was submitted and how long ago. Rows read “Attempt 1 of 2”, and the row action is announced as “Mark Rahul Verma”.",
+   "subviews": [
+    {
+     "subview": "2 waiting",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-Marking"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "All, one marked",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-All"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Nothing waiting · 26 Oct",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-Nothing-waiting"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-No-courses"
+     ],
+     "note": "compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA18-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-19",
+   "name": "Mark a submission",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "R1 checkpoint, carried into the final design",
+   "patterns": [
+    "P5"
+   ],
+   "whatChanged": "Automatic marks as a strip; the answer at reading width; guidance as a quiet ruled note; a panel with a large score field, feedback, the live total and Save mark, then Confirm marks last with its lock note. Same calculation and dialog. The band reads “Waiting for marking · Submitted … · attempt 1 of 2”, and the confirm dialog names the assessment — neither shows the attempt id.",
+   "subviews": [
+    {
+     "subview": "Waiting for marking",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Mark"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Mark out of range",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Invalid-mark"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Mark saved, not confirmed",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Saved",
+      "FA19-Phone"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Confirm marks · dialog",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Confirm"
+     ],
+     "note": "the kit dialog, its wording and its focus handling are unchanged apart from the sub-line, which names the assessment instead of the attempt id"
+    },
+    {
+     "subview": "Confirmed, read only",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Confirmed"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Result released · 15 Nov",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA19-Released"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-20",
+   "name": "Students (progress and follow-up)",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7",
+    "P4",
+    "P8"
+   ],
+   "whatChanged": "Per-format summary meters for all students with access above the roster; the roster shows per-format status, assessment status and last activity with the inactivity tag; Export CSV in the toolbar.",
+   "subviews": [
+    {
+     "subview": "All students",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Students"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Inactive 14 days or more",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Inactive"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No student matches",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-No-match"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "No students yet",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "FA20-No-students"
+     ],
+     "note": "the empty state itself; only the as-of line above it was reworded"
+    },
+    {
+     "subview": "No courses assigned",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-No-courses"
+     ],
+     "note": "compact message card (P8)"
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-21",
+   "name": "Student detail (per experiment)",
+   "kind": "page",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P4"
+   ],
+   "whatChanged": "A person page keeps the plain head (name, ID, last activity, inactivity tag) with no aggregate figures. Progress by format as compact rows — per format only, no overall verdict; resources with opened status; navy Assessment panel with the attempt, the total “11 of 16 marks · Passed · pass mark 8”, the release note, and Mark their answers or View marks. The assessment panel names the attempt; the student’s own institution id (GIT-2026-0418) stays, because it is not an internal technical id.",
+   "subviews": [
+    {
+     "subview": "Waiting for marking",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Student"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Marked, result not released",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Marked"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Result released · 15 Nov",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Released"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Inactive student",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Inactive"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Co-teacher",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Coteach"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "Phone 375",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA21-Phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  },
+  {
+   "id": "FA-22",
+   "name": "Export CSV (action on FA-12 and FA-20)",
+   "kind": "action",
+   "status": "REDESIGNED",
+   "round": "Final pass",
+   "patterns": [
+    "P7"
+   ],
+   "whatChanged": "The export confirmation band lines up with the refined toolbars, and the preview of exported rows scrolls sideways without wrapping cells. Same columns and rows; CSV only.",
+   "subviews": [
+    {
+     "subview": "On Submissions (FA-12)",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA12-Export"
+     ],
+     "note": ""
+    },
+    {
+     "subview": "On Students (FA-20)",
+     "status": "REDESIGNED",
+     "boards": [
+      "FA20-Export",
+      "FA20-Export-phone"
+     ],
+     "note": ""
+    }
+   ],
+   "checkedAt": [
+    1440,
+    1024,
+    768,
+    375
+   ]
+  }
+ ],
+ "shared": [
+  {
+   "id": "XS-05",
+   "name": "Account menu and menu drawer",
+   "status": "REVIEWED AND UNCHANGED",
+   "ownedBy": "XS contract (borrowed)",
+   "subviews": [
+    {
+     "subview": "Account menu",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "XS-Account-menu"
+     ],
+     "note": "the menu itself; the Overview behind it is FA-01"
+    },
+    {
+     "subview": "Menu drawer · 375",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "XS-Menu-phone"
+     ],
+     "note": "the drawer itself; the Overview behind it is FA-01"
+    }
+   ]
+  },
+  {
+   "id": "XS-07",
+   "name": "Help & support",
+   "status": "REVIEWED AND UNCHANGED",
+   "ownedBy": "XS contract (borrowed)",
+   "subviews": [
+    {
+     "subview": "Help & support",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "XS-Help"
+     ],
+     "note": "pixel-identical"
+    },
+    {
+     "subview": "Report a problem",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "XS-Help-report"
+     ],
+     "note": "pixel-identical"
+    }
+   ]
+  },
+  {
+   "id": "XS-03",
+   "name": "Signed out",
+   "status": "REVIEWED AND UNCHANGED",
+   "ownedBy": "XS contract (borrowed)",
+   "subviews": [
+    {
+     "subview": "Signed out",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "XS-Signed-out"
+     ],
+     "note": "pixel-identical"
+    }
+   ]
+  },
+  {
+   "id": "XS-06",
+   "name": "Not your workspace and scoped refusals",
+   "status": "REVIEWED AND UNCHANGED",
+   "ownedBy": "XS contract (borrowed)",
+   "subviews": [
+    {
+     "subview": "Not your workspace",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "XS-Not-your-workspace"
+     ],
+     "note": "pixel-identical"
+    },
+    {
+     "subview": "Course not assigned to you",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "Refusal-Course"
+     ],
+     "note": "pixel-identical"
+    },
+    {
+     "subview": "Co-teacher opens a submission",
+     "status": "REVIEWED AND UNCHANGED",
+     "boards": [
+      "Refusal-Co-teacher-marking"
+     ],
+     "note": "pixel-identical"
+    }
+   ]
+  }
+ ],
+ "excluded": [
+  {
+   "id": "FA-13",
+   "note": "Excluded in the pack; not designed."
+  },
+  {
+   "id": "FA-23",
+   "note": "Excluded in the pack; not designed."
+  },
+  {
+   "id": "FA-24",
+   "note": "Excluded in the pack; not designed."
+  }
+ ]
+}

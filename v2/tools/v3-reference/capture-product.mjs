@@ -25,6 +25,9 @@ const { chromium } = require('@playwright/test');
 const { values } = parseArgs({
   options: {
     product: { type: 'string', default: 'http://localhost:3300' },
+    // The test-hook build, for roles a fresh world does not hold yet (Faculty, Student): a case
+    // made by `bootedPage` opens it booted into a named sample world as a person.
+    hooks: { type: 'string', default: 'http://localhost:3520' },
     widths: { type: 'string', default: '1440,1024,768,375' },
     only: { type: 'string' },
   },
@@ -910,10 +913,43 @@ const IA_CASES = [
   },
 ];
 
+/**
+ * A page of the test-hook build booted into a sample world as a person — for roles whose people
+ * only exist after the sample journeys (the product's own walk starts from a fresh world).
+ */
+const bootedPage = (name, id, state, fixture, personId, path) => ({
+  name,
+  id,
+  state,
+  tall: true,
+  reach: async (page) => {
+    await page.addInitScript(
+      ({ value }) =>
+        Object.defineProperty(window, '__XR_TEST_BOOT__', { value: Object.freeze(value) }),
+      { value: { fixture, session: { personId } } },
+    );
+    await page.goto(`${values.hooks}${path}`);
+    await settledPage(page);
+  },
+});
+
+/** The Faculty cases (FA-v1), as Dr S. Ranganathan (per-0014) after Flow C. */
+const FA_CASES = [
+  ['fa01-overview', 'FA-01', 'Overview', '/faculty'],
+  ['fa02-courses', 'FA-02', 'My courses', '/faculty/courses'],
+  ['fa06-assessments', 'FA-06', 'Assessments', '/faculty/assessments'],
+  ['fa07-create', 'FA-07', 'Create an assessment: step 1', '/faculty/assessments/new'],
+  ['fa14-bank', 'FA-14', 'Question bank', '/faculty/question-bank'],
+  ['fa16-draft', 'FA-16', 'Draft questions', '/faculty/question-bank/draft'],
+  ['fa17-import', 'FA-17', 'Import questions', '/faculty/question-bank/import'],
+  ['fa18-marking', 'FA-18', 'Marking', '/faculty/marking'],
+  ['fa20-students', 'FA-20', 'Students', '/faculty/students'],
+].map(([name, id, state, path]) => bootedPage(name, id, state, 'after-flow-c', 'per-0014', path));
+
 async function measure(page) {
   return page.evaluate(async () => {
     // No internal reference in the words or the accessible names (SA-v1 rule).
-    const internal = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+    const internal = /\b(?:REQ|ACC|SACC|UPD|DTR|SUP|SUB|ASMT|ATT|Q|GRP|FMAP)-\d+/;
     const named = [...document.querySelectorAll('[aria-label], [title], img[alt]')].map(
       (element) =>
         `${element.getAttribute('aria-label') ?? ''} ${element.getAttribute('title') ?? ''} ${element.getAttribute('alt') ?? ''}`,
@@ -953,6 +989,7 @@ for (const testCase of [
   ...CM_CASES,
   ...RV_CASES,
   ...IA_CASES,
+  ...FA_CASES,
 ].filter(
   (c) =>
     !values.only ||

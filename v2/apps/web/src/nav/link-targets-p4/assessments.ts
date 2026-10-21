@@ -1,34 +1,47 @@
 import type { LedgerEntry } from '../link-targets';
 import { pageRows } from '../link-targets-p3/rows';
 
-/** Phase 4A link targets: FA-06 Assessments and FA-07 Create assessment (B4-04). */
+/**
+ * Link targets of FA-06 Assessments and FA-07 Create assessment in the V3 Refined B design (the
+ * owner-approved export design/v3-refined-b/roles/FA-v1, `LINK-MAP.json` “FA-06”, “FA-07” and
+ * `Main.dc.html`); earlier boards B4-04 f0 … f11.
+ */
 export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
-  // FA-06 Assessments (B4-04 f0, f9, f10): "Create assessment" is the page's primary; f9 draws
-  // it again in the empty state. Each row opens the record (FA-08). Nothing opens marking here.
+  // FA-06 Assessments: "Create assessment" is the page's primary (in the head once there is an
+  // assessment, in the empty state before). The whole row opens the record (FA-08). Nothing opens
+  // marking here.
   ...pageRows('FA-06', '/faculty/assessments', [
     [
-      'Header',
+      'Head',
       'Create assessment',
       'primary',
       '/faculty/assessments/new',
       'built',
-      'B4-04 f0, f9, f10 `div.xr-phead-actions a.xr-btn--primary`',
+      'FA-v1 LINK-MAP FA-06 “Create assessment” (`div.rk-head-act > a.rb-btn--primary`)',
     ],
     [
-      'No assessments yet (f9)',
+      'No assessments yet',
       'Create assessment',
       'primary',
       '/faculty/assessments/new',
       'built',
-      'B4-04 f9 `div.xr-empty a.xr-btn--primary`',
+      'FA-v1 Main.dc.html FA-06 `div.rk-state--roomy a.rb-btn--primary`',
     ],
     [
       'Toolbar',
-      'Search assessments · Course · State',
+      'Search · Course · State',
       'secondary',
       null,
       'in-page',
-      'B4-04 f0, f10 `div.xr-toolbar` (state-copy `FA-06.search`, `FA-06.filters`)',
+      'FA-v1 Main.dc.html FA-06 `div.rk-tools.fa-tools` (state-copy `FA-06.search`, `FA-06.filters`)',
+    ],
+    [
+      'Toolbar chips',
+      'Remove filter <filter> · Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-06 `div.rk-statusline`',
     ],
     [
       'Row',
@@ -36,40 +49,29 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/faculty/assessments/{assessmentId}',
       'built',
-      'B4-04 f0, f10 `td a strong`',
-      'FA-08 Summary (Phase 4A).',
+      'FA-v1 LINK-MAP FA-06 row (`a.rk-rowlink`, the whole row; “Open <name>, <state>”)',
+      'FA-08 Summary.',
     ],
     [
-      'Row (Ready)',
-      'Open',
+      'No match',
+      'Clear filters',
       'secondary',
-      '/faculty/assessments/{assessmentId}',
-      'built',
-      'B4-04 f0 `a.xr-btn--secondary.xr-btn--sm`',
-      'FA-08 Summary (Phase 4A).',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-06 `div.rk-state` (no match)',
     ],
-    [
-      'Row (draft)',
-      'Continue setting up',
-      'secondary',
-      '/faculty/assessments/{assessmentId}',
-      'built',
-      'B4-04 f10 `a.xr-btn--secondary.xr-btn--sm`',
-      'FA-08 Summary, where the checklist says what is missing (Phase 4A; Appendix A rule S2).',
-    ],
-    ['No match', 'Clear filters', 'secondary', null, 'in-page', 'state-copy `FA-06.no-match`'],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-06.failed`'],
   ]),
-  // FA-07 Create assessment (B4-04 f1 … f8, f11): one primary per step and per result. "Continue"
-  // and "Back" move between the steps in the address (`?step=`, rule S1).
+  // FA-07 Create assessment: one primary per step and per result. "Continue" and "Back" move
+  // between the steps in the address (`?step=`, rule S1).
   ...pageRows('FA-07', '/faculty/assessments/new', [
     [
-      'Top',
+      'Crumbs',
       'Assessments',
       'secondary',
       '/faculty/assessments',
       'built',
-      'B4-04 f1 … f8 `a.xr-back`',
+      'FA-v1 Main.dc.html FA-07 `nav.rk-crumbs`',
     ],
     [
       'Step 1',
@@ -77,7 +79,7 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/faculty/assessments',
       'built',
-      'B4-04 f1, f8 `a.xr-btn--text` (drops what was typed, state-copy `FA-07.kept`)',
+      'FA-v1 Main.dc.html FA-07 `div.fa-formfoot-l > a.rb-btn` (drops what was typed, state-copy `FA-07.kept`)',
     ],
     [
       'Steps 1, 2 and 3',
@@ -85,17 +87,24 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       null,
       'in-page',
-      'B4-04 f1 … f4 (`?step=rules`, `?step=questions`, `?step=preview`; the step’s check, f3)',
+      'FA-v1 Main.dc.html FA-07 `button#fa-cw-next` (`?step=rules`, `?step=questions`, `?step=preview`; the step’s check)',
     ],
-    ['Step 1', '<experiment>', 'secondary', null, 'in-page', 'B4-04 f1 `label.xr-choice` radio'],
     [
-      'Step 1 (f8)',
+      'Step 1',
+      '<experiment>',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-07 `label.rk-choice.fa-expchoice` radio',
+    ],
+    [
+      'Step 1 (already has one)',
       'Open <assessment name>',
       'secondary',
       '/faculty/assessments/{assessmentId}',
       'built',
-      'B4-04 f8 `div.xr-notice--warn a`',
-      'FA-08 Summary of the assessment the experiment already has (Phase 4A).',
+      'FA-v1 Main.dc.html FA-07 `div.rk-notice--info a.rb-btn`',
+      'FA-08 Summary of the assessment the experiment already has.',
     ],
     [
       'Steps 2, 3 and 4',
@@ -103,7 +112,7 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B4-04 f2 … f5 `button.xr-btn--text`',
+      'FA-v1 Main.dc.html FA-07 `div.fa-formfoot-l > button.rb-btn`',
     ],
     [
       'Steps 2, 3 and 4',
@@ -111,17 +120,24 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B4-04 f2 … f5 (`createAssessment` mode `save-as-draft`; result f7)',
+      'FA-v1 Main.dc.html FA-07 `div.fa-formfoot-r > button.rb-btn` (`createAssessment` mode `save-as-draft`); the product keeps it on step 4 and on step 3 with questions',
     ],
-    ['Step 3', '<question>', 'secondary', null, 'in-page', 'B4-04 f4 `ul.xw-pick` checkbox'],
+    [
+      'Step 3',
+      '<question>',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-07 `div.rk-choices.fa-pick` checkbox',
+    ],
     [
       'Step 3',
       'New question',
       'secondary',
       '/faculty/question-bank/new?experimentId={experimentId}',
       'built',
-      'B4-04 f4 `div.xw-actions a`',
-      'FA-15 Add a question (Phase 4A), which comes back to step 3 with the question chosen (`returnTo`, `added=`).',
+      'FA-v1 LINK-MAP FA-07 “New question” (`div.fa-fsec--tint a.rb-btn`)',
+      'FA-15 Add a question, which comes back to step 3 with the question chosen (`returnTo`, `added=`).',
     ],
     [
       'Step 3',
@@ -129,8 +145,8 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/faculty/question-bank/draft?experimentId={experimentId}',
       'built',
-      'B4-04 f4 `div.xw-actions a`',
-      'FA-16 for the experiment (Phase 4B; the sample drafting stand-in, T-23).',
+      'FA-v1 LINK-MAP FA-07 “Draft with assistance”',
+      'FA-16 for the experiment (the sample drafting stand-in, T-23).',
     ],
     [
       'Step 3',
@@ -138,8 +154,8 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       '/faculty/question-bank/import?experimentId={experimentId}',
       'built',
-      'B4-04 f4 `div.xw-actions a`',
-      'FA-17 for the experiment (Phase 4B).',
+      'FA-v1 LINK-MAP FA-07 “Import”',
+      'FA-17 for the experiment.',
     ],
     [
       'Step 4',
@@ -147,24 +163,40 @@ export const P4_ASSESSMENTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       null,
       'in-page',
-      'B4-04 f5 (`createAssessment` mode `create`; “Creating…”; result f6)',
+      'FA-v1 Main.dc.html FA-07 step 4 (`createAssessment` mode `create`; “Creating…”)',
     ],
     [
-      'Result (f6, f7)',
+      'Result',
       'Open assessment',
       'primary',
       '/faculty/assessments/{assessmentId}',
       'built',
-      'B4-04 f6, f7 `a.xr-btn--primary`',
-      'FA-08 Summary of the assessment just created or saved (Phase 4A).',
+      'FA-v1 Main.dc.html FA-07 `div.fa-result a.rb-btn--primary`',
+      'FA-08 Summary of the assessment just created or saved.',
     ],
     [
-      'Result (f6, f7)',
+      'Result',
+      'Back to Assessments',
+      'secondary',
+      '/faculty/assessments',
+      'built',
+      'FA-v1 Main.dc.html FA-07 `div.fa-result a.rb-btn`',
+    ],
+    [
+      'Result',
       'Create another',
       'secondary',
       null,
       'in-page',
-      'B4-04 f6, f7 (step 1 again, nothing kept)',
+      'The product’s own (step 1 again, nothing kept; state-copy `FA-07.result`)',
+    ],
+    [
+      'No course assigned',
+      'Back to Assessments',
+      'secondary',
+      '/faculty/assessments',
+      'built',
+      'FA-v1 Main.dc.html FA-07 `section.fa-msgcard div.fa-msg-act a.rb-btn`',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-07.failed`'],
   ]),

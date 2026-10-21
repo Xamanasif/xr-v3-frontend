@@ -1,32 +1,39 @@
 /**
- * The words of FA-12 Assessment · Submissions with its FA-22 Export CSV, as board B4-06 draws them
- * (f7 … f11, and the interactive frames' own script: the count line, the score, the release flag,
- * the export confirmation, the filter's no-match line), and the record's Phase-4B actions on FA-08
- * (B4-05 f0, f4: "Mark next", "See submissions"). Every undrawn variant — the release flag of the
- * other release settings, the loading, failed and policy-open states — is a state-copy entry
- * (`state-copy-submissions.ts`), read through `stateWords`.
+ * The words of FA-12 Assessment · Submissions with its FA-22 Export CSV in the V3 Refined B design
+ * (the owner-approved export design/v3-refined-b/roles/FA-v1, `project/Main.dc.html` "FA-12
+ * Submissions · FA-22 Export" and the script's `vmSubmissions`, `release`, `score`), and the
+ * record's actions on FA-08's Submissions panel ("Mark next", "See submissions"). Every undrawn
+ * variant — the loading, failed and policy-open states — is a state-copy entry
+ * (`state-copy-submissions.ts`), read by the page through `stateWords`. A submission is named by its student
+ * and "Attempt 1 of 2", never by its internal reference (the owner's identifier rule).
  */
-import { stateWords } from './state-copy';
+function plural(count: number, one: string, many = `${one}s`): string {
+  return `${count} ${count === 1 ? one : many}`;
+}
 
-/** The submissions filter (B4-06 `div.xr-seg[aria-label="Show"]`), in-page. */
+import { FA_EXPORT_WORDS, FA_SHOW_WORDS } from './fa-shared';
+
+/** The submissions filter (`div.fa-seg.fa-seg--bar[aria-label="Show"]`), in-page. */
 export type SubmissionFilter = 'all' | 'waiting' | 'marked';
 
 export const SUBMISSIONS_WORDS = {
-  /** f7 `nav.xw-hubtabs` "Submissions 2" and the top bar's current crumb. */
+  /** The record tab "Submissions 2" and the shell's place words. */
   tab: 'Submissions',
-  /** f7 `h2#Ub-sh`. */
+  /** `h2#fa-tabh`. */
   title: 'Submissions',
-  /** f7 `div.xr-seg[aria-label]`. */
-  show: 'Show',
+  /** `div.fa-seg[aria-label]`. */
+  show: FA_SHOW_WORDS.label,
   filters: {
-    all: 'All',
-    waiting: 'Waiting for marking',
-    marked: 'Marked',
+    all: FA_SHOW_WORDS.all,
+    waiting: FA_SHOW_WORDS.waiting,
+    marked: FA_SHOW_WORDS.marked,
   } satisfies Record<SubmissionFilter, string>,
-  /** f7 `a.xr-btn--primary.xr-btn--sm` (to FA-19, the oldest submission waiting). */
+  /** The tail phones leave out: "Waiting for marking". */
+  waitingLong: FA_SHOW_WORDS.waitingLong,
+  /** `a.rb-btn--primary` (to FA-19, the oldest submission waiting). */
   markNext: 'Mark next',
-  /** f7 `button.xr-btn--secondary.xr-btn--sm` with the download icon (FA-22). */
-  exportCsv: 'Export CSV',
+  /** `button.rb-btn` with the download glyph (FA-22). */
+  exportCsv: FA_EXPORT_WORDS.action,
   columns: {
     student: 'Student',
     submitted: 'Submitted',
@@ -34,74 +41,122 @@ export const SUBMISSIONS_WORDS = {
     score: 'Score',
     released: 'Result released to student',
   },
-  /** f7 `span.xr-status--wait`, f8 `span.xr-status--ok`. */
   waiting: 'Waiting for marking',
   marked: 'Marked',
-  /** f7 the score before the marks are confirmed. */
-  noScore: '—',
-  /** f7 the release flag of an "after the deadline" assessment, with the lock. */
-  notYetAfterDeadline: 'Not yet — after the deadline',
-  /** f10 the export confirmation's body. */
+  passed: 'Passed',
+  notPassed: 'Not passed',
+  released: 'Released',
+  notYet: 'Not yet',
+  /**
+   * The export confirmation's line. The export writes “It contains this list only, …”, but the
+   * service's file holds every submission of the assessment whichever filter is on, so the line
+   * says that (state-copy `FA-12.export-file`).
+   */
   exportedColumns:
-    'Columns: student, student ID, submitted, status, score, result released to student. It contains this list only.',
-  /** B4-06 script `filtNone`. */
-  noMatch: 'No submissions match this filter.',
-  /** f11 `h3.xr-h3`. */
+    'It contains every submission to this assessment, as it was when you exported it. Columns: student, student ID, submitted, status, score, result released to student.',
+  /** `div.fa-scrollx[aria-label]` and its table's caption. */
+  exportedRows: FA_EXPORT_WORDS.rowsLabel,
+  noMatch: 'No submissions match this filter',
+  showAll: 'Show all',
   emptyTitle: 'No submissions yet',
+  emptyDraft: 'Students can’t see a draft, so there are no submissions yet.',
 } as const;
 
-/** f7 "2 submitted · 2 waiting for marking" (B4-06 script `subCount`). */
-export function submittedCountWords(submitted: number, waiting: number): string {
-  return `${submitted} submitted · ${waiting} waiting for marking`;
+/** "2 submissions · 1 waiting for marking" (the export's `count`). */
+export function submittedCountWords(submissions: number, waiting: number): string {
+  return `${plural(submissions, 'submission')} · ${waiting} waiting for marking`;
 }
 
-/** f8 "11 of 16" — the confirmed score out of the attempt's total marks. */
+/** "Submissions for Heat Exchanger — post-lab" (the table's caption). */
+export function submissionsCaption(assessmentName: string): string {
+  return `Submissions for ${assessmentName}`;
+}
+
+/** "Attempt 1 of 2", with " · version 2" while attempts span versions. */
+export function attemptWords(
+  number: number,
+  allowed: number | null,
+  version: number | null,
+): string {
+  const of = allowed === null ? `Attempt ${number}` : `Attempt ${number} of ${allowed}`;
+  return version === null ? of : `${of} · version ${version}`;
+}
+
+/** "Mark Priya Natarajan" / "View marks for Rahul Verma" (the row link's name). */
+export function rowLinkLabel(waiting: boolean, student: string): string {
+  return `${waiting ? 'Mark ' : 'View marks for '}${student}`;
+}
+
+/** "11 of 16" — the confirmed score out of the attempt's total marks. */
 export function scoreWords(score: number, outOf: number): string {
   return `${score} of ${outOf}`;
 }
 
-/** f9 "Released 14 Nov 2026, 23:59". */
-export function releasedWords(when: string): string {
-  return `Released ${when}`;
+/** "— of 16" while the written answers wait. */
+export function waitingScoreWords(outOf: number): string {
+  return `— of ${outOf}`;
+}
+
+/** "Marked automatically: 4 of 6". */
+export function automaticWords(awarded: number, outOf: number): string {
+  return `Marked automatically: ${awarded} of ${outOf}`;
+}
+
+/** "Passed · pass mark 8" / "Not passed · pass mark 8". */
+export function outcomeWords(passed: boolean, passMark: number): string {
+  return `${passed ? SUBMISSIONS_WORDS.passed : SUBMISSIONS_WORDS.notPassed} · pass mark ${passMark}`;
+}
+
+/** The line under "Released": "14 Nov 2026, 23:59, after the deadline" or the release time. */
+export function releasedSubWords(
+  when: string,
+  option: 'immediately-after-marking' | 'after-deadline' | 'on-date' | null,
+): string {
+  return option === 'after-deadline' ? `${when}, after the deadline` : when;
 }
 
 /**
- * The flag while the result is not released yet, from the attempt's own pinned release terms:
- * f7 draws "after the deadline"; the other settings are `FA-12.release-*`.
+ * The line under "Not yet", from the attempt's own pinned release terms: "after the deadline, 14
+ * Nov 2026, 23:59", "after marking", "on 20 Nov 2026, 09:00" (the export's `release`); a release
+ * not set is `FA-12.release-not-set` ("Not yet" alone, `null`).
  */
-export function notReleasedWords(
+export function notReleasedSubWords(
   option: 'immediately-after-marking' | 'after-deadline' | 'on-date' | null,
   on: string | null,
-): string {
+): string | null {
   switch (option) {
     case 'after-deadline':
-      return SUBMISSIONS_WORDS.notYetAfterDeadline;
+      return on === null ? 'after the deadline' : `after the deadline, ${on}`;
     case 'immediately-after-marking':
-      return stateWords('FA-12.release-when-marked');
+      return 'after marking';
     case 'on-date':
-      return on === null
-        ? stateWords('FA-12.release-on-a-date')
-        : stateWords('FA-12.release-on-date').replace('{date}', on);
+      return on === null ? 'on a date' : `on ${on}`;
     case null:
-      return stateWords('FA-12.release-not-set');
+      return null;
   }
 }
 
-/** f10 "Exported submissions-ASMT-0009.csv · 2 rows" (B4-06 script `expText`). */
-export function exportedWords(fileName: string, rows: number): string {
-  return `Exported ${fileName} · ${rows} row${rows === 1 ? '' : 's'}`;
+/**
+ * "Exported the submissions of Heat Exchanger — post-lab as a CSV file · 2 rows". The export names
+ * the file ("Exported submissions-<name>.csv · 2 rows"); the service's file name holds the
+ * assessment's internal reference, which no Faculty words show (the owner's identifier rule), so
+ * the confirmation names the assessment by its name instead. The browser still saves the file
+ * under the service's name (state-copy `FA-12.export-file`).
+ */
+export function exportedWords(assessment: string, rows: number): string {
+  return `Exported the submissions of ${assessment} as a CSV file · ${plural(rows, 'row')}`;
 }
 
-/** f11 "Students who have Shell-and-Tube Heat Exchanger see this assessment in Assessments. …" */
+/** "Students who have Shell-and-Tube Heat Exchanger see this assessment in Assessments. …" */
 export function emptyLine(experiment: string): string {
   return `Students who have ${experiment} see this assessment in Assessments. Their submissions appear here.`;
 }
 
-// ---- FA-08 Summary's Phase-4B actions (B4-05 f0, f4 `div.xw-actions`) ---------------------------
+// ---- FA-08 Summary's panel actions -------------------------------------------------------------
 
 export const SUMMARY_ACTIONS = {
-  /** `a.xr-btn--primary` (to FA-19, the oldest submission of this assessment waiting). */
+  /** `a.rb-btn--primary.rk-go` (to FA-19, the oldest submission of this assessment waiting). */
   markNext: 'Mark next',
-  /** `a.xr-btn--secondary` (to FA-12, the Submissions tab). */
+  /** `a.rb-btn` (to FA-12, the Submissions tab). */
   seeSubmissions: 'See submissions',
 } as const;

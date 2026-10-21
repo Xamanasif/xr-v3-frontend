@@ -1,5 +1,6 @@
 import type { ReactNode, Ref } from 'react';
 
+import { joinClasses } from '../internal/classes.js';
 import { Glyph, type V3IconName } from './icons.js';
 
 /**
@@ -31,15 +32,44 @@ export interface NoticeProps {
   readonly ref?: Ref<HTMLDivElement>;
   /** The notice's id: a focus target after an action (`tabIndex={-1}` with it). */
   readonly id?: string;
+  /**
+   * Its spacing in a Faculty list (V3P-17, the Faculty export's inline spacings): `below` 14 px
+   * over what follows (`rk-x-notice-below`, FA-09's message and version notices), `above` 16 px
+   * under the line before it (`rk-x-notice-above`, FA-16's message over the drafts).
+   */
+  readonly space?: 'above' | 'below';
+  /**
+   * Its actions' labels wrap instead of overflowing a narrow notice (`rk-x-notice-wrap`, V3P-17):
+   * FA-09's "Add this question to the assessment", wider than the notice's column at 375 px.
+   */
+  readonly wrapActions?: boolean;
 }
 
+const NOTICE_SPACE = { above: 'rk-x-notice-above', below: 'rk-x-notice-below' } as const;
+
 /** A notice (`div.rk-notice`): icon, title, description and actions. */
-export function Notice({ tone, title, children, actions, icon, role, ref, id }: NoticeProps) {
+export function Notice({
+  tone,
+  title,
+  children,
+  actions,
+  icon,
+  role,
+  ref,
+  id,
+  space,
+  wrapActions = false,
+}: NoticeProps) {
   return (
     <div
       ref={ref}
       id={id}
-      className={`rk-notice rk-notice--${tone}`}
+      className={joinClasses(
+        'rk-notice',
+        `rk-notice--${tone}`,
+        space && NOTICE_SPACE[space],
+        wrapActions && 'rk-x-notice-wrap',
+      )}
       role={role}
       tabIndex={ref || id ? -1 : undefined}
     >

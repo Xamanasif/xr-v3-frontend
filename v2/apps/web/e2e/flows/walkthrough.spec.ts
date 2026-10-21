@@ -103,12 +103,15 @@ async function hubTab(page: Page, name: string): Promise<void> {
 }
 
 /**
- * The assessment record's tab strip. Returns once the chosen tab is the current page: the record
- * header ("Ready", the ASMT reference) is the same on every tab, so a check of it alone can pass
- * before the navigation lands — and a navigation landing later closes a menu opened meanwhile.
+ * The assessment record's tab strip (V3 FA-v1: the navigation "<name> sections"). Returns once the
+ * chosen tab is the current page: the record header ("Ready") is the same on every tab, so a check
+ * of it alone can pass before the navigation lands — and a navigation landing later closes a menu
+ * opened meanwhile.
  */
 async function recordTab(page: Page, name: RegExp): Promise<void> {
-  const tab = page.getByRole('navigation', { name: ASSESSMENT }).getByRole('link', { name });
+  const tab = page
+    .getByRole('navigation', { name: `${ASSESSMENT} sections` })
+    .getByRole('link', { name });
   await tab.scrollIntoViewIfNeeded();
   await reachAndClick(page, tab);
   await expect(tab).toHaveAttribute('aria-current', 'page');
@@ -483,13 +486,17 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     // Dr S. Ranganathan creates the assessment: FA-05 → FA-07 → FA-08 … FA-11.
     await as(desk, EMAIL.ranganathan, '/faculty');
     await sidebar(desk, '/faculty/courses');
-    await reachAndClick(desk, desk.getByRole('link', { name: `Open course ${THERMO}` }));
+    // V3 (FA-v1) names the course card's link with its code too.
+    await reachAndClick(desk, desk.getByRole('link', { name: `Open course ME ZG523 ${THERMO}` }));
     await desk.waitForURL('**/faculty/courses/thermodynamics-heat-transfer');
     await reachAndClick(desk, main(desk).getByRole('link', { name: 'Open experiment' }));
     await desk.waitForURL(`**/faculty/experiments/${SHELL_ID}`);
+    // V3 (FA-v1 FA-05): the experiment's assessment is the side panel "Assessment".
     await reachAndClick(
       desk,
-      region(desk, 'Assessment').getByRole('link', { name: 'Create assessment' }),
+      desk
+        .getByRole('complementary', { name: 'Assessment' })
+        .getByRole('link', { name: 'Create assessment' }),
     );
     await desk.waitForURL(`**/faculty/assessments/new?experimentId=${SHELL_ID}`);
     await reachAndClick(desk, desk.getByRole('button', { name: 'Continue' }));
@@ -532,14 +539,14 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await written.getByRole('textbox', { name: 'Marks' }).fill('10');
     await reachAndClick(desk, written.getByRole('button', { name: 'Save question' }));
     await desk.waitForURL(`**${record}/questions`);
+    // The page offers the new question (V3 FA-v1 FA-09: its message), never attaching it silently.
+    const offered = desk.locator('#questions-msg');
+    await expect(offered).toContainText('Saved to your question bank.');
     await reachAndClick(
       desk,
-      desk
-        .getByRole('complementary', { name: 'From your question bank' })
-        .locator('li')
-        .first()
-        .getByRole('button', { name: /^Add Q-\d{4} to this assessment$/ }),
+      offered.getByRole('button', { name: 'Add this question to the assessment' }),
     );
+    await expect(offered.locator('.rk-notice-t')).toHaveText('Added as question 2.');
     await expect(inOrder).toContainText('2 questions · 12 marks');
     await recordTab(desk, /^Settings/);
     await expect(main(desk)).toContainText('Ready');
@@ -584,18 +591,32 @@ test('Flows A–F and the device chain on one shared sample world, through the p
 
   await test.step(stepTitle('D3'), async () => {
     await as(desk, EMAIL.ranganathan, '/faculty');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: 'Mark 1 written answer' }));
-    await desk.waitForURL((url) => url.pathname === '/faculty/marking');
+    // V3 (FA-v1 FA-01): the priority band's one written answer, and "Mark now" for the oldest
+    // submission (FA-19) — the one the queue (FA-18) lists as waiting.
+    const waiting = desk.getByRole('region', { name: 'Needs your attention' }).locator('li.rb-pi');
+    await expect(waiting.locator('.rb-pi-kind')).toHaveText('Written answer to mark');
+    const markNow = waiting.getByRole('link', { name: `Mark now: Rahul Verma, ${ASSESSMENT}` });
+    const oldest = await markNow.getAttribute('href');
+    expect(oldest).toMatch(/^\/faculty\/marking\/ATT-\d{4}$/);
+    await sidebar(desk, '/faculty/marking');
     await expect(rowWith(desk, 'Rahul Verma')).toContainText('Waiting for marking');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: 'Mark Rahul Verma' }));
-    await desk.waitForURL(/\/faculty\/marking\/ATT-\d{4}$/);
+    await expect(main(desk).getByRole('link', { name: 'Mark Rahul Verma' })).toHaveAttribute(
+      'href',
+      oldest!,
+    );
+    await sidebar(desk, '/faculty');
+    await reachAndClick(desk, markNow);
+    await desk.waitForURL((url) => url.pathname === oldest);
     await expect(main(desk)).toContainText('Marked automatically');
-    await desk.getByRole('textbox', { name: 'Mark for question 2' }).fill('7');
+    // V3 (FA-v1 FA-19): the score field "Your mark", named with its question.
+    await desk.getByRole('textbox', { name: /^Your mark Question 2\b/ }).fill('7');
     await desk.getByRole('textbox', { name: /^Feedback for Rahul/ }).fill(FEEDBACK);
     await reachAndClick(desk, button(desk, 'Confirm marks'));
     const confirm = desk.getByRole('dialog', { name: 'Confirm marks for Rahul Verma?' });
     await reachAndClick(desk, confirm.getByRole('button', { name: 'Confirm marks' }));
-    await expect(desk.locator('#ms-mdone .xr-status--ok')).toHaveText('Marks confirmed');
+    await expect(desk.locator('#ms-mdone .rk-notice--ok .rk-notice-t')).toHaveText(
+      'Marks confirmed',
+    );
     await sidebar(desk, '/faculty/assessments');
     const link = main(desk)
       .getByRole('link', { name: new RegExp(ASSESSMENT) })
@@ -611,7 +632,8 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await desk.waitForURL(
       /\/faculty\/students\/[^/?]+\?experimentId=shell-and-tube-heat-exchanger$/,
     );
-    await expect(region(desk, 'Assessment')).toContainText('Marked');
+    // V3 (FA-v1 FA-21): the side panel "Assessment".
+    await expect(desk.getByRole('complementary', { name: 'Assessment' })).toContainText('Marked');
     await expect(main(desk)).toContainText('Completed');
     await signOut(desk, ACCOUNT.ranganathan);
   });

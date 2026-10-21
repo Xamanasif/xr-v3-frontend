@@ -35,5 +35,11 @@ export {
   IA_EXPORT_DIRECTORY,
   IA_PATCHED_STYLES,
   iaPatchedMarkup,
+  faExportText,
+  FA_EXPORT_DIRECTORY,
+  FA_PATCHED_STYLES,
+  faPatchedMarkup,
+  faPatchedStyleOf,
+  type FaPatchedStyle,
   v3Canonical,
 } from './v3.js';

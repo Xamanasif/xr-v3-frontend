@@ -1,0 +1,739 @@
+[
+ {
+  "name": "J1-create-chain",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "Overview on 26 Oct 2026",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "experiment from Your teaching",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "create from the experiment",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "experiment already chosen",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"click\":\"#fa-cw-next\",\"expect\":[\"Step 2 of 4\",\"Set the rules\"]}",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "rules start empty and are required",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-cw-name\",\"value\":\"Heat Exchanger — post-lab\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-cw-pass\",\"value\":\"50\"}",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-cw-att\",\"value\":\"2\"}",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-cw-dl\",\"value\":\"14 Nov 2026, 23:59\"}",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "{\"click\":\"#fa-cw-r-after\"}",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "rules accepted",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "{\"click\":\"#fa-cw-q-Q-0101\"}",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "{\"click\":\"#fa-cw-q-Q-0104\"}",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "three question types chosen",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "new question from the create flow",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "{\"click\":\"#fa-qe-t-sc\"}",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-text\",\"value\":\"Which arrangement can bring the cold outlet above the hot outlet?\"}",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-o0\",\"value\":\"Counter flow\"}",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-o1\",\"value\":\"Parallel flow\"}",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "{\"click\":\"#fa-qe-c0\"}",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-marks\",\"value\":\"2\"}",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "back in step 3 with the new question ticked",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "earlier ticks kept",
+    "why": ""
+   },
+   {
+    "n": 25,
+    "ok": true,
+    "label": "preview step",
+    "why": ""
+   },
+   {
+    "n": 26,
+    "ok": true,
+    "label": "back to questions, state kept",
+    "why": ""
+   },
+   {
+    "n": 27,
+    "ok": true,
+    "label": "back to rules, values kept",
+    "why": ""
+   },
+   {
+    "n": 28,
+    "ok": true,
+    "label": "{\"click\":\"#fa-cw-next\"}",
+    "why": ""
+   },
+   {
+    "n": 29,
+    "ok": true,
+    "label": "{\"click\":\"#fa-cw-next\",\"expect\":\"Step 4 of 4\"}",
+    "why": ""
+   },
+   {
+    "n": 30,
+    "ok": true,
+    "label": "created and ready",
+    "why": ""
+   },
+   {
+    "n": 31,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main a:has-text(\\\"Open assessment\\\")\",\"expect\":[\"Ready to use\",\"4 questions · 16 marks\"]}",
+    "why": ""
+   },
+   {
+    "n": 32,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Preview\\\")\",\"expect\":\"As students see it\"}",
+    "why": ""
+   },
+   {
+    "n": 33,
+    "ok": true,
+    "label": "answer key only for Faculty",
+    "why": ""
+   },
+   {
+    "n": 34,
+    "ok": true,
+    "label": "overview shows the new deadline",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J2-bank-chain",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "bank opens with 6 questions",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "Add a question opens the editor, focus on heading",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "empty save shows error summary, focus moves to it",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "error link moves focus to the type field",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "true/false shows only its fields",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-text\",\"value\":\"Adding heat transfer area raises the duty at the same inlet temperatures and fl",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"click\":\"#fa-qe-tf-true\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-marks\",\"value\":\"2\"}",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-expl\",\"value\":\"More area raises UA and NTU, so the exchanger transfers more heat.\"}",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "save returns to the bank with Q-0107 and a message",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "editing a used question warns about versions",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-text\",\"value\":\"How is the number of transfer units (NTU) of a heat exchanger defined?\"}",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "used question saves version 2",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "unused question has no version warning",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "saving without changes says nothing to save",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "cancel returns to the bank",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "drafts tab",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "review a draft in the editor",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "reviewed draft added as Q-0108, back on drafts tab",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "discard leaves the bank unchanged",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "questions tab shows the reviewed draft",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "import step 1",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "check without a file",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "XLSX refused",
+    "why": ""
+   },
+   {
+    "n": 25,
+    "ok": true,
+    "label": "own CSV chosen",
+    "why": ""
+   },
+   {
+    "n": 26,
+    "ok": true,
+    "label": "own CSV row validation",
+    "why": ""
+   },
+   {
+    "n": 27,
+    "ok": true,
+    "label": "choose another file",
+    "why": ""
+   },
+   {
+    "n": 28,
+    "ok": true,
+    "label": "{\"click\":\"role=button[name=\\\"Use the sample file\\\"]\",\"expect\":\"post-lab-questions.csv\"}",
+    "why": ""
+   },
+   {
+    "n": 29,
+    "ok": true,
+    "label": "sample file: 2 errors block, 1 warning",
+    "why": ""
+   },
+   {
+    "n": 30,
+    "ok": true,
+    "label": "corrected file: 8 ready",
+    "why": ""
+   },
+   {
+    "n": 31,
+    "ok": true,
+    "label": "confirm step",
+    "why": ""
+   },
+   {
+    "n": 32,
+    "ok": true,
+    "label": "import finished with sequential IDs",
+    "why": ""
+   },
+   {
+    "n": 33,
+    "ok": true,
+    "label": "bank now has 16 questions",
+    "why": ""
+   },
+   {
+    "n": 34,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Assessments\\\")\",\"expect\":\"Heat Exchanger — post-",
+    "why": ""
+   },
+   {
+    "n": 35,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main a.rk-rowlink:has-text(\\\"Heat Exchanger — post-lab\\\")\",\"expect\":\"Ready to use\"}",
+    "why": ""
+   },
+   {
+    "n": 36,
+    "ok": true,
+    "label": "assessment shows the newer bank version of Q-0102",
+    "why": ""
+   },
+   {
+    "n": 37,
+    "ok": true,
+    "label": "bank panel lists imported questions",
+    "why": ""
+   },
+   {
+    "n": 38,
+    "ok": true,
+    "label": "attaching a question makes version 2; submissions keep version 1",
+    "why": ""
+   },
+   {
+    "n": 39,
+    "ok": true,
+    "label": "use updated version",
+    "why": ""
+   },
+   {
+    "n": 40,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Preview\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 41,
+    "ok": true,
+    "label": "preview shows updated and attached questions",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J3-marking-chain",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "overview shows 2 written answers to mark",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "Mark now opens the oldest answer (Rahul)",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "confirm without a mark is refused",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-mk-Q-0106\",\"value\":\"12\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "out-of-range mark refused",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-mk-Q-0106\",\"value\":\"7\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-mk-fb\",\"value\":\"Good use of your own readings and the right cause. For full marks, link the fall ",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "save keeps the mark editable",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "queue shows the saved, unconfirmed mark",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "saved mark is kept",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "confirm dialog opens with focus on its title",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "{\"press\":\"Tab\",\"expectFocus\":\"fa-dlg-cancel\"}",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "{\"press\":\"Tab\",\"expectFocus\":\"fa-dlg-ok\"}",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "Tab stays inside the dialog",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "Shift+Tab wraps too",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "Escape closes and returns focus",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "{\"click\":\"#fa-mk-confirm\"}",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "confirmed, read-only",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "no mark field after confirming; rail count is 1",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "Submissions reflect the confirmed mark",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "export reflects the outcome",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "Mark next opens Priya",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "overview updated",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Students\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 25,
+    "ok": true,
+    "label": "student detail reflects the outcome",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J4-students-followup",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "overview follow-up opens the inactive filter",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "inactive student detail",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "back keeps the filter",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "export of the filtered list",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "no-match state",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main .rk-state button:has-text(\\\"Clear filters\\\")\",\"expect\":\"5 students\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "waiting-for-marking filter",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "chip removal returns focus",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J4b-coteacher-refusals",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "co-teacher overview",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "students list hides assessment details",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "student detail refusal note",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Assessments\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "assessment summary with co-teacher note",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "submissions refused",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "answer key refused",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "marking queue refusal note",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "bank refusal note",
+    "why": ""
+   }
+  ],
+  "errors": []
+ }
+]

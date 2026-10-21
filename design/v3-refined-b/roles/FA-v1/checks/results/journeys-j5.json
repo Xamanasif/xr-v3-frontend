@@ -1,0 +1,325 @@
+[
+ {
+  "name": "J5a-drawer-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "Menu opens the drawer, focus on Close",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "Menu button reports expanded",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "Shift+Tab stays in the drawer",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "Tab stays in the drawer",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "Escape closes the drawer, focus returns to Menu",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "a drawer link navigates and closes the drawer",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "no horizontal scroll at 375",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J5b-account-menu",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "account menu opens, focus on first item",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "Escape closes it, focus back on the account button",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "{\"click\":\"#fa-acct\"}",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"press\":\"Tab\",\"expectFocus\":\"fa-acct-last\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "tabbing out closes the menu",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"#fa-acct\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "Help from the account menu",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main a:has-text(\\\"Report a problem\\\")\",\"expect\":\"What happened?\"}",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "empty report refused",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-hp-what\",\"value\":\"The marking page did not show the guidance.\"}",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "report sent with a preview reference",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "{\"click\":\"#fa-acct\"}",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "sign out",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "sign in returns to Overview",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J5c-delete-dialog",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "delete dialog for an unused question",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "no assessment note for an unused question",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "Escape returns focus to Delete",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"click\":\"#fa-qb-del-Q-0103\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "deleted, history kept",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "used question warns",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "cancel keeps it",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "no-match",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main .rk-state button:has-text(\\\"Clear filters\\\")\",\"expect\":\"5 questions\",\"expectFocus\":\"fa-qb-q",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "type filter + chip",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J5d-released-15-nov",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "15 Nov queue: Priya waiting",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "{\"click\":\"role=button[name=/^Marked/]\",\"expect\":[\"Rahul Verma\",\"Confirmed 7 Nov 2026, 10:15\"]}",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "released result line",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Marking\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"click\":\"role=button[name=/^Waiting/]\"}",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"[aria-label=\\\"Mark Priya Natarajan\\\"]\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-mk-Q-0106\",\"value\":\"6\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "after the deadline the release is immediate (pinned terms)",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "Priya confirmed, nothing else waiting",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "rail count gone",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J5e-no-courses",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "no courses overview",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Assessments\\\")\",\"expect\":\"Assessments appear her",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Question bank\\\")\",\"expect\":\"Your question bank o",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Marking\\\")\",\"expect\":\"Nothing to mark yet\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Students\\\")\",\"expect\":\"No students to follow yet",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"My courses\\\")\",\"expect\":\"My courses\"}",
+    "why": ""
+   }
+  ],
+  "errors": []
+ }
+]

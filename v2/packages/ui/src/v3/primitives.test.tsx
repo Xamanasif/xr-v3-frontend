@@ -12,6 +12,7 @@ import {
   expectRenderedAsV3Drawn,
   expectV3ClassesOnly,
   cmExportText,
+  faExportText,
   iaExportText,
   rvExportText,
   saExportText,
@@ -38,7 +39,7 @@ const XS_FILES = [
 ];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board or the XS, SA, VE, CM, RV or IA export draws', () => {
+  it('every icon is a path a V3 board or the XS, SA, VE, CM, RV, IA or FA export draws', () => {
     const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
       '\n',
     );
@@ -54,6 +55,8 @@ describe('V3 icons', () => {
     // The Institute Admin export (IA-v1) draws its rail glyphs inline and the rest as
     // `<symbol id="rbi-…">` / `<symbol id="rki-…">`, both in its live root.
     const iaRoot = iaExportText('Main.dc.html');
+    // The Faculty export (FA-v1) draws every glyph as `<symbol id="fai-…">` in its live root.
+    const faRoot = faExportText('Main.dc.html');
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
       expect(
         drawn.includes(`d="${path}"`) ||
@@ -61,7 +64,8 @@ describe('V3 icons', () => {
           veSprite.includes(`<path d="${path}"></path></symbol>`) ||
           cmSprite.includes(`<path d="${path}"></path></symbol>`) ||
           rvRoot.includes(`<path d="${path}"></path>`) ||
-          iaRoot.includes(`<path d="${path}"></path>`),
+          iaRoot.includes(`<path d="${path}"></path>`) ||
+          faRoot.includes(`<path d="${path}"></path></symbol>`),
         name,
       ).toBe(true);
     }
@@ -103,6 +107,48 @@ describe('V3 icons', () => {
       .filter((glyph) => !previewPaths.includes(glyph));
     expect(glyphs.length).toBeGreaterThan(30);
     for (const glyph of glyphs) expect(paths.has(glyph), glyph).toBe(true);
+  });
+
+  it('draws every glyph of the Faculty export (FA-v1 `fai-*` sprite) its pages use', () => {
+    const root = faExportText('Main.dc.html');
+    const paths = new Set<string>(Object.values(V3_ICON_PATHS));
+    const symbols = new Map(
+      [
+        ...root.matchAll(
+          /<symbol id="(fai-[\w-]+)" viewBox="0 0 24 24"><path d="([^"]+)"><\/path>/g,
+        ),
+      ].map((match) => [match[1]!, match[2]!] as const),
+    );
+    expect(symbols.size).toBe(36);
+    // Every glyph is a sprite symbol: nothing else in the root draws a path.
+    expect([...root.matchAll(/<path d="/g)].length).toBe(symbols.size);
+    /*
+     * Not drawn by a Faculty page: five symbols nothing uses (`fai-trash`, `fai-minus`, `fai-flag`,
+     * `fai-user`, `fai-cal`), and the way out (`fai-out`), drawn only by the borrowed XS surfaces
+     * the delivered XS export replaces (COMPONENT-EXTENSIONS.md "Borrowed shared surfaces"): the
+     * account menu's Sign out (XS-05) and the signed-out page (XS-03).
+     */
+    const UNUSED = ['fai-trash', 'fai-minus', 'fai-flag', 'fai-user', 'fai-cal'];
+    for (const id of UNUSED) expect(root, id).not.toContain(`#${id}"`);
+    const menu = root.indexOf('<div class="fa-menu" id="fa-acct-menu">');
+    const signedOut = root.indexOf('<div class="fa-pubpage">');
+    const borrowed: [number, number][] = [
+      [menu, root.indexOf('</ul>', menu)],
+      [signedOut, root.indexOf('</main>', signedOut)],
+    ];
+    const outs = [...root.matchAll(/<use href="#fai-out"><\/use>/g)];
+    expect(outs).toHaveLength(2);
+    for (const use of outs) {
+      expect(borrowed.some(([from, to]) => from > 0 && use.index > from && use.index < to)).toBe(
+        true,
+      );
+    }
+    const used = [...symbols].filter(([id]) => ![...UNUSED, 'fai-out'].includes(id));
+    expect(used).toHaveLength(30);
+    for (const [id, glyph] of used) {
+      expect(root, id).toContain(`<use href="#${id}"></use>`);
+      expect(paths.has(glyph), id).toBe(true);
+    }
   });
 
   it('takes the shared icons from the v46 registry (one path per glyph, never two)', () => {

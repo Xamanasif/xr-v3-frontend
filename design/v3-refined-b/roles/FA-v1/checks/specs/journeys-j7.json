@@ -1,0 +1,217 @@
+[
+ {
+  "name": "J7a-settings-and-questions",
+  "file": "fa/T-j-set.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Settings",
+     "Heat Exchanger — post-lab"
+    ],
+    "assert": "document.getElementById('fa-st-pass').value === '50'",
+    "label": "settings show this assessment's own values"
+   },
+   {
+    "click": "#fa-st-r-now",
+    "expect": [
+     "This changes when results are shown for new attempts",
+     "Submitted attempts keep the result terms of the version they answered"
+    ],
+    "label": "release change warning (P4-06 wording)"
+   },
+   {
+    "click": "role=button[name=\"Cancel changes\"]",
+    "expectNot": "This changes when results are shown",
+    "assert": "document.getElementById('fa-st-r-after').checked",
+    "label": "cancel restores saved values"
+   },
+   {
+    "fill": "#fa-st-pass",
+    "value": ""
+   },
+   {
+    "fill": "#fa-st-dl",
+    "value": "next Friday"
+   },
+   {
+    "click": "role=button[name=\"Save settings\"]",
+    "expect": [
+     "Check these settings",
+     "Enter a pass mark from 0 to 100, as a whole number",
+     "Enter the deadline as a date and time, for example 14 Nov 2026, 23:59"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "settings errors"
+   },
+   {
+    "click": "#fa-errs a:has-text(\"Enter a pass mark\")",
+    "expectFocus": "fa-st-pass"
+   },
+   {
+    "fill": "#fa-st-pass",
+    "value": "60"
+   },
+   {
+    "fill": "#fa-st-dl",
+    "value": "14 Nov 2026, 23:59"
+   },
+   {
+    "expect": [
+     "This makes a new version",
+     "Rahul Verma and Priya Natarajan have submitted."
+    ],
+    "label": "rule change after submissions warns"
+   },
+   {
+    "click": "role=button[name=\"Save settings\"]",
+    "wait": 800,
+    "expect": [
+     "Settings saved as version 2.",
+     "Submissions from Rahul Verma and Priya Natarajan keep version 1; new attempts use version 2."
+    ],
+    "expectFocus": "fa-msg",
+    "label": "saved as version 2"
+   },
+   {
+    "click": "#fa-st-r-now",
+    "expectNot": "This changes when results are shown for new attempts",
+    "label": "after version 2 nothing is pinned to it, so no warning"
+   },
+   {
+    "click": "role=button[name=\"Cancel changes\"]",
+    "assert": "document.getElementById('fa-st-r-after').checked"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Summary\")",
+    "expect": [
+     "Version 2 since 7 Nov 2026, 10:15",
+     "You changed a rule after students submitted.",
+     "60% · 10 of 16 marks"
+    ],
+    "label": "summary shows the version"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": "Questions in order"
+   },
+   {
+    "click": "[aria-label=\"Move question 3 up\"]",
+    "expect": "Moved question 3 to position 2.",
+    "label": "reorder (version 2 has no submissions, so no new version)"
+   },
+   {
+    "expectNot": "This made version 3",
+    "label": "no extra version when nothing is pinned to version 2"
+   },
+   {
+    "click": "[aria-label=\"Remove question 1 from this assessment\"]",
+    "expect": [
+     "Question removed from this assessment. It is still in your question bank.",
+     "3 questions · 14 marks"
+    ],
+    "label": "remove keeps the question in the bank"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": "2 submissions · 2 waiting for marking"
+   },
+   {
+    "click": "role=button[name=/^Marked/]",
+    "expect": "No submissions match this filter",
+    "label": "submissions filter no-match"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Show all\")",
+    "expect": [
+     "Rahul Verma",
+     "Priya Natarajan",
+     "version 1"
+    ],
+    "label": "attempts show their pinned version"
+   }
+  ]
+ },
+ {
+  "name": "J7b-experiments-filters",
+  "file": "fa/T-j-exps.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Shell-and-Tube Heat Exchanger",
+     "1 experiment"
+    ]
+   },
+   {
+    "fill": "#fa-x-q",
+    "value": "Fin-Tube",
+    "expect": [
+     "No experiment matches",
+     "0 of 1 experiment"
+    ],
+    "label": "search no-match"
+   },
+   {
+    "click": "[aria-label^=\"Remove filter Search\"]",
+    "expect": "1 experiment",
+    "expectFocus": "fa-x-q",
+    "label": "chip removal"
+   },
+   {
+    "select": "#fa-x-fm",
+    "value": "VR",
+    "expect": [
+     "1 of 1 experiment",
+     "Format: VR"
+    ],
+    "label": "format filter"
+   },
+   {
+    "click": "#fa-main .rk-statusline button:has-text(\"Clear filters\")",
+    "expect": "1 experiment"
+   }
+  ]
+ },
+ {
+  "name": "J7c-assessment-filters",
+  "file": "fa/T-j-al.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Heat Exchanger — post-lab",
+     "1 assessment"
+    ]
+   },
+   {
+    "select": "#fa-al-st",
+    "value": "draft",
+    "expect": [
+     "No assessment matches these filters",
+     "State: Draft — not ready"
+    ],
+    "label": "state filter no-match"
+   },
+   {
+    "select": "#fa-al-st",
+    "value": "wait",
+    "expect": [
+     "1 of 1 assessment",
+     "2 waiting for marking"
+    ],
+    "label": "waiting filter"
+   },
+   {
+    "fill": "#fa-al-q",
+    "value": "post-lab",
+    "expect": "1 of 1 assessment"
+   },
+   {
+    "click": "#fa-main .rk-statusline button:has-text(\"Clear filters\")",
+    "expect": "1 assessment",
+    "expectFocus": "fa-al-q"
+   }
+  ]
+ }
+]

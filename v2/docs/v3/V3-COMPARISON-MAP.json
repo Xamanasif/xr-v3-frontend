@@ -2776,6 +2776,559 @@
       "differences": [],
       "supersedes": [],
       "migration": "Institute Admin integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-shell",
+      "state": "The Faculty workspace in the V3 shell: rail (Overview, My courses, Assessments, Question bank, Marking with its count, Students), Menu drawer below 1024 px, XS-08 banner, XS account menu, Help & support",
+      "route": "/faculty/*",
+      "sources": ["apps/web/src/features/faculty/shared"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": []
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The account menu, Help & support, Not your workspace and signed out are the delivered XS components (the export borrowed `fa-acctwrap`, `fa-menu*` drafts)."
+      ],
+      "supersedes": [
+        "05-faculty-help-built-top-bar",
+        "05-faculty-help-built-sidebar-head",
+        "05-faculty-help-built-sidebar-workspace",
+        "05-faculty-help-built-sidebar-help",
+        "05-faculty-help-built-sidebar-phase-4b"
+      ],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-01",
+      "state": "Overview",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-01-overview"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA01-1440.png",
+          "responsive/FA01-1024.png",
+          "responsive/FA01-768.png",
+          "responsive/FA01-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-02",
+      "state": "My courses",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-02-my-courses"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA02-1440.png",
+          "responsive/FA02-1024.png",
+          "responsive/FA02-768.png",
+          "responsive/FA02-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-03",
+      "state": "Course (teaching view)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-03-course"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA03-1440.png",
+          "responsive/FA03-1024.png",
+          "responsive/FA03-768.png",
+          "responsive/FA03-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-04",
+      "state": "Experiments",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-04-experiments"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA04-1440.png",
+          "responsive/FA04-1024.png",
+          "responsive/FA04-768.png",
+          "responsive/FA04-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-05",
+      "state": "Experiment (teaching view)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-05-experiment"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA05-1440.png",
+          "responsive/FA05-1024.png",
+          "responsive/FA05-768.png",
+          "responsive/FA05-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-06",
+      "state": "Assessments",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-06-assessments"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA06-1440.png",
+          "responsive/FA06-1024.png",
+          "responsive/FA06-768.png",
+          "responsive/FA06-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-07",
+      "state": "Create assessment (guided)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-07-create-assessment"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA07-1440.png",
+          "responsive/FA07-1024.png",
+          "responsive/FA07-768.png",
+          "responsive/FA07-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-08",
+      "state": "Assessment · Summary",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-08-assessment-summary"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA08-1440.png",
+          "responsive/FA08-1024.png",
+          "responsive/FA08-768.png",
+          "responsive/FA08-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-09",
+      "state": "Assessment · Questions",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-09-assessment-questions"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA09-1440.png",
+          "responsive/FA09-1024.png",
+          "responsive/FA09-768.png",
+          "responsive/FA09-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-10",
+      "state": "Assessment · Settings",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-10-assessment-settings"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA10-1440.png",
+          "responsive/FA10-1024.png",
+          "responsive/FA10-768.png",
+          "responsive/FA10-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-11",
+      "state": "Assessment · Preview",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-11-assessment-preview"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA11-1440.png",
+          "responsive/FA11-1024.png",
+          "responsive/FA11-768.png",
+          "responsive/FA11-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-12",
+      "state": "Assessment · Submissions",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-12-submissions"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA12-1440.png",
+          "responsive/FA12-1024.png",
+          "responsive/FA12-768.png",
+          "responsive/FA12-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-14",
+      "state": "Question bank (tabs: Questions · Drafts to review)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-14-question-bank"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA14-1440.png",
+          "responsive/FA14-1024.png",
+          "responsive/FA14-768.png",
+          "responsive/FA14-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-15",
+      "state": "Add / edit question",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-15-question"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA15-1440.png",
+          "responsive/FA15-1024.png",
+          "responsive/FA15-768.png",
+          "responsive/FA15-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-16",
+      "state": "Draft questions with assistance",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-16-draft-questions"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA16-1440.png",
+          "responsive/FA16-1024.png",
+          "responsive/FA16-768.png",
+          "responsive/FA16-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-17",
+      "state": "Import questions (CSV / XLSX)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-17-import-questions"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA17-1440.png",
+          "responsive/FA17-1024.png",
+          "responsive/FA17-768.png",
+          "responsive/FA17-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-18",
+      "state": "Marking queue",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-18-marking"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA18-1440.png",
+          "responsive/FA18-1024.png",
+          "responsive/FA18-768.png",
+          "responsive/FA18-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-19",
+      "state": "Mark a submission",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-19-mark-submission"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA19-1440.png",
+          "responsive/FA19-1024.png",
+          "responsive/FA19-768.png",
+          "responsive/FA19-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-20",
+      "state": "Students (progress + follow-up)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-20-students"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA20-1440.png",
+          "responsive/FA20-1024.png",
+          "responsive/FA20-768.png",
+          "responsive/FA20-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-21",
+      "state": "Student detail (per experiment)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-21-student"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA21-1440.png",
+          "responsive/FA21-1024.png",
+          "responsive/FA21-768.png",
+          "responsive/FA21-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "FA-22",
+      "state": "Export progress (CSV)",
+      "route": "/faculty/…",
+      "sources": ["apps/web/src/features/faculty/fa-12-submissions/submissions.tsx"],
+      "reference": {
+        "archive": "XR-V3-Faculty-Final-Source.zip",
+        "archiveSha256": "d11a3d009132b3aca3b69639027016b9bed9abd4056b5075cb1bbddf10435bef",
+        "revision": "FA-v1 (FINAL — APPROVED BY THE OWNER, 21 Oct 2026)",
+        "renders": "XR-V3-Faculty-Final-Screenshots.zip (SHA-256 02507a27acb0dea28317fd07d5d7c4cd6f0e95548e64d378e591a4b0e67d43c9; boards per id, responsive four widths, journeys, before-after), kept by the owner",
+        "file": "design/v3-refined-b/roles/FA-v1/project/Main.dc.html",
+        "compared": [
+          "responsive/FA22-1440.png",
+          "responsive/FA22-1024.png",
+          "responsive/FA22-768.png",
+          "responsive/FA22-375.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (7 Nov 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Faculty integration, branch v3/refined-b-ui, 21 Oct 2026"
     }
   ],
   "foundationEvidence": {
@@ -3462,5 +4015,11 @@
     "tool": "tools/v3-reference/capture-product.mjs",
     "measured": "10 Institute Admin cases × 4 widths (40 captures): Overview, Content access, Student access, Give students access, People, Add a student, Import students, Requests, Usage, the Menu drawer. No horizontal overflow, no clipped text, all Public Sans weights, no console error, no internal reference. A sweep of every list page and the record pages they link to (plans, students, faculty, groups, requests, device requests), as Malnad (active) and Deccan (paused by BITS), finds no reference in words, accessible names or tab titles.",
     "review": "Reviewed side by side with the export's four-width renders (1-screens-four-widths/IA-*): the attention list, plan card and term bar, plan strips, grouped tables, management toolbars with counted segments, steps and record grids match. What differs is the sample content and the differences listed in IA-INTEGRATION-RECORD.md §5."
+  },
+  "productEvidenceFA": {
+    "note": "Not baselines. Captures of the test-hook build (next build with the test-hook bridge + next start, port 3520, isolated verification copy), booted into the sample world after Flow C as Dr S. Ranganathan (per-0014) — the Faculty exists only after the sample journeys and signs in through the institution — by tools/v3-reference/capture-product.mjs (the FA_CASES), 21 Oct 2026, full page at each width, device scale 1, reduced motion; run folder tools/v3-reference/.runs/2026-10-21T15-56-38-353Z-product (git-ignored).",
+    "tool": "tools/v3-reference/capture-product.mjs",
+    "measured": "9 Faculty cases × 4 widths (36 captures): Overview, My courses, Assessments, Create an assessment, Question bank, Draft questions, Import questions, Marking, Students. No horizontal overflow, no clipped text, all Public Sans weights, no console error, no internal reference (the check now also covers ASMT-, ATT-, Q-, SACC-, GRP- and FMAP-). A sweep of every list page, the record pages they link to and the assessment tabs and marking page, after Flow C and after Flow D, finds no reference in words, accessible names, placeholders or tab titles.",
+    "review": "Reviewed side by side with the export's four-width renders (responsive/FA*): the priority band, coming-up tiles, unit meters, course ledger, refined tables and toolbars, stepper, record bands and tabs, question rows, draft cards, import checks, marking sheet and student formats match. What differs is the sample content and the differences listed in FA-INTEGRATION-RECORD.md §5."
   }
 }

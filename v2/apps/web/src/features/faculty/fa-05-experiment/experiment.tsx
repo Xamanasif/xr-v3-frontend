@@ -1,86 +1,99 @@
 'use client';
 
-import type { AssessmentListRow, AssessmentView, TeachingExperiment } from '@xr/contracts/draft';
-import type { Technology } from '@xr/domain';
+import type { TeachingExperiment } from '@xr/contracts/draft';
+import type { FormatCode } from '@xr/ui';
 import {
-  BackLink,
-  EmptyState,
-  FailedState,
-  FormatBadge,
-  FormatSet,
-  Icon,
-  Link,
-  LoadingState,
-  PageContent,
-  PageHeader,
-  Section,
-  StatusPill,
-} from '@xr/ui';
+  Breadcrumbs,
+  Button,
+  FaAside,
+  FaChecklist,
+  FaDetail,
+  FaExperimentAbout,
+  FaExperimentAboutGrid,
+  FaExperimentHint,
+  FaExperimentSection,
+  FaFigure,
+  FaFigures,
+  FaFormatBadges,
+  FaIdentityBand,
+  FaMainSheet,
+  FaPanel,
+  FaProgress,
+  FaQuiet,
+  FaResourceList,
+  FaTeachingActivityFoot,
+  ListState,
+  LoadingRows,
+} from '@xr/ui/v3';
 
-import { deadlineWords, READINESS_WORDS } from '@/copy/assessment-words';
 import { dayMonthYear } from '@/copy/dates';
+import { FACULTY_FAILED_WORDS } from '@/copy/fa-shared';
 import {
   ABOUT,
   ACTIVITY,
-  asOfWords,
-  ASSESSMENT_ROW,
-  COUNT_WORDS,
-  draftLine,
   EXPERIMENT_PAGE,
   EXPERIMENT_SECTIONS,
-  experimentOverline,
-  NO_ASSESSMENT,
-  noActivityLine,
-  readyLine,
+  experimentKicker,
+  formatsUsedLabel,
   studentsHaveLine,
 } from '@/copy/faculty-experiment';
-import { STUDENTS_LINKS } from '@/copy/faculty-students';
-import { markHeaderWords } from '@/copy/marking';
-import { stateWords } from '@/copy/state-copy';
-import { formatCode } from '@/copy/student';
 import {
-  assessmentAddress,
-  createAssessmentAddress,
+  activityLabel,
+  asOfWords,
+  formatsHeldLabel,
+  PROGRESS_WORDS,
+} from '@/copy/faculty-overview';
+import { stateWords } from '@/copy/state-copy';
+import {
   FACULTY_MY_COURSES_ADDRESS,
+  facultyCourseAddress,
   facultyExperimentPlacement,
   facultyStudentsAddress,
-  markingQueueAddress,
 } from '@/nav/faculty';
-import {
-  useAssessmentRecord,
-  useFacultyAssessments,
-  useTeachingExperiment,
-} from '@/queries/teaching';
+import { useSession } from '@/queries/session';
+import { useFacultyAssessments, useTeachingExperiment } from '@/queries/teaching';
 
 import { RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { AssessmentFacts } from '../fa-04-experiments/assessment-facts';
+import {
+  assessmentSummary,
+  formatCodes,
+  progressRows,
+  studentsReached,
+} from '../fa-04-experiments/teaching-view';
+import { useOldestWaiting } from '../shared/mark-oldest';
+import { useFacultyToday } from '../shared/use-today';
+
+const TITLE_ID = 'fa-h1';
+const PANEL_ID = 'fa-e1-asm';
 
 /**
- * FA-05 Experiment, the teaching view — board B4-03 ("How is this experiment set up for my
- * students, and how are they doing?"), at `/faculty/experiments/[experimentId]`.
+ * FA-05 Experiment, the teaching view — the V3 Refined B design (the owner-approved export
+ * design/v3-refined-b/roles/FA-v1, `Main.dc.html` FA-05, `vmExperiment` and `asmSum`), at
+ * `/faculty/experiments/[experimentId]`.
  *
  * - **Reads**: `TeachingService.getTeachingExperiment` (the published page with its outcomes, read
- *   only; the formats the institution's plans give it; the formats its Students have opened; per
- *   format how many of the Students it reaches completed, are in progress or have not started —
- *   never one figure across formats, BC4; the institution's assessment; the resources' titles)
- *   and, when there is an assessment, `AssessmentService.getAssessment` (its name, readiness,
- *   rules and questions) and `listAssessments` (submitted, reach, waiting for marking). A command
- *   in the same tab — an assessment created or set, a question added, a grant given, a runtime
- *   report, a Faculty course removed — refreshes them.
- * - **As drawn**: back to My courses; "ME ZG523 · Thermodynamics & Heat Transfer"; the name; the
- *   two labelled facts "Formats your institution has" and "Formats used by your students" (f3
- *   "None yet"); then Assessment (f0 the Ready row with "Open assessment"; f1 / f3 "No assessment
- *   for this experiment yet" with "Create assessment", which carries the experiment to FA-07; f2
- *   the draft row with "Continue setting up"), Student activity ("<n> students have this
- *   experiment from your institution." and one row per format, or f3's one line) and About this
- *   experiment (the description, "Learning outcomes", the read-only note, "Resources students
- *   see"). At 375 the v46 container rules stack the row and its action (f4).
- * - "See students on this experiment" under the per-format rows opens FA-20 for this experiment
- *   (Phase 4B; f3 draws none). The Ready row's "Mark <n> written answer" opens FA-18 for this
- *   assessment while answers wait (Phase 4B). The "as of" date is the read's own instant (`asOf`,
- *   PC-52). There is no feedback here (T-25) and no outcome editing (LD-3).
- * - **States B4-03 does not draw**: loading, failed + "Try again", the in-shell not-found for an
- *   unknown or out-of-scope experiment (state-copy `FA-05.*`).
+ *   only; the formats the institution's plans give it; the formats its Students opened; per format
+ *   how many of the Students it reaches completed, are in progress or have not started — never one
+ *   figure across formats; the resources' titles; the instant the counts were read) and
+ *   `AssessmentService.listAssessments` (the experiment's assessment: readiness, name, deadline,
+ *   submitted, reach, written answers waiting, who created it), and — while own answers wait — the
+ *   marking queue for that assessment (`listQueue`, oldest first) for "Mark". A command in the
+ *   same tab refreshes them.
+ * - **As the export draws it**: the breadcrumb "My courses › <code> › <experiment>"; the identity
+ *   band (the date, the code, "Experiment you teach · <course>", the name, and three figures:
+ *   formats the institution has, formats the Students have used — "None yet" — and Students with
+ *   access); Student activity (one unit meter per format, "as of" the read, "Students on this
+ *   experiment", FA-20) and About this experiment (description, learning outcomes with the
+ *   read-only note, resources students see); beside them the navy Assessment panel (status, name
+ *   → FA-08, deadline and days left, submissions, written answers waiting with "Mark …" → the
+ *   oldest waiting submission, the note — "Created by …" for a co-teaching colleague's — and
+ *   "Open assessment" or "Continue setting up"; none yet: "Create assessment" → FA-07 with the
+ *   experiment chosen). Under 860 px the panel comes first.
+ * - **Loading, failed, not found**: the application's record guard (`FA-05.loading`,
+ *   `FA-05.failed`, `FA-05.not-found`); the assessment failing to load fails its panel only, with
+ *   Try again (`FA-shared.record-failed`). No outcome editing (LD-3), no feedback (T-25).
  */
 export function FacultyExperiment({ experimentId }: { readonly experimentId: string }) {
   const read = useTeachingExperiment(experimentId);
@@ -99,302 +112,196 @@ export function FacultyExperiment({ experimentId }: { readonly experimentId: str
     ),
   );
   return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={read}
-        loadingLabel={stateWords('FA-05.loading')}
-        failed={{ title: stateWords('FA-05.failed'), line: stateWords('FA-05.failed.line') }}
-      >
-        {(answer) => <ExperimentContent view={answer} />}
-      </RecordGuard>
-    </PageContent>
+    <RecordGuard
+      read={read}
+      loadingLabel={stateWords('FA-05.loading')}
+      failed={{ title: stateWords('FA-05.failed'), line: stateWords('FA-05.failed.line') }}
+    >
+      {(answer) => <ExperimentContent view={answer} />}
+    </RecordGuard>
   );
 }
 
 function ExperimentContent({ view }: { readonly view: TeachingExperiment }) {
   const { experiment } = view;
+  const clock = useFacultyToday();
+  const today = clock?.now ?? null;
+  const students = studentsReached(view);
+  const held = formatCodes(view.formatsInstitutionHas);
+  const used = formatCodes(view.formatsUsedByStudents);
+  const asOf = dayMonthYear(view.asOf);
+  const description = experiment.description.trim();
   return (
     <>
-      <PageHeader
-        className="mt-2 mb-6"
-        back={<BackLink href={FACULTY_MY_COURSES_ADDRESS}>{EXPERIMENT_PAGE.back}</BackLink>}
-        overline={experimentOverline(experiment.platformCode, experiment.courseName)}
+      <Breadcrumbs
+        levels={[
+          { label: EXPERIMENT_PAGE.myCourses, href: FACULTY_MY_COURSES_ADDRESS },
+          {
+            label: experiment.platformCode ?? experiment.courseName,
+            href: facultyCourseAddress(experiment.courseId),
+          },
+        ]}
+        current={experiment.name}
+      />
+      <FaIdentityBand
+        date={clock?.line}
+        code={experiment.platformCode ?? ''}
+        kicker={experimentKicker(experiment.courseName)}
         title={experiment.name}
-        meta={
-          <div className="xw-statusline gap-x-7 gap-y-2">
-            <FormatsFact label={EXPERIMENT_PAGE.formatsHas} formats={view.formatsInstitutionHas} />
-            <FormatsFact label={EXPERIMENT_PAGE.formatsUsed} formats={view.formatsUsedByStudents} />
-          </div>
+        titleId={TITLE_ID}
+        figures={
+          <FaFigures>
+            <FaFigure
+              formats
+              term={EXPERIMENT_PAGE.formatsHas}
+              value={
+                <FaFormatBadges formats={held as FormatCode[]} label={formatsHeldLabel(held)} />
+              }
+            />
+            <FaFigure
+              formats
+              quiet={used.length === 0}
+              term={EXPERIMENT_PAGE.formatsUsed}
+              value={
+                used.length > 0 ? (
+                  <FaFormatBadges formats={used as FormatCode[]} label={formatsUsedLabel(used)} />
+                ) : (
+                  EXPERIMENT_PAGE.noneYet
+                )
+              }
+            />
+            <FaFigure
+              term={EXPERIMENT_PAGE.studentsWithAccess}
+              value={students > 0 ? students : EXPERIMENT_PAGE.noneYet}
+            />
+          </FaFigures>
         }
       />
-      <div className="xw-stack">
-        <AssessmentSection
-          experimentId={experiment.experimentId}
-          assessmentId={view.assessmentId}
-        />
-        <ActivitySection view={view} />
-        <AboutSection view={view} />
-      </div>
+      <FaDetail asideFirst>
+        <FaMainSheet>
+          <FaExperimentSection
+            title={EXPERIMENT_SECTIONS.activity}
+            titleId="fa-e1-act"
+            hint={asOfWords(asOf)}
+          >
+            {students > 0 ? (
+              <>
+                <FaProgress
+                  label={activityLabel(experiment.name, asOf)}
+                  rows={progressRows(view)}
+                  words={PROGRESS_WORDS}
+                />
+                <FaTeachingActivityFoot
+                  link={{
+                    href: facultyStudentsAddress(experiment.experimentId),
+                    label: ACTIVITY.studentsLink,
+                  }}
+                >
+                  {studentsHaveLine(students)}
+                </FaTeachingActivityFoot>
+              </>
+            ) : (
+              <FaQuiet>{ACTIVITY.noStudents}</FaQuiet>
+            )}
+          </FaExperimentSection>
+          <FaExperimentSection title={EXPERIMENT_SECTIONS.about} titleId="fa-e1-about">
+            {description ? <FaExperimentAbout>{description}</FaExperimentAbout> : null}
+            <FaExperimentAboutGrid
+              columns={[
+                {
+                  key: 'outcomes',
+                  title: ABOUT.outcomes,
+                  children: (
+                    <>
+                      {experiment.learningOutcomes.length > 0 ? (
+                        <FaChecklist
+                          label={ABOUT.outcomes}
+                          items={experiment.learningOutcomes.map((outcome, index) => ({
+                            key: String(index),
+                            text: outcome,
+                            done: true,
+                          }))}
+                        />
+                      ) : (
+                        <FaQuiet>{EXPERIMENT_PAGE.noneYet}</FaQuiet>
+                      )}
+                      <FaExperimentHint>{ABOUT.outcomesNote}</FaExperimentHint>
+                    </>
+                  ),
+                },
+                {
+                  key: 'resources',
+                  title: ABOUT.resources,
+                  children:
+                    view.resources.length > 0 ? (
+                      <FaResourceList
+                        label={ABOUT.resources}
+                        resources={view.resources.map((resource, index) => ({
+                          key: String(index),
+                          title: resource.title,
+                        }))}
+                      />
+                    ) : (
+                      <FaQuiet>{EXPERIMENT_PAGE.noneYet}</FaQuiet>
+                    ),
+                },
+              ]}
+            />
+          </FaExperimentSection>
+        </FaMainSheet>
+        <FaAside labelledBy={PANEL_ID}>
+          <FaPanel title={EXPERIMENT_SECTIONS.assessment} titleId={PANEL_ID} assessment>
+            <AssessmentPanelBody view={view} today={today} />
+          </FaPanel>
+        </FaAside>
+      </FaDetail>
     </>
   );
 }
 
-/** One labelled fact: the label, then the chips (or "None yet", f3). */
-function FormatsFact({
-  label,
-  formats,
-}: {
-  readonly label: string;
-  readonly formats: readonly Technology[];
-}) {
-  return (
-    <span className="xl-inline">
-      <span className="xl-meta">{label}</span>
-      {formats.length > 0 ? (
-        <FormatSet formats={formats.map(formatCode)} variant="yours" compact />
-      ) : (
-        <span className="xl-meta">{EXPERIMENT_PAGE.noneYet}</span>
-      )}
-    </span>
-  );
-}
-
-// ---- Assessment (f0 Ready, f1 / f3 none yet, f2 draft) ---------------------------------------
-
-function AssessmentSection({
-  experimentId,
-  assessmentId,
-}: {
-  readonly experimentId: string;
-  readonly assessmentId: string | null;
-}) {
-  return (
-    <Section title={EXPERIMENT_SECTIONS.assessment}>
-      {assessmentId === null ? (
-        <div className="xr-section-body">
-          <EmptyState
-            icon="assessments"
-            headingLevel={3}
-            title={NO_ASSESSMENT.title}
-            actions={
-              <div className="flex flex-wrap gap-3">
-                <Link
-                  className="xr-btn xr-btn--primary"
-                  href={createAssessmentAddress({ experimentId })}
-                >
-                  {NO_ASSESSMENT.action}
-                </Link>
-              </div>
-            }
-          >
-            {NO_ASSESSMENT.line}
-          </EmptyState>
-        </div>
-      ) : (
-        <AssessmentRow assessmentId={assessmentId} />
-      )}
-    </Section>
-  );
-}
-
-/** The institution's assessment for the experiment, read by its id; its counts from the list. */
-function AssessmentRow({ assessmentId }: { readonly assessmentId: string }) {
-  const record = useAssessmentRecord(assessmentId);
-  const list = useFacultyAssessments();
-  // A co-teaching colleague's assessment (OD-B4-17; Phase 4B review): held back calmly, never a
-  // failure to try again — the record is not this Faculty member's to read.
-  if (record.data !== undefined && !record.data.ok && record.data.error.kind === 'policy-open') {
-    return (
-      <div className="xr-section-body">
-        <EmptyState icon="assessments" title={stateWords('FA-shared.record-policy-open')}>
-          {stateWords('FA-shared.record-policy-open.line')}
-        </EmptyState>
-      </div>
-    );
-  }
-  const failed = record.isError || list.isError || (record.data !== undefined && !record.data.ok);
-  if (failed) {
-    return (
-      <div className="xr-section-body">
-        <FailedState
-          title={stateWords('FA-shared.record-failed')}
-          onRetry={() => {
-            void record.refetch();
-            void list.refetch();
-          }}
-        >
-          {stateWords('FA-shared.record-failed.line')}
-        </FailedState>
-      </div>
-    );
-  }
-  if (!record.data?.ok || list.isPending) {
-    return (
-      <div className="xr-section-body">
-        <LoadingState label={stateWords('FA-shared.record-loading')} surface={null} lines={2} />
-      </div>
-    );
-  }
-  const row = list.data?.ok
-    ? (list.data.value.find((entry) => entry.assessment.id === assessmentId) ?? null)
-    : null;
-  return <AssessmentRowView view={record.data.value} row={row} />;
-}
-
-function AssessmentRowView({
+/** The panel's body: the experiment's assessment from the list, or loading / failed in place. */
+function AssessmentPanelBody({
   view,
-  row,
+  today,
 }: {
-  readonly view: AssessmentView;
-  readonly row: AssessmentListRow | null;
+  readonly view: TeachingExperiment;
+  readonly today: string | null;
 }) {
-  const { assessment, readiness } = view;
-  const ready = readiness === 'ready';
-  const words = READINESS_WORDS[readiness];
-  const line = ready
-    ? readyLine({
-        deadline:
-          assessment.rules.deadline === null ? null : deadlineWords(assessment.rules.deadline),
-        counts: row
-          ? { submitted: row.submitted, reach: row.reach, waiting: row.waitingForMarking }
-          : null,
-      })
-    : draftLine(assessment.rules, assessment.questions.length);
-  const action = (
-    <Link className="xr-btn xr-btn--primary xr-btn--sm" href={assessmentAddress(assessment.id)}>
-      {ready ? ASSESSMENT_ROW.open : ASSESSMENT_ROW.continue}
-    </Link>
-  );
+  const session = useSession();
+  const me = session.status === 'signed-in' ? session.personId : null;
+  const list = useFacultyAssessments();
+  const experimentId = view.experiment.experimentId;
+  const row = list.data?.ok
+    ? (list.data.value.find((entry) =>
+        view.assessmentId === null
+          ? entry.assessment.experimentId === experimentId
+          : entry.assessment.id === view.assessmentId,
+      ) ?? null)
+    : null;
+  const summary = row === null ? null : assessmentSummary(row, me, today);
+  const oldest = useOldestWaiting(summary?.assessmentId ?? null, summary?.waiting ?? 0);
+  if (list.isError || (list.data !== undefined && !list.data.ok)) {
+    return (
+      <ListState
+        kind="failed"
+        title={stateWords('FA-shared.record-failed')}
+        action={
+          <Button onClick={() => void list.refetch()}>{FACULTY_FAILED_WORDS.tryAgain}</Button>
+        }
+      >
+        {stateWords('FA-shared.record-failed.line')}
+      </ListState>
+    );
+  }
+  if (!list.data?.ok) {
+    return <LoadingRows message={stateWords('FA-shared.record-loading')} rows={1} cells={[2]} />;
+  }
   return (
-    <ul className="xr-rows">
-      <li className="xr-row">
-        <div className="xr-row-main">
-          <span className={`xr-row-icon xr-row-icon--${words.tone}`}>
-            <Icon name="assessments" />
-          </span>
-          <div className="xr-row-text">
-            <span className="xr-row-title">{assessment.name || assessment.id}</span>
-            <span className="xr-row-sub">
-              <StatusPill tone={words.tone}>{words.label}</StatusPill> {line}
-            </span>
-          </div>
-        </div>
-        {/* f0 draws the Ready row's actions in a group — "Mark <n> written answer" (FA-18, while
-            answers wait; Phase 4B) before "Open assessment"; f2 draws the draft's one action. */}
-        {ready ? (
-          <div className="xw-actions">
-            {row && row.waitingForMarking > 0 ? (
-              <Link
-                className="xr-btn xr-btn--secondary xr-btn--sm"
-                href={markingQueueAddress({ assessmentId: assessment.id })}
-              >
-                {markHeaderWords(row.waitingForMarking)}
-              </Link>
-            ) : null}
-            {action}
-          </div>
-        ) : (
-          action
-        )}
-      </li>
-    </ul>
-  );
-}
-
-// ---- Student activity (f0, f3) ------------------------------------------------------------------
-
-type FormatCounts = TeachingExperiment['perFormatCounts'][number];
-
-/**
- * The Students the experiment reaches: one format's three counts (each such Student has exactly
- * one status in every format the institution has) — never a figure across formats
- * (`FA-05.students-count`).
- */
-function studentsReached(counts: readonly FormatCounts[]): number {
-  const first = counts[0];
-  return first ? first.completed + first.inProgress + first.notStarted : 0;
-}
-
-function ActivitySection({ view }: { readonly view: TeachingExperiment }) {
-  const counts = view.perFormatCounts;
-  const students = studentsReached(counts);
-  // f3 "No activity yet": no format has a student completed or in progress (each checked).
-  const active = counts.some((entry) => entry.completed > 0 || entry.inProgress > 0);
-  const have = studentsHaveLine(students);
-  return (
-    <Section title={EXPERIMENT_SECTIONS.activity} meta={asOfWords(dayMonthYear(view.asOf))}>
-      {active ? (
-        <div className="xr-section-body flex flex-col gap-[14px]">
-          <p className="xr-body m-0">
-            <strong>{have.strong}</strong> {have.rest}
-          </p>
-          <ul className="xa-counts" aria-label={ACTIVITY.countsLabel}>
-            {counts.map((entry) => {
-              const code = formatCode(entry.format);
-              return (
-                <li key={entry.format}>
-                  <span className="xl-inline min-w-[90px]">
-                    <FormatBadge format={code} variant="yours" compact />
-                    <strong className="text-ink">{code}</strong>
-                  </span>
-                  {COUNT_WORDS.map(([key, words]) => (
-                    <span key={key}>
-                      <span className="xl-num">{entry[key]}</span> {words}
-                    </span>
-                  ))}
-                </li>
-              );
-            })}
-          </ul>
-          <Link className="self-start" href={facultyStudentsAddress(view.experiment.experimentId)}>
-            {STUDENTS_LINKS.experiment}
-          </Link>
-        </div>
-      ) : (
-        <div className="xr-section-body">
-          <p className="xr-body m-0 text-ink-2">{noActivityLine(students)}</p>
-        </div>
-      )}
-    </Section>
-  );
-}
-
-// ---- About this experiment ----------------------------------------------------------------------
-
-function AboutSection({ view }: { readonly view: TeachingExperiment }) {
-  const { experiment, resources } = view;
-  const description = experiment.description.trim();
-  return (
-    <Section title={EXPERIMENT_SECTIONS.about}>
-      <div className="xr-section-body flex flex-col gap-[14px]">
-        {description ? <p className="xr-body m-0">{description}</p> : null}
-        <div>
-          <h3 className="xr-h3 m-0 mb-2">{ABOUT.outcomes}</h3>
-          {experiment.learningOutcomes.length > 0 ? (
-            <ul className="m-0 flex flex-col gap-1.5 pl-5">
-              {experiment.learningOutcomes.map((outcome) => (
-                <li key={outcome}>{outcome}</li>
-              ))}
-            </ul>
-          ) : (
-            <p className="xl-meta m-0">{EXPERIMENT_PAGE.noneYet}</p>
-          )}
-        </div>
-        <p className="xl-open m-0">
-          <Icon name="readOnly" size={16} />
-          <span>{ABOUT.outcomesNote}</span>
-        </p>
-        <div>
-          <h3 className="xr-h3 m-0 mb-2">{ABOUT.resources}</h3>
-          {resources.length > 0 ? (
-            <p className="xr-body m-0 text-ink-2">
-              {resources.map((resource) => resource.title).join(' · ')}
-            </p>
-          ) : (
-            <p className="xl-meta m-0">{EXPERIMENT_PAGE.noneYet}</p>
-          )}
-        </div>
-      </div>
-    </Section>
+    <AssessmentFacts
+      variant="panel"
+      experimentId={experimentId}
+      summary={summary}
+      markHref={oldest.address}
+    />
   );
 }

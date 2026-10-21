@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>What changed</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./fa.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:var(--link,#3B49B8)}a:hover{color:#141B5E}
+/* doc-board styles (fd- prefix): these boards only; not part of the role stylesheet */
+.fd{display:flex;flex-direction:column;gap:28px;max-width:1280px}
+.fd-head{display:flex;flex-direction:column;gap:10px}
+.fd-status{display:inline-flex;align-self:flex-start;align-items:center;gap:8px;min-height:30px;padding:4px 14px;border-radius:999px;background:var(--gold-tint);border:1px solid var(--gold-line);color:var(--gold-ink);font:700 14px/20px var(--sans);letter-spacing:.02em}
+.fd-lead{max-width:62em;font:400 17px/27px var(--sans);color:var(--ink-2)}
+.fd-figs{display:flex;flex-wrap:wrap;gap:0;margin:0;padding:18px 22px;border:1px solid var(--rb-line);border-radius:18px;background:var(--paper)}
+.fd-fig{display:flex;flex-direction:column;gap:2px;padding:0 28px;border-left:1px solid var(--rb-line)}
+.fd-fig:first-child{padding-left:0;border-left:0}
+.fd-fig dt{order:2;font:500 14px/20px var(--sans);color:var(--ink-3)}
+.fd-fig dd{order:1;margin:0;font:700 30px/36px var(--sans);color:var(--navy);font-variant-numeric:tabular-nums}
+.fd-sec{padding:24px 26px}
+.fd-sec > h2{margin-bottom:6px}
+.fd-sec > .rk-hint{margin-bottom:16px}
+.fd-legend{display:flex;flex-wrap:wrap;gap:10px 28px;margin:0;padding:0;list-style:none;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.fd-legend li{display:flex;gap:10px;align-items:flex-start;max-width:36em}
+.fd-reg{width:100%;border-collapse:collapse}
+.fd-reg > thead th{padding:10px 14px;border-bottom:1px solid var(--rb-line);background:#F7F8FC;color:var(--ink-3);font:600 14px/20px var(--sans);text-align:left}
+.fd-reg > tbody > tr > td{padding:16px 14px;vertical-align:top;border-bottom:1px solid var(--rb-line);color:var(--ink-2);font:400 15px/22px var(--sans)}
+.fd-reg > tbody > tr:last-child > td{border-bottom:0}
+.fd-id{display:block;font:700 16px/22px var(--sans);color:var(--navy)}
+.fd-name{display:block;font:600 15px/21px var(--sans);color:var(--ink)}
+.fd-meta{display:block;margin-top:4px;font:500 13.5px/19px var(--sans);color:var(--ink-3)}
+.fd-what{max-width:40em}
+.fd-subs{display:flex;flex-direction:column;gap:7px;margin:0;padding:0;list-style:none}
+.fd-subs li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;align-items:start}
+.fd-subs .fd-sub{font:500 14.5px/21px var(--sans);color:var(--ink)}
+.fd-subs .fd-b{grid-column:1 / -1;font:400 13.5px/19px var(--sans);color:var(--ink-3)}
+.fd-subs .fd-b a{font-weight:600}
+.fd-pill{display:inline-flex;align-items:center;min-height:24px;padding:2px 10px;border-radius:999px;font:700 13px/18px var(--sans);letter-spacing:.02em;white-space:nowrap}
+.fd-pill--r{background:var(--rb-sel-tint);color:var(--indigo-2)}
+.fd-pill--u{background:#F2F8F4;color:var(--ok);border:1px solid #D3E8DA}
+.fd-cols{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px;align-items:start}
+.fd-list{display:flex;flex-direction:column;gap:10px;margin:0;padding:0;list-style:none}
+.fd-list li{position:relative;padding-left:18px;font:400 15.5px/24px var(--sans);color:var(--ink-2)}
+.fd-list li::before{content:"";position:absolute;left:2px;top:10px;width:6px;height:6px;border-radius:50%;background:var(--indigo)}
+.fd-list b{color:var(--ink);font-weight:650}
+.fd-kv{display:grid;grid-template-columns:220px minmax(0,1fr);gap:10px 24px;margin:0}
+.fd-kv dt{font:600 14.5px/22px var(--sans);color:var(--ink)}
+.fd-kv dd{margin:0;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.fd-mono{font:500 13.5px/20px ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);word-break:break-all}
+.fd-grid{width:100%;border-collapse:collapse}
+.fd-grid th,.fd-grid td{padding:8px 10px;border-bottom:1px solid var(--rb-line);font:500 14px/20px var(--sans);color:var(--ink-2);text-align:left}
+.fd-grid th{background:#F7F8FC;color:var(--ink-3);font-weight:600}
+.fd-ok{color:var(--ok);font-weight:700}
+.fd-bad{color:var(--err);font-weight:700}
+</style>
+</helmet>
+<div class="xr rb">
+  <div class="fa-pubpage">
+    <header class="fa-pubtop"><span class="fa-publogo">Official WILP logo</span><span class="fa-pubname">XR Learning Platform · Faculty · final complete-role design</span></header>
+    <main class="fa-pubbody">
+      <div class="fd">
+<div class="fd-head"><span class="fd-status">DESIGN COMPLETE · FINAL — APPROVED BY THE OWNER</span><h1 class="rb-h1">What changed</h1>
+<p class="fd-lead">One consistent Refined B design across all 21 Faculty IDs: the five R1 checkpoint screens carried over as they were, the R1 patterns applied to the other sixteen, the role styling consolidated into one stylesheet, and internal technical IDs taken out of ordinary user-facing labels. Per-screen detail is in the coverage register.</p></div>
+<section class="rk-surface fd-sec" aria-labelledby="fd-id"><h2 class="rb-h2" id="fd-id">Internal technical IDs leave ordinary labels</h2><p class="rk-hint">Owner decision, 21 October 2026, extending owner decision 6 (Super Admin) to Faculty. Presentation only.</p><ul class="fd-list"><li><b>Out of every visible label, placeholder, dialog title, notice and accessible name:</b> ASMT-, ATT-, Q- and D- identifiers. Records are named instead: the assessment or experiment by its name, the submission as “Attempt 1 of 2”, a question by its text, its type or its position.</li><li><b>Kept:</b> academic course codes (ME ZG523) and institution-issued student IDs (GIT-2026-0418) — a roll number is not an internal technical id, and the CSV keeps its “student ID” column.</li><li><b>Kept out of sight, not removed:</b> stable keys still drive routing, element ids, the preview’s record selector and the question search, so searching by an id still works.</li><li><b>No business rule changed:</b> versions, attempts, one assessment per experiment, marking, release and import behave exactly as before — an imported batch still gets its ids, the finished notice simply no longer lists them.</li><li><b>Checked:</b> all 219 boards swept for ASMT-, ATT-, Q- and D- in visible text, aria-label, title, placeholder, alt and screen-reader text — 0 found; and 204 interaction steps across the message, dialog and export flows carry the same guard.</li><li><b>One left, on a borrowed surface:</b> Help &amp; support still answers a sent report with “Your reference is SUP-0231”. XS-07 belongs to the shared XS contract, so it is flagged rather than changed here.</li></ul></section>
+<div class="fd-cols"><section class="rk-surface fd-sec" aria-labelledby="fd-p"><h2 class="rb-h2" id="fd-p">Refinements, by pattern</h2><p class="rk-hint">Where each R1 pattern now applies.</p><dl class="fd-kv" style="grid-template-columns:200px minmax(0,1fr)"><dt>P1 Priority bands</dt><dd>FA-01 attention band; FA-18 queue toolbar (count, oldest wait, one gold Mark next).</dd><dt>P2 Identity bands with figures</dt><dd>FA-03 course, FA-05 experiment and the FA-08…FA-12 assessment record. Person pages (FA-19, FA-21) keep the plain head with no aggregate figures.</dd><dt>P3 Ledger</dt><dd>FA-02 course ledger.</dd><dt>P4 Unit meters with counts in words</dt><dd>FA-01, FA-03, FA-04, FA-05, FA-06, FA-08, FA-12 and FA-20; one meter per format, never a percentage.</dd><dt>P5 Reading sheet and action panel</dt><dd>FA-19 marking and FA-11 preview; FA-05 assessment panel.</dd><dt>P6 Sectioned authoring with a side panel</dt><dd>FA-07 (4 steps), FA-10 settings, FA-15 editor, FA-16 drafting, FA-17 import.</dd><dt>P7 Refined tables</dt><dd>FA-04, FA-06, FA-12, FA-14, FA-17, FA-18 and FA-20, plus the FA-22 export band; phone rows without repeated labels.</dd><dt>P8 Sparse states</dt><dd>One compact message card for every no-course state (FA-01, 02, 04, 06, 07, 14, 16, 17, 18, 20); list empties keep the kit state.</dd><dt>P9 Deadlines</dt><dd>Days left and the release rule on FA-01, FA-05, FA-06 and the record band.</dd><dt>P10 Named, not numbered</dt><dd>Every owned screen: records are identified by name, by the student, by the question’s text or by its position — never by an internal technical id.</dd></dl></section>
+<section class="rk-surface fd-sec" aria-labelledby="fd-k"><h2 class="rb-h2" id="fd-k">What stays exactly as it was</h2><p class="rk-hint">The redesign changes presentation only.</p><ul class="fd-list"><li><b>Functions and routes:</b> every screen ID, tab, step, dialog and action is the one in the published build; in-role links are real anchors (no <code>#</code> placeholders).</li><li><b>Permissions:</b> co-teachers see the same refusals; co-teachers are refused exactly as before and no answer key reaches a student view. Internal ids are hidden, never dropped: the same records, routes and keys are behind them.</li><li><b>Rules and states:</b> three question types, CSV only, rules per assessment, versions on change after submissions, no re-marking, release policy unchanged.</li><li><b>Sample facts:</b> the six sample worlds are unchanged; nothing was added to fill a layout.</li><li><b>Foundation:</b> <code>core.css</code>, <code>rb.css</code> and <code>rb-kit.css</code> are byte-identical to the pack.</li><li><b>Shared XS surfaces:</b> account menu, drawer, Help, Signed out, Not your workspace and the refusals are untouched.</li></ul></section></div>
+<section class="rk-surface fd-sec" aria-labelledby="fd-c"><h2 class="rb-h2" id="fd-c">Wording and layout changes a tester will notice</h2><p class="rk-hint">Same facts, shown differently. Journey checks were re-pointed for each, and the change is recorded in <code>checks/specs/journey-changes.json</code>.</p><ul class="fd-list"><li>FA-05 Mark opens the oldest waiting submission (FA-19), as on FA-03; it used to open the marking queue (FA-18).</li><li>FA-04 “Completed, by format” text lines became one unit meter per format with counts in words.</li><li>FA-06 the deadline moved from a sub-line into its own Deadline column, with days left.</li><li>FA-08 the submissions panel no longer repeats “2 of 5 students submitted”; it is a figure in the record band.</li><li>FA-12 waiting rows show “— of 16” with “Marked automatically: 4 of 6”; release shows “Not yet” with the rule beneath.</li><li>FA-14 a question’s sub-line is now a type tag, with “Version 2” when there is more than one version; drafts became review cards.</li><li>FA-17 the row check shows four figures (Rows, Ready, With errors, With warnings) instead of pill counts.</li><li>FA-21 the total reads “11 of 16 marks” with “Passed · pass mark 8”, as on FA-19.</li><li>Field hints shortened: “A whole number from 0 to 100.”, “For example 14 Nov 2026, 23:59”.</li><li>No-course states on FA-04, FA-06, FA-07 and FA-16 use the compact message card used elsewhere in the role.</li><li>Internal ids leave the labels: the assessment band and FA-06 rows drop ASMT-0009; submissions and the marking queue read “Attempt 1 of 2”; the bank’s quiet line reads “Version 2”; search is by “Words in the question”; the delete dialog asks “Delete this question?”; an export is named after the assessment.</li></ul></section>
+<section class="rk-surface fd-sec" aria-labelledby="fd-s"><h2 class="rb-h2" id="fd-s">One role stylesheet</h2><p class="rk-hint">For integration without mixing old and new designs.</p><ul class="fd-list"><li>All Faculty styling is in <b>one file, <code>fa.css</code></b>, loaded after the three foundation files. Part 1 holds the published components still in use; part 2 the refined components.</li><li>The checkpoint’s working prefix <code>fr-</code> was renamed to <code>fa-</code> (301 names; map in <code>rename-map.json</code>); 84 selectors that no screen uses any more were removed.</li><li>Proof: all 219 boards and responsive renders are pixel-identical before and after the consolidation, and no rule used by any rendered state was lost.</li></ul></section>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2386}}'>
+// Static what-changed board for owner review; it imports nothing.
+class Component extends DCLogic { renderVals() { return {}; } }
+</script>
+</body>
+</html>

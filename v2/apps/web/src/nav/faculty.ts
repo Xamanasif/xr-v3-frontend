@@ -1,5 +1,6 @@
 import type { BreadcrumbLevel } from '@xr/ui';
 
+import { assessmentName } from '@/copy/fa-shared';
 import { WORKSPACE_NAV } from './nav-config';
 import type { ScreenKey } from './screens';
 
@@ -203,7 +204,9 @@ export function createAssessmentPlacement(title: string): FacultyPlacement {
 /**
  * B4-05 f0: "Assessments / Heat Exchanger — post-lab / Summary" — the name opens the Summary
  * (B4-06 f7 "Assessments / Heat Exchanger — post-lab / Submissions"). While the record loads, the
- * tab's name under "Assessments".
+ * tab's name under "Assessments". An assessment is named by its content (FA-v1, the owner's
+ * identifier rule): its name, or "Untitled draft" while it has none — never its id, which only
+ * the crumb's address carries.
  */
 export function assessmentTabPlacement(
   tab: AssessmentTab,
@@ -218,7 +221,7 @@ export function assessmentTabPlacement(
     title: tabTitle,
     trail: [
       ASSESSMENTS_CRUMB,
-      { label: assessment.name || assessment.id, href: assessmentAddress(assessment.id) },
+      { label: assessmentName(assessment.name), href: assessmentAddress(assessment.id) },
     ],
     currentCrumb: tabTitle,
   };

@@ -1,0 +1,708 @@
+[
+ {
+  "name": "J8a-r1-overview-and-courses-768",
+  "width": 768,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "band: marking, drafts and follow-up, with the real names and dates",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "one gold primary on the overview",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "marking is offered once (no duplicate head button)",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "coming up: deadline, submissions, release rule",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "per-format progress in counts, no percentage",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "Review drafts opens the drafts tab",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "{\"click\":\".rb-drawer a:has-text(\\\"Overview\\\")\",\"expect\":\"Needs your attention\"}",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "coming-up title opens the assessment",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "{\"click\":\".rb-drawer a:has-text(\\\"Overview\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "Open course from Your teaching",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "course page: one primary (Mark), Open experiment is secondary",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "Mark from the course opens the oldest submission",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "My courses ledger",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "experiment link from the ledger",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "breadcrumb back to the course",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "students on this experiment",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "{\"click\":\".rb-drawer a:has-text(\\\"My courses\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main .fa-course-act a:has-text(\\\"Open course\\\")\",\"expect\":\"Course you teach\",\"expectFocus\":\"fa-h",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "Open experiment from the course",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8a-r1-overview-and-courses-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "band: marking, drafts and follow-up, with the real names and dates",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "one gold primary on the overview",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "marking is offered once (no duplicate head button)",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "coming up: deadline, submissions, release rule",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "per-format progress in counts, no percentage",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "Review drafts opens the drafts tab",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "{\"click\":\".rb-drawer a:has-text(\\\"Overview\\\")\",\"expect\":\"Needs your attention\"}",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "coming-up title opens the assessment",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "{\"click\":\".rb-drawer a:has-text(\\\"Overview\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "Open course from Your teaching",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "course page: one primary (Mark), Open experiment is secondary",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "Mark from the course opens the oldest submission",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "My courses ledger",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "experiment link from the ledger",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "breadcrumb back to the course",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "students on this experiment",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "{\"click\":\".rb-drawer a:has-text(\\\"My courses\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main .fa-course-act a:has-text(\\\"Open course\\\")\",\"expect\":\"Course you teach\",\"expectFocus\":\"fa-h",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "Open experiment from the course",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8b-r1-course-without-assessment-768",
+  "width": 768,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "one item: the band uses the single-item layout",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "single-item band",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "coming up is empty and says why",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "course without an assessment",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "Create assessment from the course keeps the experiment",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8b-r1-course-without-assessment-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "one item: the band uses the single-item layout",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "single-item band",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "coming up is empty and says why",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "course without an assessment",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "Create assessment from the course keeps the experiment",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8c-r1-new-teacher-768",
+  "width": 768,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "new teacher: three steps on the plan tint, no empty urgency band",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "no ivory band; one primary",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "step 2 opens Create assessment",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "sparse ledger",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8c-r1-new-teacher-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "new teacher: three steps on the plan tint, no empty urgency band",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "no ivory band; one primary",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "step 2 opens Create assessment",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "sparse ledger",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8d-r1-marking-total-768",
+  "width": 768,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "marking page: auto marks in the sheet, total waits for the written mark",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "total updates from the entered mark",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "an invalid mark gives no total",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-mk-Q-0106\",\"value\":\"7\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "saved note replaces the save hint",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "Confirm marks is the one primary",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8d-r1-marking-total-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "marking page: auto marks in the sheet, total waits for the written mark",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "total updates from the entered mark",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "an invalid mark gives no total",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-mk-Q-0106\",\"value\":\"7\"}",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "saved note replaces the save hint",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "Confirm marks is the one primary",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8e-r1-drafting-form-768",
+  "width": 768,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "authoring layout with the side panel",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "nothing pre-selected",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "step 1 done",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "step 2 done",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "5 drafts chosen; step 3 done",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "arrow keys move within the radio group",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "three true-or-false drafts with their answers",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "an added draft collapses into a bank line",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "request summary counts",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J8e-r1-drafting-form-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "authoring layout with the side panel",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "nothing pre-selected",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "step 1 done",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "step 2 done",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "5 drafts chosen; step 3 done",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "arrow keys move within the radio group",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "three true-or-false drafts with their answers",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "an added draft collapses into a bank line",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "request summary counts",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "no horizontal scroll",
+    "why": ""
+   }
+  ],
+  "errors": []
+ }
+]

@@ -1,14 +1,15 @@
 /**
- * FA-20 Students with FA-22 Export CSV, and FA-21 Student detail (board B4-10 f0 … f7) on the real
- * composition root and the sample world. After Flow C only Rahul has Shell-and-Tube; the "five
- * students" world below moves it as the board's sample does: Meera gives Priya, Imran, Divya and
- * Karthik the experiment, the sample runtime reports their activity, Dr Ranganathan creates
- * ASMT-0009 and Rahul and Priya submit — then the sample clock reads 12 Nov 2026, so Imran (last
- * active 28 Oct) and Karthik (given 27 Oct, never active) are inactive for 14 days or more (f1).
- * The drawn states: the list and its filters (f0, f1, f7), the export (f2), no students yet (f6);
- * the detail waiting for marking (f3), marked and not released (f4) and an inactive Student (f5).
- * The undrawn ones: loading, failed, no experiment taught, not found, an attempt in progress, a
- * released result, a co-teaching colleague's assessment. FA-03 and FA-05 now link to FA-20.
+ * FA-20 Students with FA-22 Export CSV, and FA-21 Student detail, as the owner-approved Faculty
+ * export draws them (V3 Refined B, FA-v1 `Main.dc.html` FA-20, FA-21), on the real composition root
+ * and the sample world. After Flow C only Rahul has Shell-and-Tube; the "five students" world below
+ * moves it as the export's sample does: Meera gives Priya, Imran, Divya and Karthik the experiment,
+ * the sample runtime reports their activity, Dr Ranganathan creates ASMT-0009 and Rahul and Priya
+ * submit — then the sample clock reads 12 Nov 2026, so Imran (last active 28 Oct) and Karthik
+ * (given 27 Oct, never active) are inactive for 14 days or more. The drawn states: the roster, its
+ * summary and filters, the export, no match, no students yet, no course; the detail waiting for
+ * marking, marked and not released, released, an inactive Student, a co-teacher. The undrawn ones:
+ * loading, failed, not found, an attempt in progress. No attempt or assessment named by its
+ * internal reference anywhere (the owner’s identifier rule).
  */
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -24,17 +25,10 @@ import { asPersonId, faults, ist, setSampleNow, standinsOf } from '@xr/sample-pl
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  exportedColumns,
-  exportedTitle,
-  STUDENT_DETAIL,
-  STUDENTS_STATES,
-} from '@/copy/faculty-students';
 import { STATE_COPY } from '@/copy/state-copy';
 import { STATE_COPY_FACULTY_STUDENTS } from '@/copy/state-copy-faculty-students';
 import { P4B_FACULTY_STUDENTS_LINK_TARGETS } from '@/nav/link-targets-p4b/faculty-students';
 import type { PlatformRuntime } from '@/platform/runtime';
-import { board } from '@/test-support/boards';
 import {
   renderInTab,
   tabPlatform,
@@ -46,7 +40,7 @@ import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
 import { FacultyStudents } from './fa-20-students/students';
-import { csvShape, daysBetween } from './fa-20-students/student-facts';
+import { csvRecords, csvShape, daysBetween, formatCounts } from './fa-20-students/student-facts';
 import { FacultyStudentDetail } from './fa-21-student/student-detail';
 import { downloadCsv } from './shared/download-csv';
 
@@ -156,8 +150,8 @@ async function attempt(
 }
 
 /**
- * The five Students with Shell-and-Tube, as the board's sample (B4-10 f0), on the sample clock of
- * after Flow C: given 27 Oct, active until 28 Oct … 6 Nov; read on 12 Nov 2026, 10:00.
+ * The five Students with Shell-and-Tube, as the export's sample, on the sample clock of after
+ * Flow C: given 27 Oct, active until 28 Oct … 6 Nov; read on 12 Nov 2026, 10:00.
  */
 async function fiveStudents(personId = RANGANATHAN) {
   const platform = await tabPlatform(personId, 'after-flow-c');
@@ -253,31 +247,43 @@ function showStudent(
 
 const main = () => screen.getByRole('main');
 const text = (element: Element | null) => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
-/** An element's text with its child elements' texts apart ("Rahul Verma GIT-2026-0418"). */
-const parts = (element: Element) =>
-  [...element.childNodes]
-    .map((node) => (node.textContent ?? '').replace(/\s+/g, ' ').trim())
-    .filter(Boolean)
-    .join(' ');
+/** An element's words, its text nodes joined by spaces (cells and lines read as words). */
+const words = (element: Element | null) => {
+  if (!element) return '';
+  const parts: string[] = [];
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode())
+    parts.push(node.textContent ?? '');
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
+};
 const studentsHeading = () =>
   screen.findByRole('heading', { level: 1, name: 'Students' }, { timeout: 5000 });
 const notFoundHeading = () =>
   screen.findByRole('heading', { level: 1, name: 'We can’t find that page' }, { timeout: 5000 });
-const table = () => screen.findByRole('table', {}, { timeout: 5000 });
-const status = () => text(main().querySelector('.xr-toolbar-status [role="status"]'));
+const table = () =>
+  screen.findByRole(
+    'table',
+    { name: 'Students who have the experiments you teach' },
+    { timeout: 5000 },
+  );
+const status = () => text(main().querySelector('.rk-statusline [role="status"]'));
 const select = (name: string) => screen.getByRole('combobox', { name });
+const sidebarCurrent = () =>
+  screen
+    .getByRole('navigation', { name: 'Faculty navigation' })
+    .querySelector('[aria-current="page"]');
 
-/** The table's rows as their cells' text. */
+/** The roster's rows as their cells' words. */
 async function rows(): Promise<string[][]> {
   const found = await table();
   return [...found.querySelectorAll('tbody tr')].map((row) =>
-    [...row.querySelectorAll('td')].map((cell) => parts(cell)),
+    [...row.querySelectorAll('td')].map((cell) => words(cell)),
   );
 }
 
 async function names(): Promise<string[]> {
   const found = await table();
-  return [...found.querySelectorAll('tbody tr td:first-child a')].map((link) => text(link));
+  return [...found.querySelectorAll('tbody a.rk-rowlink')].map((link) => text(link));
 }
 
 async function waitForNames(expected: string[]) {
@@ -286,40 +292,74 @@ async function waitForNames(expected: string[]) {
 
 const FIVE = ['Divya Menon', 'Imran Shaikh', 'Karthik Rao', 'Priya Natarajan', 'Rahul Verma'];
 
-// ---- FA-20: the list (f0, f7) ---------------------------------------------------------------------
+/** An internal reference: the Faculty’s ids (ASMT-, ATT-, Q-, D-) and every other role’s. */
+const REFERENCE = /\b(?:ASMT|ATT|Q|D|REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
 
-describe('FA-20 Students — the list (B4-10 f0, f7)', () => {
-  it('the header, the experiment section, the toolbar and one row per Student, per format in words', async () => {
+function expectNoReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
+
+// ---- FA-20: the roster ----------------------------------------------------------------------------
+
+describe('FA-20 Students — the roster as the export draws it', () => {
+  it('the head, the surface, the summary, the filters and one row per Student, per format in words', async () => {
     const { runtime } = await fiveStudents();
     showStudents(runtime);
     await studentsHeading();
     await waitForNames(FIVE);
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Students');
-    expect(
-      screen
-        .getByRole('navigation', { name: 'Faculty navigation' })
-        .querySelector('[aria-current="page"]'),
-    ).toHaveAttribute('href', STUDENTS);
-
-    // "Students who have the experiments you teach · as of 12 Nov 2026" — the read's own instant.
-    await waitFor(() =>
-      expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
-        /^Students who have the experiments you teach · as of 12 Nov 2026$/,
-      ),
+    expect(document.title).toMatch(/^Students/);
+    expect(sidebarCurrent()).toHaveAttribute('href', STUDENTS);
+    expect(main().querySelector('.rk-head .rk-sub')).toHaveTextContent(
+      /^Students who have the experiments you teach, from Godavari Institute of Technology\.$/,
     );
-    const exportButton = screen.getByRole('button', { name: 'Export CSV' });
-    expect(exportButton).toHaveClass('xr-btn', 'xr-btn--secondary');
-    expect(exportButton.parentElement).toHaveClass('xr-phead-actions');
 
     const section = screen.getByRole('region', { name: SHELL_NAME });
-    expect(section.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
-      /^Progress per format, in words$/,
+    expect(section).toHaveClass('rk-surface');
+    // “As of …” — the teaching read's own instant.
+    await waitFor(() =>
+      expect(section.querySelector('.fa-tbar .rk-hint')).toHaveTextContent(
+        /^As of 12 Nov 2026 · progress in words, per format$/,
+      ),
     );
-    expect(select('Experiment').closest('.xr-field')).toHaveClass('xr-filter-2');
+    const exportButton = within(section).getByRole('button', { name: 'Export CSV' });
+    expect(exportButton).toHaveClass('rb-btn');
+    expect(exportButton.parentElement).toHaveClass('fa-actions', 'fa-tbar-act');
+    expect(exportButton.querySelector('svg.xr-ico')).not.toBeNull();
+
+    // The summary: every Student with access, by format (one unit each).
+    const summary = within(section).getByRole('group', {
+      name: 'All 5 students with access, by format',
+    });
+    expect(summary).toHaveClass('fa-slsum');
+    const meters = within(summary).getByRole('list', {
+      name: 'Progress by format for all students with access to Shell-and-Tube Heat Exchanger',
+    });
+    expect(meters).toHaveClass('fa-prog', 'fa-prog--sum');
+    expect([...meters.querySelectorAll(':scope > li')].map((row) => words(row))).toEqual([
+      'WEB 2 completed 2 in progress 1 not started',
+      'VR 1 completed 1 in progress 3 not started',
+    ]);
     expect(
-      [...select('Experiment').querySelectorAll('option')].map((option) => option.textContent),
-    ).toEqual([SHELL_NAME]);
+      [...meters.querySelectorAll(':scope > li')[0]!.querySelectorAll('.fa-units i')].map(
+        (unit) => unit.className,
+      ),
+    ).toEqual(['is-done', 'is-done', 'is-prog', 'is-prog', '']);
+
+    // One experiment taught: no Experiment filter (the export's `SL.multiExp`).
+    expect(screen.queryByRole('combobox', { name: 'Experiment' })).toBeNull();
+    expect(within(section).getByRole('search', { name: 'Filter students' })).toHaveClass(
+      'rk-tools',
+      'fa-tools',
+    );
     expect(
       [...select('Progress').querySelectorAll('option')].map((option) => option.textContent),
     ).toEqual([
@@ -332,84 +372,108 @@ describe('FA-20 Students — the list (B4-10 f0, f7)', () => {
     expect(
       [...select('Inactive for').querySelectorAll('option')].map((option) => option.textContent),
     ).toEqual(['Any time', '7 days or more', '14 days or more', '30 days or more']);
-    expect(status()).toBe('5 of 5 students');
-    expect(section.querySelector('.xr-fchip')).toBeNull();
+    expect(status()).toBe('5 students');
+    expect(section.querySelector('.rk-chip')).toBeNull();
 
     const found = await table();
-    expect([...found.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual([
-      'Student',
-      'WEB',
-      'VR',
-      'Assessment',
-      'Last activity',
+    expect(found).toHaveClass('rk-table', 'fa-table', 'fa-rtable', 'fa-ptable');
+    expect(
+      [...found.querySelectorAll('thead th')].map((th) => [th.textContent, th.className]),
+    ).toEqual([
+      ['Student', 'fa-c-who'],
+      ['Progress by format', 'fa-c-fm'],
+      ['Assessment', 'fa-c-asm'],
+      ['Last activity', ''],
     ]);
     expect(await rows()).toEqual([
-      ['Divya Menon GIT-2026-0411', 'In progress', 'Not started', 'Not started', '3 Nov 2026'],
+      [
+        'Divya Menon GIT-2026-0411',
+        'Progress by format WEB In progress VR Not started',
+        'Assessment Not started',
+        'Last activity 3 Nov 2026',
+      ],
       [
         'Imran Shaikh GIT-2026-0409',
-        'In progress',
-        'Not started',
-        'Not started',
-        '28 Oct 2026 Inactive 15 days',
+        'Progress by format WEB In progress VR Not started',
+        'Assessment Not started',
+        'Last activity 28 Oct 2026 Inactive 15 days',
       ],
       [
         'Karthik Rao GIT-2026-0415',
-        'Not started',
-        'Not started',
-        'Not started',
-        'None since access was given (27 Oct 2026) Inactive 16 days',
+        'Progress by format WEB Not started VR Not started',
+        'Assessment Not started',
+        'Last activity None since access was given (27 Oct 2026) Inactive 16 days',
       ],
       [
         'Priya Natarajan GIT-2026-0431',
-        'Completed 28 Oct 2026',
-        'In progress',
-        'Waiting for marking',
-        '6 Nov 2026',
+        'Progress by format WEB Completed 28 Oct 2026 VR In progress',
+        'Assessment Waiting for marking Submitted 6 Nov 2026, 20:10',
+        'Last activity 6 Nov 2026',
       ],
       [
         'Rahul Verma GIT-2026-0418',
-        'Completed 14 Oct 2026',
-        'Completed 20 Oct 2026',
-        'Waiting for marking',
-        '5 Nov 2026',
+        'Progress by format WEB Completed 14 Oct 2026 VR Completed 20 Oct 2026',
+        'Assessment Waiting for marking Submitted 5 Nov 2026, 18:52',
+        'Last activity 5 Nov 2026',
       ],
     ]);
 
-    // The board's markup: the name link (aria "Open …") to FA-21 for this experiment, the ID.
+    // The export's markup: the name link (“Open …”) to FA-21 for this experiment, the ID.
     const rahul = screen.getByRole('link', { name: 'Open Rahul Verma' });
+    expect(rahul).toHaveClass('rk-rowlink');
     expect(rahul).toHaveAttribute('href', `${STUDENTS}/${RAHUL}?experimentId=${SHELL}`);
-    expect(rahul.querySelector('strong')).toHaveTextContent('Rahul Verma');
-    expect(rahul.nextElementSibling).toHaveClass('xr-meta', 'xw-nowrap', 'block');
+    expect(rahul.nextElementSibling).toHaveClass('fa-cellsub');
     const cells = rahul.closest('tr')!.querySelectorAll('td');
-    expect([...cells].map((cell) => cell.getAttribute('data-label'))).toEqual([
-      null,
-      'WEB',
-      'VR',
-      'Assessment',
-      'Last activity',
-    ]);
-    expect(cells[1]!.querySelector('.xr-status')).toHaveClass('xr-status--ok');
-    expect(cells[1]!.querySelector('.xr-meta')).toHaveTextContent('14 Oct 2026');
-    expect(cells[3]!.querySelector('.xr-status')).toHaveClass('xr-status--wait');
+    const formats = cells[1]!.querySelector('ul.fa-fmcell')!;
+    expect(formats).toHaveAttribute(
+      'aria-label',
+      'Progress by format: WEB completed 14 Oct 2026, VR completed 20 Oct 2026',
+    );
+    expect(formats.querySelector('.xr-fmt')).toHaveAttribute('aria-hidden', 'true');
+    expect(formats.querySelector('.xr-st')).toHaveClass('xr-st--ok');
+    expect(formats.querySelector('.fa-fmtcell-d')).toHaveTextContent('14 Oct 2026');
+    expect(cells[2]!.querySelector('.xr-st')).toHaveClass('xr-st--warn');
     const karthik = screen.getByRole('link', { name: 'Open Karthik Rao' }).closest('tr')!;
-    expect(karthik.querySelectorAll('td')[1]!.querySelector('.xr-status')).toHaveClass(
-      'xr-status--off',
-    );
-    expect(karthik.querySelectorAll('td')[3]!.querySelector('.xl-meta')).toHaveTextContent(
-      'Not started',
-    );
-    const tag = karthik.querySelector('.xa-tag');
-    expect(tag).toHaveClass('xa-tag', 'xa-tag--draft');
-    expect(tag?.querySelector('svg.xr-ico')).not.toBeNull();
-    // No percentage, no score, no feedback anywhere on the list.
-    expect(main().textContent).not.toMatch(/%|\bof 16\b|feedback/i);
+    expect(karthik.querySelectorAll('td')[1]!.querySelector('.xr-st')!.className).toBe('xr-st');
+    const tag = karthik.querySelector('.rk-tag-warn');
+    expect(tag).toHaveTextContent('Inactive 16 days');
+    expect(tag?.querySelector('svg')).not.toBeNull();
+    expect(
+      screen
+        .getByRole('link', { name: 'Open Divya Menon' })
+        .closest('tr')!
+        .querySelector('.fa-c-main + td .xr-st'),
+    ).toHaveClass('xr-st--info');
+    // No percentage, no score before marking.
+    expect(main().textContent).not.toMatch(/%|\bof 16\b/);
+    expect(
+      screen.getByText(
+        'Contacting a student happens outside the platform. Feedback students give on a format isn’t shown to Faculty.',
+      ),
+    ).toHaveClass('rk-hint');
+    expectNoReferences();
+  });
+
+  it('a press on a Student’s row follows its name link (not on another control)', async () => {
+    const { runtime } = await fiveStudents();
+    showStudents(runtime);
+    await waitForNames(FIVE);
+    const user = userEvent.setup();
+    const link = screen.getByRole('link', { name: 'Open Priya Natarajan' });
+    const followed = vi.fn();
+    link.addEventListener('click', (event) => {
+      event.preventDefault();
+      followed(link.getAttribute('href'));
+    });
+    await user.click(link.closest('tr')!.querySelectorAll('td')[3]!);
+    expect(followed).toHaveBeenCalledWith(`${STUDENTS}/${PRIYA}?experimentId=${SHELL}`);
   });
 
   it('the address names the experiment; an experiment outside the teaching scope is not found', async () => {
     const { runtime } = await fiveStudents();
     const { navigation } = showStudents(runtime, `?experimentId=${SHELL}`);
     await waitForNames(FIVE);
-    expect(select('Experiment')).toHaveValue(SHELL);
+    expect(screen.getByRole('region', { name: SHELL_NAME })).toBeVisible();
     expect(navigation.replace).not.toHaveBeenCalled();
 
     const other = await tabPlatform(RANGANATHAN, 'after-flow-c');
@@ -418,9 +482,9 @@ describe('FA-20 Students — the list (B4-10 f0, f7)', () => {
   });
 });
 
-// ---- FA-20: the filters (f1, the board script's no match) ----------------------------------------
+// ---- FA-20: the filters -------------------------------------------------------------------------
 
-describe('FA-20 — Progress and “Inactive for” (B4-10 f1)', () => {
+describe('FA-20 — Progress and “Inactive for”', () => {
   it('inactive 14 days or more: two of five, the chip and Clear filters', async () => {
     const { runtime } = await fiveStudents();
     showStudents(runtime);
@@ -429,27 +493,37 @@ describe('FA-20 — Progress and “Inactive for” (B4-10 f1)', () => {
     await user.selectOptions(select('Inactive for'), '14 days or more');
     await waitForNames(['Imran Shaikh', 'Karthik Rao']);
     expect(status()).toBe('2 of 5 students');
-    const chip = main().querySelector('.xr-fchip')!;
+    const chip = main().querySelector('.rk-chip')!;
     expect(chip).toHaveTextContent('Inactive 14 days or more');
     expect(
-      within(chip as HTMLElement).getByRole('button', { name: 'Remove Inactive 14 days or more' }),
+      within(chip as HTMLElement).getByRole('button', {
+        name: 'Remove filter Inactive 14 days or more',
+      }),
     ).toBeVisible();
     const clear = screen.getByRole('button', { name: 'Clear filters' });
-    expect(clear).toHaveClass('xr-btn', 'xr-btn--text', 'min-h-8');
+    expect(clear).toHaveClass('rk-clear');
 
-    // 30 days or more: with no activity the service counts the days since access was given
-    // (B4-10 f0 “None since access was given … · Inactive 26 days”; script `r.days >= N`) —
+    // 30 days or more: with no activity the service counts the days since access was given —
     // Karthik has had the experiment 16 days, so nobody matches.
     await user.selectOptions(select('Inactive for'), '30 days or more');
     await waitFor(() => expect(status()).toBe('0 of 5 students'), { timeout: 5000 });
-    expect(main()).toHaveTextContent('No student matches these filters.');
+    const none = main().querySelector('.rk-state')!;
+    expect(words(none)).toBe(
+      'No student matches these filters Try a shorter inactivity period or another progress filter. Clear filters',
+    );
+    expect(screen.queryByRole('table')).toBeNull();
+    // No rows on show: no Export CSV (the export's `SL.hasRows`).
+    expect(screen.queryByRole('button', { name: 'Export CSV' })).toBeNull();
 
-    // Removing the chip brings everyone back; focus stays in the toolbar.
-    await user.click(screen.getByRole('button', { name: 'Remove Inactive 30 days or more' }));
+    // Removing the chip brings everyone back; focus goes to the filter it set.
+    await user.click(
+      screen.getByRole('button', { name: 'Remove filter Inactive 30 days or more' }),
+    );
     await waitForNames(FIVE);
-    expect(main().querySelector('.xr-fchip')).toBeNull();
+    expect(main().querySelector('.rk-chip')).toBeNull();
     expect(screen.queryByRole('button', { name: 'Clear filters' })).toBeNull();
-    expect(document.activeElement?.tagName).toBe('SELECT');
+    expect(select('Inactive for')).toHaveFocus();
+    expect(status()).toBe('5 students');
   });
 
   it('each Progress choice is the service’s reading; two filters make two chips', async () => {
@@ -461,7 +535,7 @@ describe('FA-20 — Progress and “Inactive for” (B4-10 f1)', () => {
     await user.selectOptions(progress, 'Not started');
     await waitForNames(['Karthik Rao']);
     expect(status()).toBe('1 of 5 students');
-    expect(main().querySelector('.xr-fchip')).toHaveTextContent('Progress: Not started');
+    expect(main().querySelector('.rk-chip')).toHaveTextContent('Progress: Not started');
     await user.selectOptions(progress, 'In progress in a format');
     await waitForNames(['Divya Menon', 'Imran Shaikh', 'Priya Natarajan']);
     await user.selectOptions(progress, 'Completed a format');
@@ -472,7 +546,7 @@ describe('FA-20 — Progress and “Inactive for” (B4-10 f1)', () => {
     await user.selectOptions(select('Inactive for'), '7 days or more');
     // Divya last active 3 Nov (9 days), Imran 28 Oct; Priya 6 Nov (5 days) drops out.
     await waitForNames(['Divya Menon', 'Imran Shaikh']);
-    expect([...main().querySelectorAll('.xr-fchip')].map((chip) => text(chip))).toEqual([
+    expect([...main().querySelectorAll('.rk-chip')].map((chip) => text(chip))).toEqual([
       'Progress: In progress in a format',
       'Inactive 7 days or more',
     ]);
@@ -480,10 +554,10 @@ describe('FA-20 — Progress and “Inactive for” (B4-10 f1)', () => {
     await waitForNames(FIVE);
     expect(select('Progress')).toHaveValue('');
     expect(select('Inactive for')).toHaveValue('');
-    expect(document.activeElement?.tagName).toBe('SELECT');
+    expect(select('Progress')).toHaveFocus();
   });
 
-  it('no match: “Clear filters” in the line brings the list back', async () => {
+  it('no match: “Clear filters” in the state brings the list back', async () => {
     const { runtime } = await fiveStudents();
     showStudents(runtime);
     await waitForNames(FIVE);
@@ -493,27 +567,27 @@ describe('FA-20 — Progress and “Inactive for” (B4-10 f1)', () => {
     await waitForNames(['Karthik Rao']);
     await user.selectOptions(select('Progress'), 'Waiting for marking');
     await user.selectOptions(select('Inactive for'), '14 days or more');
-    const line = await waitFor(() => {
-      const found = main().querySelector<HTMLElement>('.xr-section-body p.xr-body');
-      expect(found).toHaveTextContent(STUDENTS_STATES.noMatch);
+    const state = await waitFor(() => {
+      const found = main().querySelector<HTMLElement>('.rk-state');
+      expect(found).toHaveTextContent('No student matches these filters');
       return found!;
     });
-    await user.click(within(line).getByRole('button', { name: 'Clear filters' }));
+    await user.click(within(state).getByRole('button', { name: 'Clear filters' }));
     await waitForNames(FIVE);
-    expect(document.activeElement?.tagName).toBe('SELECT');
+    expect(select('Progress')).toHaveFocus();
   });
 });
 
-// ---- FA-22: Export CSV (f2) ---------------------------------------------------------------------
+// ---- FA-22: Export CSV ---------------------------------------------------------------------------
 
-describe('FA-22 Export CSV (B4-10 f2)', () => {
-  it('exports the filtered list: the browser saves the service’s file; the message counts it', async () => {
+describe('FA-22 Export CSV on FA-20', () => {
+  it('exports the filtered list: the browser saves the service’s file; the band shows its rows', async () => {
     const { runtime, sample } = await fiveStudents();
     showStudents(runtime);
     await waitForNames(FIVE);
     const user = userEvent.setup();
     await user.click(screen.getByRole('button', { name: 'Export CSV' }));
-    const message = await waitFor(() => {
+    const notice = await waitFor(() => {
       const found = main().querySelector<HTMLElement>('#faculty-students-export');
       expect(found).not.toBeNull();
       return found!;
@@ -525,25 +599,38 @@ describe('FA-22 Export CSV (B4-10 f2)', () => {
       await asPersonId(sample, RANGANATHAN).teaching.exportStudentsCsv({ experimentId: SHELL }),
     );
     expect(csv).toBe(service.csv);
-    expect(message).toHaveAttribute('tabindex', '-1');
-    expect(message).toHaveFocus();
-    const notice = message.querySelector('.xr-notice')!;
-    expect(notice).toHaveClass('xr-notice', 'xr-notice--ok');
+    expect(notice).toHaveClass('rk-notice', 'rk-notice--ok');
+    expect(notice).toHaveAttribute('tabindex', '-1');
     expect(notice).toHaveAttribute('role', 'status');
-    expect(notice.querySelector('.xr-notice-title')).toHaveTextContent(
+    expect(notice).toHaveFocus();
+    expect(notice.parentElement).toHaveClass('fa-export');
+    expect(notice.querySelector('.rk-notice-t')).toHaveTextContent(
       'Exported students-shell-and-tube-heat-exchanger.csv · 5 rows',
     );
-    expect(text(notice.querySelector('.xr-notice-body > span:last-child'))).toBe(
-      'Columns: student, student ID, experiment, WEB, VR, assessment, result released to student, last activity. It contains the filtered list only.',
+    expect(text(notice.querySelector('.rk-notice-d'))).toBe(
+      'It contains the filtered list only, as it was when you exported it. Columns: student, student ID, experiment, WEB, VR, assessment, result released to student, last activity.',
     );
+    const preview = screen.getByRole('region', { name: 'Rows in the exported file' });
+    expect(preview).toHaveClass('fa-scrollx');
+    expect(preview).toHaveAttribute('tabindex', '0');
+    const file = csvRecords(service.csv);
+    expect([...preview.querySelectorAll('thead th')].map((th) => th.textContent)).toEqual(
+      file.columns,
+    );
+    expect(
+      [...preview.querySelectorAll('tbody tr')].map((row) =>
+        [...row.querySelectorAll('td')].map((cell) => cell.textContent),
+      ),
+    ).toEqual(file.rows);
+    expect(file.rows).toHaveLength(5);
 
-    // The filter on show is the file's: a filter change takes the message away (FA-20.filters).
+    // The filter on show is the file's: a filter change takes the band away (FA-20.filters).
     await user.selectOptions(select('Inactive for'), '14 days or more');
     await waitForNames(['Imran Shaikh', 'Karthik Rao']);
     expect(main().querySelector('#faculty-students-export')).toBeNull();
     await user.click(screen.getByRole('button', { name: 'Export CSV' }));
     await waitFor(() =>
-      expect(main().querySelector('#faculty-students-export .xr-notice-title')).toHaveTextContent(
+      expect(main().querySelector('#faculty-students-export .rk-notice-t')).toHaveTextContent(
         'Exported students-shell-and-tube-heat-exchanger.csv · 2 rows',
       ),
     );
@@ -551,6 +638,7 @@ describe('FA-22 Export CSV (B4-10 f2)', () => {
     expect(csvShape(second).rows).toBe(2);
     expect(second).toContain('Imran Shaikh');
     expect(second).not.toContain('Rahul Verma');
+    expectNoReferences();
   });
 
   it('a failed export says so in place and keeps Export CSV to try again', async () => {
@@ -560,14 +648,18 @@ describe('FA-22 Export CSV (B4-10 f2)', () => {
     faults(sample).failNext('TeachingService.exportStudentsCsv');
     await userEvent.setup().click(screen.getByRole('button', { name: 'Export CSV' }));
     const notice = await waitFor(() => {
-      const found = main().querySelector('#faculty-students-export .xr-notice--err');
+      const found = main().querySelector('#faculty-students-export');
       expect(found).not.toBeNull();
       return found!;
     });
-    expect(notice).toHaveTextContent(
-      'The file wasn’t made. Nothing was lost.Try Export CSV again. If it keeps happening, report a problem from Help.',
+    expect(notice).toHaveClass('rk-notice');
+    expect(notice).toHaveAttribute('role', 'alert');
+    expect(words(notice)).toBe(
+      'The file wasn’t made. Nothing was lost. Try Export CSV again. If it keeps happening, report a problem from Help.',
     );
+    expect(notice).toHaveFocus();
     expect(vi.mocked(downloadCsv)).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Export CSV' })).toBeVisible();
   });
 
   it('reads a CSV’s records as written: quoted commas and line breaks stay in one cell', () => {
@@ -579,45 +671,53 @@ describe('FA-22 Export CSV (B4-10 f2)', () => {
       columns: ['student', 'say "hi"'],
       rows: 0,
     });
+    expect(csvRecords('﻿student,id\r\n"Rao, K",GIT-1\r\n')).toEqual({
+      columns: ['student', 'id'],
+      rows: [['Rao, K', 'GIT-1']],
+    });
     expect(daysBetween('2026-10-27T04:30:00.000Z', '2026-11-12T04:30:00.000Z')).toBe(16);
     expect(daysBetween('2026-11-12T04:30:00.000Z', '2026-10-27T04:30:00.000Z')).toBe(0);
   });
 });
 
-// ---- FA-20: the undrawn states and f6 -----------------------------------------------------------
+// ---- FA-20: no students, no course, the undrawn states ---------------------------------------------
 
-describe('FA-20 — no students yet (f6) and the undrawn states', () => {
-  it('f6: before anyone is given the experiment, “0 of 0 students” and the empty state', async () => {
+describe('FA-20 — no students yet, no course and the undrawn states', () => {
+  it('before anyone is given the experiment: the empty state, no filters, no export', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-setup');
     showStudents(runtime);
-    const empty = await screen.findByRole(
-      'heading',
-      { level: 3, name: STUDENTS_STATES.emptyTitle },
+    const empty = await screen.findByText(
+      'No students have this experiment yet',
+      {},
       { timeout: 5000 },
     );
-    expect(empty.closest('.xr-empty')).toHaveTextContent(STUDENTS_STATES.emptyLine);
-    expect(status()).toBe('0 of 0 students');
-    expect(screen.getByRole('button', { name: 'Export CSV' })).toBeVisible();
+    const state = empty.closest('.rk-state')!;
+    expect(state).toHaveClass('rk-state--roomy');
+    expect(state).toHaveTextContent(
+      'Students appear here when your Institute Admin gives them the experiment.',
+    );
+    expect(screen.queryByRole('search')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Export CSV' })).toBeNull();
     expect(screen.queryByRole('table')).toBeNull();
   });
 
-  it('no experiment taught: the empty state, no Export CSV, no date', async () => {
+  it('no experiment taught: the message card, no Export CSV, no date, no note', async () => {
     const { runtime } = await tabPlatform(DESAI, 'after-flow-c');
     showStudents(runtime);
-    expect(
-      await screen.findByRole(
-        'heading',
-        { level: 2, name: 'Your Institute Admin hasn’t assigned you courses yet' },
-        { timeout: 5000 },
-      ),
-    ).toBeVisible();
+    const title = await screen.findByRole(
+      'heading',
+      { level: 2, name: 'No students to follow yet' },
+      { timeout: 5000 },
+    );
+    expect(title.closest('section')).toHaveClass('rk-surface', 'fa-msgcard');
     expect(main()).toHaveTextContent(
-      'Students appear here when they assign you one in Faculty courses.',
+      'Students appear here when you teach a course and your Institute Admin gives them its experiments. You haven’t been assigned a course yet.',
     );
     expect(screen.queryByRole('button', { name: 'Export CSV' })).toBeNull();
-    expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
-      /^Students who have the experiments you teach$/,
+    expect(main().querySelector('.rk-head .rk-sub')).toHaveTextContent(
+      /^Students who have the experiments you teach\.$/,
     );
+    expect(main()).not.toHaveTextContent('Contacting a student happens outside the platform.');
   });
 
   it('loading is announced; a failed list says so and “Try again” reads it again', async () => {
@@ -647,7 +747,7 @@ describe('FA-20 — no students yet (f6) and the undrawn states', () => {
     await waitForNames(FIVE);
   });
 
-  it('assessment words: an attempt in progress, marked (released or not), never a score', async () => {
+  it('assessment words: an attempt in progress; marked, with the total and whether it is released', async () => {
     const { runtime, sample, assessmentId, rahulAttempt } = await fiveStudents();
     setSampleNow(sample, at('2026-11-12 10:00'));
     await attempt(sample, DIVYA, assessmentId, '2026-11-12 10:00', null);
@@ -656,33 +756,46 @@ describe('FA-20 — no students yet (f6) and the undrawn states', () => {
     showStudents(runtime);
     await waitForNames(FIVE);
     const cell = (name: string) =>
-      parts(
-        screen
-          .getByRole('link', { name: `Open ${name}` })
-          .closest('tr')!
-          .querySelectorAll('td')[3]!,
-      );
-    expect(cell('Divya Menon')).toBe('Attempt in progress');
-    expect(cell('Rahul Verma')).toBe('Marked');
-    expect(
       screen
-        .getByRole('link', { name: 'Open Rahul Verma' })
+        .getByRole('link', { name: `Open ${name}` })
         .closest('tr')!
-        .querySelector('.xr-status--ok'),
-    ).not.toBeNull();
+        .querySelectorAll('td')[2]!;
+    expect(words(cell('Divya Menon'))).toBe('Assessment Attempt in progress');
+    expect(cell('Divya Menon').querySelector('.xr-st')).toHaveClass('xr-st--info');
+    await waitFor(() =>
+      expect(words(cell('Rahul Verma'))).toBe(
+        'Assessment Marked 11 of 16 · result not released yet',
+      ),
+    );
+    expect(cell('Rahul Verma').querySelector('.xr-st')).toHaveClass('xr-st--ok');
   });
 
   it('no assessment set: “No assessment yet” (after Flow C, Rahul only)', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     showStudents(runtime);
     await waitForNames(['Rahul Verma']);
-    expect(status()).toBe('1 of 1 student');
+    expect(status()).toBe('1 student');
     expect((await rows())[0]).toEqual([
       'Rahul Verma GIT-2026-0418',
-      'Completed 14 Oct 2026',
-      'Completed 20 Oct 2026',
-      'No assessment yet',
-      '16 Oct 2026',
+      'Progress by format WEB Completed 14 Oct 2026 VR Completed 20 Oct 2026',
+      'Assessment No assessment yet',
+      'Last activity 16 Oct 2026',
+    ]);
+  });
+
+  it('the summary’s counts per format (state-copy FA-20.summary)', () => {
+    const row = (statuses: Record<string, string>) =>
+      ({
+        perFormat: Object.entries(statuses).map(([format, status]) => ({ format, status })),
+      }) as never;
+    expect(
+      formatCounts([
+        row({ web: 'completed', vr: 'in-progress' }),
+        row({ web: 'not-started', vr: 'in-progress' }),
+      ]),
+    ).toEqual([
+      { format: 'web', completed: 1, inProgress: 0, notStarted: 1 },
+      { format: 'vr', completed: 0, inProgress: 2, notStarted: 0 },
     ]);
   });
 });
@@ -690,7 +803,7 @@ describe('FA-20 — no students yet (f6) and the undrawn states', () => {
 // ---- A co-teaching colleague (OD-B4-17) ---------------------------------------------------------
 
 describe('a co-teaching colleague’s assessment (Phase 4B protective refusal)', () => {
-  it('FA-20 and FA-21 say it isn’t available yet — never a state or figure', async () => {
+  it('FA-20 and FA-21 say it isn’t available yet — never a state, figure or mark action', async () => {
     // Dr Desai's tab on the five-student world; Meera then gives her the course too.
     const { runtime, sample } = await fiveStudents(DESAI);
     ok(
@@ -702,180 +815,247 @@ describe('a co-teaching colleague’s assessment (Phase 4B protective refusal)',
     const list = showStudents(runtime);
     await waitForNames(FIVE);
     const rahul = screen.getByRole('link', { name: 'Open Rahul Verma' }).closest('tr')!;
-    expect(text(rahul.querySelectorAll('td')[3]!)).toBe('Not available to you yet');
-    expect(rahul.querySelectorAll('td')[3]!.querySelector('.xr-status')).toBeNull();
+    expect(words(rahul.querySelectorAll('td')[2]!)).toBe('Assessment Not available to you yet');
+    expect(rahul.querySelectorAll('td')[2]!.querySelector('.xr-st')).toBeNull();
     list.view.unmount();
 
     showStudent(runtime, RAHUL);
-    const assessment = await screen.findByRole('region', { name: 'Assessment' }, { timeout: 5000 });
-    expect(text(assessment.querySelector('.xr-section-body p'))).toBe(
-      'This assessment isn’t available to you yet.',
+    const panel = await screen.findByRole(
+      'complementary',
+      { name: 'Assessment' },
+      { timeout: 5000 },
     );
-    expect(within(assessment).queryAllByRole('link')).toHaveLength(0);
-    expect(assessment.textContent).not.toMatch(/ATT-|of 16|Waiting/);
+    await waitFor(() =>
+      expect(text(panel.querySelector('p.rk-locked'))).toBe(
+        'This assessment isn’t available to you yet.',
+      ),
+    );
+    // A colleague's rules are readable: only “Open the assessment”.
+    expect(
+      within(panel)
+        .getAllByRole('link')
+        .map((link) => text(link)),
+    ).toEqual(['Open the assessment']);
+    expect(panel.querySelector('.xr-st')).toBeNull();
+    expect(panel.textContent).not.toMatch(/ATT-|of 16|Waiting|Marked/);
   });
 });
 
-// ---- FA-21 Student detail (f3 … f5) -------------------------------------------------------------
+// ---- FA-21 Student detail --------------------------------------------------------------------------
 
-describe('FA-21 Student detail (B4-10 f3 … f5)', () => {
-  it('f3: waiting for marking — per format, the attempt, “Mark their answers”, the resources', async () => {
-    const { runtime, rahulAttempt } = await fiveStudents();
+describe('FA-21 Student detail', () => {
+  it('waiting for marking — the head, per format, the resources, the panel with “Mark their answers”', async () => {
+    const { runtime, rahulAttempt, assessmentId } = await fiveStudents();
     showStudent(runtime, RAHUL);
     expect(
       await screen.findByRole('heading', { level: 1, name: 'Rahul Verma' }, { timeout: 5000 }),
     ).toBeVisible();
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Rahul Verma');
-    const crumbs = screen.getByRole('list', { name: 'You are here' });
-    expect([...crumbs.querySelectorAll('li')].map((item) => text(item))).toEqual([
-      'Students/',
-      'Rahul Verma',
-    ]);
-    const back = main().querySelector('a.xr-back')!;
-    expect(back).toHaveTextContent(/^Students$/);
-    expect(back).toHaveAttribute('href', `${STUDENTS}?experimentId=${SHELL}`);
-    const head = main().querySelector('.xr-phead')!;
-    expect(head).toHaveClass('mt-2');
-    expect(head.querySelector('.xr-overline')).toHaveTextContent(`${SHELL_NAME} · ME ZG523`);
-    expect(text(head.querySelector('.xr-phead-meta'))).toBe('GIT-2026-0418');
-    expect(head.querySelector('.xr-phead-meta .xr-id')).toHaveTextContent('GIT-2026-0418');
-    expect(head.querySelector('.xa-tag')).toBeNull();
+    expect(document.title).toMatch(/^Rahul Verma/);
+    expect(sidebarCurrent()).toHaveAttribute('href', STUDENTS);
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(within(crumbs).getByRole('link', { name: 'Students' })).toHaveAttribute(
+      'href',
+      `${STUDENTS}?experimentId=${SHELL}`,
+    );
+    expect(crumbs.querySelector('[aria-current="page"]')).toHaveTextContent('Rahul Verma');
+    const head = main().querySelector('.rk-head')!;
+    expect(head.querySelector('.rk-eyebrow')).toHaveTextContent(`${SHELL_NAME} · ME ZG523`);
+    expect(head.querySelector('h1')).toHaveClass('rk-title');
+    expect(words(head.querySelector('.rk-meta'))).toBe('GIT-2026-0418 Last activity 5 Nov 2026');
+    expect(head.querySelector('.rk-meta .fa-id')).toHaveTextContent('GIT-2026-0418');
+    expect(head.querySelector('.rk-tag-warn')).toBeNull();
 
-    expect(
-      [...main().querySelectorAll('.xw-stack > section.xr-section h2')].map((h) => h.textContent),
-    ).toEqual(['Progress by format', 'Assessment', 'Resources']);
+    // The sheet beside the panel; the panel first on narrow widths.
+    expect(main().querySelector('.rk-detail')).toHaveClass('fa-asidefirst');
+    const sheet = main().querySelector('.rk-detail > .rk-mainsheet')!;
+    expect([...sheet.querySelectorAll('section.rk-sec h2')].map((h) => h.textContent)).toEqual([
+      'Progress by format',
+      'Resources',
+    ]);
+    await waitFor(() =>
+      expect(sheet.querySelector('section.rk-sec .rk-sec-h .rk-hint')).toHaveTextContent(
+        'as of 12 Nov 2026',
+      ),
+    );
     const progress = screen.getByRole('list', { name: 'Progress by format' });
-    expect(progress).toHaveClass('xl-fl');
-    expect([...progress.querySelectorAll(':scope > li')].map((row) => parts(row))).toEqual([
-      'WEBWEB Completed 14 Oct 2026',
-      'VRVR Completed 20 Oct 2026',
+    expect(progress).toHaveClass('fa-fmlist');
+    expect([...progress.querySelectorAll(':scope > li')].map((row) => words(row))).toEqual([
+      'WEB Completed 14 Oct 2026',
+      'VR Completed 20 Oct 2026',
     ]);
-    expect(progress.querySelector('.xl-fl-fmt .xr-fmt')).toHaveClass(
-      'xr-fmt--yours',
-      'xr-fmt--compact',
-    );
-    expect(progress.parentElement!.querySelector('p.xl-meta')).toHaveTextContent(
-      STUDENT_DETAIL.perFormatOnly,
-    );
+    expect(sheet).toHaveTextContent('Per format only — there is no overall percentage or verdict.');
+    const resources = sheet.querySelector('ul.fa-reslist.fa-reslist--status')!;
+    expect([...resources.querySelectorAll('li')].map((row) => words(row))).toEqual([
+      'Lab brief — Shell-and-Tube Heat Exchanger Opened 12 Oct 2026, 09:40',
+      'Pre-lab reading — the effectiveness–NTU method Not opened',
+      'Readings sheet Not opened',
+    ]);
+    expect(resources.querySelector('li .rk-next')).toHaveTextContent('Opened 12 Oct 2026, 09:40');
+    expect(sheet).toHaveTextContent('Feedback students give on a format isn’t shown to Faculty.');
 
-    const assessment = screen.getByRole('region', { name: 'Assessment' });
-    const row = await within(assessment).findByRole('listitem');
-    expect(row).toHaveClass('xr-row');
-    expect(row.querySelector('.xr-row-icon')).toHaveClass('xr-row-icon--wait');
-    expect(row.querySelector('.xr-row-title')).toHaveTextContent(`${NAME} · attempt 1 of 2`);
-    expect(text(row.querySelector('.xr-row-sub'))).toBe(
-      `${rahulAttempt} · submitted 5 Nov 2026, 18:52 · Waiting for marking`,
+    const panel = screen.getByRole('complementary', { name: 'Assessment' });
+    expect(panel.querySelector('.rk-panel-body')).toHaveClass('fa-apanel');
+    await waitFor(() =>
+      expect(words(panel.querySelector('.fa-apanel-id'))).toBe(
+        `Waiting for marking ${NAME} Due 14 Nov 2026, 23:59`,
+      ),
     );
-    expect(row.querySelector('.xr-row-sub .xr-id')).toHaveTextContent(rahulAttempt);
-    expect(row.querySelector('.xr-row-sub .xr-status')).toHaveClass('xr-status--wait');
-    const mark = within(row).getByRole('link', { name: 'Mark their answers' });
-    expect(mark).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
+    expect(panel.querySelector('.fa-apanel-id .xr-st')).toHaveClass('xr-st--warn');
+    expect(text(panel.querySelector('.fa-asm-note'))).toBe(
+      'Attempt 1 of 2 · submitted 5 Nov 2026, 18:52',
+    );
+    const mark = within(panel).getByRole('link', { name: 'Mark their answers' });
+    expect(mark).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
     expect(mark).toHaveAttribute('href', `/faculty/marking/${rahulAttempt}`);
-    expect(main().textContent).not.toMatch(/\bof 16\b|%/);
-
-    const resources = screen.getByRole('region', { name: 'Resources' });
-    expect([...resources.querySelectorAll('dt')].map((dt) => text(dt))).toEqual([
-      'Lab brief — Shell-and-Tube Heat Exchanger',
-      'Pre-lab reading — the effectiveness–NTU method',
-      'Readings sheet',
-    ]);
-    expect([...resources.querySelectorAll('dd')].map((dd) => text(dd))).toEqual([
-      'Opened 12 Oct 2026, 09:40',
-      'Not opened',
-      'Not opened',
-    ]);
-    expect(main().querySelector('.xw-stack > p.xl-open')).toHaveTextContent(
-      'Feedback students give on a format isn’t shown to Faculty.',
+    expect(within(panel).getByRole('link', { name: 'Open the assessment' })).toHaveAttribute(
+      'href',
+      `/faculty/assessments/${assessmentId}`,
     );
+    expect(main().textContent).not.toMatch(/\bof 16\b|%/);
+    expectNoReferences();
   });
 
-  it('f4: marked, not released yet — the marks, the pinned release term and “See submission”', async () => {
+  it('marked, not released yet — the total, the pass outcome, the pinned release term and “View marks”', async () => {
     const { runtime, sample, rahulAttempt } = await fiveStudents();
     await markAndConfirm(sample, rahulAttempt);
     showStudent(runtime, RAHUL);
-    const assessment = await screen.findByRole('region', { name: 'Assessment' }, { timeout: 5000 });
-    const row = await within(assessment).findByRole('listitem');
-    await waitFor(() => expect(row.querySelector('.xr-row-icon')).toHaveClass('xr-row-icon--ok'));
-    expect(text(row.querySelector('.xr-row-sub'))).toBe(
-      'Marked 11 of 16 · Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59',
+    const panel = await screen.findByRole(
+      'complementary',
+      { name: 'Assessment' },
+      { timeout: 5000 },
     );
-    expect(row.querySelector('.xr-row-sub .xl-inline svg')).not.toBeNull();
-    const see = within(row).getByRole('link', { name: 'See submission' });
-    expect(see).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
-    // B4-10 f4 links B4-06: the assessment's Submissions (FA-12).
-    expect(see.getAttribute('href')).toMatch(/^\/faculty\/assessments\/ASMT-\d{4}\/submissions$/);
-    expect(rahulAttempt).toBeTruthy();
-    expect(within(row).queryByRole('link', { name: 'Mark their answers' })).toBeNull();
+    await waitFor(() =>
+      expect(panel.querySelector('.fa-apanel-id .xr-st')).toHaveClass('xr-st--ok'),
+    );
+    expect(text(panel.querySelector('.fa-apanel-id .xr-st'))).toBe('Marked');
+    await waitFor(() =>
+      expect(words(panel.querySelector('.fa-done-total'))).toBe(
+        '11 of 16 marks Passed · pass mark 8',
+      ),
+    );
+    expect(panel.querySelector('p.rk-locked')).toHaveTextContent(
+      'Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59, as set for this assessment.',
+    );
+    const view = within(panel).getByRole('link', { name: 'View marks' });
+    expect(view).toHaveClass('rb-btn', 'rb-btn--lg');
+    expect(view).not.toHaveClass('rb-btn--primary');
+    expect(view).toHaveAttribute('href', `/faculty/marking/${rahulAttempt}`);
+    expect(within(panel).queryByRole('link', { name: 'Mark their answers' })).toBeNull();
+    expectNoReferences();
   });
 
-  it('f5: an inactive Student — the tag, nothing started, nothing opened', async () => {
+  it('an inactive Student — the activity line, the tag, nothing started, nothing opened', async () => {
     const { runtime } = await fiveStudents();
     showStudent(runtime, KARTHIK);
     await screen.findByRole('heading', { level: 1, name: 'Karthik Rao' }, { timeout: 5000 });
     await waitFor(() =>
-      expect(main().querySelector('.xr-phead-meta .xa-tag')).toHaveTextContent(
-        'No activity since access was given (27 Oct 2026) · 16 days',
+      expect(words(main().querySelector('.rk-head .rk-meta'))).toBe(
+        'GIT-2026-0415 No activity since access was given (27 Oct 2026) Inactive 16 days',
       ),
     );
-    expect(main().querySelector('.xr-phead-meta .xa-tag')).toHaveClass('xa-tag--draft');
+    expect(main().querySelector('.rk-meta .rk-tag-warn svg')).not.toBeNull();
     expect(
       [
         ...screen.getByRole('list', { name: 'Progress by format' }).querySelectorAll(':scope > li'),
-      ].map((row) => parts(row)),
-    ).toEqual(['WEBWEB Not started', 'VRVR Not started']);
-    const assessment = screen.getByRole('region', { name: 'Assessment' });
-    expect(text(assessment.querySelector('.xr-section-body p.xr-body'))).toBe('Not started.');
-    expect(within(assessment).queryAllByRole('link')).toHaveLength(0);
+      ].map((row) => words(row)),
+    ).toEqual(['WEB Not started', 'VR Not started']);
+    const panel = screen.getByRole('complementary', { name: 'Assessment' });
+    await waitFor(() =>
+      expect(text(panel.querySelector('.fa-asm-note'))).toBe(
+        '2 attempts allowed. No attempt submitted yet.',
+      ),
+    );
+    expect(text(panel.querySelector('.fa-apanel-id .xr-st'))).toBe('Not started');
     expect(
-      [...screen.getByRole('region', { name: 'Resources' }).querySelectorAll('dd')].map((dd) =>
-        text(dd),
+      within(panel)
+        .getAllByRole('link')
+        .map((link) => text(link)),
+    ).toEqual(['Open the assessment']);
+    expect(
+      [...main().querySelectorAll('ul.fa-reslist li')].map(
+        (row) => row.querySelector('.fa-quiet')?.textContent,
       ),
     ).toEqual(['Not opened', 'Not opened', 'Not opened']);
   });
 
-  it('a Student inactive since their last activity: “No activity since <date> · <n> days”', async () => {
+  it('a Student inactive since their last activity: “Last activity …” and “Inactive 15 days”', async () => {
     const { runtime } = await fiveStudents();
     showStudent(runtime, IMRAN);
     await screen.findByRole('heading', { level: 1, name: 'Imran Shaikh' }, { timeout: 5000 });
     await waitFor(() =>
-      expect(main().querySelector('.xr-phead-meta .xa-tag')).toHaveTextContent(
-        'No activity since 28 Oct 2026 · 15 days',
+      expect(words(main().querySelector('.rk-head .rk-meta'))).toBe(
+        'GIT-2026-0409 Last activity 28 Oct 2026 Inactive 15 days',
       ),
     );
   });
 
-  it('released (after Flow D): the marks and when the result reached the Student', async () => {
+  it('released (after Flow D): the total and when the result reached the Student', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
     showStudent(runtime, RAHUL);
-    const assessment = await screen.findByRole('region', { name: 'Assessment' }, { timeout: 5000 });
-    const row = await within(assessment).findByRole('listitem');
-    expect(text(row.querySelector('.xr-row-sub'))).toBe(
-      'Marked 11 of 16 · Result released to Rahul 14 Nov 2026, 23:59',
+    const panel = await screen.findByRole(
+      'complementary',
+      { name: 'Assessment' },
+      { timeout: 5000 },
     );
-    expect(within(row).getByRole('link', { name: 'See submission' })).toHaveAttribute(
+    await waitFor(() =>
+      expect(panel.querySelector('p.fa-savednote')).toHaveTextContent(
+        'Result released to Rahul when the deadline passed: 14 Nov 2026, 23:59.',
+      ),
+    );
+    await waitFor(() =>
+      expect(words(panel.querySelector('.fa-done-total'))).toBe(
+        '11 of 16 marks Passed · pass mark 8',
+      ),
+    );
+    expect(within(panel).getByRole('link', { name: 'View marks' })).toHaveAttribute(
       'href',
-      '/faculty/assessments/ASMT-0009/submissions',
+      '/faculty/marking/ATT-0450',
     );
+    expect(within(panel).getByRole('link', { name: 'Open the assessment' })).toHaveAttribute(
+      'href',
+      '/faculty/assessments/ASMT-0009',
+    );
+    expectNoReferences();
   });
 
-  it('an attempt in progress has no action; no assessment set reads “No assessment yet.”', async () => {
+  it('an attempt in progress has no action', async () => {
     const five = await fiveStudents();
     await attempt(five.sample, DIVYA, five.assessmentId, '2026-11-12 10:00', null);
     showStudent(five.runtime, DIVYA);
-    const assessment = await screen.findByRole('region', { name: 'Assessment' }, { timeout: 5000 });
-    const row = await within(assessment).findByRole('listitem');
-    expect(text(row.querySelector('.xr-row-sub'))).toMatch(
-      /^ATT-\d{4} · started 12 Nov 2026, 10:00 · Attempt in progress$/,
+    const panel = await screen.findByRole(
+      'complementary',
+      { name: 'Assessment' },
+      { timeout: 5000 },
     );
-    expect(within(row).queryAllByRole('link')).toHaveLength(0);
+    await waitFor(() =>
+      expect(text(panel.querySelector('.fa-apanel-id .xr-st'))).toBe('Attempt in progress'),
+    );
+    expect(panel.querySelector('.fa-apanel-id .xr-st')).toHaveClass('xr-st--info');
+    expect(text(panel.querySelector('.fa-asm-note'))).toBe(
+      'Attempt 1 of 2 · started 12 Nov 2026, 10:00',
+    );
+    expect(
+      within(panel)
+        .getAllByRole('link')
+        .map((link) => text(link)),
+    ).toEqual(['Open the assessment']);
+    expectNoReferences();
   });
 
-  it('after Flow C (no assessment set): one line, no row', async () => {
+  it('after Flow C (no assessment set): the state and its line, no link', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     showStudent(runtime, RAHUL);
-    const assessment = await screen.findByRole('region', { name: 'Assessment' }, { timeout: 5000 });
-    expect(text(assessment.querySelector('.xr-section-body p'))).toBe('No assessment yet.');
+    const panel = await screen.findByRole(
+      'complementary',
+      { name: 'Assessment' },
+      { timeout: 5000 },
+    );
+    expect(text(panel.querySelector('.fa-apanel-id .xr-st'))).toBe('No assessment yet');
+    expect(text(panel.querySelector('.fa-asm-note'))).toBe(
+      'There’s no assessment for this experiment yet.',
+    );
+    expect(within(panel).queryAllByRole('link')).toHaveLength(0);
   });
 
   it('not found: no experiment in the address, an unknown Student, one without the experiment', async () => {
@@ -903,28 +1083,9 @@ describe('FA-21 Student detail (B4-10 f3 … f5)', () => {
   });
 });
 
-// ---- Words, register, ledger --------------------------------------------------------------------
+// ---- Register and ledger -------------------------------------------------------------------------
 
-describe('FA-20 / FA-21 words, register and ledger', () => {
-  it('the composed words are the board’s with its sample values', () => {
-    const B4_10 = board('B4-10-Students-and-Follow-up.dc.html');
-    expect(B4_10).toContain(
-      exportedColumns([
-        'student',
-        'student ID',
-        'experiment',
-        'WEB',
-        'VR',
-        'assessment',
-        'result released to student',
-        'last activity',
-      ]),
-    );
-    expect(exportedTitle('students-shell-and-tube.csv', 5)).toBe(
-      'Exported students-shell-and-tube.csv · 5 rows',
-    );
-  });
-
+describe('FA-20 / FA-21 register and ledger', () => {
   it('the register holds this group’s entries, provisional, no decision id in their words', () => {
     for (const [id, entry] of Object.entries(STATE_COPY_FACULTY_STUDENTS)) {
       expect(STATE_COPY[id as keyof typeof STATE_COPY]).toBe(entry);

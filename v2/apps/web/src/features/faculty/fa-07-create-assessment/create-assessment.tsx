@@ -2,21 +2,30 @@
 
 import type { QuestionBankRow, ServiceError } from '@xr/contracts/draft';
 import type { Assessment, AssessmentReadiness } from '@xr/domain';
+import { FailedState, LoadingState } from '@xr/ui';
 import {
-  BackLink,
+  Breadcrumbs,
+  ButtonLink,
   ErrorSummary,
-  FailedState,
-  LoadingState,
+  FaAuthor,
+  FaFormColumn,
+  FaFormMessages,
+  FaMessageCard,
+  FaSteps,
   Notice,
-  PageContent,
-  PageHeader,
-  Skeleton,
-  Stepper,
-  stepCountText,
-} from '@xr/ui';
+  PageHead,
+  V46Island,
+} from '@xr/ui/v3';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { CREATE_ASSESSMENT, summaryExperimentWords } from '@/copy/assessments';
+import {
+  ADD_QUESTIONS,
+  CREATE_ASSESSMENT,
+  createUnavailableWords,
+  experimentAndCode,
+  stepOfWords,
+} from '@/copy/assessments';
+import { FA_STEP_STATE_WORDS } from '@/copy/fa-shared';
 import { stateWords } from '@/copy/state-copy';
 import {
   ASSESSMENTS_ADDRESS,
@@ -37,6 +46,7 @@ import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { type RulesField, rulesSummaryTitle } from '../shared/rules-fields';
 import {
   type BankState,
+  ExperimentFoot,
   ExperimentStep,
   PreviewStep,
   QuestionsStep,
@@ -55,6 +65,7 @@ import {
   ERRORS_ID,
   EXISTS_ERROR,
   FIELD_IDS,
+  ID_PREFIX,
   nextStep,
   pickedRows,
   previousStep,
@@ -68,11 +79,15 @@ import { clearCreateDraft, createDraftFor, useCreateDraft, useSessionKey } from 
 
 type Mode = 'create' | 'save-as-draft';
 
-/** What Create or Save as draft answered (f6, f7). */
+/** What Create or Save as draft answered, with the ticked questions' marks. */
 interface Created {
   readonly assessment: Assessment;
   readonly mode: Mode;
+  readonly marks: number;
 }
+
+/** The no-course card's heading. */
+const NO_COURSE_ID = `${ID_PREFIX}-none`;
 
 /** The errors on show, with the step they belong to (a step shows only its own). */
 interface StepErrors {
@@ -130,6 +145,10 @@ export function CreateAssessment() {
   const [sending, setSending] = useState<Mode | null>(null);
   const [created, setCreated] = useState<Created | null>(null);
   const [missing, setMissing] = useState(false);
+  // "Saved to your question bank." after FA-15 comes back with the question it wrote.
+  const [addedNotice, setAddedNotice] = useState(() =>
+    new URLSearchParams(navigation.search).has('added'),
+  );
   const [focusTitle, setFocusTitle] = useState(0);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const create = useCommand((ports) => ports.assessments.createAssessment);
@@ -249,6 +268,7 @@ export function CreateAssessment() {
   if (lastShown !== shown) {
     setLastShown(shown);
     setFailure(null);
+    setAddedNotice(false);
     if (errors === null || errors.step !== shown) {
       setErrors(null);
       setFocusTitle((count) => count + 1);
@@ -328,12 +348,13 @@ export function CreateAssessment() {
       return;
     }
     setSending(mode);
+    const pickedMarks = (picked ?? []).reduce((sum, row) => sum + row.question.marks, 0);
     create.run(createInput(draft, mode, pickedIds)).then(
       (answer) => {
         setSending(null);
         if (answer.ok) {
           setErrors(null);
-          setCreated({ assessment: answer.value, mode });
+          setCreated({ assessment: answer.value, mode, marks: pickedMarks });
         } else {
           refused(answer.error, mode);
         }
@@ -372,8 +393,7 @@ export function CreateAssessment() {
     onDraft: () => send('save-as-draft'),
     busy: create.busy && sending === 'save-as-draft',
   };
-  const experimentWords = chosen ? summaryExperimentWords(chosen.name, chosen.courseCode) : null;
-  const summary = { experiment: experimentWords, draft, picked: picked ?? [] };
+  const summary = { experiment: chosen?.name ?? null, draft, picked: picked ?? [] };
 
   let readiness: AssessmentReadiness | null = null;
   if (created) {
@@ -391,102 +411,156 @@ export function CreateAssessment() {
         ? { kind: 'failed', retry: () => void bankRead.refetch() }
         : { kind: 'loading' };
 
+  const head = (
+    <PageHead
+      eyebrow={created ? CREATE_ASSESSMENT.title : stepOfWords(stepNumber(step), 4)}
+      title={
+        created
+          ? created.mode === 'create'
+            ? CREATE_ASSESSMENT.createdTitle
+            : CREATE_ASSESSMENT.draftTitle
+          : CREATE_ASSESSMENT.stepTitles[step]
+      }
+      titleId={TITLE_ID}
+      titleFocusTarget
+      titleRef={titleRef}
+      breadcrumbs={
+        <Breadcrumbs
+          levels={[{ label: CREATE_ASSESSMENT.back, href: ASSESSMENTS_ADDRESS }]}
+          current={CREATE_ASSESSMENT.title}
+        />
+      }
+    />
+  );
+
+  if (failed) {
+    return (
+      <>
+        {head}
+        <V46Island>
+          <FailedState
+            title={stateWords('FA-07.failed')}
+            onRetry={() => {
+              void optionsRead.refetch();
+              void listRead.refetch();
+            }}
+          >
+            {stateWords('FA-06.failed.line')}
+          </FailedState>
+        </V46Island>
+      </>
+    );
+  }
+  if (loading || !options) {
+    return (
+      <>
+        {head}
+        <V46Island>
+          <LoadingState
+            label={stateWords('FA-07.loading')}
+            surface="section"
+            className="flex flex-col gap-4 p-6"
+            lines={3}
+          />
+        </V46Island>
+      </>
+    );
+  }
+  // No course mapped: nothing to set an assessment on (the role's message card).
+  if (options.length === 0 && !created) {
+    return (
+      <>
+        {head}
+        <FaMessageCard
+          icon="clipboardCheck"
+          title={CREATE_ASSESSMENT.noCourseTitle}
+          titleId={NO_COURSE_ID}
+          actions={
+            <ButtonLink href={ASSESSMENTS_ADDRESS} onClick={onCancel}>
+              {CREATE_ASSESSMENT.backToAssessments}
+            </ButtonLink>
+          }
+        >
+          {CREATE_ASSESSMENT.noCourseLine}
+        </FaMessageCard>
+      </>
+    );
+  }
+
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mt-2 mb-4"
-        back={<BackLink href={ASSESSMENTS_ADDRESS}>{CREATE_ASSESSMENT.back}</BackLink>}
-        overline={created ? CREATE_ASSESSMENT.title : stepCountText(stepNumber(step), 4)}
-        title={
-          created
-            ? created.mode === 'create'
-              ? CREATE_ASSESSMENT.createdTitle
-              : CREATE_ASSESSMENT.draftTitle
-            : CREATE_ASSESSMENT.stepTitles[step]
-        }
-        titleId={TITLE_ID}
-        titleFocusTarget
-        titleRef={titleRef}
-      />
+    <>
+      {head}
       {created ? null : (
-        <Stepper
-          label={CREATE_ASSESSMENT.title}
-          steps={CREATE_ASSESSMENT.steps}
-          current={stepNumber(step)}
-          doneWords={false}
-          className="mb-6"
+        <FaSteps
+          label={CREATE_ASSESSMENT.stepsLabel}
+          steps={CREATE_ASSESSMENT.steps.map((label, index) => ({
+            key: label,
+            label,
+            state:
+              index + 1 < stepNumber(step)
+                ? 'done'
+                : index + 1 === stepNumber(step)
+                  ? 'current'
+                  : 'todo',
+          }))}
+          stateWords={FA_STEP_STATE_WORDS}
         />
       )}
-      <div className="xw-flow">
-        <div className="xw-flow-main">
+      <FaAuthor single={created !== null}>
+        <FaFormColumn labelledBy={TITLE_ID}>
           {shownErrors.length > 0 ? (
-            <ErrorSummary
-              key={attempt}
-              id={ERRORS_ID}
-              title={rulesSummaryTitle(shownErrors.length)}
-              items={shownErrors.map((item) => ({
-                fieldId: FIELD_IDS[item.field],
-                summaryText: item.summaryText,
-              }))}
-            />
+            <FaFormMessages>
+              <ErrorSummary
+                spaced
+                key={attempt}
+                id={ERRORS_ID}
+                title={rulesSummaryTitle(shownErrors.length)}
+                items={shownErrors.map((item) => ({
+                  fieldId: FIELD_IDS[item.field],
+                  summaryText: item.summaryText,
+                }))}
+              />
+            </FaFormMessages>
           ) : null}
           {failure ? (
-            <Notice tone="err">
-              {failure === 'create'
-                ? stateWords('FA-07.create-unavailable')
-                : stateWords('FA-07.draft-unavailable')}
-            </Notice>
+            <FaFormMessages>
+              <Notice
+                tone="warn"
+                icon="alertCircle"
+                role="alert"
+                title={createUnavailableWords(failure)}
+              />
+            </FaFormMessages>
           ) : null}
           {created && readiness ? (
             <ResultSection
               assessment={created.assessment}
               readiness={readiness}
+              marks={created.marks}
               experimentName={
-                options?.find((option) => option.experimentId === created.assessment.experimentId)
-                  ?.name ?? created.assessment.experimentId
+                options.find((option) => option.experimentId === created.assessment.experimentId)
+                  ?.name ?? stateWords('FA-08.experiment-unknown')
               }
               onAnother={restart}
             />
-          ) : failed ? (
-            <FailedState
-              title={stateWords('FA-07.failed')}
-              onRetry={() => {
-                void optionsRead.refetch();
-                void listRead.refetch();
-              }}
-            >
-              {stateWords('FA-06.failed.line')}
-            </FailedState>
-          ) : loading || !options ? (
-            <LoadingState
-              label={stateWords('FA-07.loading')}
-              surface="section"
-              className="flex flex-col gap-4 p-6"
-              skeleton={
-                <>
-                  <Skeleton className="w-[40%]" />
-                  <Skeleton />
-                  <Skeleton className="w-[70%]" />
-                </>
-              }
-            />
           ) : step === 'experiment' ? (
-            <ExperimentStep
-              options={options}
-              chosen={chosen}
-              existingNames={existingNames}
-              error={errorOf('experiment')}
-              onPick={(experimentId) => {
-                update((current) =>
-                  current.experimentId === experimentId
-                    ? current
-                    : { ...current, experimentId, questionIds: [] },
-                );
-                setErrors(null);
-              }}
-              onCancel={onCancel}
-              onContinue={onContinue}
-            />
+            <>
+              <ExperimentStep
+                options={options}
+                chosen={chosen}
+                existingNames={existingNames}
+                error={errorOf('experiment')}
+                onPick={(experimentId) => {
+                  update((current) =>
+                    current.experimentId === experimentId
+                      ? current
+                      : { ...current, experimentId, questionIds: [] },
+                  );
+                  setErrors(null);
+                }}
+              />
+              <ExperimentFoot onCancel={onCancel} onContinue={onContinue} />
+            </>
           ) : step === 'rules' ? (
             <RulesStep
               draft={draft}
@@ -502,11 +576,12 @@ export function CreateAssessment() {
           ) : step === 'questions' ? (
             <QuestionsStep
               experimentId={draft.experimentId ?? ''}
-              experimentName={chosen?.name ?? ''}
+              experimentLine={chosen ? experimentAndCode(chosen.name, chosen.courseCode) : ''}
               bank={bank}
               questionIds={draft.questionIds}
-              totalText={totalWords(picked ?? [])}
+              totalText={totalWords(picked ?? [], ADD_QUESTIONS.noneChosen)}
               error={errorOf('questions')}
+              added={addedNotice}
               onToggle={(questionId) => {
                 update((current) => ({
                   ...current,
@@ -530,10 +605,15 @@ export function CreateAssessment() {
               draftAction={draftAction}
             />
           )}
-          {!created && options ? <ThisAssessment values={summary} variant="bar" /> : null}
-        </div>
-        {!created && options ? <ThisAssessment values={summary} variant="aside" /> : null}
-      </div>
-    </PageContent>
+        </FaFormColumn>
+        {created ? null : (
+          <ThisAssessment
+            values={summary}
+            step4={step === 'preview'}
+            experimentName={chosen?.name ?? null}
+          />
+        )}
+      </FaAuthor>
+    </>
   );
 }

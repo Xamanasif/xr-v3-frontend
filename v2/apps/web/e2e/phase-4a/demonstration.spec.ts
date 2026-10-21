@@ -87,12 +87,15 @@ async function choose(radio: Locator): Promise<void> {
 }
 
 /**
- * The assessment record's tab strip (B4-05 `nav.xw-hubtabs`). At 375 the strip is wider than the
- * screen and scrolls sideways (the v46 tab pattern keeps the current tab in view): the tab is
- * brought into view first, as a swipe along the strip does, then pressed.
+ * The assessment record's tab strip (V3 FA-v1: the navigation "<name> sections"; earlier B4-05
+ * `nav.xw-hubtabs`). At 375 the strip is wider than the screen and scrolls sideways (the tab
+ * pattern keeps the current tab in view): the tab is brought into view first, as a swipe along the
+ * strip does, then pressed.
  */
 async function recordTab(page: Page, name: RegExp): Promise<void> {
-  const tab = page.getByRole('navigation', { name: ASSESSMENT }).getByRole('link', { name });
+  const tab = page
+    .getByRole('navigation', { name: `${ASSESSMENT} sections` })
+    .getByRole('link', { name });
   await tab.scrollIntoViewIfNeeded();
   await reachAndClick(page, tab);
 }
@@ -209,19 +212,21 @@ test('one tab, the product build: Faculty course assigned → the Faculty worksp
   await signIn(page, 's.ranganathan@godavari.edu.in');
   await page.waitForURL((url) => url.pathname === '/faculty');
   await expect(h1(page)).toHaveText('Overview');
-  await expect(main(page)).toContainText('You teach 1 course · 1 experiment');
+  await expect(main(page)).toContainText('You teach 1 course with 1 experiment');
   await expect(currentSidebarItem(page)).toHaveAttribute('href', '/faculty');
   await checkState(page, 'Overview');
   await sidebar(page, '/faculty/courses');
   await expect(h1(page)).toHaveText('My courses');
-  await reachAndClick(page, page.getByRole('link', { name: `Open course ${THERMO}` }));
+  // V3 (FA-v1) names the course card's link with its code too.
+  await reachAndClick(page, page.getByRole('link', { name: `Open course ME ZG523 ${THERMO}` }));
   await page.waitForURL('**/faculty/courses/thermodynamics-heat-transfer');
   await expect(h1(page)).toHaveText(THERMO);
   await reachAndClick(page, main(page).getByRole('link', { name: 'Open experiment' }));
   await page.waitForURL('**/faculty/experiments/shell-and-tube-heat-exchanger');
   await expect(h1(page)).toHaveText(SHELL);
   await checkState(page, SHELL);
-  const assessmentSection = page.getByRole('region', { name: 'Assessment' });
+  // V3 (FA-v1 FA-05): the experiment's assessment is the side panel "Assessment".
+  const assessmentSection = page.getByRole('complementary', { name: 'Assessment' });
   await reachAndClick(page, assessmentSection.getByRole('link', { name: 'Create assessment' }));
   await page.waitForURL('**/faculty/assessments/new?experimentId=shell-and-tube-heat-exchanger');
 
@@ -260,7 +265,8 @@ test('one tab, the product build: Faculty course assigned → the Faculty worksp
   await form.getByRole('textbox', { name: 'Marks' }).fill('2');
   await reachAndClick(page, form.getByRole('button', { name: 'Save question' }));
   await page.waitForURL('**/faculty/assessments/new?step=questions**');
-  const bankList = page.getByRole('list', { name: 'Questions' });
+  // V3 (FA-v1 FA-07): the bank's questions are the group "Questions for this assessment".
+  const bankList = page.getByRole('group', { name: 'Questions for this assessment' });
   await expect(bankList.getByRole('checkbox')).toHaveCount(1);
   await expect(bankList.getByRole('checkbox')).toBeChecked();
   // Everything typed before is kept across the round trip (the summary beside the steps from
@@ -274,7 +280,7 @@ test('one tab, the product build: Faculty course assigned → the Faculty worksp
   await checkState(page, 'Preview and create');
   await reachAndClick(page, page.getByRole('button', { name: 'Create assessment' }));
   await expect(h1(page)).toHaveText('Assessment created');
-  await expect(main(page).locator('.xr-notice--ok')).toContainText('· Ready');
+  await expect(main(page).locator('.fa-result .xr-st--ok')).toHaveText('Ready');
   await reachAndClick(page, page.getByRole('link', { name: 'Open assessment' }));
 
   // 4. The record: Summary → Settings → Questions → Preview.
@@ -311,17 +317,20 @@ test('one tab, the product build: Faculty course assigned → the Faculty worksp
   await choose(form.getByRole('radio', { name: 'True', exact: true }));
   await form.getByRole('textbox', { name: 'Marks' }).fill('2');
   await reachAndClick(page, form.getByRole('button', { name: 'Save question' }));
-  // Back on Questions: the new question is offered in the bank panel, never attached silently.
+  // Back on Questions: the new question is offered (V3 FA-v1 FA-09: the page's message offers it),
+  // never attached silently.
   await page.waitForURL(`**${record}/questions`);
-  const bankPanel = page.getByRole('complementary', { name: 'From your question bank' });
-  await expect(bankPanel).toBeVisible();
-  const offered = bankPanel.locator('li').first();
-  await expect(offered).toContainText('Just added to your question bank');
+  const offered = page.locator('#questions-msg');
+  await expect(offered).toContainText('Saved to your question bank.');
+  await expect(offered).toContainText(
+    'It isn’t in this assessment yet. Add it only if you want it here.',
+  );
   await expect(inOrder).toContainText('1 question · 2 marks');
   await reachAndClick(
     page,
-    offered.getByRole('button', { name: /^Add Q-\d{4} to this assessment$/ }),
+    offered.getByRole('button', { name: 'Add this question to the assessment' }),
   );
+  await expect(offered.locator('.rk-notice-t')).toHaveText('Added as question 2.');
   await expect(inOrder).toContainText('2 questions · 4 marks');
 
   await recordTab(page, /^Preview$/);
@@ -338,13 +347,13 @@ test('one tab, the product build: Faculty course assigned → the Faculty worksp
     page,
     page.getByRole('group', { name: 'Preview as' }).getByRole('button', { name: 'Answer key' }),
   );
-  await expect(main(page)).toContainText('Only you see the answer key and the marking guidance.');
+  await expect(main(page)).toContainText('Only you see the answer key and the marking guidance');
   await expect(main(page).getByText('Correct', { exact: true }).first()).toBeVisible();
 
   // The same records in Assessments and the Question bank.
   await sidebar(page, '/faculty/assessments');
   const row = main(page).locator('tbody tr').filter({ hasText: ASSESSMENT });
-  await expect(row.locator('.xr-status--ok')).toHaveText('Ready');
+  await expect(row.locator('.xr-st--ok')).toHaveText('Ready');
   await sidebar(page, '/faculty/question-bank');
   await expect(main(page).locator('tbody tr')).toHaveCount(2);
   await expectSameDocument(page, mark);

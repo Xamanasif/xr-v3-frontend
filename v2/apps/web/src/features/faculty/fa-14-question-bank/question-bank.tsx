@@ -4,42 +4,67 @@ import type { CreateOption, QuestionBankRow, ServiceError } from '@xr/contracts/
 import type { QuestionType } from '@xr/domain';
 import {
   Button,
+  ButtonLink,
   ConfirmDialog,
-  Field,
-  Icon,
-  Link,
+  FaBankDeleted,
+  FaBankPhoneOnly,
+  FaCellActions,
+  FaCellLine,
+  FaCellName,
+  FaFilters,
+  FaId,
+  FaMessageCard,
+  FaQuestionMarks,
+  FaQuestionMeta,
+  FaQuestionText,
+  FaQuiet,
+  FaRecordTabs,
+  FaSearchField,
+  FaSelectField,
+  FaStatusLine,
+  FaTable,
+  FaTableBar,
+  FaTag,
+  FaToolbar,
+  Hint,
+  ListState,
+  LoadingRows,
   Notice,
-  PageContent,
-  PageHeader,
-  SectionTabs,
-  Select,
-  Skeleton,
-  TextInput,
-} from '@xr/ui';
+  PageHead,
+  Surface,
+} from '@xr/ui/v3';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { QUESTION_TYPE_WORDS, QUESTION_TYPES } from '@/copy/assessment-words';
 import { dayMonthYear } from '@/copy/dates';
+import { assessmentName } from '@/copy/fa-shared';
 import {
-  addedMessage,
-  bankMetaLine,
+  ADDED_MESSAGE,
+  addedOnWords,
+  bankLead,
   DELETE_DIALOG,
-  deletedMessage,
+  DELETED_MESSAGE,
+  deletedLine,
   deletedRowWords,
   deleteLabel,
-  deleteTitle,
-  deleteUsedCountWords,
   deleteUsedWords,
   editLabel,
+  marksWords,
   QUESTION_BANK,
   questionCount,
+  removeFilterLabel,
+  searchChipWords,
+  typeChipWords,
+  typeSplitWords,
   usedWords,
+  versionWords,
 } from '@/copy/question-bank';
 import { BANK_TOOLS } from '@/copy/question-tools';
 import { stateWords } from '@/copy/state-copy';
 import {
   draftQuestionsAddress,
   draftsToReviewAddress,
+  FACULTY_HELP_ADDRESS,
   importQuestionsAddress,
   newQuestionAddress,
   QUESTION_BANK_TITLE,
@@ -54,15 +79,20 @@ import { useCommand } from '@/queries/use-command';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { DraftsList } from '../fa-16-draft-questions/drafts-list';
+import { useBankTodayLine } from './today-line';
 
-/** The message slot's id (B4-07 `#Kb-msg`): FA-15 lands focus here after adding a question. */
+/** The message's id (the export's `#fa-msg`): FA-15 lands focus here after adding a question. */
 export const BANK_MESSAGE_ID = 'qb-msg';
+
+/** The Questions tab's heading (`h2#fa-tabh`): the section's name and a focus target. */
+const QUESTIONS_HEADING_ID = 'qb-qh';
 
 type TypeFilter = 'all' | QuestionType;
 
 interface Message {
   readonly tone: 'ok' | 'err';
-  readonly text: string;
+  readonly title: string;
+  readonly line?: string;
 }
 
 interface DeletedRow {
@@ -72,32 +102,36 @@ interface DeletedRow {
 }
 
 /**
- * FA-14 Question bank — board B4-07 f0, f1, f2, f7, f9, at `/faculty/question-bank`
- * (`?experimentId=`, `?tab=drafts`).
+ * FA-14 Question bank — the V3 export's bank (FA-v1 `Main.dc.html` "FA-14 Question bank"), at
+ * `/faculty/question-bank` (`?experimentId=`, `?tab=drafts`).
  *
  * - **Reads**: `AssessmentService.getCreateOptions` for the experiments the Faculty member teaches
- *   (name and platform code, the Experiment filter), `QuestionBankService.listQuestions` for the
- *   chosen experiment's questions (each with how many assessments use it), and
- *   `AssessmentService.listAssessments` for the names of the assessments a question is used in
- *   (the delete dialog). The experiment is the address's, else the first taught one; one outside
- *   the teaching scope is the in-shell not-found page (state-copy `FA-14.experiment`).
- * - **As B4-07 draws it**: the header (“Question bank”, “Questions for <experiment> · <code>”,
- *   “Add a question”, “Draft with assistance” → FA-16, “Import” → FA-17), the tabs “Questions ·
- *   Drafts to review <n>”, the Questions section with its count, the toolbar (Search questions,
- *   Experiment, Type), the table (Question + ID, “From a draft you reviewed” · Type · Marks · Used ·
- *   Added · Edit / Delete), the empty bank (f7, with “Import”) and labelled rows below 760 px of
- *   content (f9).
- * - **Drafts to review** (f1, `?tab=drafts`): the Faculty member's drafts for the experiment, with
- *   FA-16's review, add and discard (`DraftsList`; `FA-14.drafts-tab`).
- * - **Delete** (f2, DL-1, destructive: focus on Cancel): `QuestionBankService.deleteQuestion` with
- *   the revision read; the question leaves the list, its history is kept and assessments keep their
- *   copy. The drawn message takes focus and the “Deleted” list names it (`FA-14.deleted-list`).
- *   Refusals read the list again (`FA-14.delete-refused`, `FA-14.delete-policy-open`); a failure
- *   for now keeps the dialog open (`FA-14.delete-unavailable`).
- * - **States B4-07 does not draw**: loading, failed + Try again, no match, no experiment taught.
+ *   (name and course code; the Experiment filter when there is more than one),
+ *   `QuestionBankService.listQuestions` for the chosen experiment's questions (each with how many
+ *   assessments use it), `QuestionBankService.listDrafts` for the Drafts tab's count, and
+ *   `AssessmentService.listAssessments` for the names of the assessments a question is used in.
+ *   The experiment is the address's, else the first taught one; one outside the teaching scope is
+ *   the in-shell not-found page (state-copy `FA-14.experiment`).
+ * - **As the export draws it**: the head (“Question bank”, “Your questions for <experiment> ·
+ *   <code>. …”, “Add a question”, “Draft with assistance” → FA-16, “Import” → FA-17), the record
+ *   tabs “Questions · Drafts to review” with their counts, the Questions section (its type split,
+ *   Search “Words in the question”, Type, the count and chips), the table (the question with its
+ *   type tag and version, “From a draft you reviewed” · Marks · Used in · Added · Edit / Delete,
+ *   each named by the question's words — never its reference), no match, the empty bank and the
+ *   no-course card.
+ * - **Drafts to review** (`?tab=drafts`): the Faculty member's drafts for the experiment as review
+ *   cards beside “How review works”, with FA-16's review, add and discard (`DraftsList`).
+ * - **Delete** (“Delete this question?”, focus on Cancel): `QuestionBankService.deleteQuestion`
+ *   with the revision read; the question leaves the list, its history is kept and assessments keep
+ *   their copy. The drawn message takes focus and the “Deleted” box names it
+ *   (`FA-14.deleted-list`). Refusals read the list again (`FA-14.delete-refused`,
+ *   `FA-14.delete-policy-open`); a failure for now keeps the dialog open
+ *   (`FA-14.delete-unavailable`).
+ * - **States the export does not draw**: loading and failed + Try again (V3 list states).
  */
 export function QuestionBank() {
   useShellPage(questionBankPlacement());
+  const today = useBankTodayLine();
   const navigation = useAppNavigation();
   const params = new URLSearchParams(navigation.search);
   const addressed = params.get('experimentId');
@@ -112,15 +146,19 @@ export function QuestionBank() {
     setChosen(addressed);
   }
 
-  // FA-15 returns here with `added=<ID>` after adding a question (`FA-14.added`): the message is
-  // shown once the question is in the list, and the address drops the parameter.
+  // FA-15 returns here with `added=<key>` after adding a question (`FA-14.added`): the message is
+  // shown once the question is in the list, and the address drops the parameter — after the move
+  // that brought the page here has settled (a replace during it can be lost), and again while the
+  // address still holds it.
   const [addedId] = useState(() => params.get('added'));
-  const dropAdded = useRef(addedId !== null);
+  const addressHasAdded = params.has('added');
   useEffect(() => {
-    if (!dropAdded.current) return;
-    dropAdded.current = false;
-    navigation.replace(questionBankAddress(addressed ?? undefined));
-  }, [navigation, addressed]);
+    if (!addressHasAdded) return undefined;
+    const timer = window.setTimeout(() => {
+      navigation.replace(questionBankAddress(addressed ?? undefined));
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [addressHasAdded, navigation, addressed]);
 
   const options = useCreateOptions();
   const taught = options.data?.ok ? options.data.value : null;
@@ -128,133 +166,160 @@ export function QuestionBank() {
   const experimentId = chosen ?? taught?.[0]?.experimentId ?? null;
   const experiment = taught?.find((entry) => entry.experimentId === experimentId) ?? null;
   const drafts = useQuestionDrafts(experiment?.experimentId ?? null);
+  const bank = useQuestionBank(experiment?.experimentId ?? null);
   if (taught && chosen !== null && experiment === null) return navigation.notFound();
   const draftCount = drafts.data?.ok ? drafts.data.value.length : undefined;
+  const questionTotal =
+    bank.data?.ok && !bank.isPlaceholderData ? bank.data.value.length : undefined;
 
   const choose = (next: string) => {
     setChosen(next);
     navigation.replace(questionBankAddress(next));
   };
 
-  let body;
+  let body: ReactNode;
   if (optionsFailed) {
     body = (
-      <BankSection count="">
+      <QuestionsSurface>
         <LoadFailed onRetry={() => void options.refetch()} />
-      </BankSection>
+      </QuestionsSurface>
     );
   } else if (taught === null) {
     body = (
-      <BankSection count="">
-        <LoadingRows />
-      </BankSection>
+      <QuestionsSurface>
+        <LoadingRows message={stateWords('FA-14.loading')} />
+      </QuestionsSurface>
     );
   } else if (experiment === null) {
-    body = <NoExperiment />;
-  } else if (onDrafts) {
-    body = (
-      <DraftsList
-        key={experiment.experimentId}
-        place="bank"
-        experimentId={experiment.experimentId}
-      />
-    );
+    body = <BankNoCourse />;
   } else {
     body = (
-      <BankList
-        key={experiment.experimentId}
-        experiment={experiment}
-        taught={taught}
-        onExperiment={choose}
-        addedId={addedId}
-      />
+      <FaRecordTabs
+        label={BANK_TOOLS.tabsLabel}
+        tabs={[
+          {
+            key: 'questions',
+            href: questionBankAddress(experiment.experimentId),
+            label: BANK_TOOLS.questionsTab,
+            count: questionTotal,
+            current: !onDrafts,
+          },
+          {
+            key: 'drafts',
+            href: draftsToReviewAddress(experiment.experimentId),
+            label: BANK_TOOLS.draftsTab,
+            count: draftCount,
+            current: onDrafts,
+          },
+        ]}
+      >
+        {onDrafts ? (
+          <DraftsList
+            key={experiment.experimentId}
+            place="bank"
+            experimentId={experiment.experimentId}
+          />
+        ) : (
+          <BankList
+            key={experiment.experimentId}
+            experiment={experiment}
+            taught={taught}
+            onExperiment={choose}
+            addedId={addedId}
+          />
+        )}
+      </FaRecordTabs>
     );
   }
 
   return (
-    <PageContent wrap="wide">
-      <PageHeader
+    <>
+      <PageHead
+        date={today}
         title={QUESTION_BANK_TITLE}
-        meta={
-          experiment ? (
-            <span className="xl-meta">{bankMetaLine(experiment.name, experiment.courseCode)}</span>
-          ) : null
+        titleFocusTarget
+        lead={
+          experiment
+            ? bankLead(experiment.name, experiment.courseCode)
+            : taught !== null
+              ? QUESTION_BANK.noCourseLead
+              : undefined
         }
         actions={
           experiment ? (
             <>
-              <Link
-                className="xr-btn xr-btn--primary"
+              <ButtonLink
+                variant="primary"
+                size="lg"
+                icon="add"
+                iconSize={20}
                 href={newQuestionAddress({ experimentId: experiment.experimentId })}
               >
-                <Icon name="add" />
                 {QUESTION_BANK.addQuestion}
-              </Link>
-              <Link
-                className="xr-btn xr-btn--secondary"
-                href={draftQuestionsAddress(experiment.experimentId)}
-              >
-                <Icon name="assist" />
+              </ButtonLink>
+              <ButtonLink size="lg" href={draftQuestionsAddress(experiment.experimentId)}>
                 {BANK_TOOLS.draftWithAssistance}
-              </Link>
-              <Link
-                className="xr-btn xr-btn--secondary"
+              </ButtonLink>
+              <ButtonLink
+                variant="ghost"
+                size="lg"
+                icon="upload"
+                iconSize={20}
                 href={importQuestionsAddress(experiment.experimentId)}
               >
-                <Icon name="readyToPublish" />
                 {BANK_TOOLS.import}
-              </Link>
+              </ButtonLink>
             </>
           ) : null
         }
       />
-      {experiment ? (
-        <SectionTabs
-          label={BANK_TOOLS.tabsLabel}
-          tabs={[
-            {
-              href: questionBankAddress(experiment.experimentId),
-              label: BANK_TOOLS.questionsTab,
-              current: !onDrafts,
-            },
-            {
-              href: draftsToReviewAddress(experiment.experimentId),
-              label: BANK_TOOLS.draftsTab,
-              count: draftCount,
-              current: onDrafts,
-            },
-          ]}
-        />
-      ) : null}
       {body}
-    </PageContent>
+    </>
   );
 }
 
-/** The Questions section (`section.xr-section` with its H2 and the count in a polite status). */
-function BankSection({
-  count,
-  children,
-}: {
-  readonly count: string;
-  readonly children: ReactNode;
-}) {
+/** The Questions section while the taught experiments load or fail (heading only, no tools). */
+function QuestionsSurface({ children }: { readonly children: ReactNode }) {
   return (
-    <section className="xr-section" aria-labelledby="qb-qh">
-      <div className="xr-section-head">
-        <h2 id="qb-qh" className="xr-h2">
-          {QUESTION_BANK.sectionTitle}
-        </h2>
-        <span className="xr-meta" role="status">
-          {count}
-        </span>
-      </div>
+    <Surface labelledBy={QUESTIONS_HEADING_ID}>
+      <FaToolbar>
+        <FaTableBar title={QUESTION_BANK.sectionTitle} titleId={QUESTIONS_HEADING_ID} focusable />
+      </FaToolbar>
       {children}
-    </section>
+    </Surface>
   );
 }
 
-/** One experiment's questions: the toolbar, the message slot, the table and the Deleted list. */
+/**
+ * No experiment taught yet (`QB.noCourse`): “Your question bank opens with your first course”,
+ * with Help & support — no head actions, no tabs. FA-15 shows it in place of its form.
+ */
+export function BankNoCourse() {
+  return (
+    <FaMessageCard
+      icon="stack"
+      title={QUESTION_BANK.noCourseTitle}
+      titleId="qb-none"
+      actions={<ButtonLink href={FACULTY_HELP_ADDRESS}>{QUESTION_BANK.help}</ButtonLink>}
+    >
+      {QUESTION_BANK.noCourseLine}
+    </FaMessageCard>
+  );
+}
+
+/** The assessments that use each question, by name (one read: the Faculty member's assessments). */
+function useUsedNames(enabled: boolean): (questionId: string) => readonly string[] | null {
+  const assessments = useFacultyAssessments(enabled);
+  const list = assessments.data?.ok ? assessments.data.value : null;
+  return (questionId) =>
+    list
+      ? list
+          .filter((row) => row.assessment.questions.some((ref) => ref.questionId === questionId))
+          .map((row) => assessmentName(row.assessment.name))
+      : null;
+}
+
+/** One experiment's questions: the toolbar, the message, the table and the Deleted box. */
 function BankList({
   experiment,
   taught,
@@ -271,19 +336,35 @@ function BankList({
   const [type, setType] = useState<TypeFilter>('all');
   const [message, setMessage] = useState<Message | null>(null);
   const [focusMessage, setFocusMessage] = useState(0);
+  const addedFocused = useRef(false);
   const [deleted, setDeleted] = useState<readonly DeletedRow[]>([]);
   const [target, setTarget] = useState<QuestionBankRow | null>(null);
   const [deleteFailed, setDeleteFailed] = useState(false);
   const messageRef = useRef<HTMLDivElement>(null);
+  const headingRef = useRef<HTMLHeadingElement>(null);
 
   const bank = useQuestionBank(experiment.experimentId);
   const all = bank.data?.ok && !bank.isPlaceholderData ? bank.data.value : null;
-  const assessments = useFacultyAssessments(all?.some((row) => row.usedIn > 0) ?? false);
+  const usedNames = useUsedNames(all?.some((row) => row.usedIn > 0) ?? false);
   const remove = useCommand((ports) => ports.questionBank.deleteQuestion);
+
+  const addedShown =
+    message === null &&
+    addedId !== null &&
+    (all?.some((row) => row.question.id === addedId) ?? false);
+  const shown: Message | null =
+    message ??
+    (addedShown ? { tone: 'ok', title: ADDED_MESSAGE.title, line: ADDED_MESSAGE.line } : null);
 
   useEffect(() => {
     if (focusMessage > 0) messageRef.current?.focus();
   }, [focusMessage]);
+  // Back from FA-15 with the question in the list: its message takes focus once (`FA-14.added`).
+  useEffect(() => {
+    if (!addedShown || addedFocused.current) return;
+    addedFocused.current = true;
+    messageRef.current?.focus();
+  }, [addedShown]);
 
   // An experiment outside the teaching scope (or unknown) is not found (`FA-14.experiment`).
   if (bank.data && !bank.data.ok && bank.data.error.kind === 'not-permitted') {
@@ -292,25 +373,14 @@ function BankList({
   const failed = bank.isError || (bank.data !== undefined && !bank.data.ok);
 
   const query = search.trim().toLowerCase();
+  // The search reads the question's words and its stored key, which is never shown (`FA-14.filters`).
   const rows =
     all?.filter(
       (row) =>
         (query === '' || `${row.question.text} ${row.question.id}`.toLowerCase().includes(query)) &&
         (type === 'all' || row.question.body.type === type),
     ) ?? [];
-  const shown =
-    message ??
-    (addedId && all?.some((row) => row.question.id === addedId)
-      ? { tone: 'ok' as const, text: addedMessage(addedId) }
-      : null);
-
-  const usedNames = (questionId: string): readonly string[] | null => {
-    const list = assessments.data?.ok ? assessments.data.value : null;
-    if (!list) return null;
-    return list
-      .filter((row) => row.assessment.questions.some((ref) => ref.questionId === questionId))
-      .map((row) => row.assessment.name || row.assessment.id);
-  };
+  const filtered = query !== '' || type !== 'all';
 
   const say = (next: Message) => {
     setMessage(next);
@@ -322,7 +392,7 @@ function BankList({
     void bank.refetch();
     say({
       tone: 'err',
-      text:
+      title:
         error.kind === 'policy-open'
           ? stateWords('FA-14.delete-policy-open')
           : stateWords('FA-14.delete-refused'),
@@ -332,6 +402,7 @@ function BankList({
   const confirmDelete = () => {
     if (!target || remove.busy) return;
     const row = target;
+    const names = row.usedIn > 0 ? usedNames(row.question.id) : null;
     setDeleteFailed(false);
     remove.run({ id: row.question.id, expectedRev: row.question.rev }).then(
       (answer) => {
@@ -348,118 +419,164 @@ function BankList({
           },
         ]);
         setTarget(null);
-        say({ tone: 'ok', text: deletedMessage(answer.value.id) });
+        say({ tone: 'ok', title: DELETED_MESSAGE, line: deletedLine(names) });
       },
       // Failed for now: the dialog stays open and says so (`FA-14.delete-unavailable`).
       () => setDeleteFailed(true),
     );
   };
 
-  const filtered = query !== '' || type !== 'all';
   const clearFilters = () => {
     setSearch('');
     setType('all');
   };
 
-  let list;
+  const typeOptions = [
+    { value: 'all', label: QUESTION_BANK.allTypes },
+    ...QUESTION_TYPES.map((value) => ({ value, label: QUESTION_TYPE_WORDS[value] })),
+  ];
+  const chips = [
+    ...(query !== ''
+      ? [
+          {
+            key: 'search',
+            label: searchChipWords(search.trim()),
+            onRemove: () => setSearch(''),
+            focusId: 'qb-q',
+          },
+        ]
+      : []),
+    ...(type !== 'all'
+      ? [
+          {
+            key: 'type',
+            label: typeChipWords(QUESTION_TYPE_WORDS[type]),
+            onRemove: () => setType('all'),
+            focusId: 'qb-t',
+          },
+        ]
+      : []),
+  ];
+
+  const hasAny = all !== null && all.length > 0;
+  let list: ReactNode;
   if (failed) {
     list = <LoadFailed onRetry={() => void bank.refetch()} />;
   } else if (all === null) {
-    list = <LoadingRows />;
+    list = <LoadingRows message={stateWords('FA-14.loading')} />;
   } else if (all.length === 0) {
-    list = <EmptyBank experimentId={experiment.experimentId} />;
+    list = (
+      <ListState kind="empty" roomy icon="stack" title={QUESTION_BANK.emptyTitle}>
+        {BANK_TOOLS.emptyLine}
+      </ListState>
+    );
   } else if (rows.length === 0) {
     list = (
-      <div className="xr-section-body">
-        <p className="xr-body m-0 text-ink-2">
-          {QUESTION_BANK.noMatch}{' '}
-          {filtered ? (
-            <Button variant="text" className="min-h-8" onClick={clearFilters}>
-              {stateWords('FA-14.clear-filters')}
-            </Button>
-          ) : null}
-        </p>
-      </div>
+      <ListState
+        kind="nomatch"
+        title={QUESTION_BANK.noMatchTitle}
+        action={<Button onClick={clearFilters}>{QUESTION_BANK.clearFilters}</Button>}
+      >
+        {QUESTION_BANK.noMatchLine}
+      </ListState>
     );
   } else {
-    list = <QuestionTable rows={rows} experimentName={experiment.name} onDelete={setTarget} />;
+    list = <QuestionTable rows={rows} usedNames={usedNames} onDelete={setTarget} />;
   }
 
   const targetNames = target && target.usedIn > 0 ? usedNames(target.question.id) : null;
 
   return (
-    <BankSection count={all === null || failed ? '' : questionCount(rows.length)}>
-      <div className="xr-toolbar px-6 pb-3">
-        <Field id="qb-q" label={QUESTION_BANK.search} className="xr-toolbar-search">
-          <TextInput
-            type="search"
-            placeholder={QUESTION_BANK.searchPlaceholder}
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-        </Field>
-        <Field id="qb-e" label={QUESTION_BANK.experiment}>
-          <Select
-            value={experiment.experimentId}
-            onChange={(event) => onExperiment(event.target.value)}
-            options={taught.map((entry) => ({ value: entry.experimentId, label: entry.name }))}
-          />
-        </Field>
-        <Field id="qb-t" label={QUESTION_BANK.type} className="xr-filter-2">
-          <Select
-            value={type}
-            onChange={(event) => setType(event.target.value as TypeFilter)}
-            options={[
-              { value: 'all', label: QUESTION_BANK.allTypes },
-              ...QUESTION_TYPES.map((value) => ({ value, label: QUESTION_TYPE_WORDS[value] })),
-            ]}
-          />
-        </Field>
-      </div>
-      <div id={BANK_MESSAGE_ID} ref={messageRef} tabIndex={-1}>
-        {shown ? (
-          <p
-            className={`xa-save ${shown.tone === 'ok' ? 'is-ok' : 'is-err'} mx-6 mb-3`}
-            role="status"
-          >
-            <Icon name={shown.tone === 'ok' ? 'done' : 'failed'} />
-            {shown.text}
-          </p>
+    <Surface labelledBy={QUESTIONS_HEADING_ID}>
+      <FaToolbar>
+        <FaTableBar
+          title={QUESTION_BANK.sectionTitle}
+          titleId={QUESTIONS_HEADING_ID}
+          titleRef={headingRef}
+        >
+          {hasAny ? <Hint>{typeSplitWords(splitOf(all))}</Hint> : null}
+        </FaTableBar>
+        {hasAny ? (
+          <>
+            <FaFilters label={QUESTION_BANK.filterLabel}>
+              <FaSearchField
+                id="qb-q"
+                label={QUESTION_BANK.search}
+                placeholder={QUESTION_BANK.searchPlaceholder}
+                value={search}
+                onChange={setSearch}
+              />
+              {taught.length > 1 ? (
+                <FaSelectField
+                  id="qb-e"
+                  label={QUESTION_BANK.experiment}
+                  value={experiment.experimentId}
+                  options={taught.map((entry) => ({
+                    value: entry.experimentId,
+                    label: entry.name,
+                  }))}
+                  onChange={onExperiment}
+                />
+              ) : null}
+              <FaSelectField
+                id="qb-t"
+                label={QUESTION_BANK.type}
+                value={type}
+                options={typeOptions}
+                onChange={(value) => setType(value as TypeFilter)}
+              />
+            </FaFilters>
+            <FaStatusLine
+              count={filtered ? questionCount(all.length, rows.length) : questionCount(all.length)}
+              chips={chips}
+              removeLabel={(chip) => removeFilterLabel(chip.label)}
+              clearLabel={QUESTION_BANK.clearFilters}
+              onClearFilters={clearFilters}
+              clearFocusId="qb-q"
+            />
+          </>
         ) : null}
-      </div>
+        {shown ? (
+          <Notice
+            id={BANK_MESSAGE_ID}
+            ref={messageRef}
+            tone={shown.tone === 'ok' ? 'ok' : 'warn'}
+            icon={shown.tone === 'ok' ? undefined : 'alertCircle'}
+            role="status"
+            title={shown.title}
+          >
+            {shown.line}
+          </Notice>
+        ) : null}
+      </FaToolbar>
       {list}
       {deleted.length > 0 ? (
-        <div className="xr-section-body pt-4">
-          <h3 className="xr-h3 mb-2">{QUESTION_BANK.deletedTitle}</h3>
-          <ul className="m-0 pl-5 text-ink-2">
-            {deleted.map((row) => (
-              <li key={row.id}>
-                <span className="xr-id">{row.id}</span>{' '}
-                {deletedRowWords(row.text, dayMonthYear(row.at))}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <FaBankDeleted
+          titleId="qb-delh"
+          title={QUESTION_BANK.deletedTitle}
+          items={deleted.map((row) => ({
+            key: row.id,
+            text: deletedRowWords(row.text, dayMonthYear(row.at)),
+          }))}
+        />
       ) : null}
       <ConfirmDialog
         open={target !== null}
         idPrefix="qb-del"
-        align="start"
-        destructive
-        title={target ? deleteTitle(target.question.id) : ''}
-        effect={DELETE_DIALOG.effect}
-        notice={
-          <>
-            {target && target.usedIn > 0 ? (
-              <UsedLine names={targetNames} count={target.usedIn} />
-            ) : null}
-            {deleteFailed ? (
-              <Notice tone="err" role="alert">
-                {stateWords('FA-14.delete-unavailable')}
-              </Notice>
-            ) : null}
-          </>
-        }
+        initialFocus="cancel"
+        title={DELETE_DIALOG.title}
+        description={target ? target.question.text : ''}
+        groups={[
+          {
+            kind: 'now',
+            title: DELETE_DIALOG.effectsTitle,
+            items: [
+              DELETE_DIALOG.leaves,
+              DELETE_DIALOG.history,
+              ...(target && target.usedIn > 0 ? [deleteUsedWords(targetNames, target.usedIn)] : []),
+            ],
+          },
+        ]}
         cancelLabel={DELETE_DIALOG.cancel}
         confirmLabel={DELETE_DIALOG.confirm}
         busy={remove.busy}
@@ -469,177 +586,146 @@ function BankList({
           setTarget(null);
           setDeleteFailed(false);
         }}
-        returnFocusFallback={messageRef}
-      />
-    </BankSection>
+        returnFocusFallback={headingRef}
+      >
+        {deleteFailed ? (
+          <Notice
+            tone="warn"
+            icon="alertCircle"
+            role="alert"
+            title={stateWords('FA-14.delete-unavailable')}
+          />
+        ) : null}
+      </ConfirmDialog>
+    </Surface>
   );
 }
 
-/** f2: “**It is used in <assessment>.** That assessment keeps its copy, …”. */
-function UsedLine({
-  names,
-  count,
-}: {
-  readonly names: readonly string[] | null;
-  readonly count: number;
-}) {
-  const words = names && names.length > 0 ? deleteUsedWords(names) : deleteUsedCountWords(count);
-  return (
-    <p className="mt-2">
-      <strong>{words.strong}</strong>
-      {words.rest}
-    </p>
-  );
+/** How many questions of each type the bank holds (`QB.split`). */
+function splitOf(rows: readonly QuestionBankRow[]) {
+  const count = (type: QuestionType) =>
+    rows.filter((row) => row.question.body.type === type).length;
+  return {
+    multipleChoice: count('multiple-choice'),
+    trueFalse: count('true-false'),
+    written: count('written'),
+  };
 }
 
-/** The table (f0) — labelled rows below 760 px of content (f9). */
+/** The questions (the export's `fa-btable`), each named by its words. */
 function QuestionTable({
   rows,
-  experimentName,
+  usedNames,
   onDelete,
 }: {
   readonly rows: readonly QuestionBankRow[];
-  readonly experimentName: string;
+  readonly usedNames: (questionId: string) => readonly string[] | null;
   readonly onDelete: (row: QuestionBankRow) => void;
 }) {
   const { columns } = QUESTION_BANK;
   return (
-    <div className="xr-table-wrap">
-      <table className="xr-table">
-        <caption className="xr-sr">{bankMetaLine(experimentName, null)}</caption>
-        <thead>
-          <tr>
-            <th scope="col">{columns.question}</th>
-            <th scope="col">{columns.type}</th>
-            <th scope="col">{columns.marks}</th>
-            <th scope="col">{columns.used}</th>
-            <th scope="col">{columns.added}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.actions}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => (
-            <tr key={row.question.id}>
-              <td>
-                <strong className="text-ink">{row.question.text}</strong>
-                <span className="xa-qrow-meta mt-1">
-                  <span className="xr-id">{row.question.id}</span>
-                  {row.question.origin === 'reviewed-draft' ? (
-                    <span className="xa-tag">{BANK_TOOLS.fromDraft}</span>
+    <FaTable
+      kind="bank"
+      caption={QUESTION_BANK.caption}
+      columns={[
+        { key: 'question', header: columns.question, width: 'q' },
+        { key: 'marks', header: columns.marks, desktopOnly: true },
+        { key: 'used', header: columns.used, width: 'used' },
+        { key: 'added', header: columns.added, desktopOnly: true },
+        { key: 'actions', header: columns.actions, hidden: true },
+      ]}
+      rows={rows.map((row) => {
+        const { question } = row;
+        const marks = marksWords(question.marks);
+        const added = dayMonthYear(question.addedAt);
+        return {
+          key: question.id,
+          static: true,
+          cells: [
+            {
+              key: 'question',
+              main: true,
+              wide: true,
+              children: (
+                <>
+                  <FaQuestionText inCell>{question.text}</FaQuestionText>
+                  <FaQuestionMeta
+                    inCell
+                    type={QUESTION_TYPE_WORDS[question.body.type]}
+                    written={question.body.type === 'written'}
+                  >
+                    {question.version > 1 ? <FaId>{versionWords(question.version)}</FaId> : null}
+                    <FaQuestionMarks phoneOnly>{marks}</FaQuestionMarks>
+                    <FaBankPhoneOnly>{addedOnWords(added)}</FaBankPhoneOnly>
+                  </FaQuestionMeta>
+                  {question.origin === 'reviewed-draft' ? (
+                    <FaCellLine apart>
+                      <FaTag checked>{BANK_TOOLS.fromDraft}</FaTag>
+                    </FaCellLine>
                   ) : null}
-                </span>
-              </td>
-              <td>
-                <span className="xa-tag">{QUESTION_TYPE_WORDS[row.question.body.type]}</span>
-              </td>
-              <td className="xl-num">{row.question.marks}</td>
-              <td>{usedWords(row.usedIn)}</td>
-              <td>{dayMonthYear(row.question.addedAt)}</td>
-              <td>
-                <div className="xw-actions flex-nowrap">
-                  <Link
-                    className="xr-btn xr-btn--secondary xr-btn--sm"
-                    href={questionAddress(row.question.id)}
-                    aria-label={editLabel(row.question.id)}
+                </>
+              ),
+            },
+            {
+              key: 'marks',
+              nowrap: true,
+              desktopOnly: true,
+              children: <FaQuestionMarks>{marks}</FaQuestionMarks>,
+            },
+            {
+              key: 'used',
+              wide: true,
+              inline: true,
+              label: columns.used,
+              children:
+                row.usedIn > 0 ? (
+                  <FaCellName>{usedWords(row.usedIn, usedNames(question.id))}</FaCellName>
+                ) : (
+                  <FaQuiet inline>{QUESTION_BANK.notUsed}</FaQuiet>
+                ),
+            },
+            { key: 'added', nowrap: true, desktopOnly: true, children: added },
+            {
+              key: 'actions',
+              nowrap: true,
+              wide: true,
+              children: (
+                <FaCellActions>
+                  <ButtonLink
+                    href={questionAddress(question.id)}
+                    icon="pencil"
+                    iconSize={20}
+                    aria-label={editLabel(question.text)}
                   >
                     {QUESTION_BANK.edit}
-                  </Link>
+                  </ButtonLink>
                   <Button
-                    variant="text"
-                    className="min-h-9 text-err"
-                    aria-label={deleteLabel(row.question.id)}
+                    variant="ghost"
+                    id={`qb-del-${question.id}`}
+                    aria-label={deleteLabel(question.text)}
                     onClick={() => onDelete(row)}
                   >
                     {QUESTION_BANK.delete}
                   </Button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+                </FaCellActions>
+              ),
+            },
+          ],
+        };
+      })}
+    />
   );
 }
 
-/** f7 “Your question bank is empty” with “Add a question” and “Import”. */
-function EmptyBank({ experimentId }: { readonly experimentId: string }) {
-  return (
-    <div className="xr-section-body">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="questionBank" />
-        </span>
-        <h3 className="xr-h3 m-0">{QUESTION_BANK.emptyTitle}</h3>
-        <p className="xr-body m-0 text-ink-2">{BANK_TOOLS.emptyLine}</p>
-        <div className="flex flex-wrap gap-3">
-          <Link className="xr-btn xr-btn--primary" href={newQuestionAddress({ experimentId })}>
-            {QUESTION_BANK.addQuestion}
-          </Link>
-          <Link className="xr-btn xr-btn--secondary" href={importQuestionsAddress(experimentId)}>
-            {BANK_TOOLS.import}
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Undrawn: no experiment taught yet (`FA-14.no-experiment`). */
-export function NoExperiment() {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="questionBank" />
-        </span>
-        <h2 className="xr-h3 m-0">{stateWords('FA-14.no-experiment')}</h2>
-        <p className="xr-body m-0 text-ink-2">{stateWords('FA-14.no-experiment.line')}</p>
-      </div>
-    </div>
-  );
-}
-
-/** Undrawn: loading (`FA-14.loading`), B4-02 f4’s skeleton rows. */
-function LoadingRows() {
-  return (
-    <div className="xr-table-wrap" aria-busy="true">
-      <span className="xr-sr" role="status">
-        {stateWords('FA-14.loading')}
-      </span>
-      {[0, 1, 2, 3].map((row) => (
-        <div
-          key={row}
-          aria-hidden="true"
-          className="grid grid-cols-[1.6fr_1fr_80px_1fr_1fr] gap-5 px-4 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
-        >
-          {[0, 1, 2, 3, 4].map((cell) => (
-            <Skeleton key={cell} />
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-/** Undrawn: failed + Try again (`FA-14.failed`), B4-02 f5’s formula in the section body. */
+/** Undrawn: failed + Try again (`FA-14.failed`), the V3 failed list state. */
 function LoadFailed({ onRetry }: { readonly onRetry: () => void }) {
   return (
-    <div className="xr-section-body">
-      <div className="xr-empty">
-        <span className="xr-empty-icon bg-err-bg text-err">
-          <Icon name="failed" />
-        </span>
-        <h3 className="xr-h3 m-0">{stateWords('FA-14.failed')}</h3>
-        <p className="xr-body m-0 text-ink-2">{stateWords('FA-14.failed.line')}</p>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="primary" icon="tryAgain" onClick={onRetry}>
-            {stateWords('FA-14.try-again')}
-          </Button>
-        </div>
-      </div>
-    </div>
+    <ListState
+      kind="failed"
+      title={stateWords('FA-14.failed')}
+      action={<Button onClick={onRetry}>{stateWords('FA-14.try-again')}</Button>}
+    >
+      {stateWords('FA-14.failed.line')}
+    </ListState>
   );
 }

@@ -1,62 +1,61 @@
 /**
- * The words of FA-05 Experiment, the teaching view (board B4-03 f0 … f4), written from the facts
- * `TeachingService.getTeachingExperiment` answers (the published page, the formats the
- * institution's plans give it, the formats its Students have opened, per format how many of the
- * Students it reaches completed, are in progress or have not started) and the institution's
- * assessment (`AssessmentService.getAssessment`, `listAssessments`). Every phrase here is the
- * frozen board's own, found verbatim in its markup (`experiment.test.tsx`); what B4-03 does not
- * word is a provisional entry of the state-copy register (`state-copy-faculty-experiment.ts`,
- * VD-12) and is read from there. The board's sample counts, names and dates are never copied: they
- * come from the records.
+ * The words of FA-05 Experiment, the teaching view, as the owner-approved V3 export draws it
+ * (design/v3-refined-b/roles/FA-v1 `project/Main.dc.html`: the FA-05 template, the script's
+ * `vmExperiment` and `asmSum`), and the assessment summary FA-03 Course draws with the same words.
+ * Written from the facts `TeachingService.getTeachingExperiment` (the published page, the formats
+ * the institution's plans give it, the formats its Students opened, per format how many of the
+ * Students it reaches completed, are in progress or have not started) and
+ * `AssessmentService.listAssessments` answer. Every phrase is the export's own, in its template or
+ * composed as its script composes it (`experiment.test.tsx`); what it does not word is a
+ * provisional entry of the state-copy register (`state-copy-faculty-experiment.ts`). The export's
+ * sample counts, names and dates are never copied: they come from the records. No line names an
+ * internal reference.
  */
-import type { AssessmentRules } from '@xr/domain';
-
-import { stateWords } from './state-copy';
+import { READINESS_WORDS } from './assessment-words';
+import { FA_ASSESSMENT_STATE_WORDS, writtenAnswersWaitingWords } from './fa-shared';
+import { counted } from './faculty-overview';
 
 export const EXPERIMENT_PAGE = {
-  /** `a.xr-back` (B4-03 f0): back to My courses. */
-  back: 'My courses',
-  /** The two labelled facts under the H1 (`div.xw-statusline > span.xl-inline`). */
+  /** The breadcrumb's first level (`nav.rk-crumbs`). */
+  myCourses: 'My courses',
+  /** The identity band's figures (`dl.fa-figs`). */
   formatsHas: 'Formats your institution has',
-  formatsUsed: 'Formats used by your students',
-  /** B4-03 f3: "Formats used by your students · None yet". */
+  formatsUsed: 'Formats your students have used',
+  studentsWithAccess: 'Students with access',
+  /** A figure with nothing in it yet. */
   noneYet: 'None yet',
 } as const;
 
-/** The three sections' H2s, in the drawn order. */
+/** The sections' and the panel's headings, in the drawn order. */
 export const EXPERIMENT_SECTIONS = {
-  assessment: 'Assessment',
-  activity: 'Student activity',
+  activity: 'Student activity, by format',
   about: 'About this experiment',
+  assessment: 'Assessment',
 } as const;
 
-/** B4-03 f1 / f3: the Assessment section with no assessment yet. */
-export const NO_ASSESSMENT = {
-  title: 'No assessment for this experiment yet',
-  line: 'Create one: choose the rules, add questions from your bank, preview it as a student.',
-  action: 'Create assessment',
-} as const;
+/** "Experiment you teach · Thermodynamics & Heat Transfer" (`p.rk-eyebrow`, after the code). */
+export function experimentKicker(courseName: string): string {
+  return `Experiment you teach · ${courseName}`;
+}
 
-/** The assessment row's one action: f0 "Open assessment" (Ready), f2 "Continue setting up" (draft). */
-export const ASSESSMENT_ROW = {
-  open: 'Open assessment',
-  continue: 'Continue setting up',
-} as const;
+/** "Formats used by your students: WEB, VR" (the badges' name). */
+export function formatsUsedLabel(codes: readonly string[]): string {
+  return `Formats used by your students: ${codes.length > 0 ? codes.join(', ') : 'none yet'}`;
+}
 
-/** B4-03 f0: the Student activity section. */
 export const ACTIVITY = {
-  /** `ul.xa-counts[aria-label]`. */
-  countsLabel: 'Student activity by format',
-  completed: 'completed',
-  inProgress: 'in progress',
-  notStarted: 'not started',
-  /** "5 students have this experiment from your institution." — after the strong count. */
-  have: 'have this experiment from your institution.',
-  /** B4-03 f3: "5 students have this experiment. None has opened it yet." */
-  noneOpened: 'have this experiment. None has opened it yet.',
+  /** Under the meters: who can open it, and the way to them (FA-20). */
+  studentsLink: 'Students on this experiment',
+  /** No Student has been given the experiment yet. */
+  noStudents:
+    'No students have this experiment yet. They appear when your Institute Admin gives them access.',
 } as const;
 
-/** B4-03 f0: About this experiment. */
+/** "5 students have this experiment from your institution." / "1 student has …". */
+export function studentsHaveLine(count: number): string {
+  return `${counted(count, 'student has', 'students have')} this experiment from your institution.`;
+}
+
 export const ABOUT = {
   outcomes: 'Learning outcomes',
   outcomesNote:
@@ -64,108 +63,56 @@ export const ABOUT = {
   resources: 'Resources students see',
 } as const;
 
-/** "ME ZG523 · Thermodynamics & Heat Transfer" (the overline is drawn in capitals by CSS). */
-export function experimentOverline(code: string | null, courseName: string): string {
-  return code ? `${code} · ${courseName}` : courseName;
+// ---- The assessment summary (FA-05 panel, FA-03 experiment panels) -------------------------------
+
+export const ASSESSMENT_SUMMARY = {
+  ready: READINESS_WORDS.ready.label,
+  draft: READINESS_WORDS['draft-not-ready'].label,
+  none: FA_ASSESSMENT_STATE_WORDS.none,
+  noDeadline: 'No deadline set yet',
+  open: 'Open assessment',
+  continue: 'Continue setting up',
+  create: 'Create assessment',
+} as const;
+
+/** FA-05 with no assessment yet: the panel's title, line and its one primary. */
+export const NO_ASSESSMENT = {
+  title: 'No assessment for this experiment yet',
+  line: 'Create one: choose the rules, add questions from your bank, and preview it as a student. Assessments are set per experiment, not per format.',
+  /** FA-03's line in the experiment's Assessment column. */
+  courseLine:
+    'No assessment for this experiment yet. Assessments are set per experiment, not per format.',
+} as const;
+
+/** "Deadline passed: 14 Nov 2026, 23:59". */
+export function deadlinePassedWords(deadline: string): string {
+  return `Deadline passed: ${deadline}`;
 }
 
-/** The count before the sentence: "5 students"; "1 student" (state-copy `FA-05.students-one`). */
-export function studentsWords(count: number): string {
-  return count === 1 ? '1 student' : `${count} students`;
+/** "2 written answers waiting for marking" (`writtenAnswersWaitingWords`). */
+export const writtenWaitingWords = writtenAnswersWaitingWords;
+
+/** "Mark 2 written answers" (the primary that opens the oldest waiting submission). */
+export function markWrittenWords(count: number): string {
+  return `Mark ${counted(count, 'written answer')}`;
 }
 
-/**
- * f0: "**5 students** have this experiment from your institution." The singular is provisional
- * (`FA-05.students-one`): "**1 student** has this experiment from your institution."
- */
-export function studentsHaveLine(count: number): {
-  readonly strong: string;
-  readonly rest: string;
-} {
-  return {
-    strong: studentsWords(count),
-    rest: count === 1 ? 'has this experiment from your institution.' : ACTIVITY.have,
-  };
-}
-
-/**
- * f3 "No activity yet": "5 students have this experiment. None has opened it yet." One student
- * (`FA-05.no-activity-one`) and none (`FA-05.no-students`) are provisional.
- */
-export function noActivityLine(count: number): string {
-  if (count === 0) return stateWords('FA-05.no-students');
-  if (count === 1) return stateWords('FA-05.no-activity-one');
-  return `${studentsWords(count)} ${ACTIVITY.noneOpened}`;
-}
-
-/** "WEB · 2 completed": the per-format counts' words after each `span.xl-num`. */
-export const COUNT_WORDS = [
-  ['completed', ACTIVITY.completed],
-  ['inProgress', ACTIVITY.inProgress],
-  ['notStarted', ACTIVITY.notStarted],
-] as const;
-
-/**
- * f0 / f4 the Ready row's line: "Due 14 Nov 2026, 23:59 · 1 of 5 submitted · 1 waiting for
- * marking". The waiting figure is left out at 0 and the submissions without the list row
- * (state-copy `FA-05.ready-line`).
- */
-export function readyLine(input: {
-  readonly deadline: string | null;
-  readonly counts: {
-    readonly submitted: number;
-    readonly reach: number;
-    readonly waiting: number;
-  } | null;
-}): string {
-  const { counts } = input;
-  return [
-    input.deadline === null ? null : `Due ${input.deadline}`,
-    counts ? `${counts.submitted} of ${counts.reach} submitted` : null,
-    counts && counts.waiting > 0 ? `${counts.waiting} waiting for marking` : null,
-  ]
-    .filter((part): part is string => part !== null)
-    .join(' · ');
-}
-
-/** Every rule a Ready assessment needs is set (the release date too when "On a date"). */
-function everyRuleSet(rules: AssessmentRules): boolean {
-  return (
-    rules.passMarkPercent !== null &&
-    rules.attemptsAllowed !== null &&
-    rules.deadline !== null &&
-    rules.release !== null &&
-    (rules.release.option !== 'on-date' || rules.release.releaseDate !== null)
-  );
-}
-
-function noRuleSet(rules: AssessmentRules): boolean {
-  return (
-    rules.passMarkPercent === null &&
-    rules.attemptsAllowed === null &&
-    rules.deadline === null &&
-    rules.release === null
-  );
+/** "Mark 2 written answers for Heat Exchanger — post-lab" (its accessible name). */
+export function markWrittenLabel(count: number, assessment: string): string {
+  return `${markWrittenWords(count)} for ${assessment}`;
 }
 
 /**
- * f2 the draft row's line: "Rules set · no questions yet. Students can’t see it." The other drafts
- * (rules not or partly set, questions added) are provisional (`FA-05.draft-line`).
+ * The quiet note of an assessment: a colleague's ("Created by Dr S. Ranganathan."), a draft with
+ * questions ("Rules not finished · students can’t see it yet.") or without ("No questions yet ·
+ * students can’t see it yet."); none for the Faculty member's own Ready assessment.
  */
-export function draftLine(rules: AssessmentRules, questions: number): string {
-  const rulesPart = everyRuleSet(rules)
-    ? 'Rules set'
-    : noRuleSet(rules)
-      ? stateWords('FA-05.draft-rules-none')
-      : stateWords('FA-05.draft-rules-some');
-  const questionsPart =
-    questions === 0
-      ? 'no questions yet'
-      : `${questions} ${questions === 1 ? 'question' : 'questions'}`;
-  return `${rulesPart} · ${questionsPart}. Students can’t see it.`;
-}
-
-/** B4-03 f0 Student activity's meta: "as of 7 Nov 2026" (the read's own instant, PC-52). */
-export function asOfWords(date: string): string {
-  return `as of ${date}`;
+export function assessmentNoteWords(input: {
+  readonly colleague: string | null;
+  readonly ready: boolean;
+  readonly questions: number;
+}): string | null {
+  if (input.colleague !== null) return `Created by ${input.colleague}.`;
+  if (input.ready) return null;
+  return `${input.questions > 0 ? 'Rules not finished' : 'No questions yet'} · students can’t see it yet.`;
 }

@@ -1,12 +1,14 @@
 /**
- * FA-18 Marking queue and FA-19 Mark a submission (board B4-09 f0 … f5, f7, f8) on the real
+ * FA-18 Marking queue and FA-19 Mark a submission as the owner-approved Faculty export draws them
+ * (V3 Refined B, FA-v1 `Main.dc.html` FA-18, FA-19 and the Confirm marks dialog), on the real
  * composition root and the sample world. After Flow C, Dr S. Ranganathan creates “Heat Exchanger —
  * post-lab” (the walk’s D1, through the assessments port), Meera Iyer gives Priya Natarajan the
  * experiment, and Rahul Verma and Priya submit (the stand-in marks their choice questions on
- * submit, P4-01) — the board’s two waiting answers, at the board’s times. The one world moves the
+ * submit, P4-01) — two written answers waiting, at the walk’s times. The one world moves the
  * pages: a mark saved and confirmed through FA-19 leaves the queue’s Waiting list; after Flow D the
- * confirmed, released attempt reads as B4-09’s script words it. The service’s drawn validation
- * words; the undrawn loading, failed, not-found and provisional (policy-open) states.
+ * confirmed, released attempt reads as the export words it. The service’s validation words; the
+ * undrawn loading, failed, not-found and provisional (policy-open) states; no attempt or
+ * assessment named by its internal reference anywhere (the owner’s identifier rule).
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -28,6 +30,8 @@ import { WorkspaceNotFound } from '../shared/pu-15-not-found/not-found';
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
 import { WorkspaceLayout } from '../shared/workspace-frame/workspace-frame';
 import { filtersOf, MarkingQueue, nextToMark } from './fa-18-marking/marking-queue';
+import { calendarDaysSince } from './fa-18-marking/queue-days';
+import { passMarkOf, wholeMarkOf } from './fa-19-mark-submission/mark-facts';
 import { blockedOf, MarkSubmission, markingView } from './fa-19-mark-submission/mark-submission';
 
 afterEach(() => {
@@ -45,7 +49,7 @@ const SHELL_NAME = 'Shell-and-Tube Heat Exchanger';
 const POST_LAB = 'Heat Exchanger — post-lab';
 const COURSE = 'thermodynamics-heat-transfer';
 
-/** B4-09’s sample times, in Indian time. */
+/** The walk’s sample times, in Indian time. */
 const RAHUL_SUBMITS = '2026-11-05T13:22:00.000Z'; // 5 Nov 2026, 18:52
 const PRIYA_SUBMITS = '2026-11-06T14:40:00.000Z'; // 6 Nov 2026, 20:10
 const MARKING_TIME = '2026-11-07T04:45:00.000Z'; // 7 Nov 2026, 10:15
@@ -127,7 +131,7 @@ async function submit(
   return attempt.id;
 }
 
-/** B4-09’s world: two written answers waiting, Rahul’s the oldest (f0). */
+/** Two written answers waiting, Rahul’s the oldest. */
 async function twoWaiting(submissions: 0 | 1 | 2 = 2) {
   const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
   const assessmentId = await createPostLab(sample);
@@ -143,6 +147,26 @@ async function twoWaiting(submissions: 0 | 1 | 2 = 2) {
   }
   moveClock(sample, MARKING_TIME);
   return { runtime, sample, assessmentId, rahul: ids[0]!, priya: ids[1]! };
+}
+
+/** He saves a mark through the port, as FA-19 would (not confirmed). */
+async function saveOnly(
+  sample: Sample,
+  attemptId: string,
+  mark = '5',
+  feedback: string | null = null,
+) {
+  const faculty = asPersonId(sample, RANGANATHAN);
+  const view = ok(await faculty.marking.getAttemptForMarking(attemptId as AttemptId));
+  ok(
+    await faculty.marking.saveMark({
+      attemptId: view.attempt.id,
+      questionId: 'Q-0106' as never,
+      mark,
+      feedback,
+      expectedRev: view.attempt.rev,
+    }),
+  );
 }
 
 /** He marks and confirms through the ports, as FA-19 would. */
@@ -193,44 +217,85 @@ function showMark(runtime: PlatformRuntime, attemptId: string) {
 
 const main = () => screen.getByRole('main');
 const text = (element: Element | null) => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
+/** An element's words, its text nodes joined by spaces (cells and lines read as words). */
+const words = (element: Element | null) => {
+  if (!element) return '';
+  const parts: string[] = [];
+  const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode())
+    parts.push(node.textContent ?? '');
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
+};
 const queueHeading = () =>
   screen.findByRole('heading', { level: 1, name: 'Marking' }, { timeout: 5000 });
 const table = () => screen.findByRole('table', {}, { timeout: 5000 });
-const count = () => text(main().querySelector('.xr-phead-meta [role="status"]'));
+const count = () => text(main().querySelector('.fa-mqcount [role="status"]'));
+const sidebarCurrent = () =>
+  screen
+    .getByRole('navigation', { name: 'Faculty navigation' })
+    .querySelector('[aria-current="page"]');
 
 async function rows(): Promise<string[][]> {
   const found = await table();
   return [...found.querySelectorAll('tbody tr')].map((row) =>
-    [...row.querySelectorAll('td')].map((cell) => text(cell)),
+    [...row.querySelectorAll('td')].map((cell) => words(cell)),
   );
+}
+
+/** An internal reference: the Faculty’s ids (ASMT-, ATT-, Q-, D-) and every other role’s. */
+const REFERENCE = /\b(?:ASMT|ATT|Q|D|REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference in the document’s words (hidden and screen-reader-only words included),
+ * in any `aria-label`, `title` or `placeholder`, or in the tab’s title.
+ */
+function expectNoReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
 }
 
 // ---- FA-18 ------------------------------------------------------------------------------------
 
-describe('FA-18 Marking queue — two answers waiting (B4-09 f0)', () => {
-  it('the header with the count and “Mark next”, the toolbar, the table oldest first', async () => {
+describe('FA-18 Marking queue — two answers waiting', () => {
+  it('the head, the count and oldest wait, “Mark next”, the filters, the table oldest first', async () => {
     const { runtime, rahul, priya, assessmentId } = await twoWaiting();
-    // The world’s ids: ASMT-0009 and ATT-0450 as the walk reserves them; Priya’s attempt takes the
-    // next free id (the board’s ATT-0451 is reserved in the walk).
+    // The world’s ids: ASMT-0009 and ATT-0450 as the walk reserves them (addresses only).
     expect(assessmentId).toBe('ASMT-0009');
     expect(rahul).toBe('ATT-0450');
     expect(priya).toMatch(/^ATT-\d{4}$/);
     showQueue(runtime);
     await queueHeading();
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(main().querySelector('.rk-sub')).toHaveTextContent(
+      'Written answers from your assessments, oldest first. Choice questions are marked automatically.',
+    );
     await waitFor(() => expect(count()).toBe('2 written answers waiting'));
+    // The session’s clock reads the day of sign-in: the answers are “today” or later.
+    expect(text(main().querySelector('.fa-oldest'))).toBe('Oldest submitted today');
     const next = screen.getByRole('link', { name: 'Mark next' });
-    expect(next).toHaveClass('xr-btn', 'xr-btn--primary');
+    expect(next).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
+    expect(next.closest('.fa-tbar-act')).not.toBeNull();
     expect(next).toHaveAttribute('href', '/faculty/marking/ATT-0450');
-    // The shell: Marking current with its count (the same read), the top bar “Marking”.
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Marking');
-    const sidebar = screen.getByRole('navigation', { name: 'Faculty navigation' });
-    const current = sidebar.querySelector('[aria-current="page"]')!;
+    // The shell: Marking current with its count (the same read), the tab’s title “Marking”.
+    expect(document.title).toMatch(/^Marking/);
+    const current = sidebarCurrent()!;
     expect(current).toHaveAttribute('href', '/faculty/marking');
     await waitFor(() => expect(current).toHaveTextContent('2, 2 written answers to mark'));
 
     const section = screen.getByRole('region', { name: 'Written answers' });
+    expect(within(section).getByRole('search', { name: 'Filter written answers' })).toHaveClass(
+      'rk-tools',
+      'fa-mqtools',
+    );
     const assessment = within(section).getByRole('combobox', { name: 'Assessment' });
+    expect(assessment.closest('.rk-field')).toHaveClass('fa-field-sel', 'fa-mqasm');
     await waitFor(() =>
       expect(
         within(assessment)
@@ -240,18 +305,22 @@ describe('FA-18 Marking queue — two answers waiting (B4-09 f0)', () => {
     );
     expect(assessment).toHaveValue('all');
     const show = within(section).getByRole('group', { name: 'Show' });
-    expect(show).toHaveClass('xr-seg');
+    expect(show).toHaveClass('fa-seg', 'fa-seg--bar');
     expect(
       within(show)
         .getAllByRole('button')
-        .map((button) => [button.textContent, button.getAttribute('aria-pressed')]),
+        .map((button) => [words(button), button.getAttribute('aria-pressed')]),
     ).toEqual([
-      ['Waiting', 'true'],
-      ['Marked', 'false'],
-      ['All', 'false'],
+      ['Waiting 2 , 2', 'true'],
+      ['Marked 0 , 0', 'false'],
+      ['All 2 , 2', 'false'],
     ]);
+    expect(within(show).getByRole('button', { name: 'Waiting, 2' })).toBeVisible();
 
     const found = await table();
+    expect(found.closest('.fa-tablewrap')).not.toBeNull();
+    expect(found).toHaveClass('rk-table', 'fa-table', 'fa-ptable');
+    expect(found.querySelector('caption')).toHaveTextContent('Written answers, oldest first');
     expect([...found.querySelectorAll('th')].map((cell) => text(cell))).toEqual([
       'Student',
       'Assessment',
@@ -262,40 +331,45 @@ describe('FA-18 Marking queue — two answers waiting (B4-09 f0)', () => {
     expect(found.querySelector('th:last-child .xr-sr')).toHaveTextContent('Action');
     expect(await rows()).toEqual([
       [
-        'Rahul VermaATT-0450',
-        `${POST_LAB}Question 4 · written answer`,
-        '5 Nov 2026, 18:52',
-        'Waiting for marking',
+        'Rahul Verma Attempt 1 of 2',
+        `Assessment ${POST_LAB} Question 4 · written answer`,
+        'Submitted 5 Nov 2026, 18:52 Today',
+        'Status Waiting for marking',
         'Mark',
       ],
       [
-        `Priya Natarajan${priya}`,
-        `${POST_LAB}Question 4 · written answer`,
-        '6 Nov 2026, 20:10',
-        'Waiting for marking',
+        'Priya Natarajan Attempt 1 of 2',
+        `Assessment ${POST_LAB} Question 4 · written answer`,
+        'Submitted 6 Nov 2026, 20:10 Today',
+        'Status Waiting for marking',
         'Mark',
       ],
     ]);
     const first = found.querySelector('tbody tr')!;
-    expect(first.querySelector('td strong')).toHaveTextContent('Rahul Verma');
-    expect(first.querySelector('td .xr-meta')).toHaveTextContent('ATT-0450');
-    expect(first.querySelector('.xr-status')).toHaveClass('xr-status--wait');
+    expect(first).toHaveClass('fa-static');
+    expect(first.querySelector('td.fa-c-main .rk-strong')).toHaveTextContent('Rahul Verma');
+    expect(first.querySelector('td.fa-c-main .fa-cellsub')).toHaveTextContent('Attempt 1 of 2');
+    expect(first.querySelector('.xr-st')).toHaveClass('xr-st--warn');
     const mark = within(first as HTMLElement).getByRole('link', { name: 'Mark Rahul Verma' });
-    expect(mark).toHaveClass('xr-btn', 'xr-btn--secondary', 'xr-btn--sm');
+    expect(mark).toHaveClass('rb-btn');
+    expect(mark).not.toHaveClass('rb-btn--primary');
     expect(mark).toHaveAttribute('href', '/faculty/marking/ATT-0450');
+    // The rows name the attempt and the assessment by content, never by their ids.
+    expectNoReferences();
   });
 
-  it('Marked, All and an assessment: the list follows, the address mirrors the filters', async () => {
+  it('Marked, All and an assessment: the list and the counts follow, the address mirrors them', async () => {
     const user = userEvent.setup();
     const { runtime } = await twoWaiting();
     const { navigation } = showQueue(runtime);
     await table();
-    await user.click(screen.getByRole('button', { name: 'Marked' }));
-    // Nothing is marked yet: answers exist, so the filter matches nothing (B4-09 `noMatch`).
-    expect(await screen.findByText('Nothing matches these filters.')).toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Marked, 0' }));
+    // Nothing is marked yet: answers exist, so Marked matches nothing (the export’s `noMatch`).
+    expect(await screen.findByText('No confirmed marks here yet')).toBeVisible();
+    expect(main()).toHaveTextContent('Answers you mark and confirm are listed here.');
     expect(navigation.replace).toHaveBeenLastCalledWith('/faculty/marking?state=marked');
     expect(count()).toBe('2 written answers waiting');
-    await user.click(screen.getByRole('button', { name: 'All' }));
+    await user.click(screen.getByRole('button', { name: 'All, 2' }));
     await waitFor(async () => expect(await rows()).toHaveLength(2));
     expect(navigation.replace).toHaveBeenLastCalledWith('/faculty/marking?state=all');
     await user.selectOptions(screen.getByRole('combobox', { name: 'Assessment' }), 'ASMT-0009');
@@ -303,8 +377,20 @@ describe('FA-18 Marking queue — two answers waiting (B4-09 f0)', () => {
       '/faculty/marking?assessmentId=ASMT-0009&state=all',
     );
     await waitFor(async () => expect(await rows()).toHaveLength(2));
-    await user.click(screen.getByRole('button', { name: 'Waiting' }));
+    await user.click(screen.getByRole('button', { name: 'Waiting, 2' }));
     expect(navigation.replace).toHaveBeenLastCalledWith('/faculty/marking?assessmentId=ASMT-0009');
+  });
+
+  it('“Show all written answers” chooses All and All assessments and moves focus to the list', async () => {
+    const user = userEvent.setup();
+    const { runtime } = await twoWaiting();
+    const { navigation } = showQueue(runtime, '?state=marked');
+    const show = await screen.findByRole('button', { name: 'Show all written answers' });
+    expect(show.closest('.rk-state')).toHaveTextContent('No confirmed marks here yet');
+    await user.click(show);
+    expect(navigation.replace).toHaveBeenLastCalledWith('/faculty/marking?state=all');
+    await waitFor(async () => expect(await rows()).toHaveLength(2));
+    expect(screen.getByRole('heading', { level: 2, name: 'Written answers' })).toHaveFocus();
   });
 
   it('reads its filters from the address', async () => {
@@ -312,65 +398,88 @@ describe('FA-18 Marking queue — two answers waiting (B4-09 f0)', () => {
     showQueue(runtime, '?assessmentId=ASMT-0009&state=all');
     await table();
     expect(screen.getByRole('combobox', { name: 'Assessment' })).toHaveValue('ASMT-0009');
-    expect(screen.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'All, 2' })).toHaveAttribute('aria-pressed', 'true');
     expect(filtersOf('?state=nonsense')).toEqual({ assessmentId: null, state: 'waiting' });
+  });
+
+  it('a mark saved but not confirmed: “Mark saved — not confirmed yet” under the status', async () => {
+    const { runtime, sample, rahul } = await twoWaiting();
+    await saveOnly(sample, rahul);
+    showQueue(runtime);
+    await table();
+    const first = (await table()).querySelector('tbody tr')!;
+    await waitFor(() =>
+      expect(words(first.querySelector('td.fa-c-st'))).toBe(
+        'Status Waiting for marking Mark saved — not confirmed yet',
+      ),
+    );
+    expect(count()).toBe('2 written answers waiting');
   });
 });
 
-describe('FA-18 — after marking Rahul, and nothing waiting (B4-09 f4, f5)', () => {
-  it('f4: Priya waits alone; under All, Rahul is Marked with View', async () => {
+describe('FA-18 — after marking Rahul, and nothing waiting', () => {
+  it('Priya waits alone; under All, Rahul is Marked with View marks', async () => {
     const user = userEvent.setup();
     const { runtime, sample, rahul, priya } = await twoWaiting();
     await markAndConfirm(runtime, sample, rahul);
     showQueue(runtime);
     await table();
     expect(count()).toBe('1 written answer waiting');
-    expect((await rows()).map((cells) => cells[0])).toEqual([`Priya Natarajan${priya}`]);
+    expect((await rows()).map((cells) => cells[0])).toEqual(['Priya Natarajan Attempt 1 of 2']);
     expect(screen.getByRole('link', { name: 'Mark next' })).toHaveAttribute(
       'href',
       `/faculty/marking/${priya}`,
     );
-    await user.click(screen.getByRole('button', { name: 'All' }));
+    await user.click(screen.getByRole('button', { name: 'All, 2' }));
     await waitFor(async () => expect(await rows()).toHaveLength(2));
     const marked = (await table()).querySelector('tbody tr')!;
-    expect(marked.querySelector('.xr-status')).toHaveClass('xr-status--ok');
-    expect(marked.querySelector('.xr-status')).toHaveTextContent('Marked');
-    expect(
-      within(marked as HTMLElement).getByRole('link', { name: 'View marks for Rahul Verma' }),
-    ).toHaveTextContent('View');
-    await user.click(screen.getByRole('button', { name: 'Marked' }));
-    await waitFor(async () =>
-      expect((await rows()).map((cells) => cells[0])).toEqual(['Rahul VermaATT-0450']),
+    expect(marked.querySelector('.xr-st')).toHaveClass('xr-st--ok');
+    expect(words(marked.querySelector('td.fa-c-st'))).toBe(
+      'Status Marked Confirmed 7 Nov 2026, 10:15',
     );
+    // A confirmed row says no “how long ago”.
+    expect(words(marked.querySelectorAll('td')[2]!)).toBe('Submitted 5 Nov 2026, 18:52');
+    const view = within(marked as HTMLElement).getByRole('link', {
+      name: 'View marks for Rahul Verma',
+    });
+    expect(view).toHaveTextContent('View marks');
+    expect(view).toHaveClass('rb-btn', 'rb-btn--ghost');
+    expect(view).toHaveAttribute('href', `/faculty/marking/${rahul}`);
+    await user.click(screen.getByRole('button', { name: 'Marked, 1' }));
+    await waitFor(async () =>
+      expect((await rows()).map((cells) => cells[0])).toEqual(['Rahul Verma Attempt 1 of 2']),
+    );
+    expectNoReferences();
   });
 
-  it('f5: nothing submitted yet — “Nothing is waiting for you”, no Mark next', async () => {
+  it('nothing submitted yet — “Nothing is waiting for you”, “Nothing waiting”, no Mark next, no filters', async () => {
     const { runtime } = await twoWaiting(0);
     showQueue(runtime);
-    const title = await screen.findByRole('heading', {
-      level: 3,
-      name: 'Nothing is waiting for you',
-    });
-    expect(count()).toBe('0 written answers waiting');
-    const empty = title.closest('.xr-empty')!;
-    expect(empty.querySelector('.xr-empty-icon')).toHaveClass('xr-x-empty-icon--ok');
+    const title = await screen.findByText('Nothing is waiting for you', {}, { timeout: 5000 });
+    await waitFor(() => expect(count()).toBe('Nothing waiting'));
+    const empty = title.closest('.rk-state')!;
+    expect(empty).toHaveClass('rk-state--roomy');
     expect(empty).toHaveTextContent(
       'Written answers appear here, oldest first, as students submit. Choice questions are marked automatically.',
     );
+    expect(main().querySelector('.fa-oldest')).toBeNull();
     expect(screen.queryByRole('link', { name: 'Mark next' })).toBeNull();
-    expect(main().querySelector('.xr-phead-actions')).toBeNull();
-    // The toolbar stays (f5).
-    expect(screen.getByRole('combobox', { name: 'Assessment' })).toBeVisible();
+    expect(main().querySelector('.fa-tbar-act')).toBeNull();
+    // With no written answer at all the export draws no filters (`MQ.hasAny`).
+    expect(screen.queryByRole('combobox', { name: 'Assessment' })).toBeNull();
+    expect(screen.queryByRole('group', { name: 'Show' })).toBeNull();
   });
 
-  it('f5 again once every answer is confirmed; Marked shows them', async () => {
+  it('empty again once every answer is confirmed; the filters stay and Marked shows them', async () => {
     const user = userEvent.setup();
     const { runtime, sample, rahul, priya } = await twoWaiting();
     await markAndConfirm(runtime, sample, rahul);
     await markAndConfirm(runtime, sample, priya);
     showQueue(runtime);
-    expect(await screen.findByText('Nothing is waiting for you')).toBeVisible();
-    await user.click(screen.getByRole('button', { name: 'Marked' }));
+    expect(
+      await screen.findByText('Nothing is waiting for you', {}, { timeout: 5000 }),
+    ).toBeVisible();
+    await user.click(await screen.findByRole('button', { name: 'Marked, 2' }));
     await waitFor(async () => expect(await rows()).toHaveLength(2));
   });
 
@@ -383,9 +492,56 @@ describe('FA-18 — after marking Rahul, and nothing waiting (B4-09 f4, f5)', ()
     expect(nextToMark(waiting, 'ASMT-C')?.attempt.id).toBe('ATT-1');
     expect(nextToMark([], null)).toBeNull();
   });
+
+  it('how long ago, in Indian calendar days (state-copy FA-18.days)', () => {
+    expect(calendarDaysSince('2026-11-05T13:22:00.000Z', '2026-11-07T04:45:00.000Z')).toBe(2);
+    // 23:30 and 00:30 the next day, in India: one day apart, an hour of time.
+    expect(calendarDaysSince('2026-11-05T18:00:00.000Z', '2026-11-05T19:00:00.000Z')).toBe(1);
+    expect(calendarDaysSince('2026-11-07T04:45:00.000Z', '2026-11-05T13:22:00.000Z')).toBe(0);
+  });
 });
 
-describe('FA-18 — loading and failed (undrawn; state-copy FA-18.loading, FA-18.failed)', () => {
+describe('FA-18 — no course, a co-teacher, loading and failed', () => {
+  it('no course taught: the message card “Nothing to mark yet”, no surface', async () => {
+    const { runtime } = await tabPlatform(DESAI, 'after-flow-c');
+    showQueue(runtime);
+    const title = await screen.findByRole(
+      'heading',
+      { level: 2, name: 'Nothing to mark yet' },
+      { timeout: 5000 },
+    );
+    const card = title.closest('section')!;
+    expect(card).toHaveClass('rk-surface', 'fa-msgcard');
+    expect(card).toHaveTextContent(
+      'Written answers appear here once you teach a course with an assessment. Your Institute Admin hasn’t assigned you a course yet.',
+    );
+    expect(screen.queryByRole('region', { name: 'Written answers' })).toBeNull();
+  });
+
+  it('a co-teaching colleague’s answers are not listed; the note says why', async () => {
+    const { runtime, sample } = await tabPlatform(DESAI, 'after-flow-c');
+    ok(
+      await asPersonId(sample, MEERA).facultyCourses.assign({
+        facultyId: DESAI as PersonId,
+        courseId: COURSE as never,
+      }),
+    );
+    const assessmentId = await createPostLab(sample);
+    await submit(sample, RAHUL, assessmentId, RAHUL_WRITTEN);
+    showQueue(runtime);
+    const note = await waitFor(() => {
+      const found = main().querySelector('.rk-state p.rk-locked');
+      if (!found) throw new Error('no note yet');
+      return found;
+    });
+    expect(note).toHaveTextContent(
+      'Written answers for assessments another Faculty member created aren’t shown to co-teaching colleagues while sharing between colleagues is being decided.',
+    );
+    expect(note.querySelector('svg.xr-ico')).not.toBeNull();
+    expect(main()).not.toHaveTextContent('Rahul');
+    expect(screen.queryByRole('table')).toBeNull();
+  });
+
   it('announces loading; a failed read has Try again, which reads again', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await twoWaiting();
@@ -394,104 +550,132 @@ describe('FA-18 — loading and failed (undrawn; state-copy FA-18.loading, FA-18
     expect(document.querySelector('[aria-busy="true"] [role="status"]')).toHaveTextContent(
       'Loading the written answers',
     );
-    const failed = await screen.findByRole('heading', {
-      level: 3,
-      name: 'We couldn’t load the written answers',
-    });
-    expect(failed.closest('.xr-empty')).toHaveTextContent('Nothing has changed. Try again.');
-    await user.click(screen.getByRole('button', { name: 'Try again' }));
+    const failed = await screen.findByRole('alert', {}, { timeout: 5000 });
+    expect(failed).toHaveClass('rk-state');
+    expect(failed).toHaveTextContent('We couldn’t load the written answers');
+    expect(failed).toHaveTextContent('Nothing has changed. Try again.');
+    await user.click(within(failed).getByRole('button', { name: 'Try again' }));
     expect(await rows()).toHaveLength(2);
+    expect(screen.getByRole('heading', { level: 1, name: 'Marking' })).toHaveFocus();
   });
 });
 
 // ---- FA-19 ------------------------------------------------------------------------------------
 
-const markField = () => screen.getByRole('textbox', { name: 'Mark for question 4' });
+const markField = () => screen.getByRole('textbox', { name: /^Your mark/ });
 const feedbackField = () => screen.getByRole('textbox', { name: /^Feedback for Rahul/ });
-const panel = () => screen.getByRole('complementary', { name: 'Your mark' });
+const panel = () => screen.getByRole('complementary', { name: 'Marks' });
 const markHeading = () =>
   screen.findByRole('heading', { level: 1, name: 'Rahul Verma' }, { timeout: 5000 });
 
-describe('FA-19 Mark a submission — as drawn (B4-09 f1)', () => {
-  it('the header, the question, the answer, the guidance, the automatic marks and the panel', async () => {
+describe('FA-19 Mark a submission — as the export draws it', () => {
+  it('the head, the reading sheet, the guidance, the automatic marks and the marks panel', async () => {
     const { runtime, rahul } = await twoWaiting();
     showMark(runtime, rahul);
     await markHeading();
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
-    expect(main().querySelector('a.xr-back')).toHaveAttribute('href', '/faculty/marking');
-    expect(main().querySelector('a.xr-back')).toHaveTextContent('Marking');
-    expect(main().querySelector('.xr-overline')).toHaveTextContent(`${POST_LAB} · ${SHELL_NAME}`);
-    expect(main().querySelector('.xr-phead-meta .xr-id')).toHaveTextContent('ATT-0450');
-    expect(main().querySelector('.xr-phead-meta .xl-meta')).toHaveTextContent(
-      'Submitted 5 Nov 2026, 18:52 · attempt 1 of 2',
-    );
-    // The shell: Marking current; the crumbs “Marking / Rahul Verma”; the top bar “Mark a submission”.
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe('Mark a submission');
-    const crumbs = screen.getByRole('list', { name: 'You are here' });
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(crumbs).toHaveClass('rk-crumbs');
     expect(within(crumbs).getByRole('link', { name: 'Marking' })).toHaveAttribute(
       'href',
       '/faculty/marking',
     );
-    expect(crumbs).toHaveTextContent('Rahul Verma');
-    expect(
-      screen
-        .getByRole('navigation', { name: 'Faculty navigation' })
-        .querySelector('[aria-current="page"]'),
-    ).toHaveAttribute('href', '/faculty/marking');
-
-    // ~72 / 28: the content stack beside the decision panel.
-    const decide = main().querySelector('.xr-decide')!;
-    expect(decide.firstElementChild).toHaveClass('xw-stack');
-    expect(decide.lastElementChild).toHaveClass('xr-dpanel');
-
-    const question = screen.getByRole('region', { name: 'Question 4 · Written answer' });
-    expect(question.querySelector('.xr-section-head .xr-meta')).toHaveTextContent('10 marks');
-    expect(question.querySelector('p.xa-q-text')).toHaveTextContent(
-      'Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.',
+    expect(crumbs.querySelector('[aria-current="page"]')).toHaveTextContent('Rahul Verma');
+    const head = main().querySelector('.rk-head')!;
+    expect(head.querySelector('.rk-eyebrow')).toHaveTextContent(`${POST_LAB} · ${SHELL_NAME}`);
+    expect(head.querySelector('h1')).toHaveClass('rk-title');
+    expect(words(head.querySelector('.rk-meta'))).toBe(
+      'Waiting for marking Submitted 5 Nov 2026, 18:52 · attempt 1 of 2',
     );
-    const answer = screen.getByRole('region', { name: 'Rahul Verma’s answer' });
-    expect(answer.querySelector('blockquote.xa-answer')).toHaveTextContent(RAHUL_WRITTEN);
-    const guidance = main().querySelector('details.xa-guide')!;
-    expect(guidance).toHaveAttribute('open');
-    expect(guidance.querySelector('summary')).toHaveTextContent('Marking guidance');
-    expect(guidance.querySelector('.xa-guide-body')?.textContent).toMatch(/^Look for: /);
+    expect(head.querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--warn');
+    await waitFor(() =>
+      expect(head.querySelector('.fa-qpos')).toHaveTextContent('1 of 2 waiting · oldest first'),
+    );
+    // The shell: Marking current; the tab’s title names the Student and the page.
+    expect(document.title).toMatch(/^Rahul Verma · Mark a submission/);
+    expect(sidebarCurrent()).toHaveAttribute('href', '/faculty/marking');
+
+    // The reading sheet beside the marks panel; “Go to the marks” for narrow widths.
+    const detail = main().querySelector('.rk-detailwrap > .rk-detail')!;
+    expect(detail.firstElementChild).toHaveClass('rk-surface', 'rk-mainsheet', 'fa-sheet');
+    expect(detail.lastElementChild).toHaveClass('rk-aside');
+    expect(main().querySelector('.rk-detailwrap > p.fa-gomark a')).toHaveAttribute(
+      'href',
+      '#ms-panel',
+    );
 
     const automatic = screen.getByRole('region', { name: 'Marked automatically' });
-    expect(automatic.querySelector('.xr-section-head .xr-meta')).toHaveTextContent('4 of 6 marks');
+    expect(automatic).toHaveClass('fa-autos');
+    expect(automatic.querySelector('.fa-autos-h b')).toHaveTextContent('4 of 6 marks');
     expect(
-      [...automatic.querySelectorAll('ul.xa-counts > li')].map((row) => [
-        text(row.firstElementChild),
-        text(row.querySelector('.xa-mk')),
-        row.querySelector('.xa-mk')?.classList.contains('is-ok') ? 'ok' : 'no',
+      [...automatic.querySelectorAll('ul.fa-autolist > li')].map((row) => [
+        text(row.querySelector('.fa-auto-q')),
+        text(row.querySelector('.fa-res')),
+        row.querySelector('.fa-res')?.classList.contains('fa-res--ok') ? 'ok' : 'no',
       ]),
     ).toEqual([
-      ['Question 1', '2 of 2', 'ok'],
-      ['Question 2', '0 of 2', 'no'],
-      ['Question 3', '2 of 2', 'ok'],
+      ['Question 1 · Multiple choice', '2 of 2', 'ok'],
+      ['Question 2 · Multiple choice', '0 of 2', 'no'],
+      ['Question 3 · True or false', '2 of 2', 'ok'],
     ]);
 
-    expect(within(panel()).getByRole('heading', { level: 2 })).toHaveTextContent('Your mark');
+    const question = screen.getByRole('region', { name: 'Question 4 of 4 · Written answer' });
+    expect(question).toHaveClass('fa-sheetq');
+    expect(question.querySelector('.fa-sheetq-m')).toHaveTextContent('10 marks');
+    expect(question.querySelector('.fa-sheetq-t')).toHaveTextContent(
+      'Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.',
+    );
+    expect(question.querySelector('h3.fa-ans-h')).toHaveTextContent('Rahul Verma’s answer');
+    expect(question.querySelector('.fa-answer')).toHaveTextContent(RAHUL_WRITTEN);
+    expect(question.querySelector('.fa-guide-k')).toHaveTextContent(
+      'Marking guidance · only you see this',
+    );
+    expect(question.querySelector('.fa-guide-t')?.textContent).toMatch(/^Look for: /);
+
+    expect(panel().querySelector('.rk-panel')).toHaveClass('fa-mpanel');
+    expect(within(panel()).getByRole('heading', { level: 2 })).toHaveTextContent('Marks');
+    expect(panel().querySelector('.fa-ph-note')).toHaveTextContent('16 marks in total');
     expect(markField()).toHaveValue('');
+    expect(markField()).toHaveClass('fa-scorein');
     expect(markField()).toHaveAttribute('inputmode', 'numeric');
-    expect(markField()).toHaveAccessibleDescription('Out of 10, as a whole number.');
+    expect(markField()).toHaveAccessibleName('Your mark Question 4 · written answer, out of 10');
+    expect(markField()).toHaveAccessibleDescription('A whole number from 0 to 10.');
+    expect(panel().querySelector('.fa-scoreof')).toHaveTextContent('/ 10');
     expect(panel().querySelector('label[for="ms-fb"]')).toHaveTextContent(
       'Feedback for Rahul (optional)',
     );
+    expect(words(panel().querySelector('.fa-total'))).toBe(
+      'Total — of 16 4 marked automatically + the written mark · pass mark 8',
+    );
     expect(within(panel()).getByRole('button', { name: 'Confirm marks' })).toHaveClass(
-      'xr-btn--primary',
-      'xr-btn--block',
+      'rb-btn',
+      'rb-btn--primary',
+      'rb-btn--lg',
     );
-    expect(within(panel()).getByRole('button', { name: 'Save mark' })).toHaveClass(
-      'xr-btn--secondary',
-      'xr-btn--block',
+    expect(within(panel()).getByRole('button', { name: 'Save mark' })).toHaveClass('rb-btn');
+    expect(panel().querySelector('.fa-save-d')).toHaveTextContent(
+      'Saving keeps your mark editable.',
     );
-    expect(panel()).toHaveTextContent('Confirmed marks can’t be changed.');
+    expect(panel().querySelector('.fa-final')).toHaveTextContent(
+      'Confirmed marks can’t be changed.',
+    );
     expect(panel()).not.toHaveTextContent('Mark saved');
+    expectNoReferences();
+  });
+
+  it('“Go to the marks” moves focus to the marks panel', async () => {
+    const user = userEvent.setup();
+    const { runtime, rahul } = await twoWaiting();
+    showMark(runtime, rahul);
+    await markHeading();
+    Element.prototype.scrollIntoView = vi.fn();
+    await user.click(screen.getByRole('link', { name: 'Go to the marks' }));
+    expect(document.getElementById('ms-panel')).toHaveFocus();
   });
 });
 
-describe('FA-19 — the service’s checks (B4-09 f3)', () => {
-  it('12 is out of range: the drawn words under the field, which takes focus; nothing saved', async () => {
+describe('FA-19 — the service’s checks', () => {
+  it('12 is out of range: the words under the score, which takes focus; nothing saved', async () => {
     const user = userEvent.setup();
     const { runtime, sample, rahul } = await twoWaiting();
     showMark(runtime, rahul);
@@ -499,12 +683,14 @@ describe('FA-19 — the service’s checks (B4-09 f3)', () => {
     await user.type(markField(), '12');
     await user.click(screen.getByRole('button', { name: 'Save mark' }));
     const error = await screen.findByText('Enter a whole number from 0 to 10');
-    expect(error.closest('.xr-error')).not.toBeNull();
+    expect(error.closest('.rk-ferr')).not.toBeNull();
     expect(markField()).toHaveAttribute('aria-invalid', 'true');
     expect(markField()).toHaveAccessibleDescription(
-      'Out of 10, as a whole number. Enter a whole number from 0 to 10',
+      'A whole number from 0 to 10. Enter a whole number from 0 to 10',
     );
     await waitFor(() => expect(markField()).toHaveFocus());
+    // The live total waits for a whole number within the question’s marks.
+    expect(text(panel().querySelector('.fa-total b'))).toBe('— of 16');
     const view = ok(
       await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId),
     );
@@ -526,18 +712,23 @@ describe('FA-19 — the service’s checks (B4-09 f3)', () => {
   });
 });
 
-describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
-  it('Save mark: “Mark saved — not confirmed yet”; a change hides it; the Student sees nothing', async () => {
+describe('FA-19 — save, confirm, read-only', () => {
+  it('Save mark: “Mark saved — not confirmed yet” takes focus; a change hides it; the Student sees nothing', async () => {
     const user = userEvent.setup();
     const { runtime, sample, rahul } = await twoWaiting();
     showMark(runtime, rahul);
     await markHeading();
     await user.type(markField(), '7');
+    expect(words(panel().querySelector('.fa-total'))).toBe(
+      'Total 11 of 16 4 marked automatically + 7 written · pass mark 8',
+    );
     await user.type(feedbackField(), 'Good use of your own readings.');
     await user.click(screen.getByRole('button', { name: 'Save mark' }));
     const saved = await within(panel()).findByRole('status');
     await waitFor(() => expect(saved).toHaveTextContent('Mark saved — not confirmed yet'));
-    expect(panel().querySelector('p.xa-save.is-ok')).not.toBeNull();
+    expect(saved).toHaveClass('fa-savednote');
+    await waitFor(() => expect(saved).toHaveFocus());
+    expect(panel().querySelector('.fa-save-d')).toBeNull();
     const view = ok(
       await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId),
     );
@@ -551,7 +742,7 @@ describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
     expect(panel()).not.toHaveTextContent('Mark saved');
   });
 
-  it('Confirm marks: DL-1, then the read-only panel with the release line and Next submission', async () => {
+  it('Confirm marks: the dialog, then the read-only panel with the total, the release line and Next submission', async () => {
     const user = userEvent.setup();
     const { runtime, sample, rahul, priya } = await twoWaiting();
     showMark(runtime, rahul);
@@ -560,21 +751,33 @@ describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
     await user.type(feedbackField(), 'Good use of your own readings and the right cause.');
     await user.click(screen.getByRole('button', { name: 'Confirm marks' }));
     const dialog = await screen.findByRole('dialog', { name: 'Confirm marks for Rahul Verma?' });
-    expect(
-      [...dialog.querySelectorAll('.xr-dialog-body p')].map((line) => line.textContent),
-    ).toEqual([
-      'Question 4: 7 of 10.',
-      'Confirmed marks can’t be changed. Rahul sees the result when it’s released — after the deadline, 14 Nov 2026, 23:59.',
+    expect(dialog).toHaveClass('rk-dialog');
+    // The dialog names the assessment (never the attempt’s id).
+    expect(dialog).toHaveAccessibleDescription(POST_LAB);
+    const groups = [...dialog.querySelectorAll('.rk-dlg-group')];
+    expect(groups.map((group) => group.querySelector('h3')?.textContent)).toEqual([
+      'What confirming does',
+      'When Rahul sees the result',
     ]);
-    expect(dialog.querySelector('strong')).toHaveTextContent('7 of 10');
-    // The typed mark is saved before DL-1 opens (state-copy FA-19.confirm-saves-first).
+    expect(groups[0]).toHaveClass('rk-dlg-now');
+    expect([...groups[0]!.querySelectorAll('li')].map((line) => text(line))).toEqual([
+      'Question 4 is marked 7 of 10.',
+      'Rahul’s total becomes 11 of 16 marks — passed (pass mark 8).',
+      'The marks become read-only. They can’t be changed after you confirm.',
+    ]);
+    expect(groups[1]).toHaveClass('rk-dlg-later');
+    expect(text(groups[1]!.querySelector('li'))).toBe(
+      'Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment.',
+    );
+    // The typed mark is saved before the dialog opens (state-copy FA-19.confirm-saves-first).
     expect(
       ok(await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId))
         .attempt.marking.written[0]?.mark,
     ).toBe(7);
-    const go = within(dialog).getByRole('button', { name: 'Confirm marks' });
-    await waitFor(() => expect(go).toHaveFocus());
-    await user.click(go);
+    // The dialog opens on its title (the export’s `focusLater('fa-dlg-t')`).
+    await waitFor(() => expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus());
+    expectNoReferences();
+    await user.click(within(dialog).getByRole('button', { name: 'Confirm marks' }));
 
     const done = await waitFor(() => {
       const element = document.getElementById('ms-mdone');
@@ -582,16 +785,23 @@ describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
       return element;
     });
     await waitFor(() => expect(done).toHaveFocus());
-    expect(done.querySelector('.xr-status--ok')).toHaveTextContent('Marks confirmed');
-    expect(done).toHaveTextContent('7 Nov 2026, 10:15 · Dr S. Ranganathan');
-    const kv = done.querySelector('dl.xl-kv')!;
-    expect([...kv.querySelectorAll('dt')].map((cell) => text(cell))).toEqual(['Mark', 'Feedback']);
-    expect([...kv.querySelectorAll('dd')].map((cell) => text(cell))).toEqual([
+    expect(done).toHaveClass('fa-done');
+    expect(words(done.querySelector('.rk-notice--ok'))).toBe(
+      'Marks confirmed 7 Nov 2026, 10:15 · Dr S. Ranganathan',
+    );
+    expect(words(done.querySelector('.fa-done-total'))).toBe('11 of 16 marks Passed · pass mark 8');
+    const summary = done.querySelector('dl.fa-sumdl')!;
+    expect([...summary.querySelectorAll('dt')].map((cell) => text(cell))).toEqual([
+      'Question 4',
+      'Feedback',
+    ]);
+    expect([...summary.querySelectorAll('dd')].map((cell) => text(cell))).toEqual([
       '7 of 10',
       'Good use of your own readings and the right cause.',
     ]);
-    expect(done).toHaveTextContent(
-      'Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment.',
+    expect(summary.querySelectorAll('dd')[1]).toHaveClass('is-text');
+    expect(done.querySelector('p.rk-locked')).toHaveTextContent(
+      'Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59, as set for this assessment.',
     );
     await waitFor(() =>
       expect(within(done).getByRole('link', { name: 'Next submission' })).toHaveAttribute(
@@ -599,8 +809,18 @@ describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
         `/faculty/marking/${priya}`,
       ),
     );
-    expect(screen.queryByRole('textbox', { name: 'Mark for question 4' })).toBeNull();
+    expect(within(done).getByRole('link', { name: 'Next submission' })).toHaveClass(
+      'rb-btn--primary',
+    );
+    expect(within(done).getByRole('link', { name: 'See submissions' })).toHaveAttribute(
+      'href',
+      '/faculty/assessments/ASMT-0009/submissions',
+    );
+    // Read-only: no score field, no Save mark; the head says Marked.
+    expect(screen.queryByRole('textbox', { name: /^Your mark/ })).toBeNull();
     expect(screen.queryByRole('button', { name: 'Save mark' })).toBeNull();
+    expect(main().querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--ok');
+    expect(main().querySelector('.fa-qpos')).toBeNull();
     // The service holds it: confirmed by him, and Rahul still sees no score (after the deadline).
     const view = ok(
       await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId),
@@ -608,9 +828,10 @@ describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
     expect(view.attempt.marking.confirmed).toMatchObject({ at: expect.any(String) });
     const result = ok(await asPersonId(sample, RAHUL).assessments.getResult(rahul as AttemptId));
     expect(result.result.kind).toBe('not-released-yet');
+    expectNoReferences();
   });
 
-  it('Cancel in DL-1 confirms nothing; the mark stays saved', async () => {
+  it('Cancel in the dialog confirms nothing; the mark stays saved', async () => {
     const user = userEvent.setup();
     const { runtime, sample, rahul } = await twoWaiting();
     showMark(runtime, rahul);
@@ -627,19 +848,29 @@ describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
     expect(view.attempt.marking.confirmed).toBeNull();
   });
 
+  it('a confirm that fails for now keeps the dialog open and says so (FA-19.unavailable.confirm)', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample, rahul } = await twoWaiting();
+    showMark(runtime, rahul);
+    await markHeading();
+    await user.type(markField(), '7');
+    await user.click(screen.getByRole('button', { name: 'Confirm marks' }));
+    const dialog = await screen.findByRole('dialog');
+    faults(sample).failNext('MarkingService.confirmMarks');
+    await user.click(within(dialog).getByRole('button', { name: 'Confirm marks' }));
+    expect(
+      await within(dialog).findByText('The marks weren’t confirmed. Nothing was lost — try again.'),
+    ).toBeVisible();
+    expect(screen.getByRole('dialog')).toBeVisible();
+    const view = ok(
+      await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId),
+    );
+    expect(view.attempt.marking.confirmed).toBeNull();
+  });
+
   it('a mark saved earlier fills the form with its note (state-copy FA-19.saved-on-open)', async () => {
     const { runtime, sample, rahul } = await twoWaiting();
-    const faculty = asPersonId(sample, RANGANATHAN);
-    const view = ok(await faculty.marking.getAttemptForMarking(rahul as AttemptId));
-    ok(
-      await faculty.marking.saveMark({
-        attemptId: view.attempt.id,
-        questionId: 'Q-0106' as never,
-        mark: '5',
-        feedback: 'Saved before.',
-        expectedRev: view.attempt.rev,
-      }),
-    );
+    await saveOnly(sample, rahul, '5', 'Saved before.');
     showMark(runtime, rahul);
     await markHeading();
     expect(markField()).toHaveValue('5');
@@ -648,27 +879,33 @@ describe('FA-19 — save, confirm, read-only (B4-09 f1 → f2)', () => {
   });
 });
 
-describe('FA-19 — after Flow D: confirmed and released (B4-09 script relLine)', () => {
-  it('reads only; released after the deadline; Next submission opens the queue', async () => {
+describe('FA-19 — after Flow D: confirmed and released', () => {
+  it('reads only; released when the deadline passed; nothing else waits', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
     showMark(runtime, 'ATT-0450');
     await markHeading();
     const done = document.getElementById('ms-mdone')!;
     expect(done).toHaveTextContent('Marks confirmed');
     expect(done).toHaveTextContent('7 Nov 2026, 10:15 · Dr S. Ranganathan');
-    expect(done.querySelector('dl')).toHaveTextContent('Mark7 of 10');
+    expect(done.querySelector('dl')).toHaveTextContent('Question 47 of 10');
     await waitFor(() =>
-      expect(done).toHaveTextContent(
-        'Released to Rahul on 14 Nov 2026, 23:59 — when the deadline passed.',
+      expect(done.querySelector('p.fa-savednote')).toHaveTextContent(
+        'Result released to Rahul when the deadline passed: 14 Nov 2026, 23:59.',
       ),
     );
+    // Nothing else waits: the quiet line in place of Next submission (state-copy FA-19.next).
     await waitFor(() =>
-      expect(within(done).getByRole('link', { name: 'Next submission' })).toHaveAttribute(
-        'href',
-        '/faculty/marking',
+      expect(done.querySelector('.fa-done-acts p.fa-quiet')).toHaveTextContent(
+        'Nothing else is waiting for marking.',
       ),
+    );
+    expect(within(done).queryByRole('link', { name: 'Next submission' })).toBeNull();
+    expect(within(done).getByRole('link', { name: 'See submissions' })).toHaveAttribute(
+      'href',
+      '/faculty/assessments/ASMT-0009/submissions',
     );
     expect(screen.queryByRole('button', { name: 'Confirm marks' })).toBeNull();
+    expectNoReferences();
   });
 });
 
@@ -702,7 +939,7 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
       const dialog = await screen.findByRole('dialog');
       await user.click(within(dialog).getByRole('button', { name: 'Confirm marks' }));
       await waitFor(() => expect(panel()).toHaveTextContent(title));
-      expect(screen.queryByRole('textbox', { name: 'Mark for question 4' })).toBeNull();
+      expect(screen.queryByRole('textbox', { name: /^Your mark/ })).toBeNull();
       expect(panel().textContent).not.toMatch(/\b(?:OD|ATT|M)-?\d/);
     },
   );
@@ -738,12 +975,13 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
     const assessmentId = await createPostLab(sample);
     const attemptId = await submit(sample, RAHUL, assessmentId, RAHUL_WRITTEN);
     showMark(runtime, attemptId);
-    const title = await screen.findByRole('heading', {
-      level: 2,
-      name: 'This submission isn’t available to you yet',
-    });
+    const title = await screen.findByRole(
+      'heading',
+      { level: 2, name: 'This submission isn’t available to you yet' },
+      { timeout: 5000 },
+    );
     expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Mark a submission');
-    expect(title.closest('.xr-empty')).toHaveTextContent(
+    expect(title.closest('.rk-state')).toHaveTextContent(
       'A colleague set this assessment. Whether you can mark answers to a colleague’s assessment hasn’t been decided yet.',
     );
     expect(main()).not.toHaveTextContent('Rahul');
@@ -776,6 +1014,7 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
     expect(
       await screen.findByRole('heading', { level: 2, name: 'We couldn’t load this submission' }),
     ).toBeVisible();
+    expect(screen.getByRole('alert')).toHaveTextContent('Nothing has changed. Try again.');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await markHeading()).toBeVisible();
   });
@@ -790,6 +1029,8 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
     };
     const view = (answer: unknown) => markingView(answer as Parameters<typeof markingView>[0]);
     expect(view(base).blocked).toBeNull();
+    expect(view(base).outOf).toBe(12);
+    expect(view(base).questions).toBe(2);
     expect(
       view({ ...base, numbering: [...base.numbering, { ...base.numbering[1], questionId: 'Q-3' }] })
         .blocked,
@@ -800,5 +1041,23 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
     expect(blockedOf('ATT-17')).toBe('several');
     expect(blockedOf('M22-no-written-questions')).toBe('none');
     expect(blockedOf('OD-B4-17')).toBe('colleague');
+  });
+
+  it('the pass mark is the pinned version’s, as the domain counts it; the live total’s whole marks', () => {
+    const assessment = {
+      version: 2,
+      rules: { passMarkPercent: 60 },
+      versions: [
+        { version: 1, rules: { passMarkPercent: 50 } },
+        { version: 2, rules: { passMarkPercent: 60 } },
+      ],
+    } as unknown as Parameters<typeof passMarkOf>[0];
+    expect(passMarkOf(assessment, 1, 16)).toBe(8);
+    expect(passMarkOf(assessment, 2, 16)).toBe(9.6);
+    expect(passMarkOf({ ...assessment, versions: [] }, 1, 16)).toBeNull();
+    expect(wholeMarkOf(' 7 ', 10)).toBe(7);
+    expect(wholeMarkOf('12', 10)).toBeNull();
+    expect(wholeMarkOf('7.5', 10)).toBeNull();
+    expect(wholeMarkOf('', 10)).toBeNull();
   });
 });

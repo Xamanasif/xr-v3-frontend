@@ -133,7 +133,23 @@ export const IA_EXPORT_DIRECTORY = join(
 );
 
 /**
- * Every class a selector of the V3, XS, SA, VE, CM, RV and IA derivatives or the V3 patches names.
+ * The owner-approved Faculty export (FA-v1): its live role root (`Main.dc.html`, START-HERE "Live
+ * role preview"), read as the reference for the Faculty pages' markup, words and icons.
+ */
+export const FA_EXPORT_DIRECTORY = join(
+  V3_BOARDS_DIRECTORY,
+  '..',
+  '..',
+  '..',
+  '..',
+  'roles',
+  'FA-v1',
+  'project',
+);
+
+/**
+ * Every class a selector of the V3, XS, SA, VE, CM, RV, IA and FA derivatives or the V3 patches
+ * names.
  */
 export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
   [
@@ -144,6 +160,7 @@ export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
     'cm-scoped.css',
     'rv-scoped.css',
     'ia-scoped.css',
+    'fa-scoped.css',
     'patch.css',
   ].flatMap((sheet) => [...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8'))]),
 );
@@ -176,6 +193,11 @@ export function rvExportText(file: string): string {
 /** The raw text of an IA export file (`Main.dc.html`, …), for markup, words and icon checks. */
 export function iaExportText(file: string): string {
   return readFileSync(join(IA_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The raw text of an FA export file (`Main.dc.html`, …), for markup, words and icon checks. */
+export function faExportText(file: string): string {
+  return readFileSync(join(FA_EXPORT_DIRECTORY, file), 'utf8');
 }
 
 /**
@@ -222,6 +244,93 @@ export function iaPatchedMarkup(html: string): string {
         : `<${tag} class="${added}"${attributes}>`;
     },
   );
+}
+
+/** One of the Faculty export's inline styles on a product element (V3P-17). */
+export interface FaPatchedStyle {
+  /** The element: its export class (`.rk-hint`), or its tag when the export gives it no class. */
+  readonly element: string;
+  /** The `style` value exactly as the export writes it. */
+  readonly style: string;
+  /** The central patch's product class the kit emits in its place. */
+  readonly className: string;
+}
+
+/**
+ * The Faculty export's inline styles on product elements, each with the central patch's product
+ * class the kit emits there instead (V3P-17; `rk-x-ferr-above` is V3P-13's and `rk-x-hint-list`
+ * V3P-12's, reused for the same values). The same value on different elements may map to different
+ * classes, so each entry names its element.
+ */
+export const FA_PATCHED_STYLES: readonly FaPatchedStyle[] = [
+  { element: '.rb-eyebrow-date', style: 'margin-bottom: 0', className: 'rk-x-date-flush' },
+  {
+    element: 'section',
+    style: 'display: flex; flex-direction: column; gap: 16px',
+    className: 'rk-x-sec-stack',
+  },
+  { element: '.fa-check', style: 'margin-top: 0', className: 'rk-x-check-flush' },
+  { element: '.fa-actions', style: 'margin-top: 16px', className: 'rk-x-actions-above' },
+  { element: '.rk-hint', style: 'margin-top: 14px', className: 'rk-x-hint-box' },
+  { element: '.rk-hint', style: 'margin-top: 8px', className: 'rk-x-hint-line' },
+  { element: '.rk-notice', style: 'margin-bottom: 14px', className: 'rk-x-notice-below' },
+  { element: '.rk-pending', style: 'margin-bottom: 14px', className: 'rk-x-pending-below' },
+  { element: '.fa-cellline', style: 'margin-top: 8px', className: 'rk-x-cellline-tight' },
+  { element: '.rk-input', style: 'max-width: 240px', className: 'rk-x-input-short' },
+  { element: '.rk-sec', style: 'padding-bottom: 0', className: 'rk-x-sec-flush' },
+  { element: '.rk-next', style: 'margin-top: -6px', className: 'rk-x-next-pull' },
+  { element: '.rk-notice', style: 'margin-top: 16px', className: 'rk-x-notice-above' },
+  { element: '.rk-hint', style: 'margin-top: 6px', className: 'rk-x-hint-head' },
+  { element: 'p', style: 'margin-top: 12px', className: 'rk-x-dl-line' },
+  {
+    element: '.rk-locked',
+    style: 'max-width: 34em; margin-top: 10px; text-align: left',
+    className: 'rk-x-locked-note',
+  },
+  { element: '.fa-quiet', style: 'margin-top: 6px', className: 'rk-x-quiet-snug' },
+  { element: '.rk-table', style: 'min-width: 1000px', className: 'rk-x-table-wide' },
+  { element: '.fa-cellline', style: 'margin-top: 6px', className: 'rk-x-cellline-snug' },
+  { element: '.rk-ferr', style: 'margin-top: 10px', className: 'rk-x-ferr-above' },
+  { element: '.rk-hint', style: 'margin-top: 12px', className: 'rk-x-hint-list' },
+];
+
+/** The `FA_PATCHED_STYLES` entry for one tag of the export, if any. */
+export function faPatchedStyleOf(
+  tag: string,
+  classes: readonly string[],
+  style: string,
+): FaPatchedStyle | undefined {
+  return FA_PATCHED_STYLES.find(
+    (entry) =>
+      entry.style === style &&
+      (entry.element.startsWith('.')
+        ? classes.includes(entry.element.slice(1))
+        : entry.element === tag && classes.length === 0),
+  );
+}
+
+/**
+ * An excerpt of the FA export with each patched inline style (`FA_PATCHED_STYLES`) written as the
+ * product class the kit emits in its place (added to the element's classes, the `style` dropped);
+ * any other `style` is left as it is. Every navy panel head also gets `rk-x-panel-head-quiet`, the
+ * marker V3P-17 confines fa.css's quiet heading focus (`.rk-panel-head h2:focus`) to.
+ */
+export function faPatchedMarkup(html: string): string {
+  return html
+    .replace(/\sclass="rk-panel-head"/g, ' class="rk-panel-head rk-x-panel-head-quiet"')
+    .replace(
+      /<([a-z][\w-]*)([^<>]*?)\sstyle="([^"]*)"([^<>]*)>/g,
+      (whole, tag: string, before: string, style: string, after: string) => {
+        const attributes = `${before}${after}`;
+        const classes =
+          /\sclass="([^"]*)"/.exec(attributes)?.[1]?.split(/\s+/).filter(Boolean) ?? [];
+        const added = faPatchedStyleOf(tag, classes, style)?.className;
+        if (!added) return whole;
+        return /\sclass="/.test(attributes)
+          ? `<${tag}${attributes.replace(/\sclass="([^"]*)"/, (_match, value: string) => ` class="${value} ${added}"`)}>`
+          : `<${tag} class="${added}"${attributes}>`;
+      },
+    );
 }
 
 /**

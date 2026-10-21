@@ -1,0 +1,833 @@
+[
+ {
+  "name": "J9a-experiment-chain",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "My courses",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "FA-04 activity shown as unit meters, five units per format",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "FA-05 identity band with figures, activity meters and the assessment panel",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "FA-05 Mark opens the oldest waiting submission on FA-19",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"My courses\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Experiments\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main td a.rk-rowlink:has-text(\\\"Shell-and-Tube Heat Exchanger\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "FA-05 Open assessment goes to FA-08",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"My courses\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Experiments\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main td a.rk-rowlink:has-text(\\\"Shell-and-Tube Heat Exchanger\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "FA-05 Students on this experiment goes to FA-20",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9b-assessment-record",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-06 deadline and submissions columns",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "FA-08 band figures and the submissions panel with names, oldest first",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "FA-09 split of automatic and written marks",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "add-from-bank panel opens, focus on its heading",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "closing the panel returns focus to Add from question bank",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-10 sectioned form with How changes apply",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "FA-11 student view shows no key and no explanation",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "FA-11 answer key mode",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "FA-12 waiting rows show the automatic part only",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "FA-12 Mark next opens the oldest",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9c-record-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "FA-06 at 375",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "FA-08 at 375",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "current tab scrolled into view in the tab strip at 375",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "FA-10 rule fields stack in one column at 375",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-11 at 375",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "FA-09 at 375",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9d-bank-drafts-and-editor",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-14 drafts as cards with options, key and guidance",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "add a draft from its card",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "the added draft is in the bank",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "FA-15 side panel facts for a used question",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "cancel returns to the bank",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-15 new question: the side panel says it is not in an assessment yet",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9e-queue-and-students",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-18 count, oldest wait and age per row",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "filter by assessment",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "Mark next opens the oldest",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "FA-20 per-format summary above the roster",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "progress filter: waiting for marking",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-21 panel with Mark their answers",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "FA-21 Mark their answers opens FA-19 for that student",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9f-import-figures",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "FA-17 step 1 with the template beside it",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "{\"click\":\"role=button[name=\\\"Use the sample file\\\"]\",\"expect\":\"post-lab-questions.csv\"}",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "row check figures flag errors",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "corrected file: no error figure",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "confirm step",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "imported",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9g-phone-sweep-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "Overview",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "My courses",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "Experiments tab",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "Experiment",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "Assessments",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "Create assessment",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "Question bank",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "Drafts to review",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "Import",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "Marking",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "Mark a submission",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "Students",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "Student detail",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9h-tablet-sweep-768",
+  "width": 768,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "Overview",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "My courses",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "Experiments tab",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "Experiment",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "Assessments",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "Assessment summary",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "Submissions",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "Question bank",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "Marking",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "{\"click\":\"#fa-menu\"}",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "Students",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "Student detail",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J9i-keyboard-focus",
+  "width": 1440,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Assessments\\\")\"}",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "{\"click\":\"#fa-main a.rk-rowlink:has-text(\\\"Heat Exchanger — post-lab\\\")\",\"expectFocus\":\"fa-h1\"}",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 1 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 2 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 3 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 4 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 5 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 6 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 7 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 8 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 9 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "FA-08 · tab sequence ends after the panel (no hidden stops)",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Submissions\\\")\",\"expectFocus\":\"fa-tabh\"}",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 1 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 2 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 3 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 4 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 18,
+    "ok": true,
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 5 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 19,
+    "ok": true,
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 6 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 20,
+    "ok": true,
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 7 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 21,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Settings\\\")\",\"expectFocus\":\"fa-tabh\"}",
+    "why": ""
+   },
+   {
+    "n": 22,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 1 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 23,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 2 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 24,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 3 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 25,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 4 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 26,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 5 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 27,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 6 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 28,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 7 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 29,
+    "ok": true,
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 8 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 30,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Question bank\\\")\",\"expectFocus\":\"fa-h1\"}",
+    "why": ""
+   },
+   {
+    "n": 31,
+    "ok": true,
+    "label": "{\"click\":\"a.rk-tab:has-text(\\\"Drafts to review\\\")\",\"expectFocus\":\"fa-tabh\"}",
+    "why": ""
+   },
+   {
+    "n": 32,
+    "ok": true,
+    "label": "FA-14 draft card actions · stop 1 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 33,
+    "ok": true,
+    "label": "FA-14 draft card actions · stop 2 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 34,
+    "ok": true,
+    "label": "FA-14 draft card actions · stop 3 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 35,
+    "ok": true,
+    "label": "FA-14 draft card actions · stop 4 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 36,
+    "ok": true,
+    "label": "FA-14 draft card actions · stop 5 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 37,
+    "ok": true,
+    "label": "FA-14 draft card actions · stop 6 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 38,
+    "ok": true,
+    "label": "{\"click\":\"nav[aria-label=\\\"Faculty navigation\\\"] a:has-text(\\\"Students\\\")\",\"expectFocus\":\"fa-h1\"}",
+    "why": ""
+   },
+   {
+    "n": 39,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 1 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 40,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 2 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 41,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 3 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 42,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 4 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 43,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 5 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 44,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 6 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 45,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 7 has a visible focus ring (on the control or its row)",
+    "why": ""
+   },
+   {
+    "n": 46,
+    "ok": true,
+    "label": "FA-20 Export CSV, two filters and five rows · stop 8 has a visible focus ring (on the control or its row)",
+    "why": ""
+   }
+  ],
+  "errors": []
+ }
+]

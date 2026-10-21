@@ -23,6 +23,9 @@
  * - the committed `v3/ia-scoped.css` is the same for the Institute Admin role sheet of the
  *   owner-approved Institute Admin export (design/v3-refined-b/roles/IA-v1), less its preview
  *   chrome and the borrowed XS surfaces the delivered XS export replaces;
+ * - the committed `v3/fa-scoped.css` is the same for the Faculty role stylesheet of the
+ *   owner-approved Faculty export (design/v3-refined-b/roles/FA-v1), less the borrowed XS surfaces
+ *   the delivered XS export replaces;
  * - the central patches (`v3/patch.css`) are confined the same way and use only allow-listed
  *   product classes — except V3P-09's container name on the v46 app root that holds a V3 region;
  * - the entry puts both in `xr.v3`, nothing reaches `:root`, `html` or `body`, nothing loads a URL,
@@ -55,7 +58,7 @@ import {
   scopeStylesheet,
   splitTopLevel,
 } from '../../scripts/generate-v3-scoped-css.mjs';
-import { IA_PATCHED_STYLES } from '../testing/index.js';
+import { FA_PATCHED_STYLES, faPatchedStyleOf, IA_PATCHED_STYLES } from '../testing/index.js';
 import { FOUNDATION_ID, FOUNDATION_SOURCES } from '../v3/provenance.js';
 
 const V3_STYLES = join(import.meta.dirname, 'v3');
@@ -123,6 +126,9 @@ const rvDerived = readFileSync(rvRole.output, 'utf8');
 const iaRole = ROLE_SHEETS.find((role) => role.role === 'IA')!;
 const iaSource = readFileSync(join(iaRole.directory, iaRole.sheet), 'utf8');
 const iaDerived = readFileSync(iaRole.output, 'utf8');
+const faRole = ROLE_SHEETS.find((role) => role.role === 'FA')!;
+const faSource = readFileSync(join(faRole.directory, faRole.sheet), 'utf8');
+const faDerived = readFileSync(faRole.output, 'utf8');
 
 /** The top-level grouping at-rules of `css`, each with the style rules directly inside it. */
 function groupsOf(css: string): { readonly prelude: string; readonly rules: Rule[] }[] {
@@ -243,7 +249,15 @@ describe('generated rb-scoped.css', () => {
 
 describe('generated xs-scoped.css (the XS export, design/v3-refined-b/roles/XS-v6)', () => {
   it('is exactly what the generator writes from the locked extension sheet', () => {
-    expect(ROLE_SHEETS.map((role) => role.role)).toEqual(['XS', 'SA', 'VE', 'CM', 'RV', 'IA']);
+    expect(ROLE_SHEETS.map((role) => role.role)).toEqual([
+      'XS',
+      'SA',
+      'VE',
+      'CM',
+      'RV',
+      'IA',
+      'FA',
+    ]);
     expect(xsDerived).toBe(renderRoleCss(readRoleInput(xsRole)));
   });
 
@@ -616,7 +630,7 @@ describe('patch.css (V3P-nn)', () => {
     expect([...product].sort()).toEqual([...V3_PRODUCT_CLASS_ALLOW_LIST].sort());
   });
 
-  it('numbers its patches V3P-01 … V3P-16 in order; V3P-06 and V3P-07 are retired, not reused', () => {
+  it('numbers its patches V3P-01 … V3P-17 in order; V3P-06 and V3P-07 are retired, not reused', () => {
     expect([...patch.matchAll(/V3P-(\d\d) ·/g)].map((match) => match[1])).toEqual([
       '01',
       '02',
@@ -634,6 +648,7 @@ describe('patch.css (V3P-nn)', () => {
       '14',
       '15',
       '16',
+      '17',
     ]);
     for (const retired of ['06', '07']) {
       expect(patch).toMatch(new RegExp(`V3P-${retired} · retired`));
@@ -1221,7 +1236,7 @@ describe('patch.css (V3P-nn)', () => {
     const start = patch.indexOf('V3P-16 ·');
     expect(start).toBeGreaterThan(0);
     expect(
-      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2, patch.indexOf('/*\n * V3P-17 ·')))
         .map((rule) => rule.prelude)
         .sort(),
     ).toEqual(
@@ -1229,7 +1244,194 @@ describe('patch.css (V3P-nn)', () => {
         .map((element) => `${SCOPE_PREFIX}${element}${ISLAND_EXCLUSION}`)
         .sort(),
     );
-    expect(patch.slice(start)).toContain('finds no element where they differ');
+    expect(patch.slice(start, patch.indexOf('V3P-17 ·'))).toContain(
+      'finds no element where they differ',
+    );
+  });
+
+  it("V3P-17: the Faculty export's inline styles, on the element it styles, as it writes them", () => {
+    const main = readFileSync(join(faRole.directory, 'project', 'Main.dc.html'), 'utf8');
+    /** The export's template: the markup before its logic script. */
+    const template = main.slice(0, main.indexOf('<script type="text/x-dc"'));
+    /** Two earlier patches' classes, reused for the very values (V3P-13, V3P-12). */
+    const REUSED = new Set(['rk-x-ferr-above', 'rk-x-hint-list']);
+    /** Declarations compared as written (prettier writes a hex colour in lower case). */
+    const declared = (css: string) => declarations(css.toLowerCase()).join('; ');
+    const rules = rulesOf(patch);
+    const selectorOf = (element: string, className: string) =>
+      `${SCOPE_PREFIX}${element}.${className}${ISLAND_EXCLUSION}`;
+    for (const entry of FA_PATCHED_STYLES) {
+      const found = rules.filter((rule) =>
+        REUSED.has(entry.className)
+          ? rule.prelude === `${SCOPE_PREFIX}${entry.element}.${entry.className}${ISLAND_EXCLUSION}`
+          : rule.prelude === selectorOf(entry.element, entry.className),
+      );
+      expect(found, `${entry.element}.${entry.className}`).toHaveLength(1);
+      expect(declared(found[0]!.block), entry.className).toBe(declared(entry.style));
+    }
+    // Each new class is one entry's; the reused ones are the earlier patches' own.
+    const added = FA_PATCHED_STYLES.filter((entry) => !REUSED.has(entry.className));
+    expect(new Set(added.map((entry) => entry.className)).size).toBe(added.length);
+    expect(patch.indexOf('.rk-ferr.rk-x-ferr-above')).toBeLessThan(patch.indexOf('V3P-17 ·'));
+    expect(patch.indexOf('.rk-hint.rk-x-hint-list')).toBeLessThan(patch.indexOf('V3P-17 ·'));
+    // V3P-17's product classes: these, the panel heads' marker and FA-09's wrapping offer.
+    expect([...patchClasses('17')].sort()).toEqual(
+      [
+        ...added.map((entry) => entry.className),
+        'rk-x-panel-head-quiet',
+        'rk-x-notice-wrap',
+        'rk-x-errsum-spaced',
+      ].sort(),
+    );
+    /*
+     * The `style=` the product does not patch, each with why: the hidden icon sprite (the product
+     * draws each icon inline); FA-09's and FA-10's co-teacher lines (the service refuses a
+     * colleague's record on those tabs, so the product shows the held-back card) and FA-14's note
+     * on colleagues' questions (no read holds whether a colleague wrote any); the borrowed XS-07
+     * Help & support surfaces (the message wrapper, "My reports", the screenshot field), which the
+     * delivered XS components draw; and the drawer brand's `padding-top: 0` (the shell's).
+     */
+    const NOT_PATCHED = [
+      '<svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">',
+      '<sc-if value="{{ AR.notOwn }}" hint-placeholder-val="{{ false }}"><p class="rk-locked" style="margin-bottom: 16px">',
+      '<p class="rk-locked" style="margin: 14px 0 18px"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>{{ AR.coNote }}</span></p>',
+      '<sc-if value="{{ QB.hasOthers }}" hint-placeholder-val="{{ false }}"><p class="rk-locked" style="max-width: 34em; margin-top: 10px; text-align: left">',
+      '<div style="padding: 12px 22px 0"><div class="rk-notice rk-notice--ok" id="fa-msg"',
+      '<div class="fa-tablewrap" style="margin-top: 14px">',
+      '<input id="fa-hp-shot" class="rk-input" type="file" accept="image/*" style="padding-top: 9px"',
+      '<div class="rb-brand" style="padding-top: 0">',
+    ];
+    /** Where in the template each not-patched markup is (it never overlaps another). */
+    const spans: [number, number][] = [];
+    for (const markup of NOT_PATCHED) {
+      expect(template, markup).toContain(markup);
+      for (let at = template.indexOf(markup); at >= 0; at = template.indexOf(markup, at + 1)) {
+        expect(
+          spans.some(([from, to]) => at < to && at + markup.length > from),
+          markup,
+        ).toBe(false);
+        spans.push([at, at + markup.length]);
+      }
+    }
+    // Every other `style=` of the template is on a product element: one of the entries above, on
+    // an element that carries the entry's export class (or, for a bare tag, no class at all).
+    const tag = /<([a-z][\w-]*)([^<>]*?)\sstyle="([^"]*)"([^<>]*)>/g;
+    let patched = 0;
+    let notPatched = 0;
+    const used = new Set<string>();
+    for (const match of template.matchAll(tag)) {
+      const at = match.index + match[0].indexOf(' style="');
+      if (spans.some(([from, to]) => at >= from && at < to)) {
+        notPatched += 1;
+        continue;
+      }
+      const classes =
+        /\sclass="([^"]*)"/.exec(`${match[2]!}${match[4]!}`)?.[1]?.split(/\s+/).filter(Boolean) ??
+        [];
+      const entry = faPatchedStyleOf(match[1]!, classes, match[3]!);
+      expect(
+        entry,
+        `${match[0].slice(0, 100)} is patched or recorded as not patched`,
+      ).toBeDefined();
+      used.add(`${entry!.element}.${entry!.className}`);
+      patched += 1;
+    }
+    const styled = [...template.matchAll(/style="[^"]*"/g)].length;
+    expect(styled).toBe(47);
+    expect(patched).toBe(39);
+    expect(notPatched).toBe(8);
+    expect(patched + notPatched, 'each export style= is patched or recorded as not patched').toBe(
+      styled,
+    );
+    // Every entry styles at least one element of the export.
+    expect([...used].sort()).toEqual(
+      FA_PATCHED_STYLES.map((entry) => `${entry.element}.${entry.className}`).sort(),
+    );
+  });
+
+  it('V3P-17: fa.css’s one unconfined rule, confined to the Faculty panels; FA-16’s picker and FA-09’s offer', () => {
+    const rules = rulesOf(patch);
+    const flat = (prelude: string) => prelude.replace(/\s+/g, ' ');
+    const one = (prelude: string) => {
+      const found = rules.filter((rule) => flat(rule.prelude) === prelude);
+      expect(found, prelude).toHaveLength(1);
+      return declarations(found[0]!.block);
+    };
+    // The export's rule, as fa.css writes it, left out of fa-scoped.css (the generator's omit)…
+    expect(faSource).toContain('.rk-panel-head h2:focus{outline:none}');
+    expect(rulesOf(faDerived).filter((rule) => rule.prelude.includes('.rk-panel-head h2'))).toEqual(
+      [],
+    );
+    // …and here only on a head that carries the Faculty marker.
+    expect(
+      one(`${SCOPE_PREFIX}.rk-panel-head.rk-x-panel-head-quiet h2:focus${ISLAND_EXCLUSION}`),
+    ).toEqual(['outline: none']);
+    // FA-16's picker: fa.css hides the radio (opacity 0) and rings its label; the radio stays the
+    // label-sized cover, painted as nothing, and drops its own ring — the label's stays.
+    expect(faSource).toContain(
+      '.fa-segpick input{position:absolute;inset:0;width:100%;height:100%;margin:0;opacity:0;cursor:pointer}',
+    );
+    expect(faSource).toContain(
+      '.fa-segpick label:has(input:focus-visible){outline:2px solid var(--focus);outline-offset:2px}',
+    );
+    expect(one(`${SCOPE_PREFIX}.fa-segpick input${ISLAND_EXCLUSION}`)).toEqual([
+      'appearance: none',
+      'border: 0',
+      'background: transparent',
+      'opacity: 1',
+    ]);
+    expect(one(`${SCOPE_PREFIX}.fa-segpick input:focus-visible${ISLAND_EXCLUSION}`)).toEqual([
+      'outline: none',
+    ]);
+    // FA-09's offer: the foundation keeps a button's label on one line; in that notice it wraps.
+    expect(sources[1]).toMatch(/\.rb-btn\{[^}]*white-space:nowrap/);
+    expect(
+      one(`${SCOPE_PREFIX}.rk-notice.rk-x-notice-wrap .rk-notice-act .rb-btn${ISLAND_EXCLUSION}`),
+    ).toEqual(['white-space: normal', 'text-align: center']);
+    // The Faculty forms' error summaries: one link per 22 px line in the foundation; 4 px between.
+    expect(sources[2]).toContain('.rk-errsum li{font:500 15px/22px var(--sans)}');
+    expect(one(`${SCOPE_PREFIX}.rk-errsum.rk-x-errsum-spaced li + li${ISLAND_EXCLUSION}`)).toEqual([
+      'margin-top: 4px',
+    ]);
+  });
+
+  it("V3P-17: the Faculty export's cascade — the Refined B declaration that wins there, on the elements both rules match", () => {
+    const FOCUS = '.xr :where(a,button,input,select,textarea,[tabindex]):focus-visible';
+    // The Faculty rules (fa.css) that win only by their layer, and what the export shows.
+    const CASCADE: readonly Restoration[] = [
+      '.fa-scrollx',
+      '.fa-seg button',
+      '.fa-iconbtn',
+      '.fa-savednote',
+      '.fa-panel-x',
+    ].map((role) => ({
+      patch: `${role}:focus-visible`,
+      refined: FOCUS,
+      role,
+      css: 'border-radius: 6px;',
+    }));
+    expectRestorations(CASCADE, faDerived);
+    // V3P-17 holds the rules above and no other.
+    const start = patch.indexOf('V3P-17 ·');
+    expect(start).toBeGreaterThan(0);
+    expect(
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+        .flatMap((rule) => splitTopLevel(rule.prelude, ','))
+        .map((part) => part.trim().replace(/\s+/g, ' '))
+        .sort(),
+    ).toEqual(
+      [
+        ...FA_PATCHED_STYLES.filter(
+          (entry) => !['rk-x-ferr-above', 'rk-x-hint-list'].includes(entry.className),
+        ).map((entry) => `${SCOPE_PREFIX}${entry.element}.${entry.className}${ISLAND_EXCLUSION}`),
+        `${SCOPE_PREFIX}.rk-panel-head.rk-x-panel-head-quiet h2:focus${ISLAND_EXCLUSION}`,
+        `${SCOPE_PREFIX}.fa-segpick input${ISLAND_EXCLUSION}`,
+        `${SCOPE_PREFIX}.fa-segpick input:focus-visible${ISLAND_EXCLUSION}`,
+        `${SCOPE_PREFIX}.rk-notice.rk-x-notice-wrap .rk-notice-act .rb-btn${ISLAND_EXCLUSION}`,
+        `${SCOPE_PREFIX}.rk-errsum.rk-x-errsum-spaced li + li${ISLAND_EXCLUSION}`,
+        ...CASCADE.map((restoration) => `${SCOPE_PREFIX}${restoration.patch}${ISLAND_EXCLUSION}`),
+      ].sort(),
+    );
   });
 
   it('leaves no v46 declaration on a shared class name inside a V3 root (V3P-08)', () => {
@@ -1763,6 +1965,177 @@ describe('generated ia-scoped.css (the Institute Admin export, design/v3-refined
   });
 });
 
+describe('generated fa-scoped.css (the Faculty export, design/v3-refined-b/roles/FA-v1)', () => {
+  /**
+   * What the export says is borrowed from the shared surfaces, never its product UI (its
+   * COMPONENT-EXTENSIONS.md "Borrowed shared surfaces (XS contract, not redesigned)"): the account
+   * menu, the bare whole-page message and the signed-out page. The message template's parts
+   * (`fa-msg-*`) and `fa-inlinemsg` draw the role's own in-page states and stay.
+   */
+  const LEFT_OUT = /\.fa-(?:msg|pub\w*|acctwrap|menu(?:-[\w-]+)?|menuscrim)(?![\w-])/;
+
+  it('is exactly what the generator writes from the locked role sheet', () => {
+    expect(faDerived).toBe(renderRoleCss(readRoleInput(faRole)));
+  });
+
+  it("is built on this foundation: the export's three base sheets are the locked bytes", () => {
+    // The seventh lock layout: `baseFilesUsed["project/core.css"]`, with the role stylesheet both
+    // under `localAdditions["project/fa.css"]` and as `roleStylesheet`.
+    const exportLock = JSON.parse(
+      readFileSync(join(faRole.directory, 'FOUNDATION-LOCK.json'), 'utf8'),
+    ) as {
+      foundationId: string;
+      baseFilesUsed: Record<
+        string,
+        { sha256: string; packSha256: string; identical: boolean; from: string }
+      >;
+      localAdditions: Record<string, { sha256: string; bytes: number }>;
+      roleStylesheet: { file: string; sha256: string; bytes: number };
+    };
+    expect(exportLock.foundationId).toBe(FOUNDATION_ID);
+    for (const sheet of SHEETS) {
+      const used = exportLock.baseFilesUsed[`project/${sheet}`];
+      expect(used?.sha256, sheet).toBe(lock.baseFiles[`references/v3/project/${sheet}`]);
+      expect(used?.packSha256, sheet).toBe(lock.baseFiles[`references/v3/project/${sheet}`]);
+      expect(used?.from, sheet).toBe(`references/v3/project/${sheet}`);
+      expect(used?.identical, sheet).toBe(true);
+      expect(sha256(readFileSync(join(faRole.directory, 'project', sheet))), sheet).toBe(
+        lock.baseFiles[`references/v3/project/${sheet}`],
+      );
+    }
+    expect(exportLock.localAdditions['project/fa.css']?.sha256).toBe(sha256(faSource));
+    expect(exportLock.localAdditions['project/fa.css']?.bytes).toBe(Buffer.byteLength(faSource));
+    expect(exportLock.roleStylesheet).toMatchObject({
+      file: 'project/fa.css',
+      sha256: sha256(faSource),
+      bytes: Buffer.byteLength(faSource),
+    });
+  });
+
+  it('leaves out only the borrowed XS surfaces, and the one rule V3P-17 confines', () => {
+    const left = rulesOf(faSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && previewOnlyRule(faRole, rule.prelude),
+    );
+    expect(left.length).toBeGreaterThan(0);
+    // The sheet's one selector without an `fa-` class (see below), exactly.
+    expect(left.filter((rule) => rule.prelude === '.rk-panel-head h2:focus')).toHaveLength(1);
+    for (const rule of left.filter(
+      (candidate) => candidate.prelude !== '.rk-panel-head h2:focus',
+    )) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector.trim(), rule.prelude).toMatch(LEFT_OUT);
+      }
+    }
+    expect(faDerived).not.toMatch(LEFT_OUT);
+    // The 13 classes of those families, and no other.
+    const classes = (css: string) =>
+      new Set(rulesOf(css).flatMap((rule) => rule.prelude.match(/\.fa-[\w-]+/g) ?? []));
+    const dropped = [...classes(faSource)].filter((name) => !classes(faDerived).has(name));
+    expect(dropped.sort()).toEqual(
+      [
+        '.fa-acctwrap',
+        '.fa-menu',
+        '.fa-menu-list',
+        '.fa-menu-name',
+        '.fa-menu-sub',
+        '.fa-menu-who',
+        '.fa-menuscrim',
+        '.fa-msg',
+        '.fa-pubbody',
+        '.fa-publogo',
+        '.fa-pubname',
+        '.fa-pubpage',
+        '.fa-pubtop',
+      ].sort(),
+    );
+    // The role's own components stay: the in-page message parts (no course, co-teacher) and the
+    // message card, and those whose names start alike.
+    for (const kept of [
+      '.fa-inlinemsg',
+      '.fa-msg-ico',
+      '.fa-msg-ico--lock',
+      '.fa-msg-d',
+      '.fa-msg-act',
+      '.fa-msgcard',
+      '.fa-sample',
+      '.fa-export',
+      '.fa-rec',
+      '.fa-mpanel',
+    ]) {
+      expect(faDerived, kept).toContain(kept);
+      expect(previewOnlyRule(faRole, kept)).toBe(false);
+    }
+    expect(previewOnlyRule(faRole, '.fa-inlinemsg .fa-msg-ico')).toBe(false);
+    expect(previewOnlyRule(faRole, '.fa-menu,.fa-rec')).toBe(false);
+    expect(previewOnlyRule(faRole, '.rb .fa-menu-list a')).toBe(true);
+  });
+
+  it('keeps every other declaration block and at-rule in order and changes only selectors', () => {
+    // No grouping at-rule is left out whole: each narrow rule set that holds a left-out rule holds
+    // the role's own rules too.
+    const groups = groupsOf(faSource);
+    const dropped = groups.filter(
+      (group) =>
+        group.rules.length > 0 &&
+        group.rules.every((rule) => previewOnlyRule(faRole, rule.prelude)),
+    );
+    expect(dropped).toEqual([]);
+    expect(groupsOf(faDerived).map((group) => group.prelude)).toEqual(
+      groups.map((group) => group.prelude),
+    );
+    const expected = rulesOf(faSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && !previewOnlyRule(faRole, rule.prelude),
+    );
+    const scoped = rulesOf(faDerived).filter((rule) => !rule.prelude.startsWith('@'));
+    expect(scoped.length).toBe(expected.length);
+    scoped.forEach((rule, index) => {
+      const source = expected[index]!;
+      expect(rule.block, source.prelude).toBe(source.block);
+      const before = splitTopLevel(source.prelude, ',').map((part) => part.trim());
+      const after = splitTopLevel(rule.prelude, ',').map((part) => part.trim());
+      after.forEach((selector, position) => {
+        expect(selector).toContain(ISLAND_EXCLUSION);
+        expect(selector.replace(SCOPE_PREFIX, '').replace(ISLAND_EXCLUSION, '')).toBe(
+          before[position],
+        );
+      });
+    });
+  });
+
+  it('selects only fa- classes (shared classes only under a role parent) but one recorded kit rule, no root, URL, keyframes or token', () => {
+    /*
+     * The one selector of the sheet without an `fa-` class (fa.css part 2, "final-pass shared
+     * components", after `.fa-panel-x`): no outline on a navy panel head's heading when it takes
+     * focus, as the kit does for a dialog head (`.rk-dlg-head h2:focus`). Unlike every other rule
+     * it is not confined to a Faculty element: from the `xr.v3.fa` layer it would reach every
+     * `.rk-panel-head h2` in a V3 root, the Super Admin's decision panel heading among them. So the
+     * generator leaves exactly that selector out, and V3P-17 restores it on the Faculty panels only
+     * (`.rk-panel-head.rk-x-panel-head-quiet h2:focus`).
+     */
+    const KIT_RULES = ['.rk-panel-head h2:focus'];
+    expect(rulesOf(faDerived).filter((rule) => rule.prelude.includes('.rk-panel-head h2'))).toEqual(
+      [],
+    );
+    expect(previewOnlyRule(faRole, '.rk-panel-head h2:focus')).toBe(true);
+    expect(previewOnlyRule(faRole, '.rk-panel-head h2')).toBe(false);
+    expect(previewOnlyRule(faRole, '.fa-mpanel .rk-panel-head')).toBe(false);
+    expect(previewOnlyRule(faRole, '.rk-dlg-head h2:focus')).toBe(false);
+    const unprefixed: string[] = [];
+    for (const rule of rulesOf(faSource).filter(
+      (candidate) => !candidate.prelude.startsWith('@'),
+    )) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        if (!/\.fa-/.test(selector)) unprefixed.push(selector.trim());
+      }
+    }
+    expect(unprefixed).toEqual(KIT_RULES);
+    expect(faDerived).not.toMatch(/url\(|@import|@keyframes|[{;]\s*--[\w-]+\s*:/);
+    expect(
+      rulesOf(faDerived).filter((rule) => /(^|[\s,])(:root|html|body)\b/.test(rule.prelude)),
+    ).toEqual([]);
+  });
+});
+
 describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
   it('reserves xr.v3 after xr.product and imports the derivatives, then the patches', () => {
     const statements = entry
@@ -1770,9 +2143,9 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
       .trim()
       .split(';')
       .map((part) => part.trim());
-    expect(statements.slice(0, 10)).toEqual([
+    expect(statements.slice(0, 11)).toEqual([
       '@layer properties, theme, xr.v46, xr.product, xr.v3, utilities',
-      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.ia, xr.v3.patch',
+      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.ia, xr.v3.fa, xr.v3.patch',
       "@import './rb-scoped.css' layer(xr.v3.rb)",
       "@import './xs-scoped.css' layer(xr.v3.xs)",
       "@import './sa-scoped.css' layer(xr.v3.sa)",
@@ -1780,6 +2153,7 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
       "@import './cm-scoped.css' layer(xr.v3.cm)",
       "@import './rv-scoped.css' layer(xr.v3.rv)",
       "@import './ia-scoped.css' layer(xr.v3.ia)",
+      "@import './fa-scoped.css' layer(xr.v3.fa)",
       "@import './patch.css' layer(xr.v3.patch)",
     ]);
   });
@@ -1802,5 +2176,6 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/cm-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/rv-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/ia-scoped.css');
+    expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/fa-scoped.css');
   });
 });

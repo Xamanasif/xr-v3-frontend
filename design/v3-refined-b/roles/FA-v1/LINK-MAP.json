@@ -1,0 +1,1676 @@
+{
+ "about": "Navigation from every visible anchor was crawled (start states listed in CHECKS.md): each anchor was clicked on a fresh page and the screen it landed on was read from #fa-root[data-screen]. hrefs are screen IDs (#FA-xx, #XS-xx) handled in place; the address does not change, and no destination is a bare \"#\".",
+ "crawled": {
+  "linksClicked": 442,
+  "distinct": 172,
+  "failed": 0,
+  "startStates": 103,
+  "on": "21 Oct 2026"
+ },
+ "links": [
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Overview",
+   "href": "#FA-01",
+   "destination": "FA-01",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-01"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "My courses",
+   "href": "#FA-02",
+   "destination": "FA-02",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-02"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Question bank",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Marking2, 2 written answers to mark",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Students",
+   "href": "#FA-20",
+   "destination": "FA-20",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-20"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Help & support",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Mark now: Rahul Verma, Heat Exchanger — post-lab",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Review drafts in your question bank",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "View students inactive for 14 days or more",
+   "href": "#FA-20",
+   "destination": "FA-20",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-20"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Open Heat Exchanger — post-lab, due 14 Nov 2026, 23:59",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Open course ME ZG523 Thermodynamics & Heat Transfer",
+   "href": "#FA-03",
+   "destination": "FA-03",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-03"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-Overview",
+   "control": "Shell-and-Tube Heat Exchanger",
+   "href": "#FA-05",
+   "destination": "FA-05",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-05"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-New-teacher",
+   "control": "Add a question",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-New-teacher",
+   "control": "Create assessment",
+   "href": "#FA-07",
+   "destination": "FA-07",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-07"
+  },
+  {
+   "source": "FA-01",
+   "startBoard": "FA01-New-teacher",
+   "control": "Open experiment",
+   "href": "#FA-05",
+   "destination": "FA-05",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-05"
+  },
+  {
+   "source": "FA-02",
+   "startBoard": "FA02-My-courses",
+   "control": "Courses",
+   "href": "#FA-02",
+   "destination": "FA-02",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-02"
+  },
+  {
+   "source": "FA-02",
+   "startBoard": "FA02-My-courses",
+   "control": "Experiments",
+   "href": "#FA-04",
+   "destination": "FA-04",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-04"
+  },
+  {
+   "source": "FA-02",
+   "startBoard": "FA02-My-courses",
+   "control": "Open course ME ZG523 Thermodynamics & Heat Transfer",
+   "href": "#FA-03",
+   "destination": "FA-03",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-03"
+  },
+  {
+   "source": "FA-02",
+   "startBoard": "FA02-My-courses",
+   "control": "Shell-and-Tube Heat Exchanger",
+   "href": "#FA-05",
+   "destination": "FA-05",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-05"
+  },
+  {
+   "source": "FA-03",
+   "startBoard": "FA03-Course",
+   "control": "My courses",
+   "href": "#FA-02",
+   "destination": "FA-02",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-02"
+  },
+  {
+   "source": "FA-03",
+   "startBoard": "FA03-Course",
+   "control": "Open experiment Shell-and-Tube Heat Exchanger",
+   "href": "#FA-05",
+   "destination": "FA-05",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-05"
+  },
+  {
+   "source": "FA-03",
+   "startBoard": "FA03-Course",
+   "control": "Students on this experiment",
+   "href": "#FA-20",
+   "destination": "FA-20",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-20"
+  },
+  {
+   "source": "FA-03",
+   "startBoard": "FA03-Course",
+   "control": "Mark 2 written answers for Heat Exchanger — post-lab",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-03",
+   "startBoard": "FA03-Course",
+   "control": "Open assessment",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-03",
+   "startBoard": "FA03-No-assessment",
+   "control": "Create assessment",
+   "href": "#FA-07",
+   "destination": "FA-07",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-07"
+  },
+  {
+   "source": "FA-04",
+   "startBoard": "FA04-Experiments",
+   "control": "Courses",
+   "href": "#FA-02",
+   "destination": "FA-02",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-02"
+  },
+  {
+   "source": "FA-04",
+   "startBoard": "FA04-Experiments",
+   "control": "Experiments",
+   "href": "#FA-04",
+   "destination": "FA-04",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-04"
+  },
+  {
+   "source": "FA-04",
+   "startBoard": "FA04-Experiments",
+   "control": "Open Shell-and-Tube Heat Exchanger",
+   "href": "#FA-05",
+   "destination": "FA-05",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-05"
+  },
+  {
+   "source": "FA-05",
+   "startBoard": "FA05-Experiment",
+   "control": "My courses",
+   "href": "#FA-02",
+   "destination": "FA-02",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-02"
+  },
+  {
+   "source": "FA-05",
+   "startBoard": "FA05-Experiment",
+   "control": "ME ZG523",
+   "href": "#FA-03",
+   "destination": "FA-03",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-03"
+  },
+  {
+   "source": "FA-05",
+   "startBoard": "FA05-Experiment",
+   "control": "Students on this experiment",
+   "href": "#FA-20",
+   "destination": "FA-20",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-20"
+  },
+  {
+   "source": "FA-05",
+   "startBoard": "FA05-Experiment",
+   "control": "Heat Exchanger — post-lab",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-05",
+   "startBoard": "FA05-Experiment",
+   "control": "Mark 2 written answers for Heat Exchanger — post-lab",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-05",
+   "startBoard": "FA05-Experiment",
+   "control": "Open assessment",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-05",
+   "startBoard": "FA05-No-assessment",
+   "control": "Create assessment",
+   "href": "#FA-07",
+   "destination": "FA-07",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-07"
+  },
+  {
+   "source": "FA-06",
+   "startBoard": "FA06-Assessments",
+   "control": "Create assessment",
+   "href": "#FA-07",
+   "destination": "FA-07",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-07"
+  },
+  {
+   "source": "FA-06",
+   "startBoard": "FA06-Assessments",
+   "control": "Open Heat Exchanger — post-lab, Ready",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step1",
+   "control": "Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step1",
+   "control": "Cancel",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step2-errors",
+   "control": "Enter a pass mark from 0 to 100, as a whole number",
+   "href": "#fa-cw-pass",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step2-errors",
+   "control": "Enter how many attempts are allowed, as a whole number",
+   "href": "#fa-cw-att",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step2-errors",
+   "control": "Enter the deadline",
+   "href": "#fa-cw-dl",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step2-errors",
+   "control": "Choose when students see their result",
+   "href": "#fa-cw-r-now",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step3",
+   "control": "New question",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step3",
+   "control": "Draft with assistance",
+   "href": "#FA-16",
+   "destination": "FA-16",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-16"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Step3",
+   "control": "Import",
+   "href": "#FA-17",
+   "destination": "FA-17",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-17"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Created",
+   "control": "Open assessment",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-Created",
+   "control": "Back to Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-One-per-experiment",
+   "control": "This experiment already has an assessment",
+   "href": "#fa-cw-e-ste",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-07",
+   "startBoard": "FA07-One-per-experiment",
+   "control": "Open Heat Exchanger — post-lab",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "2 waiting for marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Summary",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Questions4, 4",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Settings",
+   "href": "#FA-10",
+   "destination": "FA-10",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-10"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Preview",
+   "href": "#FA-11",
+   "destination": "FA-11",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-11"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Submissions2, 2",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Change settings",
+   "href": "#FA-10",
+   "destination": "FA-10",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-10"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "Mark next",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Summary",
+   "control": "See submissions",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Draft",
+   "control": "Questions0, 0",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Draft",
+   "control": "Submissions",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-08",
+   "startBoard": "FA08-Draft",
+   "control": "Add questions",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "2 waiting for marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Summary",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Questions4, 4",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Settings",
+   "href": "#FA-10",
+   "destination": "FA-10",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-10"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Preview",
+   "href": "#FA-11",
+   "destination": "FA-11",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-11"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Submissions2, 2",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "New question",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Draft with assistance",
+   "href": "#FA-16",
+   "destination": "FA-16",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-16"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Questions",
+   "control": "Import",
+   "href": "#FA-17",
+   "destination": "FA-17",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-17"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-New-version",
+   "control": "Questions5, 5",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-09",
+   "startBoard": "FA09-Coteach",
+   "control": "Submissions",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Settings",
+   "control": "Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Settings",
+   "control": "2 waiting for marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Settings",
+   "control": "Summary",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Settings",
+   "control": "Questions4, 4",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Settings",
+   "control": "Settings",
+   "href": "#FA-10",
+   "destination": "FA-10",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-10"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Settings",
+   "control": "Preview",
+   "href": "#FA-11",
+   "destination": "FA-11",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-11"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Settings",
+   "control": "Submissions2, 2",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Errors",
+   "control": "Enter a pass mark from 0 to 100, as a whole number",
+   "href": "#fa-st-pass",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Errors",
+   "control": "Enter the deadline as a date and time, for example 14 Nov 2026, 23:59",
+   "href": "#fa-st-dl",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-10",
+   "startBoard": "FA10-Coteach",
+   "control": "Submissions",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Student-view",
+   "control": "Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Student-view",
+   "control": "2 waiting for marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Student-view",
+   "control": "Summary",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Student-view",
+   "control": "Questions4, 4",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Student-view",
+   "control": "Settings",
+   "href": "#FA-10",
+   "destination": "FA-10",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-10"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Student-view",
+   "control": "Preview",
+   "href": "#FA-11",
+   "destination": "FA-11",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-11"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Student-view",
+   "control": "Submissions2, 2",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Coteach",
+   "control": "Submissions",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Coteach",
+   "control": "Back to Summary",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-11",
+   "startBoard": "FA11-Coteach",
+   "control": "Help",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Assessments",
+   "href": "#FA-06",
+   "destination": "FA-06",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-06"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "2 waiting for marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Summary",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Questions4, 4",
+   "href": "#FA-09",
+   "destination": "FA-09",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-09"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Settings",
+   "href": "#FA-10",
+   "destination": "FA-10",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-10"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Preview",
+   "href": "#FA-11",
+   "destination": "FA-11",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-11"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Submissions2, 2",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Mark next",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Mark Rahul Verma",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Submissions",
+   "control": "Mark Priya Natarajan",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Marked",
+   "control": "1 waiting for marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Marked",
+   "control": "View marks for Rahul Verma",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Coteach",
+   "control": "Submissions",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Coteach",
+   "control": "Back to Summary",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-12",
+   "startBoard": "FA12-Coteach",
+   "control": "Help",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Add a question",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Draft with assistance",
+   "href": "#FA-16",
+   "destination": "FA-16",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-16"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Import",
+   "href": "#FA-17",
+   "destination": "FA-17",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-17"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Questions6, 6",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Drafts to review3, 3",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Edit question: What does the effectiveness (ε) of a heat exchanger compare?",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Edit question: How is the number of transfer units (NTU) defined?",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Edit question: In a counter-flow exchanger, what can happen that cannot happen i",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Edit question: Fouling on the tube surfaces lowers the overall heat transfer coe",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Edit question: For the same inlet conditions and UA, parallel flow transfers mor",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Question-bank",
+   "control": "Edit question: Explain how fouling changes the exchanger’s performance, using wh",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Drafts",
+   "control": "Review and edit draft: What is the log mean temperature difference (LMTD) used f",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Drafts",
+   "control": "Review and edit draft: Counter flow always needs a larger area than parallel flo",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Drafts",
+   "control": "Review and edit draft: Compare countercurrent and cocurrent arrangements at matc",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Deleted",
+   "control": "Questions5, 5",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Empty",
+   "control": "Questions0, 0",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-14",
+   "startBoard": "FA14-Empty",
+   "control": "Drafts to review0, 0",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-15",
+   "startBoard": "FA15-New",
+   "control": "Question bank",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-15",
+   "startBoard": "FA15-New",
+   "control": "Cancel",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-15",
+   "startBoard": "FA15-Errors",
+   "control": "Add at least two answer options",
+   "href": "#fa-qe-o0",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-15",
+   "startBoard": "FA15-Errors",
+   "control": "Choose the correct answer",
+   "href": "#fa-qe-c0",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-15",
+   "startBoard": "FA15-Errors",
+   "control": "Enter the marks, as a whole number of 1 or more",
+   "href": "#fa-qe-marks",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Draft",
+   "control": "Question bank",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Draft",
+   "control": "Cancel",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Errors",
+   "control": "Choose the material to draft from",
+   "href": "#fa-dr-src-brief",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Errors",
+   "control": "Choose at least one question type",
+   "href": "#fa-dr-t-sc",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Errors",
+   "control": "Choose how many drafts you want",
+   "href": "#fa-dr-n",
+   "destination": "",
+   "classification": "in-page anchor",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Drafts-list",
+   "control": "Review and edit draft: Which fluid sets C_min in the effectiveness–NTU method?",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Drafts-list",
+   "control": "Review and edit draft: When one fluid condenses at constant temperature, the cap",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Drafts-list",
+   "control": "Review and edit draft: Using your readings, explain how changing the hot-side fl",
+   "href": "#FA-15",
+   "destination": "FA-15",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-15"
+  },
+  {
+   "source": "FA-16",
+   "startBoard": "FA16-Drafts-list",
+   "control": "Back to Question bank",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-17",
+   "startBoard": "FA17-Choose",
+   "control": "Question bank",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-17",
+   "startBoard": "FA17-Choose",
+   "control": "Cancel",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-17",
+   "startBoard": "FA17-Choose",
+   "control": "Download the template (CSV)",
+   "href": "data:text/csv;charset=utf-8,type%2Cquestion%2Coption_a%2Coption_b%2Coption_c%2Coption_d%2Ccorrect%2Cmarks%2Cexplanation%2Cmarking_guidance%0D%0A",
+   "destination": "",
+   "classification": "download (data: CSV template)",
+   "tested": "OK"
+  },
+  {
+   "source": "FA-17",
+   "startBoard": "FA17-Done",
+   "control": "Open question bank",
+   "href": "#FA-14",
+   "destination": "FA-14",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-14"
+  },
+  {
+   "source": "FA-18",
+   "startBoard": "FA18-Marking",
+   "control": "Mark next",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-18",
+   "startBoard": "FA18-Marking",
+   "control": "Mark Rahul Verma",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-18",
+   "startBoard": "FA18-Marking",
+   "control": "Mark Priya Natarajan",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-18",
+   "startBoard": "FA18-All",
+   "control": "View marks for Rahul Verma",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-19",
+   "startBoard": "FA19-Mark",
+   "control": "Marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  },
+  {
+   "source": "FA-19",
+   "startBoard": "FA19-Confirmed",
+   "control": "Next submission",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-19",
+   "startBoard": "FA19-Confirmed",
+   "control": "See submissions",
+   "href": "#FA-12",
+   "destination": "FA-12",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-12"
+  },
+  {
+   "source": "FA-20",
+   "startBoard": "FA20-Students",
+   "control": "Open Rahul Verma",
+   "href": "#FA-21",
+   "destination": "FA-21",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-21"
+  },
+  {
+   "source": "FA-20",
+   "startBoard": "FA20-Students",
+   "control": "Open Priya Natarajan",
+   "href": "#FA-21",
+   "destination": "FA-21",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-21"
+  },
+  {
+   "source": "FA-20",
+   "startBoard": "FA20-Students",
+   "control": "Open Imran Shaikh",
+   "href": "#FA-21",
+   "destination": "FA-21",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-21"
+  },
+  {
+   "source": "FA-20",
+   "startBoard": "FA20-Students",
+   "control": "Open Divya Menon",
+   "href": "#FA-21",
+   "destination": "FA-21",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-21"
+  },
+  {
+   "source": "FA-20",
+   "startBoard": "FA20-Students",
+   "control": "Open Karthik Rao",
+   "href": "#FA-21",
+   "destination": "FA-21",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-21"
+  },
+  {
+   "source": "FA-21",
+   "startBoard": "FA21-Student",
+   "control": "Students",
+   "href": "#FA-20",
+   "destination": "FA-20",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-20"
+  },
+  {
+   "source": "FA-21",
+   "startBoard": "FA21-Student",
+   "control": "Mark their answers",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "FA-21",
+   "startBoard": "FA21-Student",
+   "control": "Open the assessment",
+   "href": "#FA-08",
+   "destination": "FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-08"
+  },
+  {
+   "source": "FA-21",
+   "startBoard": "FA21-Marked",
+   "control": "View marks",
+   "href": "#FA-19",
+   "destination": "FA-19",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-19"
+  },
+  {
+   "source": "XS-07",
+   "startBoard": "XS-Help",
+   "control": "Report a problem",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "XS-07",
+   "startBoard": "XS-Help-report",
+   "control": "Help & support",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "XS-07",
+   "startBoard": "XS-Help-report",
+   "control": "Cancel",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "XS-06",
+   "startBoard": "XS-Not-your-workspace",
+   "control": "Overview",
+   "href": "#FA-01",
+   "destination": "FA-01",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-01"
+  },
+  {
+   "source": "XS-06",
+   "startBoard": "XS-Not-your-workspace",
+   "control": "Back to Overview",
+   "href": "#FA-01",
+   "destination": "FA-01",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-01"
+  },
+  {
+   "source": "XS-06",
+   "startBoard": "XS-Not-your-workspace",
+   "control": "Help",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "NF:course",
+   "startBoard": "Refusal-Course",
+   "control": "Overview",
+   "href": "#FA-01",
+   "destination": "FA-01",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-01"
+  },
+  {
+   "source": "NF:course",
+   "startBoard": "Refusal-Course",
+   "control": "Back to My courses",
+   "href": "#FA-02",
+   "destination": "FA-02",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-02"
+  },
+  {
+   "source": "NF:course",
+   "startBoard": "Refusal-Course",
+   "control": "Help",
+   "href": "#XS-07",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: crawled, landed on XS-07"
+  },
+  {
+   "source": "NF:submission",
+   "startBoard": "Refusal-Co-teacher-marking",
+   "control": "Back to Marking",
+   "href": "#FA-18",
+   "destination": "FA-18",
+   "classification": "in-role",
+   "tested": "EXERCISED: crawled, landed on FA-18"
+  }
+ ],
+ "buttonNavigation": [
+  {
+   "source": "XS-03",
+   "control": "Sign in (button)",
+   "destination": "FA-01",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: J5b"
+  },
+  {
+   "source": "FA-01 shell",
+   "control": "Sign out (account menu button)",
+   "destination": "XS-03",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: J5b"
+  },
+  {
+   "source": "FA-07 step 1–4",
+   "control": "Continue / Back / Save as draft / Create assessment (buttons)",
+   "destination": "FA-07 next step or result; Open assessment → FA-08",
+   "classification": "in-role",
+   "tested": "EXERCISED: J1 at 1440/1024/768/375"
+  },
+  {
+   "source": "FA-15",
+   "control": "Save question / Add to bank (buttons)",
+   "destination": "Back to where the editor was opened: FA-14 (Questions or Drafts tab), FA-07 step 3 (new question ticked), FA-09 (offered, not attached), FA-16 list",
+   "classification": "in-role",
+   "tested": "EXERCISED: J1 (FA-07 return), J2 (FA-14 returns)"
+  },
+  {
+   "source": "FA-09",
+   "control": "Add Q-xxxx to this assessment (offer button after writing a question here)",
+   "destination": "FA-09 (question appended; new version when attempts are pinned)",
+   "classification": "in-role",
+   "tested": "SOURCE CHECKED; the bank-panel equivalent \"Add\" EXERCISED in J2"
+  },
+  {
+   "source": "FA-16",
+   "control": "Draft questions / Draft more (buttons)",
+   "destination": "FA-16 drafting → drafts list",
+   "classification": "in-role",
+   "tested": "EXERCISED: J6 (validation, busy, list, add, discard, review → add) and J6b (failure → try again), at 1440 and 375"
+  },
+  {
+   "source": "FA-17",
+   "control": "Check file / Choose the corrected file / Choose another file / Continue / Import N questions (buttons)",
+   "destination": "FA-17 steps 2 → 3 → done",
+   "classification": "in-role",
+   "tested": "EXERCISED: J2 (own CSV, XLSX refusal, sample, corrected, import)"
+  },
+  {
+   "source": "FA-14",
+   "control": "Delete (button) → dialog Delete question",
+   "destination": "FA-14 (question listed under Deleted, history kept)",
+   "classification": "in-role",
+   "tested": "EXERCISED: J5c"
+  },
+  {
+   "source": "FA-19",
+   "control": "Save mark / Confirm marks (buttons) → dialog Confirm marks",
+   "destination": "FA-19 read-only confirmed state",
+   "classification": "in-role",
+   "tested": "EXERCISED: J3 at four widths, J5d"
+  },
+  {
+   "source": "FA-12",
+   "control": "Export CSV (button, FA-22)",
+   "destination": "FA-12 export confirmation with the exported rows",
+   "classification": "in-role action",
+   "tested": "EXERCISED: J3, J9b"
+  },
+  {
+   "source": "FA-20",
+   "control": "Export CSV (button, FA-22)",
+   "destination": "FA-20 export confirmation with the exported rows",
+   "classification": "in-role action",
+   "tested": "EXERCISED: J4"
+  },
+  {
+   "source": "FA-20",
+   "control": "Student row (whole row click)",
+   "destination": "FA-21",
+   "classification": "in-role",
+   "tested": "EXERCISED: J3, J4 (via the row link)"
+  },
+  {
+   "source": "Below 1024 px",
+   "control": "Menu (button) → drawer links",
+   "destination": "Same destinations as the rail",
+   "classification": "in-role",
+   "tested": "EXERCISED: J5a and every journey at 768/375"
+  },
+  {
+   "source": "Any page",
+   "control": "Account (button) → Help & support",
+   "destination": "XS-07",
+   "classification": "shared (XS, borrowed)",
+   "tested": "EXERCISED: J5b"
+  },
+  {
+   "source": "Out of role",
+   "control": "(none)",
+   "destination": "Student result visibility (ST role), student access (Institute Admin) and help-report handling (Super Admin) happen in other roles. They are documented handoff scenarios, never clickable here.",
+   "classification": "external / documented only",
+   "tested": "not applicable"
+  }
+ ],
+ "changedInFinalDesign": [
+  {
+   "source": "FA-05",
+   "control": "Mark N written answers",
+   "was": "FA-18 Marking queue",
+   "now": "FA-19 Mark a submission, oldest waiting (as on FA-03)",
+   "tested": "EXERCISED: J9a"
+  }
+ ]
+}

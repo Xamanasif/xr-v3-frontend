@@ -1,189 +1,286 @@
 /**
- * The words of FA-14 Question bank and FA-15 Add / edit question (board B4-07 f0 … f9), written
- * from the facts `QuestionBankService` answers (each question with how many assessments use it;
- * one question with the assessments that use it) and the taught experiments of
- * `getCreateOptions`. Every phrase here is the frozen board's own — a frame's markup or the board
- * script's state logic (`qbView`, `qeView`), cited per entry; what B4-07 does not word is a
- * provisional entry of the state-copy register (`state-copy-question-bank.ts`, VD-12). The board's
- * sample questions, counts and dates are never copied: they come from the records.
+ * The words of FA-14 Question bank and FA-15 Add / edit question as the owner-approved V3 export
+ * draws them (V3 Refined B, design/v3-refined-b/roles/FA-v1 `project/Main.dc.html`: the "FA-14
+ * Question bank" and "FA-15 Add / edit question" sections, the delete dialog, and the script's
+ * `vmBank`, `dlgBank`, `vmEditor`, `qeCommit`), written from the facts `QuestionBankService` answers
+ * (each question with how many assessments use it; one question with the assessments that use it)
+ * and the taught experiments of `getCreateOptions`. Every phrase is in the export's markup or
+ * script verbatim, and each composed line takes the script's form with the records' values
+ * (`question-bank.test.tsx`); what the export does not word is a provisional entry of the
+ * state-copy register (`state-copy-question-bank.ts`). The export's sample questions, counts and
+ * dates are never copied: they come from the records.
+ *
+ * The owner's identifier rule: no phrase names a question by its internal reference — a question is
+ * named by its text, an assessment by its name. The question type keeps the product's "Multiple
+ * choice" (`assessment-words.ts`, which the Student pages share, and the domain's CSV rule); the
+ * export's "Single choice" is not adopted (lead decision 1).
  */
 
-/** B4-07 f0, f7, f9: the bank's header, section and toolbar. */
+/** FA-14: the page head, the no-course card, the Questions section, its toolbar and table. */
 export const QUESTION_BANK = {
-  /** f0 `a.xr-btn--primary` (header) and f7's empty state. */
+  /** `div.rk-head-act` `a.rb-btn--primary`. */
   addQuestion: 'Add a question',
-  /** f0 `section#Kb-tq` `h2.xr-h2`. */
+  /** `QB.sub` with no course. */
+  noCourseLead: 'Questions belong to the experiments you teach.',
+  /** The no-course card (`#fa-qb-none`), its line and its way on. */
+  noCourseTitle: 'Your question bank opens with your first course',
+  noCourseLine:
+    'Questions belong to the experiments you teach. Your Institute Admin hasn’t assigned you a course yet.',
+  help: 'Help & support',
+  /** `h2#fa-tabh`. */
   sectionTitle: 'Questions',
-  /** f0 toolbar: `label[for=Kb-q]` and its placeholder. */
-  search: 'Search questions',
-  searchPlaceholder: 'Words or question ID',
-  /** f0 toolbar: `label[for=Kb-e]`. */
+  /** `div.rk-tools[role=search][aria-label]`, the search field and its placeholder. */
+  filterLabel: 'Filter questions',
+  search: 'Search',
+  searchPlaceholder: 'Words in the question',
+  /** `label[for=fa-qb-exp]`, `label[for=fa-qb-type]` and its first option. */
   experiment: 'Experiment',
-  /** f0 toolbar: `label[for=Kb-t]` and its first option. */
   type: 'Type',
   allTypes: 'All types',
-  /** f0 `thead` (the last header is `span.xr-sr`). */
+  /** `button.rk-clear`, and the no-match state's button. */
+  clearFilters: 'Clear filters',
+  /** The table's caption and heads (the last is `span.xr-sr`). */
+  caption: 'Questions in your bank',
   columns: {
     question: 'Question',
-    type: 'Type',
     marks: 'Marks',
-    used: 'Used',
+    used: 'Used in',
     added: 'Added',
     actions: 'Actions',
   },
-  /** f0 row actions (`a.xr-btn--secondary.xr-btn--sm`, `button.xr-btn--text`). */
+  /** `r.usedMain` when no assessment uses the question. */
+  notUsed: 'Not yet',
+  /** Each row's actions (`a.rb-btn`, `button.rb-btn--ghost`). */
   edit: 'Edit',
   delete: 'Delete',
-  /** Script `noMatch`: "No question matches." */
-  noMatch: 'No question matches.',
-  /** f7 `div.xr-empty` `h3`. */
+  /** `QB.noMatch` (`div.rk-state`). */
+  noMatchTitle: 'No question matches these filters',
+  noMatchLine: 'Try fewer filters or other words.',
+  /** `QB.isEmpty` (`div.rk-state--roomy`). */
   emptyTitle: 'Your question bank is empty',
-  /** Script `delRows`: the "Deleted" list under the table. */
+  /** `div.fa-deletedbox` `h3.fa-k`. */
   deletedTitle: 'Deleted',
 } as const;
 
-/** f0 `span.xl-meta`: "Questions for Shell-and-Tube Heat Exchanger · ME ZG523". */
-export function bankMetaLine(experimentName: string, courseCode: string | null): string {
-  return courseCode
-    ? `Questions for ${experimentName} · ${courseCode}`
-    : `Questions for ${experimentName}`;
+/** `QB.sub`: "Your questions for Shell-and-Tube Heat Exchanger · ME ZG523. Drafts stay apart …". */
+export function bankLead(experimentName: string, courseCode: string | null): string {
+  const what = courseCode ? `${experimentName} · ${courseCode}` : experimentName;
+  return `Your questions for ${what}. Drafts stay apart until you review them.`;
 }
 
-/** Script `count`: "6 questions", "1 question". */
-export function questionCount(count: number): string {
-  return `${count} question${count === 1 ? '' : 's'}`;
+/** The export's `plural(n, one)`: "1 question", "6 questions". */
+function plural(count: number, one: string): string {
+  return `${count} ${count === 1 ? one : `${one}s`}`;
 }
 
-/** f0 aria-labels: "Edit Q-0101", "Delete Q-0101". */
-export function editLabel(questionId: string): string {
-  return `Edit ${questionId}`;
-}
-
-export function deleteLabel(questionId: string): string {
-  return `Delete ${questionId}`;
+/** `QB.count`: "6 questions"; with a filter applied, "3 of 6 questions". */
+export function questionCount(total: number, shown?: number): string {
+  return shown === undefined
+    ? plural(total, 'question')
+    : `${shown} of ${plural(total, 'question')}`;
 }
 
 /**
- * f0 "Used" column: "Used in 1 assessment" / "Not used yet"; more than one assessment is the
- * register's plural (`FA-14.used-several`).
+ * `QB.split`: "3 multiple choice · 2 true or false · 1 written answer" — the types with none are
+ * left out (the export's "single choice" is the product's "multiple choice", lead decision 1).
  */
-export function usedWords(usedIn: number): string {
-  if (usedIn === 0) return 'Not used yet';
-  return `Used in ${usedIn} ${usedIn === 1 ? 'assessment' : 'assessments'}`;
+export function typeSplitWords(counts: {
+  readonly multipleChoice: number;
+  readonly trueFalse: number;
+  readonly written: number;
+}): string {
+  return [
+    counts.multipleChoice ? `${counts.multipleChoice} multiple choice` : '',
+    counts.trueFalse ? `${counts.trueFalse} true or false` : '',
+    counts.written ? plural(counts.written, 'written answer') : '',
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }
 
-/** Script `doDel`: "Q-0101 deleted from your question bank. Its history is kept." */
-export function deletedMessage(questionId: string): string {
-  return `${questionId} deleted from your question bank. Its history is kept.`;
+/** The chips: "Search: “ntu”", "Type: True or false". */
+export function searchChipWords(query: string): string {
+  return `Search: “${query}”`;
 }
 
-/** Script `delRows`: "Q-0101 What does … — deleted 7 Nov 2026 · history kept" (after the id). */
-export function deletedRowWords(text: string, deletedOn: string): string {
-  return `${text} — deleted ${deletedOn} · history kept`;
+export function typeChipWords(type: string): string {
+  return `Type: ${type}`;
 }
 
-/** Script `qeView.save` (a new question): "Saved to your question bank as Q-0107." */
-export function addedMessage(questionId: string): string {
-  return `Saved to your question bank as ${questionId}.`;
+/** A chip's remove button (`c.aria`): "Remove filter Type: True or false". */
+export function removeFilterLabel(chip: string): string {
+  return `Remove filter ${chip}`;
 }
 
-/** f2 DL-1 "Delete a used question". */
-export const DELETE_DIALOG = {
-  effect:
-    'It leaves your question bank and won’t be offered for new assessments. Its history is kept.',
-  cancel: 'Cancel',
-  confirm: 'Delete question',
-} as const;
-
-/** f2 `h2.xr-dialog-title`: "Delete Q-0101?". */
-export function deleteTitle(questionId: string): string {
-  return `Delete ${questionId}?`;
+/** `r.marks`: "2 marks", "1 mark". */
+export function marksWords(marks: number): string {
+  return plural(marks, 'mark');
 }
 
-/**
- * f2 "**It is used in Heat Exchanger — post-lab.** That assessment keeps its copy, so nothing
- * changes for students." — several assessments are the register's (`FA-14.delete-used-several`).
- */
-export function deleteUsedWords(names: readonly string[]): {
-  readonly strong: string;
-  readonly rest: string;
-} {
-  return {
-    strong: `It is used in ${namesList(names)}.`,
-    rest:
-      names.length > 1
-        ? ' Those assessments keep their copy, so nothing changes for students.'
-        : ' That assessment keeps its copy, so nothing changes for students.',
-  };
+/** `r.idv` / `QE.idText`: "Version 2" (only when there is more than one version). */
+export function versionWords(version: number): string {
+  return `Version ${version}`;
 }
 
-/** While the assessments' names cannot be read: "It is used in 1 assessment." (the register's). */
-export function deleteUsedCountWords(count: number): {
-  readonly strong: string;
-  readonly rest: string;
-} {
-  return {
-    strong: `It is used in ${count} ${count === 1 ? 'assessment' : 'assessments'}.`,
-    rest:
-      count > 1
-        ? ' Those assessments keep their copy, so nothing changes for students.'
-        : ' That assessment keeps its copy, so nothing changes for students.',
-  };
+/** The phone line `span.fa-mob`: "added 20 Oct 2026". */
+export function addedOnWords(day: string): string {
+  return `added ${day}`;
 }
 
-/** "A", "A and B", "A, B and C" (the register's join for several assessments). */
+/** `r.editAria`, `r.delAria`: the question named by its text. */
+export function editLabel(text: string): string {
+  return `Edit question: ${text}`;
+}
+
+export function deleteLabel(text: string): string {
+  return `Delete question: ${text}`;
+}
+
+/** "A", "A and B", "A, B and C" (the export's `names`). */
 export function namesList(names: readonly string[]): string {
   if (names.length <= 1) return names[0] ?? '';
   return `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}`;
 }
 
-/** B4-07 f3 … f8: the editor. */
+/**
+ * "Used in": the assessments by name (`r.usedMain`); while their names cannot be read, how many
+ * (the export's `r.used`, "1 assessment"); none, "Not yet".
+ */
+export function usedWords(usedIn: number, names: readonly string[] | null): string {
+  if (usedIn === 0) return QUESTION_BANK.notUsed;
+  if (names && names.length > 0) return namesList(names);
+  return plural(usedIn, 'assessment');
+}
+
+/** `div.fa-deletedbox` `li`: "<question> — deleted 7 Nov 2026 · history kept". */
+export function deletedRowWords(text: string, deletedOn: string): string {
+  return `${text} — deleted ${deletedOn} · history kept`;
+}
+
+/** DL-1 "Delete this question?" (`dlgBank`): the question's text is its line. */
+export const DELETE_DIALOG = {
+  title: 'Delete this question?',
+  effectsTitle: 'What deleting does',
+  leaves: 'It leaves your question bank and won’t be offered for new assessments.',
+  history: 'Its history is kept.',
+  cancel: 'Cancel',
+  confirm: 'Delete question',
+} as const;
+
+/**
+ * `dlgBank` third point: "It is used in Heat Exchanger — post-lab. That assessment keeps its copy,
+ * so nothing changes for students."; several, "Those assessments keep their copy"; while the
+ * names cannot be read, how many (state-copy `FA-14.delete-used-several`).
+ */
+export function deleteUsedWords(names: readonly string[] | null, count: number): string {
+  const many = (names?.length ?? count) > 1;
+  const which = names && names.length > 0 ? namesList(names) : plural(count, 'assessment');
+  return `It is used in ${which}. ${
+    many ? 'Those assessments keep their copy' : 'That assessment keeps its copy'
+  }, so nothing changes for students.`;
+}
+
+/** After a delete (`dlgBank.ok`): the message's title and line. */
+export const DELETED_MESSAGE = 'Question deleted from your question bank.';
+
+/**
+ * "Its history is kept. Heat Exchanger — post-lab keeps its copy, so nothing changes for students."
+ * Several keep their copy (state-copy `FA-14.delete-used-several`); none, the first sentence only.
+ */
+export function deletedLine(names: readonly string[] | null): string {
+  if (!names || names.length === 0) return DELETE_DIALOG.history;
+  return `${DELETE_DIALOG.history} ${namesList(names)} ${
+    names.length > 1 ? 'keep their copy' : 'keeps its copy'
+  }, so nothing changes for students.`;
+}
+
+/** Back on the bank after adding a question (`qeCommit`, a new question). */
+export const ADDED_MESSAGE = {
+  title: 'Saved to your question bank.',
+  line: 'It isn’t in any assessment yet.',
+} as const;
+
+/** FA-15 (the editor, `vmEditor`). */
 export const QUESTION_EDITOR = {
-  /** f3 `a.xr-back`. */
+  /** `nav.rk-crumbs` first level. */
   back: 'Question bank',
-  /** f3 / f5 / f6 / f8 `h1`; f4 `h1`. */
+  /** `QE.title`. */
   addTitle: 'Add a question',
   editTitle: 'Edit question',
-  /** f3 `fieldset#Qe-type`. */
+  /** `fieldset` "Question type" and its legend's line. */
   type: 'Question type',
   typeHint: 'Three types only.',
-  /** f3 `label[for=Qe-text]`. */
+  /** `h2.fa-fsec-t` of the second and third sections. */
+  answerSection: 'Question and answer',
+  marksSection: 'Marks and explanation',
+  /** `label[for=fa-qe-text]`. */
   text: 'Question',
-  /** f4 `fieldset#Qeu-opts`. */
+  /** `p.fa-answerhint` while no type is chosen. */
+  chooseTypeFirst: 'Choose the question type to set its answer.',
+  /** The options fieldset and its legend's line. */
   options: 'Answer options',
-  optionsHint: 'Up to four; mark the one correct answer.',
+  optionsHint: 'Up to four. Mark the one correct answer.',
   correct: 'Correct',
-  /** Script `isTf` fieldset: "The statement is" · True · False. */
+  /** The true-or-false fieldset. */
   statementIs: 'The statement is',
   true: 'True',
   false: 'False',
-  /** f5 `label[for=Qew-guide]`. */
-  guidance: 'Marking guidance',
+  /** `label[for=fa-qe-guide]` and its hint. */
+  guidance: 'Marking guidance (optional)',
   guidanceHint:
-    'Free text for whoever marks it — what a good answer includes. Students don’t see it while they answer.',
-  /** f3 `label[for=Qe-marks]`. */
+    'Free text for whoever marks it — what a good answer includes. Students don’t see it.',
+  /** `label[for=fa-qe-marks]` and its hint. */
   marks: 'Marks',
-  marksHint: 'A whole number.',
-  /** f3 `label[for=Qe-expl]`. */
-  explanation: 'Explanation',
+  marksHint: 'A whole number, 1 or more.',
+  /** `label[for=fa-qe-expl]` and its hint. */
+  explanation: 'Explanation (optional)',
   explanationHint: 'Shown to students with the correct answer when their result is released.',
-  optional: '(optional)',
-  /** f3 `div.xw-flow-foot`. */
+  /** `div.fa-formfoot`. */
   cancel: 'Cancel',
   save: 'Save question',
-  /** Script `busy`: "Saving…". */
   saving: 'Saving…',
   /**
-   * f4 `div.xr-notice--warn` body ("…on its Questions tab…"); several assessments are the
-   * register's (`FA-15.used-several`).
+   * The used question's notice line (`QE.usedD`); several assessments are the register's
+   * (`FA-15.used-several`).
    */
   usedNotice:
     'Saving makes a new version in your bank. The assessment keeps the version it has until you choose “Use updated version” on its Questions tab. Earlier submissions are never changed.',
   usedNoticeSeveral:
     'Saving makes a new version in your bank. The assessments keep the version they have until you choose “Use updated version” on their Questions tab. Earlier submissions are never changed.',
+  /** The side panel (`aside.fa-side`): "This question" and its facts. */
+  sideTitle: 'This question',
+  factVersion: 'Version',
+  factUsed: 'Used in',
+  factAdded: 'Added',
+  notInAssessment: 'Not in an assessment yet',
+  /** "What students see" and its three moments. */
+  seeTitle: 'What students see',
+  see: [
+    {
+      title: 'When they take the assessment',
+      text: 'The question and, for choice questions, its options.',
+    },
+    { title: 'When their result is released', text: 'The correct answer and your explanation.' },
+    { title: 'Never', text: 'Your marking guidance — only whoever marks the answer sees it.' },
+  ],
 } as const;
 
-/** f4 option labels: "Option A" … "Option D"; the radio's name "Option A is the correct answer". */
+/**
+ * The type cards' second lines (`QE.types`): what each type asks and how it is marked — the
+ * product's three types, in `QUESTION_TYPES` order.
+ */
+export const QUESTION_TYPE_LINES = {
+  'multiple-choice': 'One correct answer from up to four options. Marked automatically.',
+  'true-false': 'Students say whether a statement is true or false. Marked automatically.',
+  written: 'Students write their answer and you mark it.',
+} as const;
+
+/** `QE.ctx`: "Shell-and-Tube Heat Exchanger · ME ZG523". */
+export function experimentContext(experimentName: string, courseCode: string | null): string {
+  return courseCode ? `${experimentName} · ${courseCode}` : experimentName;
+}
+
+/** `o.label` and `o.cAria`: "Option A"; "Option A is the correct answer". */
 export function optionLabel(choice: string): string {
   return `Option ${choice}`;
 }
@@ -192,18 +289,33 @@ export function correctLabel(choice: string): string {
   return `Option ${choice} is the correct answer`;
 }
 
-/** f4 notice title: "Used in 1 assessment: Heat Exchanger — post-lab". */
+/** `QE.usedT`: "Used in 1 assessment: Heat Exchanger — post-lab". */
 export function usedNoticeTitle(names: readonly string[]): string {
-  return `${usedWords(names.length)}: ${names.join(', ')}`;
+  return `Used in ${plural(names.length, 'assessment')}: ${namesList(names)}`;
+}
+
+/** The side fact "Version": "Version 2 — earlier versions are kept" (version 1 alone). */
+export function versionFactWords(version: number): string {
+  return version > 1 ? `${versionWords(version)} — earlier versions are kept` : versionWords(1);
+}
+
+/** The side fact "Added": "20 Oct 2026", or "… · from a draft you reviewed". */
+export function addedFactWords(day: string, fromDraft: boolean): string {
+  return fromDraft ? `${day} · from a draft you reviewed` : day;
+}
+
+/** `qeCommit` (an edit): "Saved as version 2." — every edit is a new version (domain Q-02). */
+export function savedVersionWords(version: number): string {
+  return `Saved as version ${version}.`;
 }
 
 /**
- * Script `qeView.save` (a used question): "Saved as a new version. Heat Exchanger — post-lab keeps
- * the version it has until you choose “Use updated version” there." Several assessments are the
- * register's (`FA-15.used-several`).
+ * Under it, for a question assessments use: "Heat Exchanger — post-lab keeps the version it has
+ * until you choose “Use updated version” on its Questions tab. Earlier submissions are never
+ * changed." Several keep theirs (state-copy `FA-15.used-several`).
  */
-export function savedUsedMessage(names: readonly string[]): string {
+export function savedUsedLine(names: readonly string[]): string {
   return names.length > 1
-    ? `Saved as a new version. ${namesList(names)} keep the version they have until you choose “Use updated version” there.`
-    : `Saved as a new version. ${names[0] ?? ''} keeps the version it has until you choose “Use updated version” there.`;
+    ? `${namesList(names)} keep the version they have until you choose “Use updated version” on their Questions tab. Earlier submissions are never changed.`
+    : `${names[0] ?? ''} keeps the version it has until you choose “Use updated version” on its Questions tab. Earlier submissions are never changed.`;
 }

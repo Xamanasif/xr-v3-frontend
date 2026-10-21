@@ -1,0 +1,81 @@
+      <!-- ═══ FA-18 Marking queue ═══ -->
+      <sc-if value="{{ is.mq }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ sh.date }}</p>
+          <h1 class="rb-h1" id="fa-h1" tabindex="-1">Marking</h1>
+          <p class="rk-sub">Written answers from your assessments, oldest first. Choice questions are marked automatically.</p>
+        </div>
+      </div>
+      <sc-if value="{{ MQ.noCourse }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface fr-msgcard" aria-labelledby="fa-mq-none">
+        <div class="fa-inlinemsg">
+          <span class="fa-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-pen"></use></svg></span>
+          <h2 class="rb-h2" id="fa-mq-none">Nothing to mark yet</h2>
+          <p class="fa-msg-d">Written answers appear here once you teach a course with an assessment. Your Institute Admin hasn’t assigned you a course yet.</p>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ MQ.hasCourse }}" hint-placeholder-val="{{ true }}">
+      <section class="rk-surface" aria-labelledby="fa-mq-h">
+        <div class="rk-toolbar">
+          <div class="fr-tbar">
+            <div class="fr-tbar-t">
+              <h2 class="rb-h2" id="fa-mq-h">Written answers</h2>
+              <p class="fr-mqcount"><span class="rk-count" role="status">{{ MQ.count }}</span><sc-if value="{{ MQ.hasOldest }}" hint-placeholder-val="{{ true }}"><span class="fr-oldest"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ MQ.oldest }}</span></sc-if></p>
+            </div>
+            <sc-if value="{{ MQ.someWait }}" hint-placeholder-val="{{ true }}"><div class="fa-actions fr-tbar-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-19" onClick="{{ MQ.markNext }}">Mark next</a></div></sc-if>
+          </div>
+          <sc-if value="{{ MQ.hasAny }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-tools fr-mqtools" role="search" aria-label="Filter written answers">
+            <div class="rk-field fa-field-sel fr-mqasm">
+              <label class="rk-label" for="fa-mq-asm">Assessment</label>
+              <div class="rk-selwrap"><select id="fa-mq-asm" class="rk-select" value="{{ MQ.asm }}" onChange="{{ MQ.onAsm }}"><option value="all">All assessments</option><sc-for list="{{ MQ.asmOpts }}" as="o" hint-placeholder-count="1"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+            </div>
+            <div class="fa-seg fr-seg" role="group" aria-label="Show">
+              <button type="button" aria-pressed="{{ MQ.fWait }}" onClick="{{ MQ.setWait }}">Waiting<b aria-hidden="true">{{ MQ.nWait }}</b><span class="xr-sr">, {{ MQ.nWait }}</span></button>
+              <button type="button" aria-pressed="{{ MQ.fDone }}" onClick="{{ MQ.setDone }}">Marked<b aria-hidden="true">{{ MQ.nDone }}</b><span class="xr-sr">, {{ MQ.nDone }}</span></button>
+              <button type="button" aria-pressed="{{ MQ.fAll }}" onClick="{{ MQ.setAll }}">All<b aria-hidden="true">{{ MQ.nAll }}</b><span class="xr-sr">, {{ MQ.nAll }}</span></button>
+            </div>
+          </div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ MQ.has }}" hint-placeholder-val="{{ true }}">
+        <div class="fa-tablewrap">
+          <table class="rk-table fa-table fr-mtable fr-ptable">
+            <caption>Written answers, oldest first</caption>
+            <thead><tr><th scope="col">Student</th><th scope="col">Assessment</th><th scope="col">Submitted (oldest first)</th><th scope="col">Status</th><th scope="col"><span class="xr-sr">Action</span></th></tr></thead>
+            <tbody>
+              <sc-for list="{{ MQ.rows }}" as="r" hint-placeholder-count="2">
+              <tr class="fa-static">
+                <td class="fa-c-main"><span class="rk-strong fa-cellline">{{ r.who }}</span><span class="fa-cellsub">{{ r.sub }}</span></td>
+                <td class="fr-c-wide fr-c-nolbl"><span class="fa-lbl">Assessment</span><span class="fa-cellline">{{ r.asm }}</span><span class="fa-cellsub">{{ r.qs }}</span></td>
+                <td class="fa-nowrap fr-c-wide fr-c-inl"><span class="fa-lbl">Submitted</span>{{ r.when }}<sc-if value="{{ r.hasAgo }}" hint-placeholder-val="{{ false }}"><span class="fa-cellsub">{{ r.ago }}</span></sc-if></td>
+                <td class="fr-c-st"><span class="fa-lbl">Status</span><span class="{{ r.stCls }}"><i></i>{{ r.st }}</span><sc-if value="{{ r.hasNote }}" hint-placeholder-val="{{ false }}"><span class="fa-cellsub">{{ r.note }}</span></sc-if></td>
+                <td class="fa-nowrap fr-c-wide"><div class="fa-cellacts"><sc-if value="{{ r.isWait }}" hint-placeholder-val="{{ true }}"><a class="rb-btn" href="#FA-19" aria-label="{{ r.aria }}" onClick="{{ r.open }}">Mark</a></sc-if><sc-if value="{{ r.isDone }}" hint-placeholder-val="{{ false }}"><a class="rb-btn rb-btn--ghost" href="#FA-19" aria-label="{{ r.aria }}" onClick="{{ r.open }}">View marks</a></sc-if></div></td>
+              </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        </sc-if>
+        <sc-if value="{{ MQ.noMatch }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-search"></use></svg></span>
+          <p class="rk-state-t">{{ MQ.noMatchT }}</p>
+          <p class="rk-state-d">{{ MQ.noMatchD }}</p>
+          <button type="button" class="rb-btn" onClick="{{ MQ.showAll }}">Show all written answers</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ MQ.empty }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state rk-state--roomy">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-inbox"></use></svg></span>
+          <p class="rk-state-t">Nothing is waiting for you</p>
+          <p class="rk-state-d">Written answers appear here, oldest first, as students submit. Choice questions are marked automatically.</p>
+          <sc-if value="{{ MQ.hasCoNote }}" hint-placeholder-val="{{ false }}"><p class="rk-locked" style="max-width: 34em; margin-top: 10px; text-align: left"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>Written answers for assessments another Faculty member created aren’t shown to co-teachers while sharing between co-teachers is being decided.</span></p></sc-if>
+        </div>
+        </sc-if>
+      </section>
+      </sc-if>
+      </sc-if>
+

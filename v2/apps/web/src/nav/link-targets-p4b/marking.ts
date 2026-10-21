@@ -3,25 +3,28 @@ import { pageRows } from '../link-targets-p3/rows';
 
 const QUEUE = '/faculty/marking';
 const SUBMISSION = '/faculty/marking/ATT-0450';
-/** The next waiting answer “Mark next” and “Next submission” open (B4-09 f2 caption “→ Priya”). */
+/** The next waiting answer “Mark next” and “Next submission” open (the walk’s Priya). */
 const NEXT_SUBMISSION = '/faculty/marking/ATT-0451';
+/** The assessment’s Submissions (FA-12), “See submissions”. */
+const SUBMISSIONS = '/faculty/assessments/ASMT-0009/submissions';
 
 /**
- * Phase 4B link targets: FA-18 Marking queue and FA-19 Mark a submission (B4-09). Each page has one
- * primary: FA-18’s “Mark next” (the oldest waiting answer) and FA-19’s “Confirm marks” (a command,
- * through DL-1). Attempts are addressed by id; the sample’s ATT-0450 (Rahul) and ATT-0451 (Priya)
- * stand for any attempt.
+ * The link targets of FA-18 Marking queue and FA-19 Mark a submission (V3 Refined B, the
+ * owner-approved Faculty export FA-v1 `Main.dc.html` FA-18, FA-19; LINK-MAP.json). FA-18’s one
+ * primary is “Mark next” (the oldest waiting answer); FA-19’s is “Confirm marks” (a command,
+ * through the dialog) while it waits and “Next submission” once confirmed. Attempts are addressed
+ * by id (never shown); the sample’s ATT-0450 (Rahul) and ATT-0451 (Priya) stand for any attempt.
  */
 export const P4B_MARKING_LINK_TARGETS: readonly LedgerEntry[] = [
-  // FA-18 Marking queue (B4-09 f0, f4, f5).
+  // FA-18 Marking queue (FA-v1 FA-18; boards FA18-Marking, FA18-All, FA18-Nothing-waiting).
   ...pageRows('FA-18', QUEUE, [
     [
-      'Header',
+      'Toolbar',
       'Mark next',
       'primary',
       NEXT_SUBMISSION,
       'built',
-      'B4-09 f0, f4 `div.xr-phead-actions > a.xr-btn--primary` (shown while an answer waits; state-copy `FA-18.mark-next`)',
+      'FA-v1 FA-18 `div.fa-tbar-act > a.rb-btn.rb-btn--primary.rb-btn--lg` (shown while an answer waits; state-copy `FA-18.mark-next`); LINK-MAP FA-18 “Mark next” → FA-19',
     ],
     [
       'Toolbar',
@@ -29,7 +32,7 @@ export const P4B_MARKING_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B4-09 f0 `div.xr-toolbar` (`select#Qq-as`, `div.xr-seg`; the address mirrors `?assessmentId=`, `?state=`)',
+      'FA-v1 FA-18 `div.rk-tools.fa-mqtools` (`select#fa-mq-asm`, `div.fa-seg.fa-seg--bar`; the address mirrors `?assessmentId=`, `?state=`)',
     ],
     [
       'Written answer row (waiting)',
@@ -37,60 +40,83 @@ export const P4B_MARKING_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       SUBMISSION,
       'built',
-      'B4-09 f0, f4 `a.xr-btn--secondary.xr-btn--sm` (named “Mark <student>”)',
+      'FA-v1 FA-18 `div.fa-cellacts > a.rb-btn` (named “Mark <student>”); LINK-MAP FA-18 “Mark Rahul Verma” → FA-19',
     ],
     [
       'Written answer row (marked)',
-      'View',
+      'View marks',
       'secondary',
       SUBMISSION,
       'built',
-      'B4-09 script `r.act` “View” (named “View marks for <student>”; state-copy `FA-18.view`)',
+      'FA-v1 FA-18 `a.rb-btn.rb-btn--ghost` (named “View marks for <student>”; state-copy `FA-18.view`); LINK-MAP FA-18 → FA-19',
     ],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-18.failed`'],
-  ]),
-  // FA-19 Mark a submission (B4-09 f1 … f3, f7, f8).
-  ...pageRows('FA-19', SUBMISSION, [
-    ['Back link', 'Marking', 'secondary', QUEUE, 'built', 'B4-09 f1, f2, f3, f7, f8 `a.xr-back`'],
     [
-      'Marking guidance',
-      'Marking guidance',
+      'No match',
+      'Show all written answers',
       'secondary',
       null,
       'in-page',
-      'B4-09 f1 `details.xa-guide > summary` (open as drawn; collapses in place)',
+      'FA-v1 FA-18 `MQ.showAll` (All, All assessments; focus to “Written answers”)',
+    ],
+    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-18.failed`'],
+  ]),
+  // FA-19 Mark a submission (FA-v1 FA-19; boards FA19-Mark … FA19-Released).
+  ...pageRows('FA-19', SUBMISSION, [
+    [
+      'Breadcrumb',
+      'Marking',
+      'secondary',
+      QUEUE,
+      'built',
+      'FA-v1 FA-19 `nav.rk-crumbs > a`; LINK-MAP FA-19 “Marking” → FA-18',
     ],
     [
-      'Your mark panel',
+      'Reading sheet',
+      'Go to the marks',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 FA-19 `p.fa-gomark > a.rb-link` (below 860 px; focus to the marks panel)',
+    ],
+    [
+      'Marks panel',
       'Confirm marks',
       'primary',
       null,
       'in-page',
-      'B4-09 f1, f3, f7, f8 `button.xr-btn--primary.xr-btn--block` → DL-1 (`Mm-ct`) “Confirm marks” → read-only (f2)',
+      'FA-v1 FA-19 `div.fa-confirm > button.rb-btn--primary.rb-btn--lg` → the dialog “Confirm marks” → read-only',
     ],
     [
-      'Your mark panel',
+      'Marks panel',
       'Save mark',
       'secondary',
       null,
       'in-page',
-      'B4-09 f1, f3, f7, f8 `button.xr-btn--secondary.xr-btn--block` (“Mark saved — not confirmed yet”)',
+      'FA-v1 FA-19 `div.fa-save > button.rb-btn` (“Mark saved — not confirmed yet”)',
     ],
     [
-      'DL-1 Confirm marks',
+      'Confirm marks dialog',
       'Cancel',
       'secondary',
       null,
       'in-page',
-      'B4-09 DL-1 `div.xr-dialog-foot` (nothing is confirmed)',
+      'FA-v1 dialog `#fa-dlg-cancel` (nothing is confirmed)',
     ],
     [
       'Confirmed panel',
       'Next submission',
-      'secondary',
+      'primary',
       NEXT_SUBMISSION,
       'built',
-      'B4-09 f2 `a.xr-btn--secondary.xr-btn--block` (caption “Next submission → Priya.”; none waiting → the queue, state-copy `FA-19.next`)',
+      'FA-v1 FA-19 `div.fa-done-acts > a.rb-btn--primary.rb-btn--lg` (none waiting: “Nothing else is waiting for marking.”, state-copy `FA-19.next`); LINK-MAP FA-19 “Next submission” → FA-19',
+    ],
+    [
+      'Confirmed panel',
+      'See submissions',
+      'secondary',
+      SUBMISSIONS,
+      'built',
+      'FA-v1 FA-19 `div.fa-done-acts > a.rb-btn`; LINK-MAP FA-19 “See submissions” → FA-12',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `FA-19.failed`'],
   ]),

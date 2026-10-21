@@ -17,7 +17,7 @@
     "v3SeedSource": 5,
     "lockedLanding": 2,
     "pendingDesign": 116,
-    "migrated": 69
+    "migrated": 90
   },
   "designedByType": {
     "action": 1,
@@ -846,14 +846,17 @@
       "designed": true,
       "v46ProposedRoute": "/faculty",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-01-overview"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-01-overview",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the priority band with Mark now (the oldest written answer), Coming up with date tiles and days left, your teaching with a unit meter per format; one item, calm, no courses, co-teacher, failed",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No read holds the drafts row; it is left out."
     },
     {
       "id": "FA-02",
@@ -864,13 +867,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/courses",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-02-my-courses"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-02-my-courses",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — my courses as a ledger with course cards, experiments per course and the teaching activity; no courses, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -882,13 +888,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/courses/[courseId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-03-course"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-03-course",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the course's identity band, its experiments, assessments and students ways in; access ended",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -900,13 +909,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/courses?tab=experiments",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-04-experiments"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-04-experiments",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the experiments tab by course with format badges and search; no match, none",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -918,13 +930,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/experiments/[experimentId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-05-experiment"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-05-experiment",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the experiment's identity band, about, formats, assessments and students ways in",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -936,13 +951,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/assessments",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-06-assessments"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-06-assessments",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — assessments with the state filter, days left and segment counts; empty, no match, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -954,14 +972,17 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/assessments/new?step=1…4",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-07-create-assessment"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-07-create-assessment",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the guided steps (experiment, questions, rules, review) with the picker and summary beside them; errors, result, save as draft",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "“Multiple choice” stays (the domain's CSV rule and the Student pages' shared words); the export's “Single choice” is not adopted."
     },
     {
       "id": "FA-08",
@@ -972,13 +993,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/assessments/[assessmentId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-08-assessment-summary"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-08-assessment-summary",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the record band, rules, questions and who has submitted; Mark next and See submissions; draft, released, co-teacher held back",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -990,13 +1014,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/assessments/[assessmentId]/questions",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-09-assessment-questions"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-09-assessment-questions",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the questions with order controls, the question-bank panel and the offer after New question; locked, empty",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1008,13 +1035,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/assessments/[assessmentId]/settings",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-10-assessment-settings"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-10-assessment-settings",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the settings form with the version and result-terms warnings; locked while submissions exist, errors, saved",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1026,13 +1056,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/assessments/[assessmentId]/preview",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-11-assessment-preview"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-11-assessment-preview",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the preview sheet with the answer-key view",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1044,13 +1077,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/assessments/[assessmentId]/submissions",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-12-submissions"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-12-submissions",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — submissions with the Show filter, attempts and the Export CSV confirmation; none, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1079,14 +1115,17 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/question-bank",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-14-question-bank"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-14-question-bank",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the question bank with search, the experiment filter, used-in names and the Drafts to review tab; empty, deleted, phone-only",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "“None now · earlier versions keep it” is left out (no read holds it); the experiment filter reads one experiment at a time (no “All experiments”)."
     },
     {
       "id": "FA-15",
@@ -1097,13 +1136,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/question-bank/new · /faculty/question-bank/[questionId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-15-question"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-15-question",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — add or edit a question: statement, options and the correct answer, marks, guidance; errors, saved as a new version, used question",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1115,14 +1157,17 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/question-bank/draft",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-16-draft-questions"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-16-draft-questions",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — draft questions with assistance: source, type and count picks, the drafts to review with add and discard; errors, busy, all done",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "“Review and edit” opens the editor in place (no FA-15 review-a-draft route exists)."
     },
     {
       "id": "FA-17",
@@ -1133,14 +1178,17 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/question-bank/import",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-17-import-questions"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-17-import-questions",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — import questions from a CSV: file, row check, confirm, done; file refused, problems",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No XLSX or non-CSV guard is added (product states kept); no per-type figures (the report holds none)."
     },
     {
       "id": "FA-18",
@@ -1151,13 +1199,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/marking",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-18-marking"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-18-marking",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the marking queue with counts and the locked note; empty, loading, failed",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1169,13 +1220,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/marking/[attemptId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-19-mark-submission"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-19-mark-submission",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — mark a submission: automatic marks, the written answers with score and feedback, live total, confirm, marks done and Next submission",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1187,13 +1241,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/students",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-20-students"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-20-students",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — students with formats, last activity and inactivity, the summary and Export CSV; none, no match",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1205,13 +1262,16 @@
       "designed": true,
       "v46ProposedRoute": "/faculty/students/[studentId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
-        "paths": ["apps/web/src/features/faculty/fa-21-student"]
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
+        "paths": [
+          "apps/web/src/features/faculty/fa-21-student",
+          "apps/web/src/features/faculty/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the student's record per experiment with formats and marks given",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1223,18 +1283,19 @@
       "designed": true,
       "v46ProposedRoute": "(action) Export CSV on FA-20 / FA-12",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P4)",
+        "status": "V3 presentation (Faculty export FA-v1), implemented",
         "paths": [
           "apps/web/src/features/faculty/fa-12-submissions/submissions.tsx",
           "apps/web/src/features/faculty/fa-20-students/student-facts.ts",
-          "apps/web/src/features/faculty/fa-20-students/students.tsx"
+          "apps/web/src/features/faculty/fa-20-students/students.tsx",
+          "apps/web/src/features/faculty/shared"
         ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export FA-v1 (design/v3-refined-b/roles/FA-v1; archive XR-V3-Faculty-Final-Source.zip, SHA-256 d11a3d00…bef, FINAL — APPROVED BY THE OWNER 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — APPROVED BY THE OWNER, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — Export CSV on FA-12 and FA-20 with its confirmation; the downloaded file keeps the service's name, the words name it by content",
+      "browserChecked": "product build with the test-hook bridge (the Faculty signs in through the institution, which the sample world cannot do) at 1440, 1024, 768 and 375: captured and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The downloaded file's name is the service's (FA-12's contains the assessment's reference); it is not shown in the words."
     },
     {
       "id": "FA-23",

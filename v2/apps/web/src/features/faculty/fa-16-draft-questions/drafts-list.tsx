@@ -1,18 +1,42 @@
 'use client';
 
 import type { ServiceError } from '@xr/contracts/draft';
-import type { QuestionDraft } from '@xr/domain';
-import { Button, FailedState, Icon, Link, LoadingState, Notice } from '@xr/ui';
+import type { ChoiceKey, QuestionDraft } from '@xr/domain';
+import {
+  Button,
+  ButtonLink,
+  FaAuthor,
+  FaBankHowTo,
+  FaBankSideTitle,
+  FaDraftAllDone,
+  FaDraftCard,
+  FaDraftList,
+  FaDraftListSurface,
+  FaDraftSample,
+  FaFormColumn,
+  FaFormSection,
+  FaPickCount,
+  FaQuestionHead,
+  FaSide,
+  FaSideSection,
+  Hint,
+  ListState,
+  LoadingRows,
+  Notice,
+} from '@xr/ui/v3';
 import { type ReactNode, type Ref, useEffect, useRef, useState } from 'react';
 
 import { QUESTION_TYPE_WORDS } from '@/copy/assessment-words';
+import { QUESTION_EDITOR } from '@/copy/question-bank';
 import {
   addDraftLabel,
-  addedToBank,
   BANK_TOOLS,
   DRAFT_QUESTIONS,
   discardDraftLabel,
+  draftsToReviewWords,
+  inBankMetaWords,
   leftToReview,
+  reviewDraftLabel,
 } from '@/copy/question-tools';
 import { stateWords } from '@/copy/state-copy';
 import { draftQuestionsAddress } from '@/nav/faculty';
@@ -29,12 +53,15 @@ import {
   valuesOf,
 } from './draft-editor';
 
-/** Where the list is drawn: FA-16's "Drafts to review" (B4-08 f1) or FA-14's Drafts tab (B4-07 f1). */
+const CHOICES: readonly ChoiceKey[] = ['A', 'B', 'C', 'D'];
+
+/** Where the list is drawn: FA-16's "Drafts to review" or FA-14's Drafts tab. */
 export type DraftsListPlace = 'draft-page' | 'bank';
 
 interface Message {
   readonly tone: 'ok' | 'err';
-  readonly text: string;
+  readonly title: string;
+  readonly line?: string;
 }
 
 /** A draft added to the bank on this visit (FA-16 keeps it in place: `d.added`). */
@@ -44,35 +71,39 @@ interface AddedDraft {
 }
 
 /** The stand-in note (state-copy `FA-16.sample-stand-in`): the drafts are fixed samples. */
-export function SampleDraftsNote({ className }: { readonly className?: string }) {
-  return (
-    <Notice tone="quiet" role="note" className={className}>
-      {stateWords('FA-16.sample-stand-in')}
-    </Notice>
-  );
+export function SampleDraftsNote() {
+  return <FaDraftSample>{stateWords('FA-16.sample-stand-in')}</FaDraftSample>;
 }
 
 /**
- * The Faculty member's drafts for one experiment, each “Draft — needs your review” and “Drafted
- * with assistance”, with “Review and edit” (the FA-15 fields in place), “Add to bank”
- * (`addDraftToBank` with the reviewed fields) and “Discard” (`discardDraft`) — B4-08 f1 on FA-16,
- * B4-07 f1 on FA-14's Drafts tab. Drafts are adapter state: the list is read again after each
- * command. The drawn message (“Added to your question bank as Q-0107.”, “Draft discarded. …”)
- * takes focus. A draft has no marks (state-copy `FA-16.marks`): its type alone is shown, and
- * adding one without marks opens its fields with the drawn marks error.
+ * The Faculty member's drafts for one experiment as review cards, each “Draft — needs your review”
+ * and “Drafted with assistance”, with its options and key (or the answer, or the guidance), and
+ * “Review and edit” (the FA-15 sections in the card), “Add to bank” (`addDraftToBank` with the
+ * reviewed fields) and “Discard” (`discardDraft`), each named by the draft's words — FA-16's
+ * “Drafts to review” (a surface of its own, the count “3 drafts left to review”), FA-14's Drafts
+ * tab (beside “How review works”, “3 drafts to review”). Drafts are adapter state: the list is read
+ * again after each command. The drawn message (“Added to your question bank.”, “Draft discarded.
+ * Nothing was added to your bank.”) takes focus. A draft has no marks (state-copy `FA-16.marks`):
+ * its type alone is shown, and adding one without marks opens its fields with the drawn marks
+ * error.
  */
 export function DraftsList({
   place,
   experimentId,
   headingRef,
-  onDraftMore,
+  requestDone = false,
+  onAdded,
+  onDiscarded,
 }: {
   readonly place: DraftsListPlace;
   readonly experimentId: string;
-  /** FA-16 focuses the heading once the drafts arrive (`focus(pid + '-lh')`). */
+  /** FA-16 focuses the heading once the drafts arrive (the export's `focusLater('fa-dr-lh')`). */
   readonly headingRef?: Ref<HTMLHeadingElement>;
-  /** FA-16's “Draft more” (back to the form). */
-  readonly onDraftMore?: () => void;
+  /** FA-16: every draft of the request is added or discarded (`DR.allDone`). */
+  readonly requestDone?: boolean;
+  /** FA-16's side figures: a draft added or discarded on this visit. */
+  readonly onAdded?: (draftId: string) => void;
+  readonly onDiscarded?: (draftId: string) => void;
 }) {
   const ids = place === 'draft-page' ? DRAFT_PAGE_IDS : BANK_IDS;
   const drafts = useQuestionDrafts(experimentId);
@@ -131,12 +162,12 @@ export function DraftsList({
   const refused = (error: ServiceError) => {
     if (error.kind === 'not-found' || error.kind === 'not-permitted') {
       void drafts.refetch();
-      say({ tone: 'err', text: stateWords('FA-16.draft-gone') });
+      say({ tone: 'err', title: stateWords('FA-16.draft-gone') });
       return;
     }
-    say({ tone: 'err', text: stateWords('FA-16.draft-unavailable') });
+    say({ tone: 'err', title: stateWords('FA-16.draft-unavailable') });
   };
-  const unavailable = () => say({ tone: 'err', text: stateWords('FA-16.draft-unavailable') });
+  const unavailable = () => say({ tone: 'err', title: stateWords('FA-16.draft-unavailable') });
 
   const addToBank = (draft: QuestionDraft) => {
     if (add.busy || discard.busy) return;
@@ -149,8 +180,13 @@ export function DraftsList({
           if (place === 'draft-page') {
             setAdded((current) => [...current, { draft, questionId: answer.value.id }]);
           }
+          onAdded?.(draft.id);
           await drafts.refetch();
-          say({ tone: 'ok', text: addedToBank(answer.value.id) });
+          say(
+            place === 'draft-page'
+              ? { tone: 'ok', title: DRAFT_QUESTIONS.added }
+              : { tone: 'ok', title: BANK_TOOLS.added, line: BANK_TOOLS.addedLine },
+          );
           return;
         }
         const error = answer.error;
@@ -179,10 +215,11 @@ export function DraftsList({
         setPending(null);
         if (answer.ok) {
           forget(draft.id);
+          onDiscarded?.(draft.id);
           await drafts.refetch();
           say({
             tone: 'ok',
-            text: place === 'draft-page' ? DRAFT_QUESTIONS.discarded : BANK_TOOLS.discarded,
+            title: place === 'draft-page' ? DRAFT_QUESTIONS.discarded : BANK_TOOLS.discarded,
           });
           return;
         }
@@ -205,7 +242,7 @@ export function DraftsList({
     }
   };
 
-  // FA-16 keeps the drafts added on this visit in place (`d.added`); in id order, as requested.
+  // FA-16 keeps the drafts added on this visit in place (`d.added`); in key order, as requested.
   const rows: readonly { readonly draft: QuestionDraft; readonly questionId: string | null }[] = [
     ...(waiting ?? []).map((draft) => ({ draft, questionId: null })),
     ...added
@@ -213,117 +250,138 @@ export function DraftsList({
       .map((entry) => ({ draft: entry.draft, questionId: entry.questionId })),
   ].sort((a, b) => (a.draft.id < b.draft.id ? -1 : a.draft.id > b.draft.id ? 1 : 0));
 
+  const messageNotice = message ? (
+    <Notice
+      id={ids.message}
+      ref={messageRef}
+      tone={message.tone === 'ok' ? 'ok' : 'warn'}
+      space={place === 'draft-page' ? 'above' : undefined}
+      icon={message.tone === 'ok' ? undefined : 'alertCircle'}
+      role="status"
+      title={message.title}
+    >
+      {message.line}
+    </Notice>
+  ) : null;
+
   let body: ReactNode;
   if (failed) {
     body = (
-      <div className="px-6 pb-6">
-        <FailedState
-          title={stateWords('FA-16.drafts-failed')}
-          onRetry={() => void drafts.refetch()}
-        >
-          {stateWords('FA-14.failed.line')}
-        </FailedState>
-      </div>
+      <ListState
+        kind="failed"
+        title={stateWords('FA-16.drafts-failed')}
+        action={
+          <Button onClick={() => void drafts.refetch()}>{stateWords('FA-14.try-again')}</Button>
+        }
+      >
+        {stateWords('FA-14.failed.line')}
+      </ListState>
     );
   } else if (waiting === null) {
-    body = (
-      <LoadingState
-        label={stateWords('FA-16.drafts-loading')}
-        surface={null}
-        className="px-6 pb-6"
-      />
-    );
+    body = <LoadingRows message={stateWords('FA-16.drafts-loading')} rows={2} cells={[2]} />;
   } else if (place === 'bank' && rows.length === 0) {
     body = (
-      <div className="xr-section-body">
-        <div className="xr-empty">
-          <span className="xr-empty-icon bg-ok-bg text-ok">
-            <Icon name="done" />
-          </span>
-          <h3 className="xr-h3 m-0">{BANK_TOOLS.noDraftsTitle}</h3>
-          <p className="xr-body m-0 text-ink-2">{BANK_TOOLS.noDraftsLine}</p>
-          <div className="flex flex-wrap gap-3">
-            <Link className="xr-btn xr-btn--secondary" href={draftQuestionsAddress(experimentId)}>
-              {BANK_TOOLS.draftWithAssistance}
-            </Link>
-          </div>
-        </div>
-      </div>
+      <ListState
+        kind="empty"
+        icon="draft"
+        title={BANK_TOOLS.noDraftsTitle}
+        action={
+          <ButtonLink href={draftQuestionsAddress(experimentId)}>
+            {BANK_TOOLS.draftWithAssistance}
+          </ButtonLink>
+        }
+      >
+        {BANK_TOOLS.noDraftsLine}
+      </ListState>
     );
   } else {
     body = (
-      <ul className="xr-rows">
+      <FaDraftList>
         {rows.map(({ draft, questionId }) => {
           const prefix = `${ids.prefix}-${draft.id}`;
           const titleId = `${prefix}-t`;
           const isOpen = questionId === null && open.has(draft.id);
           const busy = pending === draft.id;
+          const type = QUESTION_TYPE_WORDS[draft.body.type];
+          const { body: answer } = draft;
           return (
-            <li key={draft.id} className="xr-row items-start">
-              <div className="xr-row-main items-start">
-                <span className="xr-row-icon xr-row-icon--info">
-                  <Icon name="assist" />
-                </span>
-                <div className="xr-row-text">
-                  <span className="xr-row-title" id={titleId}>
-                    {draft.text}
-                  </span>
-                  <span className="xa-qrow-meta">
-                    {questionId === null ? (
-                      <>
-                        <span className="xa-tag xa-tag--draft">{DRAFT_QUESTIONS.needsReview}</span>
-                        <span className="xa-tag">
-                          <Icon name="assist" />
-                          {DRAFT_QUESTIONS.assisted}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="xa-tag bg-ok-bg text-ok">
-                        <Icon name="done" />
-                        {DRAFT_QUESTIONS.inBank}
-                      </span>
-                    )}
-                    {/* The type alone: a draft has no marks (state-copy `FA-16.marks`). */}
-                    <span>{QUESTION_TYPE_WORDS[draft.body.type]}</span>
-                  </span>
-                </div>
-              </div>
-              {questionId === null && !isOpen ? (
-                <div className="xw-actions">
-                  <Button
-                    id={`${prefix}-review`}
-                    variant="secondary"
-                    size="sm"
-                    aria-expanded={false}
-                    onClick={() => {
-                      toggle(draft.id, true);
-                      focusOn(`edit:${draft.id}`);
-                    }}
-                  >
-                    {DRAFT_QUESTIONS.reviewEdit}
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    aria-label={addDraftLabel(draft.text)}
-                    busy={busy && add.busy}
-                    busyLabel={DRAFT_QUESTIONS.addToBank}
-                    onClick={() => addToBank(draft)}
-                  >
-                    {DRAFT_QUESTIONS.addToBank}
-                  </Button>
-                  <Button
-                    variant="text"
-                    className="min-h-9"
-                    aria-label={discardDraftLabel(draft.text)}
-                    busy={busy && discard.busy}
-                    busyLabel={DRAFT_QUESTIONS.discard}
-                    onClick={() => discardDraft(draft)}
-                  >
-                    {DRAFT_QUESTIONS.discard}
-                  </Button>
-                </div>
-              ) : null}
+            <FaDraftCard
+              key={draft.id}
+              state={
+                questionId === null
+                  ? {
+                      kind: 'review',
+                      needsReview: DRAFT_QUESTIONS.needsReview,
+                      assisted: DRAFT_QUESTIONS.assisted,
+                    }
+                  : { kind: 'added', inBank: DRAFT_QUESTIONS.inBank }
+              }
+              // The type alone: a draft has no marks (state-copy `FA-16.marks`).
+              meta={questionId === null ? type : inBankMetaWords(type)}
+              text={draft.text}
+              textId={titleId}
+              options={
+                questionId === null && answer.type === 'multiple-choice'
+                  ? {
+                      label: DRAFT_QUESTIONS.optionsLabel,
+                      correctWord: DRAFT_QUESTIONS.correct,
+                      items: CHOICES.filter((choice) => (answer.options[choice] ?? '').trim()).map(
+                        (choice) => ({
+                          letter: choice,
+                          text: answer.options[choice],
+                          correct: answer.correct === choice,
+                        }),
+                      ),
+                    }
+                  : null
+              }
+              keyLine={
+                questionId !== null
+                  ? null
+                  : answer.type === 'true-false'
+                    ? {
+                        label: DRAFT_QUESTIONS.correctAnswer,
+                        value: answer.correct ? QUESTION_EDITOR.true : QUESTION_EDITOR.false,
+                      }
+                    : answer.type === 'written' && answer.markingGuidance
+                      ? { label: DRAFT_QUESTIONS.guidance, value: answer.markingGuidance }
+                      : null
+              }
+              actions={
+                questionId === null && !isOpen ? (
+                  <>
+                    <Button
+                      id={`${prefix}-review`}
+                      aria-expanded={false}
+                      aria-label={reviewDraftLabel(draft.text)}
+                      onClick={() => {
+                        toggle(draft.id, true);
+                        focusOn(`edit:${draft.id}`);
+                      }}
+                    >
+                      {DRAFT_QUESTIONS.reviewEdit}
+                    </Button>
+                    <Button
+                      aria-label={addDraftLabel(draft.text)}
+                      busy={busy && add.busy}
+                      busyLabel={DRAFT_QUESTIONS.addToBank}
+                      onClick={() => addToBank(draft)}
+                    >
+                      {DRAFT_QUESTIONS.addToBank}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      aria-label={discardDraftLabel(draft.text)}
+                      busy={busy && discard.busy}
+                      busyLabel={DRAFT_QUESTIONS.discard}
+                      onClick={() => discardDraft(draft)}
+                    >
+                      {DRAFT_QUESTIONS.discard}
+                    </Button>
+                  </>
+                ) : undefined
+              }
+            >
               {isOpen ? (
                 <DraftEditor
                   prefix={prefix}
@@ -342,52 +400,58 @@ export function DraftsList({
                   onSubmit={() => addToBank(draft)}
                 />
               ) : null}
-            </li>
+            </FaDraftCard>
           );
         })}
-      </ul>
+      </FaDraftList>
+    );
+  }
+
+  if (place === 'draft-page') {
+    return (
+      <FaDraftListSurface
+        titleId={ids.heading}
+        title={DRAFT_QUESTIONS.listTitle}
+        titleRef={headingRef}
+        count={waiting === null ? undefined : leftToReview(waiting.length)}
+        before={<SampleDraftsNote />}
+        line={DRAFT_QUESTIONS.listLine}
+      >
+        {messageNotice}
+        {body}
+        {requestDone ? <FaDraftAllDone>{DRAFT_QUESTIONS.allDone}</FaDraftAllDone> : null}
+      </FaDraftListSurface>
     );
   }
 
   return (
-    <section className="xr-section" aria-labelledby={ids.heading}>
-      <div className="xr-section-head">
-        <h2 id={ids.heading} className="xr-h2" tabIndex={-1} ref={headingRef}>
-          {DRAFT_QUESTIONS.listTitle}
-        </h2>
-        {place === 'draft-page' ? (
-          <span className="xr-meta" role="status">
-            {waiting === null ? '' : leftToReview(waiting.length)}
-          </span>
-        ) : null}
-      </div>
-      <div className="flex flex-col gap-3 [padding:0_24px_12px]">
-        <p className="xl-open">
-          <Icon name="info" size={16} />
-          <span>{place === 'draft-page' ? DRAFT_QUESTIONS.listLine : BANK_TOOLS.draftsLine}</span>
-        </p>
+    <FaAuthor>
+      <FaFormColumn labelledBy={ids.heading}>
         <SampleDraftsNote />
-      </div>
-      <div id={ids.message} ref={messageRef} tabIndex={-1}>
-        {message ? (
-          <p
-            className={`xa-save ${message.tone === 'ok' ? 'is-ok' : 'is-err'} [margin:0_24px_12px]`}
-            role="status"
+        <FaFormSection>
+          <FaQuestionHead
+            title={DRAFT_QUESTIONS.listTitle}
+            titleId={ids.heading}
+            focusable
+            aside={
+              waiting && waiting.length > 0 ? (
+                <FaPickCount>{draftsToReviewWords(waiting.length)}</FaPickCount>
+              ) : null
+            }
           >
-            <Icon name={message.tone === 'ok' ? 'done' : 'failed'} />
-            {message.text}
-          </p>
-        ) : null}
-      </div>
-      {body}
-      {onDraftMore ? (
-        <div className="xr-section-body [padding-top:12px]">
-          <Button variant="text" onClick={onDraftMore}>
-            {DRAFT_QUESTIONS.draftMore}
-          </Button>
-        </div>
-      ) : null}
-    </section>
+            <Hint>{BANK_TOOLS.draftsLine}</Hint>
+          </FaQuestionHead>
+          {messageNotice}
+          {body}
+        </FaFormSection>
+      </FaFormColumn>
+      <FaSide labelledBy="qb-side">
+        <FaSideSection>
+          <FaBankSideTitle id="qb-side">{BANK_TOOLS.howTitle}</FaBankSideTitle>
+          <FaBankHowTo steps={BANK_TOOLS.how} />
+        </FaSideSection>
+      </FaSide>
+    </FaAuthor>
   );
 }
 
@@ -398,6 +462,6 @@ function without<T>(record: Readonly<Record<string, T>>, key: string): Readonly<
   return next;
 }
 
-/** B4-08 `#Dd-lh`, `#Dd-msg`; B4-07 `#Kb-dh`, `#Kb-msg`. */
+/** The export's `#fa-dr-lh`, `#fa-msg` on FA-16; FA-14's Drafts tab's own. */
 const DRAFT_PAGE_IDS = { prefix: 'dq', heading: 'dq-lh', message: 'dq-msg' } as const;
 const BANK_IDS = { prefix: 'qbd', heading: 'qb-dh', message: 'qb-dmsg' } as const;

@@ -1,283 +1,470 @@
 'use client';
 
-import type { FacultyOverview as FacultyOverviewAnswer } from '@xr/contracts/draft';
+import type { FacultyStudentRow } from '@xr/contracts/draft';
+import type { FormatCode } from '@xr/ui';
 import {
-  AttentionItem,
-  Row,
   Button,
-  Icon,
-  Link,
-  LoadingState,
-  PageContent,
-  PageHeader,
-  Rows,
-  Skeleton,
-} from '@xr/ui';
-import { useId, useLayoutEffect, useRef } from 'react';
+  FaFormatBadges,
+  FaMessageCard,
+  FaOverviewCalm,
+  FaOverviewCourse,
+  FaOverviewDeadlines,
+  FaOverviewExperiment,
+  FaOverviewGetReady,
+  FaOverviewGrid,
+  FaOverviewNoDeadlines,
+  FaOverviewPane,
+  FaOverviewPriority,
+  type FaOverviewPriorityItem,
+  FaProgress,
+  FaQuiet,
+  ListState,
+  LoadingRows,
+  PageHead,
+  StatusPill,
+  TextLink,
+} from '@xr/ui/v3';
+import { useCallback, useEffect, useRef, useState } from 'react';
 
+import { dayMonthYear } from '@/copy/dates';
+import { FACULTY_FAILED_WORDS } from '@/copy/fa-shared';
 import {
-  attentionCountWords,
-  FACULTY_FAILED_WORDS,
+  activityLabel,
+  asOfWords,
   FACULTY_OVERVIEW_WORDS,
+  formatsHeldLabel,
+  GET_READY,
+  getReadyNote,
+  openCourseLabel,
+  PROGRESS_WORDS,
   scopeLineWords,
 } from '@/copy/faculty-overview';
-import { markHeaderWords } from '@/copy/marking';
 import { stateWords } from '@/copy/state-copy';
 import {
+  createAssessmentAddress,
   FACULTY_HELP_ADDRESS,
-  FACULTY_MY_COURSES_ADDRESS,
   FACULTY_OVERVIEW_TITLE,
+  facultyCourseAddress,
+  facultyExperimentAddress,
   facultyOverviewPlacement,
-  markingQueueAddress,
+  newQuestionAddress,
 } from '@/nav/faculty';
-import { useCurrentSession } from '@/queries/session';
-import { useFacultyOverview } from '@/queries/teaching';
+import { useFacultyStudents, useMarkingQueue } from '@/queries/faculty-assessment-work';
+import { useSession } from '@/queries/session';
+import {
+  useFacultyAssessments,
+  useFacultyOverview,
+  useQuestionBank,
+  useTeachingCourses,
+} from '@/queries/teaching';
 
-import { MAIN_ID } from '../../shared/workspace-frame/route-focus';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import {
-  attentionRows,
-  comingUpRows,
-  type OverviewRow,
+  type TaughtExperiment,
+  useTaughtExperiments,
+} from '../fa-04-experiments/taught-experiments';
+import { studentsReached } from '../fa-04-experiments/teaching-view';
+import { useOldestWaiting } from '../shared/mark-oldest';
+import { useFacultyToday } from '../shared/use-today';
+import {
+  deadlineViews,
+  inactiveExperiments,
+  isNewTeacher,
+  noDeadlineWords,
+  type PriorityItemView,
+  priorityItems,
+  teachingCourseViews,
   writtenAnswersWaiting,
 } from './overview-view';
 
+const TITLE_ID = 'fa-h1';
+const NO_COURSES_ID = 'fa-ov-none';
+
+const KIND_ICON = { written: 'pen', inactive: 'people', 'access-ended': 'lock' } as const;
+
 /**
- * FA-01 Overview, the Faculty workspace home (board B4-01: "What needs my attention this week?"),
- * at `/faculty`: one scope line, the attention rows and the deadlines coming up — attention only;
- * none of the Faculty destinations is embedded here.
+ * FA-01 Overview — the V3 Refined B design (the owner-approved export design/v3-refined-b/roles/
+ * FA-v1, `Main.dc.html` FA-01 and its `vmOverview`), at `/faculty`: only genuine work.
  *
- * - **Read**: `TeachingService.getFacultyOverview` — the scope line's counts (the courses Faculty
- *   courses, IA-15, map to the Faculty member and the experiments of them the institution holds),
- *   the attention facts and the Ready assessments due in the next 30 days. Every word is written
- *   here from those facts (`@/copy/faculty-overview`). The overline is the session's institution.
- *   An assignment, an assessment or a grant in the same tab refreshes it (the read's deps).
- * - **As B4-01 draws it**: the scope line with "My courses" (f0, f1, f3, f4), "Needs your
- *   attention" with its count and rows or the calm state (f1), "Coming up · at most 3" with "Open"
- *   per assessment or "No deadlines in the next 30 days." (f3), and "No courses yet" before the
- *   Institute Admin assigns one (f2: the message and Help only). At 375 the rows stack (f4).
- * - **Phase 4B actions** (state-copy `FA-01.phase-4b-actions`): the header's one primary "Mark <n>
- *   written answer" (every written answer waiting) and a written-answers row's "Mark now" open
- *   Marking (FA-18; the row's for its assessment); the inactive-students row is drawn with "View
- *   students" (FA-20 for that experiment). The drafts row stays undrawn: the service has no such
- *   fact (PC-51). The paused-institution banner is the shell's (XS-08).
- * - Undrawn: loading and failed with "Try again" (state-copy `FA-01.loading`, `FA-01.failed`).
- *   Nothing here changes a record: every action opens the page where the work is done.
+ * - **Reads**: `TeachingService.getFacultyOverview` (the scope line's counts, the attention facts
+ *   and the Ready assessments due in the next 30 days, PC-51), `listMyCourses` and the taught
+ *   experiments (`useTaughtExperiments`: `getCreateOptions`, `listAssessments`, each experiment's
+ *   `getTeachingExperiment`) for "Your teaching" and the release rule of each deadline, the marking
+ *   queue (`MarkingService.listQueue`, oldest first — the read the rail's Marking count makes) for
+ *   the people behind the written answers and "Mark now" (the oldest submission, FA-19), Students
+ *   (`listStudents`, inactive 14+) for each inactive-Students fact's last activity, and — only for a
+ *   new teacher — the first experiment's question bank.
+ * - **As the export draws it**: the date, "Overview" and the scope line; the priority band sized to
+ *   its items (written answers to mark, Students to follow up) or the calm state, or "Get your
+ *   course ready" for a new teacher; "Coming up" (date tiles, days left, the submissions meter or
+ *   who created a colleague's assessment, the release rule) beside "Your teaching" (each course
+ *   and experiment with one unit meter per format and its assessment). No courses: the message
+ *   card with Help & support. What no read holds is left out: the drafts item (state-copy
+ *   `FA-01.not-rendered`). A course whose access ended — a product state the export does not
+ *   draw — is an item of the band (`FA-01.access-ended-kind`).
+ * - **Loading and failed**: the application's page loading and the failed state with Try again,
+ *   which reads again and moves focus to the title (`FA-01.loading`, `FA-01.failed`).
+ * - No internal reference in its words or names. Nothing here changes a record.
  */
 export function FacultyOverview() {
   useShellPage(facultyOverviewPlacement());
-  const session = useCurrentSession();
-  const institutionName = session.data?.ok
-    ? (session.data.value?.session.institutionName ?? null)
-    : null;
-  const read = useFacultyOverview();
-  const answer = read.data?.ok ? read.data.value : null;
-  const failed = read.isError || (read.data !== undefined && !read.data.ok);
-  const retried = useRetryFocus(answer !== null);
-  const toMark =
-    answer && answer.scopeLine.courses > 0 ? writtenAnswersWaiting(answer.attention) : 0;
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const session = useSession();
+  const me = session.status === 'signed-in' ? session.personId : null;
+  const clock = useFacultyToday();
+  const today = clock?.now ?? null;
+  const date = clock?.line;
 
-  const retry = () => {
-    retried();
-    void read.refetch();
-  };
+  const overview = useFacultyOverview();
+  const courses = useTeachingCourses();
+  const { read: taught, probes } = useTaughtExperiments();
+  const assessments = useFacultyAssessments();
+  const answer = overview.data?.ok ? overview.data.value : null;
+  const courseRows = courses.data?.ok ? courses.data.value : null;
 
-  return (
-    <PageContent wrap="read">
-      <PageHeader
-        className="mb-6"
-        overline={institutionName}
-        title={FACULTY_OVERVIEW_TITLE}
-        meta={answer && answer.scopeLine.courses > 0 ? <ScopeLine answer={answer} /> : null}
-        actions={
-          toMark > 0 ? (
-            <Link className="xr-btn xr-btn--primary" href={markingQueueAddress()}>
-              {markHeaderWords(toMark)}
-            </Link>
-          ) : null
-        }
-      />
-      <div className="xw-stack">
+  // The people behind the counts: the marking queue (oldest first) and the inactive Students.
+  const waiting = answer ? writtenAnswersWaiting(answer.attention) : 0;
+  const oldest = useOldestWaiting(null, waiting);
+  const queue = useMarkingQueue(null, 'waiting', waiting > 0);
+  const queueRows = queue.data?.ok ? queue.data.value : null;
+  const inactive = answer ? inactiveExperiments(answer.attention) : [];
+  const students = useInactiveStudents(inactive);
+
+  // A new teacher: no assessment and no Student yet — then the first experiment's bank is read.
+  const experiments = taught.kind === 'ready' ? taught.experiments : null;
+  const assessmentRows = assessments.data?.ok ? assessments.data.value : null;
+  const first = experiments?.[0] ?? null;
+  const bankWanted =
+    first !== null &&
+    assessmentRows !== null &&
+    assessmentRows.length === 0 &&
+    (experiments ?? []).every((entry) => studentsReached(entry.teaching) === 0);
+  const bank = useQuestionBank(first?.option.experimentId ?? null, null, bankWanted);
+  const bankEmpty = !bankWanted ? null : bank.data?.ok ? bank.data.value.length === 0 : null;
+
+  const failed =
+    overview.isError ||
+    courses.isError ||
+    (overview.data !== undefined && !overview.data.ok) ||
+    (courses.data !== undefined && !courses.data.ok) ||
+    taught.kind === 'failed';
+  const loaded =
+    !failed &&
+    answer !== null &&
+    courseRows !== null &&
+    experiments !== null &&
+    assessmentRows !== null &&
+    // The people behind the counts and the bank answer before the page is drawn (a failed one
+    // draws the item without them).
+    !(waiting > 0 && queue.isPending) &&
+    !students.pending &&
+    !(bankWanted && bank.isPending);
+
+  // Try again moves focus to the title, and keeps it there once the page has loaded.
+  const refocus = useRef(false);
+  useEffect(() => {
+    if (!loaded || !refocus.current) return;
+    refocus.current = false;
+    titleRef.current?.focus();
+  }, [loaded]);
+
+  const head = (lead?: string) => (
+    <PageHead
+      title={FACULTY_OVERVIEW_TITLE}
+      titleId={TITLE_ID}
+      titleRef={titleRef}
+      titleFocusTarget
+      date={date}
+      lead={lead}
+    />
+  );
+
+  if (!loaded || answer === null || courseRows === null || experiments === null) {
+    const retry = () => {
+      if (overview.isError || (overview.data && !overview.data.ok)) void overview.refetch();
+      if (courses.isError || (courses.data && !courses.data.ok)) void courses.refetch();
+      if (taught.kind === 'failed') taught.retry();
+      refocus.current = true;
+      titleRef.current?.focus();
+    };
+    return (
+      <>
+        {probes}
+        {students.probes}
+        {head()}
         {failed ? (
-          <Failed onRetry={retry} />
-        ) : answer === null ? (
-          <Loading />
-        ) : answer.scopeLine.courses === 0 ? (
-          <NoCourses />
+          <ListState
+            kind="failed"
+            titleAs="h2"
+            title={stateWords('FA-01.failed')}
+            action={<Button onClick={retry}>{FACULTY_FAILED_WORDS.tryAgain}</Button>}
+          >
+            {FACULTY_FAILED_WORDS.line}
+          </ListState>
         ) : (
-          <>
-            <Attention rows={attentionRows(answer.attention)} />
-            <ComingUp rows={comingUpRows(answer.comingUp)} />
-          </>
+          <LoadingRows message={stateWords('FA-01.loading')} cells={[2, 1]} />
         )}
-      </div>
-    </PageContent>
-  );
-}
+      </>
+    );
+  }
 
-/** "You teach 1 course · 1 experiment · My courses" (`div.xr-phead-meta > p.xr-body`). */
-function ScopeLine({ answer }: { readonly answer: FacultyOverviewAnswer }) {
-  const { courses, experiments } = answer.scopeLine;
-  return (
-    <p className="xr-body m-0 text-ink-2">
-      {scopeLineWords(courses, experiments)}
-      <Link href={FACULTY_MY_COURSES_ADDRESS}>{FACULTY_OVERVIEW_WORDS.myCourses}</Link>
-    </p>
-  );
-}
+  const { courses: courseCount, experiments: experimentCount } = answer.scopeLine;
+  if (courseCount === 0) {
+    return (
+      <>
+        {probes}
+        {head()}
+        <FaMessageCard
+          icon="book"
+          title={FACULTY_OVERVIEW_WORDS.noCoursesTitle}
+          titleId={NO_COURSES_ID}
+          actions={<TextLink href={FACULTY_HELP_ADDRESS}>{FACULTY_OVERVIEW_WORDS.help}</TextLink>}
+        >
+          {FACULTY_OVERVIEW_WORDS.noCoursesLine}
+        </FaMessageCard>
+      </>
+    );
+  }
 
-function RowList({ rows }: { readonly rows: readonly OverviewRow[] }) {
-  return (
-    <Rows>
-      {rows.map((row) =>
-        row.action ? (
-          <AttentionItem
-            key={row.key}
-            icon={row.icon}
-            tone={row.tone}
-            title={row.title}
-            sub={row.sub}
-            action={row.action}
-          />
-        ) : (
-          <Row key={row.key} icon={row.icon} tone={row.tone} title={row.title} sub={row.sub} />
-        ),
-      )}
-    </Rows>
-  );
-}
+  const items = priorityItems(answer.attention, queueRows, students.byExperiment, today);
+  const newTeacher = isNewTeacher({
+    courses: courseCount,
+    taught: experiments,
+    assessments: assessmentRows ?? [],
+    bankEmpty,
+  });
+  const deadlines = deadlineViews(answer.comingUp, assessmentRows ?? [], me, today);
+  const teaching = teachingCourseViews(courseRows, experiments, me);
+  const asOf = experiments[0]
+    ? dayMonthYear(experiments[0].teaching.asOf)
+    : today && dayMonthYear(today);
 
-/** "Needs your attention": the rows with their count (f0, f3, f4) or the calm state (f1). */
-function Attention({ rows }: { readonly rows: readonly OverviewRow[] }) {
-  const headingId = useId();
   return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {FACULTY_OVERVIEW_WORDS.attention}
-        </h2>
-        {rows.length > 0 ? (
-          <span className="xr-meta">{attentionCountWords(rows.length)}</span>
-        ) : null}
-      </div>
-      {rows.length > 0 ? (
-        <RowList rows={rows} />
+    <>
+      {probes}
+      {students.probes}
+      {head(scopeLineWords(courseCount, experimentCount))}
+      {items.length > 0 ? (
+        <FaOverviewPriority
+          title={FACULTY_OVERVIEW_WORDS.attention}
+          titleId="fa-att-h"
+          note={items.length > 1 ? FACULTY_OVERVIEW_WORDS.attentionNote : undefined}
+          items={items.map((item) => priorityItem(item, oldest.address))}
+        />
+      ) : newTeacher && first !== null ? (
+        <GetReady experiment={first} />
       ) : (
-        <div className="xr-empty">
-          <span className="xr-empty-icon xr-x-empty-icon--ok">
-            <Icon name="done" />
-          </span>
-          <h3 className="xr-h3 m-0">{FACULTY_OVERVIEW_WORDS.calmTitle}</h3>
-          <p className="xr-body m-0 text-ink-2">{FACULTY_OVERVIEW_WORDS.calmLine}</p>
-        </div>
+        <FaOverviewCalm title={FACULTY_OVERVIEW_WORDS.calmTitle}>
+          {FACULTY_OVERVIEW_WORDS.calmLine}
+        </FaOverviewCalm>
       )}
-    </section>
-  );
-}
-
-/** "Coming up · at most 3": the rows (f0, f1, f4) or "No deadlines in the next 30 days." (f3). */
-function ComingUp({ rows }: { readonly rows: readonly OverviewRow[] }) {
-  const headingId = useId();
-  return (
-    <section className="xr-section" aria-labelledby={headingId}>
-      <div className="xr-section-head">
-        <h2 id={headingId} className="xr-h2">
-          {FACULTY_OVERVIEW_WORDS.comingUp}
-        </h2>
-        <span className="xr-meta">{FACULTY_OVERVIEW_WORDS.comingUpMeta}</span>
-      </div>
-      {rows.length > 0 ? (
-        <RowList rows={rows} />
-      ) : (
-        <div className="xr-section-body">
-          <p className="xr-body m-0 text-ink-2">{FACULTY_OVERVIEW_WORDS.noDeadlines}</p>
-        </div>
-      )}
-    </section>
-  );
-}
-
-/** f2 "No courses yet": `div.xr-section > div.xr-empty` with the My courses icon and Help. */
-function NoCourses() {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="myCourses" />
-        </span>
-        <h2 className="xr-h3 m-0">{FACULTY_OVERVIEW_WORDS.noCoursesTitle}</h2>
-        <p className="xr-body m-0 text-ink-2">{FACULTY_OVERVIEW_WORDS.noCoursesLine}</p>
-        <div className="flex flex-wrap gap-3">
-          <Link className="xr-btn xr-btn--text" href={FACULTY_HELP_ADDRESS}>
-            {FACULTY_OVERVIEW_WORDS.help}
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Failed + retry as B4-02 f5 draws it for the Faculty pages (state-copy `FA-01.failed`). */
-function Failed({ onRetry }: { readonly onRetry: () => void }) {
-  return (
-    <div className="xr-section">
-      <div className="xr-empty">
-        <span className="xr-empty-icon bg-err-bg text-err">
-          <Icon name="failed" />
-        </span>
-        <h2 className="xr-h3 m-0">{stateWords('FA-01.failed')}</h2>
-        <p className="xr-body m-0 text-ink-2">{FACULTY_FAILED_WORDS.line}</p>
-        <div className="flex flex-wrap gap-3">
-          <Button variant="primary" icon="tryAgain" onClick={onRetry}>
-            {FACULTY_FAILED_WORDS.tryAgain}
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** Loading: skeleton rows in the attention section's shape, announced politely (`FA-01.loading`). */
-function Loading() {
-  return (
-    <LoadingState
-      label={stateWords('FA-01.loading')}
-      surface="section"
-      skeleton={
-        <div aria-hidden="true">
-          <div className="xr-section-head">
-            <Skeleton className="w-[220px]" />
-          </div>
-          {[0, 1, 2].map((line) => (
-            <div
-              key={line}
-              className="grid grid-cols-[1fr_120px] gap-5 px-6 py-[18px] [border-block-start:1px_solid_var(--xr-line)]"
+      <FaOverviewGrid>
+        <FaOverviewPane
+          title={FACULTY_OVERVIEW_WORDS.comingUp}
+          titleId="fa-up-h"
+          note={FACULTY_OVERVIEW_WORDS.comingUpNote}
+        >
+          {deadlines.length > 0 ? (
+            <FaOverviewDeadlines
+              items={deadlines.map((item) => ({
+                key: item.key,
+                day: item.day,
+                month: item.month,
+                title: item.title,
+                href: item.href,
+                accessibleName: item.accessibleName,
+                due: item.due,
+                left: item.left,
+                submissions: item.submissions ?? undefined,
+                createdBy: item.createdBy ?? undefined,
+                release: item.release ?? undefined,
+              }))}
+            />
+          ) : (
+            <FaOverviewNoDeadlines>{noDeadlineWords(assessmentRows ?? [])}</FaOverviewNoDeadlines>
+          )}
+        </FaOverviewPane>
+        <FaOverviewPane
+          title={FACULTY_OVERVIEW_WORDS.teaching}
+          titleId="fa-teach-h"
+          note={asOf ? asOfWords(asOf) : undefined}
+        >
+          {teaching.map((course) => (
+            <FaOverviewCourse
+              key={course.courseId}
+              code={course.code ?? undefined}
+              title={course.name}
+              open={{
+                href: facultyCourseAddress(course.courseId),
+                label: FACULTY_OVERVIEW_WORDS.openCourse,
+                accessibleName: openCourseLabel(course.code, course.name),
+              }}
             >
-              <Skeleton />
-              <Skeleton />
-            </div>
+              {course.experiments.map((experiment) => (
+                <FaOverviewExperiment
+                  key={experiment.experimentId}
+                  title={experiment.name}
+                  href={facultyExperimentAddress(experiment.experimentId)}
+                  formats={
+                    <FaFormatBadges
+                      formats={experiment.formats as FormatCode[]}
+                      label={formatsHeldLabel(experiment.formats)}
+                    />
+                  }
+                  reach={experiment.reach}
+                  activity={
+                    experiment.students > 0 ? (
+                      <FaProgress
+                        label={activityLabel(experiment.name, asOf ?? undefined)}
+                        rows={experiment.progress}
+                        words={PROGRESS_WORDS}
+                      />
+                    ) : (
+                      <FaQuiet>{FACULTY_OVERVIEW_WORDS.noStudentsLine}</FaQuiet>
+                    )
+                  }
+                  status={
+                    <StatusPill tone={experiment.status.tone}>{experiment.status.words}</StatusPill>
+                  }
+                  assessment={experiment.assessment ?? undefined}
+                />
+              ))}
+            </FaOverviewCourse>
           ))}
-        </div>
-      }
+        </FaOverviewPane>
+      </FaOverviewGrid>
+    </>
+  );
+}
+
+/** One item of the priority band; "Mark now" opens the oldest waiting submission. */
+function priorityItem(item: PriorityItemView, markAddress: string): FaOverviewPriorityItem {
+  return {
+    key: item.key,
+    when: { big: item.big, relative: item.relative, calm: item.calm },
+    kind: { icon: KIND_ICON[item.kind], label: item.kindLabel },
+    title: item.title,
+    description: item.description ?? undefined,
+    list: item.list
+      ? {
+          label: item.list.label,
+          rows: item.list.rows.map((row) => ({
+            key: row.key,
+            name: row.name,
+            detail: row.detail ?? undefined,
+          })),
+          more: item.list.more ?? undefined,
+        }
+      : undefined,
+    action: {
+      href: item.action.href ?? markAddress,
+      label: item.action.label,
+      accessibleName: item.action.accessibleName ?? undefined,
+      primary: item.action.primary,
+    },
+  };
+}
+
+/** "Get your course ready": three steps for the first taught experiment. */
+function GetReady({ experiment }: { readonly experiment: TaughtExperiment }) {
+  const experimentId = experiment.option.experimentId;
+  const { steps } = GET_READY;
+  return (
+    <FaOverviewGetReady
+      title={GET_READY.title}
+      titleId="fa-ready-h"
+      note={getReadyNote(experiment.option.name)}
+      steps={[
+        {
+          key: 'bank',
+          number: '1',
+          kind: steps.bank.kind,
+          title: steps.bank.title,
+          description: steps.bank.description,
+          action: {
+            href: newQuestionAddress({ experimentId }),
+            label: steps.bank.action,
+            primary: true,
+          },
+        },
+        {
+          key: 'assessment',
+          number: '2',
+          kind: steps.assessment.kind,
+          title: steps.assessment.title,
+          description: steps.assessment.description,
+          action: {
+            href: createAssessmentAddress({ experimentId }),
+            label: steps.assessment.action,
+          },
+        },
+        {
+          key: 'experiment',
+          number: '3',
+          kind: steps.experiment.kind,
+          title: steps.experiment.title,
+          description: steps.experiment.description,
+          action: { href: facultyExperimentAddress(experimentId), label: steps.experiment.action },
+        },
+      ]}
     />
   );
 }
 
+// ---- The inactive Students' last activity (Students, inactive 14+, per fact's experiment) --------
+
+interface StudentsAnswer {
+  readonly state: 'loading' | 'failed' | 'ready';
+  readonly rows: readonly FacultyStudentRow[];
+}
+
+/** Holds one experiment's inactive Students read and reports it to the page. Renders nothing. */
+function StudentsProbe({
+  experimentId,
+  onAnswer,
+}: {
+  readonly experimentId: string;
+  readonly onAnswer: (experimentId: string, answer: StudentsAnswer) => void;
+}) {
+  const read = useFacultyStudents({ experimentId, inactiveForDays: 14, progress: null });
+  const data = read.data;
+  const state: StudentsAnswer['state'] =
+    read.isError || (data !== undefined && !data.ok)
+      ? 'failed'
+      : data === undefined
+        ? 'loading'
+        : 'ready';
+  const rows = data?.ok ? data.value : NO_ROWS;
+  useEffect(() => {
+    onAnswer(experimentId, { state, rows });
+  }, [experimentId, state, rows, onAnswer]);
+  return null;
+}
+
+const NO_ROWS: readonly FacultyStudentRow[] = [];
+
 /**
- * After "Try again" the button is gone with the failed state: once the overview is back, focus
- * moves to the page's main region (`main#main`, the skip link's target) — only if focus was lost
- * with the button.
+ * Students inactive for 14 days or more, for each experiment an inactive-Students fact names (the
+ * last activity the overview read does not hold). A failed read leaves the names without it.
  */
-function useRetryFocus(settled: boolean): () => void {
-  const pending = useRef(false);
-  useLayoutEffect(() => {
-    if (!pending.current || !settled) return;
-    pending.current = false;
-    const active = document.activeElement;
-    if (active && active !== document.body && active.isConnected) return;
-    document.getElementById(MAIN_ID)?.focus({ preventScroll: true });
-  });
-  return () => {
-    pending.current = true;
-  };
+function useInactiveStudents(experimentIds: readonly string[]) {
+  const [answers, setAnswers] = useState<ReadonlyMap<string, StudentsAnswer>>(new Map());
+  const onAnswer = useCallback((experimentId: string, answer: StudentsAnswer) => {
+    setAnswers((previous) => {
+      const seen = previous.get(experimentId);
+      if (seen && seen.state === answer.state && seen.rows === answer.rows) return previous;
+      return new Map(previous).set(experimentId, answer);
+    });
+  }, []);
+  const probes = experimentIds.map((experimentId) => (
+    <StudentsProbe key={experimentId} experimentId={experimentId} onAnswer={onAnswer} />
+  ));
+  const byExperiment = new Map<string, readonly FacultyStudentRow[]>();
+  let pending = false;
+  for (const experimentId of experimentIds) {
+    const answer = answers.get(experimentId);
+    if (answer === undefined || answer.state === 'loading') pending = true;
+    else if (answer.state === 'ready') byExperiment.set(experimentId, answer.rows);
+  }
+  return { probes, byExperiment, pending };
 }

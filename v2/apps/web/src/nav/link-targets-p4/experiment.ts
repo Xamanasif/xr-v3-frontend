@@ -2,67 +2,74 @@ import type { LedgerEntry } from '../link-targets';
 import { pageRows } from '../link-targets-p3/rows';
 
 /**
- * Phase 4A link targets: FA-05 Experiment, the teaching view (B4-03). One primary per drawn state —
- * f0 / f4 "Open assessment" (Ready), f1 / f3 "Create assessment" (none yet; the experiment rides
- * along to FA-07), f2 "Continue setting up" (draft). Since Phase 4B "Mark 1 written answer" opens
- * FA-18 for the assessment while answers wait, and "See students on this experiment" opens FA-20.
+ * Link targets: FA-05 Experiment, the teaching view, as the owner-approved V3 export draws it
+ * (FA-v1 LINK-MAP FA-05; `Main.dc.html` FA-05 and `asmSum`). The navy Assessment panel draws one
+ * primary per state — "Mark <n> written answers" (the oldest waiting submission, FA-19) while own
+ * answers wait, "Create assessment" (FA-07 with the experiment chosen) with none yet — and "Open
+ * assessment" / "Continue setting up" (FA-08) as the panel's other action.
  */
 export const P4_FACULTY_EXPERIMENT_LINK_TARGETS: readonly LedgerEntry[] = pageRows(
   'FA-05',
   '/faculty/experiments/{experimentId}',
   [
     [
-      'Back link',
+      'Breadcrumb',
       'My courses',
       'secondary',
       '/faculty/courses',
       'built',
-      'B4-03 f0 … f4 `a.xr-back`',
+      'FA-v1 LINK-MAP FA-05 `nav.rk-crumbs`',
     ],
     [
-      'Assessment · Ready (f0, f4)',
-      'Open assessment',
-      'primary',
+      'Breadcrumb',
+      '<course code>',
+      'secondary',
+      '/faculty/courses/{courseId}',
+      'built',
+      'FA-v1 LINK-MAP FA-05 “ME ZG523” `nav.rk-crumbs` (→ FA-03)',
+    ],
+    [
+      'Student activity',
+      'Students on this experiment',
+      'secondary',
+      '/faculty/students?experimentId={experimentId}',
+      'built',
+      'FA-v1 LINK-MAP FA-05 `a.rb-link` under the meters (→ FA-20)',
+      'FA-20 for this experiment.',
+    ],
+    [
+      'Assessment panel',
+      '<assessment name>',
+      'secondary',
       '/faculty/assessments/{assessmentId}',
       'built',
-      'B4-03 f0, f4 `a.xr-btn.xr-btn--primary.xr-btn--sm`',
-      'FA-08 Summary (Phase 4A).',
+      'FA-v1 LINK-MAP FA-05 `p.fa-asm-n a.fa-exp-link` (→ FA-08)',
     ],
     [
-      'Assessment · Ready (f0, f4)',
-      'Mark 1 written answer',
-      'secondary',
-      '/faculty/marking?assessmentId={assessmentId}',
+      'Assessment panel · written answers waiting',
+      'Mark <n> written answers',
+      'primary',
+      '/faculty/marking/{attemptId}',
       'built',
-      'B4-03 f0, f4 `a.xr-btn.xr-btn--secondary.xr-btn--sm`',
-      'FA-18 for this assessment, while answers wait (Phase 4B).',
+      'FA-v1 LINK-MAP FA-05 “Mark 2 written answers for …” `a.rb-btn--primary` (→ FA-19)',
+      'The oldest waiting submission of the assessment (`listQueue` for it, oldest first); Marking (FA-18) for it until the queue answers.',
     ],
     [
-      'Assessment · none yet (f1, f3)',
+      'Assessment panel',
+      'Open assessment · Continue setting up',
+      'secondary',
+      '/faculty/assessments/{assessmentId}',
+      'built',
+      'FA-v1 LINK-MAP FA-05 “Open assessment” `a.rb-btn` (→ FA-08)',
+    ],
+    [
+      'Assessment panel · none yet',
       'Create assessment',
       'primary',
       '/faculty/assessments/new?experimentId={experimentId}',
       'built',
-      'B4-03 f1, f3 `div.xr-empty a.xr-btn.xr-btn--primary`',
+      'FA-v1 LINK-MAP FA-05 (No assessment) “Create assessment” `a.rb-btn--primary` (→ FA-07)',
       'FA-07 with the experiment chosen (register: optional `?experimentId=` from FA-05).',
-    ],
-    [
-      'Assessment · draft (f2)',
-      'Continue setting up',
-      'primary',
-      '/faculty/assessments/{assessmentId}',
-      'built',
-      'B4-03 f2 `a.xr-btn.xr-btn--primary.xr-btn--sm`',
-      'FA-08 Summary, where the draft’s checklist says what is missing (Phase 4A).',
-    ],
-    [
-      'Student activity (f0, f4)',
-      'See students on this experiment',
-      'secondary',
-      '/faculty/students?experimentId={experimentId}',
-      'built',
-      'B4-03 f0, f1, f2, f4 `a` under the per-format rows (f3 draws none)',
-      'FA-20 for this experiment (Phase 4B).',
     ],
     [
       'Failed state',

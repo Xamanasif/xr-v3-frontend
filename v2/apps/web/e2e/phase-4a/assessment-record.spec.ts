@@ -5,7 +5,8 @@ import { checkState } from '../support/screen-checks';
 import { currentSidebarItem } from '../support/workspace';
 
 /**
- * FA-08 Assessment · Summary and FA-09 Assessment · Questions (board B4-05 f0 … f8) on the
+ * FA-08 Assessment · Summary and FA-09 Assessment · Questions in the V3 Refined B design (FA-v1
+ * `Main.dc.html` "FA-08 Summary", "FA-09 Questions"; earlier board B4-05 f0 … f8) on the
  * test-hook build, at 1440, 1024, 768 and 375, as Dr S. Ranganathan. After Flow D, ASMT-0009
  * "Heat Exchanger — post-lab" is Ready with four questions and Rahul's submission (f0, f6); every
  * change to its questions then makes version 2, which the Summary shows (f4). Remove, Add from the
@@ -69,38 +70,74 @@ async function saveDraft(page: Page): Promise<string> {
 
 const main = (page: Page) => page.locator('main');
 const questionsSection = (page: Page) => page.getByRole('region', { name: 'Questions in order' });
-const rows = (page: Page) => questionsSection(page).locator('ul.xr-rows > li');
+const rows = (page: Page) => questionsSection(page).locator('ol.fa-qlist > li.fa-q');
 const bankPanel = (page: Page) =>
   page.getByRole('complementary', { name: 'From your question bank' });
-const tabCount = (page: Page) =>
-  page.getByRole('navigation', { name: NAME }).getByRole('link', { name: /^Questions/ });
+const tabs = (page: Page) => page.getByRole('navigation', { name: `${NAME} sections` });
+const tabCount = (page: Page) => tabs(page).getByRole('link', { name: /^Questions/ });
+const message = (page: Page) => page.locator('#questions-msg');
+const submissionsPanel = (page: Page) => page.getByRole('complementary', { name: 'Submissions' });
+
+const Q0101 = 'What does the effectiveness (ε) of a heat exchanger compare?';
+const Q0102 = 'How is the number of transfer units (NTU) defined?';
+const Q0103 = 'In a counter-flow exchanger, what can happen that cannot happen in parallel flow?';
+const Q0104 = 'Fouling on the tube surfaces lowers the overall heat transfer coefficient U.';
+const Q0105 =
+  'For the same inlet conditions and UA, parallel flow transfers more heat than counter flow.';
+const Q0106 =
+  'Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.';
+/** A row's words without "Question <n>: " (read by screen readers before them). */
+const rowWords = (page: Page) => rows(page).locator('.fa-qt');
+const words = (texts: readonly string[]) =>
+  texts.map((text, index) => `Question ${index + 1}: ${text}`);
+
+/** Any internal reference: an assessment's, an attempt's, a question's, a draft's (the owner's rule). */
+const REFERENCE = /\b(?:ASMT|ATT|Q|D|REQ|ACC|UPD|DTR|SUB|SUP)-\d+/;
+
+/** No reference in the page's words, its accessible names and placeholders, or the tab title. */
+async function expectNoReferences(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const pattern = new RegExp(source);
+    const named = [...document.querySelectorAll('[aria-label],[title],[placeholder]')].map(
+      (element) =>
+        `${element.getAttribute('aria-label') ?? ''} ${element.getAttribute('title') ?? ''} ${element.getAttribute('placeholder') ?? ''}`,
+    );
+    return [document.body.innerText, document.title, ...named].filter((text) => pattern.test(text));
+  }, REFERENCE.source);
+  expect(found).toEqual([]);
+}
 
 test.describe('FA-08 Assessment · Summary', () => {
-  test('Ready with a submission: readiness, submissions, reach and the rules as set (f0, f5)', async ({
+  test('Ready with a submission: the band, readiness, rules, reach and the Submissions panel', async ({
     page,
   }) => {
     await open(page, 'after-flow-d', SUMMARY);
     const ready = page.getByRole('region', { name: 'Ready to use' });
     await expect(ready).toBeVisible();
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/faculty/assessments');
-    await expect(page.getByRole('navigation', { name: NAME }).getByRole('link')).toHaveText([
+    await expect(tabs(page).getByRole('link')).toHaveText([
       'Summary',
-      'Questions 4',
+      'Questions4, 4',
       'Settings',
       'Preview',
-      'Submissions 1',
+      'Submissions1, 1',
     ]);
-    await expect(ready.locator('.xr-status')).toHaveText('Ready');
+    const band = main(page).locator('header.fa-cid.fa-rec');
+    await expect(band.locator('.fa-cid-eyebrow')).toHaveText(`ME ZG523${SHELL_NAME}`);
+    await expect(band.locator('.fa-rec-meta .xr-st--ok')).toHaveText('Ready');
+    await expect(band.locator('.fa-fig dd')).toHaveText(['Deadline passed', '1 of 1', '4']);
     await expect(ready).toContainText(`Students who have ${SHELL_NAME} can see and start it.`);
-    await expect(ready.locator('ul.xa-check > li')).toHaveText([
+    await expect(ready.locator('ul.fa-check > li')).toHaveText([
       'Name and introduction',
-      'Rules: pass mark 50%, 2 attempts, due 14 Nov 2026, 23:59, results after the deadline',
+      'Rules set for this assessment',
       '4 questions · 16 marks',
     ]);
-    const submissions = page.getByRole('region', { name: 'Submissions' });
-    await expect(submissions.locator('p.xr-body')).toHaveText('1 of 1 submitted');
-    await expect(submissions.locator('.xr-notice--quiet')).toHaveText(
-      '1 student has submitted. If you change questions or rules now, that makes a new version — earlier submissions keep theirs.',
+    const submissions = submissionsPanel(page);
+    await expect(submissions.locator('.fa-panel-lead')).toHaveText(
+      'Nothing is waiting for marking.',
+    );
+    await expect(submissions).toContainText(
+      'Students have submitted. If you change the questions or rules now, that makes a new version — earlier submissions keep theirs.',
     );
     // Phase 4B: nothing waits, so no "Mark next"; "See submissions" opens FA-12.
     await expect(main(page).getByText('Mark next')).toHaveCount(0);
@@ -112,35 +149,46 @@ test.describe('FA-08 Assessment · Summary', () => {
       `1 student who has ${SHELL_NAME} from Godavari Institute of Technology.`,
     );
     const rules = page.getByRole('region', { name: 'Rules as set for this assessment' });
-    await expect(rules.locator('dt')).toHaveText([
-      'Introduction',
+    await expect(rules.locator('dl.fa-rules dt')).toHaveText([
       'Pass mark',
       'Attempts allowed',
       'Deadline',
       'Result and answers',
       'Time limit',
     ]);
-    await expect(rules.locator('dd')).toHaveText([
-      'None',
+    await expect(rules.locator('dl.fa-rules dd')).toHaveText([
       '50% · 8 of 16 marks',
       '2',
       '14 Nov 2026, 23:59',
       'After the deadline',
       'None',
     ]);
-    // f5 (375): the key–value list stacks; wider, keys and values side by side.
+    await expect(rules.locator('.fa-introbox')).toContainText('Introduction students read first');
+    // The rules stack on phones; wider, two side by side.
     const width = page.viewportSize()?.width ?? 1440;
     const columns = await rules
-      .locator('dl')
+      .locator('dl.fa-rules')
       .evaluate((list) => getComputedStyle(list).gridTemplateColumns.split(' ').length);
     expect(columns).toBe(width < 768 ? 1 : 2);
+    // Under 860 px of content (`rkd` container) the Submissions panel comes first (`fa-asidefirst`);
+    // wider, it sits beside the sheet.
+    const beside = await main(page)
+      .locator('.rk-detail')
+      .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length === 2);
+    if (width === 1440) expect(beside).toBe(true);
+    if (width === 375) expect(beside).toBe(false);
+    const panelBox = (await submissions.boundingBox())!;
+    const readyBox = (await ready.boundingBox())!;
+    if (!beside) expect(panelBox.y).toBeLessThan(readyBox.y);
+    else expect(panelBox.x).toBeGreaterThan(readyBox.x + readyBox.width - 1);
+    await expectNoReferences(page);
     await checkState(page, NAME);
 
     await reachAndClick(page, rules.getByRole('link', { name: 'Change settings' }));
     await expect(page).toHaveURL(new RegExp(`${SUMMARY}/settings$`));
   });
 
-  test('a written answer submitted in the same world waits for marking (f0)', async ({ page }) => {
+  test('a written answer submitted in the same world waits for marking', async ({ page }) => {
     await open(page, 'after-flow-c', '/faculty/assessments');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     const created = await port<{ readonly id: string }>(page, 'assessments', 'createAssessment', {
@@ -184,47 +232,56 @@ test.describe('FA-08 Assessment · Summary', () => {
       input: { attemptId: saved.value.id, expectedRev: saved.value.rev },
     });
     await softNavigate(page, `/faculty/assessments/${created.id}`);
-    const submissions = page.getByRole('region', { name: 'Submissions' });
-    await expect(submissions.locator('p.xr-body')).toHaveText(
-      '1 of 1 submitted · 1 waiting for marking',
+    const submissions = submissionsPanel(page);
+    await expect(submissions.locator('p.rk-pending')).toHaveText(
+      '1 written answer waiting for marking',
     );
-    await expect(submissions.locator('p.xr-body .xr-status--wait')).toHaveText(
+    await expect(
+      submissions.getByRole('list', { name: 'Waiting for marking, oldest first' }).locator('li b'),
+    ).toHaveText(['Rahul Verma']);
+    await expect(submissions.locator('.fa-ph-note')).toHaveText('Oldest first');
+    await expect(main(page).locator('.fa-rec-meta .fa-rec-wait')).toHaveText(
       '1 waiting for marking',
     );
-    // Phase 4B: "Mark next" opens FA-19 for the waiting submission (B4-05 f0).
+    // Phase 4B: "Mark next" opens FA-19 for the waiting submission.
     await expect(submissions.getByRole('link', { name: 'Mark next' })).toHaveAttribute(
       'href',
       `/faculty/marking/${saved.value.id}`,
     );
+    await expectNoReferences(page);
     await checkState(page, NAME);
   });
 
-  test('a draft without questions: the waiting item and "Add questions" (f3)', async ({ page }) => {
+  test('a draft without questions: the waiting item and "Add questions"', async ({ page }) => {
     await open(page, 'after-flow-c', '/faculty/assessments');
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
     const id = await saveDraft(page);
     await softNavigate(page, `/faculty/assessments/${id}`);
-    const ready = page.getByRole('region', { name: 'Ready to use' });
-    await expect(ready).toBeVisible();
-    await expect(ready.locator('.xr-status--wait')).toHaveText('Draft — not ready');
-    await expect(ready).toContainText('Students can’t see it until it has a question.');
-    await expect(ready.locator('ul.xa-check > li .is-no')).toHaveCount(1);
-    await expect(ready.locator('ul.xa-check > li').last()).toHaveText(
+    const draft = page.getByRole('region', { name: 'Draft — not ready' });
+    await expect(draft).toBeVisible();
+    await expect(main(page).locator('.fa-rec-meta .xr-st')).toHaveText('Draft — not ready');
+    await expect(draft).toContainText(
+      'Students can’t see a draft. It needs at least one question.',
+    );
+    await expect(draft.locator('ul.fa-check > li.is-no')).toHaveCount(1);
+    await expect(draft.locator('ul.fa-check > li').last()).toHaveText(
       'At least one question — none yet',
     );
-    await expect(page.getByRole('region', { name: 'Submissions' })).toHaveCount(0);
-    await expect(main(page).locator('.xr-btn--primary')).toHaveText(['Add questions']);
+    await expect(submissionsPanel(page)).toContainText(
+      'Students can’t see a draft, so no one can submit yet.',
+    );
+    await expect(main(page).locator('.rb-btn--primary')).toHaveText(['Add questions']);
+    await expectNoReferences(page);
     await checkState(page, NAME);
 
-    // f1: "Add questions" opens the Questions tab: "No questions yet".
-    await reachAndClick(page, ready.getByRole('link', { name: 'Add questions' }));
+    // "Add questions" opens the Questions tab: "No questions yet".
+    await reachAndClick(page, draft.getByRole('link', { name: 'Add questions' }));
     await expect(page).toHaveURL(new RegExp(`/faculty/assessments/${id}/questions$`));
-    const empty = questionsSection(page).locator('.xr-empty');
-    await expect(empty.getByRole('heading', { level: 3, name: 'No questions yet' })).toBeVisible();
-    await expect(questionsSection(page).locator('.xr-section-head .xr-meta')).toHaveText(
+    const empty = questionsSection(page).locator('.rk-state');
+    await expect(empty.locator('.rk-state-t')).toHaveText('No questions yet');
+    await expect(questionsSection(page).locator('.fa-qhead [role="status"]')).toHaveText(
       '0 questions · 0 marks',
     );
-    // B4-05 f1's own line; the toolbar's text links to FA-16 and FA-17 (Phase 4B).
     await expect(empty).toContainText(
       'Add questions from your bank, write a new one, draft some with assistance, or import a file. Students can’t see the assessment until it has a question.',
     );
@@ -237,75 +294,75 @@ test.describe('FA-08 Assessment · Summary', () => {
     );
     await checkState(page, NAME);
 
-    // Adding the first question from the empty state's own button makes it Ready.
-    await reachAndClick(page, empty.getByRole('button', { name: 'Add from question bank' }));
-    await expect(bankPanel(page).locator('li')).toHaveCount(6);
+    // Adding the first question from the bank panel makes it Ready.
     await reachAndClick(
       page,
-      bankPanel(page).getByRole('button', { name: 'Add Q-0101 to this assessment' }),
+      questionsSection(page).getByRole('button', { name: 'Add from question bank' }),
     );
-    await expect(questionsSection(page)).toContainText('Q-0101 added as question 1.');
-    await expect(tabCount(page)).toHaveText('Questions 1');
-    await expect(page.locator('.xl-hubhead .xr-status')).toHaveText('Ready');
+    await expect(bankPanel(page).locator('ul.fa-avail li')).toHaveCount(6);
+    await reachAndClick(
+      page,
+      bankPanel(page).getByRole('button', { name: `Add to this assessment: ${Q0101}` }),
+    );
+    await expect(message(page)).toContainText('Added as question 1.');
+    await expect(tabCount(page)).toHaveText('Questions1, 1');
+    await expect(main(page).locator('.fa-rec-meta .xr-st')).toHaveText('Ready');
   });
 });
 
 test.describe('FA-09 Assessment · Questions', () => {
-  test('Remove, then Add back from the bank panel: a new version after the submission (f6, f7, f4)', async ({
+  test('Remove, then Add back from the bank panel: a new version after the submission', async ({
     page,
   }) => {
     // A long walk: at 375 every press is reached by scrolling.
     test.setTimeout(90_000);
     await open(page, 'after-flow-d', QUESTIONS);
     await expect(rows(page)).toHaveCount(4);
-    await expect(rows(page).locator('.xr-row-title')).toHaveText([
-      'What does the effectiveness (ε) of a heat exchanger compare?',
-      'How is the number of transfer units (NTU) defined?',
-      'Fouling on the tube surfaces lowers the overall heat transfer coefficient U.',
-      'Explain how fouling changes the exchanger’s performance, using what you observed in the simulation.',
-    ]);
-    await expect(questionsSection(page).locator('.xr-section-head .xr-meta')).toHaveText(
+    await expect(rowWords(page)).toHaveText(words([Q0101, Q0102, Q0104, Q0106]));
+    await expect(questionsSection(page).locator('.fa-qhead [role="status"]')).toHaveText(
       '4 questions · 16 marks',
     );
     await expect(
       questionsSection(page).getByRole('link', { name: 'Draft with assistance' }),
     ).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Move question 1 up' })).toHaveAttribute(
-      'aria-disabled',
-      'true',
+    await expect(page.getByRole('button', { name: 'Move question 1 up' })).toBeDisabled();
+    await expect(questionsSection(page).locator('p.rk-pending')).toHaveText(
+      'Rahul Verma has submitted. If you change the questions now, that makes a new version — their submissions keep theirs.',
     );
+    await expectNoReferences(page);
     await checkState(page, NAME);
 
     await reachAndClick(
       page,
       page.getByRole('button', { name: 'Remove question 2 from this assessment' }),
     );
-    await expect(questionsSection(page).locator('.xa-save.is-ok')).toHaveText(
-      'Q-0102 removed from this assessment. It is still in your question bank.',
+    await expect(message(page).locator('.rk-notice-t')).toHaveText(
+      'Question removed from this assessment. It is still in your question bank.',
     );
-    await expect(page.locator('#questions-msg')).toBeFocused();
+    await expect(message(page)).toBeFocused();
     await expect(rows(page)).toHaveCount(3);
-    await expect(tabCount(page)).toHaveText('Questions 3');
-    await expect(questionsSection(page).locator('.xr-notice--warn .xr-notice-title')).toHaveText(
-      'This makes a new version',
+    await expect(tabCount(page)).toHaveText('Questions3, 3');
+    await expect(message(page).locator('.rk-notice-d')).toHaveText(
+      'This made version 2. Rahul Verma’s submission keeps version 1; new attempts use version 2.',
     );
 
-    // f7: the bank panel; its title takes focus.
+    // The bank panel; its title takes focus.
     await reachAndClick(page, page.getByRole('button', { name: 'Add from question bank' }));
     await expect(bankPanel(page)).toBeVisible();
     await expect(
       bankPanel(page).getByRole('heading', { name: 'From your question bank' }),
     ).toBeFocused();
     await expect(bankPanel(page)).toContainText(`${SHELL_NAME} · not in this assessment`);
-    await expect(bankPanel(page).locator('li .xr-meta')).toHaveText([
-      'Q-0102 · Multiple choice · 2 marks',
-      'Q-0103 · Multiple choice · 2 marks',
-      'Q-0105 · True or false · 2 marks',
+    await expect(bankPanel(page).locator('.fa-avail-t')).toHaveText([Q0102, Q0103, Q0105]);
+    await expect(bankPanel(page).locator('.fa-qm')).toHaveText([
+      'Multiple choice · 2 marks',
+      'Multiple choice · 2 marks',
+      'True or false · 2 marks',
     ]);
-    // Beside the list from 860 px of content (`.xr-decide` container query), below it under that.
+    // Beside the list from 860 px of page (`rkd` container query), below it under that.
     const width = page.viewportSize()?.width ?? 1440;
     const beside = await main(page)
-      .locator('.xr-decide')
+      .locator('.rk-detail')
       .evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length === 2);
     if (width === 1440) expect(beside).toBe(true);
     if (width === 375) expect(beside).toBe(false);
@@ -313,40 +370,36 @@ test.describe('FA-09 Assessment · Questions', () => {
     const panelBox = (await bankPanel(page).boundingBox())!;
     if (beside) expect(panelBox.x).toBeGreaterThan(listBox.x + listBox.width - 1);
     else expect(panelBox.y).toBeGreaterThan(listBox.y + listBox.height - 1);
+    await expectNoReferences(page);
     await checkState(page, NAME);
 
     await reachAndClick(
       page,
-      bankPanel(page).getByRole('button', { name: 'Add Q-0102 to this assessment' }),
+      bankPanel(page).getByRole('button', { name: `Add to this assessment: ${Q0102}` }),
     );
-    await expect(questionsSection(page).locator('.xa-save.is-ok')).toHaveText(
-      'Q-0102 added as question 4.',
-    );
-    await expect(tabCount(page)).toHaveText('Questions 4');
-    await expect(rows(page).last()).toContainText('Q-0102');
-    await expect(bankPanel(page).locator('li')).toHaveCount(2);
+    await expect(message(page).locator('.rk-notice-t')).toHaveText('Added as question 4.');
+    await expect(tabCount(page)).toHaveText('Questions4, 4');
+    await expect(rowWords(page).last()).toHaveText(`Question 4: ${Q0102}`);
+    await expect(bankPanel(page).locator('ul.fa-avail li')).toHaveCount(2);
 
     await reachAndClick(page, bankPanel(page).getByRole('button', { name: 'Close question bank' }));
     await expect(bankPanel(page)).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Add from question bank' })).toBeFocused();
 
-    // f4: the Summary shows the version the change made.
+    // The Summary shows the version the change made.
     // The tab strip scrolls sideways at 375: the tab is brought into view as a swipe would.
-    await page
-      .getByRole('navigation', { name: NAME })
-      .getByRole('link', { name: 'Summary' })
-      .click();
-    const submissions = page.getByRole('region', { name: 'Submissions' });
-    await expect(submissions.locator('.xr-notice-title')).toHaveText(
-      /^Version 2 since \d+ \w+ 2026$/,
+    await tabs(page).getByRole('link', { name: 'Summary' }).click();
+    const versions = page.getByRole('region', { name: 'Versions' });
+    await expect(versions.locator('.rk-notice-t')).toHaveText(
+      /^Version 2 since \d+ \w+ 2026, \d{2}:\d{2}$/,
     );
-    await expect(submissions.locator('.xr-notice')).toContainText(
-      'You changed the questions after students submitted. Earlier submissions keep the version they answered; new attempts use version 2.',
+    await expect(versions.locator('.rk-notice-d')).toHaveText(
+      'You changed the questions after students submitted. Rahul Verma’s submission keeps version 1; new attempts use version 2.',
     );
     await checkState(page, NAME);
   });
 
-  test('a bank edit: "A newer version …" and Use updated version (f8)', async ({ page }) => {
+  test('a bank edit: "A newer version …" and Use updated version', async ({ page }) => {
     await open(page, 'after-flow-d', QUESTIONS);
     await expect(rows(page)).toHaveCount(4);
     const current = await port<{ readonly question: { readonly rev: number } }>(
@@ -373,24 +426,26 @@ test.describe('FA-09 Assessment · Questions', () => {
       expectedRev: current.question.rev,
     });
     const row = page.locator('#questions-row-Q-0102');
-    await expect(row).toContainText('A newer version is in your question bank.');
-    // The assessment keeps the version it pins until the Faculty member says otherwise.
-    await expect(row.locator('.xr-row-title')).toHaveText(
-      'How is the number of transfer units (NTU) defined?',
+    await expect(row.locator('.fa-qnote')).toContainText(
+      'A newer version is in your question bank.',
     );
+    // The assessment keeps the version it pins until the Faculty member says otherwise.
+    await expect(row.locator('.fa-qt')).toHaveText(`Question 2: ${Q0102}`);
+    await expectNoReferences(page);
     await checkState(page, NAME);
 
-    await reachAndClick(page, row.getByRole('button', { name: 'Use updated version' }));
-    await expect(questionsSection(page).locator('.xa-save.is-ok')).toHaveText(
-      'Q-0102 now uses the version in your bank.',
+    await reachAndClick(
+      page,
+      row.getByRole('button', { name: 'Use the updated version of question 2' }),
     );
-    await expect(row.locator('.xr-row-title')).toHaveText(edited);
+    await expect(message(page).locator('.rk-notice-t')).toHaveText(
+      'Question 2 now uses the version in your bank.',
+    );
+    await expect(row.locator('.fa-qt')).toHaveText(`Question 2: ${edited}`);
     await expect(row).not.toContainText('A newer version');
   });
 
-  test('a question deleted from the bank keeps its copy (f2); a move reorders (f6)', async ({
-    page,
-  }) => {
+  test('a question deleted from the bank keeps its copy; a move reorders', async ({ page }) => {
     await open(page, 'after-flow-d', QUESTIONS);
     await expect(rows(page)).toHaveCount(4);
     const current = await port<{ readonly question: { readonly rev: number } }>(
@@ -407,28 +462,27 @@ test.describe('FA-09 Assessment · Questions', () => {
     await expect(row).toContainText(
       /Deleted from your question bank on \d+ \w+ 2026 — this assessment keeps its copy\./,
     );
-    await expect(row.locator('.xr-row-title')).toHaveText(
-      'Fouling on the tube surfaces lowers the overall heat transfer coefficient U.',
-    );
+    await expect(row.locator('.fa-qt')).toHaveText(`Question 3: ${Q0104}`);
     await checkState(page, NAME);
 
     await reachAndClick(page, page.getByRole('button', { name: 'Move question 3 up' }));
-    await expect(questionsSection(page).locator('.xa-save.is-ok')).toHaveText(
-      'Moved Q-0104 to position 2',
+    await expect(message(page).locator('.rk-notice-t')).toHaveText(
+      'Moved question 3 to position 2.',
     );
     await expect(row).toBeFocused();
-    await expect(rows(page).locator('.xr-id')).toHaveText(['Q-0101', 'Q-0104', 'Q-0102', 'Q-0106']);
+    await expect(rowWords(page)).toHaveText(words([Q0101, Q0104, Q0102, Q0106]));
   });
 
-  test('back from New question with ?added=: the panel offers it first, nothing attached', async ({
+  test('back from New question with ?added=: the page offers it, nothing attached', async ({
     page,
   }) => {
     await open(page, 'after-flow-d', QUESTIONS);
     await expect(rows(page)).toHaveCount(4);
+    const text = 'A larger LMTD means a smaller exchanger for the same duty.';
     const added = await port<{ readonly id: string }>(page, 'questionBank', 'addQuestion', {
       experimentId: SHELL,
       type: 'true-false',
-      text: 'A larger LMTD means a smaller exchanger for the same duty.',
+      text,
       options: {},
       correct: 'true',
       marks: '2',
@@ -438,32 +492,31 @@ test.describe('FA-09 Assessment · Questions', () => {
     await softNavigate(page, `${SUMMARY}`);
     await expect(page.getByRole('region', { name: 'Ready to use' })).toBeVisible();
     await softNavigate(page, `${QUESTIONS}?added=${added.id}`);
-    await expect(bankPanel(page)).toBeVisible();
+    await expect(message(page)).toContainText('Saved to your question bank.');
     await expect(page).toHaveURL(new RegExp(`${QUESTIONS}$`));
-    await expect(
-      bankPanel(page).getByRole('heading', { name: 'From your question bank' }),
-    ).toBeFocused();
-    const first = bankPanel(page).locator('li').first();
-    await expect(first).toContainText(added.id);
-    await expect(first).toContainText('Just added to your question bank');
+    await expect(message(page)).toBeFocused();
+    await expect(message(page)).toContainText(
+      'It isn’t in this assessment yet. Add it only if you want it here.',
+    );
+    await expect(bankPanel(page)).toHaveCount(0);
     await expect(rows(page)).toHaveCount(4);
+    await expectNoReferences(page);
     await checkState(page, NAME);
     await reachAndClick(
       page,
-      first.getByRole('button', { name: `Add ${added.id} to this assessment` }),
+      message(page).getByRole('button', { name: 'Add this question to the assessment' }),
     );
-    await expect(questionsSection(page).locator('.xa-save.is-ok')).toHaveText(
-      `${added.id} added as question 5.`,
-    );
-    await expect(tabCount(page)).toHaveText('Questions 5');
+    await expect(message(page).locator('.rk-notice-t')).toHaveText('Added as question 5.');
+    await expect(tabCount(page)).toHaveText('Questions5, 5');
+    await expect(rowWords(page).last()).toHaveText(`Question 5: ${text}`);
   });
 
-  test('at 375 each row puts its actions under the text (f5)', async ({ page }) => {
+  test('at 375 each row puts its actions under the text', async ({ page }) => {
     await open(page, 'after-flow-d', QUESTIONS);
     await expect(rows(page)).toHaveCount(4);
     const width = page.viewportSize()?.width ?? 1440;
     const first = rows(page).first();
-    const title = (await first.locator('.xr-row-title').boundingBox())!;
+    const title = (await first.locator('.fa-qt').boundingBox())!;
     const remove = (await first.getByRole('button', { name: /^Remove question 1/ }).boundingBox())!;
     if (width < 768) expect(remove.y).toBeGreaterThan(title.y + title.height - 1);
     else expect(remove.x).toBeGreaterThan(title.x + title.width - 1);

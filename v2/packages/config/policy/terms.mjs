@@ -217,6 +217,17 @@ export const CANVAS_CLASS_PATTERNS = [
   /^ia-acctwrap$/,
   /^ia-menu(?:-[\w-]*)?$/,
   /^ia-out(?:-[\w-]*)?$/,
+  // The Faculty export's borrowed XS surfaces (design/v3-refined-b/roles/FA-v1/
+  // COMPONENT-EXTENSIONS.md "Borrowed shared surfaces (XS contract, not redesigned)": "Replace them
+  // with the delivered XS components"): the account menu (XS-05), the whole-page message of XS-06
+  // and the scoped refusals (the bare `fa-msg`; its parts `fa-msg-*` and `fa-inlinemsg` draw the
+  // role's own in-page states and stay) and the signed-out page (XS-03). The export has no
+  // preview-only class family of its own.
+  /^fa-acctwrap$/,
+  /^fa-menu(?:-[\w-]*)?$/,
+  /^fa-menuscrim$/,
+  /^fa-msg$/,
+  /^fa-pub\w*$/,
 ];
 
 /**
@@ -265,6 +276,9 @@ export const PRODUCT_CLASS_ALLOW_LIST = [
  * - V3P-14: the Content Manager export's inline spacings and column widths.
  * - V3P-16: the Institute Admin export's inline sizes (the message cards, IA-05's step lines and
  *   fields, IA-11's glyphs and lead line, IA-17's form and detail, IA-19's format line).
+ * - V3P-17: the Faculty export's inline spacings and sizes, its panel heads' quiet focus (the
+ *   export's one unconfined rule, confined), FA-09's wrapping offer and the Faculty forms' spaced
+ *   error summaries.
  * (V3P-06 `rk-x-skip` and V3P-07 `rk-x-acct` were retired with the XS export: the shell now draws
  * its skip link and account wrapper with the XS classes `xs-skip`, `xs-acct-slot`, `xs-acct`.)
  */
@@ -325,6 +339,32 @@ export const V3_PRODUCT_CLASS_ALLOW_LIST = [
   'rk-x-h3-above',
   'rk-x-ferr-group',
   'rk-x-label-above',
+  // V3P-17: the Faculty export's (FA-v1) inline styles, each on the element it styles
+  // (`rk-x-ferr-above` and `rk-x-hint-list` above are reused for its group errors and notes), the
+  // panel heads that keep fa.css's quiet heading focus, FA-09's offer whose label wraps and the
+  // Faculty forms' error summaries with 24 px targets.
+  'rk-x-date-flush',
+  'rk-x-sec-stack',
+  'rk-x-check-flush',
+  'rk-x-actions-above',
+  'rk-x-hint-box',
+  'rk-x-hint-line',
+  'rk-x-notice-below',
+  'rk-x-pending-below',
+  'rk-x-cellline-tight',
+  'rk-x-input-short',
+  'rk-x-sec-flush',
+  'rk-x-next-pull',
+  'rk-x-notice-above',
+  'rk-x-hint-head',
+  'rk-x-dl-line',
+  'rk-x-locked-note',
+  'rk-x-quiet-snug',
+  'rk-x-table-wide',
+  'rk-x-cellline-snug',
+  'rk-x-panel-head-quiet',
+  'rk-x-notice-wrap',
+  'rk-x-errsum-spaced',
 ];
 
 /** The rejected Slice-1 work (Appendix F §2.3 DISCARD and §2.4 "must not be carried"). */

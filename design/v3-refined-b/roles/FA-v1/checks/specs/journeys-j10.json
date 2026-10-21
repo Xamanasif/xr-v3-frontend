@@ -1,0 +1,1732 @@
+[
+ {
+  "name": "J10-J1-create-chain",
+  "file": "fa/T-j-oct26.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Overview",
+     "Monday 26 October 2026"
+    ],
+    "label": "Overview on 26 Oct 2026 · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .fa-te a:has-text(\"Shell-and-Tube Heat Exchanger\")",
+    "expect": [
+     "No assessment for this experiment yet"
+    ],
+    "label": "experiment from Your teaching · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Create assessment\")",
+    "expect": [
+     "Step 1 of 4",
+     "Choose the experiment"
+    ],
+    "label": "create from the experiment · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "assert": "(document.getElementById('fa-cw-e-ste').checked === true) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "experiment already chosen · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 2 of 4",
+     "Set the rules"
+    ],
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Check this step",
+     "Enter a name for the assessment",
+     "Enter a pass mark from 0 to 100, as a whole number",
+     "Choose when students see their result"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "rules start empty and are required · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "fill": "#fa-cw-name",
+    "value": "Heat Exchanger — post-lab",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-cw-pass",
+    "value": "50",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-cw-att",
+    "value": "2",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-cw-dl",
+    "value": "14 Nov 2026, 23:59",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-r-after",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 3 of 4",
+     "Add questions"
+    ],
+    "label": "rules accepted · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-cw-q-Q-0101",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-q-Q-0104",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-q-Q-0106",
+    "expect": "3 questions · 14 marks",
+    "label": "three question types chosen · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"New question\")",
+    "expect": [
+     "Add a question",
+     "Create assessment"
+    ],
+    "label": "new question from the create flow · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-qe-t-sc",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Which arrangement can bring the cold outlet above the hot outlet?",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-qe-o0",
+    "value": "Counter flow",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-qe-o1",
+    "value": "Parallel flow",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-qe-c0",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Step 3 of 4",
+     "Saved to your question bank.",
+     "It’s ticked below.",
+     "4 questions · 16 marks"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "back in step 3 with the new question ticked · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "assert": "(document.getElementById('fa-cw-q-Q-0107').checked && document.getElementById('fa-cw-q-Q-0101').checked) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "earlier ticks kept · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": [
+     "Step 4 of 4",
+     "Preview and create",
+     "50% · 8 of 16 marks",
+     "Which arrangement can bring the cold outlet above the hot outlet?"
+    ],
+    "label": "preview step · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": [
+     "Step 3 of 4",
+     "4 questions · 16 marks"
+    ],
+    "label": "back to questions, state kept · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Back\"]",
+    "expect": "Step 2 of 4",
+    "assert": "(document.getElementById('fa-cw-name').value === 'Heat Exchanger — post-lab' && document.getElementById('fa-cw-r-after').checked) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "back to rules, values kept · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-next",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-next",
+    "expect": "Step 4 of 4",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-cw-next",
+    "wait": 1000,
+    "expect": [
+     "Assessment created",
+     "Ready"
+    ],
+    "expectFocus": "fa-cw-done",
+    "label": "created and ready · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Open assessment\")",
+    "expect": [
+     "Ready to use",
+     "4 questions · 16 marks"
+    ],
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "As students see it",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "Only you see the answer key and the marking guidance",
+     "Correct"
+    ],
+    "label": "answer key only for Faculty · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Overview\")",
+    "expect": [
+     "Coming up",
+     "Heat Exchanger — post-lab",
+     "0 of 5 students submitted"
+    ],
+    "label": "overview shows the new deadline · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J2-bank-chain",
+  "file": "fa/T-j-qb.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Question bank",
+     "6 questions"
+    ],
+    "label": "bank opens with 6 questions · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Add a question\")",
+    "expect": "Add a question",
+    "expectFocus": "fa-h1",
+    "label": "Add a question opens the editor, focus on heading · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": [
+     "Check this question",
+     "Choose the question type",
+     "Enter the question",
+     "Enter the marks, as a whole number of 1 or more"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "empty save shows error summary, focus moves to it · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-errs a:has-text(\"Choose the question type\")",
+    "expectFocus": "fa-qe-t-sc",
+    "label": "error link moves focus to the type field · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-qe-t-tf",
+    "expect": "The statement is",
+    "label": "true/false shows only its fields · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "Adding heat transfer area raises the duty at the same inlet temperatures and flow rates.",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-qe-tf-true",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "2",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-qe-expl",
+    "value": "More area raises UA and NTU, so the exchanger transfers more heat.",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved to your question bank.",
+     "7 questions",
+     "Adding heat transfer area raises the duty"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "save returns to the bank with Q-0107 and a message · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Edit question: How is the number of transfer units (NTU) defined?\"]",
+    "expect": [
+     "Edit question",
+     "Used in 1 assessment: Heat Exchanger — post-lab"
+    ],
+    "label": "editing a used question warns about versions · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "fill": "#fa-qe-text",
+    "value": "How is the number of transfer units (NTU) of a heat exchanger defined?",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "wait": 900,
+    "expect": [
+     "Saved as version 2.",
+     "keeps version 1",
+     "Single choice\nVersion 2"
+    ],
+    "label": "used question saves version 2 · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Edit question: In a counter-flow exchanger, what can happen that cannot happen in parallel flow?\"]",
+    "expectNot": "Used in 1 assessment",
+    "label": "unused question has no version warning · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Save question\"]",
+    "expect": "Nothing to save",
+    "expectFocus": "fa-msg",
+    "label": "saving without changes says nothing to save · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .fa-formfoot a:has-text(\"Cancel\")",
+    "expect": "7 questions",
+    "label": "cancel returns to the bank · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": "3 drafts to review",
+    "expectFocus": "fa-tabh",
+    "label": "drafts tab · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Review and edit draft: What is the log mean temperature difference (LMTD) used for?\"]",
+    "expect": [
+     "Review a draft",
+     "Draft — needs your review"
+    ],
+    "label": "review a draft in the editor · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Add to bank\"]",
+    "wait": 900,
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts to review"
+    ],
+    "label": "reviewed draft added as Q-0108, back on drafts tab · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label^=\"Discard draft: Counter flow always\"]",
+    "expect": [
+     "Draft discarded. Nothing was added to your bank.",
+     "1 draft to review"
+    ],
+    "label": "discard leaves the bank unchanged · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "8 questions",
+     "From a draft you reviewed"
+    ],
+    "label": "questions tab shows the reviewed draft · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Import\")",
+    "expect": [
+     "Choose a file",
+     "Download the template (CSV)"
+    ],
+    "label": "import step 1 · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "expect": "Choose a CSV file first",
+    "expectFocus": "fa-im-choose",
+    "label": "check without a file · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "post-lab.xlsx",
+      "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text": "PK..."
+     }
+    ],
+    "wait": 400,
+    "expect": "is a spreadsheet workbook",
+    "label": "XLSX refused · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "upload": "#fa-im-file",
+    "files": [
+     {
+      "name": "my-questions.csv",
+      "text": "type,question,option_a,option_b,option_c,option_d,correct,marks,explanation,marking_guidance\r\ntrue or false,Fouling lowers U.,,,,,TRUE,2,Fouling adds a resistance.,\r\nwritten answer,Explain what NTU measures.,,,,,,six,,\r\n"
+     }
+    ],
+    "wait": 400,
+    "expect": "my-questions.csv",
+    "label": "own CSV chosen · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Rows\n2",
+     "Ready\n1",
+     "With errors\n1",
+     "marks “six” isn’t a whole number of 1 or more."
+    ],
+    "label": "own CSV row validation · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Choose another file\"]",
+    "expect": "Choose a file",
+    "label": "choose another file · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Use the sample file\"]",
+    "expect": "post-lab-questions.csv",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Check rows",
+     "With errors\n2",
+     "With warnings\n1",
+     "correct is “E”, but the question has options A–D only.",
+     "type “multi-select” isn’t available",
+     "explanation is empty. The question imports without one.",
+     "Nothing is imported while the file has errors"
+    ],
+    "label": "sample file: 2 errors block, 1 warning · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Choose the corrected file\"]",
+    "wait": 1000,
+    "expect": [
+     "post-lab-questions-corrected.csv",
+     "Ready\n8",
+     "With warnings\n1",
+     "With errors\n0"
+    ],
+    "expectNot": "with errors",
+    "label": "corrected file: 8 ready · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Continue\"]",
+    "expect": [
+     "Confirm import",
+     "8 questions will be added to your bank from post-lab-questions-corrected.csv.",
+     "One has no explanation"
+    ],
+    "label": "confirm step · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Import 8 questions\"]",
+    "wait": 1100,
+    "expect": [
+     "Import finished",
+     "8 questions were added to your bank. None is in an assessment yet."
+    ],
+    "expectFocus": "fa-im-done",
+    "label": "import finished with sequential IDs · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=link[name=\"Open question bank\"]",
+    "expect": "16 questions",
+    "label": "bank now has 16 questions · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")",
+    "expect": "Heat Exchanger — post-lab",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "Ready to use",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "Questions in order",
+     "A newer version is in your question bank."
+    ],
+    "label": "assessment shows the newer bank version of Q-0102 · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-aq-open",
+    "expect": "Which quantity is the ratio C_min ÷ C_max?",
+    "label": "bank panel lists imported questions · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Add to this assessment: Which quantity is the ratio C_min ÷ C_max?\"]",
+    "expect": [
+     "Added as question 5.",
+     "This made version 2.",
+     "keep version 1; new attempts use version 2."
+    ],
+    "label": "attaching a question makes version 2; submissions keep version 1 · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Use the updated version of question 2\"]",
+    "expect": "Question 2 now uses the version in your bank.",
+    "label": "use updated version · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "How is the number of transfer units (NTU) of a heat exchanger defined?",
+     "Which quantity is the ratio C_min ÷ C_max?"
+    ],
+    "label": "preview shows updated and attached questions · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J3-marking-chain",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Needs your attention",
+     "Written answers to mark",
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "overview shows 2 written answers to mark · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark now\")",
+    "expect": [
+     "Rahul Verma",
+     "Waiting for marking",
+     "Marking guidance · only you see this",
+     "4 of 6 marks"
+    ],
+    "label": "Mark now opens the oldest answer (Rahul) · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a mark for question 4",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "confirm without a mark is refused · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "12",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": "Enter a whole number from 0 to 10",
+    "expectFocus": "fa-mk-Q-0106",
+    "label": "out-of-range mark refused · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "7",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-mk-fb",
+    "value": "Good use of your own readings and the right cause. For full marks, link the fall in U to the NTU and effectiveness relationship you derived in the lab.",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Save mark\"]",
+    "expect": "Mark saved — not confirmed yet",
+    "expectFocus": "fa-mk-saved",
+    "label": "save keeps the mark editable · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Marking\")",
+    "expect": [
+     "Mark saved — not confirmed yet",
+     "2 written answers waiting"
+    ],
+    "label": "queue shows the saved, unconfirmed mark · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Mark Rahul Verma\"]",
+    "assert": "(document.getElementById('fa-mk-Q-0106').value === '7') && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "saved mark is kept · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": [
+     "Confirm marks for Rahul Verma?",
+     "Rahul’s total becomes 11 of 16 marks — passed (pass mark 8).",
+     "Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment."
+    ],
+    "expectFocus": "fa-dlg-t",
+    "label": "confirm dialog opens with focus on its title · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-ok",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-dlg-cancel",
+    "label": "Tab stays inside the dialog · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "press": "Shift+Tab",
+    "expectFocus": "fa-dlg-ok",
+    "label": "Shift+Tab wraps too · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "press": "Escape",
+    "expectNot": "Confirm marks for Rahul Verma?",
+    "expectFocus": "fa-mk-confirm",
+    "label": "Escape closes and returns focus · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "wait": 1000,
+    "expect": [
+     "Marks confirmed",
+     "11 of 16 marks",
+     "Passed · pass mark 8",
+     "Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59"
+    ],
+    "expectFocus": "fa-mk-done",
+    "label": "confirmed, read-only · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "assert": "(!document.getElementById('fa-mk-Q-0106') && document.querySelector('nav[aria-label=\"Faculty navigation\"]').innerText.indexOf('Marking\\n1') >= 0) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "no mark field after confirming; rail count is 1 · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-main a:has-text(\"See submissions\")",
+    "expect": [
+     "11 of 16",
+     "Passed · pass mark 8",
+     "Not yet\nafter the deadline, 14 Nov 2026, 23:59",
+     "1 waiting for marking"
+    ],
+    "label": "Submissions reflect the confirmed mark · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Export CSV\"]",
+    "expect": [
+     "Exported submissions-heat-exchanger-post-lab.csv · 2 rows",
+     "11 of 16"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export reflects the outcome · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark next\")",
+    "expect": [
+     "Priya Natarajan",
+     "Waiting for marking"
+    ],
+    "label": "Mark next opens Priya · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Overview\")",
+    "expect": [
+     "Written answer to mark",
+     "Priya Natarajan"
+    ],
+    "label": "overview updated · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": [
+     "Marked",
+     "11 of 16 marks\nPassed · pass mark 8",
+     "Result not released to Rahul yet"
+    ],
+    "label": "student detail reflects the outcome · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J4-students-followup",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "#fa-main a:has-text(\"View students\")",
+    "expect": [
+     "Inactive 14 days or more",
+     "2 of 5 students",
+     "Imran Shaikh",
+     "Karthik Rao",
+     "Inactive 19 days",
+     "Inactive 26 days"
+    ],
+    "expectNot": "Priya Natarajan",
+    "label": "overview follow-up opens the inactive filter · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Karthik Rao\")",
+    "expect": [
+     "No activity since access was given (12 Oct 2026)",
+     "Inactive 26 days",
+     "Not started",
+     "Not opened"
+    ],
+    "label": "inactive student detail · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rk-crumbs a:has-text(\"Students\")",
+    "expect": "2 of 5 students",
+    "label": "back keeps the filter · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-sl-export",
+    "expect": [
+     "Exported students-shell-and-tube-heat-exchanger.csv · 2 rows",
+     "none since access (12 Oct 2026)"
+    ],
+    "expectFocus": "fa-exp",
+    "label": "export of the filtered list · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": "No student matches these filters",
+    "label": "no-match state · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Clear filters\")",
+    "expect": "5 students",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": [
+     "2 of 5 students",
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "waiting-for-marking filter · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Remove filter Progress: Waiting for marking\"]",
+    "expect": "5 students",
+    "expectFocus": "fa-sl-prog",
+    "label": "chip removal returns focus · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J4b-coteacher-refusals",
+  "file": "fa/T-j-co.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Dr Anita Desai",
+     "Overview"
+    ],
+    "label": "co-teacher overview · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")",
+    "expect": [
+     "Not shown to co-teachers",
+     "5 students"
+    ],
+    "label": "students list hides assessment details · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "expect": "aren’t shown to co-teachers while sharing between co-teachers is being decided",
+    "label": "student detail refusal note · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": "created this assessment",
+    "label": "assessment summary with co-teacher note · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": "Submissions aren’t available to you yet",
+    "label": "submissions refused · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": "This preview isn’t available to you yet",
+    "expectNot": "Answer key",
+    "label": "answer key refused · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Marking\")",
+    "expect": [
+     "Nothing is waiting for you",
+     "aren’t shown to co-teachers"
+    ],
+    "label": "marking queue refusal note · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Question bank\")",
+    "expect": [
+     "Your question bank is empty",
+     "Questions other Faculty wrote for your experiments aren’t shown here"
+    ],
+    "label": "bank refusal note · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J5c-delete-dialog",
+  "file": "fa/T-j-qb2.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "#fa-qb-del-Q-0103",
+    "expect": "Delete this question?",
+    "expectFocus": "fa-dlg-t",
+    "label": "delete dialog for an unused question · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "expectNot": "keeps its copy",
+    "label": "no assessment note for an unused question · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "press": "Escape",
+    "expectFocus": "fa-qb-del-Q-0103",
+    "label": "Escape returns focus to Delete · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-qb-del-Q-0103",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "expect": [
+     "Question deleted from your question bank.",
+     "Deleted",
+     "history kept",
+     "5 questions"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "deleted, history kept · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-qb-del-Q-0101",
+    "expect": "It is used in Heat Exchanger — post-lab. That assessment keeps its copy",
+    "label": "used question warns · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-dlg-cancel",
+    "expectFocus": "fa-qb-del-Q-0101",
+    "expect": "5 questions",
+    "label": "cancel keeps it · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "fill": "#fa-qb-q",
+    "value": "radiation",
+    "expect": "No question matches these filters",
+    "label": "no-match · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Clear filters\")",
+    "expect": "5 questions",
+    "expectFocus": "fa-qb-q",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "select": "#fa-qb-type",
+    "value": "w",
+    "expect": [
+     "1 of 5 questions",
+     "Type: Written answer"
+    ],
+    "label": "type filter + chip · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J5d-released-15-nov",
+  "file": "fa/T-j-nov15.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "1 written answer waiting",
+     "Priya Natarajan"
+    ],
+    "label": "15 Nov queue: Priya waiting · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=/^Marked/]",
+    "expect": [
+     "Rahul Verma",
+     "Confirmed 7 Nov 2026, 10:15"
+    ],
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "[aria-label=\"View marks for Rahul Verma\"]",
+    "expect": "Result released to Rahul when the deadline passed: 14 Nov 2026, 23:59.",
+    "label": "released result line · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Marking\")",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=/^Waiting/]",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "[aria-label=\"Mark Priya Natarajan\"]",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "6",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": [
+     "Priya sees the result as soon as you confirm — the deadline has passed.",
+     "Priya’s total becomes"
+    ],
+    "expectNot": "When Priya sees the result",
+    "label": "after the deadline the release is immediate (pinned terms) · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "wait": 1000,
+    "expect": [
+     "Result released to Priya when the deadline passed",
+     "Nothing else is waiting for marking."
+    ],
+    "label": "Priya confirmed, nothing else waiting · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "assert": "(!document.querySelector('nav[aria-label=\"Faculty navigation\"] .rb-count')) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "rail count gone · no internal ID on screen or in any accessible name"
+   }
+  ]
+ },
+ {
+  "name": "J10-J6-draft-with-assistance",
+  "file": "fa/T-j-dr.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Draft with assistance\")",
+    "expect": [
+     "Draft questions with assistance",
+     "Sample assistance in this preview",
+     "No drafting service is connected or named."
+    ],
+    "label": "open drafting from the bank; stand-in is labelled · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "expect": [
+     "Check these choices",
+     "Choose the material to draft from",
+     "Choose at least one question type",
+     "Choose how many drafts you want"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "validation · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-dr-src-paste",
+    "expect": "Text to draft from",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "expect": "Paste the text to draft from",
+    "label": "pasted text required · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-dr-src-brief",
+    "expectNot": "Text to draft from",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-dr-t-sc",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-dr-t-w",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-dr-n",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Draft questions\"]",
+    "wait": 200,
+    "expect": "Drafting questions…",
+    "label": "busy state · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "wait": 1500,
+    "expect": [
+     "Drafts to review",
+     "3 drafts left to review",
+     "Which fluid sets C_min in the effectiveness–NTU method?",
+     "Using your readings, explain how changing the hot-side flow rate affected the effectiveness."
+    ],
+    "expectFocus": "fa-dr-lh",
+    "label": "three drafts, single choice and written, round-robin · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Add to bank: Which fluid sets C_min in the effectiveness–NTU method?\"]",
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts left to review",
+     "In your bank · reviewed by you"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "add one · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label^=\"Discard draft: Using your readings\"]",
+    "expect": [
+     "Draft discarded. Nothing was added to your bank.",
+     "1 draft left to review"
+    ],
+    "label": "discard one · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label^=\"Review and edit draft:\"]",
+    "expect": [
+     "Review a draft",
+     "Draft — needs your review"
+    ],
+    "label": "review the last draft · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "fill": "#fa-qe-marks",
+    "value": "3",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Add to bank\"]",
+    "wait": 900,
+    "expect": [
+     "Added to your question bank.",
+     "All reviewed",
+     "Every draft from this request has been added or discarded."
+    ],
+    "label": "reviewed draft added, back on the list · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .fa-side a:has-text(\"Back to Question bank\")",
+    "expect": [
+     "8 questions",
+     "From a draft you reviewed"
+    ],
+    "label": "bank shows both reviewed drafts · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": "3 drafts to review",
+    "label": "the earlier three drafts are still waiting (nothing added on its own) · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J7a-settings-and-questions",
+  "file": "fa/T-j-set.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Settings",
+     "Heat Exchanger — post-lab"
+    ],
+    "assert": "(document.getElementById('fa-st-pass').value === '50') && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "settings show this assessment's own values · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "#fa-st-r-now",
+    "expect": [
+     "This changes when results are shown for new attempts",
+     "Submitted attempts keep the result terms of the version they answered"
+    ],
+    "label": "release change warning (P4-06 wording) · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Cancel changes\"]",
+    "expectNot": "This changes when results are shown",
+    "assert": "(document.getElementById('fa-st-r-after').checked) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "cancel restores saved values · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-st-pass",
+    "value": "",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-st-dl",
+    "value": "next Friday",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Save settings\"]",
+    "expect": [
+     "Check these settings",
+     "Enter a pass mark from 0 to 100, as a whole number",
+     "Enter the deadline as a date and time, for example 14 Nov 2026, 23:59"
+    ],
+    "expectFocus": "fa-errs",
+    "label": "settings errors · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-errs a:has-text(\"Enter a pass mark\")",
+    "expectFocus": "fa-st-pass",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-st-pass",
+    "value": "60",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "fill": "#fa-st-dl",
+    "value": "14 Nov 2026, 23:59",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "expect": [
+     "This makes a new version",
+     "Rahul Verma and Priya Natarajan have submitted."
+    ],
+    "label": "rule change after submissions warns · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Save settings\"]",
+    "wait": 800,
+    "expect": [
+     "Settings saved as version 2.",
+     "Submissions from Rahul Verma and Priya Natarajan keep version 1; new attempts use version 2."
+    ],
+    "expectFocus": "fa-msg",
+    "label": "saved as version 2 · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-st-r-now",
+    "expectNot": "This changes when results are shown for new attempts",
+    "label": "after version 2 nothing is pinned to it, so no warning · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Cancel changes\"]",
+    "assert": "(document.getElementById('fa-st-r-after').checked) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Summary\")",
+    "expect": [
+     "Version 2 since 7 Nov 2026, 10:15",
+     "You changed a rule after students submitted.",
+     "60% · 10 of 16 marks"
+    ],
+    "label": "summary shows the version · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": "Questions in order",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "[aria-label=\"Move question 3 up\"]",
+    "expect": "Moved question 3 to position 2.",
+    "label": "reorder (version 2 has no submissions, so no new version) · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "expectNot": "This made version 3",
+    "label": "no extra version when nothing is pinned to version 2 · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Remove question 1 from this assessment\"]",
+    "expect": [
+     "Question removed from this assessment. It is still in your question bank.",
+     "3 questions · 14 marks"
+    ],
+    "label": "remove keeps the question in the bank · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": "2 submissions · 2 waiting for marking",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=/^Marked/]",
+    "expect": "No submissions match this filter",
+    "label": "submissions filter no-match · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Show all\")",
+    "expect": [
+     "Rahul Verma",
+     "Priya Natarajan",
+     "version 1"
+    ],
+    "label": "attempts show their pinned version · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J9b-assessment-record",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")",
+    "expect": [
+     "Deadline",
+     "14 Nov 2026, 23:59",
+     "7 days left",
+     "2 of 5 students submitted",
+     "2 waiting for marking"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-06 deadline and submissions columns · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": [
+     "Students submitted",
+     "2 of 5",
+     "Oldest first",
+     "Rahul Verma",
+     "5 Nov, 18:52",
+     "Mark next",
+     "Rules as set for this assessment"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-08 band figures and the submissions panel with names, oldest first · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "Questions in order",
+     "4 questions · 16 marks",
+     "3 marked automatically · 1 written answer you mark"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-09 split of automatic and written marks · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-aq-open",
+    "expectFocus": "fa-aq-ph",
+    "label": "add-from-bank panel opens, focus on its heading · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Close question bank\"]",
+    "expectFocus": "fa-aq-open",
+    "label": "closing the panel returns focus to Add from question bank · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Settings\")",
+    "expect": [
+     "How changes apply",
+     "Version 1 · since 27 Oct 2026, 11:05",
+     "Changing the name or the introduction never makes a new version."
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-10 sectioned form with How changes apply · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": [
+     "As students see it",
+     "Previewing creates no attempt and saves nothing."
+    ],
+    "expectNot": [
+     "Only you see the answer key",
+     "Explanation"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-11 student view shows no key and no explanation · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "Only you see the answer key and the marking guidance",
+     "Correct",
+     "Explanation"
+    ],
+    "label": "FA-11 answer key mode · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": [
+     "2 submissions · 2 waiting for marking",
+     "— of 16",
+     "Marked automatically: 4 of 6",
+     "Marked automatically: 6 of 6",
+     "Not yet"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-12 waiting rows show the automatic part only · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rk-toolbar a:has-text(\"Mark next\"), #fa-main .rk-toolbar button:has-text(\"Mark next\")",
+    "expect": [
+     "Rahul Verma’s answer",
+     "1 of 2 waiting · oldest first"
+    ],
+    "label": "FA-12 Mark next opens the oldest · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J9d-bank-drafts-and-editor",
+  "file": "fa/T-j-qb.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": [
+     "How review works",
+     "Drafted with assistance",
+     "Correct answer",
+     "Marking guidance",
+     "3 drafts to review"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-14 drafts as cards with options, key and guidance · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Add to bank: What is the log mean temperature difference (LMTD) used for?\"]",
+    "wait": 700,
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts to review"
+    ],
+    "label": "add a draft from its card · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "7 questions",
+     "What is the log mean temperature difference (LMTD) used for?"
+    ],
+    "label": "the added draft is in the bank · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "[aria-label=\"Edit question: How is the number of transfer units (NTU) defined?\"]",
+    "expect": [
+     "This question",
+     "Used in",
+     "What students see",
+     "Your marking guidance — only whoever marks the answer sees it.",
+     "Used in",
+     "Heat Exchanger — post-lab"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-15 side panel facts for a used question · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Cancel\")",
+    "expect": "7 questions",
+    "label": "cancel returns to the bank · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Add a question\"), #fa-main .rk-head-act button:has-text(\"Add a question\")",
+    "expect": [
+     "Add a question",
+     "Not in an assessment yet"
+    ],
+    "label": "FA-15 new question: the side panel says it is not in an assessment yet · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J9e-queue-and-students",
+  "file": "fa/T-j-mq.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "2 written answers waiting",
+     "Oldest waiting 2 days",
+     "2 days ago",
+     "1 day ago"
+    ],
+    "label": "FA-18 count, oldest wait and age per row · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "select": "#fa-mq-asm",
+    "value": "ASMT-0009",
+    "expect": [
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "filter by assessment · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark next\"), #fa-main button:has-text(\"Mark next\")",
+    "expect": [
+     "Rahul Verma’s answer",
+     "1 of 2 waiting · oldest first"
+    ],
+    "label": "Mark next opens the oldest · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")",
+    "expect": [
+     "All 5 students with access, by format",
+     "As of 7 Nov 2026 · progress in words, per format",
+     "5 students"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-20 per-format summary above the roster · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": [
+     "2 of 5 students",
+     "Progress: Waiting for marking"
+    ],
+    "label": "progress filter: waiting for marking · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Priya Natarajan\")",
+    "expect": [
+     "Mark their answers",
+     "Open the assessment",
+     "Per format only — there is no overall percentage or verdict."
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-21 panel with Mark their answers · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main aside a:has-text(\"Mark their answers\")",
+    "expect": [
+     "Priya Natarajan’s answer"
+    ],
+    "label": "FA-21 Mark their answers opens FA-19 for that student · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ },
+ {
+  "name": "J10-J9f-import-figures",
+  "file": "fa/T-j-im.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Your CSV file",
+     "The template",
+     "Download the template (CSV)",
+     "marking_guidance"
+    ],
+    "label": "FA-17 step 1 with the template beside it · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "role=button[name=\"Use the sample file\"]",
+    "expect": "post-lab-questions.csv",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "step · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Rows\n8",
+     "Ready\n6",
+     "With errors\n2",
+     "With warnings\n1"
+    ],
+    "assert": "(!!document.querySelector('#fa-main .fa-repfigs .is-err')) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "row check figures flag errors · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Choose the corrected file\"]",
+    "wait": 1000,
+    "expect": [
+     "Ready\n8",
+     "With errors\n0"
+    ],
+    "assert": "(!document.querySelector('#fa-main .fa-repfigs .is-err')) && (() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()",
+    "label": "corrected file: no error figure · no internal ID on screen or in any accessible name"
+   },
+   {
+    "click": "role=button[name=\"Continue\"]",
+    "expect": [
+     "Confirm import",
+     "8 questions will be added to your bank from post-lab-questions-corrected.csv."
+    ],
+    "label": "confirm step · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   },
+   {
+    "click": "#fa-main .rb-btn--primary:has-text(\"Import\")",
+    "wait": 1000,
+    "expect": [
+     "Questions imported",
+     "8 questions were added to your bank."
+    ],
+    "label": "imported · no internal ID on screen or in any accessible name",
+    "assert": "(() => { const RE = /\\b(ASMT|ATT|SUP|REQ|ACC|UPD|DTR|SUB)-\\d+|\\bQ-\\d{3,}|\\bD-\\d\\b/; const R = document.getElementById('dc-root') || document.body; if (RE.test(R.innerText || '')) return false; const els = R.querySelectorAll('*'); for (const el of els) { for (const a of ['aria-label', 'title', 'placeholder', 'alt']) { const v = el.getAttribute(a); if (v && RE.test(v)) return false; } if (el.classList.contains('xr-sr') && RE.test(el.textContent || '')) return false; } return true; })()"
+   }
+  ]
+ }
+]

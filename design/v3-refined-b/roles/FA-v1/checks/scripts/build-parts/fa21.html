@@ -1,0 +1,54 @@
+      <!-- ═══ FA-21 Student detail (per experiment) ═══ -->
+      <sc-if value="{{ is.sd }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#FA-20" onClick="{{ SD.back }}">Students</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-right"></use></svg><span aria-current="page">{{ SD.n }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rk-eyebrow">{{ SD.ctx }}</p>
+          <h1 class="rk-title" id="fa-h1" tabindex="-1">{{ SD.n }}</h1>
+          <div class="rk-meta"><span class="fa-id">{{ SD.id }}</span><span class="rk-meta-sep" aria-hidden="true"></span><span>{{ SD.lastLine }}</span><sc-if value="{{ SD.inactive }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ SD.inText }}</span></sc-if></div>
+        </div>
+      </div>
+      <div class="rk-detailwrap">
+        <div class="rk-detail fr-asidefirst">
+          <div class="rk-surface rk-mainsheet">
+            <section class="rk-sec" aria-labelledby="fa-sd-fm">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="fa-sd-fm">Progress by format</h2><p class="rk-hint">{{ SD.asOf }}</p></div>
+              <ul class="fr-fmlist" aria-label="Progress by format">
+                <sc-for list="{{ SD.fm }}" as="f" hint-placeholder-count="2"><li><span class="xr-fmt">{{ f.code }}</span><span class="{{ f.cls }}"><i></i>{{ f.t }}</span><sc-if value="{{ f.hasD }}" hint-placeholder-val="{{ false }}"><span class="fr-fmlist-d">{{ f.d }}</span></sc-if></li></sc-for>
+              </ul>
+              <p class="rk-hint" style="margin-top: 12px">Per format only — there is no overall percentage or verdict.</p>
+            </section>
+            <section class="rk-sec" aria-labelledby="fa-sd-res">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="fa-sd-res">Resources</h2></div>
+              <ul class="fr-reslist fr-reslist--status">
+                <sc-for list="{{ SD.res }}" as="x" hint-placeholder-count="3"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-file"></use></svg><span class="fr-res-t">{{ x.t }}</span><span class="{{ x.cls }}">{{ x.st }}</span></li></sc-for>
+              </ul>
+              <p class="rk-hint" style="margin-top: 12px">Feedback students give on a format isn’t shown to Faculty.</p>
+            </section>
+          </div>
+          <aside class="rk-aside" aria-labelledby="fa-sd-asm">
+            <div class="rk-panel">
+              <div class="rk-panel-head"><h2 id="fa-sd-asm">Assessment</h2></div>
+              <div class="rk-panel-body fr-apanel">
+                <div class="fr-apanel-id">
+                  <span class="{{ SD.aCls }}"><i></i>{{ SD.aSt }}</span>
+                  <sc-if value="{{ SD.hasAsmName }}" hint-placeholder-val="{{ true }}"><p class="fr-asm-n">{{ SD.asmName }}</p><p class="fr-asm-d">{{ SD.asmSub }}</p></sc-if>
+                </div>
+                <sc-if value="{{ SD.hasALine }}" hint-placeholder-val="{{ true }}"><p class="fr-asm-note">{{ SD.aLine }}</p></sc-if>
+                <sc-if value="{{ SD.hasScore }}" hint-placeholder-val="{{ false }}"><div class="fr-done-total"><b>{{ SD.scoreBig }}</b><span>{{ SD.scoreD }}</span></div></sc-if>
+                <sc-if value="{{ SD.hasRel }}" hint-placeholder-val="{{ false }}"><sc-if value="{{ SD.relDone }}" hint-placeholder-val="{{ false }}"><p class="fa-savednote"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><span>{{ SD.relLine }}</span></p></sc-if><sc-if value="{{ SD.relNot }}" hint-placeholder-val="{{ true }}"><p class="rk-locked"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg><span>{{ SD.relLine }}</span></p></sc-if></sc-if>
+                <sc-if value="{{ SD.isCo }}" hint-placeholder-val="{{ false }}"><p class="rk-locked"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>{{ SD.coText }}</span></p></sc-if>
+                <sc-if value="{{ SD.hasActs }}" hint-placeholder-val="{{ true }}">
+                <div class="fr-panel-acts">
+                  <sc-if value="{{ SD.canMark }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-19" onClick="{{ SD.goMark }}">Mark their answers</a></sc-if>
+                  <sc-if value="{{ SD.canView }}" hint-placeholder-val="{{ false }}"><a class="rb-btn rb-btn--lg" href="#FA-19" onClick="{{ SD.goMark }}">View marks</a></sc-if>
+                </div>
+                </sc-if>
+                <sc-if value="{{ SD.hasAsm }}" hint-placeholder-val="{{ true }}"><a class="rb-link" href="#FA-08" onClick="{{ SD.goAsm }}">Open the assessment</a></sc-if>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+      </sc-if>
+

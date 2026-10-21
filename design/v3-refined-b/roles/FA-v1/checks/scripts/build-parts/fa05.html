@@ -1,0 +1,90 @@
+      <!-- ═══ FA-05 Experiment (teaching view) ═══ -->
+      <sc-if value="{{ is.e1 }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#FA-02" onClick="{{ nav.crs }}">My courses</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-right"></use></svg><a href="#FA-03" onClick="{{ E1.goCourse }}">{{ E1.code }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-right"></use></svg><span aria-current="page">{{ E1.t }}</span></nav>
+      <header class="fr-cid">
+        <div class="fr-cid-top">
+          <div class="fr-cid-text">
+            <p class="rb-eyebrow-date" style="margin-bottom: 0">{{ sh.date }}</p>
+            <p class="rk-eyebrow fr-cid-eyebrow"><span class="rb-code">{{ E1.code }}</span><span>{{ E1.kicker }}</span></p>
+            <h1 class="fr-cid-t" id="fa-h1" tabindex="-1">{{ E1.t }}</h1>
+          </div>
+        </div>
+        <dl class="fr-figs">
+          <div class="fr-fig fr-fig--fm"><dt>Formats your institution has</dt><dd><span class="rk-fmts" aria-label="{{ E1.fmAria }}"><sc-for list="{{ E1.fm }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></dd></div>
+          <div class="fr-fig fr-fig--fm"><dt>Formats your students have used</dt><dd class="{{ E1.usedCls }}"><sc-if value="{{ E1.hasUsed }}" hint-placeholder-val="{{ true }}"><span class="rk-fmts" aria-label="{{ E1.usedAria }}"><sc-for list="{{ E1.used }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></sc-if><sc-if value="{{ E1.noUsed }}" hint-placeholder-val="{{ false }}">None yet</sc-if></dd></div>
+          <div class="fr-fig"><dt>Students with access</dt><dd>{{ E1.reach }}</dd></div>
+        </dl>
+      </header>
+      <div class="rk-detailwrap">
+        <div class="rk-detail fr-asidefirst">
+          <div class="rk-surface rk-mainsheet">
+            <section class="rk-sec" aria-labelledby="fa-e1-act">
+              <div class="rk-sec-h"><h2 class="rb-h2" id="fa-e1-act">Student activity, by format</h2><p class="rk-hint">{{ E1.asOf }}</p></div>
+              <sc-if value="{{ E1.hasStu }}" hint-placeholder-val="{{ true }}">
+              <ul class="fr-prog" aria-label="{{ E1.progAria }}">
+                <sc-for list="{{ E1.prog }}" as="f" hint-placeholder-count="2">
+                <li class="fr-prog-row"><span class="xr-fmt">{{ f.code }}</span><span class="{{ f.unitsCls }}" aria-hidden="true"><sc-for list="{{ f.units }}" as="x" hint-placeholder-count="5"><i class="{{ x }}"></i></sc-for></span><p class="fr-prog-t"><span><b>{{ f.done }}</b> completed</span><span><b>{{ f.prog }}</b> in progress</span><span><b>{{ f.none }}</b> not started</span></p></li>
+                </sc-for>
+              </ul>
+              <p class="fr-xp-foot"><span>{{ E1.reachLine }}</span><a class="rb-link" href="#FA-20" onClick="{{ E1.goStu }}">Students on this experiment</a></p>
+              </sc-if>
+              <sc-if value="{{ E1.noStu }}" hint-placeholder-val="{{ false }}"><p class="fa-quiet">{{ E1.reachLine }}</p></sc-if>
+            </section>
+            <section class="rk-sec" aria-labelledby="fa-e1-about">
+              <h2 class="rb-h2" id="fa-e1-about">About this experiment</h2>
+              <p class="fr-about">{{ E1.about }}</p>
+              <div class="fr-aboutgrid">
+                <div>
+                  <h3 class="rk-h3">Learning outcomes</h3>
+                  <ul class="fa-check" aria-label="Learning outcomes">
+                    <sc-for list="{{ E1.outcomes }}" as="o" hint-placeholder-count="2"><li class="is-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><span>{{ o }}</span></li></sc-for>
+                  </ul>
+                  <p class="rk-hint" style="margin-top: 12px">One set of outcomes for the experiment, written by the Academic Reviewer. Read-only here.</p>
+                </div>
+                <div>
+                  <h3 class="rk-h3">Resources students see</h3>
+                  <ul class="fr-reslist" aria-label="Resources students see">
+                    <sc-for list="{{ E1.res }}" as="r" hint-placeholder-count="3"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-file"></use></svg><span>{{ r }}</span></li></sc-for>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="rk-aside" aria-labelledby="fa-e1-asm">
+            <div class="rk-panel">
+              <div class="rk-panel-head"><h2 id="fa-e1-asm">Assessment</h2></div>
+              <div class="rk-panel-body fr-apanel">
+                <sc-if value="{{ E1.hasAsm }}" hint-placeholder-val="{{ true }}">
+                <div class="fr-apanel-id">
+                  <span class="{{ E1.stCls }}"><i></i>{{ E1.stLabel }}</span>
+                  <p class="fr-asm-n"><a class="fa-exp-link" href="#FA-08" onClick="{{ E1.goAsm }}">{{ E1.asmName }}</a></p>
+                  <p class="fr-asm-d">{{ E1.dueLine }}<sc-if value="{{ E1.hasLeft }}" hint-placeholder-val="{{ true }}"> · <b>{{ E1.left }}</b></sc-if></p>
+                </div>
+                <sc-if value="{{ E1.showSubs }}" hint-placeholder-val="{{ true }}">
+                <div class="fr-asm-subs">
+                  <span class="{{ E1.subsCls }}" aria-hidden="true"><sc-for list="{{ E1.subsUnits }}" as="x" hint-placeholder-count="5"><i class="{{ x }}"></i></sc-for></span>
+                  <p>{{ E1.subsLine }}</p>
+                </div>
+                </sc-if>
+                <sc-if value="{{ E1.hasWait }}" hint-placeholder-val="{{ true }}"><p class="fr-asm-wait"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg><span>{{ E1.waitLine }}</span></p></sc-if>
+                <sc-if value="{{ E1.hasNote }}" hint-placeholder-val="{{ false }}"><p class="fr-asm-note">{{ E1.note }}</p></sc-if>
+                <div class="fr-panel-acts">
+                  <sc-if value="{{ E1.canMark }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-19" onClick="{{ E1.mark }}" aria-label="{{ E1.markAria }}">{{ E1.markLabel }}</a></sc-if>
+                  <a class="rb-btn rb-btn--lg" href="#FA-08" onClick="{{ E1.goAsm }}">{{ E1.asmAct }}</a>
+                </div>
+                </sc-if>
+                <sc-if value="{{ E1.noAsm }}" hint-placeholder-val="{{ false }}">
+                <div class="fr-apanel-id">
+                  <p class="fr-asm-n">No assessment for this experiment yet</p>
+                  <p class="fr-asm-note">Create one: choose the rules, add questions from your bank, and preview it as a student. Assessments are set per experiment, not per format.</p>
+                </div>
+                <div class="fr-panel-acts"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-07" onClick="{{ E1.create }}">Create assessment</a></div>
+                </sc-if>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+      </sc-if>
+

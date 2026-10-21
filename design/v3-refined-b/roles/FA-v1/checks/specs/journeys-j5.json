@@ -1,0 +1,285 @@
+[
+ {
+  "name": "J5a-drawer-375",
+  "file": "fa/T-j-nov07-375.dc.html",
+  "width": 375,
+  "vh": 812,
+  "steps": [
+   {
+    "click": "#fa-menu",
+    "expectFocus": "fa-menu-close",
+    "label": "Menu opens the drawer, focus on Close"
+   },
+   {
+    "assert": "document.getElementById('fa-menu').getAttribute('aria-expanded') === 'true'",
+    "label": "Menu button reports expanded"
+   },
+   {
+    "press": "Shift+Tab",
+    "assert": "document.activeElement && document.activeElement.closest('.rb-drawer') !== null",
+    "label": "Shift+Tab stays in the drawer"
+   },
+   {
+    "press": "Tab",
+    "assert": "document.activeElement && document.activeElement.closest('.rb-drawer') !== null",
+    "label": "Tab stays in the drawer"
+   },
+   {
+    "press": "Escape",
+    "expectFocus": "fa-menu",
+    "assert": "!document.querySelector('.rb-drawer')",
+    "label": "Escape closes the drawer, focus returns to Menu"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Question bank\")",
+    "expect": "Question bank",
+    "expectFocus": "fa-h1",
+    "assert": "!document.querySelector('.rb-drawer')",
+    "label": "a drawer link navigates and closes the drawer"
+   },
+   {
+    "noOverflow": true,
+    "label": "no horizontal scroll at 375"
+   }
+  ]
+ },
+ {
+  "name": "J5b-account-menu",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "#fa-acct",
+    "expectFocus": "fa-acct-first",
+    "assert": "document.getElementById('fa-acct').getAttribute('aria-expanded') === 'true' && !!document.getElementById('fa-acct-menu')",
+    "label": "account menu opens, focus on first item"
+   },
+   {
+    "press": "Escape",
+    "expectFocus": "fa-acct",
+    "assert": "!document.getElementById('fa-acct-menu')",
+    "label": "Escape closes it, focus back on the account button"
+   },
+   {
+    "click": "#fa-acct"
+   },
+   {
+    "press": "Tab",
+    "expectFocus": "fa-acct-last"
+   },
+   {
+    "press": "Tab",
+    "assert": "!document.getElementById('fa-acct-menu')",
+    "label": "tabbing out closes the menu"
+   },
+   {
+    "click": "#fa-acct"
+   },
+   {
+    "click": "#fa-acct-first",
+    "expect": [
+     "Help & support",
+     "My reports"
+    ],
+    "label": "Help from the account menu"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Report a problem\")",
+    "expect": "What happened?"
+   },
+   {
+    "click": "role=button[name=\"Send report\"]",
+    "expect": "Say what happened, so it can be looked into",
+    "expectFocus": "fa-errs",
+    "label": "empty report refused"
+   },
+   {
+    "fill": "#fa-hp-what",
+    "value": "The marking page did not show the guidance."
+   },
+   {
+    "click": "role=button[name=\"Send report\"]",
+    "expect": [
+     "Report sent. Your reference is SUP-0231.",
+     "The marking page did not show the guidance."
+    ],
+    "label": "report sent with a preview reference"
+   },
+   {
+    "click": "#fa-acct"
+   },
+   {
+    "click": "#fa-acct-last",
+    "expect": "You’ve signed out",
+    "label": "sign out"
+   },
+   {
+    "click": "role=button[name=\"Sign in\"]",
+    "expect": "Needs your attention",
+    "label": "sign in returns to Overview"
+   }
+  ]
+ },
+ {
+  "name": "J5c-delete-dialog",
+  "file": "fa/T-j-qb2.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "#fa-qb-del-Q-0103",
+    "expect": "Delete this question?",
+    "expectFocus": "fa-dlg-t",
+    "label": "delete dialog for an unused question"
+   },
+   {
+    "expectNot": "keeps its copy",
+    "label": "no assessment note for an unused question"
+   },
+   {
+    "press": "Escape",
+    "expectFocus": "fa-qb-del-Q-0103",
+    "label": "Escape returns focus to Delete"
+   },
+   {
+    "click": "#fa-qb-del-Q-0103"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "expect": [
+     "Question deleted from your question bank.",
+     "Deleted",
+     "history kept",
+     "5 questions"
+    ],
+    "expectFocus": "fa-msg",
+    "label": "deleted, history kept"
+   },
+   {
+    "click": "#fa-qb-del-Q-0101",
+    "expect": "It is used in Heat Exchanger — post-lab. That assessment keeps its copy",
+    "label": "used question warns"
+   },
+   {
+    "click": "#fa-dlg-cancel",
+    "expectFocus": "fa-qb-del-Q-0101",
+    "expect": "5 questions",
+    "label": "cancel keeps it"
+   },
+   {
+    "fill": "#fa-qb-q",
+    "value": "radiation",
+    "expect": "No question matches these filters",
+    "label": "no-match"
+   },
+   {
+    "click": "#fa-main .rk-state button:has-text(\"Clear filters\")",
+    "expect": "5 questions",
+    "expectFocus": "fa-qb-q"
+   },
+   {
+    "select": "#fa-qb-type",
+    "value": "w",
+    "expect": [
+     "1 of 5 questions",
+     "Type: Written answer"
+    ],
+    "label": "type filter + chip"
+   }
+  ]
+ },
+ {
+  "name": "J5d-released-15-nov",
+  "file": "fa/T-j-nov15.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "1 written answer waiting",
+     "Priya Natarajan"
+    ],
+    "label": "15 Nov queue: Priya waiting"
+   },
+   {
+    "click": "role=button[name=/^Marked/]",
+    "expect": [
+     "Rahul Verma",
+     "Confirmed 7 Nov 2026, 10:15"
+    ]
+   },
+   {
+    "click": "[aria-label=\"View marks for Rahul Verma\"]",
+    "expect": "Result released to Rahul when the deadline passed: 14 Nov 2026, 23:59.",
+    "label": "released result line"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Marking\")"
+   },
+   {
+    "click": "role=button[name=/^Waiting/]"
+   },
+   {
+    "click": "[aria-label=\"Mark Priya Natarajan\"]"
+   },
+   {
+    "fill": "#fa-mk-Q-0106",
+    "value": "6"
+   },
+   {
+    "click": "#fa-mk-confirm",
+    "expect": [
+     "Priya sees the result as soon as you confirm — the deadline has passed.",
+     "Priya’s total becomes"
+    ],
+    "expectNot": "When Priya sees the result",
+    "label": "after the deadline the release is immediate (pinned terms)"
+   },
+   {
+    "click": "#fa-dlg-ok",
+    "wait": 1000,
+    "expect": [
+     "Result released to Priya when the deadline passed",
+     "Nothing else is waiting for marking."
+    ],
+    "label": "Priya confirmed, nothing else waiting"
+   },
+   {
+    "assert": "!document.querySelector('nav[aria-label=\"Faculty navigation\"] .rb-count')",
+    "label": "rail count gone"
+   }
+  ]
+ },
+ {
+  "name": "J5e-no-courses",
+  "file": "fa/T-j-none.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": "Your Institute Admin hasn’t assigned you courses yet",
+    "label": "no courses overview"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")",
+    "expect": "Assessments appear here when your Institute Admin assigns you a course."
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Question bank\")",
+    "expect": "Your question bank opens with your first course"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Marking\")",
+    "expect": "Nothing to mark yet"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")",
+    "expect": "No students to follow yet"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"My courses\")",
+    "expect": "My courses"
+   }
+  ]
+ }
+]

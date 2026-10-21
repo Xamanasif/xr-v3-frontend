@@ -5,6 +5,16 @@ from their FINAL, owner-approved packages: Academic Reviewer → Institute Admin
 then one platform-wide verification and ONE consolidated report for the owner's browser review. The
 run was paused at the owner's request (end of day). This file is the resume point.
 
+## 0. Status update (21 Oct 2026, evening — run resumed, owner's acceleration instruction)
+
+- Stage B · Institute Admin: committed `5e102ee` (bundle `XR-frontend-v3-5e102ee-ia.bundle`,
+  restore-tested); the WIP branch was deleted.
+- Stage C · Faculty (21 ids): committed as "Add FA: …" (see `FA-INTEGRATION-RECORD.md`), register 90
+  migrated; bundle `XR-frontend-v3-<sha>-fa.bundle` in `~/Downloads`.
+- Stage D · Student: built in an isolated copy of the worktree (scratchpad `stw`) in parallel with
+  the Faculty verification, then applied to the worktree as one diff.
+- Sections 1–6 below describe the pause state of the morning and are kept as the record.
+
 ## 1. Repository state at the pause
 
 | Item                         | Value                                                                                                                                                                                                     |

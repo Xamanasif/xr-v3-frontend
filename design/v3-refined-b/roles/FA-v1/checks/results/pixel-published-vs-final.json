@@ -1,0 +1,878 @@
+{
+ "FA01-Coteach": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 776)"
+ },
+ "FA01-New-phone": {
+  "same": false,
+  "why": "size (375, 1522)\u2192(375, 1599)"
+ },
+ "FA01-New-teacher": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 806)"
+ },
+ "FA01-No-courses": {
+  "same": false,
+  "why": "bbox (279, 149, 1409, 351)"
+ },
+ "FA01-One-item": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 776)"
+ },
+ "FA01-Overview": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 961)"
+ },
+ "FA01-Phone": {
+  "same": false,
+  "why": "size (375, 1470)\u2192(375, 2015)"
+ },
+ "FA02-My-courses": {
+  "same": false,
+  "why": "bbox (279, 252, 1409, 676)"
+ },
+ "FA02-New": {
+  "same": false,
+  "why": "bbox (279, 252, 1409, 621)"
+ },
+ "FA02-None": {
+  "same": false,
+  "why": "bbox (279, 252, 1409, 582)"
+ },
+ "FA02-Phone": {
+  "same": false,
+  "why": "size (375, 900)\u2192(375, 1088)"
+ },
+ "FA03-Coteach": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 923)"
+ },
+ "FA03-Course": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 973)"
+ },
+ "FA03-New": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 837)"
+ },
+ "FA03-No-assessment": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 844)"
+ },
+ "FA03-Phone": {
+  "same": false,
+  "why": "size (375, 1159)\u2192(375, 1555)"
+ },
+ "FA04-Experiments": {
+  "same": false,
+  "why": "bbox (279, 427, 1409, 643)"
+ },
+ "FA04-Failed": {
+  "same": true,
+  "why": ""
+ },
+ "FA04-Loading": {
+  "same": true,
+  "why": ""
+ },
+ "FA04-New": {
+  "same": false,
+  "why": "bbox (279, 427, 1409, 585)"
+ },
+ "FA04-No-courses": {
+  "same": false,
+  "why": "bbox (279, 252, 1409, 675)"
+ },
+ "FA04-No-match": {
+  "same": true,
+  "why": ""
+ },
+ "FA04-Phone": {
+  "same": false,
+  "why": "size (375, 964)\u2192(375, 978)"
+ },
+ "FA05-Coteach": {
+  "same": false,
+  "why": "size (1440, 911)\u2192(1440, 1054)"
+ },
+ "FA05-Experiment": {
+  "same": false,
+  "why": "size (1440, 911)\u2192(1440, 1054)"
+ },
+ "FA05-New": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 1001)"
+ },
+ "FA05-No-assessment": {
+  "same": false,
+  "why": "size (1440, 929)\u2192(1440, 1054)"
+ },
+ "FA05-Phone": {
+  "same": false,
+  "why": "size (375, 1889)\u2192(375, 2037)"
+ },
+ "FA06-Assessments": {
+  "same": false,
+  "why": "bbox (279, 358, 1409, 503)"
+ },
+ "FA06-No-courses": {
+  "same": false,
+  "why": "bbox (279, 183, 1409, 483)"
+ },
+ "FA06-None-yet": {
+  "same": true,
+  "why": ""
+ },
+ "FA06-Phone": {
+  "same": false,
+  "why": "size (375, 1003)\u2192(375, 900)"
+ },
+ "FA07-Created": {
+  "same": false,
+  "why": "bbox (279, 239, 1406, 646)"
+ },
+ "FA07-No-courses": {
+  "same": false,
+  "why": "bbox (279, 239, 1406, 696)"
+ },
+ "FA07-One-per-experiment": {
+  "same": false,
+  "why": "size (1440, 991)\u2192(1440, 1033)"
+ },
+ "FA07-Phone": {
+  "same": false,
+  "why": "size (375, 2140)\u2192(375, 2263)"
+ },
+ "FA07-Saved-draft": {
+  "same": false,
+  "why": "bbox (279, 239, 1406, 646)"
+ },
+ "FA07-Step1": {
+  "same": false,
+  "why": "bbox (279, 311, 1409, 740)"
+ },
+ "FA07-Step2-errors": {
+  "same": false,
+  "why": "size (1440, 1682)\u2192(1440, 1584)"
+ },
+ "FA07-Step3": {
+  "same": false,
+  "why": "size (1440, 1260)\u2192(1440, 1265)"
+ },
+ "FA07-Step4-phone": {
+  "same": false,
+  "why": "size (375, 2163)\u2192(375, 2293)"
+ },
+ "FA07-Step4": {
+  "same": false,
+  "why": "size (1440, 1317)\u2192(1440, 1453)"
+ },
+ "FA08-Coteach": {
+  "same": false,
+  "why": "size (1440, 1177)\u2192(1440, 1402)"
+ },
+ "FA08-Draft": {
+  "same": false,
+  "why": "size (1440, 1233)\u2192(1440, 1458)"
+ },
+ "FA08-Phone": {
+  "same": false,
+  "why": "size (375, 2074)\u2192(375, 2358)"
+ },
+ "FA08-Summary": {
+  "same": false,
+  "why": "size (1440, 1177)\u2192(1440, 1420)"
+ },
+ "FA08-Version2": {
+  "same": false,
+  "why": "size (1440, 1396)\u2192(1440, 1639)"
+ },
+ "FA09-Add-from-bank": {
+  "same": false,
+  "why": "size (1440, 1146)\u2192(1440, 1422)"
+ },
+ "FA09-Coteach": {
+  "same": false,
+  "why": "size (1440, 933)\u2192(1440, 1162)"
+ },
+ "FA09-New-version": {
+  "same": false,
+  "why": "size (1440, 1113)\u2192(1440, 1311)"
+ },
+ "FA09-Phone": {
+  "same": false,
+  "why": "size (375, 1714)\u2192(375, 1936)"
+ },
+ "FA09-Questions": {
+  "same": false,
+  "why": "size (1440, 984)\u2192(1440, 1177)"
+ },
+ "FA10-Coteach": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 1044)"
+ },
+ "FA10-Errors": {
+  "same": false,
+  "why": "size (1440, 1660)\u2192(1440, 1867)"
+ },
+ "FA10-Phone": {
+  "same": false,
+  "why": "size (375, 1860)\u2192(375, 2420)"
+ },
+ "FA10-Release-change": {
+  "same": false,
+  "why": "size (1440, 1467)\u2192(1440, 1707)"
+ },
+ "FA10-Rule-change": {
+  "same": false,
+  "why": "size (1440, 1467)\u2192(1440, 1684)"
+ },
+ "FA10-Settings": {
+  "same": false,
+  "why": "size (1440, 1338)\u2192(1440, 1547)"
+ },
+ "FA11-Answer-key": {
+  "same": false,
+  "why": "size (1440, 2035)\u2192(1440, 2370)"
+ },
+ "FA11-Coteach": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 709)"
+ },
+ "FA11-Failed": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 809)"
+ },
+ "FA11-Phone": {
+  "same": false,
+  "why": "size (375, 3034)\u2192(375, 3178)"
+ },
+ "FA11-Student-view": {
+  "same": false,
+  "why": "size (1440, 1816)\u2192(1440, 2105)"
+ },
+ "FA12-Coteach": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 709)"
+ },
+ "FA12-Export": {
+  "same": false,
+  "why": "size (1440, 1085)\u2192(1440, 1204)"
+ },
+ "FA12-Marked": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 931)"
+ },
+ "FA12-Phone": {
+  "same": false,
+  "why": "size (375, 1417)\u2192(375, 1339)"
+ },
+ "FA12-Submissions": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 931)"
+ },
+ "FA14-Delete": {
+  "same": false,
+  "why": "size (1440, 1242)\u2192(1440, 1309)"
+ },
+ "FA14-Deleted": {
+  "same": false,
+  "why": "size (1440, 1344)\u2192(1440, 1385)"
+ },
+ "FA14-Drafts-phone": {
+  "same": false,
+  "why": "size (375, 1719)\u2192(375, 2665)"
+ },
+ "FA14-Drafts": {
+  "same": false,
+  "why": "size (1440, 1080)\u2192(1440, 1583)"
+ },
+ "FA14-Empty": {
+  "same": false,
+  "why": "bbox (681, 176, 798, 222)"
+ },
+ "FA14-No-match": {
+  "same": false,
+  "why": "bbox (279, 176, 1409, 840)"
+ },
+ "FA14-Phone": {
+  "same": false,
+  "why": "size (375, 2359)\u2192(375, 2187)"
+ },
+ "FA14-Question-bank": {
+  "same": false,
+  "why": "size (1440, 1242)\u2192(1440, 1309)"
+ },
+ "FA15-Draft-review": {
+  "same": false,
+  "why": "size (1440, 1363)\u2192(1440, 1526)"
+ },
+ "FA15-Errors": {
+  "same": false,
+  "why": "size (1440, 1683)\u2192(1440, 1848)"
+ },
+ "FA15-New": {
+  "same": false,
+  "why": "size (1440, 1055)\u2192(1440, 1286)"
+ },
+ "FA15-Phone": {
+  "same": false,
+  "why": "size (375, 1951)\u2192(375, 2531)"
+ },
+ "FA15-Used": {
+  "same": false,
+  "why": "size (1440, 1609)\u2192(1440, 1765)"
+ },
+ "FA16-Busy": {
+  "same": false,
+  "why": "bbox (279, 273, 1409, 760)"
+ },
+ "FA16-Draft": {
+  "same": false,
+  "why": "size (1440, 974)\u2192(1440, 1167)"
+ },
+ "FA16-Drafts-list": {
+  "same": false,
+  "why": "size (1440, 1122)\u2192(1440, 1410)"
+ },
+ "FA16-Errors": {
+  "same": false,
+  "why": "size (1440, 1209)\u2192(1440, 1409)"
+ },
+ "FA16-Failed": {
+  "same": false,
+  "why": "size (1440, 1080)\u2192(1440, 1276)"
+ },
+ "FA16-List-phone": {
+  "same": false,
+  "why": "size (375, 1709)\u2192(375, 2534)"
+ },
+ "FA16-No-courses": {
+  "same": false,
+  "why": "bbox (279, 273, 1197, 599)"
+ },
+ "FA16-Phone": {
+  "same": false,
+  "why": "size (375, 1199)\u2192(375, 2214)"
+ },
+ "FA17-Choose": {
+  "same": false,
+  "why": "size (1440, 920)\u2192(1440, 1067)"
+ },
+ "FA17-Confirm": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 1067)"
+ },
+ "FA17-Done": {
+  "same": false,
+  "why": "bbox (279, 239, 1197, 463)"
+ },
+ "FA17-Not-CSV": {
+  "same": false,
+  "why": "size (1440, 947)\u2192(1440, 1067)"
+ },
+ "FA17-Phone": {
+  "same": false,
+  "why": "size (375, 1803)\u2192(375, 2240)"
+ },
+ "FA17-Row-errors": {
+  "same": false,
+  "why": "size (1440, 1040)\u2192(1440, 1260)"
+ },
+ "FA18-All": {
+  "same": false,
+  "why": "bbox (279, 112, 1409, 586)"
+ },
+ "FA18-Marking": {
+  "same": false,
+  "why": "bbox (279, 112, 1409, 580)"
+ },
+ "FA18-No-courses": {
+  "same": false,
+  "why": "bbox (279, 183, 1409, 483)"
+ },
+ "FA18-Nothing-waiting": {
+  "same": false,
+  "why": "bbox (279, 214, 1409, 572)"
+ },
+ "FA18-Phone": {
+  "same": false,
+  "why": "size (375, 1280)\u2192(375, 1082)"
+ },
+ "FA19-Confirm": {
+  "same": false,
+  "why": "size (1440, 1005)\u2192(1440, 1042)"
+ },
+ "FA19-Confirmed": {
+  "same": false,
+  "why": "size (1440, 1215)\u2192(1440, 1067)"
+ },
+ "FA19-Invalid-mark": {
+  "same": false,
+  "why": "size (1440, 1032)\u2192(1440, 1042)"
+ },
+ "FA19-Mark": {
+  "same": false,
+  "why": "size (1440, 1005)\u2192(1440, 1042)"
+ },
+ "FA19-Phone": {
+  "same": false,
+  "why": "size (375, 2069)\u2192(375, 2380)"
+ },
+ "FA19-Released": {
+  "same": false,
+  "why": "size (1440, 1187)\u2192(1440, 1042)"
+ },
+ "FA19-Saved": {
+  "same": false,
+  "why": "size (1440, 1064)\u2192(1440, 1042)"
+ },
+ "FA20-Export-phone": {
+  "same": false,
+  "why": "size (375, 3172)\u2192(375, 2876)"
+ },
+ "FA20-Export": {
+  "same": false,
+  "why": "size (1440, 1707)\u2192(1440, 1585)"
+ },
+ "FA20-Inactive": {
+  "same": false,
+  "why": "bbox (279, 213, 1409, 805)"
+ },
+ "FA20-No-courses": {
+  "same": false,
+  "why": "bbox (279, 183, 1409, 483)"
+ },
+ "FA20-No-match": {
+  "same": false,
+  "why": "bbox (279, 242, 1409, 835)"
+ },
+ "FA20-No-students": {
+  "same": false,
+  "why": "bbox (311, 242, 632, 256)"
+ },
+ "FA20-Phone": {
+  "same": false,
+  "why": "size (375, 2380)\u2192(375, 2304)"
+ },
+ "FA20-Students": {
+  "same": false,
+  "why": "size (1440, 1050)\u2192(1440, 1148)"
+ },
+ "FA21-Coteach": {
+  "same": false,
+  "why": "bbox (279, 341, 1406, 795)"
+ },
+ "FA21-Inactive": {
+  "same": false,
+  "why": "bbox (279, 347, 1406, 801)"
+ },
+ "FA21-Marked": {
+  "same": false,
+  "why": "bbox (279, 341, 1406, 826)"
+ },
+ "FA21-Phone": {
+  "same": false,
+  "why": "size (375, 1386)\u2192(375, 1305)"
+ },
+ "FA21-Released": {
+  "same": false,
+  "why": "bbox (279, 341, 1406, 798)"
+ },
+ "FA21-Student": {
+  "same": false,
+  "why": "bbox (279, 341, 1406, 795)"
+ },
+ "Live-Coteach": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 776)"
+ },
+ "Live-Laptop": {
+  "same": false,
+  "why": "size (1024, 1086)\u2192(1024, 1579)"
+ },
+ "Live-New": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 806)"
+ },
+ "Live-Oct26": {
+  "same": false,
+  "why": "bbox (279, 140, 1409, 776)"
+ },
+ "Live-Phone": {
+  "same": false,
+  "why": "size (375, 1470)\u2192(375, 2015)"
+ },
+ "Live-Tablet": {
+  "same": false,
+  "why": "size (768, 1086)\u2192(768, 1579)"
+ },
+ "R-FA01-1024": {
+  "same": false,
+  "why": "size (1024, 1086)\u2192(1024, 1579)"
+ },
+ "R-FA01-1440": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 961)"
+ },
+ "R-FA01-375": {
+  "same": false,
+  "why": "size (375, 1470)\u2192(375, 2015)"
+ },
+ "R-FA01-768": {
+  "same": false,
+  "why": "size (768, 1086)\u2192(768, 1579)"
+ },
+ "R-FA02-1024": {
+  "same": false,
+  "why": "bbox (271, 252, 1001, 801)"
+ },
+ "R-FA02-1440": {
+  "same": false,
+  "why": "bbox (279, 252, 1409, 676)"
+ },
+ "R-FA02-375": {
+  "same": false,
+  "why": "size (375, 900)\u2192(375, 1088)"
+ },
+ "R-FA02-768": {
+  "same": false,
+  "why": "bbox (23, 252, 745, 801)"
+ },
+ "R-FA03-1024": {
+  "same": false,
+  "why": "size (1024, 900)\u2192(1024, 1267)"
+ },
+ "R-FA03-1440": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 973)"
+ },
+ "R-FA03-375": {
+  "same": false,
+  "why": "size (375, 1159)\u2192(375, 1555)"
+ },
+ "R-FA03-768": {
+  "same": false,
+  "why": "size (768, 900)\u2192(768, 1267)"
+ },
+ "R-FA04-1024": {
+  "same": false,
+  "why": "size (1024, 900)\u2192(1024, 943)"
+ },
+ "R-FA04-1440": {
+  "same": false,
+  "why": "bbox (279, 427, 1409, 643)"
+ },
+ "R-FA04-375": {
+  "same": false,
+  "why": "size (375, 964)\u2192(375, 978)"
+ },
+ "R-FA04-768": {
+  "same": false,
+  "why": "size (768, 900)\u2192(768, 943)"
+ },
+ "R-FA05-1024": {
+  "same": false,
+  "why": "size (1024, 1370)\u2192(1024, 1500)"
+ },
+ "R-FA05-1440": {
+  "same": false,
+  "why": "size (1440, 911)\u2192(1440, 1054)"
+ },
+ "R-FA05-375": {
+  "same": false,
+  "why": "size (375, 1889)\u2192(375, 2037)"
+ },
+ "R-FA05-768": {
+  "same": false,
+  "why": "size (768, 1370)\u2192(768, 1500)"
+ },
+ "R-FA06-1024": {
+  "same": false,
+  "why": "bbox (271, 531, 1001, 855)"
+ },
+ "R-FA06-1440": {
+  "same": false,
+  "why": "bbox (279, 358, 1409, 503)"
+ },
+ "R-FA06-375": {
+  "same": false,
+  "why": "size (375, 1003)\u2192(375, 900)"
+ },
+ "R-FA06-768": {
+  "same": false,
+  "why": "bbox (23, 531, 745, 855)"
+ },
+ "R-FA07-1024": {
+  "same": false,
+  "why": "size (1024, 1754)\u2192(1024, 1842)"
+ },
+ "R-FA07-1440": {
+  "same": false,
+  "why": "size (1440, 1408)\u2192(1440, 1326)"
+ },
+ "R-FA07-375": {
+  "same": false,
+  "why": "size (375, 2140)\u2192(375, 2263)"
+ },
+ "R-FA07-768": {
+  "same": false,
+  "why": "size (768, 1775)\u2192(768, 1842)"
+ },
+ "R-FA08-1024": {
+  "same": false,
+  "why": "size (1024, 1603)\u2192(1024, 1868)"
+ },
+ "R-FA08-1440": {
+  "same": false,
+  "why": "size (1440, 1177)\u2192(1440, 1420)"
+ },
+ "R-FA08-375": {
+  "same": false,
+  "why": "size (375, 2074)\u2192(375, 2358)"
+ },
+ "R-FA08-768": {
+  "same": false,
+  "why": "size (768, 1603)\u2192(768, 1868)"
+ },
+ "R-FA09-1024": {
+  "same": false,
+  "why": "size (1024, 1164)\u2192(1024, 1414)"
+ },
+ "R-FA09-1440": {
+  "same": false,
+  "why": "size (1440, 984)\u2192(1440, 1177)"
+ },
+ "R-FA09-375": {
+  "same": false,
+  "why": "size (375, 1714)\u2192(375, 1936)"
+ },
+ "R-FA09-768": {
+  "same": false,
+  "why": "size (768, 1188)\u2192(768, 1414)"
+ },
+ "R-FA10-1024": {
+  "same": false,
+  "why": "size (1024, 1794)\u2192(1024, 2188)"
+ },
+ "R-FA10-1440": {
+  "same": false,
+  "why": "size (1440, 1660)\u2192(1440, 1867)"
+ },
+ "R-FA10-375": {
+  "same": false,
+  "why": "size (375, 2344)\u2192(375, 2898)"
+ },
+ "R-FA10-768": {
+  "same": false,
+  "why": "size (768, 1815)\u2192(768, 2209)"
+ },
+ "R-FA11-1024": {
+  "same": false,
+  "why": "size (1024, 2146)\u2192(1024, 2436)"
+ },
+ "R-FA11-1440": {
+  "same": false,
+  "why": "size (1440, 2035)\u2192(1440, 2370)"
+ },
+ "R-FA11-375": {
+  "same": false,
+  "why": "size (375, 3034)\u2192(375, 3178)"
+ },
+ "R-FA11-768": {
+  "same": false,
+  "why": "size (768, 2179)\u2192(768, 2436)"
+ },
+ "R-FA12-1024": {
+  "same": false,
+  "why": "size (1024, 1179)\u2192(1024, 1104)"
+ },
+ "R-FA12-1440": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 931)"
+ },
+ "R-FA12-375": {
+  "same": false,
+  "why": "size (375, 1417)\u2192(375, 1339)"
+ },
+ "R-FA12-768": {
+  "same": false,
+  "why": "size (768, 1179)\u2192(768, 1104)"
+ },
+ "R-FA14-1024": {
+  "same": false,
+  "why": "size (1024, 1941)\u2192(1024, 1766)"
+ },
+ "R-FA14-1440": {
+  "same": false,
+  "why": "size (1440, 1242)\u2192(1440, 1309)"
+ },
+ "R-FA14-375": {
+  "same": false,
+  "why": "size (375, 2359)\u2192(375, 2187)"
+ },
+ "R-FA14-768": {
+  "same": false,
+  "why": "size (768, 1941)\u2192(768, 1766)"
+ },
+ "R-FA15-1024": {
+  "same": false,
+  "why": "size (1024, 1705)\u2192(1024, 2408)"
+ },
+ "R-FA15-1440": {
+  "same": false,
+  "why": "size (1440, 1609)\u2192(1440, 1765)"
+ },
+ "R-FA15-375": {
+  "same": false,
+  "why": "size (375, 1972)\u2192(375, 2650)"
+ },
+ "R-FA15-768": {
+  "same": false,
+  "why": "size (768, 1705)\u2192(768, 2408)"
+ },
+ "R-FA16-1024": {
+  "same": false,
+  "why": "size (1024, 966)\u2192(1024, 1571)"
+ },
+ "R-FA16-1440": {
+  "same": false,
+  "why": "size (1440, 974)\u2192(1440, 1167)"
+ },
+ "R-FA16-375": {
+  "same": false,
+  "why": "size (375, 1199)\u2192(375, 2214)"
+ },
+ "R-FA16-768": {
+  "same": false,
+  "why": "size (768, 966)\u2192(768, 1571)"
+ },
+ "R-FA17-1024": {
+  "same": false,
+  "why": "size (1024, 1506)\u2192(1024, 1956)"
+ },
+ "R-FA17-1440": {
+  "same": false,
+  "why": "size (1440, 1040)\u2192(1440, 1260)"
+ },
+ "R-FA17-375": {
+  "same": false,
+  "why": "size (375, 1803)\u2192(375, 2240)"
+ },
+ "R-FA17-768": {
+  "same": false,
+  "why": "size (768, 1506)\u2192(768, 1956)"
+ },
+ "R-FA18-1024": {
+  "same": false,
+  "why": "size (1024, 1128)\u2192(1024, 988)"
+ },
+ "R-FA18-1440": {
+  "same": false,
+  "why": "bbox (279, 112, 1409, 580)"
+ },
+ "R-FA18-375": {
+  "same": false,
+  "why": "size (375, 1280)\u2192(375, 1082)"
+ },
+ "R-FA18-768": {
+  "same": false,
+  "why": "size (768, 1128)\u2192(768, 988)"
+ },
+ "R-FA19-1024": {
+  "same": false,
+  "why": "size (1024, 1636)\u2192(1024, 1779)"
+ },
+ "R-FA19-1440": {
+  "same": false,
+  "why": "size (1440, 1064)\u2192(1440, 1042)"
+ },
+ "R-FA19-375": {
+  "same": false,
+  "why": "size (375, 2069)\u2192(375, 2380)"
+ },
+ "R-FA19-768": {
+  "same": false,
+  "why": "size (768, 1636)\u2192(768, 1779)"
+ },
+ "R-FA20-1024": {
+  "same": false,
+  "why": "size (1024, 2173)\u2192(1024, 2075)"
+ },
+ "R-FA20-1440": {
+  "same": false,
+  "why": "size (1440, 1050)\u2192(1440, 1148)"
+ },
+ "R-FA20-375": {
+  "same": false,
+  "why": "size (375, 2380)\u2192(375, 2304)"
+ },
+ "R-FA20-768": {
+  "same": false,
+  "why": "size (768, 2173)\u2192(768, 2075)"
+ },
+ "R-FA21-1024": {
+  "same": false,
+  "why": "size (1024, 1200)\u2192(1024, 1151)"
+ },
+ "R-FA21-1440": {
+  "same": false,
+  "why": "bbox (279, 341, 1406, 795)"
+ },
+ "R-FA21-375": {
+  "same": false,
+  "why": "size (375, 1386)\u2192(375, 1305)"
+ },
+ "R-FA21-768": {
+  "same": false,
+  "why": "size (768, 1200)\u2192(768, 1151)"
+ },
+ "R-FA22-1024": {
+  "same": false,
+  "why": "size (1024, 2854)\u2192(1024, 2536)"
+ },
+ "R-FA22-1440": {
+  "same": false,
+  "why": "size (1440, 1707)\u2192(1440, 1585)"
+ },
+ "R-FA22-375": {
+  "same": false,
+  "why": "size (375, 3172)\u2192(375, 2876)"
+ },
+ "R-FA22-768": {
+  "same": false,
+  "why": "size (768, 2854)\u2192(768, 2536)"
+ },
+ "Refusal-Co-teacher-marking": {
+  "same": true,
+  "why": ""
+ },
+ "Refusal-Course": {
+  "same": true,
+  "why": ""
+ },
+ "XS-Account-menu": {
+  "same": false,
+  "why": "size (1440, 900)\u2192(1440, 961)"
+ },
+ "XS-Help-report": {
+  "same": true,
+  "why": ""
+ },
+ "XS-Help": {
+  "same": true,
+  "why": ""
+ },
+ "XS-Menu-phone": {
+  "same": false,
+  "why": "size (375, 1470)\u2192(375, 2015)"
+ },
+ "XS-Not-your-workspace": {
+  "same": true,
+  "why": ""
+ },
+ "XS-Signed-out": {
+  "same": true,
+  "why": ""
+ }
+}

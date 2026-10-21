@@ -1,0 +1,137 @@
+[
+ {
+  "family": "J2-bank-chain",
+  "label": "used question saves version 2",
+  "set": {
+   "expect": [
+    null,
+    [
+     "Saved as version 2.",
+     "keeps version 1",
+     "Single choice\nVersion 2"
+    ]
+   ]
+  },
+  "why": "FA-14 rows show the question type as a tag and the version as a quiet line; with internal IDs out of user-facing labels (owner decision, 21 Oct 2026) the bank id is no longer part of that line."
+ },
+ {
+  "family": "J2-bank-chain",
+  "label": "own CSV row validation",
+  "set": {
+   "expect": [
+    [
+     "2 rows",
+     "1 ready",
+     "1 with an error",
+     "marks “six” isn’t a whole number of 1 or more."
+    ],
+    [
+     "Rows\n2",
+     "Ready\n1",
+     "With errors\n1",
+     "marks “six” isn’t a whole number of 1 or more."
+    ]
+   ]
+  },
+  "why": "FA-17 check report shows Rows, Ready, With errors and With warnings as figures instead of pill counts."
+ },
+ {
+  "family": "J2-bank-chain",
+  "label": "sample file: 2 errors block, 1 warning",
+  "set": {
+   "expect": [
+    null,
+    [
+     "Check rows",
+     "With errors\n2",
+     "With warnings\n1",
+     "correct is “E”, but the question has options A–D only.",
+     "type “multi-select” isn’t available",
+     "explanation is empty. The question imports without one.",
+     "Nothing is imported while the file has errors"
+    ]
+   ]
+  },
+  "why": "Same figures as above; the row messages and the blocking rule are unchanged."
+ },
+ {
+  "family": "J2-bank-chain",
+  "label": "corrected file: 8 ready",
+  "set": {
+   "expect": [
+    [
+     "post-lab-questions-corrected.csv",
+     "8 ready",
+     "1 with a warning"
+    ],
+    [
+     "post-lab-questions-corrected.csv",
+     "Ready\n8",
+     "With warnings\n1",
+     "With errors\n0"
+    ]
+   ]
+  },
+  "why": "Same figures as above."
+ },
+ {
+  "family": "J3-marking-chain",
+  "label": "Submissions reflect the confirmed mark",
+  "set": {
+   "expect": [
+    null,
+    [
+     "11 of 16",
+     "Passed · pass mark 8",
+     "Not yet\nafter the deadline, 14 Nov 2026, 23:59",
+     "1 waiting for marking"
+    ]
+   ]
+  },
+  "why": "FA-12 release column shows “Not yet” with the release rule underneath, instead of one long line."
+ },
+ {
+  "family": "J3-marking-chain",
+  "label": "student detail reflects the outcome",
+  "set": {
+   "expect": [
+    [
+     "Marked",
+     "11 of 16 · Passed (pass mark 8)",
+     "Result not released to Rahul yet"
+    ],
+    [
+     "Marked",
+     "11 of 16 marks\nPassed · pass mark 8",
+     "Result not released to Rahul yet"
+    ]
+   ]
+  },
+  "why": "FA-21 assessment panel shows the total in the same form as the R1 marking total (FA-19)."
+ },
+ {
+  "family": "J1-create-chain",
+  "label": "created and ready",
+  "set": {
+   "expect": [
+    null,
+    [
+     "Assessment created",
+     "Ready"
+    ]
+   ]
+  },
+  "why": "FA-07's result card no longer prints the new assessment's internal id (owner decision, 21 Oct 2026); it is created and ready, which the card still says."
+ },
+ {
+  "family": "J2-bank-chain",
+  "label": "bank panel lists imported questions",
+  "set": {
+   "expect": [
+    null,
+    "Which quantity is the ratio C_min ÷ C_max?"
+   ]
+  },
+  "why": "The add-from-bank panel lists questions by their text rather than by their bank id."
+ }
+]

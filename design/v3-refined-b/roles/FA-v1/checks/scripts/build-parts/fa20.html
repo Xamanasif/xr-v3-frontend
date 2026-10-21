@@ -1,0 +1,109 @@
+      <!-- ═══ FA-20 Students · FA-22 Export CSV (action) ═══ -->
+      <sc-if value="{{ is.sl }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">{{ sh.date }}</p>
+          <h1 class="rb-h1" id="fa-h1" tabindex="-1">Students</h1>
+          <p class="rk-sub">{{ SL.sub }}</p>
+        </div>
+      </div>
+      <sc-if value="{{ SL.noCourse }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface fr-msgcard" aria-labelledby="fa-sl-none">
+        <div class="fa-inlinemsg">
+          <span class="fa-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-people"></use></svg></span>
+          <h2 class="rb-h2" id="fa-sl-none">No students to follow yet</h2>
+          <p class="fa-msg-d">Students appear here when you teach a course and your Institute Admin gives them its experiments. You haven’t been assigned a course yet.</p>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ SL.hasCourse }}" hint-placeholder-val="{{ true }}">
+      <section class="rk-surface" aria-labelledby="fa-sl-h">
+        <div class="rk-toolbar">
+          <div class="fr-tbar">
+            <div class="fr-tbar-t"><h2 class="rb-h2" id="fa-sl-h">{{ SL.title }}</h2><p class="rk-hint">{{ SL.titleSub }}</p></div>
+            <sc-if value="{{ SL.hasRows }}" hint-placeholder-val="{{ true }}"><div class="fa-actions fr-tbar-act"><button type="button" class="rb-btn" id="fa-sl-export" onClick="{{ SL.exportCsv }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-download"></use></svg>Export CSV</button></div></sc-if>
+          </div>
+          <sc-if value="{{ SL.hasSum }}" hint-placeholder-val="{{ true }}">
+          <div class="fr-slsum" role="group" aria-labelledby="fa-sl-sumh">
+            <p class="fr-k" id="fa-sl-sumh">{{ SL.sumH }}</p>
+            <ul class="fr-prog fr-prog--sum" aria-label="{{ SL.sumAria }}">
+              <sc-for list="{{ SL.sum }}" as="f" hint-placeholder-count="2">
+              <li class="fr-prog-row"><span class="xr-fmt">{{ f.code }}</span><span class="{{ f.unitsCls }}" aria-hidden="true"><sc-for list="{{ f.units }}" as="x" hint-placeholder-count="5"><i class="{{ x }}"></i></sc-for></span><p class="fr-prog-t"><span><b>{{ f.done }}</b> completed</span><span><b>{{ f.prog }}</b> in progress</span><span><b>{{ f.none }}</b> not started</span></p></li>
+              </sc-for>
+            </ul>
+          </div>
+          </sc-if>
+          <sc-if value="{{ SL.hasAny }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-tools fr-tools" role="search" aria-label="Filter students">
+            <sc-if value="{{ SL.multiExp }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-field fa-field-sel">
+              <label class="rk-label" for="fa-sl-exp">Experiment</label>
+              <div class="rk-selwrap"><select id="fa-sl-exp" class="rk-select" value="{{ SL.exp }}" onChange="{{ SL.onExp }}"><option value="all">All experiments</option><sc-for list="{{ SL.expOpts }}" as="o" hint-placeholder-count="1"><option value="{{ o.v }}">{{ o.t }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+            </div>
+            </sc-if>
+            <div class="rk-field fa-field-sel">
+              <label class="rk-label" for="fa-sl-prog">Progress</label>
+              <div class="rk-selwrap"><select id="fa-sl-prog" class="rk-select" value="{{ SL.prog }}" onChange="{{ SL.onProg }}"><option value="all">All</option><option value="none">Not started</option><option value="prog">In progress in a format</option><option value="done">Completed a format</option><option value="wait">Waiting for marking</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+            </div>
+            <div class="rk-field fa-field-sel">
+              <label class="rk-label" for="fa-sl-inact">Inactive for</label>
+              <div class="rk-selwrap"><select id="fa-sl-inact" class="rk-select" value="{{ SL.inact }}" onChange="{{ SL.onInact }}"><option value="any">Any time</option><option value="7">7 days or more</option><option value="14">14 days or more</option><option value="30">30 days or more</option></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-chev"></use></svg></div>
+            </div>
+          </div>
+          <div class="rk-statusline">
+            <p class="rk-count" role="status">{{ SL.count }}</p>
+            <sc-for list="{{ SL.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-x"></use></svg></button></span></sc-for>
+            <sc-if value="{{ SL.hasChips }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ SL.clear }}">Clear filters</button></sc-if>
+          </div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ SL.exported }}" hint-placeholder-val="{{ false }}">
+        <div class="fa-export">
+          <div class="rk-notice rk-notice--ok" id="fa-exp" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-download"></use></svg><p class="rk-notice-t">{{ SL.expT }}</p><p class="rk-notice-d">It contains the filtered list only, as it was when you exported it. Columns: student, student ID, experiment, {{ SL.fmCols }}, assessment, result released to student, last activity.</p></div>
+          <div class="fa-scrollx" role="region" aria-label="Rows in the exported file" tabindex="0">
+            <table class="rk-table" style="min-width: 1000px">
+              <caption>Rows in the exported file</caption>
+              <thead><tr><th scope="col">student</th><th scope="col">student ID</th><th scope="col">experiment</th><sc-for list="{{ SL.fmHead }}" as="f" hint-placeholder-count="2"><th scope="col">{{ f }}</th></sc-for><th scope="col">assessment</th><th scope="col">result released to student</th><th scope="col">last activity</th></tr></thead>
+              <tbody><sc-for list="{{ SL.expRows }}" as="x" hint-placeholder-count="0"><tr><td>{{ x.n }}</td><td>{{ x.id }}</td><td>{{ x.exp }}</td><sc-for list="{{ x.fm }}" as="c" hint-placeholder-count="2"><td>{{ c }}</td></sc-for><td>{{ x.asm }}</td><td>{{ x.rel }}</td><td>{{ x.last }}</td></tr></sc-for></tbody>
+            </table>
+          </div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ SL.hasRows }}" hint-placeholder-val="{{ true }}">
+        <div class="fa-tablewrap">
+          <table class="rk-table fa-table fr-rtable fr-ptable">
+            <caption>Students who have the experiments you teach</caption>
+            <thead><tr><th scope="col" class="fr-c-who">Student</th><th scope="col" class="fr-c-fm">Progress by format</th><th scope="col" class="fr-c-asm">Assessment</th><th scope="col">Last activity</th></tr></thead>
+            <tbody>
+              <sc-for list="{{ SL.rows }}" as="r" hint-placeholder-count="3">
+              <tr onClick="{{ r.open }}">
+                <td class="fa-c-main fr-c-wide"><a class="rk-rowlink" href="#FA-21" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}">{{ r.n }}</a><span class="fa-cellsub">{{ r.sub }}</span></td>
+                <td class="fr-c-wide fr-c-nolbl"><span class="fa-lbl">Progress by format</span><ul class="fr-fmcell" aria-label="{{ r.fmAria }}"><sc-for list="{{ r.fm }}" as="c" hint-placeholder-count="2"><li><span class="xr-fmt" aria-hidden="true">{{ c.code }}</span><span class="{{ c.cls }}"><i></i>{{ c.t }}</span><sc-if value="{{ c.hasD }}" hint-placeholder-val="{{ false }}"><span class="fa-fmtcell-d">{{ c.d }}</span></sc-if></li></sc-for></ul></td>
+                <td class="fr-c-wide"><span class="fa-lbl">Assessment</span><span class="{{ r.aCls }}"><i></i>{{ r.aSt }}</span><sc-if value="{{ r.hasASub }}" hint-placeholder-val="{{ true }}"><span class="fa-cellsub">{{ r.aSub }}</span></sc-if></td>
+                <td class="fr-c-wide fr-c-inl"><span class="fa-lbl">Last activity</span><span class="fr-lastv">{{ r.last }}</span><sc-if value="{{ r.inactive }}" hint-placeholder-val="{{ false }}"><span class="fa-cellline" style="margin-top: 6px"><span class="rk-tag-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ r.inText }}</span></span></sc-if></td>
+              </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        </sc-if>
+        <sc-if value="{{ SL.noMatch }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-search"></use></svg></span>
+          <p class="rk-state-t">No student matches these filters</p>
+          <p class="rk-state-d">Try a shorter inactivity period or another progress filter.</p>
+          <button type="button" class="rb-btn" onClick="{{ SL.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ SL.isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state rk-state--roomy">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-people"></use></svg></span>
+          <p class="rk-state-t">No students have this experiment yet</p>
+          <p class="rk-state-d">Students appear here when your Institute Admin gives them the experiment.</p>
+        </div>
+        </sc-if>
+      </section>
+      <p class="rk-hint">Contacting a student happens outside the platform. Feedback students give on a format isn’t shown to Faculty.</p>
+      </sc-if>
+      </sc-if>
+

@@ -1,75 +1,111 @@
 'use client';
 
-import type { StudentDetail } from '@xr/contracts/draft';
-import type { Attempt } from '@xr/domain';
+import type { AssessmentView, StudentDetail } from '@xr/contracts/draft';
+import type { Attempt, FormatProgressStatus } from '@xr/domain';
 import {
-  BackLink,
-  FormatBadge,
-  Icon,
-  Link,
-  PageContent,
-  PageHeader,
-  Section,
+  Breadcrumbs,
+  ButtonLink,
+  FaAside,
+  FaAssessmentDue,
+  FaAssessmentId,
+  FaAssessmentName,
+  FaAssessmentNote,
+  FaDetail,
+  FaDoneTotal,
+  FaId,
+  FaMainSheet,
+  FaPanel,
+  FaPanelActions,
+  FaQueueLockedNote,
+  FaQuiet,
+  FaReleaseNote,
+  FaResourceList,
+  FaStudentFormatList,
+  FaStudentSection,
+  MetaSeparator,
+  MissingTag,
+  PageHead,
   StatusPill,
-} from '@xr/ui';
+  TextLink,
+  V46Island,
+} from '@xr/ui/v3';
+import type { ReactNode } from 'react';
 
 import { dateTime, dayMonthYear } from '@/copy/dates';
+import { assessmentName } from '@/copy/fa-shared';
 import {
-  attemptTitle,
-  completedOn,
+  ASSESSMENT_WORDS,
+  asOfWords,
+  attemptLine,
   detailOverline,
+  dueWords,
   FORMAT_STATUS_WORDS,
-  marksWords,
-  noActivitySince,
+  inactiveTag,
+  lastActivityLine,
   noActivitySinceAccess,
-  notReleasedLine,
+  notSubmittedLine,
   openedWords,
-  releasedLine,
-  startedWords,
+  startedAttemptLine,
   STUDENT_DETAIL,
-  submittedWords,
 } from '@/copy/faculty-students';
+import { doneTotalWords, passOutcomeWords, resultReleaseLine } from '@/copy/marking';
 import { stateWords } from '@/copy/state-copy';
 import { formatCode } from '@/copy/student';
 import { firstName } from '@/copy/student-access';
 import {
   assessmentAddress,
+  FACULTY_STUDENTS_TITLE,
   facultyStudentPlacement,
   facultyStudentsAddress,
   markSubmissionAddress,
 } from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
 import { useFacultyStudentDetail } from '@/queries/faculty-assessment-work';
-import { useTeachingExperiment } from '@/queries/teaching';
+import { useAssessmentRecord, useTeachingExperiment } from '@/queries/teaching';
 
 import { RecordGuard } from '../../shared/record-guard/record-guard';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { INACTIVE_TAG_DAYS, inactiveDaysOf } from '../fa-20-students/student-facts';
+import { passMarkOf } from '../fa-19-mark-submission/mark-facts';
 
 type AttemptFacts = StudentDetail['attemptFacts'][number];
 
+const TITLE_ID = 'faculty-student-h1';
+const PROGRESS_ID = 'faculty-student-fm';
+const RESOURCES_ID = 'faculty-student-res';
+const PANEL_ID = 'faculty-student-asm';
+
+const STATUS_TONE: Readonly<Record<FormatProgressStatus, 'ok' | 'info' | 'neutral'>> = {
+  completed: 'ok',
+  'in-progress': 'info',
+  'not-started': 'neutral',
+};
+
 /**
- * FA-21 Student detail — board B4-10 f3, f4, f5, at `/faculty/students/[studentId]?experimentId=`:
- * one Student on one experiment the Faculty member teaches.
+ * FA-21 Student detail — the owner-approved Faculty export (V3 Refined B, FA-v1 `Main.dc.html`
+ * FA-21, `vmStudent`), at `/faculty/students/[studentId]?experimentId=`: one Student on one
+ * experiment the Faculty member teaches.
  *
  * - **Reads**: `TeachingService.getStudentDetail` (the row FA-20 lists, the resources with when
  *   each was first opened, the assessment's attempts with their confirmed marks and pinned release
- *   terms, the experiment's name and course code) and `getTeachingExperiment` for the instant the
- *   days since access are counted to (state-copy `FA-20.inactive`). No `?experimentId=`, an
- *   unknown Student, one without the experiment or an experiment outside the teaching scope is
- *   the in-shell not-found page (`FA-21.not-found`).
- * - **As drawn**: "Students" (back to FA-20 for this experiment), "<EXPERIMENT> · <CODE>", the
- *   name, the Student ID and, when inactive for 14 days or more, the inactivity tag (f5);
- *   "Progress by format" (one row per format, in words; "Per format only — there is no overall
- *   percentage or verdict."); Assessment — per attempt, "<name> · attempt 1 of 2" with
- *   "ATT-0450 · submitted … · Waiting for marking" and "Mark their answers" (f3, → FA-19), or
- *   "Marked 11 of 16 · Result not released to Rahul yet — after the deadline, …" and "See
- *   submission" (f4, → FA-19, read-only once confirmed), or "Not started." (f5); Resources opened
- *   or not; "Feedback students give on a format isn’t shown to Faculty."
+ *   terms, the experiment's name and course code), `getTeachingExperiment` for the instant the days
+ *   since access are counted to (state-copy `FA-20.inactive`), and the assessment
+ *   (`getAssessment`: its deadline, the attempts allowed and the pinned version's pass mark,
+ *   `FA-21.assessment-facts`; not read for a co-teaching colleague's). No `?experimentId=`, an
+ *   unknown Student, one without the experiment or an experiment outside the teaching scope is the
+ *   in-shell not-found page (`FA-21.not-found`).
+ * - **As the export draws it**: the breadcrumb “Students › <Student>”, the experiment and course
+ *   code, the name, the institution's student ID, the last activity and, from 14 days, “Inactive
+ *   <n> days”; the sheet — progress by format (“as of …”, per format only), the resources opened or
+ *   not, the feedback note; the navy Assessment panel (first on narrow widths) — the latest
+ *   submitted attempt's state, the assessment and its deadline, “Attempt 1 of 2 · submitted …”, the
+ *   total and pass outcome once marked, when the Student sees the result, “Mark their answers” or
+ *   “View marks” (FA-19), “Open the assessment” (FA-08). No attempt is named by its id.
  * - No release button (results follow the assessment's own setting), no score before marks are
  *   confirmed, no messaging (T-34), no format feedback (T-25).
- * - **States B4-10 does not draw**: loading, failed + "Try again", an attempt in progress, a
- *   released result, no assessment, a colleague's assessment (`FA-21.*`).
+ * - **States the export does not draw**: loading, failed + “Try again” (the application's own
+ *   look), an attempt in progress, a co-teaching colleague's assessment (the existing refusal
+ *   words) (`FA-21.*`).
  */
 export function FacultyStudentDetail({ studentId }: { readonly studentId: string }) {
   const navigation = useAppNavigation();
@@ -77,289 +113,282 @@ export function FacultyStudentDetail({ studentId }: { readonly studentId: string
   const read = useFacultyStudentDetail(studentId, experimentId);
   const teaching = useTeachingExperiment(experimentId);
   const view = read.data?.ok ? read.data.value : null;
+  const withheld = view?.row.assessment.kind === 'policy-open';
+  const record = useAssessmentRecord(
+    view?.assessment?.assessmentId ?? null,
+    view !== null && !withheld,
+  );
   useShellPage(facultyStudentPlacement(view ? view.row.name : null));
   if (experimentId === null || experimentId === '') return navigation.notFound();
   const asOf = teaching.data?.ok ? teaching.data.value.asOf : null;
-  return (
-    <PageContent wrap="read">
-      <RecordGuard
-        read={read}
-        loadingLabel={stateWords('FA-21.loading')}
-        failed={{ title: stateWords('FA-21.failed'), line: stateWords('FA-21.failed.line') }}
-      >
-        {(detail) => (
-          // A Student the experiment was never given to is answered not-found by the service
-          // (the in-shell not-found page, `FA-21.not-found`); after a withdrawal the Faculty
-          // member still reads their work (WP-0.14 B-withdraw).
-          <DetailContent detail={detail} experimentId={experimentId} asOf={asOf} />
-        )}
-      </RecordGuard>
-    </PageContent>
+  const guard = (
+    <RecordGuard
+      read={read}
+      loadingLabel={stateWords('FA-21.loading')}
+      failed={{ title: stateWords('FA-21.failed'), line: stateWords('FA-21.failed.line') }}
+    >
+      {(detail) => (
+        // A Student the experiment was never given to is answered not-found by the service
+        // (the in-shell not-found page, `FA-21.not-found`); after a withdrawal the Faculty
+        // member still reads their work (WP-0.14 B-withdraw).
+        <DetailContent
+          detail={detail}
+          experimentId={experimentId}
+          asOf={asOf}
+          record={record.data?.ok ? record.data.value : null}
+        />
+      )}
+    </RecordGuard>
   );
+  // The application's existing loading and failed states keep their look (FA-v1 draws none).
+  return read.data?.ok ? guard : <V46Island>{guard}</V46Island>;
 }
 
 function DetailContent({
   detail,
   experimentId,
   asOf,
+  record,
 }: {
   readonly detail: StudentDetail;
   readonly experimentId: string;
   readonly asOf: string | null;
+  readonly record: AssessmentView | null;
 }) {
   const { row } = detail;
+  const days = inactiveDaysOf(row, asOf);
+  const lastLine =
+    row.lastActivityAt !== null
+      ? lastActivityLine(dayMonthYear(row.lastActivityAt))
+      : row.accessGivenAt !== null
+        ? noActivitySinceAccess(dayMonthYear(row.accessGivenAt))
+        : null;
   return (
     <>
-      <PageHeader
-        className="mt-2"
-        back={
-          <BackLink href={facultyStudentsAddress(experimentId)}>{STUDENT_DETAIL.back}</BackLink>
+      <PageHead
+        breadcrumbs={
+          <Breadcrumbs
+            levels={[{ label: FACULTY_STUDENTS_TITLE, href: facultyStudentsAddress(experimentId) }]}
+            current={row.name}
+          />
         }
-        overline={detailOverline(detail.experimentName, detail.courseCode)}
+        variant="record"
+        eyebrow={detailOverline(detail.experimentName, detail.courseCode)}
         title={row.name}
+        titleId={TITLE_ID}
+        titleFocusTarget
         meta={
           <>
-            <span className="xr-id">{row.institutionStudentId}</span>
-            <InactiveTag row={row} asOf={asOf} />
+            <FaId>{row.institutionStudentId}</FaId>
+            {lastLine ? (
+              <>
+                <MetaSeparator />
+                <span>{lastLine}</span>
+              </>
+            ) : null}
+            {days !== null && days >= INACTIVE_TAG_DAYS ? (
+              <MissingTag icon="clock">{inactiveTag(days)}</MissingTag>
+            ) : null}
           </>
         }
       />
-      <div className="xw-stack">
-        <ProgressSection row={row} />
-        <AssessmentSection detail={detail} />
-        <ResourcesSection detail={detail} />
-        <p className="xl-open">
-          <Icon name="info" size={16} />
-          <span>{STUDENT_DETAIL.feedbackNote}</span>
-        </p>
-      </div>
+      <FaDetail asideFirst>
+        <FaMainSheet>
+          <FaStudentSection
+            titleId={PROGRESS_ID}
+            title={STUDENT_DETAIL.progressTitle}
+            aside={asOf ? asOfWords(dayMonthYear(asOf)) : undefined}
+            note={STUDENT_DETAIL.perFormatOnly}
+          >
+            <FaStudentFormatList
+              label={STUDENT_DETAIL.progressLabel}
+              formats={row.perFormat.map((view) => ({
+                key: view.format,
+                code: formatCode(view.format),
+                status: (
+                  <StatusPill tone={STATUS_TONE[view.status]}>
+                    {FORMAT_STATUS_WORDS[view.status]}
+                  </StatusPill>
+                ),
+                date:
+                  view.status === 'completed' && view.completion
+                    ? dayMonthYear(view.completion.completedAt)
+                    : undefined,
+              }))}
+            />
+          </FaStudentSection>
+          <FaStudentSection
+            titleId={RESOURCES_ID}
+            title={STUDENT_DETAIL.resourcesTitle}
+            note={STUDENT_DETAIL.feedbackNote}
+          >
+            {detail.resources.length > 0 ? (
+              <FaResourceList
+                resources={detail.resources.map((resource, index) => ({
+                  key: `${index}-${resource.title}`,
+                  title: resource.title,
+                  status: {
+                    words:
+                      resource.openedAt === null
+                        ? STUDENT_DETAIL.notOpened
+                        : openedWords(dateTime(resource.openedAt)),
+                    opened: resource.openedAt !== null,
+                  },
+                }))}
+              />
+            ) : (
+              <FaQuiet>{stateWords('FA-21.no-resources')}</FaQuiet>
+            )}
+          </FaStudentSection>
+        </FaMainSheet>
+        <FaAside labelledBy={PANEL_ID}>
+          <FaPanel title={STUDENT_DETAIL.assessmentTitle} titleId={PANEL_ID} assessment>
+            <AssessmentPanel detail={detail} record={record} />
+          </FaPanel>
+        </FaAside>
+      </FaDetail>
     </>
   );
 }
 
-/** f5: "No activity since access was given (12 Oct 2026) · 26 days" (`FA-21.inactive`). */
-function InactiveTag({
-  row,
-  asOf,
+/**
+ * The attempt the panel shows (state-copy `FA-21.latest-attempt`): the latest submitted one, else
+ * the latest started one.
+ */
+function shownAttempt(attempts: readonly Attempt[]): Attempt | null {
+  const ordered = [...attempts].sort((a, b) => a.attemptNumber - b.attemptNumber);
+  return ordered.filter((attempt) => attempt.submittedAt !== null).at(-1) ?? ordered.at(-1) ?? null;
+}
+
+/** The navy Assessment panel's body (`div.rk-panel-body.fa-apanel`). */
+function AssessmentPanel({
+  detail,
+  record,
 }: {
-  readonly row: StudentDetail['row'];
-  readonly asOf: string | null;
+  readonly detail: StudentDetail;
+  readonly record: AssessmentView | null;
 }) {
-  const days = inactiveDaysOf(row, asOf);
-  if (days === null || days < INACTIVE_TAG_DAYS) return null;
-  const words =
-    row.lastActivityAt !== null
-      ? noActivitySince(dayMonthYear(row.lastActivityAt), days)
-      : row.accessGivenAt !== null
-        ? noActivitySinceAccess(dayMonthYear(row.accessGivenAt), days)
-        : null;
-  if (words === null) return null;
-  return (
-    <span className="xa-tag xa-tag--draft">
-      <Icon name="clock" />
-      {words}
-    </span>
-  );
-}
+  const { assessment, row } = detail;
+  const first = firstName(row.name);
+  const openAssessment = assessment ? (
+    <TextLink href={assessmentAddress(assessment.assessmentId)}>
+      {STUDENT_DETAIL.openAssessment}
+    </TextLink>
+  ) : null;
 
-// ---- Progress by format (f3 … f5) ---------------------------------------------------------------
-
-function ProgressSection({ row }: { readonly row: StudentDetail['row'] }) {
-  return (
-    <Section title={STUDENT_DETAIL.progressTitle}>
-      <div className="xr-section-body">
-        <ul className="xl-fl" aria-label={STUDENT_DETAIL.progressLabel}>
-          {row.perFormat.map((view) => {
-            const code = formatCode(view.format);
-            return (
-              <li key={view.format}>
-                <span className="xl-fl-fmt">
-                  <FormatBadge format={code} variant="yours" compact />
-                  <strong className="text-ink">{code}</strong>
-                </span>
-                <span className="xl-fl-state">
-                  {view.status === 'completed' ? (
-                    <StatusPill tone="ok">
-                      {view.completion
-                        ? completedOn(dayMonthYear(view.completion.completedAt))
-                        : FORMAT_STATUS_WORDS.completed}
-                    </StatusPill>
-                  ) : view.status === 'in-progress' ? (
-                    <StatusPill tone="wait">{FORMAT_STATUS_WORDS['in-progress']}</StatusPill>
-                  ) : (
-                    <StatusPill tone="off">{FORMAT_STATUS_WORDS['not-started']}</StatusPill>
-                  )}
-                </span>
-                <span className="xl-fl-act" />
-              </li>
-            );
-          })}
-        </ul>
-        <p className="xl-meta [margin:12px_0_0]">{STUDENT_DETAIL.perFormatOnly}</p>
-      </div>
-    </Section>
-  );
-}
-
-// ---- Assessment (f3 waiting, f4 marked not released, f5 not started) ----------------------------
-
-function AssessmentSection({ detail }: { readonly detail: StudentDetail }) {
-  const { assessment, attempts, row } = detail;
-  let line: string | null = null;
-  if (assessment === null) line = stateWords('FA-21.assessment-none');
-  else if (row.assessment.kind === 'policy-open') line = stateWords('FA-21.policy-open');
-  else if (attempts.length === 0) line = STUDENT_DETAIL.notStarted;
-  return (
-    <Section title={STUDENT_DETAIL.assessmentTitle}>
-      {line !== null || assessment === null ? (
-        <div className="xr-section-body">
-          <p className="xr-body m-0 text-ink-2">{line}</p>
-        </div>
-      ) : (
-        <ul className="xr-rows">
-          {[...attempts]
-            .sort((a, b) => a.attemptNumber - b.attemptNumber)
-            .map((attempt) => (
-              <AttemptRow
-                key={attempt.id}
-                name={assessment.name || assessment.assessmentId}
-                attempt={attempt}
-                facts={detail.attemptFacts.find((entry) => entry.attemptId === attempt.id) ?? null}
-                studentName={row.name}
-              />
-            ))}
-        </ul>
-      )}
-    </Section>
-  );
-}
-
-/** One attempt's row (`FA-21.attempts`): its state, its marks once confirmed and its one action. */
-function AttemptRow({
-  name,
-  attempt,
-  facts,
-  studentName,
-}: {
-  readonly name: string;
-  readonly attempt: Attempt;
-  readonly facts: AttemptFacts | null;
-  readonly studentName: string;
-}) {
-  const title = attemptTitle(name, attempt.attemptNumber, facts?.attemptsAllowed ?? null);
-  const href = markSubmissionAddress(attempt.id);
-  const score = facts?.score ?? null;
-
-  let tone: 'wait' | 'ok';
-  let sub;
-  let action = null;
-  if (attempt.state === 'in-progress') {
-    tone = 'wait';
-    sub = (
+  // A co-teaching colleague's assessment: the existing refusal words, no state or figure.
+  if (row.assessment.kind === 'policy-open') {
+    return (
       <>
-        <span className="xr-id">{attempt.id}</span> · {startedWords(dateTime(attempt.startedAt))} ·{' '}
-        <StatusPill tone="wait">{stateWords('FA-21.attempt-in-progress')}</StatusPill>
+        <FaQueueLockedNote>{stateWords('FA-21.policy-open')}</FaQueueLockedNote>
+        {openAssessment}
       </>
     );
-  } else if (score === null || facts === null) {
-    tone = 'wait';
-    sub = (
+  }
+  if (assessment === null) {
+    return (
       <>
-        <span className="xr-id">{attempt.id}</span>
-        {attempt.submittedAt ? (
-          <> · {submittedWords(dateTime(attempt.submittedAt))}</>
-        ) : null} · <StatusPill tone="wait">{STUDENT_DETAIL.waiting}</StatusPill>
+        <FaAssessmentId>
+          <StatusPill tone="neutral">{ASSESSMENT_WORDS.none}</StatusPill>
+        </FaAssessmentId>
+        <FaAssessmentNote>{STUDENT_DETAIL.noAssessmentLine}</FaAssessmentNote>
       </>
-    );
-    action = (
-      <Link className="xr-btn xr-btn--primary xr-btn--sm" href={href}>
-        {STUDENT_DETAIL.markAnswers}
-      </Link>
-    );
-  } else {
-    tone = 'ok';
-    const first = firstName(studentName);
-    sub = (
-      <>
-        <StatusPill tone="ok">{STUDENT_DETAIL.marked}</StatusPill> {marksWords(score, facts.outOf)}{' '}
-        ·{' '}
-        {facts.releasedAt !== null ? (
-          releasedLine(first, dateTime(facts.releasedAt))
-        ) : (
-          <span className="xl-inline">
-            <Icon name="readOnly" size={16} />
-            {notReleasedLine(first, {
-              option: facts.release.option,
-              on: facts.release.on === null ? null : dateTime(facts.release.on),
-            })}
-          </span>
-        )}
-      </>
-    );
-    // B4-10 f4: "See submission" opens the assessment's Submissions (B4-06, FA-12).
-    action = (
-      <Link
-        className="xr-btn xr-btn--secondary xr-btn--sm"
-        href={assessmentAddress(attempt.assessmentId, 'submissions')}
-      >
-        {STUDENT_DETAIL.seeSubmission}
-      </Link>
     );
   }
 
-  return (
-    <li className="xr-row">
-      <div className="xr-row-main">
-        <span className={`xr-row-icon xr-row-icon--${tone}`}>
-          <Icon name="assessments" />
-        </span>
-        <div className="xr-row-text">
-          <span className="xr-row-title">{title}</span>
-          <span className="xr-row-sub">{sub}</span>
-        </div>
-      </div>
-      {action}
-    </li>
+  const rules = record?.assessment.rules ?? null;
+  const due =
+    rules === null
+      ? null
+      : rules.deadline
+        ? dueWords(dateTime(rules.deadline))
+        : STUDENT_DETAIL.noDeadline;
+  const name = (
+    <>
+      <FaAssessmentName>{assessmentName(assessment.name)}</FaAssessmentName>
+      {due ? <FaAssessmentDue>{due}</FaAssessmentDue> : null}
+    </>
   );
-}
+  const draft = record !== null && record.readiness !== 'ready';
+  const attempt = draft ? null : shownAttempt(detail.attempts);
+  const facts: AttemptFacts | null = attempt
+    ? (detail.attemptFacts.find((entry) => entry.attemptId === attempt.id) ?? null)
+    : null;
 
-// ---- Resources (f3 … f5) ------------------------------------------------------------------------
+  let pill: ReactNode;
+  let line: ReactNode = null;
+  let after: ReactNode = null;
+  let action: ReactNode = null;
+  if (draft) {
+    pill = <StatusPill tone="neutral">{ASSESSMENT_WORDS.draft}</StatusPill>;
+    line = STUDENT_DETAIL.draftLine;
+  } else if (attempt === null) {
+    pill = <StatusPill tone="neutral">{ASSESSMENT_WORDS.notStarted}</StatusPill>;
+    line = rules === null ? null : notSubmittedLine(rules.attemptsAllowed);
+  } else if (attempt.submittedAt === null) {
+    pill = <StatusPill tone="info">{stateWords('FA-21.attempt-in-progress')}</StatusPill>;
+    line = startedAttemptLine(
+      attempt.attemptNumber,
+      facts?.attemptsAllowed ?? null,
+      dateTime(attempt.startedAt),
+    );
+  } else {
+    line = attemptLine(
+      attempt.attemptNumber,
+      facts?.attemptsAllowed ?? null,
+      dateTime(attempt.submittedAt),
+    );
+    const score = facts?.score ?? null;
+    if (score === null || facts === null) {
+      pill = <StatusPill tone="warn">{ASSESSMENT_WORDS.waiting}</StatusPill>;
+      action = (
+        <ButtonLink variant="primary" size="lg" href={markSubmissionAddress(attempt.id)}>
+          {STUDENT_DETAIL.markAnswers}
+        </ButtonLink>
+      );
+    } else {
+      pill = <StatusPill tone="ok">{ASSESSMENT_WORDS.marked}</StatusPill>;
+      const passMark = record
+        ? passMarkOf(record.assessment, attempt.assessmentVersion, facts.outOf)
+        : null;
+      const released = facts.releasedAt !== null;
+      after = (
+        <>
+          <FaDoneTotal
+            total={doneTotalWords(score, facts.outOf)}
+            outcome={passOutcomeWords(passMark === null ? null : score >= passMark, passMark)}
+          />
+          <FaReleaseNote released={released}>
+            {resultReleaseLine(
+              first,
+              {
+                option: facts.release.option,
+                on: facts.release.on === null ? null : dateTime(facts.release.on),
+              },
+              released,
+              attempt.marking.confirmed ? dateTime(attempt.marking.confirmed.at) : null,
+            )}
+          </FaReleaseNote>
+        </>
+      );
+      action = (
+        <ButtonLink size="lg" href={markSubmissionAddress(attempt.id)}>
+          {STUDENT_DETAIL.viewMarks}
+        </ButtonLink>
+      );
+    }
+  }
 
-function ResourcesSection({ detail }: { readonly detail: StudentDetail }) {
-  return (
-    <Section title={STUDENT_DETAIL.resourcesTitle}>
-      <div className="xr-section-body">
-        {detail.resources.length > 0 ? (
-          <dl className="xl-kv @min-[600px]:[grid-template-columns:minmax(0,1fr)_220px]">
-            {detail.resources.map((resource, index) => (
-              <ResourceFact
-                key={`${index}-${resource.title}`}
-                title={resource.title}
-                openedAt={resource.openedAt}
-              />
-            ))}
-          </dl>
-        ) : (
-          <p className="xl-meta m-0">{stateWords('FA-21.no-resources')}</p>
-        )}
-      </div>
-    </Section>
-  );
-}
-
-function ResourceFact({
-  title,
-  openedAt,
-}: {
-  readonly title: string;
-  readonly openedAt: string | null;
-}) {
   return (
     <>
-      <dt className="text-ink [font-weight:400]">{title}</dt>
-      <dd className="text-ink-2">
-        {openedAt === null ? STUDENT_DETAIL.notOpened : openedWords(dateTime(openedAt))}
-      </dd>
+      <FaAssessmentId>
+        {pill}
+        {name}
+      </FaAssessmentId>
+      {line ? <FaAssessmentNote>{line}</FaAssessmentNote> : null}
+      {after}
+      {action ? <FaPanelActions>{action}</FaPanelActions> : null}
+      {openAssessment}
     </>
   );
 }

@@ -1,0 +1,136 @@
+[
+ {
+  "name": "J6-draft-with-assistance-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "open drafting from the bank; stand-in is labelled",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "validation",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "{\"click\":\"#fa-dr-src-paste\",\"expect\":\"Text to draft from\"}",
+    "why": ""
+   },
+   {
+    "n": 4,
+    "ok": true,
+    "label": "pasted text required",
+    "why": ""
+   },
+   {
+    "n": 5,
+    "ok": true,
+    "label": "{\"click\":\"#fa-dr-src-brief\",\"expectNot\":\"Text to draft from\"}",
+    "why": ""
+   },
+   {
+    "n": 6,
+    "ok": true,
+    "label": "{\"click\":\"#fa-dr-t-sc\"}",
+    "why": ""
+   },
+   {
+    "n": 7,
+    "ok": true,
+    "label": "{\"click\":\"#fa-dr-t-w\"}",
+    "why": ""
+   },
+   {
+    "n": 8,
+    "ok": true,
+    "label": "{\"click\":\"#fa-dr-n\"}",
+    "why": ""
+   },
+   {
+    "n": 9,
+    "ok": true,
+    "label": "busy state",
+    "why": ""
+   },
+   {
+    "n": 10,
+    "ok": true,
+    "label": "three drafts, single choice and written, round-robin",
+    "why": ""
+   },
+   {
+    "n": 11,
+    "ok": true,
+    "label": "add one",
+    "why": ""
+   },
+   {
+    "n": 12,
+    "ok": true,
+    "label": "discard one",
+    "why": ""
+   },
+   {
+    "n": 13,
+    "ok": true,
+    "label": "review the last draft",
+    "why": ""
+   },
+   {
+    "n": 14,
+    "ok": true,
+    "label": "{\"fill\":\"#fa-qe-marks\",\"value\":\"3\"}",
+    "why": ""
+   },
+   {
+    "n": 15,
+    "ok": true,
+    "label": "reviewed draft added, back on the list",
+    "why": ""
+   },
+   {
+    "n": 16,
+    "ok": true,
+    "label": "bank shows both reviewed drafts",
+    "why": ""
+   },
+   {
+    "n": 17,
+    "ok": true,
+    "label": "the earlier three drafts are still waiting (nothing added on its own)",
+    "why": ""
+   }
+  ],
+  "errors": []
+ },
+ {
+  "name": "J6b-drafting-fails-375",
+  "width": 375,
+  "steps": [
+   {
+    "n": 1,
+    "ok": true,
+    "label": "failure keeps choices",
+    "why": ""
+   },
+   {
+    "n": 2,
+    "ok": true,
+    "label": "choices kept",
+    "why": ""
+   },
+   {
+    "n": 3,
+    "ok": true,
+    "label": "try again works",
+    "why": ""
+   }
+  ],
+  "errors": []
+ }
+]

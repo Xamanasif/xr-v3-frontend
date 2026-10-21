@@ -15,6 +15,7 @@ import {
   FACULTY_MY_COURSES_TITLE,
   FACULTY_OVERVIEW_TITLE,
   FACULTY_STUDENTS_TITLE,
+  MARK_SUBMISSION_TITLE,
   MARKING_TITLE,
   QUESTION_BANK_TITLE,
 } from './faculty';
@@ -130,8 +131,10 @@ export function placeWordsOf(returnTo: string | null): string | null {
       if (outcome.screen === 'ST-18') return MY_DEVICE_TITLE;
       if (outcome.screen === 'IA-20') return USAGE_TITLE;
       // Phase 4A: each Faculty page names its destination (courses, experiments, questions and
-      // assessments are addressed by ids, not drawn references); an assessment adds its drawn
-      // reference ("Assessments › ASMT-0009").
+      // assessments are addressed by ids, not drawn references). V3 (FA-v1): no Faculty words
+      // name an assessment, an attempt or a question by its internal reference (the owner's
+      // identifier rule), so an assessment's address names Assessments alone and a submission's
+      // the page it is ("Marking › Mark a submission").
       if (outcome.screen === 'FA-01') return FACULTY_OVERVIEW_TITLE;
       if (outcome.screen === 'FA-02' || outcome.screen === 'FA-03' || outcome.screen === 'FA-05')
         return FACULTY_MY_COURSES_TITLE;
@@ -153,11 +156,11 @@ export function placeWordsOf(returnTo: string | null): string | null {
         outcome.screen === 'FA-11' ||
         outcome.screen === 'FA-12'
       ) {
-        return assessment ? `${ASSESSMENTS_TITLE} › ${assessment}` : ASSESSMENTS_TITLE;
+        return ASSESSMENTS_TITLE;
       }
       // Phase 4B: the Student's assessment pages name Assessments and the drawn reference
-      // ("Assessments › ASMT-0009"); marking a submission names its attempt ("Marking ›
-      // ATT-0450"); Students are addressed by ids, so they name the destination alone.
+      // ("Assessments › ASMT-0009"); marking a submission names the page (V3 FA-v1: never the
+      // attempt); Students are addressed by ids, so they name the destination alone.
       if (
         outcome.screen === 'ST-11' ||
         outcome.screen === 'ST-12' ||
@@ -169,10 +172,7 @@ export function placeWordsOf(returnTo: string | null): string | null {
           : STUDENT_ASSESSMENTS_TITLE;
       }
       if (outcome.screen === 'FA-18') return MARKING_TITLE;
-      if (outcome.screen === 'FA-19') {
-        const attempt = /\/marking\/(ATT-\d{4})(?:\/|$)/.exec(pathname)?.[1];
-        return attempt ? `${MARKING_TITLE} › ${attempt}` : MARKING_TITLE;
-      }
+      if (outcome.screen === 'FA-19') return `${MARKING_TITLE} › ${MARK_SUBMISSION_TITLE}`;
       if (outcome.screen === 'FA-20' || outcome.screen === 'FA-21') return FACULTY_STUDENTS_TITLE;
       // Phase 5: each page names its destination and a submission its drawn reference ("My
       // experiments › SUB-0077", "Ready to publish › SUB-0077"; the reviewer's names none);

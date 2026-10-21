@@ -238,8 +238,9 @@ describe('the top bar, the account menu (XS-05), the skip link and main', () => 
   });
 
   it('a Help view names itself in the top bar; its own breadcrumb is in the page (XS)', () => {
-    const report = helpPlacement('faculty', { kind: 'report' });
-    const { container } = renderShell('faculty', { title: report.title, trail: report.trail });
+    // A role that keeps its v46 shell (the Faculty member moved to the V3 shell with FA-v1).
+    const report = helpPlacement('student', { kind: 'report' });
+    const { container } = renderShell('student', { title: report.title, trail: report.trail });
     expect(container.querySelector('.xr-top-title')).toHaveTextContent('Report a problem');
     expect(report.trail).toEqual([]);
   });
@@ -281,19 +282,20 @@ describe('the rail choice, kept in memory per person in this tab', () => {
   // its wiring to WorkspaceShell's controlled preference. The bands themselves (rail, expand,
   // drawer) are proved in a browser (apps/specimens/e2e/role-shells.spec.ts, components-shells).
   it('"Collapse menu" records the choice for this person only; it outlives the shell', () => {
-    // A role that keeps its v46 shell (the Institute Admin moved to the V3 shell with IA-v1).
-    const person = { ...boardPerson('faculty'), id: 'rail-shell-person' };
-    const { container, unmount } = renderShell('faculty', { person });
+    // A role that keeps its v46 shell (the Institute Admin moved to the V3 shell with IA-v1, the
+    // Faculty member with FA-v1).
+    const person = { ...boardPerson('student'), id: 'rail-shell-person' };
+    const { container, unmount } = renderShell('student', { person });
     expect(container.querySelector('.xr-shell')).not.toHaveClass('is-rail');
     act(() => screen.getByRole('button', { name: 'Collapse menu' }).click());
     expect(container.querySelector('.xr-shell')).toHaveClass('is-rail');
     expect(railPreference('rail-shell-person')).toBe('rail');
     unmount();
     // The same person's next shell keeps the choice; another person's does not.
-    const again = renderShell('faculty', { person });
+    const again = renderShell('student', { person });
     expect(again.container.querySelector('.xr-shell')).toHaveClass('is-rail');
     again.unmount();
-    const other = renderShell('faculty', {
+    const other = renderShell('student', {
       person: { ...person, id: 'rail-shell-other-person' },
     });
     expect(other.container.querySelector('.xr-shell')).not.toHaveClass('is-rail');

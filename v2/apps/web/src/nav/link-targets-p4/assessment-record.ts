@@ -5,14 +5,22 @@ const RECORD = '/faculty/assessments/{assessmentId}';
 const QUESTIONS = `${RECORD}/questions`;
 
 /**
- * The record frame on each of these tab pages (B4-05 f0, f6): the crumbs "Assessments / <name> /
- * <tab>" and the tabs Summary · Questions · Settings · Preview · Submissions (FA-12, since Phase
- * 4B).
+ * The record frame on each of these tab pages (FA-v1 `Main.dc.html` "FA-08…FA-12 Assessment
+ * record"): the crumbs "Assessments › <name>", the record band's waiting link (to Marking for
+ * this assessment, while a written answer waits) and the record tabs Summary · Questions ·
+ * Settings · Preview · Submissions.
  */
 function recordFrame(board: string): PageRow[] {
   return [
-    ['Top bar crumbs', 'Assessments', 'secondary', '/faculty/assessments', 'built', board],
-    ['Top bar crumbs', '<assessment name>', 'secondary', RECORD, 'built', board],
+    ['Crumbs', 'Assessments', 'secondary', '/faculty/assessments', 'built', board],
+    [
+      'Record band',
+      '<n> waiting for marking',
+      'secondary',
+      '/faculty/marking?assessmentId={assessmentId}',
+      'built',
+      `${board}; \`a.rb-link.fa-rec-wait\``,
+    ],
     ['Record tabs', 'Summary', 'secondary', RECORD, 'built', board],
     ['Record tabs', 'Questions', 'secondary', QUESTIONS, 'built', board],
     ['Record tabs', 'Settings', 'secondary', `${RECORD}/settings`, 'built', board],
@@ -21,89 +29,109 @@ function recordFrame(board: string): PageRow[] {
   ];
 }
 
-/** Phase 4A link targets: FA-08 Summary and FA-09 Questions (B4-05). */
+/** Link targets of FA-08 Summary and FA-09 Questions (FA-v1 `LINK-MAP.json`; earlier B4-05). */
 export const P4_ASSESSMENT_RECORD_LINK_TARGETS: readonly LedgerEntry[] = [
   ...pageRows('FA-08', RECORD, [
-    ...recordFrame('B4-05 f0, f3, f4'),
-    // f3: the one primary of a draft without questions — the Questions tab.
-    ['Ready to use (no question yet)', 'Add questions', 'primary', QUESTIONS, 'built', 'B4-05 f3'],
-    // Phase 4B: while a submission waits, FA-19 for the oldest (`FA-12.mark-next-target`).
+    ...recordFrame('FA-v1 Main.dc.html record band and `nav.rk-tabs.fa-tabs`'),
+    // The one primary of a draft without questions — the Questions tab.
     [
-      'Submissions',
+      'Draft — not ready (no question yet)',
+      'Add questions',
+      'primary',
+      QUESTIONS,
+      'built',
+      'FA-v1 Main.dc.html FA-08 `div.fa-actions > a.rb-btn--primary`',
+    ],
+    // While a written answer waits, FA-19 for the oldest (`FA-08.mark-next`).
+    [
+      'Submissions panel',
       'Mark next',
       'primary',
       '/faculty/marking/{attemptId}',
       'built',
-      'B4-05 f0, f4 `a.xr-btn--primary` → B4-09',
+      'FA-v1 LINK-MAP FA-08 “Mark next” (`a.rb-btn--primary.rk-go` → FA-19)',
     ],
     [
-      'Submissions',
+      'Submissions panel',
       'See submissions',
       'secondary',
       `${RECORD}/submissions`,
       'built',
-      'B4-05 f0, f4 `a.xr-btn--secondary` → B4-06',
+      'FA-v1 Main.dc.html FA-08 `div.rk-panel-body > a.rb-btn` → FA-12',
     ],
     [
-      'Rules as set for this assessment (footer)',
+      'Rules as set for this assessment',
       'Change settings',
       'secondary',
       `${RECORD}/settings`,
       'built',
-      'B4-05 f0, f3, f4',
+      'FA-v1 Main.dc.html FA-08 `div.rk-sec-h > a.rb-link`',
     ],
   ]),
   ...pageRows('FA-09', QUESTIONS, [
-    ...recordFrame('B4-05 f1, f5 … f8'),
-    // Opens the bank panel in place (f7); hidden while the panel is open.
-    ['Toolbar', 'Add from question bank', 'primary', null, 'in-page', 'B4-05 f1, f6, f8'],
+    ...recordFrame('FA-v1 Main.dc.html record band and `nav.rk-tabs.fa-tabs`'),
+    // Opens the bank panel in place; hidden while the panel is open. The export draws it as a
+    // plain button: FA-09 has no gold primary.
     [
-      'Toolbar',
+      'Questions head',
+      'Add from question bank',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-09 `button#fa-aq-open.rb-btn`',
+    ],
+    [
+      'Questions head',
       'New question',
       'secondary',
       `/faculty/question-bank/new?experimentId={experimentId}&returnTo=${QUESTIONS}`,
       'built',
-      'B4-05 f1, f6 … f8',
+      'FA-v1 Main.dc.html FA-09 `div.fa-qadd > a.rb-btn`',
     ],
     [
-      'Toolbar',
+      'Questions head',
       'Draft with assistance',
       'secondary',
       '/faculty/question-bank/draft?experimentId={experimentId}',
       'built',
-      'B4-05 f1, f6 … f8 `a.xr-btn--text` (→ B4-08 FA-16; Phase 4B)',
+      'FA-v1 Main.dc.html FA-09 `p.fa-qmore > a.rb-link` (→ FA-16)',
     ],
     [
-      'Toolbar',
+      'Questions head',
       'Import',
       'secondary',
       '/faculty/question-bank/import?experimentId={experimentId}',
       'built',
-      'B4-05 f1, f6 … f8 `a.xr-btn--text` (→ B4-08 FA-17; Phase 4B)',
+      'FA-v1 Main.dc.html FA-09 `p.fa-qmore > a.rb-link` (→ FA-17)',
     ],
-    // f1 draws the empty state's own primary beside the toolbar's.
-    ['No questions yet', 'Add from question bank', 'primary', null, 'in-page', 'B4-05 f1'],
     [
-      'No questions yet',
-      'New question',
+      'Back from New question',
+      'Add this question to the assessment',
       'secondary',
-      `/faculty/question-bank/new?experimentId={experimentId}&returnTo=${QUESTIONS}`,
-      'built',
-      'B4-05 f1',
+      null,
+      'in-page',
+      'FA-v1 Main.dc.html FA-09 `div.rk-notice-act > button.rb-btn` (`AQ.offer`)',
     ],
-    ['Question row', 'Move question <n> up', 'secondary', null, 'in-page', 'B4-05 f5 … f8'],
-    ['Question row', 'Move question <n> down', 'secondary', null, 'in-page', 'B4-05 f5 … f8'],
-    ['Question row', 'Remove', 'secondary', null, 'in-page', 'B4-05 f5 … f8'],
+    ['Question row', 'Move question <n> up', 'secondary', null, 'in-page', 'FA-v1 `fa-iconbtn`'],
+    ['Question row', 'Move question <n> down', 'secondary', null, 'in-page', 'FA-v1 `fa-iconbtn`'],
+    ['Question row', 'Remove', 'secondary', null, 'in-page', 'FA-v1 `button.rb-btn--ghost`'],
     [
       'Question row (newer version in the bank)',
       'Use updated version',
       'secondary',
       null,
       'in-page',
-      'B4-05 f8',
+      'FA-v1 Main.dc.html FA-09 `p.fa-qnote > button.rb-btn`',
     ],
-    ['Bank panel', 'Close question bank', 'secondary', null, 'in-page', 'B4-05 f7'],
-    ['Bank panel', 'Add', 'secondary', null, 'in-page', 'B4-05 f7'],
+    [
+      'Bank panel',
+      'Close question bank',
+      'secondary',
+      null,
+      'in-page',
+      'FA-v1 `button.fa-panel-x`',
+    ],
+    ['Bank panel', 'Add', 'secondary', null, 'in-page', 'FA-v1 `ul.fa-avail--panel button.rb-btn`'],
     ['Bank panel (failed to load)', 'Try again', 'secondary', null, 'in-page', 'Board 04'],
   ]),
 ];

@@ -1,173 +1,240 @@
 'use client';
 
-import type { TeachingCourseRow } from '@xr/contracts/draft';
-import { EmptyState, Link, PageContent, PageHeader, Row, Rows, Section, SectionTabs } from '@xr/ui';
-import { useEffect } from 'react';
-
+import type { FormatCode } from '@xr/ui';
 import {
-  accessEndedLine,
-  courseCountWords,
-  courseFactsLine,
-  MY_COURSES_PAGE,
-  openCourseLabel,
-} from '@/copy/faculty-courses';
+  Button,
+  ContentStack,
+  FaCourseCard,
+  FaCourseCount,
+  FaCourseFoot,
+  FaCourseLedger,
+  FaCourseRow,
+  FaFigure,
+  FaFigures,
+  FaFormatBadges,
+  FaMessageCard,
+  FaWaitLine,
+  HiddenHeading,
+  LinkTabs,
+  ListState,
+  LoadingRows,
+  PageHead,
+  StatusPill,
+} from '@xr/ui/v3';
+import { type RefObject, useEffect, useRef } from 'react';
+
+import { FACULTY_FAILED_WORDS } from '@/copy/fa-shared';
+import { courseCountWords, MY_COURSES_PAGE } from '@/copy/faculty-courses';
+import { formatsHeldLabel } from '@/copy/faculty-overview';
 import { stateWords } from '@/copy/state-copy';
 import {
   FACULTY_EXPERIMENTS_ADDRESS,
   FACULTY_MY_COURSES_ADDRESS,
   FACULTY_MY_COURSES_TITLE,
-  facultyCourseAddress,
   facultyExperimentsPlacement,
   facultyMyCoursesPlacement,
   MY_COURSES_TABS,
 } from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
+import { useSession } from '@/queries/session';
 import { useTeachingCourses } from '@/queries/teaching';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import { useFacultyToday } from '../shared/use-today';
 import { FacultyExperiments } from '../fa-04-experiments/experiments';
-import { FacultyFailed, FacultyLoading, useRetryFocus } from '../fa-04-experiments/list-states';
+import { useTaughtExperiments } from '../fa-04-experiments/taught-experiments';
+import { ledgerViews } from './courses-view';
+
+const TITLE_ID = 'fa-h1';
 
 /**
- * FA-02 My courses — board B4-02 (f0, f6, f7), at `/faculty/courses`, with its Experiments tab
- * FA-04 (`?tab=experiments`, Appendix A rule T2; f2 … f5, f8): "Which courses do I teach?"
+ * FA-02 My courses — the V3 Refined B design (the owner-approved export design/v3-refined-b/roles/
+ * FA-v1, `Main.dc.html` FA-02 · FA-04 and its `vmCourses`), at `/faculty/courses`, with its
+ * Experiments tab FA-04 (`?tab=experiments`; any other `tab` is normalised to the bare address,
+ * `FA-02.tab-address`).
  *
- * - **Read**: `TeachingService.listMyCourses` — only the courses the Institute Admin's Faculty
- *   courses (IA-15) map to the Faculty member and the institution's plans hold (FCM-04), each with
- *   its platform code, how many of its experiments the Faculty member teaches, the Students who
- *   can open them today, the assessments, and the date the institution's access ended once it has
- *   (f7). Meera assigning or removing a Faculty course changes it.
- * - **As drawn**: "Courses you teach" / "My courses" / "From Faculty courses, set by your
- *   Institute Admin"; the section tabs "Courses · Experiments" (`nav.xr-tabs` "My courses",
- *   ordinary links: `?tab=experiments` shows FA-04, any other `tab` is normalised to the bare
- *   address, `FA-02.tab-address`); the "Courses" section with its count and one row per course
- *   with "Open course" (FA-03). No course mapped: the drawn empty state with no tabs (f6,
- *   `FA-02.none-assigned`).
- * - **States B4-02 does not draw for this tab**: loading and failed with "Try again"
- *   (`FA-02.loading`, `FA-02.failed`).
+ * - **Reads**: `TeachingService.listMyCourses` — the courses the Institute Admin's Faculty courses
+ *   (IA-15) map to the Faculty member and the institution's plans hold, with the experiments, the
+ *   Students who can open them and the assessments, and the date access ended once it has — and
+ *   the taught experiments (`useTaughtExperiments`: `getCreateOptions`, `listAssessments`, each
+ *   experiment's `getTeachingExperiment`) for the ledger's experiment rows.
+ * - **As the export draws it**: the date, "My courses" and its line; the tabs "Courses ·
+ *   Experiments" (links); the course ledger — the count, one card per course with its code, name,
+ *   source, figures and "Open course" (FA-03), then its experiments (formats, Students with
+ *   access, the assessment's status, name, deadline and written answers waiting) — and the foot
+ *   line. No course: the message card under the tabs (the Experiments tab draws its own).
+ * - **Loading and failed** (the export draws none for this tab): the application's loading and the
+ *   failed state with Try again, which reads again and moves focus to the title (`FA-02.loading`,
+ *   `FA-02.failed`). A course whose access ended says so in place of its source line (f7).
  */
 export function FacultyMyCourses() {
   const navigation = useAppNavigation();
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const tabParam = new URLSearchParams(navigation.search).get('tab');
   const experiments = tabParam === 'experiments';
-  const read = useTeachingCourses();
-  const courses = read.data?.ok ? read.data.value : null;
-  const noneAssigned = courses !== null && courses.length === 0;
-  // Any other tab, or the Experiments tab when there is none (f6), is the bare address.
-  const normalise = tabParam !== null && (!experiments || noneAssigned);
+  // Any other tab is the bare address.
+  const normalise = tabParam !== null && !experiments;
   useEffect(() => {
     if (normalise) navigation.replace(FACULTY_MY_COURSES_ADDRESS);
   }, [normalise, navigation]);
-  useShellPage(
-    experiments && !noneAssigned ? facultyExperimentsPlacement() : facultyMyCoursesPlacement(),
-  );
+  useShellPage(experiments ? facultyExperimentsPlacement() : facultyMyCoursesPlacement());
+  const date = useFacultyToday()?.line;
 
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        overline={MY_COURSES_PAGE.overline}
+    <>
+      <PageHead
         title={FACULTY_MY_COURSES_TITLE}
-        meta={
-          !experiments || noneAssigned ? (
-            <span className="xl-meta">{MY_COURSES_PAGE.meta}</span>
-          ) : undefined
-        }
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        titleFocusTarget
+        date={date}
+        lead={MY_COURSES_PAGE.lead}
       />
-      {noneAssigned ? (
-        <div className="xr-section">
-          <EmptyState icon="myCourses" title={MY_COURSES_PAGE.noneAssignedTitle}>
-            {MY_COURSES_PAGE.noneAssignedLine}
-          </EmptyState>
-        </div>
-      ) : (
-        <>
-          <SectionTabs
-            label={MY_COURSES_PAGE.tabsLabel}
-            tabs={[
-              {
-                href: FACULTY_MY_COURSES_ADDRESS,
-                label: MY_COURSES_TABS[0],
-                current: !experiments,
-              },
-              {
-                href: FACULTY_EXPERIMENTS_ADDRESS,
-                label: MY_COURSES_TABS[1],
-                current: experiments,
-              },
-            ]}
-          />
-          {experiments ? <FacultyExperiments /> : <CoursesTab read={read} />}
-        </>
-      )}
-    </PageContent>
+      <ContentStack>
+        <LinkTabs
+          label={MY_COURSES_PAGE.tabsLabel}
+          tabs={[
+            { href: FACULTY_MY_COURSES_ADDRESS, label: MY_COURSES_TABS[0], current: !experiments },
+            { href: FACULTY_EXPERIMENTS_ADDRESS, label: MY_COURSES_TABS[1], current: experiments },
+          ]}
+        />
+        {experiments ? <FacultyExperiments /> : <CoursesTab titleRef={titleRef} />}
+      </ContentStack>
+    </>
   );
 }
 
-/** FA-02's own tab: the courses (f0, f7), loading and failed. */
-function CoursesTab({ read }: { readonly read: ReturnType<typeof useTeachingCourses> }) {
+/** FA-02's own tab: the course ledger, no course, loading and failed. */
+function CoursesTab({ titleRef }: { readonly titleRef: RefObject<HTMLHeadingElement | null> }) {
+  const read = useTeachingCourses();
+  const { read: taught, probes } = useTaughtExperiments();
+  const session = useSession();
+  const me = session.status === 'signed-in' ? session.personId : null;
   const courses = read.data?.ok ? read.data.value : null;
-  const retried = useRetryFocus(courses !== null);
-  if (read.isError || (read.data && !read.data.ok)) {
-    return (
-      <FacultyFailed
-        title={stateWords('FA-02.failed')}
-        onRetry={() => {
-          retried();
-          void read.refetch();
-        }}
-      />
-    );
-  }
-  if (courses === null) {
-    return (
-      <FacultyLoading
-        label={stateWords('FA-02.loading')}
-        columns="grid-cols-[1.6fr_1fr]"
-        cells={2}
-      />
-    );
-  }
-  return (
-    <Section title={MY_COURSES_PAGE.coursesSection} meta={courseCountWords(courses.length)}>
-      <Rows>
-        {courses.map((row) => (
-          <CourseRow key={row.course.id} row={row} />
-        ))}
-      </Rows>
-    </Section>
-  );
-}
+  const failed = read.isError || (read.data !== undefined && !read.data.ok);
+  // With no course, the taught experiments are not needed to say so.
+  const taughtFailed = taught.kind === 'failed' && courses !== null && courses.length > 0;
+  const ready = courses !== null && (courses.length === 0 || taught.kind === 'ready');
 
-/**
- * One course (f0): its name, then its code (`span.xr-id`) and "1 experiment · 5 students with
- * access · 1 assessment" — or, once its access has ended, "Access ended on <date> · earlier work
- * and results kept" (f7) — and "Open course".
- */
-function CourseRow({ row }: { readonly row: TeachingCourseRow }) {
-  const { course } = row;
-  const line =
-    row.accessEndedOn !== null ? accessEndedLine(row.accessEndedOn) : courseFactsLine(row);
+  // Try again moves focus to the title, and keeps it there once the courses are back.
+  const refocus = useRef(false);
+  useEffect(() => {
+    if (!ready || !refocus.current) return;
+    refocus.current = false;
+    titleRef.current?.focus();
+  }, [ready, titleRef]);
+
+  if (failed || taughtFailed) {
+    return (
+      <>
+        {probes}
+        <ListState
+          kind="failed"
+          titleAs="h2"
+          title={stateWords('FA-02.failed')}
+          action={
+            <Button
+              onClick={() => {
+                if (failed) void read.refetch();
+                if (taught.kind === 'failed') taught.retry();
+                refocus.current = true;
+                titleRef.current?.focus();
+              }}
+            >
+              {FACULTY_FAILED_WORDS.tryAgain}
+            </Button>
+          }
+        >
+          {FACULTY_FAILED_WORDS.line}
+        </ListState>
+      </>
+    );
+  }
+  if (!ready || courses === null) {
+    return (
+      <>
+        {probes}
+        <LoadingRows message={stateWords('FA-02.loading')} cells={[2, 1, 2]} />
+      </>
+    );
+  }
+  if (courses.length === 0) {
+    return (
+      <>
+        {probes}
+        <FaMessageCard icon="book" title={MY_COURSES_PAGE.noneAssignedTitle} titleId="fa-crs-none">
+          {MY_COURSES_PAGE.noneAssignedLine}
+        </FaMessageCard>
+      </>
+    );
+  }
+
+  const ledger = ledgerViews(courses, taught.kind === 'ready' ? taught.experiments : [], me);
+  const experiments = courses.reduce((sum, row) => sum + row.experiments, 0);
   return (
-    <Row
-      icon="myCourses"
-      title={course.name}
-      sub={
-        course.platformCode !== null ? (
-          <>
-            <span className="xr-id">{course.platformCode}</span> · {line}
-          </>
-        ) : (
-          line
-        )
-      }
-    >
-      <Link
-        className="xr-btn xr-btn--secondary xr-btn--sm"
-        href={facultyCourseAddress(course.id)}
-        aria-label={openCourseLabel(course.name)}
-      >
-        {MY_COURSES_PAGE.openCourse}
-      </Link>
-    </Row>
+    <>
+      {probes}
+      <HiddenHeading id="fa-crs-h">{MY_COURSES_PAGE.coursesHeading}</HiddenHeading>
+      <FaCourseCount>{courseCountWords(courses.length, experiments)}</FaCourseCount>
+      <FaCourseLedger>
+        {ledger.map((course) => (
+          <FaCourseCard
+            key={course.courseId}
+            code={course.code ?? undefined}
+            title={course.name}
+            titleId={`fa-c-${course.courseId}`}
+            source={course.source}
+            figures={
+              <FaFigures>
+                <FaFigure
+                  term={MY_COURSES_PAGE.figures.experiments}
+                  value={course.figures.experiments}
+                />
+                <FaFigure term={MY_COURSES_PAGE.figures.students} value={course.figures.students} />
+                <FaFigure
+                  term={MY_COURSES_PAGE.figures.assessments}
+                  value={course.figures.assessments}
+                />
+              </FaFigures>
+            }
+            open={{
+              href: course.href,
+              label: MY_COURSES_PAGE.openCourse,
+              accessibleName: course.openLabel,
+            }}
+            columns={[
+              MY_COURSES_PAGE.columns.experiment,
+              MY_COURSES_PAGE.columns.students,
+              MY_COURSES_PAGE.columns.assessment,
+            ]}
+            listLabel={course.listLabel}
+          >
+            {course.rows.map((row) => (
+              <FaCourseRow
+                key={row.experimentId}
+                title={row.name}
+                href={row.href}
+                formats={
+                  <FaFormatBadges
+                    formats={row.formats as FormatCode[]}
+                    label={formatsHeldLabel(row.formats)}
+                  />
+                }
+                labels={{
+                  students: MY_COURSES_PAGE.columns.students,
+                  assessment: MY_COURSES_PAGE.columns.assessment,
+                }}
+                students={row.students}
+                status={<StatusPill tone={row.status.tone}>{row.status.words}</StatusPill>}
+                assessment={row.assessment ?? undefined}
+                detail={row.detail}
+                waiting={row.waiting ? <FaWaitLine>{row.waiting}</FaWaitLine> : undefined}
+              />
+            ))}
+          </FaCourseCard>
+        ))}
+      </FaCourseLedger>
+      <FaCourseFoot>{MY_COURSES_PAGE.foot}</FaCourseFoot>
+    </>
   );
 }

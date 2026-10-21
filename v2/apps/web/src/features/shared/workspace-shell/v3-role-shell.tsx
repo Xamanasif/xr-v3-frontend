@@ -27,9 +27,9 @@ import {
 /**
  * The roles whose workspace has moved to the V3 Refined B shell with their owner-approved complete
  * role export (pack prompt 11): the Super Admin (design/v3-refined-b/roles/SA-v1), the Vendor
- * (roles/VE-v1), the Content Manager (roles/CM-v1), the Academic Reviewer (roles/RV-v1) and the
- * Institute Admin (roles/IA-v1). Every other role keeps its v46 shell until its own export is
- * integrated.
+ * (roles/VE-v1), the Content Manager (roles/CM-v1), the Academic Reviewer (roles/RV-v1), the
+ * Institute Admin (roles/IA-v1) and the Faculty member (roles/FA-v1). Every other role keeps its
+ * v46 shell until its own export is integrated.
  */
 export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>([
   'super_admin',
@@ -37,13 +37,14 @@ export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>([
   'content_manager',
   'academic_reviewer',
   'tenant_admin',
+  'faculty',
 ]);
 
 /**
  * The roles whose export names the home page before the date in the top line on that page ("Overview
  * · Thursday 27 August 2026": VE-v1 `Main.dc.html` `rb-top-date`; IA-v1 `Main.dc.html` `rb-top-date`
- * with `topLabel: 'Overview'` on IA-01 only); the Super Admin, Content Manager and Academic Reviewer
- * exports draw the date alone.
+ * with `topLabel: 'Overview'` on IA-01 only); the Super Admin, Content Manager, Academic Reviewer
+ * and Faculty exports draw the date alone (FA-v1 `Main.dc.html` `rb-top-date`: `sh.date`).
  */
 const HOME_IN_TOP_LINE: ReadonlySet<Role> = new Set<Role>(['vendor', 'tenant_admin']);
 
@@ -52,8 +53,9 @@ const HOME_IN_TOP_LINE: ReadonlySet<Role> = new Set<Role>(['vendor', 'tenant_adm
  * `Main.dc.html` rail: the Overview grid and My experiments' flask; CM-v1 `Main.dc.html` rail: the
  * grid, upload, books, refresh and hash glyphs; RV-v1 `RV.dc.html` rail: the grid, the bulleted
  * list and the checked disc; IA-v1 `Main.dc.html` rail: the grid, the box, the person with a plus,
- * the two people and the pulse line). A role whose export draws another glyph for the same board
- * icon has its own entry in ROLE_RAIL_ICON, read first.
+ * the two people and the pulse line; FA-v1 `Main.dc.html` rail: the grid, the book, the clipboard,
+ * the stack, the pen and the two people). A role whose export draws another glyph for the same
+ * board icon has its own entry in ROLE_RAIL_ICON, read first.
  */
 const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   overview: 'overview',
@@ -74,6 +76,10 @@ const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   saccess: 'studentAccess',
   people: 'people',
   usage: 'usage',
+  courses: 'book',
+  assess: 'clipboardCheck',
+  qbank: 'stack',
+  marking: 'pen',
 };
 
 /**

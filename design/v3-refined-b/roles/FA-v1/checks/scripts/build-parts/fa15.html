@@ -1,0 +1,126 @@
+      <!-- ═══ FA-15 Add / edit question (also: review a draft) ═══ -->
+      <sc-if value="{{ is.qe }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="{{ QE.backHref }}" onClick="{{ QE.goBack }}">{{ QE.backLabel }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-right"></use></svg><span aria-current="page">{{ QE.title }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rk-eyebrow">{{ QE.ctx }}</p>
+          <h1 class="rb-h1" id="fa-h1" tabindex="-1">{{ QE.title }}</h1>
+          <sc-if value="{{ QE.hasIdText }}" hint-placeholder-val="{{ false }}"><div class="rk-meta"><span class="fa-id">{{ QE.idText }}</span></div></sc-if>
+        </div>
+      </div>
+      <div class="fr-author">
+        <section class="rk-surface fr-form" aria-labelledby="fa-h1">
+          <sc-if value="{{ QE.hasTop }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fmsg fr-fmsg--stack">
+            <sc-if value="{{ QE.hasErr }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-errsum" id="fa-errs" tabindex="-1" role="alert"><p class="rk-errsum-t">Check this question</p><ul><sc-for list="{{ QE.errList }}" as="er" hint-placeholder-count="1"><li><a href="{{ er.href }}" onClick="{{ er.go }}">{{ er.t }}</a></li></sc-for></ul></div>
+            </sc-if>
+            <sc-if value="{{ QE.hasNote }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--info" id="fa-msg" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><p class="rk-notice-t">{{ QE.note }}</p></div></sc-if>
+            <sc-if value="{{ QE.isDraft }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-draft"></use></svg><p class="rk-notice-t">Draft — needs your review</p><p class="rk-notice-d">{{ QE.draftD }}</p></div>
+            </sc-if>
+            <sc-if value="{{ QE.used }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--info"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><p class="rk-notice-t">{{ QE.usedT }}</p><p class="rk-notice-d">{{ QE.usedD }}</p></div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <div class="fr-fsec">
+            <fieldset class="{{ QE.typeFs }}">
+              <legend>Question type<span>Three types only.</span></legend>
+              <div class="rk-choices fr-choices3">
+                <sc-for list="{{ QE.types }}" as="o" hint-placeholder-count="3"><label class="rk-choice" for="{{ o.id }}"><input type="radio" name="fa-qe-type" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.pick }}"><span class="rk-choice-t">{{ o.t }}</span><span class="rk-choice-d">{{ o.d }}</span></label></sc-for>
+              </div>
+              <sc-if value="{{ QE.he.type }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ QE.e.type }}</p></sc-if>
+            </fieldset>
+          </div>
+
+          <div class="fr-fsec">
+            <h2 class="fr-fsec-t">Question and answer</h2>
+            <div class="rk-field">
+              <label class="rk-label" for="fa-qe-text">Question</label>
+              <textarea id="fa-qe-text" class="rk-textarea" aria-invalid="{{ QE.i.text }}" aria-describedby="{{ QE.d.text }}" value="{{ QE.t }}" onChange="{{ QE.onT }}"></textarea>
+              <sc-if value="{{ QE.he.text }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-qe-text-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ QE.e.text }}</p></sc-if>
+            </div>
+
+            <sc-if value="{{ QE.noType }}" hint-placeholder-val="{{ false }}"><p class="fr-answerhint">Choose the question type to set its answer.</p></sc-if>
+
+            <sc-if value="{{ QE.isSc }}" hint-placeholder-val="{{ false }}">
+            <fieldset class="{{ QE.optsFs }}">
+              <legend>Answer options<span>Up to four. Mark the one correct answer.</span></legend>
+              <div class="fr-optlist">
+                <sc-for list="{{ QE.opts }}" as="o" hint-placeholder-count="4">
+                <div class="fa-optrow">
+                  <div class="rk-field"><label class="rk-label" for="{{ o.id }}">{{ o.label }}</label><input id="{{ o.id }}" class="rk-input" type="text" autocomplete="off" value="{{ o.val }}" aria-invalid="{{ o.inv }}" onChange="{{ o.onVal }}"></div>
+                  <label class="rk-check" for="{{ o.cid }}"><input type="radio" name="fa-qe-correct" id="{{ o.cid }}" checked="{{ o.checked }}" aria-label="{{ o.cAria }}" onChange="{{ o.pick }}"><span aria-hidden="true">Correct</span></label>
+                </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ QE.he.opts }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ QE.e.opts }}</p></sc-if>
+              <sc-if value="{{ QE.he.correct }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ QE.e.correct }}</p></sc-if>
+            </fieldset>
+            </sc-if>
+
+            <sc-if value="{{ QE.isTf }}" hint-placeholder-val="{{ false }}">
+            <fieldset class="{{ QE.tfFs }}">
+              <legend>The statement is</legend>
+              <div class="rk-checks">
+                <label class="rk-check" for="fa-qe-tf-true"><input type="radio" name="fa-qe-tf" id="fa-qe-tf-true" checked="{{ QE.tfTrue }}" onChange="{{ QE.pickT }}">True</label>
+                <label class="rk-check" for="fa-qe-tf-false"><input type="radio" name="fa-qe-tf" id="fa-qe-tf-false" checked="{{ QE.tfFalse }}" onChange="{{ QE.pickF }}">False</label>
+              </div>
+              <sc-if value="{{ QE.he.correct }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ QE.e.correct }}</p></sc-if>
+            </fieldset>
+            </sc-if>
+
+            <sc-if value="{{ QE.isW }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-field">
+              <label class="rk-label" for="fa-qe-guide">Marking guidance (optional)</label>
+              <p class="rk-hint" id="fa-qe-guide-h">Free text for whoever marks it — what a good answer includes. Students don’t see it.</p>
+              <textarea id="fa-qe-guide" class="rk-textarea" aria-describedby="fa-qe-guide-h" value="{{ QE.guide }}" onChange="{{ QE.onGuide }}"></textarea>
+            </div>
+            </sc-if>
+          </div>
+
+          <div class="fr-fsec">
+            <h2 class="fr-fsec-t">Marks and explanation</h2>
+            <div class="rk-field">
+              <label class="rk-label" for="fa-qe-marks">Marks</label>
+              <p class="rk-hint" id="fa-qe-marks-h">A whole number, 1 or more.</p>
+              <input id="fa-qe-marks" class="rk-input" style="max-width: 240px" type="text" inputmode="numeric" autocomplete="off" value="{{ QE.marks }}" aria-invalid="{{ QE.i.marks }}" aria-describedby="{{ QE.d.marks }}" onChange="{{ QE.onMarks }}">
+              <sc-if value="{{ QE.he.marks }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-qe-marks-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ QE.e.marks }}</p></sc-if>
+            </div>
+            <div class="rk-field">
+              <label class="rk-label" for="fa-qe-expl">Explanation (optional)</label>
+              <p class="rk-hint" id="fa-qe-expl-h">Shown to students with the correct answer when their result is released.</p>
+              <textarea id="fa-qe-expl" class="rk-textarea" aria-describedby="fa-qe-expl-h" value="{{ QE.expl }}" onChange="{{ QE.onExpl }}"></textarea>
+            </div>
+          </div>
+          <div class="fa-formfoot">
+            <div class="fa-formfoot-l"><a class="rb-btn" href="{{ QE.backHref }}" onClick="{{ QE.cancel }}">Cancel</a></div>
+            <div class="fa-formfoot-r">
+              <sc-if value="{{ QE.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ QE.save }}">{{ QE.saveLabel }}</button></sc-if>
+              <sc-if value="{{ QE.busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" disabled="{{ true }}">Saving…</button></sc-if>
+            </div>
+          </div>
+        </section>
+        <aside class="fr-side" aria-labelledby="fa-qe-side">
+          <div class="rk-surface">
+            <div class="fr-side-sec">
+              <h2 class="rb-h2" id="fa-qe-side">This question</h2>
+              <dl class="fr-sidedl">
+                <sc-for list="{{ QE.facts }}" as="f" hint-placeholder-count="3"><div><dt>{{ f.k }}</dt><dd class="{{ f.cls }}">{{ f.v }}</dd></div></sc-for>
+              </dl>
+            </div>
+            <div class="fr-side-sec">
+              <h3 class="rk-h3">What students see</h3>
+              <ul class="fr-seelist">
+                <li><b>When they take the assessment</b><span>The question and, for choice questions, its options.</span></li>
+                <li><b>When their result is released</b><span>The correct answer and your explanation.</span></li>
+                <li><b>Never</b><span>Your marking guidance — only whoever marks the answer sees it.</span></li>
+              </ul>
+            </div>
+          </div>
+        </aside>
+      </div>
+      </sc-if>
+

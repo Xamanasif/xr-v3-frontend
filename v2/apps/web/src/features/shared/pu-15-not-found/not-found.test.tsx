@@ -73,13 +73,13 @@ describe('PU-15 public variant', () => {
 
 describe('PU-15 workspace variant', () => {
   it('in the person’s own shell: nothing current, "Not found" on top, Back to Home and Help', async () => {
-    // A role that keeps its v46 shell (the Academic Reviewer moved to the V3 shell with RV-v1).
-    const { runtime } = await tabPlatform(PERSON_OF_ROLE.faculty);
+    // A role that keeps its v46 shell (the Faculty member moved to the V3 shell with FA-v1).
+    const { runtime } = await tabPlatform(PERSON_OF_ROLE.student);
     renderInTab(
-      <WorkspaceLayout workspace="faculty">
+      <WorkspaceLayout workspace="student">
         <WorkspaceNotFound />
       </WorkspaceLayout>,
-      { runtime, navigation: testNavigation('/faculty/courses') },
+      { runtime, navigation: testNavigation('/student/courses') },
     );
     const heading = await screen.findByRole('heading', {
       level: 1,
@@ -94,8 +94,8 @@ describe('PU-15 workspace variant', () => {
         .getAllByRole('link')
         .map((link) => [link.textContent, link.getAttribute('href')]),
     ).toEqual([
-      ['Back to Home', '/faculty'],
-      ['Help', '/faculty/help'],
+      ['Back to Home', '/student'],
+      ['Help', '/student/help'],
     ]);
     await waitFor(() => expect(document.title).toBe('Not found · XR Learning Platform'));
     expect(document.querySelector('.xr-side [aria-current]')).toBeNull();

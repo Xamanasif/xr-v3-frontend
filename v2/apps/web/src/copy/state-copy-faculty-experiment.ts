@@ -1,18 +1,20 @@
 import type { StateCopyEntry } from './state-copy';
 
 /**
- * The state-copy entries of Phase 4A’s FA-05 Experiment, the teaching view (B4-03) — part of the one register (`state-copy.ts`,
- * VD-12): every state string or rule these screens show that their board does not draw word for
- * word, with its basis and the decisions it waits on. Decision ids never appear in visible copy.
+ * The state-copy entries of FA-05 Experiment, the teaching view — part of the one register
+ * (`state-copy.ts`, VD-12): every state string or rule the screen shows that the owner-approved V3
+ * export (design/v3-refined-b/roles/FA-v1 `Main.dc.html` FA-05, `vmExperiment`, `asmSum`) does not
+ * draw word for word, with its basis and the decisions it waits on. Decision ids never appear in
+ * visible copy.
  */
 export const STATE_COPY_FACULTY_EXPERIMENT = {
   'FA-05.loading': {
     screen: 'FA-05',
     state: 'The experiment loading (screen readers)',
     words: 'Loading the experiment',
-    rule: 'A section skeleton under the back link, announced politely; the top bar reads “My courses” until the experiment is read.',
+    rule: 'The application’s record loading (a section skeleton, announced politely); the document title reads “My courses” until the experiment is read.',
     basis:
-      'Board 04 “State grammar” Loading formula; FA-shared “Loading the assessment”. B4-03 draws no loading frame',
+      'Board 04 “State grammar” Loading formula; FA-shared “Loading the assessment”. The FA-v1 export draws no loading for FA-05 (HANDOFF §4)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -21,7 +23,7 @@ export const STATE_COPY_FACULTY_EXPERIMENT = {
     state: 'The experiment failed to load (service unavailable)',
     words: 'The experiment didn’t load. Nothing was lost.',
     basis:
-      'Board 04 “State grammar” Failed + retry formula; FA-shared “The assessment didn’t load. Nothing was lost.” B4-03 draws no failure',
+      'Board 04 “State grammar” Failed + retry formula; FA-shared “The assessment didn’t load. Nothing was lost.” The FA-v1 export draws no failure for FA-05',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -37,8 +39,8 @@ export const STATE_COPY_FACULTY_EXPERIMENT = {
     screen: 'FA-05',
     state: 'The experiment is read but its assessment is still loading, or failed to load',
     words: null,
-    rule: 'Inside the Assessment section only: a skeleton announced as “Loading the assessment”, or “The assessment didn’t load. Nothing was lost.” with “Try again”, which reads the assessment again. The rest of the page stays as read.',
-    basis: 'FA-shared record loading and failed words (B4-05, B4-06 formula); B4-03 draws neither',
+    rule: 'Inside the Assessment panel only: the kit’s loading row announced as “Loading the assessment”, or the failed state (`div.rk-state[role=alert]`) “The assessment didn’t load. Nothing was lost.” with “Try again”, which reads the assessments again. The rest of the page stays as read.',
+    basis: 'FA-shared record loading and failed words; the FA-v1 export draws neither',
     status: 'provisional',
     decisions: ['VD-12'],
   },
@@ -55,100 +57,41 @@ export const STATE_COPY_FACULTY_EXPERIMENT = {
   },
   'FA-05.students-count': {
     screen: 'FA-05',
-    state: 'The number of students in “<n> students have this experiment from your institution.”',
+    state:
+      'The number of Students in the band’s figure and “<n> students have this experiment from your institution.”',
     words: null,
-    rule: 'The Students the experiment reaches at the institution: the three counts of any one format added up (each such Student has exactly one of completed, in progress or not started in every format the institution has). Never a figure across formats.',
+    rule: 'The Students the experiment reaches at the institution: the three counts of any one format added up (each such Student has exactly one of completed, in progress or not started in every format the institution has). Never a figure across formats; “None yet” while it reaches none.',
     basis:
-      'B4-03 f0 “5 students” beside WEB “2 completed 2 in progress 1 not started” and VR “1 · 1 · 3”; the service answers the per-format counts only (BC4)',
+      'FA-v1 Main.dc.html FA-05 (`E1.reach`, `reachLine`); `TeachingExperiment.perFormatCounts`',
     status: 'provisional',
     decisions: ['VD-12', 'BC4'],
   },
-  'FA-05.students-one': {
+  'FA-05.as-of': {
     screen: 'FA-05',
-    state: 'One student has the experiment',
-    words: '1 student has this experiment from your institution.',
-    basis: 'B4-03 f0 “5 students have this experiment from your institution.”; no board draws one',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.no-activity': {
-    screen: 'FA-05',
-    state: 'When “No activity yet” shows (f3)',
+    state: 'The “As of <date>” beside Student activity (FA-03, FA-04, FA-05)',
     words: null,
-    rule: 'No format has a student completed or in progress (each count checked, never summed): the per-format rows are replaced by the one line. “Formats used by your students” is its own fact (the formats any of the institution’s Students has opened) and reads “None yet” when there is none.',
-    basis: 'B4-03 f3 “No activity yet (later sample)” · “Formats used: none yet.”',
+    rule: 'The teaching read’s own instant (`asOf`, when the counts were read), as a date; FA-01’s “Your teaching” uses the first taught experiment’s.',
+    basis: 'FA-v1 Main.dc.html FA-05 “As of 7 Nov 2026” (`W.clock.day`); PC-52 `asOf`',
+    status: 'provisional',
+    decisions: ['VD-12', 'PC-52'],
+  },
+  'FA-05.empty-about': {
+    screen: 'FA-05',
+    state: 'An experiment with no description, outcome or resource',
+    words: null,
+    rule: 'No description: the About section starts with its two columns. No outcome or no resource: “None yet” under that heading (the read-only note stays).',
+    basis: 'FA-v1 Main.dc.html FA-05 About (always drawn with all three)',
     status: 'provisional',
     decisions: ['VD-12'],
   },
-  'FA-05.no-activity-one': {
+  'FA-05.assessment-panel': {
     screen: 'FA-05',
-    state: 'No activity yet, with one student who has the experiment',
-    words: '1 student has this experiment. They haven’t opened it yet.',
+    state: 'The navy Assessment panel’s facts and actions',
+    words: null,
+    rule: 'From the institution’s assessment of the experiment (`listAssessments`): its status, name (→ FA-08), “Due <date, time>” with the days left while it is Ready and open (“Deadline passed: …” after, “No deadline set yet” while unset), the submissions meter (own and Ready, with Students reached), the own written answers waiting with “Mark <n> written answers” (the oldest waiting submission, FA-19; FA-18 for it until the queue answers), the note — “Created by <name>.” for a co-teaching colleague’s, “Rules not finished · …” or “No questions yet · …” for a draft — then “Open assessment” or “Continue setting up”. None yet: the title, the line and “Create assessment” (FA-07 with the experiment chosen).',
     basis:
-      'B4-03 f3 “5 students have this experiment. None has opened it yet.”; no board draws one',
+      'FA-v1 Main.dc.html FA-05 panel and `asmSum`; OD-B4-17 (a colleague’s rules are readable)',
     status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.no-students': {
-    screen: 'FA-05',
-    state: 'No student of the institution has the experiment yet',
-    words: 'No students from your institution have this experiment yet.',
-    basis:
-      'B4-03 f3 “5 students have this experiment. None has opened it yet.”; no board draws none',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.none-yet': {
-    screen: 'FA-05',
-    state: 'A fact with nothing to list: formats, learning outcomes or resources',
-    words: null,
-    rule: '“None yet”, as f3 draws for “Formats used by your students”; the same words for formats the institution has, learning outcomes and resources, which no frame draws empty. A blank description is left out.',
-    basis: 'B4-03 f3 `span.xl-meta` “None yet”',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.ready-line': {
-    screen: 'FA-05',
-    state: 'The Ready assessment row’s line',
-    words: null,
-    rule: '“Due <deadline> · <n> of <reach> submitted · <k> waiting for marking”: the waiting figure only when above 0; the deadline reads “Due …” also once it has passed (no board draws a closed one).',
-    basis: 'B4-03 f0 “Due 14 Nov 2026, 23:59 · 1 of 5 submitted · 1 waiting for marking”',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.draft-line': {
-    screen: 'FA-05',
-    state: 'The draft assessment row’s line',
-    words: null,
-    rule: '“<rules> · <questions>. Students can’t see it.” — “Rules set” when every rule is set, “Some rules not set yet” or “Rules not set yet” otherwise; “no questions yet”, “1 question” or “<n> questions”.',
-    basis: 'B4-03 f2 “Rules set · no questions yet. Students can’t see it.”; B4-04 f10',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.draft-rules-none': {
-    screen: 'FA-05',
-    state: 'A draft with no rule set',
-    words: 'Rules not set yet',
-    basis: 'B4-03 f2 “Rules set”; B4-04 f1 “Not set yet”',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.draft-rules-some': {
-    screen: 'FA-05',
-    state: 'A draft with some rules set and others not',
-    words: 'Some rules not set yet',
-    basis: 'B4-03 f2 “Rules set”; B4-04 f1 “Not set yet”',
-    status: 'provisional',
-    decisions: ['VD-12'],
-  },
-  'FA-05.not-rendered': {
-    screen: 'FA-05',
-    state: '“Mark <n> written answer” and “See students on this experiment”',
-    words: null,
-    rule: 'Since Phase 4B both render: “Mark <n> written answer” (FA-18 for this assessment) beside “Open assessment” only while answers wait for marking (the list row’s count), and “See students on this experiment” (FA-20) under the per-format rows.',
-    basis:
-      'B4-03 f0 `a.xr-btn--secondary` “Mark 1 written answer”, `a` “See students on this experiment”',
-    status: 'provisional',
-    decisions: ['VD-12'],
+    decisions: ['VD-12', 'OD-B4-17'],
   },
 } as const satisfies Readonly<Record<string, StateCopyEntry>>;

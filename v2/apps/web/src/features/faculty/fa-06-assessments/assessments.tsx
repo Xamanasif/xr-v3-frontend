@@ -1,36 +1,49 @@
 'use client';
 
 import type { AssessmentListRow, CreateOption } from '@xr/contracts/draft';
-import type { AssessmentRules } from '@xr/domain';
 import {
   Button,
-  EmptyState,
-  Field,
-  Icon,
-  Link,
-  LoadingState,
-  NoMatch,
-  PageContent,
-  PageHeader,
-  Section,
-  Select,
-  Skeleton,
+  ButtonLink,
+  FaAssessmentsDaysLeft,
+  FaCellMeter,
+  FaCellName,
+  FaCellSub,
+  FaFilters,
+  FaMessageCard,
+  FaRowLink,
+  FaSearchField,
+  FaSelectField,
+  FaStatusLine,
+  FaTable,
+  FaToolbar,
+  FaWaitLine,
+  HiddenHeading,
+  ListState,
+  LoadingRows,
+  PageHead,
   StatusPill,
-  TextInput,
-} from '@xr/ui';
-import { useLayoutEffect, useMemo, useRef, useState } from 'react';
+  Surface,
+} from '@xr/ui/v3';
+import { useMemo, useRef, useState } from 'react';
 
 import { deadlineWords, READINESS_WORDS } from '@/copy/assessment-words';
 import {
   assessmentCountWords,
   ASSESSMENTS_PAGE,
   type AssessmentStateFilter,
-  draftLineWords,
-  dueAndSubmittedWords,
+  courseChipWords,
+  createdByWords,
+  draftSubmissionsWords,
+  experimentCourseLine,
   LIST_STATES,
-  rowActionLabel,
+  removeFilterLabel,
+  rowOpenLabel,
+  searchChipWords,
+  stateChipWords,
+  studentsSubmittedWords,
   waitingForMarkingWords,
 } from '@/copy/assessments';
+import { assessmentName, faDaysLeftWords } from '@/copy/fa-shared';
 import { stateWords } from '@/copy/state-copy';
 import {
   assessmentAddress,
@@ -38,35 +51,40 @@ import {
   ASSESSMENTS_TITLE,
   createAssessmentAddress,
 } from '@/nav/faculty';
-import { useCreateOptions, useFacultyAssessments } from '@/queries/teaching';
+import { useSession } from '@/queries/session';
+import { useCreateOptions, useFacultyAssessments, useTeachingCourses } from '@/queries/teaching';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
+import {
+  deadlineState,
+  otherActor,
+  submittedUnits,
+  useAssessmentToday,
+} from '../shared/assessment-frame';
 
 const SEARCH_ID = 'assessments-search';
 const COURSE_ID = 'assessments-course';
 const STATE_ID = 'assessments-state';
-
-/** How many of the assessment's rules are set (a draft's line, `FA-06.draft-line`). */
-function rulesSet(rules: AssessmentRules): 'all' | 'some' | 'none' {
-  const set = [
-    rules.passMarkPercent !== null,
-    rules.attemptsAllowed !== null,
-    rules.deadline !== null,
-    rules.release !== null,
-  ].filter(Boolean).length;
-  return set === 4 ? 'all' : set === 0 ? 'none' : 'some';
-}
+const HEADING_ID = 'assessments-heading';
+const NO_COURSE_ID = 'assessments-no-course';
 
 /** The experiment an assessment is for, as Faculty see it (name, and the course code). */
 type ExperimentWords = Pick<CreateOption, 'name' | 'courseCode'>;
 
+interface Filters {
+  readonly search: string;
+  readonly course: string;
+  readonly state: AssessmentStateFilter;
+}
+
 function matches(
   row: AssessmentListRow,
   experiment: ExperimentWords | undefined,
-  filters: { readonly search: string; readonly course: string; readonly state: string },
+  filters: Filters,
 ): boolean {
   const search = filters.search.trim().toLowerCase();
   if (search !== '') {
+    // The search also matches the reference (the service's key), which no row prints.
     const haystack = [
       row.assessment.name,
       row.assessment.id,
@@ -85,151 +103,188 @@ function matches(
 }
 
 /**
- * FA-06 Assessments — board B4-04 f0, f9, f10, at `/faculty/assessments`.
+ * FA-06 Assessments in the V3 Refined B design (FA-v1 `Main.dc.html` "FA-06 Assessments",
+ * `vmAsmList`), at `/faculty/assessments`.
  *
- * - **Read**: `AssessmentService.listAssessments` — the institution's assessments of the
+ * - **Reads**: `AssessmentService.listAssessments` — the institution's assessments of the
  *   experiments the Faculty member teaches, each with its readiness, who has submitted, its reach
- *   and how many submissions wait for a written answer's marks — and `getCreateOptions` for each
- *   experiment's name and the course code Faculty see.
- * - **The list as drawn**: "All assessments" with its count, the toolbar (Search, Course, State)
- *   and the table — the name opens the record (FA-08), with its ASMT number; the experiment and
- *   its code; the state in words ("Ready", "Draft — not ready"); "Due … · 1 of 5 submitted ·" with
- *   the wait pill, or what a draft still lacks; "Open" or "Continue setting up". The search and
- *   filters narrow the service's list on the page (state-copy `FA-06.search`, `FA-06.filters`).
- * - **Create assessment** (FA-07) is the page's one primary action; f9 draws it again in "No
- *   assessments yet". There is no availability or release control (T-18; B4-14 D4), and nothing
- *   here opens marking (FA-18, Phase 4B).
+ *   and how many submissions wait for a written answer's marks — `getCreateOptions` for each
+ *   experiment's name and the course code Faculty see, and `TeachingService.listMyCourses` (one
+ *   aggregate read) for the course's name beside its code.
+ * - **The list as drawn**: the head with "Create assessment" (once there is an assessment), the
+ *   toolbar (Search, Course, State, with the count, a chip per filter and "Clear filters"), and
+ *   the table: the name (the whole row opens the record, FA-08), the experiment with "ME ZG523 ·
+ *   Thermodynamics & Heat Transfer", the deadline with the days left (Ready and open) or "Deadline
+ *   passed", the submissions (a unit meter and "2 of 5 students submitted", or what a draft lacks)
+ *   with "2 waiting for marking", and the state. The search and filters narrow the service's list
+ *   on the page (state-copy `FA-06.search`, `FA-06.filters`). No row prints the assessment's
+ *   reference (the owner's identifier rule); the search still matches it.
+ * - **States**: no assessment yet (with "Create assessment"), no course assigned (the message card,
+ *   nothing to create), no match (with "Clear filters"), and the existing loading and failed
+ *   states (the export draws none for this list). There is no availability or release control
+ *   (T-18), and nothing here opens marking.
  */
 export function FacultyAssessments() {
   useShellPage(assessmentsPlacement());
+  const today = useAssessmentToday();
   const list = useFacultyAssessments();
   const options = useCreateOptions();
-  const [search, setSearch] = useState('');
-  const [course, setCourse] = useState('');
-  const [state, setState] = useState<AssessmentStateFilter>('');
+  const courses = useTeachingCourses();
+  const [filters, setFilters] = useState<Filters>({ search: '', course: '', state: '' });
+  const titleRef = useRef<HTMLHeadingElement>(null);
 
   const reads = [list, options];
   const failed = reads.some((read) => read.isError || (read.data !== undefined && !read.data.ok));
   const loading = !failed && reads.some((read) => read.data === undefined);
   const rows: readonly AssessmentListRow[] = list.data?.ok ? list.data.value : [];
+  const teaching = useMemo(() => (options.data?.ok ? options.data.value : []), [options.data]);
   const experiments = useMemo(
     () =>
       new Map<string, ExperimentWords>(
-        (options.data?.ok ? options.data.value : []).map((option) => [
+        teaching.map((option) => [
           option.experimentId,
           { name: option.name, courseCode: option.courseCode },
         ]),
       ),
-    [options.data],
+    [teaching],
+  );
+  const courseNames = useMemo(
+    () =>
+      new Map<string, string>(
+        (courses.data?.ok ? courses.data.value : []).flatMap((entry) =>
+          entry.course.platformCode
+            ? [[entry.course.platformCode, entry.course.name] as const]
+            : [],
+        ),
+      ),
+    [courses.data],
   );
 
-  const create = (
-    <Link className="xr-btn xr-btn--primary" href={createAssessmentAddress()}>
-      <Icon name="add" />
+  const create = (withIcon: boolean) => (
+    <ButtonLink
+      variant="primary"
+      size={withIcon ? 'lg' : undefined}
+      href={createAssessmentAddress()}
+      {...(withIcon ? { icon: 'add' as const, iconSize: 20 as const } : {})}
+    >
       {ASSESSMENTS_PAGE.create}
-    </Link>
+    </ButtonLink>
   );
 
-  return (
-    <PageContent wrap="wide">
-      <PageHeader
-        title={ASSESSMENTS_TITLE}
-        meta={<span className="xl-meta">{ASSESSMENTS_PAGE.meta}</span>}
-        actions={create}
-      />
-      {failed ? (
-        <div className="xr-section">
-          <div className="xr-empty">
-            <span className="xr-empty-icon bg-err-bg text-err">
-              <Icon name="failed" />
-            </span>
-            <h2 className="xr-h3 m-0">{stateWords('FA-06.failed')}</h2>
-            <p className="xr-body m-0">{stateWords('FA-06.failed.line')}</p>
-            <div className="xw-actions">
+  const head = (
+    <PageHead
+      date={today.line}
+      title={ASSESSMENTS_TITLE}
+      titleFocusTarget
+      titleRef={titleRef}
+      lead={ASSESSMENTS_PAGE.lead}
+      actions={!loading && !failed && rows.length > 0 ? create(true) : undefined}
+    />
+  );
+
+  if (failed) {
+    return (
+      <>
+        {head}
+        <Surface labelledBy={HEADING_ID}>
+          <HiddenHeading id={HEADING_ID}>{ASSESSMENTS_PAGE.section}</HiddenHeading>
+          <ListState
+            kind="failed"
+            title={stateWords('FA-06.failed')}
+            action={
               <Button
-                variant="primary"
-                icon="tryAgain"
                 onClick={() => {
                   for (const read of reads)
                     if (read.isError || read.data?.ok === false) void read.refetch();
+                  titleRef.current?.focus();
                 }}
               >
                 {LIST_STATES.tryAgain}
               </Button>
-            </div>
-          </div>
-        </div>
-      ) : loading ? (
-        <Section title={ASSESSMENTS_PAGE.section} headingId="assessments-heading">
-          <LoadingState
-            label={stateWords('FA-06.loading')}
-            skeleton={[0, 1, 2].map((row) => (
-              <div
-                key={row}
-                className="grid grid-cols-[1.4fr_1.2fr_0.8fr_1.6fr_120px] gap-5 px-4 py-[18px]"
-              >
-                {[0, 1, 2, 3, 4].map((cell) => (
-                  <Skeleton key={cell} />
-                ))}
-              </div>
-            ))}
-          />
-        </Section>
-      ) : rows.length === 0 ? (
-        <div className="xr-section">
-          <EmptyState
-            icon="assessments"
-            title={ASSESSMENTS_PAGE.emptyTitle}
-            actions={
-              // f9 draws this one without the plus.
-              <div className="flex flex-wrap gap-3">
-                <Link className="xr-btn xr-btn--primary" href={createAssessmentAddress()}>
-                  {ASSESSMENTS_PAGE.create}
-                </Link>
-              </div>
             }
           >
+            {stateWords('FA-06.failed.line')}
+          </ListState>
+        </Surface>
+      </>
+    );
+  }
+  if (loading) {
+    return (
+      <>
+        {head}
+        <Surface labelledBy={HEADING_ID} busy>
+          <HiddenHeading id={HEADING_ID}>{ASSESSMENTS_PAGE.section}</HiddenHeading>
+          <LoadingRows message={stateWords('FA-06.loading')} />
+        </Surface>
+      </>
+    );
+  }
+  if (teaching.length === 0 && rows.length === 0) {
+    return (
+      <>
+        {head}
+        <FaMessageCard
+          icon="clipboardCheck"
+          title={ASSESSMENTS_PAGE.noCourseTitle}
+          titleId={NO_COURSE_ID}
+        >
+          {ASSESSMENTS_PAGE.noCourseLine}
+        </FaMessageCard>
+      </>
+    );
+  }
+  return (
+    <>
+      {head}
+      <Surface labelledBy={HEADING_ID}>
+        <HiddenHeading id={HEADING_ID}>{ASSESSMENTS_PAGE.section}</HiddenHeading>
+        {rows.length === 0 ? (
+          <ListState
+            kind="empty"
+            roomy
+            icon="clipboardCheck"
+            title={ASSESSMENTS_PAGE.emptyTitle}
+            action={create(false)}
+          >
             {ASSESSMENTS_PAGE.emptyLine}
-          </EmptyState>
-        </div>
-      ) : (
-        <AssessmentList
-          rows={rows}
-          experiments={experiments}
-          search={search}
-          course={course}
-          state={state}
-          onSearch={setSearch}
-          onCourse={setCourse}
-          onState={setState}
-        />
-      )}
-    </PageContent>
+          </ListState>
+        ) : (
+          <AssessmentList
+            rows={rows}
+            experiments={experiments}
+            courseNames={courseNames}
+            filters={filters}
+            onFilters={setFilters}
+            today={today.instant}
+          />
+        )}
+      </Surface>
+    </>
   );
 }
 
 function AssessmentList({
   rows,
   experiments,
-  search,
-  course,
-  state,
-  onSearch,
-  onCourse,
-  onState,
+  courseNames,
+  filters,
+  onFilters,
+  today,
 }: {
   readonly rows: readonly AssessmentListRow[];
   readonly experiments: ReadonlyMap<string, ExperimentWords>;
-  readonly search: string;
-  readonly course: string;
-  readonly state: AssessmentStateFilter;
-  readonly onSearch: (value: string) => void;
-  readonly onCourse: (value: string) => void;
-  readonly onState: (value: AssessmentStateFilter) => void;
+  readonly courseNames: ReadonlyMap<string, string>;
+  readonly filters: Filters;
+  readonly onFilters: (next: Filters) => void;
+  readonly today: string | null;
 }) {
-  const filtered = search.trim() !== '' || course !== '' || state !== '';
+  const session = useSession();
+  const viewer = session.status === 'signed-in' ? session.personId : null;
+  const set = (patch: Partial<Filters>) => onFilters({ ...filters, ...patch });
+  const filtered = filters.search.trim() !== '' || filters.course !== '' || filters.state !== '';
   const shown = rows.filter((row) =>
-    matches(row, experiments.get(row.assessment.experimentId), { search, course, state }),
+    matches(row, experiments.get(row.assessment.experimentId), filters),
   );
   const codes = [
     ...new Set(
@@ -238,161 +293,216 @@ function AssessmentList({
         .filter((code): code is string => code !== null),
     ),
   ].sort();
+  const clear = () => onFilters({ search: '', course: '', state: '' });
 
-  // "Clear filters" goes with the no-match state: focus moves to the search once the rows are
-  // back, only if it had focus and nothing else took it.
-  const searchRef = useRef<HTMLInputElement>(null);
-  const pressed = useRef<HTMLElement | null>(null);
-  useLayoutEffect(() => {
-    const control = pressed.current;
-    if (control === null || control.isConnected) return;
-    pressed.current = null;
-    const active = document.activeElement;
-    if (active && active !== document.body && active.isConnected) return;
-    searchRef.current?.focus();
-  });
-  const clear = () => {
-    const active = document.activeElement;
-    pressed.current = active instanceof HTMLElement ? active : null;
-    onSearch('');
-    onCourse('');
-    onState('');
-  };
+  const chips = [
+    ...(filters.search.trim() !== ''
+      ? [
+          {
+            key: 'search',
+            label: searchChipWords(filters.search.trim()),
+            onRemove: () => set({ search: '' }),
+            focusId: SEARCH_ID,
+          },
+        ]
+      : []),
+    ...(filters.course !== ''
+      ? [
+          {
+            key: 'course',
+            label: courseChipWords(filters.course),
+            onRemove: () => set({ course: '' }),
+            focusId: COURSE_ID,
+          },
+        ]
+      : []),
+    ...(filters.state !== ''
+      ? [
+          {
+            key: 'state',
+            label: stateChipWords(ASSESSMENTS_PAGE.states[filters.state]),
+            onRemove: () => set({ state: '' }),
+            focusId: STATE_ID,
+          },
+        ]
+      : []),
+  ];
 
   return (
-    <Section
-      title={ASSESSMENTS_PAGE.section}
-      headingId="assessments-heading"
-      meta={assessmentCountWords(shown.length, rows.length, filtered)}
-      metaLive
-    >
-      <div className="xr-toolbar [padding:0_24px_16px]">
-        <Field id={SEARCH_ID} label={ASSESSMENTS_PAGE.searchLabel} className="xr-toolbar-search">
-          <TextInput
-            ref={searchRef}
-            type="search"
+    <>
+      <FaToolbar>
+        <FaFilters label={ASSESSMENTS_PAGE.toolbarLabel}>
+          <FaSearchField
+            id={SEARCH_ID}
+            label={ASSESSMENTS_PAGE.searchLabel}
             placeholder={ASSESSMENTS_PAGE.searchPlaceholder}
-            value={search}
-            onChange={(event) => onSearch(event.target.value)}
+            value={filters.search}
+            onChange={(search) => set({ search })}
           />
-        </Field>
-        <Field id={COURSE_ID} label={ASSESSMENTS_PAGE.courseLabel}>
-          <Select
+          <FaSelectField
+            id={COURSE_ID}
+            label={ASSESSMENTS_PAGE.courseLabel}
+            value={filters.course}
             options={[
               { value: '', label: ASSESSMENTS_PAGE.allCourses },
               ...codes.map((code) => ({ value: code, label: code })),
             ]}
-            value={course}
-            onChange={(event) => onCourse(event.target.value)}
+            onChange={(course) => set({ course })}
           />
-        </Field>
-        <Field id={STATE_ID} label={ASSESSMENTS_PAGE.stateLabel} className="xr-filter-2">
-          <Select
+          <FaSelectField
+            id={STATE_ID}
+            label={ASSESSMENTS_PAGE.stateLabel}
+            value={filters.state}
             options={[
               { value: '', label: ASSESSMENTS_PAGE.allStates },
               { value: 'draft', label: ASSESSMENTS_PAGE.states.draft },
               { value: 'ready', label: ASSESSMENTS_PAGE.states.ready },
               { value: 'waiting', label: ASSESSMENTS_PAGE.states.waiting },
             ]}
-            value={state}
-            onChange={(event) => onState(event.target.value as AssessmentStateFilter)}
+            onChange={(state) => set({ state: state as AssessmentStateFilter })}
           />
-        </Field>
-      </div>
+        </FaFilters>
+        <FaStatusLine
+          count={assessmentCountWords(shown.length, rows.length, filtered)}
+          chips={chips}
+          removeLabel={removeFilterLabel}
+          clearLabel={ASSESSMENTS_PAGE.clearFilters}
+          onClearFilters={clear}
+          clearFocusId={SEARCH_ID}
+        />
+      </FaToolbar>
       {shown.length > 0 ? (
-        <AssessmentTable rows={shown} experiments={experiments} />
-      ) : (
-        <NoMatch title={stateWords('FA-06.no-match')} onClearFilters={clear}>
-          {stateWords('FA-06.no-match.line')}
-        </NoMatch>
-      )}
-    </Section>
-  );
-}
-
-/** B4-04 f0 / f10 table: Assessment · Experiment · State · Deadline and submissions · Action. */
-function AssessmentTable({
-  rows,
-  experiments,
-}: {
-  readonly rows: readonly AssessmentListRow[];
-  readonly experiments: ReadonlyMap<string, ExperimentWords>;
-}) {
-  const { columns } = ASSESSMENTS_PAGE;
-  return (
-    <div className="xr-table-wrap">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.assessment}</th>
-            <th scope="col">{columns.experiment}</th>
-            <th scope="col">{columns.state}</th>
-            <th scope="col">{columns.deadline}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
+        <FaTable
+          kind="assessments"
+          caption={ASSESSMENTS_PAGE.caption}
+          columns={[
+            { key: 'name', header: ASSESSMENTS_PAGE.columns.assessment, width: 'name' },
+            { key: 'experiment', header: ASSESSMENTS_PAGE.columns.experiment },
+            { key: 'deadline', header: ASSESSMENTS_PAGE.columns.deadline },
+            { key: 'subs', header: ASSESSMENTS_PAGE.columns.submissions, width: 'subs' },
+            { key: 'state', header: ASSESSMENTS_PAGE.columns.state },
+          ]}
+          rows={shown.map((row) => {
             const { assessment } = row;
             const experiment = experiments.get(assessment.experimentId);
-            const readiness = READINESS_WORDS[row.readiness];
             const ready = row.readiness === 'ready';
-            const action = ready ? ASSESSMENTS_PAGE.open : ASSESSMENTS_PAGE.continueSettingUp;
-            const href = assessmentAddress(assessment.id);
-            return (
-              <tr key={assessment.id}>
-                <td>
-                  <Link href={href}>
-                    <strong>{assessment.name}</strong>
-                  </Link>
-                  <span className="xr-meta block">{assessment.id}</span>
-                </td>
-                <td>
-                  {experiment?.name ?? assessment.experimentId}
-                  {experiment?.courseCode ? (
-                    <span className="xr-meta block">{experiment.courseCode}</span>
-                  ) : null}
-                </td>
-                <td>
-                  <StatusPill tone={readiness.tone}>{readiness.label}</StatusPill>
-                </td>
-                <td>
-                  {ready && assessment.rules.deadline !== null ? (
+            const readiness = READINESS_WORDS[row.readiness];
+            const name = assessmentName(assessment.name);
+            const creator = otherActor(assessment.createdBy, viewer);
+            const own = creator === null;
+            const due = deadlineState(assessment.rules.deadline, ready, today);
+            const meter = own && ready && row.reach > 0;
+            const courseLine = experimentCourseLine(
+              experiment?.courseCode ?? null,
+              experiment?.courseCode ? (courseNames.get(experiment.courseCode) ?? null) : null,
+            );
+            const submissions = !own
+              ? ASSESSMENTS_PAGE.coTeacherSubmissions
+              : ready
+                ? studentsSubmittedWords(row.submitted, row.reach)
+                : draftSubmissionsWords(assessment.questions.length > 0);
+            return {
+              key: assessment.id,
+              link: true,
+              cells: [
+                {
+                  key: 'name',
+                  main: true,
+                  children: (
                     <>
-                      {dueAndSubmittedWords(
-                        deadlineWords(assessment.rules.deadline),
-                        row.submitted,
-                        row.reach,
-                      )}
-                      {row.waitingForMarking > 0 ? (
-                        <>
-                          {' · '}
-                          <StatusPill tone="wait">
-                            {waitingForMarkingWords(row.waitingForMarking)}
-                          </StatusPill>
-                        </>
+                      <FaRowLink
+                        href={assessmentAddress(assessment.id)}
+                        label={rowOpenLabel(name, readiness.label)}
+                      >
+                        {name}
+                      </FaRowLink>
+                      {creator ? <FaCellSub>{createdByWords(creator)}</FaCellSub> : null}
+                    </>
+                  ),
+                },
+                {
+                  key: 'experiment',
+                  wide: true,
+                  noLabel: true,
+                  label: ASSESSMENTS_PAGE.columns.experiment,
+                  children: (
+                    <>
+                      <FaCellName>
+                        {experiment?.name ?? stateWords('FA-08.experiment-unknown')}
+                      </FaCellName>
+                      {courseLine ? <FaCellSub>{courseLine}</FaCellSub> : null}
+                    </>
+                  ),
+                },
+                {
+                  key: 'deadline',
+                  nowrap: true,
+                  label: ASSESSMENTS_PAGE.columns.deadline,
+                  children: (
+                    <>
+                      <FaCellName numeric>
+                        {assessment.rules.deadline === null
+                          ? ASSESSMENTS_PAGE.notSetYet
+                          : deadlineWords(assessment.rules.deadline)}
+                      </FaCellName>
+                      {due.kind === 'left' ? (
+                        <FaAssessmentsDaysLeft>{faDaysLeftWords(due.days)}</FaAssessmentsDaysLeft>
+                      ) : null}
+                      {due.kind === 'passed' ? (
+                        <FaCellSub>{ASSESSMENTS_PAGE.deadlinePassed}</FaCellSub>
                       ) : null}
                     </>
-                  ) : (
-                    draftLineWords(rulesSet(assessment.rules), assessment.questions.length)
-                  )}
-                </td>
-                <td>
-                  <Link
-                    className="xr-btn xr-btn--secondary xr-btn--sm"
-                    href={href}
-                    aria-label={rowActionLabel(action, assessment.name)}
-                  >
-                    {action}
-                  </Link>
-                </td>
-              </tr>
-            );
+                  ),
+                },
+                {
+                  key: 'subs',
+                  label: ASSESSMENTS_PAGE.columns.submissions,
+                  children: (
+                    <>
+                      {meter ? (
+                        <FaCellMeter units={submittedUnits(row.submitted, row.reach)}>
+                          {submissions}
+                        </FaCellMeter>
+                      ) : (
+                        <FaCellSub first>{submissions}</FaCellSub>
+                      )}
+                      {own && row.waitingForMarking > 0 ? (
+                        <FaWaitLine>{waitingForMarkingWords(row.waitingForMarking)}</FaWaitLine>
+                      ) : null}
+                    </>
+                  ),
+                },
+                {
+                  key: 'state',
+                  status: true,
+                  label: ASSESSMENTS_PAGE.columns.state,
+                  children: (
+                    <StatusPill tone={ready ? 'ok' : 'neutral'}>{readiness.label}</StatusPill>
+                  ),
+                },
+              ],
+            };
           })}
-        </tbody>
-      </table>
-    </div>
+        />
+      ) : (
+        <ListState
+          kind="nomatch"
+          live
+          title={ASSESSMENTS_PAGE.noMatchTitle}
+          action={
+            <Button
+              onClick={() => {
+                clear();
+                window.setTimeout(() => document.getElementById(SEARCH_ID)?.focus(), 0);
+              }}
+            >
+              {ASSESSMENTS_PAGE.clearFilters}
+            </Button>
+          }
+        >
+          {ASSESSMENTS_PAGE.noMatchLine}
+        </ListState>
+      )}
+    </>
   );
 }

@@ -1,0 +1,349 @@
+/* ══ FINAL pass: the remaining owned screens, refined with the R1 patterns ═══════════════════════════════
+   Same rules as above: existing tokens, or literals already used in rb.css / rb-kit.css; no new colours,
+   fonts, radius families or shadows. Sections follow the screen IDs. */
+
+/* ── shared: list toolbars, refined table cells, identity-band figures, record band ───────────────────── */
+.fr-cellname{display:block;font:600 15.5px/23px var(--sans);color:var(--ink)}
+.fr-cellname + .fa-cellsub{margin-top:2px}
+.xr-st + .fr-cellname{margin-top:8px}
+.fr-cellline{display:block}
+.fr-cellfm{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin-top:10px}
+.fr-cellfm .rk-fmts{margin-top:0}
+.fr-cellfm .fr-k{font-size:13.5px;line-height:18px}
+.fr-cellfoot{margin-top:10px}
+.fr-cellsub0{margin-top:0}
+.fr-cellmeter{display:flex;flex-direction:column;gap:6px;max-width:220px}
+.fr-cellmeter .fr-units{width:100%}
+.fr-left{display:block;margin-top:2px;font:700 14.5px/21px var(--sans);color:var(--warn)}
+.fa-table td .fr-xwait{margin-top:6px}
+.fr-k + .rk-fmts{margin-top:0}
+
+/* per-format progress inside a table cell: chip and meter on one line, the counts in words under the meter */
+.fr-prog--cell{container-type:normal;gap:10px}
+.fr-prog--cell .fr-prog-row{grid-template-columns:44px minmax(0,148px) minmax(0,1fr);row-gap:4px}
+.fr-prog--cell .fr-prog-t{grid-column:2 / -1;font-size:14.5px;line-height:21px}
+
+@container fatable (max-width: 759.98px){
+  .fr-prog--cell .fr-prog-t{grid-column:1 / -1}
+  /* compact phone rows: the most important pair on one line, labels only where they help */
+  .fr-ptable tbody tr{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:10px}
+  .fr-ptable td{min-width:0}
+  .fr-ptable td.fa-c-main{grid-column:1}
+  .fr-ptable td.fr-c-st{grid-column:2;grid-row:1;justify-self:end;align-self:start}
+  .fr-ptable td.fr-c-st .fa-lbl,.fr-ptable td.fr-c-nolbl .fa-lbl{display:none}
+  .fr-ptable td.fr-c-wide{grid-column:1 / -1}
+  .fr-ptable td.fr-c-inl .fa-lbl{display:inline;margin:0 6px 0 0}
+  .fr-ptable td.fr-c-inl .rk-strong,.fr-ptable td.fr-c-inl .fr-cellname{display:inline}
+  .fr-ptable td.fr-c-st .xr-st{white-space:nowrap}
+  .fr-ptable .fr-pair{display:contents}
+  .fr-ptable2 tbody tr{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .fr-ptable2 td.fr-c-st{grid-column:2}
+}
+/* identity band figures that hold format chips; figure values that are words, not numbers */
+.fr-fig--fm dd{display:flex;align-items:center;min-height:30px}
+.fr-fig--fm dd .rk-fmts{margin-top:0}
+.fr-fig--fm dd.is-quiet{font:600 17px/30px var(--sans);color:var(--ink-3)}
+.fr-fig-v{display:block}
+.fr-fig-v.is-warn{color:var(--warn)}
+.fr-fig-v.is-quiet{font-size:18px;color:var(--ink-3)}
+.fr-fig-v--date{font-size:19px}
+.fr-rec .fr-fig{justify-content:flex-start}
+.fr-fig dt .fr-units{width:132px;margin:8px 0 2px}
+
+/* the record band (assessment): status, ID and the waiting link under the title */
+.fr-rec-t{text-wrap:balance}
+.fr-rec-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px 14px;margin-top:2px;font:500 15.5px/22px var(--sans);color:var(--ink-2)}
+.fr-rec-meta .fa-id{font-size:15px}
+.fr-rec-sep{display:inline-block;width:1px;height:16px;background:var(--rb-tint-line)}
+.rb .fr-rec-wait{display:inline-flex;align-items:center;gap:6px;white-space:normal}
+.fr-rec-wait svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* record tabs: the kit's scrolling tab row on narrow widths (no wrapping onto two rows) */
+@container farec (max-width: 699.98px){
+  .rk-tabs.fa-tabs{flex-wrap:nowrap;overflow-x:auto;scroll-behavior:smooth;margin-right:-16px;padding-right:16px}
+  .rk-tabs.fa-tabs .rk-tab{padding:0 14px}
+}
+
+/* checklist on one line when there is room (ready to use) */
+.fr-checkrow{flex-direction:row;flex-wrap:wrap;gap:8px 28px}
+
+/* two-column rules list (Summary, Preview and create, co-teacher settings) */
+.fr-rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 32px;margin:0}
+.fr-rules > div{display:flex;flex-direction:column;gap:2px;padding:12px 0;border-top:1px solid var(--rb-line)}
+.fr-rules > div:nth-child(-n+2){border-top:0;padding-top:2px}
+.fr-rules dt{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.fr-rules dd{margin:0;font:600 16px/24px var(--sans);color:var(--ink);overflow-wrap:anywhere}
+.fr-rules dd.is-quiet{font-weight:500;color:var(--ink-3)}
+.fr-introbox{display:flex;flex-direction:column;gap:4px;margin-top:14px;padding:14px 16px;border-radius:12px;background:#F7F8FC}
+.fr-introtext{font:400 16px/25px var(--sans);color:var(--ink)}
+.fr-introtext.is-quiet{color:var(--ink-3)}
+
+/* question meta line: a quiet type tag (written answers, the ones you mark, are tinted), marks and ID */
+.fr-qmeta{display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:8px;font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.fr-qtype{display:inline-flex;align-items:center;min-height:24px;padding:1px 8px;border:1px solid var(--rb-line-2);border-radius:7px;background:var(--paper);color:var(--ink-2);font:600 13.5px/20px var(--sans);white-space:nowrap}
+.fr-qtype--w{border-color:#D4D9F3;background:var(--rb-sel-tint);color:var(--indigo-2)}
+.fr-qmeta-m{font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
+
+/* sectioned forms (create step 2, settings): one heading per group, a rule between groups */
+.fr-fsec{display:flex;flex-direction:column;gap:18px;padding:24px 28px 26px;border-top:1px solid var(--rb-line)}
+.fr-fsec:first-child,.fr-fmsg + .fr-fsec,.fr-fhead + .fr-fsec{border-top:0}
+.fr-fsec-t{font:700 17px/24px var(--sans);color:var(--navy)}
+.fr-fsec .rk-fieldset legend{font:700 17px/24px var(--sans);color:var(--navy)}
+.fr-fsec--tint{gap:12px;background:#F7F8FC}
+.fr-fsec--warn{gap:12px;padding-top:4px;border-top:0}
+.fr-fmsg{padding:24px 28px 0}
+.fr-fmsg + .fr-fmsg{padding-top:14px}
+.fr-fhead{display:flex;flex-direction:column;gap:6px;padding:24px 28px 4px}
+.fr-fields3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:auto;gap:18px 20px;align-items:start}
+.fr-fields3 > .rk-field{display:grid;grid-row:span 4;grid-template-rows:subgrid;row-gap:6px;align-content:start}
+.fr-choices3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.fr-choices3 .rk-choice{align-content:start;padding:14px 15px;border-radius:14px}
+.fr-reldate{max-width:360px}
+.fr-form{container:frform / inline-size}
+@container frform (max-width: 599.98px){
+  .fr-fields3{grid-template-columns:minmax(0,1fr)}
+}
+@container frform (max-width: 719.98px){
+  .fr-choices3{grid-template-columns:minmax(0,1fr)}
+}
+
+/* panel bodies used for an assessment summary (FA-05) and the waiting list (FA-08) */
+.fr-apanel{gap:16px}
+.fr-apanel-id{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+.fr-apanel-id .fr-asm-d{margin-top:-2px}
+.fr-apanel .fr-asm-n{line-height:24px}
+.rb .fr-apanel .fr-asm-n .fa-exp-link{color:var(--navy)}
+.fr-panel-acts{display:flex;flex-direction:column;gap:10px;padding-top:4px}
+.fr-panel-acts .rb-btn{width:100%}
+.fr-panel-lead{font:600 16px/24px var(--sans);color:var(--ink)}
+.fr-waitlist{display:flex;flex-direction:column;margin:-4px 0 0;padding:0;list-style:none;border-top:1px solid var(--rb-line)}
+.fr-waitlist li{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:2px 12px;padding:9px 0;border-bottom:1px solid var(--rb-line);font:400 15px/22px var(--sans);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.fr-waitlist b{font-weight:600;color:var(--ink)}
+.fr-panel-x{display:inline-flex;align-items:center;justify-content:center;flex:none;width:36px;height:36px;margin:-4px -8px -4px 0;border:0;border-radius:10px;background:transparent;color:#FFFFFF;cursor:pointer}
+.fr-panel-x:hover{background:var(--rb-rail-hover)}
+.fr-panel-x svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.rk-panel-head h2:focus{outline:none}
+@container rkd (max-width: 859.98px){ .fr-asidefirst > .rk-aside{order:-1} }
+
+/* ── FA-04 Experiments (tab) ────────────────────────────────────────────────────────────────────────────── */
+.fr-xtable th.fr-c-exp{width:36%}
+.fr-xtable th.fr-c-act{width:38%}
+
+/* ── FA-05 Experiment ───────────────────────────────────────────────────────────────────────────────────── */
+.fr-about{max-width:46em;margin-top:10px;font:400 16px/25px var(--sans);color:var(--ink-2)}
+.fr-aboutgrid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:20px 36px;margin-top:22px;padding-top:20px;border-top:1px solid var(--rb-line)}
+.fr-aboutgrid .fa-check{margin-top:12px}
+.fr-reslist{display:flex;flex-direction:column;gap:2px;margin:10px 0 0;padding:0;list-style:none}
+.fr-reslist li{display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:7px 0;font:400 15.5px/23px var(--sans);color:var(--ink)}
+.fr-reslist svg{width:18px;height:18px;margin-top:2px;fill:none;stroke:var(--indigo);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@container rkmain (max-width: 599.98px){
+  .fr-aboutgrid{grid-template-columns:minmax(0,1fr)}
+}
+
+/* ── FA-06 Assessments ──────────────────────────────────────────────────────────────────────────────────── */
+.fr-atable th.fr-c-name{width:24%}
+.fr-atable th.fr-c-subs{width:22%}
+
+/* ── FA-07 Create assessment ────────────────────────────────────────────────────────────────────────────── */
+.fr-author--one{grid-template-columns:minmax(0,880px)}
+.fr-expchoice{padding:16px 16px 16px 14px;border-radius:14px}
+.fr-expchoice-m{grid-column:2;display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;margin-top:8px;font:500 14.5px/21px var(--sans);color:var(--ink-2)}
+.fr-expchoice-m .rk-fmts{margin-top:0}
+.fr-qhead{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px 24px}
+.fr-qhead-t{display:flex;flex-direction:column;gap:2px;flex:1 1 360px;min-width:0}
+.rk-sec > .fr-qhead{margin-bottom:18px}
+.fr-pickcount{margin:4px 0 0}
+.fr-pick{gap:8px}
+.fr-pick .rk-choice{padding:12px 14px}
+.fr-sumlist{display:flex;flex-direction:column;margin:14px 0 0;padding:0;list-style:none}
+.fr-sum-i{display:grid;grid-template-columns:26px minmax(0,1fr);gap:12px;padding:12px 0;border-top:1px solid var(--rb-line)}
+.fr-sum-i:first-child{border-top:0;padding-top:4px}
+.fr-sum-ico{display:flex;align-items:center;justify-content:center;width:24px;height:24px;margin-top:8px;border-radius:50%;box-shadow:inset 0 0 0 1.5px var(--rb-line-2)}
+.fr-sum-ico svg{width:14px;height:14px;fill:none;stroke:#FFFFFF;stroke-width:3;stroke-linecap:round;stroke-linejoin:round}
+.fr-sum-i.is-done .fr-sum-ico{background:var(--ok);box-shadow:none}
+.fr-sum-v{margin-top:1px;font:600 15.5px/22px var(--sans);color:var(--ink-3);overflow-wrap:anywhere}
+.fr-sum-i.is-done .fr-sum-v{color:var(--ink)}
+.fr-sidecheck{margin-top:14px}
+.fr-sidecheck li{font-size:15.5px;line-height:23px}
+.fr-side-note{margin-top:16px}
+.fr-side-ver{margin:10px 0 8px;font:700 15.5px/22px var(--sans);color:var(--ink)}
+.fr-result{gap:16px;padding-top:28px;padding-bottom:30px}
+.fr-result-t{max-width:40em;font:400 17px/26px var(--sans);color:var(--ink)}
+/* phones: the stepper shows every marker but only the current step's label */
+@container rb (max-width: 759.98px){
+  .fr-stepper{flex-wrap:nowrap;gap:6px}
+  .fr-stepper .fa-step{padding:0 8px;gap:0}
+  .fr-stepper .fa-step.is-current{padding:0 14px 0 8px;gap:8px}
+  .fr-stepper .fa-step:not(.is-current) .fr-step-l{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+}
+
+/* ── FA-22 Export CSV: the preview keeps one line per row and scrolls sideways ──────────────────────────────── */
+.fa-export .fa-scrollx .rk-table td{white-space:nowrap}
+
+/* ── FA-08…FA-12 assessment record ──────────────────────────────────────────────────────────────────────── */
+/* FA-09 Questions: add actions on the right; other ways as quiet links; order buttons grouped */
+.fr-qadd{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:10px}
+.fr-qmore{display:flex;flex-wrap:wrap;align-items:center;justify-content:flex-end;gap:4px 10px;width:100%;font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.fr-qlist{margin-top:18px}
+.fr-qlist .fa-q{padding:18px 0}
+.fr-qlist .fa-q:first-child{padding-top:4px}
+.fr-qact{gap:12px}
+.fr-order{display:inline-flex;gap:6px}
+.fr-qfoot{margin-top:14px;padding-top:14px;border-top:1px solid var(--rb-line)}
+.fr-avail{margin-top:2px}
+.fr-avail li{padding:12px 0}
+.fr-avail-t{font:600 15.5px/22px var(--sans);color:var(--ink)}
+
+/* FA-11 Preview: the student's sheet on a quiet stage, at reading width */
+.fr-pvsurf{overflow:hidden}
+.fr-pvbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 24px;padding:16px 22px;border-bottom:1px solid var(--rb-line)}
+.fr-pvstage{padding:28px 28px 32px;background:#F7F8FC}
+.fr-pvsheet{max-width:780px;margin:0 auto;border:1px solid var(--rb-line);border-radius:16px;background:var(--paper);box-shadow:0 1px 2px rgba(19,25,56,.04)}
+.fr-pvhead{display:flex;flex-direction:column;gap:4px;padding:22px 28px 22px;border-bottom:1px solid var(--rb-line)}
+.fr-pvhead-k{display:flex;align-items:center;gap:8px;font:700 14px/20px var(--sans);color:var(--indigo-2)}
+.fr-pvhead-k svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fr-pvhead-t{margin-top:2px;font:700 20px/28px var(--sans);letter-spacing:-.01em;color:var(--navy)}
+.fr-pvhead-d{font:400 15px/22px var(--sans);color:var(--ink-2)}
+.fr-pvhead--key{background:#F1F2FA;border-radius:16px 16px 0 0}
+.fr-pvhead--key .fr-pvhead-k{color:var(--navy)}
+.fr-pvhead--key .fr-pvhead-t{font-size:17px;line-height:24px}
+.fr-pvintro{margin-top:12px;padding:14px 16px;border-radius:12px;background:#F7F8FC;font:400 16px/25px var(--sans);color:var(--ink)}
+.fr-pvlist{margin:0;padding:0;list-style:none}
+.fr-pvq{padding:24px 28px 26px;border-top:1px solid var(--rb-line)}
+.fr-pvq:first-child{border-top:0}
+.fr-pvq-t{margin-top:8px;font:650 17.5px/26px var(--sans);color:var(--ink)}
+.fr-pvopts{margin-top:14px}
+.fr-pvq .fa-wbox{margin-top:14px}
+.fr-pvq .fr-guide{max-width:none;margin-top:16px}
+.fr-expl{margin-top:14px;padding:10px 0 2px 16px;border-left:3px solid var(--rb-line-2)}
+.fr-expl-k{font:700 14px/20px var(--sans);color:var(--ink-3)}
+.fr-expl-t{margin-top:2px;font:400 15.5px/24px var(--sans);color:var(--ink)}
+.fr-pvsheet .rk-state{padding:40px 24px 44px}
+
+/* FA-12 Submissions: one toolbar row, a single-row filter, the score so far on waiting rows */
+.fr-tbar{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 20px}
+.fr-tbar-t{display:flex;flex-direction:column;gap:2px}
+.fr-tbar-act{gap:10px}
+.fr-seg{align-self:flex-start}
+.fr-stable td .fa-res{white-space:nowrap}
+.fr-relsub{margin-top:2px}
+
+/* ── responsive: page level ─────────────────────────────────────────────────────────────────────────────── */
+@container rb (max-width: 759.98px){
+  .fr-tools .fa-field-sel{flex:1 1 140px}
+  .fr-fsec{padding:20px 18px 22px}
+  .fr-fmsg{padding:20px 18px 0}
+  .fr-fhead{padding:20px 18px 2px}
+  .fr-rules{grid-template-columns:minmax(0,1fr)}
+  .fr-rules > div:nth-child(2){border-top:1px solid var(--rb-line);padding-top:12px}
+  .fr-qadd{justify-content:flex-start;width:100%}
+  .fr-qadd .rb-btn{flex:1 1 auto;min-height:44px}
+  .fr-qmore{justify-content:flex-start}
+  .fr-qact{flex-wrap:wrap}
+  .fr-pvbar{padding:14px 16px}
+  .fr-pvbar .fa-seg{width:100%}
+  .fr-pvstage{padding:0;background:var(--paper)}
+  .fr-pvsheet{border:0;border-radius:0;box-shadow:none}
+  .fr-pvhead,.fr-pvq{padding-left:16px;padding-right:16px}
+  .fr-pvhead--key{border-radius:0}
+  .fr-tbar-act{width:100%}
+  .fr-tbar-act .rb-btn{flex:1 1 auto;min-height:44px}
+  .fr-seg{width:100%;flex-wrap:nowrap}
+  .fr-seg button{padding:0 8px;gap:6px}
+  .fr-seg-long{display:none}
+  .fr-panel-acts .rb-btn{min-height:46px}
+  .fr-cellmeter{max-width:none}
+  .fr-fig dt .fr-units{width:120px;margin:6px 0 0}
+  .fr-prog--sum .fr-prog-row{grid-template-columns:44px minmax(0,1fr)}
+  .fr-prog--sum .fr-prog-t{grid-column:1 / -1}
+  .fr-rec-sep{display:none}
+  .fr-fig--fm dd{flex:none}
+  .fr-fig--fm dd .rk-fmts{flex-wrap:nowrap}
+  .fa-formfoot-r .rb-btn--primary{order:-1}
+}
+
+/* ── FA-14 Question bank ─────────────────────────────────────────────────────────────────────────────────── */
+.fr-msgcard .fa-msg-act{margin-top:12px}
+.fr-btable th.fr-c-q{width:46%}
+.fr-btable th.fr-c-used{width:22%}
+.fr-btable .fr-qmeta{margin-top:6px}
+.fr-deleted{display:flex;flex-direction:column;gap:8px;padding:18px 22px 20px;border-top:1px solid var(--rb-line);background:#FAFBFD}
+.fr-author > .fr-form > .fr-fsec > .fr-dlist{margin-top:4px}
+
+/* ── FA-15 Add / edit question ───────────────────────────────────────────────────────────────────────────── */
+.fr-fmsg--stack{display:flex;flex-direction:column;gap:12px}
+.fr-answerhint{padding:12px 14px;border:1.5px dashed var(--rb-line-2);border-radius:12px;font:500 15px/22px var(--sans);color:var(--ink-3)}
+.fr-optlist{display:flex;flex-direction:column;gap:12px}
+.fr-sidedl{display:flex;flex-direction:column;margin:12px 0 0}
+.fr-sidedl > div{display:flex;flex-direction:column;gap:2px;padding:10px 0;border-top:1px solid var(--rb-line)}
+.fr-sidedl > div:first-child{border-top:0;padding-top:2px}
+.fr-sidedl dt{font:600 14px/20px var(--sans);color:var(--ink-3)}
+.fr-sidedl dd{margin:0;font:600 15.5px/22px var(--sans);color:var(--ink);overflow-wrap:anywhere}
+.fr-sidedl dd.is-quiet{font-weight:500;color:var(--ink-3)}
+.fr-seelist{display:flex;flex-direction:column;gap:12px;margin:12px 0 0;padding:0;list-style:none}
+.fr-seelist li{display:flex;flex-direction:column;gap:2px;padding-left:14px;border-left:3px solid var(--rb-line-2)}
+.fr-seelist b{font:650 15px/22px var(--sans);color:var(--ink)}
+.fr-seelist span{font:400 14.5px/21px var(--sans);color:var(--ink-2)}
+
+/* ── FA-17 Import questions ─────────────────────────────────────────────────────────────────────────────── */
+.fr-file{margin-top:4px}
+.fr-dest{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:12px;background:#F7F8FC;font:400 15px/22px var(--sans);color:var(--ink-2)}
+.fr-dest svg{width:18px;height:18px;flex:none;margin-top:2px;fill:none;stroke:var(--indigo);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.fr-filerow{display:flex;align-items:center;gap:10px;font:600 16px/22px var(--sans);color:var(--ink)}
+.fr-repfigs{display:flex;flex-wrap:wrap;margin:0;padding:14px 0;border-top:1px solid var(--rb-line);border-bottom:1px solid var(--rb-line)}
+.fr-repfigs > div{display:flex;flex-direction:column;padding:0 22px;border-left:1px solid var(--rb-line)}
+.fr-repfigs > div:first-child{padding-left:0;border-left:0}
+.fr-repfigs dd{order:-1;margin:0;font:700 24px/30px var(--sans);color:var(--navy);font-variant-numeric:lining-nums tabular-nums}
+.fr-repfigs dt{font:500 14.5px/20px var(--sans);color:var(--ink-2)}
+.fr-repfigs .is-ok dd{color:var(--ok)}
+.fr-repfigs .is-err dd{color:var(--err)}
+.fr-repfigs .is-warn dd{color:var(--warn)}
+.fr-repfigs .is-none dd{color:var(--ink-3)}
+.fr-rowcheck{display:flex;flex-direction:column;gap:12px}
+.fr-boxtable{border:1px solid var(--rb-line);border-radius:12px;overflow:hidden}
+.rb .fr-dl{display:inline-flex;align-items:center;gap:6px;white-space:normal}
+.fr-tpl{display:flex;flex-direction:column;margin:10px 0 0}
+.fr-tpl > div{display:flex;flex-direction:column;gap:2px;padding:9px 0;border-top:1px solid var(--rb-line)}
+.fr-tpl > div:first-child{border-top:0;padding-top:2px}
+.fr-tpl dt{align-self:flex-start;padding:1px 7px;border:1px solid var(--rb-line-2);border-radius:7px;background:#F7F8FC;color:var(--ink);font:600 13.5px/20px var(--sans)}
+.fr-tpl dd{margin:0;font:400 14.5px/21px var(--sans);color:var(--ink-2)}
+@container rb (max-width: 759.98px){
+  .fr-repfigs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 0}
+  .fr-repfigs > div{padding:0 14px}
+  .fr-repfigs > div:nth-child(odd){padding-left:0;border-left:0}
+  .fr-deleted{padding:16px}
+}
+
+/* ── FA-18 Marking queue ────────────────────────────────────────────────────────────────────────────────── */
+.fr-mqcount{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px}
+.fr-oldest{display:inline-flex;align-items:center;gap:6px;font:600 15px/22px var(--sans);color:var(--warn)}
+.fr-oldest svg{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fr-mqtools{align-items:flex-end}
+.fr-mqasm{flex:0 1 420px;max-width:420px}
+
+/* ── FA-20 Students ─────────────────────────────────────────────────────────────────────────────────────── */
+.fr-slsum{display:flex;flex-direction:column;gap:10px;padding:14px 16px 16px;border-radius:12px;background:#F7F8FC}
+.fr-prog--sum{container-type:normal;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:10px 36px}
+.fr-prog--sum .fr-prog-row{grid-template-columns:44px minmax(72px,120px) minmax(0,1fr)}
+.fr-rtable th.fr-c-who{width:20%}
+.fr-rtable th.fr-c-fm{width:33%}
+.fr-rtable th.fr-c-asm{width:26%}
+.fr-fmcell{display:flex;flex-direction:column;gap:6px;margin:0;padding:0;list-style:none}
+.fr-fmcell li{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.fr-fmcell .xr-fmt{height:24px;padding:0 7px;font-size:12px}
+.fr-lastv{display:block}
+@container fatable (max-width: 759.98px){ .fr-lastv{display:inline} }
+
+/* ── FA-21 Student detail ───────────────────────────────────────────────────────────────────────────────── */
+.fr-fmlist{display:flex;flex-direction:column;margin:0;padding:0;list-style:none}
+.fr-fmlist li{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;padding:12px 0;border-top:1px solid var(--rb-line)}
+.fr-fmlist li:first-child{border-top:0;padding-top:2px}
+.fr-fmlist .xr-fmt{width:48px;height:24px;justify-content:center;padding:0;font-size:12px}
+.fr-fmlist-d{font:400 15px/22px var(--sans);color:var(--ink-2)}
+.fr-reslist--status li{grid-template-columns:20px minmax(0,1fr) auto;column-gap:12px;padding:10px 0;border-top:1px solid var(--rb-line)}
+.fr-reslist--status li:first-child{border-top:0;padding-top:2px}
+.fr-reslist--status .rk-next,.fr-reslist--status .fa-quiet{font-size:15px;line-height:23px;text-align:right}
+@container rkmain (max-width: 479.98px){
+  .fr-reslist--status li{grid-template-columns:20px minmax(0,1fr)}
+  .fr-reslist--status li > :last-child{grid-column:2;text-align:left}
+}

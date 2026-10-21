@@ -1,0 +1,1578 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-20T21:03:08Z"
+ },
+ "title": "XR V3 · Faculty complete role · final design",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "boards": {
+  "Coverage-Register.dc.html": {
+   "x": -2100,
+   "y": 300,
+   "w": 1440,
+   "h": 8403,
+   "title": "Complete coverage register · 21 IDs, 111 subviews",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "What-changed.dc.html": {
+   "x": -2100,
+   "y": 8863,
+   "w": 1440,
+   "h": 2386,
+   "title": "What changed · refinements, wording, one stylesheet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Checks.dc.html": {
+   "x": -2100,
+   "y": 11409,
+   "w": 1440,
+   "h": 2957,
+   "title": "Checks and evidence · responsive, journeys, accessibility, foundation",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Main.dc.html": {
+   "x": 0,
+   "y": 300,
+   "w": 1440,
+   "h": 1100,
+   "title": "Live role preview · 7 Nov 2026 · start here",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Live-Oct26.dc.html": {
+   "x": 1520,
+   "y": 300,
+   "w": 1440,
+   "h": 1100,
+   "title": "Live · 26 Oct 2026 · before the assessment exists",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Live-New.dc.html": {
+   "x": 3040,
+   "y": 300,
+   "w": 1440,
+   "h": 1100,
+   "title": "Live · new teacher · no students yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Live-Coteach.dc.html": {
+   "x": 4560,
+   "y": 300,
+   "w": 1440,
+   "h": 1100,
+   "title": "Live · co-teacher Dr Anita Desai",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Live-Laptop.dc.html": {
+   "x": 6080,
+   "y": 300,
+   "w": 1024,
+   "h": 1100,
+   "title": "Live · laptop 1024 · 7 Nov 2026",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Live-Tablet.dc.html": {
+   "x": 7184,
+   "y": 300,
+   "w": 768,
+   "h": 1100,
+   "title": "Live · tablet 768 · 7 Nov 2026",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Live-Phone.dc.html": {
+   "x": 8032,
+   "y": 300,
+   "w": 375,
+   "h": 2015,
+   "title": "Live · phone 375 · 7 Nov 2026",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA01-Overview.dc.html": {
+   "x": 0,
+   "y": 2695,
+   "w": 1440,
+   "h": 961,
+   "title": "FA-01 Overview · populated",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA01-One-item.dc.html": {
+   "x": 1520,
+   "y": 2695,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-01 · one item needs attention · 26 Oct",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA01-New-teacher.dc.html": {
+   "x": 3040,
+   "y": 2695,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-01 · new teacher, no students yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA01-No-courses.dc.html": {
+   "x": 4560,
+   "y": 2695,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-01 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA01-Coteach.dc.html": {
+   "x": 6080,
+   "y": 2695,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-01 · co-teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA01-Phone.dc.html": {
+   "x": 7600,
+   "y": 2695,
+   "w": 375,
+   "h": 2015,
+   "title": "FA-01 Overview · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA01-New-phone.dc.html": {
+   "x": 8055,
+   "y": 2695,
+   "w": 375,
+   "h": 1599,
+   "title": "FA-01 · new teacher · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA02-My-courses.dc.html": {
+   "x": 0,
+   "y": 5090,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-02 My courses · populated",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA02-New.dc.html": {
+   "x": 1520,
+   "y": 5090,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-02 · new teacher, no students yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA02-None.dc.html": {
+   "x": 3040,
+   "y": 5090,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-02 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA02-Phone.dc.html": {
+   "x": 4560,
+   "y": 5090,
+   "w": 375,
+   "h": 1088,
+   "title": "FA-02 My courses · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA03-Course.dc.html": {
+   "x": 0,
+   "y": 6558,
+   "w": 1440,
+   "h": 973,
+   "title": "FA-03 Course · populated",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA03-No-assessment.dc.html": {
+   "x": 1520,
+   "y": 6558,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-03 · no assessment yet · 26 Oct",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA03-New.dc.html": {
+   "x": 3040,
+   "y": 6558,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-03 · new teacher, no students yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA03-Coteach.dc.html": {
+   "x": 4560,
+   "y": 6558,
+   "w": 1440,
+   "h": 923,
+   "title": "FA-03 · co-teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA03-Phone.dc.html": {
+   "x": 6080,
+   "y": 6558,
+   "w": 375,
+   "h": 1555,
+   "title": "FA-03 Course · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA04-Experiments.dc.html": {
+   "x": 0,
+   "y": 8493,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-04 Experiments · populated",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA04-No-match.dc.html": {
+   "x": 1520,
+   "y": 8493,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-04 · no experiment matches",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA04-Loading.dc.html": {
+   "x": 3040,
+   "y": 8493,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-04 · loading",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA04-Failed.dc.html": {
+   "x": 4560,
+   "y": 8493,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-04 · couldn’t load",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA04-No-courses.dc.html": {
+   "x": 6080,
+   "y": 8493,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-04 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA04-New.dc.html": {
+   "x": 7600,
+   "y": 8493,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-04 · no student activity yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA04-Phone.dc.html": {
+   "x": 9120,
+   "y": 8493,
+   "w": 375,
+   "h": 978,
+   "title": "FA-04 Experiments · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA05-Experiment.dc.html": {
+   "x": 0,
+   "y": 9851,
+   "w": 1440,
+   "h": 1054,
+   "title": "FA-05 Experiment · populated",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA05-No-assessment.dc.html": {
+   "x": 1520,
+   "y": 9851,
+   "w": 1440,
+   "h": 1054,
+   "title": "FA-05 · no assessment yet · 26 Oct",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA05-New.dc.html": {
+   "x": 3040,
+   "y": 9851,
+   "w": 1440,
+   "h": 1001,
+   "title": "FA-05 · no students with access yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA05-Coteach.dc.html": {
+   "x": 4560,
+   "y": 9851,
+   "w": 1440,
+   "h": 1054,
+   "title": "FA-05 · co-teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA05-Phone.dc.html": {
+   "x": 6080,
+   "y": 9851,
+   "w": 375,
+   "h": 2037,
+   "title": "FA-05 Experiment · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA06-Assessments.dc.html": {
+   "x": 0,
+   "y": 12268,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-06 Assessments · populated",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA06-None-yet.dc.html": {
+   "x": 1520,
+   "y": 12268,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-06 · no assessment yet · 26 Oct",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA06-No-courses.dc.html": {
+   "x": 3040,
+   "y": 12268,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-06 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA06-Phone.dc.html": {
+   "x": 4560,
+   "y": 12268,
+   "w": 375,
+   "h": 900,
+   "title": "FA-06 Assessments · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Step1.dc.html": {
+   "x": 0,
+   "y": 13548,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-07 · step 1 · experiment · 26 Oct",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Step2-errors.dc.html": {
+   "x": 1520,
+   "y": 13548,
+   "w": 1440,
+   "h": 1584,
+   "title": "FA-07 · step 2 · rules with errors",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Step3.dc.html": {
+   "x": 3040,
+   "y": 13548,
+   "w": 1440,
+   "h": 1265,
+   "title": "FA-07 · step 3 · questions",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Step4.dc.html": {
+   "x": 4560,
+   "y": 13548,
+   "w": 1440,
+   "h": 1453,
+   "title": "FA-07 · step 4 · preview and create",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Created.dc.html": {
+   "x": 6080,
+   "y": 13548,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-07 · created and ready",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Saved-draft.dc.html": {
+   "x": 7600,
+   "y": 13548,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-07 · saved as a draft",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-One-per-experiment.dc.html": {
+   "x": 9120,
+   "y": 13548,
+   "w": 1440,
+   "h": 1033,
+   "title": "FA-07 · experiment already has one",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-No-courses.dc.html": {
+   "x": 10640,
+   "y": 13548,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-07 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Phone.dc.html": {
+   "x": 12160,
+   "y": 13548,
+   "w": 375,
+   "h": 2263,
+   "title": "FA-07 · step 2 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA07-Step4-phone.dc.html": {
+   "x": 12615,
+   "y": 13548,
+   "w": 375,
+   "h": 2293,
+   "title": "FA-07 · step 4 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA08-Summary.dc.html": {
+   "x": 0,
+   "y": 16221,
+   "w": 1440,
+   "h": 1420,
+   "title": "FA-08 Summary · ready, 2 waiting",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA08-Draft.dc.html": {
+   "x": 1520,
+   "y": 16221,
+   "w": 1440,
+   "h": 1458,
+   "title": "FA-08 · draft, no questions yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA08-Version2.dc.html": {
+   "x": 3040,
+   "y": 16221,
+   "w": 1440,
+   "h": 1639,
+   "title": "FA-08 · version 2 after submissions",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA08-Coteach.dc.html": {
+   "x": 4560,
+   "y": 16221,
+   "w": 1440,
+   "h": 1402,
+   "title": "FA-08 · co-teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA08-Phone.dc.html": {
+   "x": 6080,
+   "y": 16221,
+   "w": 375,
+   "h": 2358,
+   "title": "FA-08 Summary · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA09-Questions.dc.html": {
+   "x": 0,
+   "y": 18959,
+   "w": 1440,
+   "h": 1177,
+   "title": "FA-09 Questions · 4 questions",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA09-Add-from-bank.dc.html": {
+   "x": 1520,
+   "y": 18959,
+   "w": 1440,
+   "h": 1422,
+   "title": "FA-09 · add from question bank panel",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA09-New-version.dc.html": {
+   "x": 3040,
+   "y": 18959,
+   "w": 1440,
+   "h": 1311,
+   "title": "FA-09 · added after submissions · version 2",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA09-Coteach.dc.html": {
+   "x": 4560,
+   "y": 18959,
+   "w": 1440,
+   "h": 1162,
+   "title": "FA-09 · co-teacher, read only",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA09-Phone.dc.html": {
+   "x": 6080,
+   "y": 18959,
+   "w": 375,
+   "h": 1936,
+   "title": "FA-09 Questions · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA10-Settings.dc.html": {
+   "x": 0,
+   "y": 21275,
+   "w": 1440,
+   "h": 1547,
+   "title": "FA-10 Settings",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA10-Errors.dc.html": {
+   "x": 1520,
+   "y": 21275,
+   "w": 1440,
+   "h": 1867,
+   "title": "FA-10 · errors",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA10-Rule-change.dc.html": {
+   "x": 3040,
+   "y": 21275,
+   "w": 1440,
+   "h": 1684,
+   "title": "FA-10 · rule change after submissions",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA10-Release-change.dc.html": {
+   "x": 4560,
+   "y": 21275,
+   "w": 1440,
+   "h": 1707,
+   "title": "FA-10 · release change warning",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA10-Coteach.dc.html": {
+   "x": 6080,
+   "y": 21275,
+   "w": 1440,
+   "h": 1044,
+   "title": "FA-10 · co-teacher, read only",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA10-Phone.dc.html": {
+   "x": 7600,
+   "y": 21275,
+   "w": 375,
+   "h": 2420,
+   "title": "FA-10 Settings · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA11-Student-view.dc.html": {
+   "x": 0,
+   "y": 24075,
+   "w": 1440,
+   "h": 2105,
+   "title": "FA-11 Preview · as students see it",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA11-Answer-key.dc.html": {
+   "x": 1520,
+   "y": 24075,
+   "w": 1440,
+   "h": 2370,
+   "title": "FA-11 · with the answer key",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA11-Failed.dc.html": {
+   "x": 3040,
+   "y": 24075,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-11 · preview couldn’t load",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA11-Coteach.dc.html": {
+   "x": 4560,
+   "y": 24075,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-11 · co-teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA11-Phone.dc.html": {
+   "x": 6080,
+   "y": 24075,
+   "w": 375,
+   "h": 3178,
+   "title": "FA-11 · answer key · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA12-Submissions.dc.html": {
+   "x": 0,
+   "y": 27633,
+   "w": 1440,
+   "h": 931,
+   "title": "FA-12 Submissions · 2 waiting",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA12-Marked.dc.html": {
+   "x": 1520,
+   "y": 27633,
+   "w": 1440,
+   "h": 931,
+   "title": "FA-12 · one marked, result not released",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA12-Export.dc.html": {
+   "x": 3040,
+   "y": 27633,
+   "w": 1440,
+   "h": 1204,
+   "title": "FA-22 Export CSV on FA-12",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA12-Coteach.dc.html": {
+   "x": 4560,
+   "y": 27633,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-12 · co-teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA12-Phone.dc.html": {
+   "x": 6080,
+   "y": 27633,
+   "w": 375,
+   "h": 1339,
+   "title": "FA-12 Submissions · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-Question-bank.dc.html": {
+   "x": 0,
+   "y": 29352,
+   "w": 1440,
+   "h": 1309,
+   "title": "FA-14 Question bank · questions",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-Drafts.dc.html": {
+   "x": 1520,
+   "y": 29352,
+   "w": 1440,
+   "h": 1583,
+   "title": "FA-14 · drafts to review",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-Delete.dc.html": {
+   "x": 3040,
+   "y": 29352,
+   "w": 1440,
+   "h": 1309,
+   "title": "FA-14 · delete a used question (dialog)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-Deleted.dc.html": {
+   "x": 4560,
+   "y": 29352,
+   "w": 1440,
+   "h": 1385,
+   "title": "FA-14 · question deleted, history kept",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-No-match.dc.html": {
+   "x": 6080,
+   "y": 29352,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-14 · no question matches",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-Empty.dc.html": {
+   "x": 7600,
+   "y": 29352,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-14 · empty bank, new teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-Phone.dc.html": {
+   "x": 9120,
+   "y": 29352,
+   "w": 375,
+   "h": 2187,
+   "title": "FA-14 Question bank · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA14-Drafts-phone.dc.html": {
+   "x": 9575,
+   "y": 29352,
+   "w": 375,
+   "h": 2665,
+   "title": "FA-14 · drafts to review · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA15-New.dc.html": {
+   "x": 0,
+   "y": 32397,
+   "w": 1440,
+   "h": 1286,
+   "title": "FA-15 Add a question",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA15-Errors.dc.html": {
+   "x": 1520,
+   "y": 32397,
+   "w": 1440,
+   "h": 1848,
+   "title": "FA-15 · add a question with errors",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA15-Used.dc.html": {
+   "x": 3040,
+   "y": 32397,
+   "w": 1440,
+   "h": 1765,
+   "title": "FA-15 · edit a used question",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA15-Draft-review.dc.html": {
+   "x": 4560,
+   "y": 32397,
+   "w": 1440,
+   "h": 1526,
+   "title": "FA-15 · review a draft",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA15-Phone.dc.html": {
+   "x": 6080,
+   "y": 32397,
+   "w": 375,
+   "h": 2531,
+   "title": "FA-15 · errors · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-Draft.dc.html": {
+   "x": 0,
+   "y": 35308,
+   "w": 1440,
+   "h": 1167,
+   "title": "FA-16 Draft with assistance · choices",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-Errors.dc.html": {
+   "x": 1520,
+   "y": 35308,
+   "w": 1440,
+   "h": 1409,
+   "title": "FA-16 · nothing chosen",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-Busy.dc.html": {
+   "x": 3040,
+   "y": 35308,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-16 · drafting",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-Drafts-list.dc.html": {
+   "x": 4560,
+   "y": 35308,
+   "w": 1440,
+   "h": 1410,
+   "title": "FA-16 · drafts to review",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-Failed.dc.html": {
+   "x": 6080,
+   "y": 35308,
+   "w": 1440,
+   "h": 1276,
+   "title": "FA-16 · drafting failed",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-No-courses.dc.html": {
+   "x": 7600,
+   "y": 35308,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-16 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-Phone.dc.html": {
+   "x": 9120,
+   "y": 35308,
+   "w": 375,
+   "h": 2214,
+   "title": "FA-16 · choices · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA16-List-phone.dc.html": {
+   "x": 9575,
+   "y": 35308,
+   "w": 375,
+   "h": 2534,
+   "title": "FA-16 · drafts to review · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA17-Choose.dc.html": {
+   "x": 0,
+   "y": 38222,
+   "w": 1440,
+   "h": 1067,
+   "title": "FA-17 Import · choose a file",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA17-Not-CSV.dc.html": {
+   "x": 1520,
+   "y": 38222,
+   "w": 1440,
+   "h": 1067,
+   "title": "FA-17 · not a CSV file",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA17-Row-errors.dc.html": {
+   "x": 3040,
+   "y": 38222,
+   "w": 1440,
+   "h": 1260,
+   "title": "FA-17 · row errors block the import",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA17-Confirm.dc.html": {
+   "x": 4560,
+   "y": 38222,
+   "w": 1440,
+   "h": 1067,
+   "title": "FA-17 · confirm",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA17-Done.dc.html": {
+   "x": 6080,
+   "y": 38222,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-17 · imported",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA17-Phone.dc.html": {
+   "x": 7600,
+   "y": 38222,
+   "w": 375,
+   "h": 2240,
+   "title": "FA-17 · row errors · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA18-Marking.dc.html": {
+   "x": 0,
+   "y": 40842,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-18 Marking · 2 waiting",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA18-All.dc.html": {
+   "x": 1520,
+   "y": 40842,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-18 · all submissions, one marked",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA18-Nothing-waiting.dc.html": {
+   "x": 3040,
+   "y": 40842,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-18 · nothing waiting · 26 Oct",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA18-No-courses.dc.html": {
+   "x": 4560,
+   "y": 40842,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-18 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA18-Phone.dc.html": {
+   "x": 6080,
+   "y": 40842,
+   "w": 375,
+   "h": 1082,
+   "title": "FA-18 Marking · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA19-Mark.dc.html": {
+   "x": 0,
+   "y": 42304,
+   "w": 1440,
+   "h": 1042,
+   "title": "FA-19 Mark a submission · waiting",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA19-Invalid-mark.dc.html": {
+   "x": 1520,
+   "y": 42304,
+   "w": 1440,
+   "h": 1042,
+   "title": "FA-19 · mark out of range",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA19-Saved.dc.html": {
+   "x": 3040,
+   "y": 42304,
+   "w": 1440,
+   "h": 1042,
+   "title": "FA-19 · mark saved, not confirmed",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA19-Confirm.dc.html": {
+   "x": 4560,
+   "y": 42304,
+   "w": 1440,
+   "h": 1042,
+   "title": "FA-19 · confirm marks (dialog)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA19-Confirmed.dc.html": {
+   "x": 6080,
+   "y": 42304,
+   "w": 1440,
+   "h": 1067,
+   "title": "FA-19 · confirmed, read only",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA19-Released.dc.html": {
+   "x": 7600,
+   "y": 42304,
+   "w": 1440,
+   "h": 1042,
+   "title": "FA-19 · result released · 15 Nov",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA19-Phone.dc.html": {
+   "x": 9120,
+   "y": 42304,
+   "w": 375,
+   "h": 2380,
+   "title": "FA-19 · mark saved · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-Students.dc.html": {
+   "x": 0,
+   "y": 45064,
+   "w": 1440,
+   "h": 1148,
+   "title": "FA-20 Students · all",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-Inactive.dc.html": {
+   "x": 1520,
+   "y": 45064,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-20 · inactive 14 days or more",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-No-match.dc.html": {
+   "x": 3040,
+   "y": 45064,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-20 · no student matches",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-Export.dc.html": {
+   "x": 4560,
+   "y": 45064,
+   "w": 1440,
+   "h": 1585,
+   "title": "FA-22 Export CSV on FA-20",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-No-students.dc.html": {
+   "x": 6080,
+   "y": 45064,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-20 · no students yet",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-No-courses.dc.html": {
+   "x": 7600,
+   "y": 45064,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-20 · no courses assigned",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-Phone.dc.html": {
+   "x": 9120,
+   "y": 45064,
+   "w": 375,
+   "h": 2304,
+   "title": "FA-20 Students · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA20-Export-phone.dc.html": {
+   "x": 9575,
+   "y": 45064,
+   "w": 375,
+   "h": 2876,
+   "title": "FA-22 Export CSV on FA-20 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA21-Student.dc.html": {
+   "x": 0,
+   "y": 48320,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-21 Student detail · waiting for marking",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA21-Marked.dc.html": {
+   "x": 1520,
+   "y": 48320,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-21 · marked, result not released",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA21-Released.dc.html": {
+   "x": 3040,
+   "y": 48320,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-21 · result released · 15 Nov",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA21-Inactive.dc.html": {
+   "x": 4560,
+   "y": 48320,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-21 · inactive student",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA21-Coteach.dc.html": {
+   "x": 6080,
+   "y": 48320,
+   "w": 1440,
+   "h": 900,
+   "title": "FA-21 · co-teacher",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "FA21-Phone.dc.html": {
+   "x": 7600,
+   "y": 48320,
+   "w": 375,
+   "h": 1305,
+   "title": "FA-21 Student detail · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-Account-menu.dc.html": {
+   "x": 0,
+   "y": 50005,
+   "w": 1440,
+   "h": 961,
+   "title": "XS-05 Account menu (borrowed)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-Menu-phone.dc.html": {
+   "x": 1520,
+   "y": 50005,
+   "w": 375,
+   "h": 2015,
+   "title": "XS-05 Menu drawer · 375 (borrowed)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-Help.dc.html": {
+   "x": 1975,
+   "y": 50005,
+   "w": 1440,
+   "h": 900,
+   "title": "XS-07 Help & support (borrowed)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-Help-report.dc.html": {
+   "x": 3495,
+   "y": 50005,
+   "w": 1440,
+   "h": 900,
+   "title": "XS-07 Report a problem (borrowed)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-Signed-out.dc.html": {
+   "x": 5015,
+   "y": 50005,
+   "w": 1440,
+   "h": 900,
+   "title": "XS-03 Signed out (borrowed)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "XS-Not-your-workspace.dc.html": {
+   "x": 6535,
+   "y": 50005,
+   "w": 1440,
+   "h": 900,
+   "title": "XS-06 Not your workspace (borrowed)",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Refusal-Course.dc.html": {
+   "x": 8055,
+   "y": 50005,
+   "w": 1440,
+   "h": 900,
+   "title": "Refusal · course not assigned to you",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "Refusal-Co-teacher-marking.dc.html": {
+   "x": 9575,
+   "y": 50005,
+   "w": 1440,
+   "h": 900,
+   "title": "Refusal · co-teacher opens a submission",
+   "expand": "fill",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Coverage-Register.dc.html",
+  "What-changed.dc.html",
+  "Checks.dc.html",
+  "Live-Oct26.dc.html",
+  "Live-New.dc.html",
+  "Live-Coteach.dc.html",
+  "Live-Laptop.dc.html",
+  "Live-Tablet.dc.html",
+  "Live-Phone.dc.html",
+  "FA01-Overview.dc.html",
+  "FA01-One-item.dc.html",
+  "FA01-New-teacher.dc.html",
+  "FA01-No-courses.dc.html",
+  "FA01-Coteach.dc.html",
+  "FA01-Phone.dc.html",
+  "FA01-New-phone.dc.html",
+  "FA02-My-courses.dc.html",
+  "FA02-New.dc.html",
+  "FA02-None.dc.html",
+  "FA02-Phone.dc.html",
+  "FA03-Course.dc.html",
+  "FA03-No-assessment.dc.html",
+  "FA03-New.dc.html",
+  "FA03-Coteach.dc.html",
+  "FA03-Phone.dc.html",
+  "FA04-Experiments.dc.html",
+  "FA04-No-match.dc.html",
+  "FA04-Loading.dc.html",
+  "FA04-Failed.dc.html",
+  "FA04-No-courses.dc.html",
+  "FA04-New.dc.html",
+  "FA04-Phone.dc.html",
+  "FA05-Experiment.dc.html",
+  "FA05-No-assessment.dc.html",
+  "FA05-New.dc.html",
+  "FA05-Coteach.dc.html",
+  "FA05-Phone.dc.html",
+  "FA06-Assessments.dc.html",
+  "FA06-None-yet.dc.html",
+  "FA06-No-courses.dc.html",
+  "FA06-Phone.dc.html",
+  "FA07-Step1.dc.html",
+  "FA07-Step2-errors.dc.html",
+  "FA07-Step3.dc.html",
+  "FA07-Step4.dc.html",
+  "FA07-Created.dc.html",
+  "FA07-Saved-draft.dc.html",
+  "FA07-One-per-experiment.dc.html",
+  "FA07-No-courses.dc.html",
+  "FA07-Phone.dc.html",
+  "FA07-Step4-phone.dc.html",
+  "FA08-Summary.dc.html",
+  "FA08-Draft.dc.html",
+  "FA08-Version2.dc.html",
+  "FA08-Coteach.dc.html",
+  "FA08-Phone.dc.html",
+  "FA09-Questions.dc.html",
+  "FA09-Add-from-bank.dc.html",
+  "FA09-New-version.dc.html",
+  "FA09-Coteach.dc.html",
+  "FA09-Phone.dc.html",
+  "FA10-Settings.dc.html",
+  "FA10-Errors.dc.html",
+  "FA10-Rule-change.dc.html",
+  "FA10-Release-change.dc.html",
+  "FA10-Coteach.dc.html",
+  "FA10-Phone.dc.html",
+  "FA11-Student-view.dc.html",
+  "FA11-Answer-key.dc.html",
+  "FA11-Failed.dc.html",
+  "FA11-Coteach.dc.html",
+  "FA11-Phone.dc.html",
+  "FA12-Submissions.dc.html",
+  "FA12-Marked.dc.html",
+  "FA12-Export.dc.html",
+  "FA12-Coteach.dc.html",
+  "FA12-Phone.dc.html",
+  "FA14-Question-bank.dc.html",
+  "FA14-Drafts.dc.html",
+  "FA14-Delete.dc.html",
+  "FA14-Deleted.dc.html",
+  "FA14-No-match.dc.html",
+  "FA14-Empty.dc.html",
+  "FA14-Phone.dc.html",
+  "FA14-Drafts-phone.dc.html",
+  "FA15-New.dc.html",
+  "FA15-Errors.dc.html",
+  "FA15-Used.dc.html",
+  "FA15-Draft-review.dc.html",
+  "FA15-Phone.dc.html",
+  "FA16-Draft.dc.html",
+  "FA16-Errors.dc.html",
+  "FA16-Busy.dc.html",
+  "FA16-Drafts-list.dc.html",
+  "FA16-Failed.dc.html",
+  "FA16-No-courses.dc.html",
+  "FA16-Phone.dc.html",
+  "FA16-List-phone.dc.html",
+  "FA17-Choose.dc.html",
+  "FA17-Not-CSV.dc.html",
+  "FA17-Row-errors.dc.html",
+  "FA17-Confirm.dc.html",
+  "FA17-Done.dc.html",
+  "FA17-Phone.dc.html",
+  "FA18-Marking.dc.html",
+  "FA18-All.dc.html",
+  "FA18-Nothing-waiting.dc.html",
+  "FA18-No-courses.dc.html",
+  "FA18-Phone.dc.html",
+  "FA19-Mark.dc.html",
+  "FA19-Invalid-mark.dc.html",
+  "FA19-Saved.dc.html",
+  "FA19-Confirm.dc.html",
+  "FA19-Confirmed.dc.html",
+  "FA19-Released.dc.html",
+  "FA19-Phone.dc.html",
+  "FA20-Students.dc.html",
+  "FA20-Inactive.dc.html",
+  "FA20-No-match.dc.html",
+  "FA20-Export.dc.html",
+  "FA20-No-students.dc.html",
+  "FA20-No-courses.dc.html",
+  "FA20-Phone.dc.html",
+  "FA20-Export-phone.dc.html",
+  "FA21-Student.dc.html",
+  "FA21-Marked.dc.html",
+  "FA21-Released.dc.html",
+  "FA21-Inactive.dc.html",
+  "FA21-Coteach.dc.html",
+  "FA21-Phone.dc.html",
+  "XS-Account-menu.dc.html",
+  "XS-Menu-phone.dc.html",
+  "XS-Help.dc.html",
+  "XS-Help-report.dc.html",
+  "XS-Signed-out.dc.html",
+  "XS-Not-your-workspace.dc.html",
+  "Refusal-Course.dc.html",
+  "Refusal-Co-teacher-marking.dc.html"
+ ],
+ "notes": {
+  "t-docs": {
+   "x": -2100,
+   "y": 40,
+   "text": "Read me · coverage register, what changed, checks",
+   "kind": "title1",
+   "maxW": 1440
+  },
+  "t-r0": {
+   "x": 0,
+   "y": 40,
+   "text": "Start here · live role preview and live starting points (each keeps its own sample state)",
+   "kind": "title1",
+   "maxW": 8407
+  },
+  "t-r1": {
+   "x": 0,
+   "y": 2435,
+   "text": "FA-01 Overview · REDESIGNED · R1 checkpoint",
+   "kind": "title1",
+   "maxW": 8430
+  },
+  "t-r2": {
+   "x": 0,
+   "y": 4830,
+   "text": "FA-02 My courses · REDESIGNED · R1 checkpoint",
+   "kind": "title1",
+   "maxW": 4935
+  },
+  "t-r3": {
+   "x": 0,
+   "y": 6298,
+   "text": "FA-03 Course (teaching view) · REDESIGNED · R1 checkpoint",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r4": {
+   "x": 0,
+   "y": 8233,
+   "text": "FA-04 Experiments (tab) · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 9495
+  },
+  "t-r5": {
+   "x": 0,
+   "y": 9591,
+   "text": "FA-05 Experiment (teaching view) · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r6": {
+   "x": 0,
+   "y": 12008,
+   "text": "FA-06 Assessments · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 4935
+  },
+  "t-r7": {
+   "x": 0,
+   "y": 13288,
+   "text": "FA-07 Create assessment (4 steps) · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 12990
+  },
+  "t-r8": {
+   "x": 0,
+   "y": 15961,
+   "text": "FA-08 Assessment · Summary · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r9": {
+   "x": 0,
+   "y": 18699,
+   "text": "FA-09 Assessment · Questions · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r10": {
+   "x": 0,
+   "y": 21015,
+   "text": "FA-10 Assessment · Settings · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 7975
+  },
+  "t-r11": {
+   "x": 0,
+   "y": 23815,
+   "text": "FA-11 Assessment · Preview · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r12": {
+   "x": 0,
+   "y": 27373,
+   "text": "FA-12 Assessment · Submissions · FA-22 Export CSV · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r13": {
+   "x": 0,
+   "y": 29092,
+   "text": "FA-14 Question bank (Questions · Drafts to review) · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 9950
+  },
+  "t-r14": {
+   "x": 0,
+   "y": 32137,
+   "text": "FA-15 Add / edit question · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r15": {
+   "x": 0,
+   "y": 35048,
+   "text": "FA-16 Draft questions with assistance · REDESIGNED · R1 checkpoint",
+   "kind": "title1",
+   "maxW": 9950
+  },
+  "t-r16": {
+   "x": 0,
+   "y": 37962,
+   "text": "FA-17 Import questions (CSV) · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 7975
+  },
+  "t-r17": {
+   "x": 0,
+   "y": 40582,
+   "text": "FA-18 Marking queue · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 6455
+  },
+  "t-r18": {
+   "x": 0,
+   "y": 42044,
+   "text": "FA-19 Mark a submission · REDESIGNED · R1 checkpoint",
+   "kind": "title1",
+   "maxW": 9495
+  },
+  "t-r19": {
+   "x": 0,
+   "y": 44804,
+   "text": "FA-20 Students · FA-22 Export CSV · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 9950
+  },
+  "t-r20": {
+   "x": 0,
+   "y": 48060,
+   "text": "FA-21 Student detail (per experiment) · REDESIGNED · final pass",
+   "kind": "title1",
+   "maxW": 7975
+  },
+  "t-r21": {
+   "x": 0,
+   "y": 49745,
+   "text": "Shared surfaces (borrowed XS contract) and refusals · reviewed and unchanged",
+   "kind": "title1",
+   "maxW": 11015
+  },
+  "s-status": {
+   "x": -560,
+   "y": 300,
+   "w": 480,
+   "fill": "blue",
+   "size": "m",
+   "text": "Faculty V3 · FINAL complete-role design\n\nAPPROVED BY THE OWNER, 21 October 2026.\n\nPress Play on “Live role preview” (right): every rail destination, tab, step, dialog and action works inside it. The live boards beside it start at 26 Oct, as a new teacher, as a co-teacher, and at 1024, 768 and 375 px.\n\nLeft: the coverage register (21 IDs, 111 subviews), what changed, and the checks.\n\nBelow: one row per owned ID — its states at 1440, then 375.\n\nInternal technical IDs are out of ordinary user-facing labels in this role; course codes and student IDs stay."
+  }
+ },
+ "designSystems": []
+}

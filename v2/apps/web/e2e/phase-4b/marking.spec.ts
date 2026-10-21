@@ -8,16 +8,17 @@ import { checkState } from '../support/screen-checks';
 import { currentSidebarItem, expectSameDocument, markDocument } from '../support/workspace';
 
 /**
- * FA-18 Marking queue and FA-19 Mark a submission (board B4-09 f0 … f5, f7, f8), and the FA-01
- * Overview actions they make possible (B4-01 f0, f4), on the test-hook build at 1440, 1024, 768
- * and 375. Each drawn state passes `checkState` (axe WCAG A/AA, one h1, visible focus targets,
- * 24 × 24 targets, no developer surface, no sideways scroll). Worlds: after Flow C as Dr S.
- * Ranganathan — he creates “Heat Exchanger — post-lab” (the walk’s D1), Meera Iyer gives Priya
- * Natarajan the experiment and Rahul and Priya submit (the CI seam only SETS UP the world; the
- * stand-in marks their choice questions on submit). Everything the screens do — the filters,
- * “Mark next”, typing a mark, Save mark, Confirm marks through DL-1, “Next submission”, the
- * Overview’s “Mark now” and “View students” — is done by real clicks and typing. After Flow D,
- * the confirmed and released attempt; after Flow B, the inactive-students row.
+ * FA-18 Marking queue and FA-19 Mark a submission as the owner-approved Faculty export draws them
+ * (V3 Refined B, FA-v1 `Main.dc.html` FA-18, FA-19 and the Confirm marks dialog), and the FA-01
+ * Overview actions they make possible (the teaching group's describe), on the test-hook build at
+ * 1440, 1024, 768 and 375. Each drawn state passes `checkState` (axe WCAG A/AA, one h1, visible
+ * focus targets, 24 × 24 targets, no developer surface, no sideways scroll) and shows no internal
+ * reference (the owner's identifier rule). Worlds: after Flow C as Dr S. Ranganathan — he creates
+ * “Heat Exchanger — post-lab” (the walk’s D1), Meera Iyer gives Priya Natarajan the experiment and
+ * Rahul and Priya submit (the CI seam only SETS UP the world; the stand-in marks their choice
+ * questions on submit). Everything the screens do — the filters, “Mark next”, typing a mark, Save
+ * mark, Confirm marks through the dialog, “Next submission”, the breadcrumb — is done by real
+ * clicks and typing. After Flow D, the confirmed and released attempt.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -43,6 +44,9 @@ const FEEDBACK =
 const SHOTS =
   process.env['XR_PRODUCT_SHOTS'] ??
   '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/e6f2f9f4-aaaa-49f8-bcc7-f8cf4cd1eb0d/scratchpad/shots-product/marking';
+
+/** An internal reference: the Faculty’s ids (ASMT-, ATT-, Q-, D-) and every other role’s. */
+const REFERENCE = /\b(?:ASMT|ATT|Q|D|REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
 
 type PortAnswer<T> = { readonly ok: true; readonly value: T } | { readonly ok: false };
 
@@ -134,7 +138,7 @@ async function submit(
   return attempt.id;
 }
 
-/** After Flow C, on the queue: the assessment, Priya’s access and both answers submitted (f0). */
+/** After Flow C, on the queue: the assessment, Priya’s access and both answers submitted. */
 async function twoWaiting(page: Page) {
   await bootWorld(page, { fixture: 'after-flow-c', session: RANGANATHAN });
   await page.goto(QUEUE);
@@ -149,100 +153,128 @@ async function twoWaiting(page: Page) {
 
 const main = (page: Page) => page.locator('main');
 const heading = (page: Page, name: string) => page.getByRole('heading', { level: 1, name });
-const count = (page: Page) => main(page).locator('.xr-phead-meta [role="status"]');
-const table = (page: Page) => main(page).locator('table.xr-table');
+const count = (page: Page) => main(page).locator('.fa-mqcount [role="status"]');
+const table = (page: Page) => main(page).locator('table.fa-table');
 const width = (page: Page) => page.viewportSize()?.width ?? 1440;
-const panel = (page: Page) => page.getByRole('complementary', { name: 'Your mark' });
-const markField = (page: Page) => page.getByRole('textbox', { name: 'Mark for question 4' });
+const panel = (page: Page) => page.getByRole('complementary', { name: 'Marks' });
+const markField = (page: Page) => page.getByRole('textbox', { name: /^Your mark/ });
+/** A Waiting / Marked / All button (its name adds the count: “Marked , 1” in Chromium). */
+const segment = (page: Page, label: string) =>
+  page
+    .getByRole('group', { name: 'Show' })
+    .getByRole('button', { name: new RegExp(`^${label}\\b`) });
 
 async function shot(page: Page, name: string): Promise<void> {
   mkdirSync(SHOTS, { recursive: true });
   await page.screenshot({ path: join(SHOTS, `${name}-${width(page)}.png`), fullPage: true });
 }
 
-/** Below 760 px of content the table’s rows stack and its header row is hidden (f4). */
-async function expectTableLayout(page: Page): Promise<void> {
-  const header = table(page).locator('thead');
-  const contentWidth = await main(page)
-    .locator('.xr-content')
-    .first()
-    .evaluate((element) => element.getBoundingClientRect().width);
-  if (contentWidth < 760) {
-    await expect
-      .poll(() => header.evaluate((element) => getComputedStyle(element).position))
-      .toBe('absolute');
-  } else {
-    await expect(header).toBeVisible();
-  }
+/** No internal reference in the page’s words, names or title (the owner’s identifier rule). */
+async function expectNoReferences(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const pattern = new RegExp(source);
+    const named = [...document.querySelectorAll('[aria-label],[title],[placeholder]')].map(
+      (element) =>
+        `${element.getAttribute('aria-label') ?? ''} ${element.getAttribute('title') ?? ''} ${element.getAttribute('placeholder') ?? ''}`,
+    );
+    return [document.body.innerText, document.title, ...named]
+      .map((text) => pattern.exec(text)?.[0])
+      .filter(Boolean);
+  }, REFERENCE.source);
+  expect(found).toEqual([]);
 }
 
-/** ~72 / 28 from 860 px of content; below, the marks panel moves under the answer (f7, f8). */
-async function expectDecisionLayout(page: Page, beside: Locator): Promise<void> {
-  const stack = await main(page).locator('.xr-decide > .xw-stack').boundingBox();
-  const aside = await beside.boundingBox();
-  if (!stack || !aside) throw new Error('not laid out');
-  const contentWidth = await main(page)
-    .locator('.xr-content')
+/** Below 760 px of table width the rows are compact blocks and the head row is not shown. */
+async function expectTableLayout(page: Page): Promise<void> {
+  const header = table(page).locator('thead');
+  const tableWidth = await main(page)
+    .locator('.fa-tablewrap')
     .first()
     .evaluate((element) => element.getBoundingClientRect().width);
-  if (contentWidth >= 860) {
-    expect(aside.x).toBeGreaterThan(stack.x + stack.width - 1);
-    expect(aside.width / (stack.width + aside.width)).toBeLessThan(0.34);
+  if (tableWidth < 760) await expect(header).toBeHidden();
+  else await expect(header).toBeVisible();
+}
+
+/** Beside from 860 px of detail width; below, the marks panel moves under the reading sheet. */
+async function expectDecisionLayout(page: Page, beside: Locator): Promise<void> {
+  const sheet = await main(page).locator('.rk-detail > .fa-sheet').boundingBox();
+  const aside = await beside.boundingBox();
+  if (!sheet || !aside) throw new Error('not laid out');
+  const detailWidth = await main(page)
+    .locator('.rk-detailwrap')
+    .first()
+    .evaluate((element) => element.getBoundingClientRect().width);
+  if (detailWidth >= 860) {
+    expect(aside.x).toBeGreaterThan(sheet.x + sheet.width - 1);
+    await expect(main(page).locator('p.fa-gomark')).toBeHidden();
   } else {
-    expect(aside.y).toBeGreaterThan(stack.y + stack.height - 1);
+    expect(aside.y).toBeGreaterThan(sheet.y + sheet.height - 1);
+    await expect(main(page).locator('p.fa-gomark')).toBeVisible();
   }
 }
 
 test.describe('FA-18 Marking queue', () => {
-  test('nothing waiting (f5), then two answers (f0): filters, oldest first, Mark next', async ({
-    page,
-  }) => {
+  test('nothing waiting, then two answers: filters, oldest first, Mark next', async ({ page }) => {
     await bootWorld(page, { fixture: 'after-flow-c', session: RANGANATHAN });
     await page.goto(QUEUE);
     await expect(heading(page, 'Marking')).toBeVisible({ timeout: 90_000 });
-    // f5: no assessment, no answer yet.
-    const empty = main(page).getByRole('heading', { level: 3, name: 'Nothing is waiting for you' });
-    await expect(empty).toBeVisible();
-    await expect(count(page)).toHaveText('0 written answers waiting');
+    // No assessment, no answer yet: “Nothing is waiting for you”, no filters.
+    await expect(main(page).getByText('Nothing is waiting for you')).toBeVisible();
+    await expect(count(page)).toHaveText('Nothing waiting');
     await expect(main(page)).toContainText(
       'Written answers appear here, oldest first, as students submit. Choice questions are marked automatically.',
     );
     await expect(main(page).getByRole('link', { name: 'Mark next' })).toHaveCount(0);
+    await expect(page.getByRole('combobox', { name: 'Assessment' })).toHaveCount(0);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', QUEUE);
     await checkState(page, 'Marking');
 
-    // The world moves: the assessment, Priya’s access, two submissions (f0).
+    // The world moves: the assessment, Priya’s access, two submissions.
     const assessmentId = await createPostLab(page);
     await givePriyaAccess(page);
     const rahul = await submit(page, RAHUL, assessmentId, RAHUL_WRITTEN);
-    const priya = await submit(page, PRIYA, assessmentId, PRIYA_WRITTEN);
+    await submit(page, PRIYA, assessmentId, PRIYA_WRITTEN);
     await expect(count(page)).toHaveText('2 written answers waiting');
+    await expect(main(page).locator('.fa-oldest')).toHaveText('Oldest submitted today');
     await expect(table(page).locator('tbody tr')).toHaveCount(2);
     const first = table(page).locator('tbody tr').first();
-    await expect(first.locator('td').first()).toHaveText(`Rahul Verma${rahul}`);
-    await expect(first.locator('td').nth(1)).toHaveText(`${POST_LAB}Question 4 · written answer`);
-    await expect(first.locator('.xr-status--wait')).toHaveText('Waiting for marking');
-    await expect(table(page).locator('tbody tr').nth(1).locator('td').first()).toHaveText(
-      `Priya Natarajan${priya}`,
+    await expect(first.locator('td.fa-c-main')).toHaveText('Rahul VermaAttempt 1 of 2');
+    await expect(first.locator('td').nth(1).locator('.fa-cellline')).toHaveText(POST_LAB);
+    await expect(first.locator('td').nth(1).locator('.fa-cellsub')).toHaveText(
+      'Question 4 · written answer',
+    );
+    await expect(first.locator('.xr-st--warn')).toHaveText('Waiting for marking');
+    await expect(table(page).locator('tbody tr').nth(1).locator('td.fa-c-main')).toHaveText(
+      'Priya NatarajanAttempt 1 of 2',
     );
     const assessment = page.getByRole('combobox', { name: 'Assessment' });
     await expect(assessment.locator('option')).toHaveText([
       'All assessments',
       `${POST_LAB} · ${SHELL_NAME}`,
     ]);
+    await expect(page.getByRole('group', { name: 'Show' }).getByRole('button')).toHaveText([
+      'Waiting2, 2',
+      'Marked0, 0',
+      'All2, 2',
+    ]);
     await expectTableLayout(page);
     await checkState(page, 'Marking');
-    if (width(page) === 1440) await shot(page, 'f0-queue');
+    await expectNoReferences(page);
+    if (width(page) === 1440) await shot(page, 'fa18-queue');
+    if (width(page) === 375) await shot(page, 'fa18-phone');
 
     // The filters, by real clicks; the address mirrors them.
-    await reachAndClick(page, page.getByRole('button', { name: 'Marked' }));
-    await expect(main(page).getByText('Nothing matches these filters.')).toBeVisible();
+    await reachAndClick(page, segment(page, 'Marked'));
+    await expect(main(page).getByText('No confirmed marks here yet')).toBeVisible();
     await expect(page).toHaveURL(/\/faculty\/marking\?state=marked$/);
-    await reachAndClick(page, page.getByRole('button', { name: 'All' }));
+    await checkState(page, 'Marking');
+    await reachAndClick(page, page.getByRole('button', { name: 'Show all written answers' }));
+    await expect(page).toHaveURL(/\/faculty\/marking\?state=all$/);
     await expect(table(page).locator('tbody tr')).toHaveCount(2);
+    await expect(page.getByRole('heading', { level: 2, name: 'Written answers' })).toBeFocused();
     await assessment.selectOption(assessmentId);
     await expect(page).toHaveURL(new RegExp(`assessmentId=${assessmentId}&state=all$`));
-    await reachAndClick(page, page.getByRole('button', { name: 'Waiting' }));
+    await reachAndClick(page, segment(page, 'Waiting'));
     await expect(table(page).locator('tbody tr')).toHaveCount(2);
 
     // Mark next opens the oldest waiting answer, in the same tab.
@@ -255,7 +287,7 @@ test.describe('FA-18 Marking queue', () => {
 });
 
 test.describe('FA-19 Mark a submission', () => {
-  test('as drawn (f1, f7, f8), the drawn validation (f3), Confirm marks → read-only (f2), Next submission, the queue after (f4)', async ({
+  test('as drawn, the validation, Save mark, Confirm marks → read-only, Next submission, the queue after', async ({
     page,
   }) => {
     const { rahul, priya } = await twoWaiting(page);
@@ -265,119 +297,137 @@ test.describe('FA-19 Mark a submission', () => {
     await expect(page).toHaveURL(new RegExp(`/faculty/marking/${rahul}$`));
     await expectSameDocument(page, mark);
 
-    // f1: the header, the question, the answer, the guidance, the automatic marks, the panel.
-    await expect(main(page).locator('a.xr-back')).toHaveText('Marking');
-    await expect(main(page).locator('.xr-overline')).toHaveText(`${POST_LAB} · ${SHELL_NAME}`);
-    await expect(main(page).locator('.xr-phead-meta .xr-id')).toHaveText(rahul);
-    await expect(main(page).locator('.xr-phead-meta .xl-meta')).toHaveText(
-      /^Submitted \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d · attempt 1 of 2$/,
+    // The head, the reading sheet, the guidance, the automatic marks, the panel.
+    const crumbs = page.getByRole('navigation', { name: 'Breadcrumb' });
+    await expect(crumbs.getByRole('link', { name: 'Marking' })).toHaveAttribute('href', QUEUE);
+    await expect(main(page).locator('.rk-head .rk-eyebrow')).toHaveText(
+      `${POST_LAB} · ${SHELL_NAME}`,
     );
-    await expect(page.getByRole('region', { name: 'Question 4 · Written answer' })).toContainText(
-      '10 marks',
+    await expect(main(page).locator('.rk-head .rk-meta')).toHaveText(
+      /^Waiting for marking\s*Submitted \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d · attempt 1 of 2$/,
     );
-    await expect(main(page).locator('blockquote.xa-answer')).toHaveText(RAHUL_WRITTEN);
-    await expect(main(page).locator('details.xa-guide')).toHaveAttribute('open', '');
+    await expect(main(page).locator('.fa-qpos')).toHaveText('1 of 2 waiting · oldest first');
+    await expect(
+      page
+        .getByRole('region', { name: 'Question 4 of 4 · Written answer' })
+        .locator('.fa-sheetq-m'),
+    ).toHaveText('10 marks');
+    await expect(main(page).locator('.fa-answer')).toHaveText(RAHUL_WRITTEN);
+    await expect(main(page).locator('.fa-guide-k')).toHaveText(
+      'Marking guidance · only you see this',
+    );
     const automatic = page.getByRole('region', { name: 'Marked automatically' });
-    await expect(automatic.locator('.xr-section-head .xr-meta')).toHaveText('4 of 6 marks');
-    await expect(automatic.locator('.xa-mk')).toHaveText(['2 of 2', '0 of 2', '2 of 2']);
-    await expect(panel(page).locator('.xr-dpanel-title')).toHaveText('Your mark');
+    await expect(automatic.locator('.fa-autos-h b')).toHaveText('4 of 6 marks');
+    await expect(automatic.locator('.fa-res')).toHaveText(['2 of 2', '0 of 2', '2 of 2']);
+    await expect(panel(page).locator('.rk-panel-head h2')).toHaveText('Marks');
+    await expect(panel(page).locator('.fa-ph-note')).toHaveText('16 marks in total');
+    await expect(panel(page).locator('.fa-total b')).toHaveText('— of 16');
     await expect(currentSidebarItem(page)).toHaveAttribute('href', QUEUE);
-    if (width(page) < 1024) {
-      await expect(page.locator('.xr-top-title')).toHaveText('Mark a submission');
-    } else {
-      await expect(page.getByRole('list', { name: 'You are here' })).toHaveText(
-        /Marking\s*\/\s*Rahul Verma/,
-      );
-    }
     await expectDecisionLayout(page, panel(page));
     await checkState(page, 'Rahul Verma');
-    if (width(page) === 1440) await shot(page, 'f1-mark');
-    if (width(page) === 768) await shot(page, 'f7-mark');
-    if (width(page) === 375) await shot(page, 'f8-mark');
+    await expectNoReferences(page);
+    if (width(page) === 1440) await shot(page, 'fa19-mark');
+    if (width(page) === 375) await shot(page, 'fa19-phone');
 
-    // The guidance collapses in place.
-    await reachAndClick(page, main(page).locator('details.xa-guide > summary'));
-    await expect(main(page).locator('details.xa-guide')).not.toHaveAttribute('open', '');
-    await reachAndClick(page, main(page).locator('details.xa-guide > summary'));
-    await expect(main(page).locator('details.xa-guide')).toHaveAttribute('open', '');
+    // Below 860 px “Go to the marks” moves focus to the panel.
+    if (await main(page).locator('p.fa-gomark').isVisible()) {
+      await reachAndClick(page, main(page).getByRole('link', { name: 'Go to the marks' }));
+      await expect(page.locator('#ms-panel')).toBeFocused();
+    }
 
-    // f3: 12 is out of range — the service’s words under the field, which takes focus.
+    // 12 is out of range — the service’s words under the score, which takes focus.
     await markField(page).fill('12');
     await reachAndClick(page, panel(page).getByRole('button', { name: 'Save mark' }));
-    await expect(panel(page).locator('.xr-error')).toHaveText('Enter a whole number from 0 to 10');
+    await expect(panel(page).locator('.rk-ferr')).toHaveText('Enter a whole number from 0 to 10');
     await expect(markField(page)).toHaveAttribute('aria-invalid', 'true');
     await expect(markField(page)).toBeFocused();
     await checkState(page, 'Rahul Verma');
-    if (width(page) === 768) {
-      await page.setViewportSize({ width: 720, height: 1024 });
-      await shot(page, 'f3-validation');
-      await page.setViewportSize({ width: 768, height: 1024 });
-    }
+    if (width(page) === 1440) await shot(page, 'fa19-invalid');
 
-    // Save mark: “Mark saved — not confirmed yet”.
+    // Save mark: “Mark saved — not confirmed yet” takes focus; the live total adds up.
     await markField(page).fill('');
     await markField(page).pressSequentially('7');
-    await expect(panel(page).locator('.xr-error')).toHaveCount(0);
+    await expect(panel(page).locator('.rk-ferr')).toHaveCount(0);
+    await expect(panel(page).locator('.fa-total')).toContainText(
+      '4 marked automatically + 7 written · pass mark 8',
+    );
     await page.getByRole('textbox', { name: /^Feedback for Rahul/ }).fill(FEEDBACK);
     await reachAndClick(page, panel(page).getByRole('button', { name: 'Save mark' }));
-    await expect(panel(page).locator('p.xa-save.is-ok')).toHaveText(
-      'Mark saved — not confirmed yet',
-    );
+    const saved = panel(page).locator('p.fa-savednote');
+    await expect(saved).toHaveText('Mark saved — not confirmed yet');
+    await expect(saved).toBeFocused();
+    await checkState(page, 'Rahul Verma');
+    if (width(page) === 1440) await shot(page, 'fa19-saved');
 
-    // Confirm marks → DL-1 → read-only (f2).
+    // Confirm marks → the dialog → read-only.
     await reachAndClick(page, panel(page).getByRole('button', { name: 'Confirm marks' }));
     const dialog = page.getByRole('dialog', { name: 'Confirm marks for Rahul Verma?' });
     await expect(dialog).toBeVisible();
-    await expect(dialog.locator('.xr-dialog-body p')).toHaveText([
-      'Question 4: 7 of 10.',
-      'Confirmed marks can’t be changed. Rahul sees the result when it’s released — after the deadline, 14 Nov 2026, 23:59.',
+    await expect(dialog.locator('.rk-dlg-head p')).toHaveText(POST_LAB);
+    await expect(dialog.locator('.rk-dlg-now li')).toHaveText([
+      'Question 4 is marked 7 of 10.',
+      'Rahul’s total becomes 11 of 16 marks — passed (pass mark 8).',
+      'The marks become read-only. They can’t be changed after you confirm.',
     ]);
-    await expect(dialog.getByRole('button', { name: 'Confirm marks' })).toBeFocused();
+    await expect(dialog.locator('.rk-dlg-later h3')).toHaveText('When Rahul sees the result');
+    await expect(dialog.locator('.rk-dlg-later li')).toHaveText(
+      'Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment.',
+    );
+    await expect(dialog.getByRole('heading', { level: 2 })).toBeFocused();
+    await expectNoReferences(page);
+    if (width(page) === 1440) await shot(page, 'fa19-confirm');
     await reachAndClick(page, dialog.getByRole('button', { name: 'Confirm marks' }));
     await expect(dialog).toBeHidden();
     const done = page.locator('#ms-mdone');
     await expect(done).toBeFocused();
-    await expect(done.locator('.xr-status--ok')).toHaveText('Marks confirmed');
-    await expect(done).toContainText('· Dr S. Ranganathan');
+    await expect(done.locator('.rk-notice--ok .rk-notice-t')).toHaveText('Marks confirmed');
+    await expect(done.locator('.rk-notice--ok')).toContainText('· Dr S. Ranganathan');
+    await expect(done.locator('.fa-done-total')).toHaveText('11 of 16 marksPassed · pass mark 8');
     await expect(done.locator('dl dd')).toHaveText(['7 of 10', FEEDBACK]);
-    await expect(done).toContainText(
-      'Rahul sees the result after the deadline: 14 Nov 2026, 23:59, as set for this assessment.',
+    await expect(done.locator('p.rk-locked')).toHaveText(
+      'Result not released to Rahul yet — after the deadline, 14 Nov 2026, 23:59, as set for this assessment.',
     );
     await expect(markField(page)).toHaveCount(0);
     await checkState(page, 'Rahul Verma');
-    if (width(page) === 768) {
-      await page.setViewportSize({ width: 720, height: 1024 });
-      await shot(page, 'f2-confirmed');
-      await page.setViewportSize({ width: 768, height: 1024 });
-    }
+    await expectNoReferences(page);
+    if (width(page) === 1440) await shot(page, 'fa19-confirmed');
 
     // Next submission → Priya, in the same tab.
     const next = done.getByRole('link', { name: 'Next submission' });
     await expect(next).toHaveAttribute('href', `/faculty/marking/${priya}`);
+    await expect(done.getByRole('link', { name: 'See submissions' })).toHaveAttribute(
+      'href',
+      /^\/faculty\/assessments\/ASMT-\d{4}\/submissions$/,
+    );
     await reachAndClick(page, next);
     await expect(heading(page, 'Priya Natarajan')).toBeVisible({ timeout: 60_000 });
-    await expect(main(page).locator('blockquote.xa-answer')).toHaveText(PRIYA_WRITTEN);
+    await expect(main(page).locator('.fa-answer')).toHaveText(PRIYA_WRITTEN);
     await expectSameDocument(page, mark);
 
-    // f4: the queue after marking Rahul (the back link).
-    await reachAndClick(page, main(page).locator('a.xr-back'));
+    // The queue after marking Rahul (the breadcrumb).
+    await reachAndClick(
+      page,
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Marking' }),
+    );
     await expect(heading(page, 'Marking')).toBeVisible({ timeout: 60_000 });
     await expect(count(page)).toHaveText('1 written answer waiting');
     await expect(table(page).locator('tbody tr')).toHaveCount(1);
-    await expect(table(page).locator('tbody tr td').first()).toHaveText(`Priya Natarajan${priya}`);
+    await expect(table(page).locator('tbody tr td.fa-c-main')).toHaveText(
+      'Priya NatarajanAttempt 1 of 2',
+    );
     await expectTableLayout(page);
     await checkState(page, 'Marking');
-    if (width(page) === 768) {
-      await page.setViewportSize({ width: 720, height: 1024 });
-      await shot(page, 'f4-queue-after');
-      await page.setViewportSize({ width: 768, height: 1024 });
-    }
-    // Under All, Rahul is Marked with View.
-    await reachAndClick(page, page.getByRole('button', { name: 'All' }));
+    // Under All, Rahul is Marked with View marks.
+    await reachAndClick(page, segment(page, 'All'));
     await expect(table(page).locator('tbody tr')).toHaveCount(2);
     await expect(table(page).getByRole('link', { name: 'View marks for Rahul Verma' })).toHaveText(
-      'View',
+      'View marks',
     );
+    await expect(
+      table(page).locator('tbody tr').first().locator('td.fa-c-st .fa-cellsub'),
+    ).toHaveText(/^Confirmed \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d$/);
+    await checkState(page, 'Marking');
+    if (width(page) === 1440) await shot(page, 'fa18-all');
     await expectSameDocument(page, mark);
   });
 
@@ -387,80 +437,83 @@ test.describe('FA-19 Mark a submission', () => {
     await expect(page).toHaveURL(new RegExp(`/faculty/marking/${rahul}$`));
     await expect(heading(page, 'Rahul Verma')).toBeVisible({ timeout: 60_000 });
     await reachAndClick(page, panel(page).getByRole('button', { name: 'Confirm marks' }));
-    await expect(panel(page).locator('.xr-error')).toHaveText('Enter a mark for question 4');
+    await expect(panel(page).locator('.rk-ferr')).toHaveText('Enter a mark for question 4');
     await expect(page.getByRole('dialog')).toHaveCount(0);
     await expect(markField(page)).toBeFocused();
   });
 
-  test('after Flow D: confirmed and released, read-only; nothing waiting', async ({ page }) => {
+  test('after Flow D: confirmed and released, read-only; nothing else waits', async ({ page }) => {
     await bootWorld(page, { fixture: 'after-flow-d', session: RANGANATHAN });
     await page.goto('/faculty/marking/ATT-0450');
     await expect(heading(page, 'Rahul Verma')).toBeVisible({ timeout: 90_000 });
     const done = page.locator('#ms-mdone');
-    await expect(done.locator('.xr-status--ok')).toHaveText('Marks confirmed');
+    await expect(done.locator('.rk-notice--ok .rk-notice-t')).toHaveText('Marks confirmed');
     await expect(done).toContainText('7 Nov 2026, 10:15 · Dr S. Ranganathan');
-    await expect(done).toContainText(
-      'Released to Rahul on 14 Nov 2026, 23:59 — when the deadline passed.',
+    await expect(done.locator('p.fa-savednote')).toHaveText(
+      'Result released to Rahul when the deadline passed: 14 Nov 2026, 23:59.',
     );
-    await expect(done.getByRole('link', { name: 'Next submission' })).toHaveAttribute(
-      'href',
-      QUEUE,
+    await expect(done.locator('.fa-done-acts p.fa-quiet')).toHaveText(
+      'Nothing else is waiting for marking.',
     );
+    await expect(done.getByRole('link', { name: 'Next submission' })).toHaveCount(0);
     await expect(markField(page)).toHaveCount(0);
     await expectDecisionLayout(page, panel(page));
     await checkState(page, 'Rahul Verma');
+    await expectNoReferences(page);
+    if (width(page) === 1440) await shot(page, 'fa19-released');
 
-    await reachAndClick(page, done.getByRole('link', { name: 'Next submission' }));
+    await reachAndClick(
+      page,
+      page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Marking' }),
+    );
     await expect(heading(page, 'Marking')).toBeVisible({ timeout: 60_000 });
-    await expect(count(page)).toHaveText('0 written answers waiting');
-    await expect(
-      main(page).getByRole('heading', { level: 3, name: 'Nothing is waiting for you' }),
-    ).toBeVisible();
+    await expect(count(page)).toHaveText('Nothing waiting');
+    await expect(main(page).getByText('Nothing is waiting for you')).toBeVisible();
     await checkState(page, 'Marking');
-    if (width(page) === 768) {
-      await page.setViewportSize({ width: 720, height: 1024 });
-      await shot(page, 'f5-nothing-waiting');
-      await page.setViewportSize({ width: 768, height: 1024 });
-    }
-    await reachAndClick(page, page.getByRole('button', { name: 'Marked' }));
+    await reachAndClick(page, segment(page, 'Marked'));
     await expect(table(page).locator('tbody tr')).toHaveCount(1);
-    await expect(table(page).locator('.xr-status--ok')).toHaveText('Marked');
+    await expect(table(page).locator('.xr-st--ok')).toHaveText('Marked');
   });
 });
 
-test.describe('FA-01 Overview — the Phase-4B actions (B4-01 f0, f4)', () => {
-  test('a written answer to mark: “Mark 1 written answer” and “Mark now” open Marking', async ({
+test.describe('FA-01 Overview — the priority band’s written answers (FA-v1 FA-01)', () => {
+  test('two written answers to mark: one item, the students behind it, and “Mark now” opens the oldest submission (FA-19)', async ({
     page,
   }) => {
     await bootWorld(page, { fixture: 'after-flow-c', session: RANGANATHAN });
     await page.goto('/faculty');
-    const attention = page.getByRole('region', { name: 'Needs your attention' });
-    await expect(attention).toContainText('Nothing needs you right now.', { timeout: 90_000 });
-    await expect(main(page).locator('.xr-phead-actions')).toHaveCount(0);
-    const assessmentId = await createPostLab(page);
-    await submit(page, RAHUL, assessmentId, RAHUL_WRITTEN);
-    const row = attention.locator('li.xr-row');
-    await expect(row).toHaveCount(1);
-    await expect(row.locator('.xr-row-title')).toHaveText('1 written answer to mark');
-    await expect(row.locator('.xr-row-sub')).toHaveText(
-      /^Heat Exchanger — post-lab · from Rahul Verma, \d{1,2} [A-Z][a-z]{2} 2026$/,
+    await expect(main(page).locator('.rb-calm[role="status"]')).toContainText(
+      'Nothing needs you right now',
+      { timeout: 90_000 },
     );
-    const primary = main(page).locator('.xr-phead-actions a.xr-btn--primary');
-    await expect(primary).toHaveText('Mark 1 written answer');
-    await expect(primary).toHaveAttribute('href', QUEUE);
-    const markNow = row.getByRole('link', { name: 'Mark now' });
-    await expect(markNow).toHaveAttribute('href', `${QUEUE}?assessmentId=${assessmentId}`);
-    await expect(main(page).getByRole('link', { name: 'Review drafts' })).toHaveCount(0);
+    const band = page.getByRole('region', { name: 'Needs your attention' });
+    await expect(band).toHaveCount(0);
+    const assessmentId = await createPostLab(page);
+    await givePriyaAccess(page);
+    const oldest = await submit(page, RAHUL, assessmentId, RAHUL_WRITTEN);
+    await submit(page, PRIYA, assessmentId, PRIYA_WRITTEN);
+    const item = band.locator('li.rb-pi');
+    await expect(item).toHaveCount(1);
+    await expect(item.locator('.rb-pi-big')).toHaveText('2');
+    await expect(item.locator('.rb-pi-rel')).toHaveText('Submitted today');
+    await expect(item.locator('.rb-pi-kind')).toHaveText('Written answers to mark');
+    await expect(item.locator('h3.rb-pi-title')).toHaveText('Heat Exchanger — post-lab');
+    await expect(
+      item.getByRole('list', { name: 'Waiting for marking, oldest first' }).locator('li b'),
+    ).toHaveText(['Rahul Verma', 'Priya Natarajan']);
+    const markNow = item.getByRole('link', {
+      name: 'Mark now: Rahul Verma, Heat Exchanger — post-lab',
+    });
+    await expect(markNow).toHaveAttribute('href', `${QUEUE}/${oldest}`);
+    await expect(markNow).toHaveClass(/rb-btn--primary/);
+    await expect(main(page).getByRole('link', { name: /^Review drafts/ })).toHaveCount(0);
+    expect(await main(page).innerText()).not.toMatch(/\b(?:ASMT|ATT|Q|D)-\d+/);
     await checkState(page, 'Overview');
-    if (width(page) === 1440) await shot(page, 'b4-01-f0-overview');
-    if (width(page) === 375) await shot(page, 'b4-01-f4-overview');
 
     const mark = await markDocument(page);
     await reachAndClick(page, markNow);
-    await expect(page).toHaveURL(new RegExp(`/faculty/marking\\?assessmentId=${assessmentId}$`));
-    await expect(heading(page, 'Marking')).toBeVisible({ timeout: 60_000 });
-    await expect(page.getByRole('combobox', { name: 'Assessment' })).toHaveValue(assessmentId);
-    await expect(table(page).locator('tbody tr')).toHaveCount(1);
+    await expect(page).toHaveURL(new RegExp(`/faculty/marking/${oldest}$`));
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible({ timeout: 60_000 });
     await expectSameDocument(page, mark);
   });
 

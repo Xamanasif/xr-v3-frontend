@@ -1,0 +1,202 @@
+      <!-- ═══ FA-07 Create assessment (guided, four steps) ═══ -->
+      <sc-if value="{{ is.cw }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#FA-06" onClick="{{ nav.asms }}">Assessments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-right"></use></svg><span aria-current="page">Create assessment</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rk-eyebrow">{{ CW.over }}</p>
+          <h1 class="rb-h1" id="fa-h1" tabindex="-1">{{ CW.title }}</h1>
+        </div>
+      </div>
+      <sc-if value="{{ CW.noExp }}" hint-placeholder-val="{{ false }}">
+      <section class="rk-surface fr-msgcard" aria-labelledby="fa-cw-none">
+        <div class="fa-inlinemsg">
+          <span class="fa-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-clip"></use></svg></span>
+          <h2 class="rb-h2" id="fa-cw-none">Nothing to set an assessment on yet</h2>
+          <p class="fa-msg-d">Assessments are set per experiment you teach. Your Institute Admin hasn’t assigned you a course yet.</p>
+          <div class="fa-msg-act"><a class="rb-btn" href="#FA-06" onClick="{{ nav.asms }}">Back to Assessments</a></div>
+        </div>
+      </section>
+      </sc-if>
+      <sc-if value="{{ CW.hasExp }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ CW.notDone }}" hint-placeholder-val="{{ true }}">
+      <ol class="fa-steps fr-stepper" aria-label="Steps to create an assessment">
+        <sc-for list="{{ CW.steps }}" as="x" hint-placeholder-count="4"><li class="{{ x.cls }}" aria-current="{{ x.cur }}"><span class="fa-step-n" aria-hidden="true"><sc-if value="{{ x.done }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#fai-check"></use></svg></sc-if><sc-if value="{{ x.todo }}" hint-placeholder-val="{{ true }}">{{ x.n }}</sc-if></span><span class="fr-step-l">{{ x.label }}</span><span class="xr-sr">{{ x.sr }}</span></li></sc-for>
+      </ol>
+      </sc-if>
+      <div class="{{ CW.layoutCls }}">
+        <section class="rk-surface fr-form" aria-labelledby="fa-h1">
+          <sc-if value="{{ CW.hasErr }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fmsg"><div class="rk-errsum" id="fa-errs" tabindex="-1" role="alert"><p class="rk-errsum-t">Check this step</p><ul><sc-for list="{{ CW.errList }}" as="er" hint-placeholder-count="1"><li><a href="{{ er.href }}" onClick="{{ er.go }}">{{ er.t }}</a></li></sc-for></ul></div></div>
+          </sc-if>
+
+          <sc-if value="{{ CW.s1 }}" hint-placeholder-val="{{ true }}">
+          <div class="fr-fsec">
+            <fieldset class="{{ CW.expFs }}">
+              <legend>Experiment<span>Assessments are set per experiment, not per format. Students get the formats their institution holds.</span></legend>
+              <div class="rk-choices">
+                <sc-for list="{{ CW.exps }}" as="e" hint-placeholder-count="1"><label class="rk-choice fr-expchoice" for="{{ e.id }}"><input type="radio" name="fa-cw-exp" id="{{ e.id }}" checked="{{ e.checked }}" onChange="{{ e.pick }}"><span class="rk-choice-t">{{ e.t }}</span><span class="rk-choice-d">{{ e.d }}</span><span class="fr-expchoice-m"><span class="rk-fmts" aria-label="{{ e.fmAria }}"><sc-for list="{{ e.fm }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span><span>{{ e.reach }}</span></span></label></sc-for>
+              </div>
+              <sc-if value="{{ CW.he.exp }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.exp }}</p></sc-if>
+            </fieldset>
+            <sc-if value="{{ CW.has }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-notice rk-notice--info" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><p class="rk-notice-t">This experiment already has an assessment</p><p class="rk-notice-d">Open {{ CW.hasName }} to change its questions or rules. One assessment per experiment is how this works for now.</p><div class="rk-notice-act"><a class="rb-btn" href="#FA-08" onClick="{{ CW.openHas }}">Open {{ CW.hasName }}</a></div></div>
+            </sc-if>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ CW.s2 }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fsec" role="group" aria-labelledby="fa-cw-g1">
+            <h2 class="fr-fsec-t" id="fa-cw-g1">Name and introduction</h2>
+            <div class="rk-field">
+              <label class="rk-label" for="fa-cw-name">Assessment name</label>
+              <input id="fa-cw-name" class="rk-input" type="text" autocomplete="off" value="{{ CW.name }}" aria-invalid="{{ CW.i.name }}" aria-describedby="{{ CW.d.name }}" onChange="{{ CW.on.name }}">
+              <sc-if value="{{ CW.he.name }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-cw-name-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.name }}</p></sc-if>
+            </div>
+            <div class="rk-field">
+              <label class="rk-label" for="fa-cw-intro">Introduction (optional)</label>
+              <p class="rk-hint" id="fa-cw-intro-h">What students read before they start.</p>
+              <textarea id="fa-cw-intro" class="rk-textarea" aria-describedby="fa-cw-intro-h" value="{{ CW.intro }}" onChange="{{ CW.on.intro }}"></textarea>
+            </div>
+          </div>
+          <div class="fr-fsec" role="group" aria-labelledby="fa-cw-g2">
+            <h2 class="fr-fsec-t" id="fa-cw-g2">Rules</h2>
+            <div class="fr-fields3">
+              <div class="rk-field">
+                <label class="rk-label" for="fa-cw-pass">Pass mark (%)</label>
+                <p class="rk-hint" id="fa-cw-pass-h">A whole number from 0 to 100.</p>
+                <input id="fa-cw-pass" class="rk-input" type="text" inputmode="numeric" autocomplete="off" value="{{ CW.pass }}" aria-invalid="{{ CW.i.pass }}" aria-describedby="{{ CW.d.pass }}" onChange="{{ CW.on.pass }}">
+                <sc-if value="{{ CW.he.pass }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-cw-pass-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.pass }}</p></sc-if>
+              </div>
+              <div class="rk-field">
+                <label class="rk-label" for="fa-cw-att">Attempts allowed</label>
+                <p class="rk-hint" id="fa-cw-att-h">A whole number, 1 or more.</p>
+                <input id="fa-cw-att" class="rk-input" type="text" inputmode="numeric" autocomplete="off" value="{{ CW.att }}" aria-invalid="{{ CW.i.att }}" aria-describedby="{{ CW.d.att }}" onChange="{{ CW.on.att }}">
+                <sc-if value="{{ CW.he.att }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-cw-att-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.att }}</p></sc-if>
+              </div>
+              <div class="rk-field">
+                <label class="rk-label" for="fa-cw-dl">Deadline</label>
+                <p class="rk-hint" id="fa-cw-dl-h">For example 14 Nov 2026, 23:59</p>
+                <input id="fa-cw-dl" class="rk-input" type="text" autocomplete="off" value="{{ CW.dl }}" aria-invalid="{{ CW.i.dl }}" aria-describedby="{{ CW.d.dl }}" onChange="{{ CW.on.dl }}">
+                <sc-if value="{{ CW.he.dl }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-cw-dl-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.dl }}</p></sc-if>
+              </div>
+            </div>
+          </div>
+          <div class="fr-fsec">
+            <fieldset class="{{ CW.relFs }}">
+              <legend>When students see their result and answers<span>Nothing is chosen for you. Written answers are always marked first.</span></legend>
+              <div class="rk-choices fr-choices3">
+                <sc-for list="{{ CW.rels }}" as="o" hint-placeholder-count="3"><label class="rk-choice" for="{{ o.id }}"><input type="radio" name="fa-cw-rel" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.pick }}"><span class="rk-choice-t">{{ o.t }}</span><span class="rk-choice-d">{{ o.d }}</span></label></sc-for>
+              </div>
+              <sc-if value="{{ CW.he.rel }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.rel }}</p></sc-if>
+            </fieldset>
+            <sc-if value="{{ CW.relDate }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-field fr-reldate">
+              <label class="rk-label" for="fa-cw-reldate">Release date</label>
+              <p class="rk-hint" id="fa-cw-reldate-h">For example 20 Nov 2026, 09:00</p>
+              <input id="fa-cw-reldate" class="rk-input" type="text" autocomplete="off" value="{{ CW.reldate }}" aria-invalid="{{ CW.i.reldate }}" aria-describedby="{{ CW.d.reldate }}" onChange="{{ CW.on.reldate }}">
+              <sc-if value="{{ CW.he.reldate }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-cw-reldate-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.reldate }}</p></sc-if>
+            </div>
+            </sc-if>
+            <p class="rk-hint">No time limit and no timer. Every value here is set for this assessment only — nothing comes pre-filled.</p>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ CW.s3 }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fsec">
+            <div class="fr-qhead">
+              <div class="fr-qhead-t"><h2 class="rb-h2">From your question bank</h2><p class="rk-hint">{{ CW.expT }}</p></div>
+              <p class="rk-count fr-pickcount" role="status">{{ CW.totalText }}</p>
+            </div>
+            <sc-if value="{{ CW.hasMsg }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--ok" id="fa-msg" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><p class="rk-notice-t">{{ CW.msg }}</p><p class="rk-notice-d">It’s ticked below. You can untick it.</p></div></sc-if>
+            <sc-if value="{{ CW.hasBank }}" hint-placeholder-val="{{ true }}">
+            <fieldset class="{{ CW.qsFs }}">
+              <legend class="xr-sr">Questions for this assessment</legend>
+              <div class="rk-choices fr-pick">
+                <sc-for list="{{ CW.bank }}" as="b" hint-placeholder-count="4"><label class="rk-choice" for="{{ b.id }}"><input type="checkbox" id="{{ b.id }}" checked="{{ b.checked }}" onChange="{{ b.toggle }}"><span class="rk-choice-t">{{ b.t }}</span><span class="rk-choice-d">{{ b.sub }}</span></label></sc-for>
+              </div>
+              <sc-if value="{{ CW.he.qs }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.qs }}</p></sc-if>
+            </fieldset>
+            </sc-if>
+            <sc-if value="{{ CW.noBank }}" hint-placeholder-val="{{ false }}"><p class="fa-quiet">Your question bank has no questions for this experiment yet. Write one, draft some with assistance, or import a file.</p><sc-if value="{{ CW.he.qs }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ CW.e.qs }}</p></sc-if></sc-if>
+          </div>
+          <div class="fr-fsec fr-fsec--tint">
+            <p class="fr-k">Other ways to add questions</p>
+            <div class="fa-actions">
+              <a class="rb-btn" href="#FA-15" onClick="{{ CW.newQ }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-plus"></use></svg>New question</a>
+              <a class="rb-btn" href="#FA-16" onClick="{{ CW.toDraft }}">Draft with assistance</a>
+              <a class="rb-btn" href="#FA-17" onClick="{{ CW.toImport }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-upload"></use></svg>Import</a>
+            </div>
+            <p class="rk-hint">Questions keep the marks set in your bank. Choice questions are marked automatically; you mark written answers.</p>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ CW.s4 }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fsec">
+            <p class="rk-next">What students will see before they start. Previewing creates no attempt.</p>
+            <dl class="fr-rules">
+              <div><dt>Name</dt><dd>{{ CW.name }}</dd></div>
+              <div><dt>Questions</dt><dd>{{ CW.totalText }}</dd></div>
+              <div><dt>Pass mark</dt><dd>{{ CW.passText }}</dd></div>
+              <div><dt>Attempts allowed</dt><dd>{{ CW.att }}</dd></div>
+              <div><dt>Deadline</dt><dd>{{ CW.dl }}</dd></div>
+              <div><dt>Result and answers</dt><dd>{{ CW.relText }}</dd></div>
+              <div><dt>Time limit</dt><dd>None</dd></div>
+            </dl>
+            <div class="fr-introbox"><p class="fr-k">Introduction</p><p class="{{ CW.introCls }}">{{ CW.introText }}</p></div>
+          </div>
+          <div class="fr-fsec">
+            <h2 class="rb-h2">Questions</h2>
+            <ol class="fa-qlist fr-qlist">
+              <sc-for list="{{ CW.preview }}" as="p" hint-placeholder-count="3"><li class="fa-q"><span class="fa-qn">{{ p.n }}</span><div><p class="fa-qt">{{ p.t }}</p><p class="fr-qmeta"><span class="{{ p.typeCls }}">{{ p.type }}</span><span class="fr-qmeta-m">{{ p.marks }}</span><span class="fa-id">{{ p.id }}</span></p></div></li></sc-for>
+            </ol>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ CW.done }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fsec rk-done fr-result" id="fa-cw-done" tabindex="-1">
+            <p class="fa-row"><span class="{{ CW.doneCls }}"><i></i>{{ CW.doneLabel }}</span><span class="fa-id">{{ CW.asmId }}</span></p>
+            <p class="fr-result-t">{{ CW.doneText }}</p>
+            <ul class="fa-check" aria-label="Ready checklist" style="margin-top: 0">
+              <sc-for list="{{ CW.checklist }}" as="c" hint-placeholder-count="3"><li class="{{ c.cls }}"><sc-if value="{{ c.ok }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg></sc-if><sc-if value="{{ c.no }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg></sc-if><span>{{ c.t }}</span></li></sc-for>
+            </ul>
+            <div class="fa-actions"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#FA-08" onClick="{{ CW.openNew }}">Open assessment</a><a class="rb-btn rb-btn--lg" href="#FA-06" onClick="{{ nav.asms }}">Back to Assessments</a></div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ CW.notDone }}" hint-placeholder-val="{{ true }}">
+          <div class="fa-formfoot">
+            <div class="fa-formfoot-l">
+              <sc-if value="{{ CW.s1 }}" hint-placeholder-val="{{ true }}"><a class="rb-btn" href="#FA-06" onClick="{{ CW.cancel }}">Cancel</a></sc-if>
+              <sc-if value="{{ CW.canBack }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn" onClick="{{ CW.back }}">Back</button></sc-if>
+            </div>
+            <div class="fa-formfoot-r">
+              <sc-if value="{{ CW.canDraft }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn" onClick="{{ CW.draft }}">Save as draft</button></sc-if>
+              <sc-if value="{{ CW.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="fa-cw-next" onClick="{{ CW.next }}">{{ CW.nextLabel }}</button></sc-if>
+              <sc-if value="{{ CW.busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" disabled="{{ true }}" aria-live="polite">Creating…</button></sc-if>
+            </div>
+          </div>
+          </sc-if>
+        </section>
+        <sc-if value="{{ CW.notDone }}" hint-placeholder-val="{{ true }}">
+        <aside class="fr-side" aria-labelledby="fa-cw-sum">
+          <div class="rk-surface">
+            <div class="fr-side-sec">
+              <h2 class="rb-h2" id="fa-cw-sum">{{ CW.sideH }}</h2>
+              <sc-if value="{{ CW.showSum }}" hint-placeholder-val="{{ true }}">
+              <ul class="fr-sumlist">
+                <sc-for list="{{ CW.sumList }}" as="s" hint-placeholder-count="4"><li class="{{ s.cls }}"><span class="fr-sum-ico" aria-hidden="true"><sc-if value="{{ s.ok }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#fai-check"></use></svg></sc-if></span><div><p class="fr-k">{{ s.k }}<span class="xr-sr">{{ s.sr }}</span></p><p class="fr-sum-v">{{ s.v }}</p></div></li></sc-for>
+              </ul>
+              </sc-if>
+              <sc-if value="{{ CW.showCreate }}" hint-placeholder-val="{{ false }}">
+              <ul class="fa-check fr-sidecheck" aria-label="What creating does">
+                <sc-for list="{{ CW.createList }}" as="c" hint-placeholder-count="3"><li class="is-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><span>{{ c }}</span></li></sc-for>
+              </ul>
+              </sc-if>
+              <p class="rk-hint fr-side-note">{{ CW.sum.note }}</p>
+            </div>
+          </div>
+        </aside>
+        </sc-if>
+      </div>
+      </sc-if>
+      </sc-if>
+

@@ -1,27 +1,39 @@
 'use client';
 
-import type { TeachingCourseRow } from '@xr/contracts/draft';
-import type { Technology } from '@xr/domain';
+import type { FormatCode } from '@xr/ui';
 import {
-  BackLink,
-  FormatBadge,
-  FormatSet,
-  type FormatCode,
-  Link,
-  PageContent,
-  PageHeader,
-  Section,
-  StatusPill,
-} from '@xr/ui';
+  Breadcrumbs,
+  Button,
+  FaCourseExperiment,
+  FaCourseExperiments,
+  FaFigure,
+  FaFigures,
+  FaFormatBadges,
+  FaIdentityBand,
+  FaProgress,
+  FaQuiet,
+  FaTeachingActivityFoot,
+  ListState,
+  LoadingRows,
+} from '@xr/ui/v3';
+import { useEffect, useRef } from 'react';
 
-import { deadlineWords, READINESS_WORDS } from '@/copy/assessment-words';
+import { dayMonthYear } from '@/copy/dates';
+import { FACULTY_FAILED_WORDS } from '@/copy/fa-shared';
 import {
   accessEndedLine,
-  assessmentLine,
+  assessmentsReadyLabel,
   COURSE_PAGE,
-  courseMetaLine,
+  experimentsHeldLabel,
+  openExperimentFullLabel,
+  studentsWithAccessWords,
 } from '@/copy/faculty-courses';
-import { STUDENTS_LINKS } from '@/copy/faculty-students';
+import {
+  activityLabel,
+  asOfWords,
+  formatsHeldLabel,
+  PROGRESS_WORDS,
+} from '@/copy/faculty-overview';
 import { stateWords } from '@/copy/state-copy';
 import {
   FACULTY_MY_COURSES_ADDRESS,
@@ -31,40 +43,59 @@ import {
   facultyStudentsAddress,
 } from '@/nav/faculty';
 import { useAppNavigation } from '@/nav/navigation';
+import { useSession } from '@/queries/session';
 import { useTeachingCourses } from '@/queries/teaching';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { FacultyFailed, FacultyLoading, useRetryFocus } from '../fa-04-experiments/list-states';
+import { useFacultyToday } from '../shared/use-today';
+import { AssessmentFacts, AssessmentStatusPill } from '../fa-04-experiments/assessment-facts';
+import { useOldestByAssessment } from '../fa-04-experiments/oldest-by-assessment';
 import {
   type TaughtExperiment,
-  type TaughtRead,
   useTaughtExperiments,
 } from '../fa-04-experiments/taught-experiments';
+import {
+  assessmentSummary,
+  formatCodes,
+  progressRows,
+  studentsReached,
+} from '../fa-04-experiments/teaching-view';
 
-const FORMAT_ORDER: readonly Technology[] = ['web', 'ar', 'vr', 'mr'];
-const code = (format: Technology) => format.toUpperCase() as FormatCode;
+const TITLE_ID = 'fa-h1';
 
 /**
- * FA-03 Course, the teaching view — board B4-02 f1, at `/faculty/courses/[courseId]`: "Which of
- * this course's experiments do I teach, and how are students doing?"
+ * FA-03 Course, the teaching view — the V3 Refined B design (the owner-approved export
+ * design/v3-refined-b/roles/FA-v1, `Main.dc.html` FA-03, `vmCourse` and `asmSum`), at
+ * `/faculty/courses/[courseId]`.
  *
- * - **Reads**: `TeachingService.listMyCourses` (the course row: name, platform code, how many
- *   experiments, the Students with access, the date access ended) and `useTaughtExperiments` (each
- *   taught experiment's formats, per-format counts and course, and its assessment's readiness and
- *   figures), keeping the experiments of this course. A course no Faculty course maps to the
- *   Faculty member, or an unknown one, is the in-shell not-found (`FA-03.not-found`).
- * - **As drawn**: "My courses" (back), "Course you teach", the name, the code and "1 experiment in
- *   your institution’s access · 5 students with access"; "Experiments · Only experiments your
- *   institution holds" with one card per experiment: its name (FA-05), the assessment chip, the
- *   formats the institution has, the assessment line, per format "2 completed · 2 in progress · 1
- *   not started" (never summed), "Open experiment" (FA-05) and "Students on this experiment"
- *   (FA-20 for that experiment, since Phase 4B).
- * - **States B4-02 does not draw**: loading, failed with "Try again", a draft or no assessment,
- *   access ended (`FA-03.*`).
+ * - **Reads**: `TeachingService.listMyCourses` (the course: name, platform code, how many
+ *   experiments, the Students with access, the date access ended) and the taught experiments
+ *   (`useTaughtExperiments`: each one's formats, per-format counts, description and course, and
+ *   its assessment from `listAssessments`), keeping this course's; and the marking queue once
+ *   (`listQueue`, oldest first) for each "Mark" — the oldest waiting submission of that
+ *   assessment. A course no Faculty course maps to the Faculty member, or an unknown one, is the
+ *   in-shell not-found (`FA-03.not-found`).
+ * - **As the export draws it**: the breadcrumb "My courses › <code>"; the identity band (the date,
+ *   the code, "Course you teach", the name, where it comes from, and three figures: experiments
+ *   the institution holds, Students with access, assessments ready); "Experiments · Only
+ *   experiments your institution holds" with one panel per experiment — its name, description,
+ *   formats and "Open experiment" (FA-05), then Student activity (one unit meter per format,
+ *   "as of" the read, "Students on this experiment", FA-20) beside its Assessment (status, name,
+ *   deadline and days left, submissions, written answers waiting with "Mark …", the note, "Open
+ *   assessment" or "Continue setting up"; none yet: "Create assessment").
+ * - **Loading and failed** (the export draws none): the application's loading and the failed state
+ *   with Try again (`FA-03.loading`, `FA-03.failed`). Once access has ended the band says so in
+ *   place of its source line (f7).
  */
 export function FacultyCourse({ courseId }: { readonly courseId: string }) {
   const navigation = useAppNavigation();
+  const titleRef = useRef<HTMLHeadingElement>(null);
   const read = useTeachingCourses();
+  const { read: taught, probes } = useTaughtExperiments();
+  const session = useSession();
+  const me = session.status === 'signed-in' ? session.personId : null;
+  const clock = useFacultyToday();
+  const today = clock?.now ?? null;
   const courses = read.data?.ok ? read.data.value : null;
   const row = courses?.find((candidate) => candidate.course.id === courseId) ?? null;
   useShellPage(
@@ -72,205 +103,180 @@ export function FacultyCourse({ courseId }: { readonly courseId: string }) {
       row ? { name: row.course.name, crumb: row.course.platformCode ?? row.course.name } : null,
     ),
   );
-  const retried = useRetryFocus(row !== null);
-  const back = <BackLink href={FACULTY_MY_COURSES_ADDRESS}>{FACULTY_MY_COURSES_TITLE}</BackLink>;
+  const experiments =
+    row !== null && taught.kind === 'ready'
+      ? taught.experiments.filter((entry) => entry.teaching.experiment.courseId === courseId)
+      : [];
+  const summaries = experiments.map((entry) =>
+    entry.assessment === null ? null : assessmentSummary(entry.assessment, me, today),
+  );
+  const waiting = summaries.reduce((sum, summary) => sum + (summary?.waiting ?? 0), 0);
+  const markHref = useOldestByAssessment(waiting);
 
-  if (read.isError || (read.data && !read.data.ok)) {
+  const failed =
+    read.isError || (read.data !== undefined && !read.data.ok) || taught.kind === 'failed';
+  const loaded = !failed && courses !== null && (row === null || taught.kind === 'ready');
+
+  // Try again moves focus to the title once the course is back.
+  const refocus = useRef(false);
+  useEffect(() => {
+    if (!loaded || !refocus.current) return;
+    refocus.current = false;
+    titleRef.current?.focus();
+  }, [loaded]);
+
+  const crumbs = (current: string) => (
+    <Breadcrumbs
+      levels={[{ label: FACULTY_MY_COURSES_TITLE, href: FACULTY_MY_COURSES_ADDRESS }]}
+      current={current}
+    />
+  );
+
+  if (failed) {
     return (
-      <PageContent wrap="wide">
-        {back}
-        <div className="h-2" />
-        <FacultyFailed
+      <>
+        {probes}
+        {crumbs(row?.course.platformCode ?? row?.course.name ?? FACULTY_MY_COURSES_TITLE)}
+        <ListState
+          kind="failed"
+          titleAs="h2"
           title={stateWords('FA-03.failed')}
-          onRetry={() => {
-            retried();
-            void read.refetch();
-          }}
-        />
-      </PageContent>
+          action={
+            <Button
+              onClick={() => {
+                if (read.isError || (read.data && !read.data.ok)) void read.refetch();
+                if (taught.kind === 'failed') taught.retry();
+                refocus.current = true;
+              }}
+            >
+              {FACULTY_FAILED_WORDS.tryAgain}
+            </Button>
+          }
+        >
+          {FACULTY_FAILED_WORDS.line}
+        </ListState>
+      </>
     );
   }
-  if (courses === null) {
+  if (!loaded) {
     return (
-      <PageContent wrap="wide">
-        <FacultyLoading
-          label={stateWords('FA-03.loading')}
-          columns="grid-cols-[1.6fr_1fr]"
-          cells={2}
-        />
-      </PageContent>
+      <>
+        {probes}
+        <LoadingRows message={stateWords('FA-03.loading')} cells={[2, 1, 2]} />
+      </>
     );
   }
   // Not one of the Faculty member's courses (or unknown): the in-shell not-found page.
   if (row === null) return navigation.notFound();
 
-  return (
-    <PageContent wrap="wide">
-      <PageHeader
-        back={back}
-        className="mt-2"
-        overline={COURSE_PAGE.overline}
-        title={row.course.name}
-        meta={
-          <>
-            {row.course.platformCode !== null ? (
-              <span className="xr-id">{row.course.platformCode}</span>
-            ) : null}
-            <span className="xl-meta">
-              {row.accessEndedOn !== null
-                ? accessEndedLine(row.accessEndedOn)
-                : courseMetaLine(row)}
-            </span>
-          </>
-        }
-      />
-      <CourseExperiments course={row} />
-    </PageContent>
-  );
-}
-
-function CourseExperiments({ course }: { readonly course: TeachingCourseRow }) {
-  const { read, probes } = useTaughtExperiments();
+  const code = row.course.platformCode;
+  const ready = summaries.filter((summary) => summary?.ready).length;
   return (
     <>
       {probes}
-      <CourseExperimentsSection course={course} read={read} />
+      {crumbs(code ?? row.course.name)}
+      <FaIdentityBand
+        date={clock?.line}
+        code={code ?? ''}
+        kicker={COURSE_PAGE.eyebrow}
+        title={row.course.name}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        source={
+          row.accessEndedOn === null ? COURSE_PAGE.source : accessEndedLine(row.accessEndedOn)
+        }
+        figures={
+          <FaFigures>
+            <FaFigure term={experimentsHeldLabel(row.experiments)} value={row.experiments} />
+            <FaFigure term={COURSE_PAGE.studentsWithAccess} value={row.studentsWithAccess} />
+            <FaFigure term={assessmentsReadyLabel(ready)} value={ready} />
+          </FaFigures>
+        }
+      />
+      <FaCourseExperiments
+        title={COURSE_PAGE.experimentsSection}
+        titleId="fa-c1-h"
+        note={COURSE_PAGE.experimentsNote}
+      >
+        {experiments.map((entry, index) => (
+          <ExperimentPanel
+            key={entry.option.experimentId}
+            entry={entry}
+            summary={summaries[index] ?? null}
+            markHref={markHref}
+          />
+        ))}
+      </FaCourseExperiments>
     </>
   );
 }
 
-function CourseExperimentsSection({
-  course,
-  read,
+/** One experiment of the course: identity, Student activity and its Assessment. */
+function ExperimentPanel({
+  entry,
+  summary,
+  markHref,
 }: {
-  readonly course: TeachingCourseRow;
-  readonly read: TaughtRead;
+  readonly entry: TaughtExperiment;
+  readonly summary: ReturnType<typeof assessmentSummary> | null;
+  readonly markHref: (assessmentId: string) => string;
 }) {
-  const retried = useRetryFocus(read.kind === 'ready');
-  if (read.kind === 'failed') {
-    return (
-      <FacultyFailed
-        title={stateWords('FA-03.failed')}
-        onRetry={() => {
-          retried();
-          read.retry();
-        }}
-      />
-    );
-  }
-  if (read.kind === 'loading') {
-    return (
-      <FacultyLoading
-        label={stateWords('FA-03.loading')}
-        columns="grid-cols-[1.6fr_1fr]"
-        cells={2}
-      />
-    );
-  }
-  const experiments = read.experiments.filter(
-    (entry) => entry.teaching.experiment.courseId === course.course.id,
-  );
+  const { option, teaching } = entry;
+  const id = option.experimentId;
+  const students = studentsReached(teaching);
+  const formats = formatCodes(teaching.formatsInstitutionHas);
+  const description = teaching.experiment.description.trim();
   return (
-    <Section title={COURSE_PAGE.experimentsSection} meta={COURSE_PAGE.experimentsMeta}>
-      {experiments.length > 0 ? (
-        <ul className="m-0 list-none p-0">
-          {experiments.map((entry) => (
-            <ExperimentCard key={entry.option.experimentId} entry={entry} />
-          ))}
-        </ul>
-      ) : (
-        <div className="xr-section-body">
-          <p className="xr-body m-0 text-ink-2">{stateWords('FA-03.no-experiments')}</p>
-        </div>
-      )}
-    </Section>
+    <FaCourseExperiment
+      title={option.name}
+      titleId={`fa-c1-${id}`}
+      about={description || undefined}
+      formats={{
+        label: COURSE_PAGE.formatsKey,
+        badges: (
+          <FaFormatBadges formats={formats as FormatCode[]} label={formatsHeldLabel(formats)} />
+        ),
+      }}
+      open={{
+        href: facultyExperimentAddress(id),
+        label: COURSE_PAGE.openExperiment,
+        accessibleName: openExperimentFullLabel(option.name),
+      }}
+      activity={{
+        title: COURSE_PAGE.activity,
+        titleId: `fa-c1-act-${id}`,
+        hint: asOfWords(dayMonthYear(teaching.asOf)),
+        children:
+          students > 0 ? (
+            <>
+              <FaProgress
+                label={activityLabel(option.name)}
+                rows={progressRows(teaching)}
+                words={PROGRESS_WORDS}
+              />
+              <FaTeachingActivityFoot
+                link={{ href: facultyStudentsAddress(id), label: COURSE_PAGE.studentsLink }}
+              >
+                {studentsWithAccessWords(students)}
+              </FaTeachingActivityFoot>
+            </>
+          ) : (
+            <FaQuiet>{COURSE_PAGE.noStudents}</FaQuiet>
+          ),
+      }}
+      assessment={{
+        title: COURSE_PAGE.assessment,
+        titleId: `fa-c1-asm-${id}`,
+        status: <AssessmentStatusPill summary={summary} />,
+        children: (
+          <AssessmentFacts
+            variant="course"
+            experimentId={id}
+            summary={summary}
+            markHref={summary ? markHref(summary.assessmentId) : ''}
+          />
+        ),
+      }}
+    />
   );
-}
-
-/** One taught experiment of the course (f1 `li.xl-exp`). */
-function ExperimentCard({ entry }: { readonly entry: TaughtExperiment }) {
-  const { option, teaching, assessment } = entry;
-  const address = facultyExperimentAddress(option.experimentId);
-  const formats = FORMAT_ORDER.filter((format) => teaching.formatsInstitutionHas.includes(format));
-  return (
-    <li className="xl-exp">
-      <div className="xl-exp-head">
-        <h3 className="xl-exp-title">
-          <Link href={address}>{option.name}</Link>
-        </h3>
-        <AssessmentChip entry={entry} />
-      </div>
-      <dl className="xl-kv text-[15px] @min-[600px]:grid-cols-[220px_minmax(0,1fr)]">
-        <dt>{COURSE_PAGE.formatsKey}</dt>
-        <dd>
-          <FormatSet compact variant="yours" formats={formats.map(code)} />
-        </dd>
-        <dt>{COURSE_PAGE.assessmentKey}</dt>
-        <dd>
-          {assessment === null
-            ? stateWords('FA-04.assessment-none')
-            : assessment.readiness === 'ready'
-              ? assessmentLine({
-                  name: assessment.assessment.name || assessment.assessment.id,
-                  deadline:
-                    assessment.assessment.rules.deadline === null
-                      ? null
-                      : deadlineWords(assessment.assessment.rules.deadline),
-                  submitted: assessment.submitted,
-                  reach: assessment.reach,
-                  waiting: assessment.waitingForMarking,
-                })
-              : [
-                  assessment.assessment.name || assessment.assessment.id,
-                  assessment.assessment.rules.deadline === null
-                    ? null
-                    : `due ${deadlineWords(assessment.assessment.rules.deadline)}`,
-                  stateWords('FA-03.assessment-draft'),
-                ]
-                  .filter((part): part is string => part !== null)
-                  .join(' · ')}
-        </dd>
-      </dl>
-      <ul className="xa-counts" aria-label={COURSE_PAGE.countsLabel}>
-        {formats.map((format) => {
-          const counts = teaching.perFormatCounts.find((row) => row.format === format);
-          return (
-            <li key={format}>
-              <span className="xl-inline min-w-[90px]">
-                <FormatBadge format={code(format)} variant="yours" compact />
-                <strong className="text-ink">{code(format)}</strong>
-              </span>
-              <span>
-                <span className="xl-num">{counts?.completed ?? 0}</span> {COURSE_PAGE.completed}
-              </span>
-              <span>
-                <span className="xl-num">{counts?.inProgress ?? 0}</span> {COURSE_PAGE.inProgress}
-              </span>
-              <span>
-                <span className="xl-num">{counts?.notStarted ?? 0}</span> {COURSE_PAGE.notStarted}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-      <div className="xw-actions">
-        <Link className="xr-btn xr-btn--secondary" href={address}>
-          {COURSE_PAGE.openExperiment}
-        </Link>
-        <Link className="xr-btn xr-btn--text" href={facultyStudentsAddress(option.experimentId)}>
-          {STUDENTS_LINKS.course}
-        </Link>
-      </div>
-    </li>
-  );
-}
-
-/** "Assessment ready" (ok, f1), "Draft — not ready" (wait) or none (`FA-03.assessment-*`). */
-function AssessmentChip({ entry }: { readonly entry: TaughtExperiment }) {
-  if (entry.assessment === null) return null;
-  if (entry.assessment.readiness === 'ready') {
-    return <StatusPill tone="ok">{COURSE_PAGE.assessmentReady}</StatusPill>;
-  }
-  const readiness = READINESS_WORDS[entry.assessment.readiness];
-  return <StatusPill tone={readiness.tone}>{readiness.label}</StatusPill>;
 }

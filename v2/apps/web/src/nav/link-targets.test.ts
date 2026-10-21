@@ -458,12 +458,17 @@ describe('the link-target ledger', () => {
       'IA-17: Open the payment page',
       'IA-19: Forward to BITS',
       'SA-19: Approve transfer',
-      // Phase 4A: one primary per drawn state; FA-01's and FA-08's marking actions are drawn
-      // primaries that are not rendered until FA-18 is built (DEV-21).
-      'FA-01: Mark <n> written answer',
-      'FA-05: Open assessment',
+      // Phase 4A: one primary per drawn state. V3 (FA-v1): FA-01's priority band "Mark now" (the
+      // oldest waiting submission) and the new teacher's "Add a question"; FA-03's and FA-05's
+      // assessment panels "Mark <n> written answers" while answers wait, or "Create assessment"
+      // with none ("Open assessment · Continue setting up" is the plain button beside it); FA-09's
+      // "Add from question bank" is a plain button (FA-09 draws no gold primary).
+      'FA-01: Mark now',
+      'FA-01: Add a question',
+      'FA-03: Mark <n> written answers',
+      'FA-03: Create assessment',
+      'FA-05: Mark <n> written answers',
       'FA-05: Create assessment',
-      'FA-05: Continue setting up',
       'FA-06: Create assessment',
       'FA-06: Create assessment',
       'FA-07: Continue',
@@ -471,15 +476,14 @@ describe('the link-target ledger', () => {
       'FA-07: Open assessment',
       'FA-08: Add questions',
       'FA-08: Mark next',
-      'FA-09: Add from question bank',
-      'FA-09: Add from question bank',
       'FA-10: Save settings',
       'FA-14: Add a question',
       'FA-15: Save question',
       'FA-15: Save question',
       // Phase 4B: one primary per drawn state — the hub's Assessment tab (ST-05), Before you
       // start per state (ST-12), the attempt and its DL-1 (ST-13), the result's states (ST-14),
-      // Mark next (FA-12, FA-18), Confirm marks (FA-19), Mark their answers (FA-21), the tools.
+      // Mark next (FA-12, FA-18), Confirm marks (FA-19) and, once confirmed, Next submission (V3
+      // FA-v1), Mark their answers (FA-21), the tools (FA-17's own-file "Choose another file").
       'ST-05: Open assessment',
       'ST-05: Continue attempt',
       'ST-12: Start assessment',
@@ -499,9 +503,10 @@ describe('the link-target ledger', () => {
       'FA-12: Mark next',
       'FA-18: Mark next',
       'FA-19: Confirm marks',
+      'FA-19: Next submission',
       'FA-21: Mark their answers',
       'FA-16: Draft questions',
-      'FA-17: Check file · Choose the corrected file · Continue · Import N questions',
+      'FA-17: Check file · Choose another file · Continue · Import N questions',
       'FA-17: Open question bank',
       // Phase 5: one primary per drawn state — VE-01's top attention item or Create (first visit),
       // VE-02's Create / the returned row's Revise, the editor's Continue per step and its DL-1

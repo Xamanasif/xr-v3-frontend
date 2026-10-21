@@ -1,0 +1,815 @@
+[
+ {
+  "name": "J9a-experiment-chain",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"My courses\")",
+    "expect": "Courses your Institute Admin assigned you",
+    "expectFocus": "fa-h1",
+    "label": "My courses"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Experiments\")",
+    "expect": [
+     "Student activity, by format",
+     "2 completed",
+     "5 students with access · as of 7 Nov 2026",
+     "Formats your institution has"
+    ],
+    "assert": "document.querySelectorAll('#fa-main .fa-prog--cell .fa-units i').length === 10",
+    "label": "FA-04 activity shown as unit meters, five units per format"
+   },
+   {
+    "click": "#fa-main td a.rk-rowlink:has-text(\"Shell-and-Tube Heat Exchanger\")",
+    "expect": [
+     "Experiment you teach · Thermodynamics & Heat Transfer",
+     "Formats your students have used",
+     "Students with access",
+     "Mark 2 written answers",
+     "2 of 5 students submitted"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-05 identity band with figures, activity meters and the assessment panel"
+   },
+   {
+    "click": "#fa-main aside a:has-text(\"Mark 2 written answers\")",
+    "expect": [
+     "Rahul Verma’s answer",
+     "1 of 2 waiting · oldest first"
+    ],
+    "label": "FA-05 Mark opens the oldest waiting submission on FA-19"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"My courses\")"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Experiments\")"
+   },
+   {
+    "click": "#fa-main td a.rk-rowlink:has-text(\"Shell-and-Tube Heat Exchanger\")"
+   },
+   {
+    "click": "#fa-main aside .fa-panel-acts a:has-text(\"Open assessment\")",
+    "expect": [
+     "Rules as set for this assessment",
+     "Students submitted"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-05 Open assessment goes to FA-08"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"My courses\")"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Experiments\")"
+   },
+   {
+    "click": "#fa-main td a.rk-rowlink:has-text(\"Shell-and-Tube Heat Exchanger\")"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Students on this experiment\")",
+    "expect": [
+     "All 5 students with access, by format",
+     "5 students"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-05 Students on this experiment goes to FA-20"
+   }
+  ]
+ },
+ {
+  "name": "J9b-assessment-record",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")",
+    "expect": [
+     "Deadline",
+     "14 Nov 2026, 23:59",
+     "7 days left",
+     "2 of 5 students submitted",
+     "2 waiting for marking"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-06 deadline and submissions columns"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": [
+     "Students submitted",
+     "2 of 5",
+     "Oldest first",
+     "Rahul Verma",
+     "5 Nov, 18:52",
+     "Mark next",
+     "Rules as set for this assessment"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-08 band figures and the submissions panel with names, oldest first"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "Questions in order",
+     "4 questions · 16 marks",
+     "3 marked automatically · 1 written answer you mark"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-09 split of automatic and written marks"
+   },
+   {
+    "click": "#fa-aq-open",
+    "expectFocus": "fa-aq-ph",
+    "label": "add-from-bank panel opens, focus on its heading"
+   },
+   {
+    "click": "role=button[name=\"Close question bank\"]",
+    "expectFocus": "fa-aq-open",
+    "label": "closing the panel returns focus to Add from question bank"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Settings\")",
+    "expect": [
+     "How changes apply",
+     "Version 1 · since 27 Oct 2026, 11:05",
+     "Changing the name or the introduction never makes a new version."
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-10 sectioned form with How changes apply"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "expect": [
+     "As students see it",
+     "Previewing creates no attempt and saves nothing."
+    ],
+    "expectNot": [
+     "Only you see the answer key",
+     "Explanation"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-11 student view shows no key and no explanation"
+   },
+   {
+    "click": "role=button[name=\"Answer key\"]",
+    "expect": [
+     "Only you see the answer key and the marking guidance",
+     "Correct",
+     "Explanation"
+    ],
+    "label": "FA-11 answer key mode"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expect": [
+     "2 submissions · 2 waiting for marking",
+     "— of 16",
+     "Marked automatically: 4 of 6",
+     "Marked automatically: 6 of 6",
+     "Not yet"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-12 waiting rows show the automatic part only"
+   },
+   {
+    "click": "#fa-main .rk-toolbar a:has-text(\"Mark next\"), #fa-main .rk-toolbar button:has-text(\"Mark next\")",
+    "expect": [
+     "Rahul Verma’s answer",
+     "1 of 2 waiting · oldest first"
+    ],
+    "label": "FA-12 Mark next opens the oldest"
+   }
+  ]
+ },
+ {
+  "name": "J9c-record-375",
+  "file": "fa/T-j-nov07-375.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Assessments\")",
+    "expect": "Heat Exchanger — post-lab",
+    "noOverflow": true,
+    "label": "FA-06 at 375"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expect": [
+     "Students submitted",
+     "Mark next"
+    ],
+    "noOverflow": true,
+    "label": "FA-08 at 375"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "noOverflow": true,
+    "assert": "(() => { const t = document.querySelector('#fa-main .rk-tabs [aria-current=\"page\"]'); const s = t && t.closest('.rk-tabs'); if (!t || !s) return false; const a = t.getBoundingClientRect(), b = s.getBoundingClientRect(); return a.left >= b.left - 1 && a.right <= b.right + 1; })()",
+    "label": "current tab scrolled into view in the tab strip at 375"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Settings\")",
+    "noOverflow": true,
+    "assert": "(() => { const f = [...document.querySelectorAll('#fa-main .fa-fields3 > .rk-field')]; return f.length === 3 && f[0].getBoundingClientRect().top < f[1].getBoundingClientRect().top; })()",
+    "label": "FA-10 rule fields stack in one column at 375"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Preview\")",
+    "noOverflow": true,
+    "label": "FA-11 at 375"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "noOverflow": true,
+    "label": "FA-09 at 375"
+   }
+  ]
+ },
+ {
+  "name": "J9d-bank-drafts-and-editor",
+  "file": "fa/T-j-qb.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expect": [
+     "How review works",
+     "Drafted with assistance",
+     "Correct answer",
+     "Marking guidance",
+     "3 drafts to review"
+    ],
+    "expectFocus": "fa-tabh",
+    "label": "FA-14 drafts as cards with options, key and guidance"
+   },
+   {
+    "click": "[aria-label=\"Add to bank: What is the log mean temperature difference (LMTD) used for?\"]",
+    "wait": 700,
+    "expect": [
+     "Added to your question bank.",
+     "2 drafts to review"
+    ],
+    "label": "add a draft from its card"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Questions\")",
+    "expect": [
+     "7 questions",
+     "What is the log mean temperature difference (LMTD) used for?"
+    ],
+    "label": "the added draft is in the bank"
+   },
+   {
+    "click": "[aria-label=\"Edit question: How is the number of transfer units (NTU) defined?\"]",
+    "expect": [
+     "This question",
+     "Used in",
+     "What students see",
+     "Your marking guidance — only whoever marks the answer sees it.",
+     "Used in",
+     "Heat Exchanger — post-lab"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-15 side panel facts for a used question"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Cancel\")",
+    "expect": "7 questions",
+    "label": "cancel returns to the bank"
+   },
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Add a question\"), #fa-main .rk-head-act button:has-text(\"Add a question\")",
+    "expect": [
+     "Add a question",
+     "Not in an assessment yet"
+    ],
+    "label": "FA-15 new question: the side panel says it is not in an assessment yet"
+   }
+  ]
+ },
+ {
+  "name": "J9e-queue-and-students",
+  "file": "fa/T-j-mq.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "2 written answers waiting",
+     "Oldest waiting 2 days",
+     "2 days ago",
+     "1 day ago"
+    ],
+    "label": "FA-18 count, oldest wait and age per row"
+   },
+   {
+    "select": "#fa-mq-asm",
+    "value": "ASMT-0009",
+    "expect": [
+     "Rahul Verma",
+     "Priya Natarajan"
+    ],
+    "label": "filter by assessment"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Mark next\"), #fa-main button:has-text(\"Mark next\")",
+    "expect": [
+     "Rahul Verma’s answer",
+     "1 of 2 waiting · oldest first"
+    ],
+    "label": "Mark next opens the oldest"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")",
+    "expect": [
+     "All 5 students with access, by format",
+     "As of 7 Nov 2026 · progress in words, per format",
+     "5 students"
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-20 per-format summary above the roster"
+   },
+   {
+    "select": "#fa-sl-prog",
+    "value": "wait",
+    "expect": [
+     "2 of 5 students",
+     "Progress: Waiting for marking"
+    ],
+    "label": "progress filter: waiting for marking"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Priya Natarajan\")",
+    "expect": [
+     "Mark their answers",
+     "Open the assessment",
+     "Per format only — there is no overall percentage or verdict."
+    ],
+    "expectFocus": "fa-h1",
+    "label": "FA-21 panel with Mark their answers"
+   },
+   {
+    "click": "#fa-main aside a:has-text(\"Mark their answers\")",
+    "expect": [
+     "Priya Natarajan’s answer"
+    ],
+    "label": "FA-21 Mark their answers opens FA-19 for that student"
+   }
+  ]
+ },
+ {
+  "name": "J9f-import-figures",
+  "file": "fa/T-j-im.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "expect": [
+     "Your CSV file",
+     "The template",
+     "Download the template (CSV)",
+     "marking_guidance"
+    ],
+    "label": "FA-17 step 1 with the template beside it"
+   },
+   {
+    "click": "role=button[name=\"Use the sample file\"]",
+    "expect": "post-lab-questions.csv"
+   },
+   {
+    "click": "role=button[name=\"Check file\"]",
+    "wait": 1000,
+    "expect": [
+     "Rows\n8",
+     "Ready\n6",
+     "With errors\n2",
+     "With warnings\n1"
+    ],
+    "assert": "!!document.querySelector('#fa-main .fa-repfigs .is-err')",
+    "label": "row check figures flag errors"
+   },
+   {
+    "click": "role=button[name=\"Choose the corrected file\"]",
+    "wait": 1000,
+    "expect": [
+     "Ready\n8",
+     "With errors\n0"
+    ],
+    "assert": "!document.querySelector('#fa-main .fa-repfigs .is-err')",
+    "label": "corrected file: no error figure"
+   },
+   {
+    "click": "role=button[name=\"Continue\"]",
+    "expect": [
+     "Confirm import",
+     "8 questions will be added to your bank from post-lab-questions-corrected.csv."
+    ],
+    "label": "confirm step"
+   },
+   {
+    "click": "#fa-main .rb-btn--primary:has-text(\"Import\")",
+    "wait": 1000,
+    "expect": [
+     "Questions imported",
+     "8 questions were added to your bank."
+    ],
+    "label": "imported"
+   }
+  ]
+ },
+ {
+  "name": "J9g-phone-sweep-375",
+  "file": "fa/T-j-nov07-375.dc.html",
+  "width": 375,
+  "steps": [
+   {
+    "noOverflow": true,
+    "label": "Overview"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"My courses\")",
+    "noOverflow": true,
+    "label": "My courses"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Experiments\")",
+    "noOverflow": true,
+    "label": "Experiments tab"
+   },
+   {
+    "click": "#fa-main td a.rk-rowlink:has-text(\"Shell-and-Tube Heat Exchanger\")",
+    "noOverflow": true,
+    "label": "Experiment"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Assessments\")",
+    "noOverflow": true,
+    "label": "Assessments"
+   },
+   {
+    "click": "#fa-main a:has-text(\"Create assessment\")",
+    "noOverflow": true,
+    "label": "Create assessment"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Question bank\")",
+    "noOverflow": true,
+    "label": "Question bank"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "noOverflow": true,
+    "label": "Drafts to review"
+   },
+   {
+    "click": "#fa-main .rk-head-act a:has-text(\"Import\"), #fa-main .rk-head-act button:has-text(\"Import\")",
+    "noOverflow": true,
+    "label": "Import"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Marking\")",
+    "noOverflow": true,
+    "label": "Marking"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\"), #fa-main td a:has-text(\"Mark\")",
+    "noOverflow": true,
+    "label": "Mark a submission"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Students\")",
+    "noOverflow": true,
+    "label": "Students"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "noOverflow": true,
+    "label": "Student detail"
+   }
+  ]
+ },
+ {
+  "name": "J9h-tablet-sweep-768",
+  "file": "fa/T-j-nov07-375.dc.html",
+  "width": 768,
+  "steps": [
+   {
+    "noOverflow": true,
+    "label": "Overview"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"My courses\")",
+    "noOverflow": true,
+    "label": "My courses"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Experiments\")",
+    "noOverflow": true,
+    "label": "Experiments tab"
+   },
+   {
+    "click": "#fa-main td a.rk-rowlink:has-text(\"Shell-and-Tube Heat Exchanger\")",
+    "noOverflow": true,
+    "label": "Experiment"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Assessments\")",
+    "noOverflow": true,
+    "label": "Assessments"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "noOverflow": true,
+    "label": "Assessment summary"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "noOverflow": true,
+    "label": "Submissions"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Question bank\")",
+    "noOverflow": true,
+    "label": "Question bank"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Marking\")",
+    "noOverflow": true,
+    "label": "Marking"
+   },
+   {
+    "click": "#fa-menu"
+   },
+   {
+    "click": ".rb-drawer a:has-text(\"Students\")",
+    "noOverflow": true,
+    "label": "Students"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Rahul Verma\")",
+    "noOverflow": true,
+    "label": "Student detail"
+   }
+  ]
+ },
+ {
+  "name": "J9i-keyboard-focus",
+  "file": "fa/T-j-nov07.dc.html",
+  "width": 1440,
+  "steps": [
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Assessments\")"
+   },
+   {
+    "click": "#fa-main a.rk-rowlink:has-text(\"Heat Exchanger — post-lab\")",
+    "expectFocus": "fa-h1"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 1 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 2 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 3 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 4 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 5 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 6 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 7 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 8 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-08 band link, five tabs, section link and panel actions · stop 9 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "document.activeElement === document.body",
+    "label": "FA-08 · tab sequence ends after the panel (no hidden stops)"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Submissions\")",
+    "expectFocus": "fa-tabh"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 1 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 2 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 3 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 4 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 5 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 6 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-12 Mark next, Export CSV, three filters and two rows · stop 7 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Settings\")",
+    "expectFocus": "fa-tabh"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 1 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 2 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 3 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 4 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 5 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 6 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 7 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-10 five fields, the chosen release option, Cancel and Save · stop 8 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Question bank\")",
+    "expectFocus": "fa-h1"
+   },
+   {
+    "click": "a.rk-tab:has-text(\"Drafts to review\")",
+    "expectFocus": "fa-tabh"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-14 draft card actions · stop 1 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-14 draft card actions · stop 2 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-14 draft card actions · stop 3 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-14 draft card actions · stop 4 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-14 draft card actions · stop 5 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-14 draft card actions · stop 6 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "click": "nav[aria-label=\"Faculty navigation\"] a:has-text(\"Students\")",
+    "expectFocus": "fa-h1"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 1 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 2 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 3 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 4 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 5 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 6 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 7 has a visible focus ring (on the control or its row)"
+   },
+   {
+    "press": "Tab",
+    "assert": "(() => { const e = document.activeElement; if (!e || e === document.body) return false; const ring = x => { const cs = getComputedStyle(x); return (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || /inset/.test(cs.boxShadow) === false && cs.boxShadow !== 'none' && x === e; }; for (let x = e, k = 0; x && k < 3; x = x.parentElement, k++) if (ring(x)) return true; return false; })()",
+    "label": "FA-20 Export CSV, two filters and five rows · stop 8 has a visible focus ring (on the control or its row)"
+   }
+  ]
+ }
+]

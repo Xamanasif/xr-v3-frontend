@@ -7,9 +7,10 @@ import { joinClasses } from '../internal/classes.js';
  * ones the Entry & shared export (XS-v6) draws in its sign-in card, account menu, Help pages and
  * messages, the Super Admin export (SA-v1) in its sprite, the Vendor export (VE-v1) in its
  * `vei-*` symbols, the Content Manager export (CM-v1) in its `cmi-*` symbols, the Academic
- * Reviewer export (RV-v1) in its rail and its `rvi-*` symbols and the Institute Admin export
- * (IA-v1) in its rail and its `rbi-*` / `rki-*` sprite. Thirty-five are the very paths of the v46
- * registry (taken from it, so the two never drift); the others are new to V3.
+ * Reviewer export (RV-v1) in its rail and its `rvi-*` symbols, the Institute Admin export (IA-v1)
+ * in its rail and its `rbi-*` / `rki-*` sprite and the Faculty export (FA-v1) in its `fai-*`
+ * sprite. Thirty-five are the very paths of the v46 registry (taken from it, so the two never
+ * drift); the others are new to V3.
  * `primitives.test.tsx` checks every path against the board or export that draws it.
  */
 export const V3_ICON_PATHS = {
@@ -120,6 +121,24 @@ export const V3_ICON_PATHS = {
   // Device requests list.
   device:
     'M3 8.5A2.5 2.5 0 0 1 5.5 6h13A2.5 2.5 0 0 1 21 8.5v5a2.5 2.5 0 0 1-2.5 2.5h-3l-1.5-2.5h-4L8.5 16h-3A2.5 2.5 0 0 1 3 13.5z',
+  // New in the Faculty export (FA-v1 `Main.dc.html` `fai-*` symbols): the rail's My courses book
+  // (`fai-book`), Assessments clipboard (`fai-clip`), Question bank stack (`fai-stack`) and Marking
+  // pen (`fai-pen`, which closes its shape where `edit` draws `v4z`); a question's Edit pencil
+  // (`fai-edit`), Import and Export (`fai-upload`, `fai-download`; not the v46 `download`), a draft
+  // needing review (`fai-draft`), the student view and the answer key of a preview (`fai-eye`, not
+  // the v46 `eye`; `fai-key`) and a file or resource (`fai-file`).
+  book: 'M5 4.5h11a3 3 0 0 1 3 3V20H8a3 3 0 0 1-3-3zM5 17a3 3 0 0 1 3-3h11M9 8.5h6',
+  clipboardCheck:
+    'M9 3.5h6v3H9zM9 5H6.5A1.5 1.5 0 0 0 5 6.5v13A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5v-13A1.5 1.5 0 0 0 17.5 5H15M8.8 13.5l2.2 2.2 4.2-4.6',
+  stack: 'M12 3 3 7.5l9 4.5 9-4.5zM3 12l9 4.5 9-4.5M3 16.5 12 21l9-4.5',
+  pen: 'M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4',
+  pencil: 'M15 5l4 4M4 20l1-5L16 4l4 4L9 19z',
+  upload: 'M12 16V4M7 9l5-5 5 5M4 20h16',
+  download: 'M12 4v12M7 11l5 5 5-5M4 20h16',
+  draft: 'M5 3.5h9l5 5V20.5H5zM14 3.5v5h5M8 13h8M8 17h5',
+  eye: 'M2.5 12S6 5 12 5s9.5 7 9.5 7-3.5 7-9.5 7S2.5 12 2.5 12zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z',
+  key: 'M14.5 14.5a5 5 0 1 0-4.6-3.1L3 18.3V21h2.7l1-1V18h2v-2h2l.9-.9a5 5 0 0 0 2.9-.6zM16.5 7.5h.01',
+  file: 'M6 3h8l5 5v13H6zM14 3v5h5',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;

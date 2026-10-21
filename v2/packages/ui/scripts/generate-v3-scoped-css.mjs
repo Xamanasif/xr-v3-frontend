@@ -25,8 +25,9 @@
 // (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): XS-v6's xs-shared.css →
 // src/styles/v3/xs-scoped.css, SA-v1's sa-role.css → src/styles/v3/sa-scoped.css, VE-v1's
 // v3-vendor.css → src/styles/v3/ve-scoped.css, CM-v1's cm.css → src/styles/v3/cm-scoped.css,
-// RV-v1's rv.css → src/styles/v3/rv-scoped.css and IA-v1's ia-role.css →
-// src/styles/v3/ia-scoped.css, with the same selector-only transform. Before anything is written, the export must name this foundation,
+// RV-v1's rv.css → src/styles/v3/rv-scoped.css, IA-v1's ia-role.css →
+// src/styles/v3/ia-scoped.css and FA-v1's fa.css → src/styles/v3/fa-scoped.css, with the same
+// selector-only transform. Before anything is written, the export must name this foundation,
 // its three base sheets must be the foundation's own bytes (a different base is a new foundation
 // version: STOP), and the extension sheet must match both the export's FOUNDATION-LOCK.json and
 // its checksums (the export's own SHA256SUMS.txt, or the list recorded at intake beside it).
@@ -465,6 +466,42 @@ export const ROLE_SHEETS = [
       'ia-out*), which the delivered XS export draws, are left out.',
     ],
   },
+  {
+    /** The workstream: FA · Faculty (21 screens). */
+    role: 'FA',
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'FA-v1'),
+    /** The one role stylesheet (every rule selects an `fa-` class). */
+    sheet: 'project/fa.css',
+    /** No SHA256SUMS.txt in the export: the list recorded at intake, `FA-v1.SHA256SUMS.txt`. */
+    sums: 'beside',
+    output: join(packageRoot, 'src', 'styles', 'v3', 'fa-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these: the export's borrowed shared surfaces
+     * (its COMPONENT-EXTENSIONS.md "Borrowed shared surfaces (XS contract, not redesigned)":
+     * "Replace them with the delivered XS components"; START-HERE "ASSEMBLY PENDING XS") — the
+     * account menu (`fa-acctwrap`, `fa-menu*`, `fa-menuscrim`: "Account menu (borrowed XS-05)"),
+     * the whole-page message of XS-06 and the scoped refusals (the bare `fa-msg`) and the
+     * signed-out page (`fa-pub*`: XS-03). The delivered XS export (XS-v6) draws them. The message
+     * template's parts (`fa-msg-ico`, `fa-msg-ico--lock`, `fa-msg-d`, `fa-msg-act`) and
+     * `fa-inlinemsg` stay: the role's own no-course and co-teacher states draw them in its message
+     * cards (`fa-msgcard`) and panels. The export has no preview-only class family: its
+     * preview-only pieces (the "Preview state" properties panel, FA-16's "in this preview" words,
+     * FA-17's sample-file buttons) are markup and words, not sheet classes.
+     *
+     * And the sheet's one selector without an `fa-` class, exactly `.rk-panel-head h2:focus` (no
+     * outline on a navy panel head's heading when it takes focus): from the `xr.v3.fa` layer it
+     * would reach every `.rk-panel-head h2` in any V3 root — the Super Admin's decision panel
+     * heading among them. It is left out here and re-added confined to the Faculty panels by the
+     * central patch V3P-17 (`.rk-panel-head.rk-x-panel-head-quiet h2:focus`).
+     */
+    omit: /\.fa-(?:msg|pub\w*|acctwrap|menu(?:-[\w-]+)?|menuscrim)(?![\w-])|^\s*\.rk-panel-head h2:focus\s*$/,
+    omitNote: [
+      'borrowed XS surfaces (fa-acctwrap, fa-menu*, fa-menuscrim, the bare fa-msg page, fa-pub*),',
+      'which the delivered XS export draws, are left out; the fa-msg-* parts and fa-inlinemsg stay.',
+      'The one rule without an fa- class (.rk-panel-head h2:focus), which would reach every role’s',
+      'panel heads, is left out too: V3P-17 confines it to the Faculty panels.',
+    ],
+  },
 ];
 
 /** Whether every selector of a rule names something its export says is not product UI. */
@@ -472,7 +509,7 @@ export function previewOnlyRule(role, prelude) {
   return splitTopLevel(prelude, ',').every((selector) => role.omit.test(selector));
 }
 
-/** The export's recorded SHA-256 of one of its base sheets, in any of the six lock layouts. */
+/** The export's recorded SHA-256 of one of its base sheets, in any of the seven lock layouts. */
 function exportedBaseSheet(exportLock, sheet) {
   return (
     exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
@@ -480,12 +517,13 @@ function exportedBaseSheet(exportLock, sheet) {
     exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256 ??
     exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256 ??
     exportLock.copiedBaseFiles?.[`project/${sheet}`]?.sha256 ??
-    exportLock.byteIdenticalCopies?.[`project/${sheet}`]?.sha256
+    exportLock.byteIdenticalCopies?.[`project/${sheet}`]?.sha256 ??
+    exportLock.baseFilesUsed?.[`project/${sheet}`]?.sha256
   );
 }
 
 /**
- * The export's recorded SHA-256 of its extension sheet, in any of the six lock layouts: keyed by
+ * The export's recorded SHA-256 of its extension sheet, in any of the seven lock layouts: keyed by
  * path or file name (a hash or `{ sha256 }`), or — IA-v1 — an array of `{ path, sha256 }` entries.
  */
 function exportedLocalAddition(exportLock, sheet) {

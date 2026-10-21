@@ -1,12 +1,15 @@
 /**
- * FA-05 Experiment, the teaching view (board B4-03 f0 … f4) on the real composition root and the
- * sample world: the published page with its read-only outcomes, the formats the institution has
- * and the formats its Students used, the per-format activity (never one figure across formats),
- * and the institution's assessment — f0 Ready with "Open assessment", f1 none yet with "Create
- * assessment", f2 a draft with "Continue setting up", f3 no activity yet. The one world moves the
- * page: an assessment created and set through the port, a Student's submission, a runtime report,
- * the Institute Admin removing the Faculty course mapping (IA-15). The undrawn loading, failed and
- * not-found states; every drawn phrase is the board's own.
+ * FA-05 Experiment, the teaching view — the owner-approved V3 design (design/v3-refined-b/roles/
+ * FA-v1 `Main.dc.html` FA-05, `vmExperiment`, `asmSum`) on the real composition root and the sample
+ * world: the breadcrumb, the identity band with its figures (the formats the institution has, the
+ * formats its Students used, the Students with access), Student activity (one unit meter per format,
+ * never one figure across formats), About this experiment (read-only outcomes, resources) and the
+ * navy Assessment panel — Ready with "Open assessment", none yet with "Create assessment", a draft
+ * with "Continue setting up", written answers waiting with "Mark …" (the oldest waiting submission),
+ * a co-teaching colleague's with "Created by …". The one world moves the page: an assessment created
+ * and set through the port, a Student's submission, a runtime report, the Institute Admin removing
+ * the Faculty course mapping (IA-15). The application's loading, failed and not-found states; every
+ * drawn phrase is the export's; no internal reference anywhere.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -17,21 +20,24 @@ import { afterEach, describe, expect, it } from 'vitest';
 import {
   ABOUT,
   ACTIVITY,
-  ASSESSMENT_ROW,
-  draftLine,
+  ASSESSMENT_SUMMARY,
+  assessmentNoteWords,
+  deadlinePassedWords,
   EXPERIMENT_PAGE,
   EXPERIMENT_SECTIONS,
-  experimentOverline,
+  experimentKicker,
+  formatsUsedLabel,
+  markWrittenLabel,
+  markWrittenWords,
   NO_ASSESSMENT,
-  noActivityLine,
-  readyLine,
   studentsHaveLine,
+  writtenWaitingWords,
 } from '@/copy/faculty-experiment';
 import { STATE_COPY } from '@/copy/state-copy';
 import { STATE_COPY_FACULTY_EXPERIMENT } from '@/copy/state-copy-faculty-experiment';
 import { P4_FACULTY_EXPERIMENT_LINK_TARGETS } from '@/nav/link-targets-p4/experiment';
 import type { PlatformRuntime } from '@/platform/runtime';
-import { board } from '@/test-support/boards';
+import { faExport } from '@/test-support/boards';
 import {
   renderInTab,
   tabPlatform,
@@ -59,6 +65,27 @@ const ADDRESS = `/faculty/experiments/${SHELL}`;
 
 type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
 
+/** The export's text with tags removed and entities read, then its raw markup and script. */
+const RAW = faExport('Main.dc.html');
+const EXPORT = `${RAW.replace(/<[^>]+>/g, ' ')
+  .replace(/&amp;/g, '&')
+  .replace(/\s+/g, ' ')}\n${RAW}`;
+
+/** An internal reference (the owner's identifier rule, 21 Oct 2026). */
+const REFERENCE = /\b(?:ASMT|ATT|Q|D|REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+function expectNoReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
+
 function showExperiment(runtime: PlatformRuntime, experimentId = SHELL) {
   const navigation = testNavigation(`/faculty/experiments/${experimentId}`);
   return renderInTab(
@@ -75,22 +102,35 @@ const main = () => screen.getByRole('main');
 const heading = () =>
   screen.findByRole('heading', { level: 1, name: SHELL_NAME }, { timeout: 5000 });
 const region = (name: string) => screen.getByRole('region', { name });
-const assessmentRegion = () => region(EXPERIMENT_SECTIONS.assessment);
-const activityRegion = () => region(EXPERIMENT_SECTIONS.activity);
-const text = (element: Element | null) => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
+const activity = () => region(EXPERIMENT_SECTIONS.activity);
+/** The navy panel's body, named by its heading through the aside. */
+const panel = () =>
+  screen
+    .getByRole('complementary', { name: EXPERIMENT_SECTIONS.assessment })
+    .querySelector('.rk-panel-body') as HTMLElement;
 
-/** The per-format rows (`ul.xa-counts > li`): the format, then each count, as their text. */
-function countRows(): string[] {
-  return [...activityRegion().querySelectorAll('ul.xa-counts > li')].map((row) =>
-    [...row.children].map((cell) => text(cell)).join(' | '),
-  );
+/** An element's words with a space between its text nodes (as a screen reader reads them). */
+function text(node: Element | null): string {
+  if (!node) return '';
+  const parts: string[] = [];
+  const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT);
+  for (let current = walker.nextNode(); current; current = walker.nextNode()) {
+    parts.push(current.textContent ?? '');
+  }
+  return parts.join(' ').replace(/\s+/g, ' ').trim();
 }
 
-/** The two labelled facts under the H1, as "label: chips". */
-function facts(): string[] {
-  return [...main().querySelectorAll('.xr-phead-meta .xw-statusline > .xl-inline')].map((fact) => {
-    const [label, ...rest] = [...fact.children];
-    return `${text(label!)}: ${rest.map((part) => text(part)).join(' ')}`;
+/** The per-format rows (the separators between the counts are drawn by CSS). */
+function progressRows(): string[] {
+  return [...activity().querySelectorAll('ul.fa-prog > li.fa-prog-row')].map((row) => text(row));
+}
+
+/** The band's figures as "value · term" (the value is drawn first; the `dt` comes first in the DOM). */
+function figures(): string[] {
+  return [...main().querySelectorAll('header.fa-cid dl.fa-figs > div.fa-fig')].map((figure) => {
+    const value = figure.querySelector('dd')!;
+    const formats = value.querySelector('[role="img"]');
+    return `${formats ? formats.getAttribute('aria-label') : text(value)} · ${text(figure.querySelector('dt'))}`;
   });
 }
 
@@ -137,179 +177,173 @@ async function createAssessment(
   return answer.value;
 }
 
-// ---- f0: Ready (after Flow D: ASMT-0009 Ready, ATT-0450 submitted and released) --------------
+// ---- Ready (after Flow D: the assessment Ready, Rahul's submission marked) ------------------------
 
-describe('FA-05 — the teaching view with a Ready assessment (B4-03 f0)', () => {
-  it('the header, the two format facts, the Ready row, activity per format and the experiment', async () => {
+describe('FA-05 — the teaching view with a Ready assessment', () => {
+  it('the breadcrumb, the band and its figures, activity per format, About and the navy Assessment panel', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
     showExperiment(runtime);
-    await heading();
+    const title = await heading();
     expect(screen.getAllByRole('heading', { level: 1 })).toHaveLength(1);
+    expect(title).toHaveClass('fa-cid-t');
+    expect(title).toHaveAttribute('tabindex', '-1');
 
-    // The shell: My courses current; "My courses / ME ZG523 / Shell-and-Tube Heat Exchanger".
-    expect(document.querySelector('.xr-top-title')?.textContent).toBe(SHELL_NAME);
-    const crumbs = screen.getByRole('list', { name: 'You are here' });
-    expect([...crumbs.querySelectorAll('li')].map((item) => text(item))).toEqual([
-      'My courses/',
-      'ME ZG523/',
-      SHELL_NAME,
-    ]);
+    // The breadcrumb names the course by its code and the experiment by its name.
+    const crumbs = screen.getByRole('navigation', { name: 'Breadcrumb' });
+    expect(text(crumbs)).toBe(`My courses ME ZG523 ${SHELL_NAME}`);
+    expect(within(crumbs).getByRole('link', { name: 'My courses' })).toHaveAttribute(
+      'href',
+      '/faculty/courses',
+    );
     expect(within(crumbs).getByRole('link', { name: 'ME ZG523' })).toHaveAttribute(
       'href',
       '/faculty/courses/thermodynamics-heat-transfer',
     );
+    expect(crumbs.querySelector('[aria-current="page"]')).toHaveTextContent(SHELL_NAME);
     expect(
       screen
         .getByRole('navigation', { name: 'Faculty navigation' })
         .querySelector('[aria-current="page"]'),
     ).toHaveAttribute('href', '/faculty/courses');
 
-    // Back to My courses; "ME ZG523 · Thermodynamics & Heat Transfer"; the two labelled facts.
-    expect(main().querySelector('a.xr-back')).toHaveAttribute('href', '/faculty/courses');
-    expect(main().querySelector('a.xr-back')).toHaveTextContent(/^My courses$/);
-    expect(main().querySelector('.xr-phead .xr-overline')).toHaveTextContent(
-      'ME ZG523 · Thermodynamics & Heat Transfer',
+    // The band: the date, the code and kicker, the name and the three figures.
+    const band = main().querySelector('header.fa-cid')!;
+    expect(text(band.querySelector('.rb-eyebrow-date'))).toBe('Sunday 15 November 2026');
+    expect(text(band.querySelector('.fa-cid-eyebrow'))).toBe(
+      'ME ZG523 Experiment you teach · Thermodynamics & Heat Transfer',
     );
-    expect(facts()).toEqual([
-      'Formats your institution has: WEBVR',
-      'Formats used by your students: WEBVR',
+    expect(figures()).toEqual([
+      'Formats your institution has: WEB, VR · Formats your institution has',
+      'Formats used by your students: WEB, VR · Formats your students have used',
+      '1 · Students with access',
     ]);
-    for (const chip of main().querySelectorAll('.xr-phead-meta .xr-fmt')) {
-      expect(chip).toHaveClass('xr-fmt', 'xr-fmt--yours', 'xr-fmt--compact');
-    }
+    expect(band.querySelectorAll('.fa-fig--fm')).toHaveLength(2);
 
-    // Three sections in the drawn order.
+    // The sheet's two sections, the panel beside them (first on narrow widths).
+    expect(main().querySelector('.rk-detail')).toHaveClass('fa-asidefirst');
     expect(
-      [...main().querySelectorAll('.xw-stack > section.xr-section h2')].map((h) => h.textContent),
-    ).toEqual(['Assessment', 'Student activity', 'About this experiment']);
+      [...main().querySelectorAll('.rk-mainsheet > section.rk-sec h2')].map((h) => h.textContent),
+    ).toEqual(['Student activity, by format', 'About this experiment']);
 
-    // Assessment: the Ready row (the world's own counts: one Student reached, one submitted).
-    const row = await within(assessmentRegion()).findByRole('listitem');
-    expect(row).toHaveClass('xr-row');
-    expect(row.querySelector('.xr-row-icon')).toHaveClass('xr-row-icon--ok');
-    expect(row.querySelector('.xr-row-title')).toHaveTextContent('Heat Exchanger — post-lab');
-    expect(row.querySelector('.xr-row-sub .xr-status')).toHaveClass('xr-status--ok');
-    expect(text(row.querySelector('.xr-row-sub'))).toBe(
-      'Ready Due 14 Nov 2026, 23:59 · 1 of 1 submitted',
-    );
-    const open = within(row).getByRole('link', { name: 'Open assessment' });
-    expect(open).toHaveAttribute('href', '/faculty/assessments/ASMT-0009');
-    expect(open).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
-    expect(open.parentElement).toHaveClass('xw-actions');
-    // FA-18 is not built: no "Mark … written answer" (DEV-21).
-    expect(within(row).getAllByRole('link')).toHaveLength(1);
-
-    // Student activity: the Students reached, one row per format, nothing summed.
-    const activity = activityRegion();
-    expect(activity.querySelector('.xr-section-body > p.xr-body')).toHaveTextContent(
-      /^1 student has this experiment from your institution\.$/,
-    );
-    expect(activity.querySelector('p.xr-body strong')).toHaveTextContent(/^1 student$/);
-    expect(within(activity).getByRole('list', { name: 'Student activity by format' })).toHaveClass(
-      'xa-counts',
-    );
-    expect(countRows()).toEqual([
-      'WEBWEB | 1 completed | 0 in progress | 0 not started',
-      'VRVR | 1 completed | 0 in progress | 0 not started',
+    // Student activity: as of the read, one row per format, who has it and the way to them.
+    expect(text(activity().querySelector('.rk-sec-h .rk-hint'))).toBe('As of 15 Nov 2026');
+    expect(
+      within(activity()).getByRole('list', {
+        name: `Student activity by format for ${SHELL_NAME}, as of 15 Nov 2026`,
+      }),
+    ).toHaveClass('fa-prog');
+    expect(progressRows()).toEqual([
+      'WEB 1 completed 0 in progress 0 not started',
+      'VR 1 completed 0 in progress 0 not started',
     ]);
-    // "See students on this experiment" under the per-format rows opens FA-20 for it (Phase 4B).
-    const students = within(activity).getByRole('link', {
-      name: 'See students on this experiment',
-    });
-    expect(students).toHaveAttribute('href', `/faculty/students?experimentId=${SHELL}`);
-    expect(students.parentElement).toHaveClass('xr-section-body');
-    expect(students.previousElementSibling).toHaveClass('xa-counts');
-    expect(within(activity).queryAllByRole('link')).toHaveLength(1);
-    // "as of <date>": the read's own instant (PC-52), the sample today of the fixture.
-    expect(activity.querySelector('.xr-section-head .xr-meta')).toHaveTextContent(
-      'as of 15 Nov 2026',
+    expect(text(activity().querySelector('p.fa-xp-foot > span'))).toBe(
+      '1 student has this experiment from your institution.',
     );
+    expect(
+      within(activity()).getByRole('link', { name: 'Students on this experiment' }),
+    ).toHaveAttribute('href', `/faculty/students?experimentId=${SHELL}`);
 
     // About: the published description and outcomes (read-only), the resources' titles.
     const about = region(EXPERIMENT_SECTIONS.about);
-    expect(about.querySelector('p.xr-body')).toHaveTextContent(
+    expect(text(about.querySelector('p.fa-about'))).toBe(
       'Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.',
     );
-    expect(
-      within(about).getByRole('heading', { level: 3, name: 'Learning outcomes' }),
-    ).toBeVisible();
-    expect([...about.querySelectorAll('ul > li')].map((item) => item.textContent)).toEqual([
+    const outcomes = within(about).getByRole('list', { name: 'Learning outcomes' });
+    expect(outcomes).toHaveClass('fa-check');
+    expect([...outcomes.querySelectorAll('li.is-ok')].map((item) => text(item))).toEqual([
       'Determine log mean temperature difference from measured inlet and outlet conditions',
       'Compare countercurrent and cocurrent arrangements at matched duty',
     ]);
-    expect(about.querySelector('p.xl-open')).toHaveTextContent(ABOUT.outcomesNote);
-    expect(about.querySelector('p.xl-open svg path')).toHaveAttribute(
-      'd',
-      'M6 11h12v9H6zM8.5 11V8a3.5 3.5 0 0 1 7 0v3',
+    expect(text(about.querySelector('.fa-aboutgrid .rk-hint'))).toBe(ABOUT.outcomesNote);
+    const resources = within(about).getByRole('list', { name: 'Resources students see' });
+    expect([...resources.querySelectorAll('li')].map((item) => text(item))).toEqual([
+      'Lab brief — Shell-and-Tube Heat Exchanger',
+      'Pre-lab reading — the effectiveness–NTU method',
+      'Readings sheet',
+    ]);
+
+    // The panel: Ready, the name (FA-08), the deadline passed on 15 Nov, Rahul's submission.
+    const body = await waitFor(() => {
+      const found = panel();
+      expect(found.querySelector('.fa-apanel-id')).not.toBeNull();
+      return found;
+    });
+    expect(body).toHaveClass('rk-panel-body', 'fa-apanel');
+    expect(body.querySelector('.fa-apanel-id .xr-st')).toHaveClass('xr-st--ok');
+    expect(text(body.querySelector('.fa-apanel-id .xr-st'))).toBe('Ready');
+    expect(within(body).getByRole('link', { name: 'Heat Exchanger — post-lab' })).toHaveAttribute(
+      'href',
+      '/faculty/assessments/ASMT-0009',
     );
-    const resources = within(about).getByRole('heading', { level: 3, name: ABOUT.resources });
-    expect(resources.nextElementSibling).toHaveClass('xr-body', 'text-ink-2');
-    expect(text(resources.nextElementSibling)).toBe(
-      'Lab brief — Shell-and-Tube Heat Exchanger · Pre-lab reading — the effectiveness–NTU method · Readings sheet',
-    );
+    expect(text(body.querySelector('p.fa-asm-d'))).toBe('Deadline passed: 14 Nov 2026, 23:59');
+    expect(text(body.querySelector('.fa-asm-subs p'))).toBe('1 of 1 student submitted');
+    expect(body.querySelector('.fa-asm-wait')).toBeNull();
+    expect(body.querySelector('.fa-asm-note')).toBeNull();
+    const open = within(body).getByRole('link', { name: 'Open assessment' });
+    expect(open).toHaveClass('rb-btn', 'rb-btn--lg');
+    expect(open).not.toHaveClass('rb-btn--primary');
+    expect(open.parentElement).toHaveClass('fa-panel-acts');
+    // Nothing waits after Flow D: no "Mark …".
+    expect(screen.queryByRole('link', { name: /^Mark \d+ written answer/ })).toBeNull();
     // No editing of outcomes (LD-3), no feedback for Faculty (T-25), no total.
     expect(within(main()).queryAllByRole('button')).toHaveLength(0);
     expect(main().textContent).not.toMatch(/feedback|rating|total|%/i);
+    expectNoReferences();
   });
 });
 
-// ---- f1: no assessment yet (after Flow C) ------------------------------------------------------
+// ---- No assessment yet, then one created, then a submission --------------------------------------
 
-describe('FA-05 — no assessment yet (B4-03 f1)', () => {
-  it('“Create assessment” carries the experiment to FA-07; activity per format from the walk', async () => {
+describe('FA-05 — no assessment yet, created, submitted', () => {
+  it('“Create assessment” carries the experiment to FA-07; the page’s one primary', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     showExperiment(runtime);
     await heading();
-    const assessment = assessmentRegion();
-    const empty = assessment.querySelector('.xr-section-body > .xr-empty')!;
-    expect(empty).not.toBeNull();
-    expect(within(assessment).getByRole('heading', { level: 3 })).toHaveTextContent(
-      NO_ASSESSMENT.title,
-    );
-    expect(empty.querySelector('p.xr-body')).toHaveTextContent(NO_ASSESSMENT.line);
-    const create = within(assessment).getByRole('link', { name: 'Create assessment' });
+    const body = await waitFor(() => {
+      const found = panel();
+      expect(found.querySelector('.fa-asm-n')).not.toBeNull();
+      return found;
+    });
+    expect(text(body.querySelector('.fa-apanel-id .fa-asm-n'))).toBe(NO_ASSESSMENT.title);
+    expect(text(body.querySelector('.fa-apanel-id .fa-asm-note'))).toBe(NO_ASSESSMENT.line);
+    const create = within(body).getByRole('link', { name: 'Create assessment' });
     expect(create).toHaveAttribute('href', `/faculty/assessments/new?experimentId=${SHELL}`);
-    expect(create).toHaveClass('xr-btn', 'xr-btn--primary');
-    expect(create).not.toHaveClass('xr-btn--sm');
-    // The page's one primary action.
-    expect(main().querySelectorAll('.xr-btn--primary')).toHaveLength(1);
-
+    expect(create).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
+    expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(1);
     // Rahul completed WEB and VR on the walk: one completion in each format, side by side.
-    expect(countRows()).toEqual([
-      'WEBWEB | 1 completed | 0 in progress | 0 not started',
-      'VRVR | 1 completed | 0 in progress | 0 not started',
+    expect(progressRows()).toEqual([
+      'WEB 1 completed 0 in progress 0 not started',
+      'VR 1 completed 0 in progress 0 not started',
     ]);
     expect(main().textContent).not.toMatch(/2 completed/);
   });
 
-  it('an assessment created through the port replaces the empty state with its row', async () => {
+  it('an assessment created through the port replaces it; Rahul’s submission brings “Mark 1 written answer” (the oldest, FA-19)', async () => {
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     showExperiment(runtime);
     await heading();
-    expect(
-      within(assessmentRegion()).getByRole('link', { name: 'Create assessment' }),
-    ).toBeVisible();
-
+    await waitFor(() =>
+      expect(within(panel()).getByRole('link', { name: 'Create assessment' })).toBeVisible(),
+    );
     const created = await createAssessment(runtime, {
       mode: 'create',
       rules: RULES,
       questions: ['Q-0101', 'Q-0106'],
     });
-    const row = await within(assessmentRegion()).findByRole('listitem');
-    expect(row.querySelector('.xr-row-title')).toHaveTextContent('Heat Exchanger — post-lab');
     await waitFor(() =>
-      expect(text(row.querySelector('.xr-row-sub'))).toBe(
-        'Ready Due 14 Nov 2026, 23:59 · 0 of 1 submitted',
+      expect(text(panel().querySelector('p.fa-asm-d'))).toBe(
+        'Due 14 Nov 2026, 23:59 · 18 days left',
       ),
     );
-    expect(
-      within(assessmentRegion()).getByRole('link', { name: 'Open assessment' }),
-    ).toHaveAttribute('href', `/faculty/assessments/${created.id}`);
-    expect(
-      within(assessmentRegion()).queryByRole('link', { name: 'Create assessment' }),
-    ).toBeNull();
+    expect(text(panel().querySelector('p.fa-asm-d b'))).toBe('18 days left');
+    expect(text(panel().querySelector('.fa-asm-subs p'))).toBe('0 of 1 student submitted');
+    expect(within(panel()).getByRole('link', { name: 'Open assessment' })).toHaveAttribute(
+      'href',
+      `/faculty/assessments/${created.id}`,
+    );
+    expect(within(panel()).queryByRole('link', { name: 'Create assessment' })).toBeNull();
 
-    // Rahul submits his attempt (the written answer waits for marking): the row says so.
+    // Rahul submits his attempt (the written answer waits for marking).
     const rahul = asPersonId(sample, RAHUL);
     const started = await rahul.assessments.startAttempt(created.id);
     if (!started.ok) throw new Error(`start refused: ${JSON.stringify(started.error)}`);
@@ -320,26 +354,34 @@ describe('FA-05 — no assessment yet (B4-03 f1)', () => {
     if (!submitted.ok) throw new Error(`submit refused: ${JSON.stringify(submitted.error)}`);
     await changed(runtime, submitted.changed);
     await waitFor(() =>
-      expect(text(assessmentRegion().querySelector('.xr-row-sub'))).toBe(
-        'Ready Due 14 Nov 2026, 23:59 · 1 of 1 submitted · 1 waiting for marking',
+      expect(text(panel().querySelector('p.fa-asm-wait'))).toBe(
+        '1 written answer waiting for marking',
       ),
     );
-    // Phase 4B: "Mark 1 written answer" opens FA-18 for this assessment, before "Open assessment".
-    expect(
-      within(assessmentRegion())
-        .getAllByRole('link')
-        .map((link) => [link.textContent, link.getAttribute('href')]),
-    ).toEqual([
-      ['Mark 1 written answer', `/faculty/marking?assessmentId=${created.id}`],
-      ['Open assessment', `/faculty/assessments/${created.id}`],
-    ]);
+    expect(text(panel().querySelector('.fa-asm-subs p'))).toBe('1 of 1 student submitted');
+    await waitFor(() =>
+      expect(
+        within(panel())
+          .getAllByRole('link')
+          .map((link) => [link.textContent, link.getAttribute('href')]),
+      ).toEqual([
+        ['Heat Exchanger — post-lab', `/faculty/assessments/${created.id}`],
+        ['Mark 1 written answer', `/faculty/marking/${started.value.id}`],
+        ['Open assessment', `/faculty/assessments/${created.id}`],
+      ]),
+    );
+    const mark = within(panel()).getByRole('link', {
+      name: 'Mark 1 written answer for Heat Exchanger — post-lab',
+    });
+    expect(mark).toHaveClass('rb-btn', 'rb-btn--primary', 'rb-btn--lg');
+    expectNoReferences();
   });
 });
 
-// ---- f2: a draft -------------------------------------------------------------------------------
+// ---- A draft ----------------------------------------------------------------------------------------
 
-describe('FA-05 — an assessment in draft (B4-03 f2)', () => {
-  it('rules set, no questions: the draft row and “Continue setting up”; Ready once it has a question', async () => {
+describe('FA-05 — an assessment in draft', () => {
+  it('rules set, no questions: “Draft — not ready”, why students can’t see it, “Continue setting up”; Ready once it has a question', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     showExperiment(runtime);
     await heading();
@@ -348,19 +390,20 @@ describe('FA-05 — an assessment in draft (B4-03 f2)', () => {
       rules: RULES,
       questions: [],
     });
-    const row = await within(assessmentRegion()).findByRole('listitem');
-    expect(row.querySelector('.xr-row-icon')).toHaveClass('xr-row-icon--wait');
-    expect(row.querySelector('.xr-row-sub .xr-status')).toHaveClass('xr-status--wait');
-    expect(text(row.querySelector('.xr-row-sub'))).toBe(
-      'Draft — not ready Rules set · no questions yet. Students can’t see it.',
+    await waitFor(() =>
+      expect(text(panel().querySelector('.fa-apanel-id .xr-st'))).toBe('Draft — not ready'),
     );
-    const resume = within(row).getByRole('link', { name: 'Continue setting up' });
+    expect(panel().querySelector('.fa-apanel-id .xr-st')!.className).toBe('xr-st');
+    expect(text(panel().querySelector('p.fa-asm-d'))).toBe('Due 14 Nov 2026, 23:59');
+    expect(text(panel().querySelector('p.fa-asm-note'))).toBe(
+      'No questions yet · students can’t see it yet.',
+    );
+    expect(panel().querySelector('.fa-asm-subs')).toBeNull();
+    const resume = within(panel()).getByRole('link', { name: 'Continue setting up' });
     expect(resume).toHaveAttribute('href', `/faculty/assessments/${draft.id}`);
-    expect(resume).toHaveClass('xr-btn', 'xr-btn--primary', 'xr-btn--sm');
-    // f2 draws the draft's action on its own, not in a group.
-    expect(resume.parentElement).toBe(row);
+    expect(resume).not.toHaveClass('rb-btn--primary');
 
-    // A question added through the port makes it Ready: the row follows.
+    // A question added through the port makes it Ready: the panel follows.
     const added = await runtime.ports.assessments.updateQuestions({
       id: draft.id,
       questions: [{ questionId: 'Q-0101' as never, questionVersion: 1 }],
@@ -368,16 +411,15 @@ describe('FA-05 — an assessment in draft (B4-03 f2)', () => {
     });
     if (!added.ok) throw new Error(`update refused: ${JSON.stringify(added.error)}`);
     await changed(runtime, added.changed);
-    expect(
-      await within(assessmentRegion()).findByRole('link', { name: 'Open assessment' }),
-    ).toHaveAttribute('href', `/faculty/assessments/${draft.id}`);
-    expect(assessmentRegion().querySelector('.xr-row-icon')).toHaveClass('xr-row-icon--ok');
-    expect(
-      within(assessmentRegion()).queryByRole('link', { name: 'Continue setting up' }),
-    ).toBeNull();
+    expect(await within(panel()).findByRole('link', { name: 'Open assessment' })).toHaveAttribute(
+      'href',
+      `/faculty/assessments/${draft.id}`,
+    );
+    expect(panel().querySelector('.fa-apanel-id .xr-st')).toHaveClass('xr-st--ok');
+    expect(within(panel()).queryByRole('link', { name: 'Continue setting up' })).toBeNull();
   });
 
-  it('a draft with no rule set, or some, says so (state-copy FA-05.draft-line)', async () => {
+  it('a draft with no rule set: “No deadline set yet”; with a question but rules unfinished: “Rules not finished · …”', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');
     showExperiment(runtime);
     await heading();
@@ -387,9 +429,10 @@ describe('FA-05 — an assessment in draft (B4-03 f2)', () => {
       questions: [],
     });
     await waitFor(() =>
-      expect(text(assessmentRegion().querySelector('.xr-row-sub'))).toBe(
-        'Draft — not ready Rules not set yet · no questions yet. Students can’t see it.',
-      ),
+      expect(text(panel().querySelector('p.fa-asm-d'))).toBe('No deadline set yet'),
+    );
+    expect(text(panel().querySelector('p.fa-asm-note'))).toBe(
+      'No questions yet · students can’t see it yet.',
     );
     const set = await runtime.ports.assessments.updateSettings({
       id: draft.id,
@@ -407,16 +450,19 @@ describe('FA-05 — an assessment in draft (B4-03 f2)', () => {
     if (!withQuestion.ok) throw new Error(`update refused: ${JSON.stringify(withQuestion.error)}`);
     await changed(runtime, [...set.changed, ...withQuestion.changed]);
     await waitFor(() =>
-      expect(text(assessmentRegion().querySelector('.xr-row-sub'))).toBe(
-        'Draft — not ready Some rules not set yet · 1 question. Students can’t see it.',
+      expect(text(panel().querySelector('p.fa-asm-note'))).toBe(
+        'Rules not finished · students can’t see it yet.',
       ),
     );
   });
 
-  it('one assessment per experiment: a second is refused and the page keeps the first', async () => {
+  it('one assessment per experiment: a second is refused and the panel keeps the first', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-d');
     showExperiment(runtime);
-    await within(await screen.findByRole('region', { name: 'Assessment' })).findByRole('listitem');
+    await heading();
+    await waitFor(() =>
+      expect(within(panel()).getByRole('link', { name: 'Open assessment' })).toBeVisible(),
+    );
     const second = await runtime.ports.assessments.createAssessment({
       mode: 'save-as-draft',
       experimentId: SHELL as never,
@@ -429,46 +475,43 @@ describe('FA-05 — an assessment in draft (B4-03 f2)', () => {
       ok: false,
       error: { kind: 'refused', code: 'assessment-exists' },
     });
-    expect(within(assessmentRegion()).getAllByRole('listitem')).toHaveLength(1);
+    expect(panel().querySelectorAll('.fa-apanel-id')).toHaveLength(1);
+    expect(text(panel().querySelector('.fa-asm-n'))).toBe('Heat Exchanger — post-lab');
   });
 });
 
-// ---- f3: no activity yet (after Flow B: Rahul given the experiment, nothing opened) ------------
+// ---- No activity yet (after Flow B: Rahul given the experiment, nothing opened) -------------------
 
-describe('FA-05 — no activity yet (B4-03 f3)', () => {
-  it('“None yet” and the one line; a runtime report brings the per-format rows', async () => {
+describe('FA-05 — no activity yet', () => {
+  it('“None yet” used, every Student not started; a runtime report brings the progress and the format used', async () => {
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-b');
     showExperiment(runtime);
     await heading();
-    expect(facts()).toEqual([
-      'Formats your institution has: WEBVR',
-      'Formats used by your students: None yet',
+    expect(figures()).toEqual([
+      'Formats your institution has: WEB, VR · Formats your institution has',
+      'None yet · Formats your students have used',
+      '1 · Students with access',
     ]);
-    expect(main().querySelectorAll('.xr-phead-meta .xl-inline')[1]!.lastElementChild).toHaveClass(
-      'xl-meta',
-    );
-    const activity = activityRegion();
-    expect(activity.querySelector('.xr-section-body > p.xr-body')).toHaveTextContent(
-      /^1 student has this experiment\. They haven’t opened it yet\.$/,
-    );
-    expect(activity.querySelector('.xr-section-body > p.xr-body')).toHaveClass('text-ink-2');
-    expect(activity.querySelector('ul.xa-counts')).toBeNull();
+    expect(main().querySelectorAll('header.fa-cid .fa-fig dd')[1]).toHaveClass('is-quiet');
+    expect(progressRows()).toEqual([
+      'WEB 0 completed 0 in progress 1 not started',
+      'VR 0 completed 0 in progress 1 not started',
+    ]);
     // f3 also has no assessment yet: "Create assessment".
-    expect(
-      within(assessmentRegion()).getByRole('link', { name: 'Create assessment' }),
-    ).toBeVisible();
+    await waitFor(() =>
+      expect(within(panel()).getByRole('link', { name: 'Create assessment' })).toBeVisible(),
+    );
 
     await report(sample, runtime, 'web');
     await waitFor(() =>
-      expect(countRows()).toEqual([
-        'WEBWEB | 0 completed | 1 in progress | 0 not started',
-        'VRVR | 0 completed | 0 in progress | 1 not started',
+      expect(progressRows()).toEqual([
+        'WEB 0 completed 1 in progress 0 not started',
+        'VR 0 completed 0 in progress 1 not started',
       ]),
     );
-    expect(activityRegion().querySelector('p.xr-body')).toHaveTextContent(
-      '1 student has this experiment from your institution.',
+    expect(figures()[1]).toBe(
+      'Formats used by your students: WEB · Formats your students have used',
     );
-    expect(facts()[1]).toBe('Formats used by your students: WEB');
   });
 });
 
@@ -486,9 +529,9 @@ async function report(sample: Sample, runtime: PlatformRuntime, format: 'web' | 
   await changed(runtime, answer.changed);
 }
 
-// ---- Not found: unknown, out of scope, no course, the mapping removed ---------------------------
+// ---- Not found, and a co-teaching colleague ---------------------------------------------------------
 
-describe('FA-05 — not found (state-copy FA-05.not-found)', () => {
+describe('FA-05 — not found (state-copy FA-05.not-found) and a co-teaching colleague', () => {
   const notFound = () =>
     screen.findByRole('heading', { level: 1, name: 'We can’t find that page' }, { timeout: 5000 });
 
@@ -504,7 +547,7 @@ describe('FA-05 — not found (state-copy FA-05.not-found)', () => {
     expect(await notFound()).toBeVisible();
   });
 
-  it('a co-teaching colleague sees the assessment held back calmly, never a failure (Phase 4B review)', async () => {
+  it('a co-teaching colleague sees the assessment named with who created it — never a failure, no submissions, no Mark', async () => {
     const { runtime, sample } = await tabPlatform(DESAI, 'after-flow-d');
     const assigned = await asPersonId(sample, MEERA).facultyCourses.assign({
       facultyId: DESAI as PersonId,
@@ -514,10 +557,19 @@ describe('FA-05 — not found (state-copy FA-05.not-found)', () => {
     showExperiment(runtime);
     await heading();
     await waitFor(() =>
-      expect(assessmentRegion()).toHaveTextContent('This assessment isn’t available to you yet'),
+      expect(text(panel().querySelector('p.fa-asm-note'))).toBe('Created by Dr S. Ranganathan.'),
     );
-    expect(within(assessmentRegion()).queryByRole('button', { name: 'Try again' })).toBeNull();
-    expect(within(assessmentRegion()).queryByRole('link')).toBeNull();
+    expect(text(panel().querySelector('.fa-apanel-id .xr-st'))).toBe('Ready');
+    expect(panel().querySelector('.fa-asm-subs')).toBeNull();
+    expect(panel().querySelector('.fa-asm-wait')).toBeNull();
+    expect(within(panel()).queryByRole('alert')).toBeNull();
+    expect(within(panel()).queryByRole('button', { name: 'Try again' })).toBeNull();
+    expect(
+      within(panel())
+        .getAllByRole('link')
+        .map((link) => link.textContent),
+    ).toEqual(['Heat Exchanger — post-lab', 'Open assessment']);
+    expectNoReferences();
   });
 
   it('a Faculty member with no course mapped finds nothing', async () => {
@@ -549,7 +601,7 @@ describe('FA-05 — not found (state-copy FA-05.not-found)', () => {
   });
 });
 
-// ---- Undrawn: loading and failed ----------------------------------------------------------------
+// ---- The application's loading and failed --------------------------------------------------------
 
 describe('FA-05 — loading and failed (state-copy FA-05.loading, FA-05.failed)', () => {
   it('announces loading; a failed read says so with Try again, which reads again', async () => {
@@ -574,97 +626,109 @@ describe('FA-05 — loading and failed (state-copy FA-05.loading, FA-05.failed)'
     expect(screen.queryByRole('alert')).toBeNull();
   });
 
-  it('the assessment failing to load fails its section only; Try again reads it again', async () => {
+  it('the assessment failing to load fails its panel only; Try again reads it again', async () => {
     const user = userEvent.setup();
     const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-d');
-    faults(sample).failNext('AssessmentService.getAssessment');
+    faults(sample).failNext('AssessmentService.listAssessments');
     showExperiment(runtime);
     await heading();
-    const alert = await within(assessmentRegion()).findByRole('alert');
+    const alert = await within(
+      screen.getByRole('complementary', { name: EXPERIMENT_SECTIONS.assessment }),
+    ).findByRole('alert', {}, { timeout: 5000 });
+    expect(alert).toHaveClass('rk-state');
     expect(alert).toHaveTextContent('The assessment didn’t load. Nothing was lost.');
     // The rest of the page is as read.
-    expect(countRows()).toHaveLength(2);
+    expect(progressRows()).toHaveLength(2);
     expect(region(EXPERIMENT_SECTIONS.about)).toBeVisible();
-    await user.click(within(assessmentRegion()).getByRole('button', { name: 'Try again' }));
-    expect(
-      await within(assessmentRegion()).findByRole('link', { name: 'Open assessment' }),
-    ).toBeVisible();
+    await user.click(within(alert).getByRole('button', { name: 'Try again' }));
+    expect(await within(panel()).findByRole('link', { name: 'Open assessment' })).toBeVisible();
   });
 });
 
-// ---- The words are B4-03's; the ledger rows -----------------------------------------------------
+// ---- The words are the export's; the register and the ledger ------------------------------------
 
-/** A board's text with tags removed and `&amp;` read, then its raw markup. */
-function words(file: string): string {
-  const raw = board(file);
-  const plain = raw
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ');
-  return `${plain}\n${raw}`;
+function strings(value: unknown): string[] {
+  if (typeof value === 'string') return [value];
+  if (Array.isArray(value)) return value.flatMap(strings);
+  if (value && typeof value === 'object') return Object.values(value).flatMap(strings);
+  return [];
 }
 
-describe('FA-05 words (B4-03)', () => {
-  const B4_03 = words('B4-03-Experiment-Teaching-View.dc.html');
-
-  it.each([
-    ...Object.values(EXPERIMENT_PAGE),
-    ...Object.values(EXPERIMENT_SECTIONS),
-    ...Object.values(NO_ASSESSMENT),
-    ...Object.values(ASSESSMENT_ROW),
-    ...Object.values(ACTIVITY),
-    ...Object.values(ABOUT),
-  ])('“%s” is on B4-03', (phrase) => {
-    expect(B4_03).toContain(phrase);
-  });
-
-  it('the composed words follow the board with its own sample values', () => {
-    expect(experimentOverline('ME ZG523', 'Thermodynamics & Heat Transfer')).toBe(
-      'ME ZG523 · Thermodynamics & Heat Transfer',
+describe('FA-05 — words, register and ledger', () => {
+  it('every drawn phrase is the export’s, the composed ones as its script composes them', () => {
+    for (const phrase of [
+      ...strings(EXPERIMENT_PAGE),
+      ...strings(EXPERIMENT_SECTIONS),
+      ...strings(ACTIVITY),
+      ...strings(ABOUT),
+      ...strings(ASSESSMENT_SUMMARY),
+      ...strings(NO_ASSESSMENT),
+    ]) {
+      expect(EXPORT, phrase).toContain(phrase);
+    }
+    for (const form of [
+      "'Experiment you teach · ' + c.t",
+      "'Formats used by your students: ' + (used.join(', ') || 'none yet')",
+      "this.plural(ss.length, 'student has', 'students have') + ' this experiment from your institution.'",
+      "'Deadline passed: ' + cfg.dl",
+      "this.plural(waitL.length, 'written answer') + ' waiting for marking'",
+      "'Mark ' + this.plural(waitL.length, 'written answer')",
+      "'Mark ' + this.plural(waitL.length, 'written answer') + ' for ' + (a ? a.name : '')",
+      "'Created by ' + this.person(a.by).name + '.'",
+      "(cfg.qs.length ? 'Rules not finished' : 'No questions yet') + ' · students can’t see it yet.'",
+    ]) {
+      expect(RAW, form).toContain(form);
+    }
+    expect(experimentKicker('Thermodynamics & Heat Transfer')).toBe(
+      'Experiment you teach · Thermodynamics & Heat Transfer',
     );
-    expect(B4_03).toContain('ME ZG523 · Thermodynamics & Heat Transfer');
-    const have = studentsHaveLine(5);
-    expect(B4_03).toContain(`<strong>${have.strong}</strong> ${have.rest}`);
-    expect(B4_03).toContain(noActivityLine(5));
-    const ready = readyLine({
-      deadline: '14 Nov 2026, 23:59',
-      counts: { submitted: 1, reach: 5, waiting: 1 },
-    });
-    expect(ready).toBe('Due 14 Nov 2026, 23:59 · 1 of 5 submitted · 1 waiting for marking');
-    expect(B4_03).toContain(ready);
-    const rules = {
-      passMarkPercent: 50,
-      attemptsAllowed: 2,
-      deadline: '2026-11-14T18:29:00.000Z',
-      release: { option: 'after-deadline', releaseDate: null },
-    } as const;
-    expect(B4_03).toContain(draftLine(rules as never, 0));
+    expect(formatsUsedLabel([])).toBe('Formats used by your students: none yet');
+    expect(studentsHaveLine(5)).toBe('5 students have this experiment from your institution.');
+    expect(studentsHaveLine(1)).toBe('1 student has this experiment from your institution.');
+    expect(deadlinePassedWords('14 Nov 2026, 23:59')).toBe('Deadline passed: 14 Nov 2026, 23:59');
+    expect(writtenWaitingWords(2)).toBe('2 written answers waiting for marking');
+    expect(markWrittenWords(1)).toBe('Mark 1 written answer');
+    expect(markWrittenLabel(2, 'Heat Exchanger — post-lab')).toBe(
+      'Mark 2 written answers for Heat Exchanger — post-lab',
+    );
+    expect(assessmentNoteWords({ colleague: 'Dr S. Ranganathan', ready: true, questions: 4 })).toBe(
+      'Created by Dr S. Ranganathan.',
+    );
+    expect(assessmentNoteWords({ colleague: null, ready: true, questions: 4 })).toBeNull();
+    expect(assessmentNoteWords({ colleague: null, ready: false, questions: 1 })).toBe(
+      'Rules not finished · students can’t see it yet.',
+    );
   });
 
-  it('the undrawn words and rules are provisional entries of the one register', () => {
+  it('the undrawn words and rules are provisional entries of the one register, with no reference', () => {
     for (const [id, entry] of Object.entries(STATE_COPY_FACULTY_EXPERIMENT)) {
       expect(STATE_COPY[id as keyof typeof STATE_COPY]).toBe(entry);
       expect(entry).toMatchObject({ screen: 'FA-05', status: 'provisional' });
-      if (entry.words) expect(entry.words).not.toMatch(/\b(?:OD|T|PC|DEV)-\d/);
+      if (entry.words) {
+        expect(entry.words).not.toMatch(/\b(?:OD|T|PC|DEV)-\d/);
+        expect(entry.words).not.toMatch(REFERENCE);
+      }
     }
   });
 
-  it('the ledger: one primary per drawn state; FA-18 and FA-20 linked (Phase 4B)', () => {
+  it('the ledger: one primary per drawn state of the panel; FA-19, FA-20 and FA-03 linked', () => {
     const rows = P4_FACULTY_EXPERIMENT_LINK_TARGETS;
     expect(rows.every((row) => row.on === '/faculty/experiments/{experimentId}')).toBe(true);
     expect(rows.filter((row) => row.role === 'primary').map((row) => row.action)).toEqual([
-      'Open assessment',
+      'Mark <n> written answers',
       'Create assessment',
-      'Continue setting up',
     ]);
     expect(rows.filter((row) => row.outcome === 'not-rendered')).toEqual([]);
-    expect(rows.find((row) => row.action === 'Mark 1 written answer')).toMatchObject({
+    expect(rows.find((row) => row.action === 'Mark <n> written answers')).toMatchObject({
       outcome: 'built',
-      target: '/faculty/marking?assessmentId={assessmentId}',
+      target: '/faculty/marking/{attemptId}',
     });
-    expect(rows.find((row) => row.action === 'See students on this experiment')).toMatchObject({
+    expect(rows.find((row) => row.action === 'Students on this experiment')).toMatchObject({
       outcome: 'built',
       target: '/faculty/students?experimentId={experimentId}',
+    });
+    expect(rows.find((row) => row.action === '<course code>')).toMatchObject({
+      target: '/faculty/courses/{courseId}',
     });
   });
 });

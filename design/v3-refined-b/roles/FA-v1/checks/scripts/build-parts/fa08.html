@@ -1,0 +1,422 @@
+      <!-- ═══ FA-08…FA-12 Assessment record (Summary · Questions · Settings · Preview · Submissions) ═══ -->
+      <sc-if value="{{ is.ar }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#FA-06" onClick="{{ nav.asms }}">Assessments</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-right"></use></svg><span aria-current="page">{{ AR.name }}</span></nav>
+      <header class="fr-cid fr-rec">
+        <div class="fr-cid-top">
+          <div class="fr-cid-text">
+            <p class="rb-eyebrow-date" style="margin-bottom: 0">{{ sh.date }}</p>
+            <p class="rk-eyebrow fr-cid-eyebrow"><span class="rb-code">{{ AR.code }}</span><span>{{ AR.expT }}</span></p>
+            <h1 class="fr-cid-t fr-rec-t" id="fa-h1" tabindex="-1">{{ AR.h1 }}</h1>
+            <p class="fr-rec-meta"><span class="{{ AR.stCls }}"><i></i>{{ AR.st }}</span><span class="fa-id">{{ AR.id }}</span><sc-if value="{{ AR.hasVerShort }}" hint-placeholder-val="{{ false }}"><span class="fr-rec-sep" aria-hidden="true"></span><span>{{ AR.verShort }}</span></sc-if><sc-if value="{{ AR.notOwn }}" hint-placeholder-val="{{ false }}"><span class="fr-rec-sep" aria-hidden="true"></span><span>{{ AR.byLine }}</span></sc-if><sc-if value="{{ AR.hasWait }}" hint-placeholder-val="{{ true }}"><span class="fr-rec-sep" aria-hidden="true"></span><a class="rb-link fr-rec-wait" href="#FA-18" onClick="{{ nav.mq }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ AR.waitText }}</a></sc-if></p>
+          </div>
+        </div>
+        <dl class="fr-figs">
+          <sc-for list="{{ AR.figs }}" as="g" hint-placeholder-count="3">
+          <div class="fr-fig"><dt>{{ g.k }}<sc-if value="{{ g.hasUnits }}" hint-placeholder-val="{{ false }}"><span class="{{ g.unitsCls }}" aria-hidden="true"><sc-for list="{{ g.units }}" as="x" hint-placeholder-count="5"><i class="{{ x }}"></i></sc-for></span></sc-if></dt><dd><span class="{{ g.vCls }}">{{ g.v }}</span></dd></div>
+          </sc-for>
+        </dl>
+      </header>
+      <div class="fa-recordtabs">
+        <nav class="rk-tabs fa-tabs" aria-label="{{ AR.tabsAria }}">
+          <a class="rk-tab" href="#FA-08" aria-current="{{ AR.tc.sum }}" onClick="{{ AR.tg.sum }}">Summary</a>
+          <a class="rk-tab" href="#FA-09" aria-current="{{ AR.tc.qs }}" onClick="{{ AR.tg.qs }}">Questions<span class="fa-tabn" aria-hidden="true">{{ AR.nQ }}</span><span class="xr-sr">, {{ AR.nQ }}</span></a>
+          <a class="rk-tab" href="#FA-10" aria-current="{{ AR.tc.set }}" onClick="{{ AR.tg.set }}">Settings</a>
+          <a class="rk-tab" href="#FA-11" aria-current="{{ AR.tc.pv }}" onClick="{{ AR.tg.pv }}">Preview</a>
+          <a class="rk-tab" href="#FA-12" aria-current="{{ AR.tc.sub }}" onClick="{{ AR.tg.sub }}">Submissions<sc-if value="{{ AR.hasSubN }}" hint-placeholder-val="{{ true }}"><span class="fa-tabn" aria-hidden="true">{{ AR.nSub }}</span><span class="xr-sr">, {{ AR.nSub }}</span></sc-if></a>
+        </nav>
+
+        <!-- FA-08 Summary -->
+        <sc-if value="{{ AR.isSum }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-detailwrap">
+          <div class="rk-detail fr-asidefirst">
+            <div class="rk-surface rk-mainsheet">
+              <section class="rk-sec" aria-labelledby="fa-tabh">
+                <div class="rk-sec-h"><h2 class="rb-h2" id="fa-tabh" tabindex="-1">{{ AS.readyH }}</h2></div>
+                <p class="rk-next">{{ AS.readyD }}</p>
+                <ul class="fa-check" aria-label="Ready checklist">
+                  <sc-for list="{{ AS.checklist }}" as="c" hint-placeholder-count="3"><li class="{{ c.cls }}"><sc-if value="{{ c.ok }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg></sc-if><sc-if value="{{ c.no }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg></sc-if><span>{{ c.t }}</span></li></sc-for>
+                </ul>
+                <sc-if value="{{ AS.needQs }}" hint-placeholder-val="{{ false }}"><div class="fa-actions" style="margin-top: 16px"><a class="rb-btn rb-btn--primary" href="#FA-09" onClick="{{ AR.tg.qs }}">Add questions</a></div></sc-if>
+              </section>
+              <sc-if value="{{ AS.hasVer }}" hint-placeholder-val="{{ false }}">
+              <section class="rk-sec" aria-labelledby="fa-as-ver">
+                <div class="rk-sec-h"><h2 class="rb-h2" id="fa-as-ver">Versions</h2></div>
+                <div class="rk-notice rk-notice--info"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><p class="rk-notice-t">{{ AS.verT }}</p><p class="rk-notice-d">{{ AS.verD }}</p></div>
+              </section>
+              </sc-if>
+              <section class="rk-sec" aria-labelledby="fa-as-rules">
+                <div class="rk-sec-h"><h2 class="rb-h2" id="fa-as-rules">Rules as set for this assessment</h2><sc-if value="{{ AR.own }}" hint-placeholder-val="{{ true }}"><a class="rb-link" href="#FA-10" onClick="{{ AR.tg.set }}">Change settings</a></sc-if></div>
+                <dl class="fr-rules">
+                  <sc-for list="{{ AS.rules2 }}" as="r" hint-placeholder-count="5"><div><dt>{{ r.k }}</dt><dd class="{{ r.cls }}">{{ r.v }}</dd></div></sc-for>
+                </dl>
+                <div class="fr-introbox"><p class="fr-k">Introduction students read first</p><p class="{{ AS.introCls }}">{{ AS.intro }}</p></div>
+                <p class="rk-hint" style="margin-top: 14px">{{ AS.created }}</p>
+              </section>
+              <section class="rk-sec" aria-labelledby="fa-as-reach">
+                <div class="rk-sec-h"><h2 class="rb-h2" id="fa-as-reach">Who it reaches</h2></div>
+                <p class="rk-next">{{ AS.reach }}</p>
+                <p class="rk-hint" style="margin-top: 8px">Reach follows Student access, set by the Institute Admin.</p>
+              </section>
+            </div>
+            <aside class="rk-aside" aria-labelledby="fa-as-subs">
+              <div class="rk-panel">
+                <div class="rk-panel-head"><h2 id="fa-as-subs">Submissions</h2><sc-if value="{{ AS.hasWait }}" hint-placeholder-val="{{ true }}"><span class="fr-ph-note">Oldest first</span></sc-if></div>
+                <div class="rk-panel-body">
+                  <sc-if value="{{ AR.own }}" hint-placeholder-val="{{ true }}">
+                  <sc-if value="{{ AS.hasWait }}" hint-placeholder-val="{{ true }}">
+                  <p class="rk-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ AS.waitText }}</p>
+                  <ul class="fr-waitlist" aria-label="Waiting for marking, oldest first">
+                    <sc-for list="{{ AS.waitList }}" as="w" hint-placeholder-count="2"><li><b>{{ w.n }}</b><span>{{ w.w }}</span></li></sc-for>
+                  </ul>
+                  <a class="rb-btn rb-btn--primary rk-go" href="#FA-19" onClick="{{ AS.markNext }}">Mark next</a>
+                  </sc-if>
+                  <sc-if value="{{ AS.noWait }}" hint-placeholder-val="{{ false }}"><p class="fr-panel-lead">{{ AS.noWaitT }}</p></sc-if>
+                  <p class="rk-hint">{{ AS.subNote }}</p>
+                  <a class="rb-btn" href="#FA-12" onClick="{{ AR.tg.sub }}">See submissions</a>
+                  </sc-if>
+                  <sc-if value="{{ AR.notOwn }}" hint-placeholder-val="{{ false }}">
+                  <p class="rk-locked"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>{{ AR.coNote }}</span></p>
+                  </sc-if>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- FA-09 Questions -->
+        <sc-if value="{{ AR.isQs }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-detailwrap">
+          <div class="{{ AQ.layout }}">
+            <section class="rk-surface rk-mainsheet" aria-labelledby="fa-tabh">
+              <div class="rk-sec">
+                <div class="fr-qhead">
+                  <div class="fr-qhead-t"><h2 class="rb-h2" id="fa-tabh" tabindex="-1">Questions in order</h2><p class="rk-count" role="status">{{ AQ.total }}</p><sc-if value="{{ AQ.hasSplit }}" hint-placeholder-val="{{ true }}"><p class="rk-hint">{{ AQ.split }}</p></sc-if></div>
+                  <sc-if value="{{ AR.own }}" hint-placeholder-val="{{ true }}">
+                  <div class="fr-qadd">
+                    <sc-if value="{{ AQ.noPanel }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn" id="fa-aq-open" onClick="{{ AQ.openPanel }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-stack"></use></svg>Add from question bank</button></sc-if>
+                    <a class="rb-btn" href="#FA-15" onClick="{{ AQ.newQ }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-plus"></use></svg>New question</a>
+                    <p class="fr-qmore"><span>Or</span><a class="rb-link" href="#FA-16" onClick="{{ AQ.toDraft }}">Draft with assistance</a><span aria-hidden="true">·</span><a class="rb-link" href="#FA-17" onClick="{{ AQ.toImport }}">Import</a></p>
+                  </div>
+                  </sc-if>
+                </div>
+                <sc-if value="{{ AR.notOwn }}" hint-placeholder-val="{{ false }}"><p class="rk-locked" style="margin-bottom: 16px"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>{{ AR.coNote }}</span></p></sc-if>
+                <sc-if value="{{ AQ.hasMsg }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--ok" id="fa-msg" tabindex="-1" role="status" style="margin-bottom: 14px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><p class="rk-notice-t">{{ AQ.msg }}</p><sc-if value="{{ AQ.hasMsgD }}" hint-placeholder-val="{{ false }}"><p class="rk-notice-d">{{ AQ.msgD }}</p></sc-if><sc-if value="{{ AQ.hasOffer }}" hint-placeholder-val="{{ false }}"><div class="rk-notice-act"><button type="button" class="rb-btn" onClick="{{ AQ.offer.add }}">{{ AQ.offer.label }}</button></div></sc-if></div></sc-if>
+                <sc-if value="{{ AQ.hasVer }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--info" style="margin-bottom: 14px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><p class="rk-notice-t">{{ AQ.verT }}</p><p class="rk-notice-d">{{ AQ.verD }}</p></div></sc-if>
+                <sc-if value="{{ AQ.hasPinHint }}" hint-placeholder-val="{{ false }}"><p class="rk-pending" style="margin-bottom: 14px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ AQ.pinHint }}</p></sc-if>
+                <sc-if value="{{ AQ.has }}" hint-placeholder-val="{{ true }}">
+                <ol class="fa-qlist fr-qlist">
+                  <sc-for list="{{ AQ.rows }}" as="r" hint-placeholder-count="4">
+                  <li class="fa-q" id="{{ r.rid }}" tabindex="-1">
+                    <span class="fa-qn" aria-hidden="true">{{ r.n }}</span>
+                    <div>
+                      <p class="fa-qt"><span class="xr-sr">Question {{ r.n }}: </span>{{ r.t }}</p>
+                      <p class="fr-qmeta"><span class="{{ r.typeCls }}">{{ r.type }}</span><span class="fr-qmeta-m">{{ r.marks }}</span><span class="fa-id">{{ r.id }}</span></p>
+                      <sc-if value="{{ r.isUpd }}" hint-placeholder-val="{{ false }}"><p class="fa-qnote"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><span>A newer version is in your question bank.</span><sc-if value="{{ r.canAct }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn" onClick="{{ r.useUpd }}" aria-label="{{ r.updAria }}">Use updated version</button></sc-if></p></sc-if>
+                      <sc-if value="{{ r.isDel }}" hint-placeholder-val="{{ false }}"><p class="fa-qnote"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><span>{{ r.delText }}</span></p></sc-if>
+                    </div>
+                    <sc-if value="{{ r.canAct }}" hint-placeholder-val="{{ true }}">
+                    <div class="fa-qact fr-qact">
+                      <span class="fr-order" role="group" aria-label="{{ r.orderAria }}">
+                      <button type="button" class="fa-iconbtn" disabled="{{ r.noUp }}" aria-label="{{ r.upAria }}" onClick="{{ r.up }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-up"></use></svg></button>
+                      <button type="button" class="fa-iconbtn" disabled="{{ r.noDown }}" aria-label="{{ r.downAria }}" onClick="{{ r.down }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-down"></use></svg></button>
+                      </span>
+                      <button type="button" class="rb-btn rb-btn--ghost" aria-label="{{ r.rmAria }}" onClick="{{ r.remove }}">Remove</button>
+                    </div>
+                    </sc-if>
+                  </li>
+                  </sc-for>
+                </ol>
+                </sc-if>
+                <sc-if value="{{ AQ.none }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-state">
+                  <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-stack"></use></svg></span>
+                  <p class="rk-state-t">No questions yet</p>
+                  <p class="rk-state-d">Add questions from your bank, write a new one, draft some with assistance, or import a file. Students can’t see the assessment until it has a question.</p>
+                </div>
+                </sc-if>
+                <p class="rk-hint fr-qfoot">Removing takes a question off this assessment. It stays in your question bank — removing is not deleting.</p>
+              </div>
+            </section>
+            <sc-if value="{{ AQ.panel }}" hint-placeholder-val="{{ false }}">
+            <aside class="rk-aside" aria-labelledby="fa-aq-ph">
+              <div class="rk-panel">
+                <div class="rk-panel-head"><h2 id="fa-aq-ph" tabindex="-1">From your question bank</h2><button type="button" class="fr-panel-x" aria-label="Close question bank" onClick="{{ AQ.closePanel }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-x"></use></svg></button></div>
+                <div class="rk-panel-body">
+                  <p class="rk-hint">{{ AQ.panelSub }}</p>
+                  <sc-if value="{{ AQ.hasAvail }}" hint-placeholder-val="{{ true }}">
+                  <ul class="fa-avail fr-avail">
+                    <sc-for list="{{ AQ.avail }}" as="a" hint-placeholder-count="2"><li><div><p class="fr-avail-t">{{ a.t }}</p><p class="fa-qm">{{ a.sub }}</p></div><button type="button" class="rb-btn" aria-label="{{ a.aria }}" onClick="{{ a.add }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-plus"></use></svg>Add</button></li></sc-for>
+                  </ul>
+                  </sc-if>
+                  <sc-if value="{{ AQ.noAvail }}" hint-placeholder-val="{{ false }}"><p class="fa-quiet">Every question in your bank for this experiment is already here.</p></sc-if>
+                </div>
+              </div>
+            </aside>
+            </sc-if>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- FA-10 Settings -->
+        <sc-if value="{{ AR.isSet }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ AR.own }}" hint-placeholder-val="{{ true }}">
+        <div class="fr-author">
+        <section class="rk-surface fr-form fr-fform" aria-labelledby="fa-tabh">
+          <div class="fr-fhead">
+            <h2 class="rb-h2" id="fa-tabh" tabindex="-1">Settings</h2>
+            <p class="rk-next">Each value belongs to this assessment only. There is no time limit.</p>
+          </div>
+          <sc-if value="{{ ST.hasErr }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fmsg"><div class="rk-errsum" id="fa-errs" tabindex="-1" role="alert"><p class="rk-errsum-t">Check these settings</p><ul><sc-for list="{{ ST.errList }}" as="er" hint-placeholder-count="1"><li><a href="{{ er.href }}" onClick="{{ er.go }}">{{ er.t }}</a></li></sc-for></ul></div></div>
+          </sc-if>
+          <sc-if value="{{ ST.hasSaved }}" hint-placeholder-val="{{ false }}"><div class="fr-fmsg"><div class="rk-notice rk-notice--ok" id="fa-msg" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg><p class="rk-notice-t">{{ ST.saved }}</p><sc-if value="{{ ST.hasSavedD }}" hint-placeholder-val="{{ false }}"><p class="rk-notice-d">{{ ST.savedD }}</p></sc-if></div></div></sc-if>
+          <div class="fr-fsec" role="group" aria-labelledby="fa-st-g1">
+            <h3 class="fr-fsec-t" id="fa-st-g1">Name and introduction</h3>
+            <div class="rk-field">
+              <label class="rk-label" for="fa-st-name">Assessment name</label>
+              <input id="fa-st-name" class="rk-input" type="text" autocomplete="off" value="{{ ST.name }}" aria-invalid="{{ ST.i.name }}" aria-describedby="{{ ST.d.name }}" onChange="{{ ST.on.name }}">
+              <sc-if value="{{ ST.he.name }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-st-name-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ ST.e.name }}</p></sc-if>
+            </div>
+            <div class="rk-field">
+              <label class="rk-label" for="fa-st-intro">Introduction (optional)</label>
+              <p class="rk-hint" id="fa-st-intro-h">What students read before they start.</p>
+              <textarea id="fa-st-intro" class="rk-textarea" aria-describedby="fa-st-intro-h" value="{{ ST.intro }}" onChange="{{ ST.on.intro }}"></textarea>
+            </div>
+          </div>
+          <div class="fr-fsec" role="group" aria-labelledby="fa-st-g2">
+            <h3 class="fr-fsec-t" id="fa-st-g2">Rules</h3>
+            <div class="fr-fields3">
+              <div class="rk-field">
+                <label class="rk-label" for="fa-st-pass">Pass mark (%)</label>
+                <p class="rk-hint" id="fa-st-pass-h">A whole number from 0 to 100.</p>
+                <input id="fa-st-pass" class="rk-input" type="text" inputmode="numeric" autocomplete="off" value="{{ ST.pass }}" aria-invalid="{{ ST.i.pass }}" aria-describedby="{{ ST.d.pass }}" onChange="{{ ST.on.pass }}">
+                <sc-if value="{{ ST.he.pass }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-st-pass-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ ST.e.pass }}</p></sc-if>
+              </div>
+              <div class="rk-field">
+                <label class="rk-label" for="fa-st-att">Attempts allowed</label>
+                <p class="rk-hint" id="fa-st-att-h">A whole number, 1 or more.</p>
+                <input id="fa-st-att" class="rk-input" type="text" inputmode="numeric" autocomplete="off" value="{{ ST.att }}" aria-invalid="{{ ST.i.att }}" aria-describedby="{{ ST.d.att }}" onChange="{{ ST.on.att }}">
+                <sc-if value="{{ ST.he.att }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-st-att-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ ST.e.att }}</p></sc-if>
+              </div>
+              <div class="rk-field">
+                <label class="rk-label" for="fa-st-dl">Deadline</label>
+                <p class="rk-hint" id="fa-st-dl-h">For example 14 Nov 2026, 23:59</p>
+                <input id="fa-st-dl" class="rk-input" type="text" autocomplete="off" value="{{ ST.dl }}" aria-invalid="{{ ST.i.dl }}" aria-describedby="{{ ST.d.dl }}" onChange="{{ ST.on.dl }}">
+                <sc-if value="{{ ST.he.dl }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-st-dl-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ ST.e.dl }}</p></sc-if>
+              </div>
+            </div>
+          </div>
+          <div class="fr-fsec">
+            <fieldset class="{{ ST.relFs }}">
+              <legend>When students see their result and answers<span>Nothing is chosen for you. Written answers are always marked first.</span></legend>
+              <div class="rk-choices fr-choices3">
+                <sc-for list="{{ ST.rels }}" as="o" hint-placeholder-count="3"><label class="rk-choice" for="{{ o.id }}"><input type="radio" name="fa-st-rel" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.pick }}"><span class="rk-choice-t">{{ o.t }}</span><span class="rk-choice-d">{{ o.d }}</span></label></sc-for>
+              </div>
+              <sc-if value="{{ ST.he.rel }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" style="margin-top: 10px"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ ST.e.rel }}</p></sc-if>
+            </fieldset>
+            <sc-if value="{{ ST.relDate }}" hint-placeholder-val="{{ false }}">
+            <div class="rk-field fr-reldate">
+              <label class="rk-label" for="fa-st-reldate">Release date</label>
+              <p class="rk-hint" id="fa-st-reldate-h">For example 20 Nov 2026, 09:00</p>
+              <input id="fa-st-reldate" class="rk-input" type="text" autocomplete="off" value="{{ ST.reldate }}" aria-invalid="{{ ST.i.reldate }}" aria-describedby="{{ ST.d.reldate }}" onChange="{{ ST.on.reldate }}">
+              <sc-if value="{{ ST.he.reldate }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="fa-st-reldate-e"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-alert"></use></svg>{{ ST.e.reldate }}</p></sc-if>
+            </div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ ST.hasWarn }}" hint-placeholder-val="{{ false }}">
+          <div class="fr-fsec fr-fsec--warn">
+            <sc-if value="{{ ST.warnRule }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--warn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-info"></use></svg><p class="rk-notice-t">This makes a new version</p><p class="rk-notice-d">{{ ST.warnRuleD }}</p></div></sc-if>
+            <sc-if value="{{ ST.warnRel }}" hint-placeholder-val="{{ false }}"><div class="rk-notice rk-notice--warn" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg><p class="rk-notice-t">This changes when results are shown for new attempts</p><p class="rk-notice-d">{{ ST.warnRelD }}</p></div></sc-if>
+          </div>
+          </sc-if>
+          <div class="fa-formfoot">
+            <div class="fa-formfoot-l"><button type="button" class="rb-btn" onClick="{{ ST.cancel }}">Cancel changes</button></div>
+            <div class="fa-formfoot-r">
+              <sc-if value="{{ ST.notBusy }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ ST.save }}">Save settings</button></sc-if>
+              <sc-if value="{{ ST.busy }}" hint-placeholder-val="{{ false }}"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" disabled="{{ true }}">Saving…</button></sc-if>
+            </div>
+          </div>
+        </section>
+        <aside class="fr-side" aria-labelledby="fa-st-side">
+          <div class="rk-surface">
+            <div class="fr-side-sec">
+              <h2 class="rb-h2" id="fa-st-side">How changes apply</h2>
+              <p class="fr-side-ver">{{ ST.sideVer }}</p>
+              <p class="rk-next">{{ ST.sideD }}</p>
+              <p class="rk-hint" style="margin-top: 12px">{{ ST.sideD2 }}</p>
+            </div>
+          </div>
+        </aside>
+        </div>
+        </sc-if>
+        <sc-if value="{{ AR.notOwn }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface fa-narrow" aria-labelledby="fa-tabh">
+          <div class="rk-sec">
+            <h2 class="rb-h2" id="fa-tabh" tabindex="-1">Settings</h2>
+            <p class="rk-locked" style="margin: 14px 0 18px"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg><span>{{ AR.coNote }}</span></p>
+            <dl class="fr-rules">
+              <sc-for list="{{ AS.rules2 }}" as="r" hint-placeholder-count="5"><div><dt>{{ r.k }}</dt><dd class="{{ r.cls }}">{{ r.v }}</dd></div></sc-for>
+            </dl>
+            <div class="fr-introbox"><p class="fr-k">Introduction students read first</p><p class="{{ AS.introCls }}">{{ AS.intro }}</p></div>
+          </div>
+        </section>
+        </sc-if>
+        </sc-if>
+
+        <!-- FA-11 Preview -->
+        <sc-if value="{{ AR.isPv }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface fr-pvsurf" aria-labelledby="fa-tabh">
+          <sc-if value="{{ PV.ok }}" hint-placeholder-val="{{ true }}">
+          <div class="fr-pvbar">
+            <h2 class="xr-sr" id="fa-tabh" tabindex="-1">Preview</h2>
+            <div class="fa-seg" role="group" aria-label="Preview as">
+              <button type="button" aria-pressed="{{ PV.pStu }}" onClick="{{ PV.setStu }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-eye"></use></svg>Student view</button>
+              <button type="button" aria-pressed="{{ PV.pKey }}" onClick="{{ PV.setKey }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-key"></use></svg>Answer key</button>
+            </div>
+            <p class="rk-hint">Previewing creates no attempt and saves nothing.</p>
+          </div>
+          <div class="fr-pvstage">
+            <div class="fr-pvsheet">
+              <sc-if value="{{ PV.stu }}" hint-placeholder-val="{{ true }}">
+              <div class="fr-pvhead">
+                <p class="fr-pvhead-k"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-eye"></use></svg>As students see it</p>
+                <p class="fr-pvhead-t">{{ AR.name }}</p>
+                <p class="fr-pvhead-d">{{ PV.facts }}</p>
+                <sc-if value="{{ PV.hasIntro }}" hint-placeholder-val="{{ true }}"><p class="fr-pvintro">{{ PV.intro }}</p></sc-if>
+              </div>
+              </sc-if>
+              <sc-if value="{{ PV.key }}" hint-placeholder-val="{{ false }}">
+              <div class="fr-pvhead fr-pvhead--key">
+                <p class="fr-pvhead-k"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-key"></use></svg>Answer key</p>
+                <p class="fr-pvhead-t">Only you see the answer key and the marking guidance</p>
+                <p class="fr-pvhead-d">Students see correct answers and explanations only when their result is released.</p>
+              </div>
+              </sc-if>
+              <ol class="fr-pvlist">
+                <sc-for list="{{ PV.qs }}" as="q" hint-placeholder-count="4">
+                <li class="fr-pvq">
+                  <p class="fr-q-h"><span class="fr-q-k">{{ q.head }}</span><span class="fr-q-m">{{ q.marks }}</span></p>
+                  <p class="fr-pvq-t">{{ q.t }}</p>
+                  <sc-if value="{{ q.isChoice }}" hint-placeholder-val="{{ true }}">
+                  <ul class="fa-opts fr-pvopts">
+                    <sc-for list="{{ q.opts }}" as="o" hint-placeholder-count="4"><li class="{{ o.cls }}"><span class="fa-opt-dot" aria-hidden="true"></span><span>{{ o.t }}</span><sc-if value="{{ o.mark }}" hint-placeholder-val="{{ false }}"><span class="fa-opt-ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg>Correct</span></sc-if></li></sc-for>
+                  </ul>
+                  </sc-if>
+                  <sc-if value="{{ q.isW }}" hint-placeholder-val="{{ false }}"><sc-if value="{{ PV.stu }}" hint-placeholder-val="{{ true }}"><div class="fa-wbox">The student’s written answer goes here. Your faculty marks written answers.</div></sc-if></sc-if>
+                  <sc-if value="{{ PV.key }}" hint-placeholder-val="{{ false }}">
+                  <sc-if value="{{ q.hasGuide }}" hint-placeholder-val="{{ false }}"><div class="fr-guide"><p class="fr-guide-k"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-lock"></use></svg>Marking guidance · only you see this</p><p class="fr-guide-t">{{ q.guide }}</p></div></sc-if>
+                  <div class="fr-expl"><p class="fr-expl-k">Explanation</p><p class="fr-expl-t">{{ q.expl }}</p></div>
+                  </sc-if>
+                </li>
+                </sc-for>
+              </ol>
+              <sc-if value="{{ PV.noQs }}" hint-placeholder-val="{{ false }}">
+              <div class="rk-state">
+                <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-eye"></use></svg></span>
+                <p class="rk-state-t">Nothing to preview yet</p>
+                <p class="rk-state-d">Add a question first. Students can’t see an assessment without questions.</p>
+                <a class="rb-btn" href="#FA-09" onClick="{{ AR.tg.qs }}">Add questions</a>
+              </div>
+              </sc-if>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ PV.failed }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="alert">
+            <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-cloud"></use></svg></span>
+            <h2 class="rk-state-t" id="fa-tabh" tabindex="-1">We couldn’t load the preview</h2>
+            <p class="rk-state-d">Nothing has changed, and no attempt was created. Try again.</p>
+            <button type="button" class="rb-btn" onClick="{{ PV.retry }}">Try again</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ PV.refused }}" hint-placeholder-val="{{ false }}">
+          <div class="fa-inlinemsg">
+            <span class="fa-msg-ico fa-msg-ico--lock" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-lock"></use></svg></span>
+            <h2 class="rb-h2" id="fa-tabh" tabindex="-1">This preview isn’t available to you yet</h2>
+            <p class="fa-msg-d">{{ AR.coRefuse }}</p>
+            <div class="fa-msg-act"><a class="rb-btn" href="#FA-08" onClick="{{ AR.tg.sum }}">Back to Summary</a><a class="rb-link" href="#XS-07" onClick="{{ nav.help }}">Help</a></div>
+          </div>
+          </sc-if>
+        </section>
+        </sc-if>
+
+        <!-- FA-12 Submissions · FA-22 Export -->
+        <sc-if value="{{ AR.isSub }}" hint-placeholder-val="{{ false }}">
+        <section class="rk-surface" aria-labelledby="fa-tabh">
+          <sc-if value="{{ AR.own }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-toolbar">
+            <div class="fr-tbar">
+              <div class="fr-tbar-t"><h2 class="rb-h2" id="fa-tabh" tabindex="-1">Submissions</h2><p class="rk-count" role="status">{{ SB.count }}</p></div>
+              <div class="fa-actions fr-tbar-act">
+                <sc-if value="{{ SB.canMarkNext }}" hint-placeholder-val="{{ true }}"><a class="rb-btn rb-btn--primary" href="#FA-19" onClick="{{ SB.markNext }}">Mark next</a></sc-if>
+                <sc-if value="{{ SB.hasRows }}" hint-placeholder-val="{{ true }}"><button type="button" class="rb-btn" onClick="{{ SB.exportCsv }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-download"></use></svg>Export CSV</button></sc-if>
+              </div>
+            </div>
+            <sc-if value="{{ SB.hasAny }}" hint-placeholder-val="{{ true }}">
+            <div class="fa-seg fr-seg" role="group" aria-label="Show">
+              <button type="button" aria-pressed="{{ SB.fAll }}" onClick="{{ SB.setAll }}">All<b aria-hidden="true">{{ SB.nAll }}</b><span class="xr-sr">, {{ SB.nAll }}</span></button>
+              <button type="button" aria-pressed="{{ SB.fWait }}" onClick="{{ SB.setWait }}"><span>Waiting<span class="fr-seg-long"> for marking</span></span><b aria-hidden="true">{{ SB.nWait }}</b><span class="xr-sr">, {{ SB.nWait }}</span></button>
+              <button type="button" aria-pressed="{{ SB.fDone }}" onClick="{{ SB.setDone }}">Marked<b aria-hidden="true">{{ SB.nDone }}</b><span class="xr-sr">, {{ SB.nDone }}</span></button>
+            </div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ SB.exported }}" hint-placeholder-val="{{ false }}">
+          <div class="fa-export">
+            <div class="rk-notice rk-notice--ok" id="fa-exp" tabindex="-1" role="status"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-download"></use></svg><p class="rk-notice-t">{{ SB.expT }}</p><p class="rk-notice-d">It contains this list only, as it was when you exported it. Columns: student, student ID, submitted, status, score, result released to student.</p></div>
+            <div class="fa-scrollx" role="region" aria-label="Rows in the exported file" tabindex="0">
+              <table class="rk-table">
+                <caption>Rows in the exported file</caption>
+                <thead><tr><th scope="col">student</th><th scope="col">student ID</th><th scope="col">submitted</th><th scope="col">status</th><th scope="col">score</th><th scope="col">result released to student</th></tr></thead>
+                <tbody><sc-for list="{{ SB.expRows }}" as="x" hint-placeholder-count="0"><tr><td>{{ x.n }}</td><td>{{ x.id }}</td><td>{{ x.when }}</td><td>{{ x.st }}</td><td>{{ x.score }}</td><td>{{ x.rel }}</td></tr></sc-for></tbody>
+              </table>
+            </div>
+          </div>
+          </sc-if>
+          <sc-if value="{{ SB.hasRows }}" hint-placeholder-val="{{ true }}">
+          <div class="fa-tablewrap">
+            <table class="rk-table fa-table fr-stable fr-ptable fr-ptable2">
+              <caption>Submissions for {{ AR.name }}</caption>
+              <thead><tr><th scope="col">Student</th><th scope="col">Submitted</th><th scope="col">Status</th><th scope="col">Score</th><th scope="col">Result released to student</th></tr></thead>
+              <tbody>
+                <sc-for list="{{ SB.rows }}" as="r" hint-placeholder-count="2">
+                <tr onClick="{{ r.open }}">
+                  <td class="fa-c-main"><a class="rk-rowlink" href="#FA-19" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}">{{ r.n }}</a><span class="fa-cellsub">{{ r.sub }}</span></td>
+                  <td class="fa-nowrap fr-c-wide fr-c-inl"><span class="fa-lbl">Submitted</span>{{ r.when }}</td>
+                  <td class="fr-c-st"><span class="fa-lbl">Status</span><span class="{{ r.stCls }}"><i></i>{{ r.st }}</span></td>
+                  <td class="fa-nowrap"><span class="fa-lbl">Score</span><sc-if value="{{ r.hasOutcome }}" hint-placeholder-val="{{ false }}"><span class="fr-cellname fa-num">{{ r.score }}</span><span class="fa-cellsub">{{ r.outcome }}</span></sc-if><sc-if value="{{ r.isWait }}" hint-placeholder-val="{{ true }}"><span class="fr-cellname fa-num">{{ r.autoPart }}</span><span class="fa-cellsub">{{ r.autoNote }}</span></sc-if></td>
+                  <td><span class="fa-lbl">Result released to student</span><sc-if value="{{ r.relDone }}" hint-placeholder-val="{{ false }}"><span class="fa-res fa-res--ok"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-check"></use></svg>{{ r.relHead }}</span></sc-if><sc-if value="{{ r.relNot }}" hint-placeholder-val="{{ true }}"><span class="fa-res fa-res--no"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#fai-clock"></use></svg>{{ r.relHead }}</span></sc-if><span class="fa-cellsub fr-relsub">{{ r.relSub }}</span></td>
+                </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          </sc-if>
+          <sc-if value="{{ SB.filtNone }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state" role="status">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-search"></use></svg></span>
+            <p class="rk-state-t">No submissions match this filter</p>
+            <button type="button" class="rb-btn" onClick="{{ SB.setAll }}">Show all</button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ SB.noRows }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-state">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-inbox"></use></svg></span>
+            <p class="rk-state-t">No submissions yet</p>
+            <p class="rk-state-d">{{ SB.emptyText }}</p>
+          </div>
+          </sc-if>
+          </sc-if>
+          <sc-if value="{{ AR.notOwn }}" hint-placeholder-val="{{ false }}">
+          <div class="fa-inlinemsg">
+            <span class="fa-msg-ico fa-msg-ico--lock" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#fai-lock"></use></svg></span>
+            <h2 class="rb-h2" id="fa-tabh" tabindex="-1">Submissions aren’t available to you yet</h2>
+            <p class="fa-msg-d">{{ AR.coRefuse }}</p>
+            <div class="fa-msg-act"><a class="rb-btn" href="#FA-08" onClick="{{ AR.tg.sum }}">Back to Summary</a><a class="rb-link" href="#XS-07" onClick="{{ nav.help }}">Help</a></div>
+          </div>
+          </sc-if>
+        </section>
+        </sc-if>
+      </div>
+      </sc-if>
+

@@ -8,16 +8,20 @@ import { checkState } from '../support/screen-checks';
 import { currentSidebarItem, waitForShell } from '../support/workspace';
 
 /**
- * FA-12 Assessment · Submissions with FA-22 Export CSV (board B4-06 f7 … f11), and the record's
- * Phase-4B actions on FA-08 (B4-05 f0), on the test-hook build at 1440, 1024, 768 and 375, as Dr
- * S. Ranganathan. After Flow C he creates ASMT-0009 (the walk's D1) through the assessments port;
- * Meera Iyer gives Priya Natarajan Shell-and-Tube; Rahul Verma and Priya answer and submit
- * through their own ports; Ranganathan confirms Rahul's marks through the marking port — the CI
- * seam (`actAs`) only sets the states up. The page's own interactions — the filter, "Export CSV"
- * (the browser saves the service's file), "Mark next", the tab and "See submissions" — are real
- * clicks. After Flow D, ATT-0450 is released (f9); a draft-free assessment with no submission is
- * f11; a co-teaching colleague's assessment is held back calmly (OD-B4-17). Each drawn state
- * passes `checkState` (axe WCAG A/AA, one h1, visible focus, 24 × 24 targets, no sideways scroll).
+ * FA-12 Assessment · Submissions with FA-22 Export CSV in the V3 Refined B design (FA-v1
+ * `Main.dc.html` "FA-12 Submissions"; earlier board B4-06 f7 … f11), and the record's Phase-4B
+ * actions on FA-08's Submissions panel, on the test-hook build at 1440, 1024, 768 and 375, as Dr
+ * S. Ranganathan. After Flow C he creates "Heat Exchanger — post-lab" (the walk's D1) through the
+ * assessments port; Meera Iyer gives Priya Natarajan Shell-and-Tube; Rahul Verma and Priya answer
+ * and submit through their own ports; Ranganathan confirms Rahul's marks through the marking port
+ * — the CI seam (`actAs`) only sets the states up. The page's own interactions — the filter,
+ * "Export CSV" (the browser saves the service's file), "Mark next", the tab and "See submissions"
+ * — are real clicks. After Flow D, Rahul's attempt is released; an assessment with no submission
+ * shows "No submissions yet"; a co-teaching colleague's assessment is held back calmly
+ * (OD-B4-17). Each drawn state passes `checkState` (axe WCAG A/AA, one h1, visible focus, 24 × 24
+ * targets, no sideways scroll) and names no assessment or attempt by its reference — not even the
+ * export's confirmation: the browser saves the service's file (`submissions-<reference>.csv`, lead
+ * decision) and the words name the assessment.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 test.describe.configure({ timeout: 150_000 });
@@ -199,31 +203,64 @@ async function markAndConfirm(page: Page, attemptId: string, mark: string): Prom
 
 const main = (page: Page) => page.locator('main');
 const section = (page: Page) => page.getByRole('region', { name: 'Submissions' });
-const tabs = (page: Page) => page.getByRole('navigation', { name: NAME });
-const countLine = (page: Page) => section(page).locator('.xr-section-head [role="status"]');
-const rows = (page: Page) => section(page).locator('tbody tr');
+const tabs = (page: Page) => page.getByRole('navigation', { name: `${NAME} sections` });
+const countLine = (page: Page) => section(page).locator('.fa-tbar p.rk-count[role="status"]');
+const rows = (page: Page) => section(page).locator('table.fa-stable tbody tr');
+const show = (page: Page) => section(page).getByRole('group', { name: 'Show' });
 
-/** A row's cells: name, ATT number, submitted, status, score, release flag. */
+/** A row's cells as shown: name, attempt line, submitted, status, score, release (no phone labels). */
 async function rowCells(row: Locator): Promise<string[]> {
-  const cells = row.locator('td');
-  return [
-    (await cells.nth(0).locator('strong').textContent()) ?? '',
-    (await cells.nth(0).locator('.xr-meta').textContent()) ?? '',
-    ...(await cells.evaluateAll((all) => all.slice(1).map((cell) => cell.textContent ?? ''))),
-  ];
+  return row.evaluate((tr) => {
+    const cells = [...tr.querySelectorAll('td')];
+    const shown = (cell: Element) => {
+      const copy = cell.cloneNode(true) as Element;
+      for (const hidden of copy.querySelectorAll('.fa-lbl, .xr-sr')) hidden.remove();
+      return copy.textContent ?? '';
+    };
+    return [
+      cells[0]?.querySelector('a.rk-rowlink')?.textContent ?? '',
+      cells[0]?.querySelector('.fa-cellsub')?.textContent ?? '',
+      ...cells.slice(1).map(shown),
+    ];
+  });
 }
 
-/** The table's rows below 760 px of content stack (B4-06 f8 … f11): one cell per line. */
+/**
+ * The table's rows below 760 px of table (`fatable` container) stack: the name and the status side
+ * by side, then one cell per line (`fa-ptable`'s two-column grid).
+ */
 async function expectStacking(page: Page): Promise<void> {
   const width = page.viewportSize()?.width ?? 1440;
   const display = await rows(page)
     .first()
-    .locator('td')
-    .first()
-    .evaluate((cell) => getComputedStyle(cell).display);
+    .evaluate((row) => getComputedStyle(row).display);
   // The content box is narrower than the window by the sidebar (from 1024) and the gutters.
-  if (width <= 768) expect(display).toBe('block');
-  if (width === 1440) expect(display).toBe('table-cell');
+  if (width <= 768) expect(display).toBe('grid');
+  if (width === 1440) expect(display).toBe('table-row');
+}
+
+/** Any internal reference: an assessment's, an attempt's, a question's, a draft's (the owner's rule). */
+const REFERENCE = /\b(?:ASMT|ATT|Q|D|REQ|ACC|UPD|DTR|SUB|SUP)-\d+/;
+
+/**
+ * No reference in the page's words, its accessible names and placeholders, or the tab title — no
+ * exception: the export's confirmation names the assessment, not the service's file name.
+ */
+async function expectNoReferences(page: Page): Promise<void> {
+  const found = await page.evaluate(
+    ({ source }) => {
+      const pattern = new RegExp(source);
+      const named = [...document.querySelectorAll('[aria-label],[title],[placeholder]')].map(
+        (element) =>
+          `${element.getAttribute('aria-label') ?? ''} ${element.getAttribute('title') ?? ''} ${element.getAttribute('placeholder') ?? ''}`,
+      );
+      return [document.body.innerText, document.title, ...named].filter((text) =>
+        pattern.test(text),
+      );
+    },
+    { source: REFERENCE.source },
+  );
+  expect(found).toEqual([]);
 }
 
 /** The product's frame for the visual comparison (1440 as f7 draws it; 720 as f8 … f11). */
@@ -241,32 +278,39 @@ async function shoot(page: Page, name: string, at720 = true): Promise<void> {
 }
 
 test.describe('FA-12 Assessment · Submissions', () => {
-  test('two waiting (f7): the tab, the count, the rows, the filter, Export CSV (f10) and Mark next', async ({
+  test('two waiting: the tab, the count, the rows, the filter, Export CSV and Mark next', async ({
     page,
   }) => {
-    const { id, rahul, priya } = await twoSubmitted(page);
+    const { id, rahul } = await twoSubmitted(page);
     await softNavigate(page, `/faculty/assessments/${id}/submissions`);
     await expect(section(page)).toBeVisible({ timeout: 60_000 });
     await expect(page).toHaveURL(new RegExp(`/faculty/assessments/${id}/submissions$`));
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/faculty/assessments');
     await expect(tabs(page).getByRole('link')).toHaveText([
       'Summary',
-      'Questions 4',
+      'Questions4, 4',
       'Settings',
       'Preview',
-      'Submissions 2',
+      'Submissions2, 2',
     ]);
-    await expect(tabs(page).locator('[aria-current="page"]')).toHaveText('Submissions 2');
-    await expect(main(page).locator('.xa-headfacts > span')).toHaveText([
-      'Due 14 Nov 2026, 23:59',
+    await expect(tabs(page).locator('[aria-current="page"]')).toHaveText('Submissions2, 2');
+    await expect(main(page).locator('.fa-rec .fa-fig').first()).toContainText('14 Nov 2026, 23:59');
+    await expect(main(page).locator('.fa-rec-meta .fa-rec-wait')).toHaveText(
       '2 waiting for marking',
+    );
+    await expect(countLine(page)).toHaveText('2 submissions · 2 waiting for marking');
+    await expect(show(page).getByRole('button')).toHaveText([
+      'All2, 2',
+      'Waiting for marking2, 2',
+      'Marked0, 0',
     ]);
-    await expect(countLine(page)).toHaveText('2 submitted · 2 waiting for marking');
-    const show = section(page).getByRole('group', { name: 'Show' });
-    await expect(show.getByRole('button')).toHaveText(['All', 'Waiting for marking', 'Marked']);
-    await expect(show.getByRole('button', { name: 'All' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(show(page).getByRole('button', { name: /^All/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     const markNext = section(page).getByRole('link', { name: 'Mark next' });
     await expect(markNext).toHaveAttribute('href', `/faculty/marking/${rahul}`);
+    await expect(markNext).toHaveClass(/\brb-btn--primary\b/);
     await expect(section(page).locator('thead th')).toHaveText([
       'Student',
       'Submitted',
@@ -277,43 +321,55 @@ test.describe('FA-12 Assessment · Submissions', () => {
     await expect(rows(page)).toHaveCount(2);
     const first = await rowCells(rows(page).nth(0));
     const second = await rowCells(rows(page).nth(1));
-    expect([first[0], first[1], first[3], first[4], first[5]]).toEqual([
+    expect([first[0], first[1], first[3], first[5]]).toEqual([
       'Rahul Verma',
-      rahul,
+      'Attempt 1 of 2',
       'Waiting for marking',
-      '—',
-      'Not yet — after the deadline',
+      'Not yetafter the deadline, 14 Nov 2026, 23:59',
     ]);
-    expect([second[0], second[1], second[3], second[4], second[5]]).toEqual([
+    expect(first[4]).toMatch(/^— of 16Marked automatically: \d of 6$/);
+    expect([second[0], second[1], second[3], second[5]]).toEqual([
       'Priya Natarajan',
-      priya,
+      'Attempt 1 of 2',
       'Waiting for marking',
-      '—',
-      'Not yet — after the deadline',
+      'Not yetafter the deadline, 14 Nov 2026, 23:59',
     ]);
     // Submitted at the sample world's "now" (after Flow C: 27 Oct 2026).
     expect(first[2]).toMatch(/^27 Oct 2026, \d\d:\d\d$/);
-    await expect(rows(page).locator('.xl-inline svg')).toHaveCount(2);
+    await expect(rows(page).locator('.fa-res.fa-res--no svg')).toHaveCount(2);
+    // Each row opens FA-19, named by its student.
+    await expect(section(page).getByRole('link', { name: 'Mark Rahul Verma' })).toHaveAttribute(
+      'href',
+      `/faculty/marking/${rahul}`,
+    );
     await expectStacking(page);
+    await expectNoReferences(page);
     await checkState(page, NAME);
     await shoot(page, 'f7');
 
     // The in-page filter.
-    await reachAndClick(page, show.getByRole('button', { name: 'Marked' }));
-    await expect(show.getByRole('button', { name: 'Marked' })).toHaveAttribute(
+    await reachAndClick(page, show(page).getByRole('button', { name: /^Marked/ }));
+    await expect(show(page).getByRole('button', { name: /^Marked/ })).toHaveAttribute(
       'aria-pressed',
       'true',
     );
     await expect(rows(page)).toHaveCount(0);
-    await expect(section(page)).toContainText('No submissions match this filter.');
-    await expect(countLine(page)).toHaveText('2 submitted · 2 waiting for marking');
+    await expect(section(page).locator('.rk-state-t')).toHaveText(
+      'No submissions match this filter',
+    );
+    await expect(countLine(page)).toHaveText('2 submissions · 2 waiting for marking');
     await checkState(page, NAME);
-    await reachAndClick(page, show.getByRole('button', { name: 'Waiting for marking' }));
+    await reachAndClick(page, show(page).getByRole('button', { name: /^Waiting/ }));
     await expect(rows(page)).toHaveCount(2);
-    await reachAndClick(page, show.getByRole('button', { name: 'All' }));
+    await reachAndClick(page, show(page).getByRole('button', { name: /^Marked/ }));
+    await reachAndClick(page, section(page).getByRole('button', { name: 'Show all' }));
+    await expect(show(page).getByRole('button', { name: /^All/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
     await expect(rows(page)).toHaveCount(2);
 
-    // f10: Export CSV saves the service's file and confirms it.
+    // Export CSV saves the service's file and confirms it with the file's rows.
     const download = page.waitForEvent('download');
     await reachAndClick(page, section(page).getByRole('button', { name: 'Export CSV' }));
     const file = await download;
@@ -327,12 +383,23 @@ test.describe('FA-12 Assessment · Submissions', () => {
     expect(lines[2]).toMatch(/^Priya Natarajan,/);
     const confirmation = page.locator('#submissions-export');
     await expect(confirmation).toBeFocused();
-    await expect(confirmation.locator('.xr-notice--ok .xr-notice-title')).toHaveText(
-      `Exported submissions-${id}.csv · 2 rows`,
+    await expect(confirmation.locator('.rk-notice-t')).toHaveText(
+      `Exported the submissions of ${NAME} as a CSV file · 2 rows`,
     );
-    await expect(confirmation).toContainText(
-      'Columns: student, student ID, submitted, status, score, result released to student. It contains this list only.',
+    await expect(confirmation.locator('.rk-notice-d')).toHaveText(
+      'It contains every submission to this assessment, as it was when you exported it. Columns: student, student ID, submitted, status, score, result released to student.',
     );
+    const exported = section(page).getByRole('region', { name: 'Rows in the exported file' });
+    await expect(exported.locator('th')).toHaveText([
+      'student',
+      'student ID',
+      'submitted',
+      'status',
+      'score',
+      'result released to student',
+    ]);
+    await expect(exported.locator('tbody tr')).toHaveCount(2);
+    await expectNoReferences(page);
     await checkState(page, NAME);
     await shoot(page, 'f10');
 
@@ -341,36 +408,35 @@ test.describe('FA-12 Assessment · Submissions', () => {
     await expect(page).toHaveURL(new RegExp(`/faculty/marking/${rahul}$`));
   });
 
-  test('after marking Rahul (f8); FA-08’s Mark next and See submissions; the tab', async ({
-    page,
-  }) => {
+  test('after marking Rahul; FA-08’s Mark next and See submissions; the tab', async ({ page }) => {
     const { id, rahul, priya } = await twoSubmitted(page);
     await markAndConfirm(page, rahul, '7');
     await softNavigate(page, `/faculty/assessments/${id}/submissions`);
     await expect(section(page)).toBeVisible({ timeout: 60_000 });
-    await expect(countLine(page)).toHaveText('2 submitted · 1 waiting for marking');
+    await expect(countLine(page)).toHaveText('2 submissions · 1 waiting for marking');
     const first = await rowCells(rows(page).nth(0));
     expect([first[0], first[3], first[4], first[5]]).toEqual([
       'Rahul Verma',
       'Marked',
-      '11 of 16',
-      'Not yet — after the deadline',
+      '11 of 16Passed · pass mark 8',
+      'Not yetafter the deadline, 14 Nov 2026, 23:59',
     ]);
-    await expect(rows(page).nth(0).locator('.xr-status--ok')).toHaveText('Marked');
-    await expect(rows(page).nth(1).locator('.xr-status--wait')).toHaveText('Waiting for marking');
+    await expect(rows(page).nth(0).locator('.xr-st--ok')).toHaveText('Marked');
+    await expect(rows(page).nth(1).locator('.xr-st--warn')).toHaveText('Waiting for marking');
     await expect(section(page).getByRole('link', { name: 'Mark next' })).toHaveAttribute(
       'href',
       `/faculty/marking/${priya}`,
     );
-    await expect(main(page).locator('.xa-headfacts > span').nth(1)).toHaveText(
+    await expect(
+      section(page).getByRole('link', { name: 'View marks for Rahul Verma' }),
+    ).toBeVisible();
+    await expect(main(page).locator('.fa-rec-meta .fa-rec-wait')).toHaveText(
       '1 waiting for marking',
     );
+    await expectNoReferences(page);
     await checkState(page, NAME);
     await shoot(page, 'f8');
-    await reachAndClick(
-      page,
-      section(page).getByRole('group', { name: 'Show' }).getByRole('button', { name: 'Marked' }),
-    );
+    await reachAndClick(page, show(page).getByRole('button', { name: /^Marked/ }));
     await expect(rows(page)).toHaveCount(1);
     expect((await rowCells(rows(page).nth(0)))[0]).toBe('Rahul Verma');
 
@@ -379,61 +445,69 @@ test.describe('FA-12 Assessment · Submissions', () => {
     await summaryTab.focus();
     await summaryTab.press('Enter');
     await expect(page).toHaveURL(new RegExp(`/faculty/assessments/${id}$`));
-    const summary = page.getByRole('region', { name: 'Submissions' });
-    await expect(summary.locator('p.xr-body')).toHaveText(
-      '2 of 2 submitted · 1 waiting for marking',
-    );
-    const markNext = summary.getByRole('link', { name: 'Mark next' });
-    await expect(markNext).toHaveClass(/xr-btn--primary/);
+    const panel = page.getByRole('complementary', { name: 'Submissions' });
+    await expect(panel.locator('p.rk-pending')).toHaveText('1 written answer waiting for marking');
+    await expect(
+      panel.getByRole('list', { name: 'Waiting for marking, oldest first' }).locator('li b'),
+    ).toHaveText(['Priya Natarajan']);
+    const markNext = panel.getByRole('link', { name: 'Mark next' });
+    await expect(markNext).toHaveClass(/\brb-btn--primary\b/);
     await expect(markNext).toHaveAttribute('href', `/faculty/marking/${priya}`);
+    await expectNoReferences(page);
     await checkState(page, NAME);
     await shoot(page, 'fa-08-summary', false);
-    await reachAndClick(page, summary.getByRole('link', { name: 'See submissions' }));
+    await reachAndClick(page, panel.getByRole('link', { name: 'See submissions' }));
     await expect(page).toHaveURL(new RegExp(`/faculty/assessments/${id}/submissions$`));
-    await expect(countLine(page)).toHaveText('2 submitted · 1 waiting for marking');
+    await expect(countLine(page)).toHaveText('2 submissions · 1 waiting for marking');
   });
 
-  test('released after the deadline (after Flow D, f9)', async ({ page }) => {
+  test('released after the deadline (after Flow D)', async ({ page }) => {
     await bootWorld(page, { fixture: 'after-flow-d', session: RANGANATHAN });
     await page.goto(`/faculty/assessments/${ASMT}/submissions`);
     await expect(section(page)).toBeVisible({ timeout: 60_000 });
-    await expect(countLine(page)).toHaveText('1 submitted · 0 waiting for marking');
+    await expect(countLine(page)).toHaveText('1 submission · 0 waiting for marking');
     await expect(rows(page)).toHaveCount(1);
     expect(await rowCells(rows(page).nth(0))).toEqual([
       'Rahul Verma',
-      'ATT-0450',
+      'Attempt 1 of 2',
       '5 Nov 2026, 18:52',
       'Marked',
-      '11 of 16',
-      'Released 14 Nov 2026, 23:59',
+      '11 of 16Passed · pass mark 8',
+      'Released14 Nov 2026, 23:59, after the deadline',
     ]);
-    await expect(rows(page).locator('.xl-inline')).toHaveCount(0);
+    await expect(rows(page).locator('.fa-res.fa-res--ok')).toHaveText('Released');
+    await expect(rows(page).locator('.fa-res--no')).toHaveCount(0);
     await expect(section(page).getByRole('link', { name: 'Mark next' })).toHaveCount(0);
-    await expect(tabs(page).locator('[aria-current="page"]')).toHaveText('Submissions 1');
+    await expect(tabs(page).locator('[aria-current="page"]')).toHaveText('Submissions1, 1');
     await expectStacking(page);
+    await expectNoReferences(page);
     await checkState(page, NAME);
     await shoot(page, 'f9');
   });
 
-  test('no submissions yet (f11), reached by the record’s Submissions tab', async ({ page }) => {
+  test('no submissions yet, reached by the record’s Submissions tab', async ({ page }) => {
     const id = await createOnC(page);
     await softNavigate(page, `/faculty/assessments/${id}`);
     await expect(page.getByRole('region', { name: 'Ready to use' })).toBeVisible({
       timeout: 60_000,
     });
+    // No count while nothing is submitted.
     const tab = tabs(page).getByRole('link', { name: /^Submissions/ });
-    await expect(tab).toHaveText('Submissions 0');
+    await expect(tab).toHaveText('Submissions');
     await tab.focus();
     await tab.press('Enter');
     await expect(page).toHaveURL(new RegExp(`/faculty/assessments/${id}/submissions$`));
-    await expect(countLine(page)).toHaveText('0 submitted · 0 waiting for marking');
-    const empty = section(page).locator('.xr-empty');
-    await expect(empty.getByRole('heading', { level: 3 })).toHaveText('No submissions yet');
+    await expect(countLine(page)).toHaveText('0 submissions · 0 waiting for marking');
+    const empty = section(page).locator('.rk-state');
+    await expect(empty.locator('.rk-state-t')).toHaveText('No submissions yet');
     await expect(empty).toContainText(
       'Students who have Shell-and-Tube Heat Exchanger see this assessment in Assessments. Their submissions appear here.',
     );
     await expect(section(page).getByRole('link', { name: 'Mark next' })).toHaveCount(0);
-    await expect(section(page).getByRole('button', { name: 'Export CSV' })).toBeVisible();
+    // Nothing to export or filter yet (the export draws neither without a submission).
+    await expect(section(page).getByRole('button', { name: 'Export CSV' })).toHaveCount(0);
+    await expect(show(page)).toHaveCount(0);
+    await expectNoReferences(page);
     await checkState(page, NAME);
     await shoot(page, 'f11');
   });
@@ -459,6 +533,7 @@ test.describe('FA-12 Assessment · Submissions', () => {
     );
     await expect(main(page)).not.toContainText('Rahul Verma');
     await expect(main(page).getByRole('button', { name: 'Export CSV' })).toHaveCount(0);
+    await expectNoReferences(page);
     await checkState(page, 'Submissions');
     await shoot(page, 'policy-open', false);
   });
