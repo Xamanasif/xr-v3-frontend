@@ -27,26 +27,28 @@ import {
 /**
  * The roles whose workspace has moved to the V3 Refined B shell with their owner-approved complete
  * role export (pack prompt 11): the Super Admin (design/v3-refined-b/roles/SA-v1), the Vendor
- * (roles/VE-v1) and the Content Manager (roles/CM-v1). Every other role keeps its v46 shell until
- * its own export is integrated.
+ * (roles/VE-v1), the Content Manager (roles/CM-v1) and the Academic Reviewer (roles/RV-v1). Every
+ * other role keeps its v46 shell until its own export is integrated.
  */
 export const V3_SHELL_ROLES: ReadonlySet<Role> = new Set<Role>([
   'super_admin',
   'vendor',
   'content_manager',
+  'academic_reviewer',
 ]);
 
 /**
  * The roles whose export names the home page before the date in the top line on that page ("Overview
- * · Thursday 27 August 2026": VE-v1 `Main.dc.html` `rb-top-date`, as IA-01 draws it); the Super Admin
- * and Content Manager exports draw the date alone.
+ * · Thursday 27 August 2026": VE-v1 `Main.dc.html` `rb-top-date`, as IA-01 draws it); the Super
+ * Admin, Content Manager and Academic Reviewer exports draw the date alone.
  */
 const HOME_IN_TOP_LINE: ReadonlySet<Role> = new Set<Role>(['vendor']);
 
 /**
  * The rail glyph of each destination, as the role exports draw it (SA-v1 `sa-core.js` nav; VE-v1
  * `Main.dc.html` rail: the Overview grid and My experiments' flask; CM-v1 `Main.dc.html` rail: the
- * grid, upload, books, refresh and hash glyphs).
+ * grid, upload, books, refresh and hash glyphs; RV-v1 `RV.dc.html` rail: the grid, the bulleted
+ * list and the checked disc).
  */
 const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   overview: 'overview',
@@ -61,6 +63,8 @@ const RAIL_ICON: Partial<Record<BoardIconKey, V3IconName>> = {
   library: 'contentLibrary',
   updates: 'updates',
   codes: 'courseCodes',
+  queue: 'reviewQueue',
+  reviewed: 'checkCircle',
 };
 
 export interface V3RoleShellProps {

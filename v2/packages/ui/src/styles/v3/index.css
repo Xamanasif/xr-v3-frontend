@@ -19,19 +19,23 @@
  * - `cm-scoped.css` is GENERATED the same way from the Content Manager role sheet (`cm.css`) of
  *   the owner-approved Content Manager export (design/v3-refined-b/roles/CM-v1/): the publishing-
  *   desk components of its 9 screens (`cm-` classes). Never edit it.
+ * - `rv-scoped.css` is GENERATED the same way from the Academic Reviewer role sheet (`rv.css`) of
+ *   the owner-approved Academic Reviewer export (design/v3-refined-b/roles/RV-v1/): the review-desk
+ *   components of its 6 screens (`rv-` classes). Never edit it.
  * - `patch.css` holds the central, versioned corrections (V3P-nn): accessibility and correctness
  *   fixes and the isolation from the v46 product layer. No aesthetic change goes there.
  * - The layer statement repeats the product statement of `@xr/ui/styles.css` and apps/web
  *   globals.css with `xr.v3` after `xr.product`. `xr.v3` is a sublayer of `xr`, so it follows
  *   `xr.v46` and `xr.product` and precedes `utilities` whichever chunk loads first:
- *   v46 < product deltas < V3 (foundation < XS < SA < VE < CM < patches) < composition utilities.
+ *   v46 < product deltas < V3 (foundation < XS < SA < VE < CM < RV < patches) < composition utilities.
  */
 @layer properties, theme, xr.v46, xr.product, xr.v3, utilities;
-@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.patch;
+@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.patch;
 
 @import './rb-scoped.css' layer(xr.v3.rb);
 @import './xs-scoped.css' layer(xr.v3.xs);
 @import './sa-scoped.css' layer(xr.v3.sa);
 @import './ve-scoped.css' layer(xr.v3.ve);
 @import './cm-scoped.css' layer(xr.v3.cm);
+@import './rv-scoped.css' layer(xr.v3.rv);
 @import './patch.css' layer(xr.v3.patch);

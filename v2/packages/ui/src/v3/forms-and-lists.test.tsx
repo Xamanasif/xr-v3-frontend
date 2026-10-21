@@ -133,6 +133,43 @@ describe('V3 choice and check groups (rk-fieldset)', () => {
     expect(approve).toBeChecked();
   });
 
+  it('an option may also be described by another element on the page, after its consequence line (RV-v1 rv-whole)', async () => {
+    render(
+      <>
+        <ul>
+          <li id="rv-whole">
+            <b>Whole Experiment.</b> You decide for every format together: WEB and VR.
+          </li>
+        </ul>
+        <ChoiceGroup
+          legend="Decision"
+          id="rv-choice"
+          name="rv-choice"
+          value={null}
+          onChange={() => undefined}
+          options={[
+            {
+              value: 'approve',
+              title: 'Approve',
+              description: 'It goes to the Content Manager to publish.',
+              describedBy: 'rv-whole',
+            },
+            { value: 'return', title: 'Return to vendor', describedBy: 'rv-whole' },
+          ]}
+        />
+      </>,
+    );
+    const approve = screen.getByRole('radio', { name: 'Approve' });
+    expect(approve.getAttribute('aria-describedby')).toBe('rv-choice-approve-d rv-whole');
+    expect(approve).toHaveAccessibleDescription(
+      'It goes to the Content Manager to publish. Whole Experiment. You decide for every format together: WEB and VR.',
+    );
+    expect(
+      screen.getByRole('radio', { name: 'Return to vendor' }).getAttribute('aria-describedby'),
+    ).toBe('rv-whole');
+    await assertNoAxeViolations(document.body);
+  });
+
   it('the group error is in the fieldset’s description, not a live region', () => {
     render(<Decision error="Choose a decision" />);
     const group = screen.getByRole('group', { name: 'Decision' });

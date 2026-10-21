@@ -44,7 +44,7 @@ describe('placeWordsOf', () => {
     ['/vendor/experiments/SUB-0077', 'My experiments › SUB-0077'],
     ['/vendor/experiments/SUB-0077/revise', 'My experiments'],
     ['/reviewer/queue', 'Review queue'],
-    ['/reviewer/submissions/SUB-0077', 'Review queue › SUB-0077'],
+    ['/reviewer/submissions/SUB-0077', 'Review queue'],
     ['/reviewer/reviewed', 'Reviewed by me'],
     ['/content-manager/decisions/SUB-0077', 'Ready to publish › SUB-0077'],
     ['/content-manager/published/distillation-column', 'Content library'],
@@ -52,7 +52,7 @@ describe('placeWordsOf', () => {
     // Phase 6.
     ['/content-manager/updates', 'Updates'],
     ['/content-manager/updates/UPD-0005?focus=summary', 'Updates › UPD-0005'],
-    ['/reviewer/updates/UPD-0005', 'Review queue › UPD-0005'],
+    ['/reviewer/updates/UPD-0005', 'Review queue'],
     ['/admin/content/updates?show=on-hold', 'Content'],
     ['/admin/content/updates/UPD-0005', 'Content'],
     ['/admin/content/records/SUB-0085', 'Content'],

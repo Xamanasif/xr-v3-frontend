@@ -110,6 +110,24 @@ export function cmExport(file: string): string {
   return readFileSync(join(CM_EXPORT_DIRECTORY, file), 'utf8');
 }
 
+/**
+ * The owner-approved Academic Reviewer export (RV-v1), read only: its live role root (`RV.dc.html`,
+ * START-HERE "Live role entry") and sheet.
+ */
+export const RV_EXPORT_DIRECTORY = join(
+  REPO_ROOT,
+  'design',
+  'v3-refined-b',
+  'roles',
+  'RV-v1',
+  'project',
+);
+
+/** An RV export file's source (`RV.dc.html`, `rv.css`, …), by file name. */
+export function rvExport(file: string): string {
+  return readFileSync(join(RV_EXPORT_DIRECTORY, file), 'utf8');
+}
+
 /** The XS shared contract (`SHARED-CONTRACT.json` of the XS-v6 export). */
 export function xsContract(): {
   readonly components: readonly {

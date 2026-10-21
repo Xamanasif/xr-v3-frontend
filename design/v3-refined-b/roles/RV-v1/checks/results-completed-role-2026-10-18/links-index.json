@@ -1,0 +1,17 @@
+[
+ {
+  "check": "[index] Main links 58 boards, all exist and are served",
+  "pass": true,
+  "detail": "([], [])"
+ },
+ {
+  "check": "[index] every canvas board except Main is linked from Main",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[source] no href=\"#\" placeholders in the role component",
+  "pass": true,
+  "detail": ""
+ }
+]

@@ -769,6 +769,86 @@ const CM_CASES = [
   },
 ];
 
+const MENON = 'a.menon@wilp.example';
+
+/** Prof. A. Menon (Academic Reviewer) at a page of her workspace, reached client-side after sign-in. */
+async function reviewer(page, path) {
+  await signIn(page, MENON);
+  if (path !== '/reviewer') await go(page, path);
+  await settledPage(page);
+}
+
+/** One Academic Reviewer page in its first state (the fresh sample world). */
+const rvPage = (name, id, state, path) => ({
+  name,
+  id,
+  state,
+  tall: true,
+  reach: async (page) => reviewer(page, path),
+});
+
+/** The Academic Reviewer cases (RV-v1): every screen and the states the walk reaches. */
+const RV_CASES = [
+  rvPage(
+    'rv01-overview',
+    'RV-01',
+    'Overview: the review desk, next in line, queue by type, scope',
+    '/reviewer',
+  ),
+  rvPage('rv02-queue', 'RV-02', 'Review queue: everything waiting', '/reviewer/queue'),
+  rvPage('rv05-reviewed', 'RV-05', 'Reviewed by me: all decisions', '/reviewer/reviewed'),
+  rvPage(
+    'rv03-outcomes',
+    'RV-03',
+    'Review a submission: learning outcomes needed',
+    '/reviewer/submissions/SUB-0086',
+  ),
+  rvPage(
+    'rv03-recheck',
+    'RV-03',
+    'Review a submission: re-check',
+    '/reviewer/submissions/SUB-0071',
+  ),
+  rvPage(
+    'rv06-approved',
+    'RV-06',
+    'Decided submission: approved, read-only',
+    '/reviewer/submissions/SUB-0070',
+  ),
+  rvPage(
+    'rv06-update',
+    'RV-06',
+    'Decided update: with the Super Admin',
+    '/reviewer/updates/UPD-0004',
+  ),
+  {
+    name: 'rv03-return-errors',
+    id: 'RV-03',
+    state: 'Review a submission: Return to vendor with nothing filled (error summary)',
+    tall: true,
+    reach: async (page) => {
+      await reviewer(page, '/reviewer/submissions/SUB-0086');
+      const panel = page.getByRole('complementary', { name: /decision/i });
+      await panel.getByRole('radio', { name: /^Return/ }).check();
+      await panel.getByRole('button', { name: /^Return/ }).click();
+      await page.locator('main .rk-errsum').waitFor();
+    },
+  },
+  {
+    name: 'rv-drawer',
+    id: 'RV-shell',
+    state: 'The Menu drawer below 1024 px (at 1440 and 1024 the rail is shown)',
+    reach: async (page) => {
+      await reviewer(page, '/reviewer');
+      const menu = page.getByRole('button', { name: /^(Open menu|Menu)$/ });
+      if (await menu.isVisible()) {
+        await menu.click();
+        await page.getByRole('dialog', { name: 'Menu' }).waitFor();
+      }
+    },
+  },
+];
+
 async function measure(page) {
   return page.evaluate(async () => {
     // No internal reference in the words or the accessible names (SA-v1 rule).
@@ -787,7 +867,8 @@ async function measure(page) {
       const style = getComputedStyle(element);
       if (!['hidden', 'clip'].includes(style.overflowX) || element.matches('input, textarea'))
         return false;
-      if (element.clientWidth <= 1) return false;
+      // A visually hidden label is clipped by design, whatever padding a role sheet gives it.
+      if (element.clientWidth <= 1 || element.closest('.xr-sr')) return false;
       return element.scrollWidth > element.clientWidth + 1;
     }).length;
     return {
@@ -804,7 +885,7 @@ async function measure(page) {
 
 const browser = await chromium.launch();
 const results = [];
-for (const testCase of [...CASES, ...SA_CASES, ...VE_CASES, ...CM_CASES].filter(
+for (const testCase of [...CASES, ...SA_CASES, ...VE_CASES, ...CM_CASES, ...RV_CASES].filter(
   (c) =>
     !values.only ||
     values.only

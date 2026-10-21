@@ -1,0 +1,409 @@
+{
+ "foundationId": "XR-V3-RB-1.0",
+ "status": "FINAL — OWNER APPROVED 21 October 2026",
+ "packLock": {
+  "foundationId": "XR-V3-RB-1.0",
+  "source": "Owner-uploaded Refined Direction B individual sources and HANDOFF(1).md",
+  "status": "selected visual reference; complete source subset, not the full 51-board export",
+  "baseFiles": {
+   "references/v3/HANDOFF-original.md": "3598572e00da8148a47f5abda743eb868c3020d8405ac8f4530581f8e49cae67",
+   "references/v3/design-tokens.json": "98b94673f7363b4bf64f7e9dde24fd29ecde9eb0cc3889e230caf4c497b1d5a3",
+   "references/v3/project/IA01.dc.html": "f06c6e3e2fd8900a2a9f34360e11363f6ab506fb1d5676e4d4e0b0265a524b92",
+   "references/v3/project/IA02.dc.html": "71280219faa1f3910cff66ed65b9b2a7ee3664afc97398dc630bb5614c98a54f",
+   "references/v3/project/SA01.dc.html": "3cdd6a194b3441d628b335d254782009bc8cecea92dda48667474ccf258e91fc",
+   "references/v3/project/SA02.dc.html": "4d88600e819c3b89b14efdfaf37914e23c57414e23fb947f1386ff5cda1d0496",
+   "references/v3/project/canvas.json": "2131cfa9fcd0fb2a1889ed30ec943ada2c31638cca9f13cb17a91447233ff030",
+   "references/v3/project/core.css": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+   "references/v3/project/rb-kit.css": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+   "references/v3/project/rb.css": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2"
+  },
+  "immutableReferences": true,
+  "allowedExtensions": "additive namespaced role components; shared base patches require central version update",
+  "lockedLandingScreenIds": [
+   "PU-01",
+   "PU-14"
+  ],
+  "noIndependentRoleTheme": true
+ },
+ "referenceCheck": {
+  "about": "The pack’s read-only reference files were re-hashed on 20 Oct 2026 and all matched the lock. The sandbox holding that pack copy was reclaimed before this export, so the three base files below were re-verified directly against the hashes recorded in the lock.",
+  "allMatch": true,
+  "verifiedAgainst": "packLock.baseFiles hashes"
+ },
+ "copiedBaseFiles": {
+  "project/core.css": {
+   "sha256": "6b2be461041569e2ee4c083f6e5b29f73313363ef2568f7a0a4775400011a42b",
+   "lockedAs": "references/v3/project/core.css",
+   "identical": true
+  },
+  "project/rb.css": {
+   "sha256": "d2390e1e7bf2db081ec09d9b0b744832391a553f9346d7891eab31e30e5abaf2",
+   "lockedAs": "references/v3/project/rb.css",
+   "identical": true
+  },
+  "project/rb-kit.css": {
+   "sha256": "812daa6c8f4a02b505a417fe0b4f54206f513051f8a5caed06d3d05d080cd704",
+   "lockedAs": "references/v3/project/rb-kit.css",
+   "identical": true
+  }
+ },
+ "allBaseCopiesIdentical": true,
+ "runtime": {
+  "about": "support.js is supplied by the Claude Design host and is not part of this package. All local renders used the host type’s dc-runtime.js",
+  "dcRuntimeSha256": "3f160299989dc595cf434dac7b7f3e6fd20ed015a2d99e075c3eac09dffe0f10",
+  "notTheHistoricalSupportJs": true
+ },
+ "localAdditions": {
+  "project/Checks.dc.html": {
+   "sha256": "ce58e6ca0b7f6068e3baa4caf85fb69325258421c4bc4246a8f3c8a5e3a88e78",
+   "bytes": 10153,
+   "kind": "index board"
+  },
+  "project/Coverage.dc.html": {
+   "sha256": "dba1f5041097df60315db1699c39f576c674ed9068ad78717df99b7f0dce473e",
+   "bytes": 22231,
+   "kind": "index board"
+  },
+  "project/Main.dc.html": {
+   "sha256": "0888bbdd775833a1092d0dbfd78ebbd7d7f2d559949bc2234f873554cf664baa",
+   "bytes": 18587,
+   "kind": "index board"
+  },
+  "project/RV-375.dc.html": {
+   "sha256": "156a63aeb37abde3ce404ac2784b82c25e2b0651197a5919c0e131855fc0e3f8",
+   "bytes": 751,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-account.dc.html": {
+   "sha256": "fd93b1743b7b03b838dced0a723931893e465fa0ca6f8e1afdaba473a440a99e",
+   "bytes": 787,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-drawer-375.dc.html": {
+   "sha256": "15de6bafd15327212a69a68be75bc814d72be87f1604d8dd3bb612b1f79f6431",
+   "bytes": 781,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-help.dc.html": {
+   "sha256": "c6283360d50549057f3eb85d33e6da5a62a8d0da17f7cba3a15b5d3272bb81be",
+   "bytes": 766,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-report-375.dc.html": {
+   "sha256": "a72433ad580ba110f936327fe2086ad087daa7c69c9f5c8d614c2de55c7dae93",
+   "bytes": 787,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-report-sent.dc.html": {
+   "sha256": "11ce939c74e80671e5541fb01758136e71ea0821c492d2af0991c61f1337a2d7",
+   "bytes": 778,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-scope-375.dc.html": {
+   "sha256": "a914ef7db6fe937034b3d763c61f90d4ca07ec24916ebc6fc0d1a83e1cb710ca",
+   "bytes": 778,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-scope-withdrawn.dc.html": {
+   "sha256": "f29141255109cba43052c0dbb6db040e88c812b4c366b0775fc7ebb43a830caf",
+   "bytes": 791,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-scope.dc.html": {
+   "sha256": "ed076aefc76d5d4b4d93c38df53e166066851b32a38beab05baf8beff7595b7b",
+   "bytes": 772,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-signedout.dc.html": {
+   "sha256": "ff796d153a07c36150fc227f6a5aea5c9bfa26a3f6f20b3a5f4a82a3bf5094d3",
+   "bytes": 762,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV-unavailable.dc.html": {
+   "sha256": "0cf9d44a2ff208d62192f3d97683328adf272fd23a8dec1c2d44a53b5dd23168",
+   "bytes": 767,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV.dc.html": {
+   "sha256": "09005b5d1fb0fb092e3205d3d31e43befaadccbd765fd460939e324445340285",
+   "bytes": 144420,
+   "kind": "live role root (all views and logic)"
+  },
+  "project/RV01-1024.dc.html": {
+   "sha256": "1162a341c8283412d9f4c814a7549e57f042ba416b3d08143c9197b87589260e",
+   "bytes": 735,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV01-375.dc.html": {
+   "sha256": "24bdd871bfc8ffc28a67f2c44c330753a6012de494ea927aec687a263d60fba0",
+   "bytes": 733,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV01-768.dc.html": {
+   "sha256": "d619cd1dc26f9b61cd58bee910ddee6203a95094e32c42c59233a919daf1a811",
+   "bytes": 733,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV01-calm.dc.html": {
+   "sha256": "0b0ca12883fc28414afaa1213a8f9c481a939ae1ec47016ef83a484e4edb3ec1",
+   "bytes": 764,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-1024.dc.html": {
+   "sha256": "d5e82cf047fc75a151c0d490c9cab171e601137791def90d731979917fa23e73",
+   "bytes": 736,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-375.dc.html": {
+   "sha256": "a62d0100e8853e887b5628a896ccd9a89f4572a1f7302210426cc4c3a2b8d2a3",
+   "bytes": 734,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-768.dc.html": {
+   "sha256": "c8ad92047e871686aae1e025ad6ec4e28ddcb0e0127dc59e6a3a99a91e82d384",
+   "bytes": 734,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-empty.dc.html": {
+   "sha256": "40e185c587036f31643d710683109e5556c3f44aa7addbe13acf6eccaf67bdc5",
+   "bytes": 765,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-failed.dc.html": {
+   "sha256": "97c8f502e43c80a3089639b3e667ee7ec51ff406cea6149f81937df614a2aab2",
+   "bytes": 765,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-filtered.dc.html": {
+   "sha256": "651b41a3c92b4cc6e4907a626858dffce5a862cb633ad04294974d7ce83f05f0",
+   "bytes": 777,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-loading.dc.html": {
+   "sha256": "a1780e6f8d6be97a27166178e4796e91101f841ca8c4a2d33a0f781b7e5ead82",
+   "bytes": 759,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02-nomatch.dc.html": {
+   "sha256": "ae432732d07b5167a3c003216698792d052289c0577043432afd119142bf152a",
+   "bytes": 760,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV02.dc.html": {
+   "sha256": "e61552d528fc214b9ec94b30a498dffb8cee77132a8b6dc3978dd2f18b6cc7c4",
+   "bytes": 734,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-1024.dc.html": {
+   "sha256": "b1a12448955fbfff56f0a1a40d49ae34adda476c737378e14f31ff6c56ffe61c",
+   "bytes": 760,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-375.dc.html": {
+   "sha256": "c774114b236e070d396c2283f7407189367aaaf438446d6f87834c56ed466a88",
+   "bytes": 758,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-768.dc.html": {
+   "sha256": "4395f1df8e60351df130f76ccddacf20da024841c39c03b69b3a065e289f6bb9",
+   "bytes": 758,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-approved.dc.html": {
+   "sha256": "d0aa278d34a264558e85ff34d8fda623081385200d2cf91b94ca7a7e796d2d9b",
+   "bytes": 788,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-confirm.dc.html": {
+   "sha256": "f42cc461d0669f03facf65c84eb6708fd3879b65db0e46fa166bce7aacbf0d0d",
+   "bytes": 767,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-editing-375.dc.html": {
+   "sha256": "12d08f17f21570643a8c8906a4441bca4a62ef59ef9c15c95814f460e26e74ed",
+   "bytes": 785,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-outcomes-375.dc.html": {
+   "sha256": "dc8291b0e463f548cabd50ad572a0761b7608e3c4b38f6c78ddf31103821ce76",
+   "bytes": 807,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-outcomes.dc.html": {
+   "sha256": "1d22b509ec6e691afc0eacc597e2bdc9784277c67d69f3e763586e43c87a4db7",
+   "bytes": 809,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-recheck.dc.html": {
+   "sha256": "4808b3c90f1b49f6c19bd445088e2a382db939ebe90cd3a81afae21d8f0a6142",
+   "bytes": 786,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-return-errors.dc.html": {
+   "sha256": "f190fd228ed5451a22e2e8c640c8884356aefd83da1cc3e8ad8a603de1364e69",
+   "bytes": 792,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-return-filled.dc.html": {
+   "sha256": "9622a089094e5d9cf3709be711a449a200f2136df6c25368de7d6d4f5b2efb14",
+   "bytes": 802,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03-returned.dc.html": {
+   "sha256": "ed4fdcf46cab143e9b7d575219a2aea795e0f55255d3b51d163804791a5b1740",
+   "bytes": 772,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV03.dc.html": {
+   "sha256": "073ab165a3631d6fd5c5590a2d905c2c29ca895fcfc5b79289619c81295b5b52",
+   "bytes": 760,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-1024.dc.html": {
+   "sha256": "e87b7f0fc69020085bbf27a7280dc71fe0455b0577b0d6fc401b407d6ceb5387",
+   "bytes": 757,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-375.dc.html": {
+   "sha256": "8182ea04050c45d42db6d9cee583bcb3981d72f0343c15188b57e84aff52a16f",
+   "bytes": 755,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-768.dc.html": {
+   "sha256": "a3d9c67dee247043bf2f0c1be6b74893112af0ec372f71023a558880655388ca",
+   "bytes": 755,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-approved.dc.html": {
+   "sha256": "fe54921ea5ef04cec1afc4f538c7fb3a632fb172d769fcf33a46dd117a25cbe0",
+   "bytes": 791,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-confirm.dc.html": {
+   "sha256": "bb951ec7ecce6e45a6ba25da0f05b9667d4df67b014167c774bac58078d9c6a4",
+   "bytes": 774,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-return-errors.dc.html": {
+   "sha256": "6efc875bcc8de89960b21fa17fa945fa8dd01c02ac4c4f356be5c780e35ffbb2",
+   "bytes": 782,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-returned.dc.html": {
+   "sha256": "7054c28da630e9698dfc783f7c6c3ff66f13e1ae276f81cef4559e2537d76e01",
+   "bytes": 785,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-stale-armed.dc.html": {
+   "sha256": "47c3f0bdee51e462090ed7a3808db68a61f5130fedde5595f1f512bf2e4011e6",
+   "bytes": 801,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04-stale.dc.html": {
+   "sha256": "90cda47e9833d679aa1487facecd2c4d2a5033be5fc96668dcc478a9692cf6ed",
+   "bytes": 773,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV04.dc.html": {
+   "sha256": "baf3658dbb751db8d907d2b7afe39c24d30bf39bd3d2a412a439b741f81157c7",
+   "bytes": 757,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-1024.dc.html": {
+   "sha256": "e4b21a1ed7713b0f7f58d9feb56a6a53f9d2ef8b7dfb2c501b0d11475f9581c7",
+   "bytes": 741,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-375.dc.html": {
+   "sha256": "23b12360ae9483e6612cd291bf7a85d3d7a6b457feb4a2bdfb02b66e56db79fc",
+   "bytes": 739,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-768.dc.html": {
+   "sha256": "6c6a7910cbdb4650179ed99afdb59324a4a60b940d2ef40cfdff917d36629719",
+   "bytes": 739,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-empty.dc.html": {
+   "sha256": "1e260dc3b6b32ef5ab9df07ddcb3997e193ca3e39734f73803ac7b27e71ab629",
+   "bytes": 774,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-failed.dc.html": {
+   "sha256": "5f065643aa917756a868add917754c07b316320f0898c9f2520154222ee290f6",
+   "bytes": 770,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-loading.dc.html": {
+   "sha256": "a8be314c8d738bd7e97f25cbf28620016587ede0c3a5d5a45033b7c2a0a3c263",
+   "bytes": 764,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-nomatch.dc.html": {
+   "sha256": "b6154ea826bf80af320a5f80080008ba3840c9b8ad8f68a665d7612dca23305d",
+   "bytes": 765,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05-updates.dc.html": {
+   "sha256": "737256d1df8d0aa64403473f58862301dc6c1b5de0e14372cb0453ebc157b394",
+   "bytes": 770,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV05.dc.html": {
+   "sha256": "5642e0da79b1bde8ced172e3ac0e96a207763baf02f7741b931617ba7c222d99",
+   "bytes": 741,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV06-375.dc.html": {
+   "sha256": "281a7a3e225fcbe85fe7eaa53006980bd3d567afce87731eb810dfa5868f52cc",
+   "bytes": 762,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV06-elsewhere.dc.html": {
+   "sha256": "b7bb00c7879f4006a8e1a5a376f403c74485cf6da3d28441300383608721ab1c",
+   "bytes": 788,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV06-returned.dc.html": {
+   "sha256": "7a592cd354bbfafcbe0da31e3a0619ddb87e5917bba03452aab32a9c630616fc",
+   "bytes": 765,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV06-update.dc.html": {
+   "sha256": "b5952393fc2e59c0b42522cb3bb0566b75f2e2394e78ebf63083fc5567ae5d5b",
+   "bytes": 784,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/RV06.dc.html": {
+   "sha256": "b5cc8f182bccd40d815e1412c05fce215590881de75f0cfdeb6776621165acd7",
+   "bytes": 764,
+   "kind": "state/width inspection board (wrapper importing RV)"
+  },
+  "project/canvas.json": {
+   "sha256": "8c767ff246903397907e8446f6e1860e143445d07dfce4aca10f8d12292142d6",
+   "bytes": 19675,
+   "kind": "canvas index"
+  },
+  "project/rv.css": {
+   "sha256": "7cfa5cb03cb35dd0e86bb922b584136f652deae2f640def17e23a45ca32c2a53",
+   "bytes": 35837,
+   "kind": "role stylesheet (additive, rv- prefix)"
+  }
+ },
+ "localAdditionCount": 67,
+ "newDerivativeNote": "All 61 wrappers, the three index boards, canvas.json, RV.dc.html and rv.css are newly authored for this role. None is a recovered original V3 file.",
+ "sharedBasePatches": "none",
+ "sourceOfTruth": "These hashes are of the files published to the canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF (version 1792526769-41ec) and shipped in project/ here; the two are byte-identical.",
+ "supersedes": {
+  "completedRole": {
+   "canvas": "https://claude.ai/artifact/DQmYyqbQPEFJ6NKqeZUJmJ",
+   "rvCssSha256": "083238b278658cd52acc25de98f9e5154eb50730d30f6966b9de2e082917c600",
+   "rvDcHtmlSha256": "ef041e1caff3bb0d2e7ca7d46aee859aafd4fba5457796130006ee46ac95624d",
+   "status": "preserved unchanged; superseded by this design"
+  },
+  "checkpoint1": {
+   "canvas": "https://claude.ai/artifact/GDmjHxHhFFYhdvw1n2pEKd",
+   "status": "preserved unchanged; reviewed, not approved; superseded by this design"
+  }
+ }
+}

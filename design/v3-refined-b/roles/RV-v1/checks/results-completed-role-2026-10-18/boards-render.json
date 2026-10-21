@@ -1,0 +1,415 @@
+{
+ "RV.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-375.dc.html": {
+  "w": 375,
+  "docH": 1263,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV01-1024.dc.html": {
+  "w": 1024,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV01-768.dc.html": {
+  "w": 768,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV01-375.dc.html": {
+  "w": 375,
+  "docH": 1263,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV01-calm.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-1024.dc.html": {
+  "w": 1024,
+  "docH": 973,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-768.dc.html": {
+  "w": 768,
+  "docH": 973,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-375.dc.html": {
+  "w": 375,
+  "docH": 1277,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-filtered.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-nomatch.dc.html": {
+  "w": 1024,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-loading.dc.html": {
+  "w": 1024,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-failed.dc.html": {
+  "w": 1024,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV02-empty.dc.html": {
+  "w": 1024,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV05.dc.html": {
+  "w": 1440,
+  "docH": 1257,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV05-1024.dc.html": {
+  "w": 1024,
+  "docH": 1562,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV05-768.dc.html": {
+  "w": 768,
+  "docH": 1562,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV05-375.dc.html": {
+  "w": 375,
+  "docH": 2003,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV05-updates.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV05-empty.dc.html": {
+  "w": 1024,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03.dc.html": {
+  "w": 1440,
+  "docH": 2932,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-1024.dc.html": {
+  "w": 1024,
+  "docH": 3435,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-768.dc.html": {
+  "w": 768,
+  "docH": 3435,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-375.dc.html": {
+  "w": 375,
+  "docH": 5031,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-notready.dc.html": {
+  "w": 1440,
+  "docH": 1925,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-recheck.dc.html": {
+  "w": 1440,
+  "docH": 2658,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-return-errors.dc.html": {
+  "w": 1440,
+  "docH": 2932,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-return-filled.dc.html": {
+  "w": 1440,
+  "docH": 2932,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-confirm.dc.html": {
+  "w": 1440,
+  "docH": 2932,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-approved.dc.html": {
+  "w": 1440,
+  "docH": 2095,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-returned.dc.html": {
+  "w": 1440,
+  "docH": 2141,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV03-editing-375.dc.html": {
+  "w": 375,
+  "docH": 4730,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04.dc.html": {
+  "w": 1440,
+  "docH": 2103,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-1024.dc.html": {
+  "w": 1024,
+  "docH": 2597,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-768.dc.html": {
+  "w": 768,
+  "docH": 2627,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-375.dc.html": {
+  "w": 375,
+  "docH": 4024,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-confirm.dc.html": {
+  "w": 1440,
+  "docH": 2103,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-approved.dc.html": {
+  "w": 1440,
+  "docH": 1896,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-return-errors.dc.html": {
+  "w": 1440,
+  "docH": 2103,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-returned.dc.html": {
+  "w": 1440,
+  "docH": 1919,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-stale.dc.html": {
+  "w": 1440,
+  "docH": 1896,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV04-stale-armed.dc.html": {
+  "w": 1440,
+  "docH": 2103,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV06.dc.html": {
+  "w": 1440,
+  "docH": 1562,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV06-375.dc.html": {
+  "w": 375,
+  "docH": 2909,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV06-returned.dc.html": {
+  "w": 1440,
+  "docH": 1014,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV06-update.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV06-elsewhere.dc.html": {
+  "w": 1440,
+  "docH": 2095,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-scope.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-scope-375.dc.html": {
+  "w": 375,
+  "docH": 812,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-unavailable.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-scope-withdrawn.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-account.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-drawer-375.dc.html": {
+  "w": 375,
+  "docH": 1277,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-help.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-report-375.dc.html": {
+  "w": 375,
+  "docH": 1006,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-report-sent.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "RV-signedout.dc.html": {
+  "w": 1440,
+  "docH": 900,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ },
+ "Main.dc.html": {
+  "w": 1440,
+  "docH": 1987,
+  "overflow_ok": true,
+  "console": [],
+  "over": []
+ }
+}

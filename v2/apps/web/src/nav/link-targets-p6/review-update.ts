@@ -6,7 +6,7 @@ const LIBRARY = '/content-manager/library';
 /** CM-08, a correction’s page: the sample’s returned UPD-0006 (hers) and on-hold UPD-0004. */
 const CORRECTION_HERS = '/content-manager/updates/UPD-0006';
 const CORRECTION_WITH_OTHERS = '/content-manager/updates/UPD-0004';
-/** RV-04, by update id: the sample’s UPD-0005 stands for any. */
+/** RV-04, by update id: the sample’s UPD-0005 stands for any (the reference stays in the address only). */
 const REVIEW_UPDATE = '/reviewer/updates/UPD-0005';
 const QUEUE = '/reviewer/queue';
 
@@ -55,16 +55,39 @@ export const P6_REVIEW_UPDATE_LINK_TARGETS: readonly LedgerEntry[] = [
       'CM-v1 `U.lsFailed` `button#cm-upd-retry` (`lsRetry`: reads the list again, focus to the page title; state-copy `CM-08.list.failed`)',
     ],
   ]),
-  // RV-04 Review an update (B6-04 f0 … f4; B6-13 f4; B7-11 f6).
+  // RV-04 Review an update — V3 (RV-v1 `RV.dc.html` item view for an update; LINK-MAP RV-04).
   ...pageRows('RV-04', REVIEW_UPDATE, [
-    ['Back link', 'Review queue', 'secondary', QUEUE, 'built', 'B6-04 f0 … f4 `a.xr-back`'],
     [
-      'Go to decision',
+      'Breadcrumb (the parent list)',
+      'Review queue',
+      'secondary',
+      QUEUE,
+      'built',
+      'RV-v1 `nav.rk-crumbs a` (`I.back`, `parentOf`: the Review queue while it waits, else Reviewed by me); the current crumb is the experiment’s name, never its reference',
+    ],
+    [
+      'Identity card',
       'Go to decision',
       'secondary',
       null,
       'in-page',
-      'B6-04 f2 … f4 `a.xr-jump` (below 860 px of content; focus to the panel)',
+      'RV-v1 `a.rb-btn.rk-goto` (while the panel sits below the content; focus to the panel heading)',
+    ],
+    [
+      'Identity card (page map)',
+      'Why this correction · What changes · Live experiment · Update history',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 `nav.rv-onpage a` (`goAnchor`: the section heading to the top, focused)',
+    ],
+    [
+      'Before you decide',
+      'See what changes',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 `div.rv-ready a` (`#rv-s-cmp`)',
     ],
     [
       'Your decision panel (choice)',
@@ -72,7 +95,7 @@ export const P6_REVIEW_UPDATE_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-04 f0 … f2 `label.xr-choice` (Approve update chosen first)',
+      'RV-v1 `label.rk-choice` (no choice at first; state-copy `RV-04.choice`)',
     ],
     [
       'Your decision panel',
@@ -80,31 +103,31 @@ export const P6_REVIEW_UPDATE_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       null,
       'in-page',
-      'B6-04 f0 … f2 `button.xr-btn--primary.xr-btn--block` (`Um-r-go`) → DL-1 “Approve UPD-0005?” or DL-2 “Return to the Content Manager?” → the decided panel (f3, f4)',
+      'RV-v1 `button#rv-go.rb-btn--primary.rk-go` (`go`) → Approve: the confirmation “Approve the update to <experiment>?”; Return: sent at once with the reason in the panel (state-copy `RV-04.return-reason`) → the outcome (`#rv-done`)',
     ],
     [
-      'DL-1 Approve',
+      'Check your decision',
+      'Choose a decision · Add a reason so the Content Manager knows what to change',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 `div#rv-errs.rk-errsum a` (focus to the field)',
+    ],
+    [
+      'Approve confirmation',
       'Cancel',
       'secondary',
       null,
       'in-page',
-      'B6-04 `dlgRA` `div.xr-dialog-foot` (nothing is approved)',
+      'RV-v1 `rk-dialog` `#rv-dlg-cancel` (nothing is approved; focus back on the button); its “Approve update” (`#rv-dlg-ok`, `doConfirm`) records the approval — the panel’s primary, confirmed',
     ],
     [
-      'DL-2 Return',
-      'Cancel',
-      'secondary',
-      null,
-      'in-page',
-      'B6-04 `dlgRR` `div.xr-dialog-foot` (nothing is returned)',
-    ],
-    [
-      'Decided panel',
-      'Back to the review queue',
+      'Decided outcome',
+      'Back to the review queue / Back to Reviewed by me',
       'secondary',
       QUEUE,
       'built',
-      'B6-04 f3, f4; B7-11 f6 `#Um-r-dec a.xr-btn--secondary.xr-btn--block`',
+      'RV-v1 `div.rk-done a.rb-btn` (`backLabel`, by the breadcrumb’s parent: Reviewed by me → /reviewer/reviewed)',
     ],
     [
       'Not sent yet',
@@ -112,7 +135,15 @@ export const P6_REVIEW_UPDATE_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       QUEUE,
       'built',
-      'B6-04 `rvNone`; B6-13 f4 `div.xr-empty a.xr-btn--secondary` (state-copy `RV-04.not-sent`)',
+      'XS-v6 `XsMessage` action (state-copy `RV-04.not-sent`; the product’s words kept; the ledger keeps one primary per page: the decision)',
+    ],
+    [
+      'Not sent yet',
+      'Help',
+      'secondary',
+      '/reviewer/help',
+      'built',
+      'XS-v6 `XsMessage` quiet link (state-copy `RV-04.not-sent`)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `RV-04.failed`'],
   ]),

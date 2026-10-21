@@ -82,13 +82,14 @@ export const RECORDED_SCAN_EXCEPTIONS: readonly ScanException[] = [
       'the owner decides the B5-03 wording against B8-03 "Role-name variants 0", with OD-1B-04 (Phase-5 record)',
   },
   {
-    // Phase 5. RV-03's learning-outcomes editor: B6-03 draws both sentences verbatim (the empty
-    // set's line and the Add field's hint); "a learner" is the generic noun, as above.
+    // Phase 5, V3 (RV-v1). RV-03's learning-outcomes editor: the owner-approved Academic Reviewer
+    // export draws both sentences verbatim (the empty set's notice and the Add field's hint);
+    // "a learner" is the generic noun, as above.
     rule: 'role-name-variants',
     file: 'apps/web/src/copy/reviewer-review.ts',
-    found: 'hever format a learner uses.',
+    found: 'Add what a learner can do after this experiment; the sam',
     evidence:
-      'B6-03 f2 "No learning outcomes yet · Add at least one before you approve. One set for the Experiment, whichever format a learner uses." (also B6-11 f2)',
+      'design/v3-refined-b/roles/RV-v1/project/RV.dc.html `p.rk-notice-d` "No learning outcomes yet · Approve needs at least one. Add what a learner can do after this experiment; the same list applies to every format." (RV-03, earlier B6-03 f2 "… whichever format a learner uses.")',
     removal:
       'the owner decides the B6-03 wording against B8-03 "Role-name variants 0", with OD-1B-04 (Phase-5 record)',
   },
@@ -97,7 +98,7 @@ export const RECORDED_SCAN_EXCEPTIONS: readonly ScanException[] = [
     file: 'apps/web/src/copy/reviewer-review.ts',
     found: 'What a learner can do after the experiment. Start wi',
     evidence:
-      'B6-03 f0 … f5 — the Add a learning outcome hint "What a learner can do after the experiment. Start with a verb."',
+      'B6-03 f0 … f5 and design/v3-refined-b/roles/RV-v1/project/RV.dc.html `p#rv-lo-new-hint` — the Add a learning outcome hint "What a learner can do after the experiment. Start with a verb."',
     removal:
       'the owner decides the B6-03 wording against B8-03 "Role-name variants 0", with OD-1B-04 (Phase-5 record)',
   },

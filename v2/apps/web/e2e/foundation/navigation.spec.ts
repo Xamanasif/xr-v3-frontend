@@ -190,7 +190,8 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
     await openAs(tab, entry.person, `${entry.base}/help`);
     await waitForShell(tab);
     // The v46 sidebar, or a V3 rail (the Super Admin's SA-v1, the Vendor's VE-v1, the Content
-    // Manager's CM-v1), whose Help sits in a navigation of its own in the rail foot.
+    // Manager's CM-v1, the Academic Reviewer's RV-v1), whose Help sits in a navigation of its own
+    // in the rail foot.
     const side = tab.locator('aside.xr-side, aside.rb-rail');
     if (entry.role === 'vendor') {
       // VE-01 Overview and VE-02 My experiments, then Help & support.
@@ -219,6 +220,15 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
         'href',
         '/content-manager/help',
       );
+    } else if (entry.role === 'academic_reviewer') {
+      // RV-01 Overview, RV-02 Review queue and RV-05 Reviewed by me (Phase 5), then Help & support.
+      await expect(side.locator('a[href]')).toHaveCount(4);
+      expect(
+        await side
+          .locator('nav[aria-label="Academic Reviewer navigation"] a[href]')
+          .evaluateAll((items) => items.map((item) => item.getAttribute('href'))),
+      ).toEqual(['/reviewer', '/reviewer/queue', '/reviewer/reviewed']);
+      await expect(side.locator('.rb-rail-foot a[href]')).toHaveAttribute('href', '/reviewer/help');
     } else if (entry.role === 'super_admin') {
       // SA-02 (Package 1A), SA-01 and SA-06 (Package 1D), SA-18 Operations (Phase 3), Content,
       // Academic structure and Platform roles (Phase 6): all seven, then Help & support.
@@ -241,14 +251,10 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
       // Package 2A: the Institute Admin's Overview, Content access, Student access and People; the
       // Student's Home and My courses. Phase 3: Requests, Usage and Progress. Phase 4A: the
       // Faculty member's Overview, My courses, Assessments and Question bank. Phase 4B: Marking
-      // and Students, and the Student's Assessments. Phase 5: the Academic Reviewer's
-      // destinations (the Vendor's and the Content Manager's are in the V3 rail, above).
-      const platform: Readonly<Partial<Record<string, readonly string[]>>> = {
-        academic_reviewer: ['/reviewer', '/reviewer/queue', '/reviewer/reviewed'],
-      };
+      // and Students, and the Student's Assessments. (Phase 5's Vendor, Content Manager and
+      // Academic Reviewer destinations are in the V3 rail, above.)
       const built =
-        platform[entry.role] ??
-        (entry.role === 'tenant_admin'
+        entry.role === 'tenant_admin'
           ? [
               '/institute',
               '/institute/content-access',
@@ -266,7 +272,7 @@ test('the sidebar offers built destinations only — since Phase 6 every designe
                 '/faculty/marking',
                 '/faculty/students',
               ]
-            : ['/student', '/student/courses', '/student/assessments', '/student/progress']);
+            : ['/student', '/student/courses', '/student/assessments', '/student/progress'];
       expect(
         await side
           .locator('nav a[href]')

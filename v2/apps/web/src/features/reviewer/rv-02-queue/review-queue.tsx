@@ -1,66 +1,74 @@
 'use client';
 
-import type { Out, reviewQueueItem } from '@xr/contracts/draft';
-import type { Technology } from '@xr/domain';
 import {
-  Field,
-  FormatBadge,
-  type FormatCode,
-  Icon,
-  type IconName,
-  Link,
-  PageContent,
-  PageHeader,
-  Section,
-  Select,
+  Button,
+  ButtonLink,
+  ListState,
+  ListSurface,
+  PageHead,
+  RvFormatBadges,
+  RvKindTag,
+  RvListPanel,
+  RvListTabs,
+  rvListTabId,
+  RvListToolbar,
+  RvLoadingRows,
+  type RvQueueRow,
+  RvQueueTable,
+  type RvToolbarChip,
   type SelectOption,
-  TextInput,
-} from '@xr/ui';
+} from '@xr/ui/v3';
 import { type ReactNode, useRef, useState } from 'react';
 
 import { dayMonthYear } from '@/copy/dates';
 import {
-  ITEM_TYPE_WORDS,
+  CLEAR_FILTERS,
+  courseChip,
+  formatsLabel,
+  LIST_FAILED,
+  type QueueTab,
   queueCountWords,
+  queueRowLabel,
   REVIEW_QUEUE,
   type ReviewItemType,
-  reviewLabel,
+  searchChip,
 } from '@/copy/reviewer-lists';
 import { useAppNavigation } from '@/nav/navigation';
-import {
-  REVIEW_QUEUE_TITLE,
-  REVIEWED_BY_ME_ADDRESS,
-  reviewQueueAddress,
-  reviewQueuePlacement,
-  reviewSubmissionAddress,
-  reviewUpdateAddress,
-} from '@/nav/reviewer';
+import { REVIEW_QUEUE_TITLE, REVIEWED_BY_ME_ADDRESS, reviewQueuePlacement } from '@/nav/reviewer';
 import { useReviewerOverview, useReviewQueue } from '@/queries/production';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { ReviewerFailed, ReviewerLoading, useRetryFocus } from './list-states';
+import { type CourseNameOf, useRvCourseNames } from '../shared/course-names';
+import { queueItemKind } from '../shared/kind';
+import { useRvToday, useRvTodayLine, waitingAge } from '../shared/waiting';
+import {
+  courseOf,
+  focusOf,
+  formatCodes,
+  fromOf,
+  queueAddress,
+  type QueueItem,
+  reviewAddressOf,
+  typeOf,
+} from './list-facts';
 
-export type QueueItem = Out<typeof reviewQueueItem>;
+export { typeOf } from './list-facts';
+export type { QueueItem } from './list-facts';
 
 export interface QueueFilters {
   readonly type: ReviewItemType | null;
-  /** A course code (“CHE ZG513”): the queue’s items name their course by code only. */
+  /** A course code (“CHE ZG513”): the queue's items name their course by code only. */
   readonly course: string | null;
   readonly search: string;
 }
 
 const NO_FILTERS: QueueFilters = { type: null, course: null, search: '' };
 
-/** The address’s Type (`?type=new | update | recheck`); anything else is All types. */
-export function typeOf(search: string): ReviewItemType | null {
-  const type = new URLSearchParams(search).get('type');
-  return type === 'new' || type === 'update' || type === 'recheck' ? type : null;
-}
-
 /**
- * The items the filters leave, as B6-02’s script filters (`qShown`, state-copy `RV-02.filters`):
- * the search in the name, the ID, the course code or the vendor (“who”), ignoring case; the type;
- * the course by its code. The queue’s own order (oldest first) is kept.
+ * The items the filters leave (the export's `queueVals`; state-copy `RV-02.filters`): the search
+ * in the name, the internal reference (no longer shown, still matched), the course code or the
+ * sender (“who”), ignoring case; the type; the course by its code. The queue's own order (oldest
+ * first) is kept.
  */
 export function filterQueue(
   items: readonly QueueItem[],
@@ -80,9 +88,9 @@ export function filterQueue(
 }
 
 /**
- * The Course filter’s options (state-copy `RV-02.filters`): “All courses”, the reviewer’s scope
- * courses by code (OD-B6-01 sample scope, from the overview read), then any other course code a
- * queued item carries; an addressed code that is in neither is kept.
+ * The Course filter's options (state-copy `RV-02.filters`): “All courses”, the reviewer's scope
+ * courses by code (the overview read), then any other course code a queued item carries; an
+ * addressed code that is in neither is kept.
  */
 export function courseOptions(
   scope: readonly string[],
@@ -103,277 +111,248 @@ export function courseOptions(
   ];
 }
 
-const TYPE_OPTIONS: SelectOption[] = [
-  { value: 'all', label: REVIEW_QUEUE.allTypes },
-  { value: 'new', label: ITEM_TYPE_WORDS.new },
-  { value: 'update', label: ITEM_TYPE_WORDS.update },
-  { value: 'recheck', label: ITEM_TYPE_WORDS.recheck },
-];
-
-/** The Type tag’s icon (B6-02 f0 `span.xw-tag`): a document, the refresh arrows, the list. */
-const TYPE_ICON: Readonly<Record<ReviewItemType, IconName>> = {
-  new: 'fileText',
-  update: 'updates',
-  recheck: 'reviewQueue',
-};
-
-const formatCode = (format: Technology) => format.toUpperCase() as FormatCode;
+const TITLE_ID = 'rv-h1-q';
+const TABS_ID = 'rv-qt';
+const PANEL_ID = 'rv-q-panel';
+const TABS: readonly QueueTab[] = ['all', 'new', 'recheck', 'update'];
 
 /**
- * RV-02 Review queue — board B6-02 f0, f2 … f5 (B6-11 f13, f14; B6-12 f0), at `/reviewer/queue`
- * (`?type=`).
+ * RV-02 Review queue — the V3 Refined B design (the owner-approved export
+ * design/v3-refined-b/roles/RV-v1, `RV.dc.html` `isQueue` and `queueVals`), at `/reviewer/queue`
+ * (`?type=`, `?course=`).
  *
- * - **Reads**: `ProductionService.getReviewQueue` unfiltered — the submissions and updates with
- *   the reviewer, oldest first (the sidebar counts the same read) — and `getReviewerOverview` for
- *   the reviewer’s scope courses (the Course filter’s options, OD-B6-01).
- * - **As B6-02 draws it**: “Review queue” with its one-line purpose; “Waiting for your decision” ·
- *   “Drafts are never listed”; the toolbar (Search the queue · Type · Course), the polite count
- *   “<n> of <n> items · oldest first” and “Clear filters” while one is applied; the table Item
- *   (name, “ID · code · who”, the sub-line) · Type (New submission / Update / Re-check tag) ·
- *   Formats · Waiting since · Review — labelled blocks below 760 px of content (f5). The filters
- *   are applied here, as the board’s script applies them (state-copy `RV-02.filters`); Type is
- *   mirrored in the address.
- * - **States**: f2 loading (skeleton rows, announced), f3 failed with “Try again” (focus returns to
- *   the section heading, B6-02 `qRetry`), f4 nothing waiting with “Open Reviewed by me”, and the
- *   board’s “Nothing in the queue matches” with “Clear filters”.
- * - **Review**: a submission or re-check opens RV-03; an update opens RV-04 (Phase 6; state-copy
- *   `RV-02.update-row`).
+ * - **Reads**: `ProductionService.getReviewQueue` unfiltered — the submissions and updates with the
+ *   reviewer, oldest first (the rail counts the same read) — and `getReviewerOverview` for the
+ *   scope courses (the Course filter) and each re-check's reason; the course names come from the
+ *   role's one catalogue lookup.
+ * - **As the export draws it**: the head (date on phones, “Review queue”, its line); the surface
+ *   with the type tabs (All, New submissions, Re-checks, Updates, each with its count; the arrow
+ *   keys, Home and End), the search and Course, the count, a chip per filter and “Clear filters”;
+ *   the table Experiment (name, course, formats) · Review type (the tag, who sent it) · What to
+ *   look at · Waiting (days, since), each row one link to its review (RV-03; an update RV-04). No
+ *   record is named by its reference. Type and Course are mirrored in the address.
+ * - **States**: no match (Clear filters), nothing waiting (Open Reviewed by me; no tools), loading
+ *   (the four-column skeleton; no counts) and couldn't load (Try again reads again and moves focus
+ *   to the title).
  */
 export function ReviewQueue() {
   useShellPage(reviewQueuePlacement());
   const navigation = useAppNavigation();
-  const [filters, setFilters] = useState<QueueFilters>(() => ({
+  const fromAddress = (search: string): QueueFilters => ({
     ...NO_FILTERS,
-    type: typeOf(navigation.search),
-  }));
+    type: typeOf(search),
+    course: courseOf(search),
+  });
+  const [filters, setFilters] = useState<QueueFilters>(() => fromAddress(navigation.search));
   const [seenSearch, setSeenSearch] = useState(navigation.search);
   if (navigation.search !== seenSearch) {
     setSeenSearch(navigation.search);
-    setFilters((current) => ({ ...current, type: typeOf(navigation.search) }));
+    setFilters((current) => ({
+      ...current,
+      type: typeOf(navigation.search),
+      course: courseOf(navigation.search),
+    }));
   }
 
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const date = useRvTodayLine();
+  const today = useRvToday();
+  const courseName = useRvCourseNames();
   const queue = useReviewQueue();
   const overview = useReviewerOverview();
-  const headingRef = useRef<HTMLHeadingElement>(null);
   const items = queue.data?.ok ? queue.data.value : null;
   const failed = queue.isError || (queue.data !== undefined && !queue.data.ok);
-  const retried = useRetryFocus(items !== null, headingRef);
-  const scope = overview.data?.ok ? overview.data.value.scopeLine : [];
+  const overviewAnswer = overview.data?.ok ? overview.data.value : null;
+  const scope = overviewAnswer?.scopeLine ?? [];
+  const reasonOf = (item: QueueItem) =>
+    overviewAnswer?.waiting.find(
+      (waiting) => waiting.ref.kind === item.ref.kind && waiting.ref.id === item.ref.id,
+    )?.reason ?? null;
 
   const change = (next: QueueFilters) => {
     setFilters(next);
-    if (next.type !== filters.type) {
-      navigation.replace(reviewQueueAddress(next.type ? { type: next.type } : {}));
+    if (next.type !== filters.type || next.course !== filters.course) {
+      navigation.replace(queueAddress({ type: next.type, course: next.course }));
     }
   };
+  const clear = () => change(NO_FILTERS);
 
   const retry = () => {
-    retried();
     void queue.refetch();
+    titleRef.current?.focus();
   };
+
+  const loaded = items !== null && !failed;
+  const empty = loaded && items.length === 0;
+  const base = items ? filterQueue(items, { ...filters, type: null }) : [];
+  const shown = base.filter((item) => filters.type === null || item.type === filters.type);
+  const filtered = filters.search.trim() !== '' || filters.type !== null || filters.course !== null;
+  const tab: QueueTab = filters.type ?? 'all';
+
+  const chips: RvToolbarChip[] = [
+    ...(filters.search.trim()
+      ? [
+          {
+            key: 'search',
+            label: searchChip(filters.search),
+            onRemove: () => change({ ...filters, search: '' }),
+          },
+        ]
+      : []),
+    ...(filters.course
+      ? [
+          {
+            key: 'course',
+            label: courseChip(filters.course),
+            onRemove: () => change({ ...filters, course: null }),
+          },
+        ]
+      : []),
+  ];
 
   let body: ReactNode;
   if (failed) {
     body = (
-      <div className="xr-section-body">
-        <ReviewerFailed title={REVIEW_QUEUE.failedTitle} onRetry={retry} />
-      </div>
+      <ListState
+        kind="failed"
+        title={REVIEW_QUEUE.failedTitle}
+        action={<Button onClick={retry}>{LIST_FAILED.retry}</Button>}
+      >
+        {LIST_FAILED.line}
+      </ListState>
     );
   } else if (items === null) {
-    body = <ReviewerLoading label={REVIEW_QUEUE.loading} />;
-  } else if (items.length === 0) {
-    body = <NothingWaiting />;
-  } else {
-    const shown = filterQueue(items, filters);
-    const filtered =
-      filters.search.trim() !== '' || filters.type !== null || filters.course !== null;
+    body = <RvLoadingRows message={REVIEW_QUEUE.loading} />;
+  } else if (empty) {
     body = (
-      <>
-        <div className="xr-toolbar [padding:0_24px_16px]">
-          <Field id="rq-q" label={REVIEW_QUEUE.search} className="xr-toolbar-search">
-            <TextInput
-              type="search"
-              placeholder={REVIEW_QUEUE.searchPlaceholder}
-              value={filters.search}
-              onChange={(event) => change({ ...filters, search: event.target.value })}
-            />
-          </Field>
-          <Field id="rq-t" label={REVIEW_QUEUE.type}>
-            <Select
-              value={filters.type ?? 'all'}
-              onChange={(event) =>
-                change({
-                  ...filters,
-                  type:
-                    event.target.value === 'all' ? null : (event.target.value as ReviewItemType),
-                })
-              }
-              options={TYPE_OPTIONS}
-            />
-          </Field>
-          <Field id="rq-c" label={REVIEW_QUEUE.course}>
-            <Select
-              value={filters.course ?? 'all'}
-              onChange={(event) =>
-                change({
-                  ...filters,
-                  course: event.target.value === 'all' ? null : event.target.value,
-                })
-              }
-              options={courseOptions(scope, items, filters.course)}
-            />
-          </Field>
-        </div>
-        <div className="xr-toolbar-status [padding:0_24px_12px]">
-          <span className="xr-meta" role="status">
-            {queueCountWords(shown.length, items.length)}
-          </span>
-          {filtered ? (
-            <button
-              type="button"
-              className="xr-btn xr-btn--text min-h-8"
-              onClick={() => change(NO_FILTERS)}
-            >
-              {REVIEW_QUEUE.clearFilters}
-            </button>
-          ) : null}
-        </div>
-        {shown.length > 0 ? (
-          <QueueTable items={shown} />
-        ) : (
-          <NoMatch onClear={() => change(NO_FILTERS)} />
-        )}
-      </>
+      <ListState
+        kind="empty"
+        title={REVIEW_QUEUE.emptyTitle}
+        action={<ButtonLink href={REVIEWED_BY_ME_ADDRESS}>{REVIEW_QUEUE.openReviewed}</ButtonLink>}
+      >
+        {REVIEW_QUEUE.emptyLine}
+      </ListState>
+    );
+  } else if (shown.length === 0) {
+    body = (
+      <ListState
+        kind="nomatch"
+        title={REVIEW_QUEUE.noMatchTitle}
+        action={
+          <Button
+            onClick={() => {
+              clear();
+              searchRef.current?.focus();
+            }}
+          >
+            {CLEAR_FILTERS}
+          </Button>
+        }
+      >
+        {REVIEW_QUEUE.noMatchLine}
+      </ListState>
+    );
+  } else {
+    body = (
+      <RvQueueTable
+        caption={REVIEW_QUEUE.caption}
+        headers={REVIEW_QUEUE.columns}
+        whenLabel={REVIEW_QUEUE.waitingLabel}
+        rows={shown.map((item) => queueRow(item, reasonOf(item), today, courseName))}
+      />
     );
   }
 
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-6"
+    <>
+      <PageHead
         title={REVIEW_QUEUE_TITLE}
-        meta={<span className="xl-meta">{REVIEW_QUEUE.lead}</span>}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        titleFocusTarget
+        date={date}
+        lead={REVIEW_QUEUE.lead}
       />
-      <Section
-        title={REVIEW_QUEUE.sectionTitle}
-        headingId="rq-qh"
-        headingFocusTarget
-        headingRef={headingRef}
-        meta={REVIEW_QUEUE.draftsNever}
-      >
-        {body}
-      </Section>
-    </PageContent>
+      <ListSurface label={REVIEW_QUEUE.surfaceLabel}>
+        {empty ? null : (
+          <>
+            <RvListTabs
+              label={REVIEW_QUEUE.tabsLabel}
+              idPrefix={TABS_ID}
+              panelId={PANEL_ID}
+              value={tab}
+              onChange={(value) => change({ ...filters, type: value === 'all' ? null : value })}
+              tabs={TABS.map((value) => ({
+                value,
+                label: REVIEW_QUEUE.tabs[value],
+                count: loaded
+                  ? value === 'all'
+                    ? base.length
+                    : base.filter((item) => item.type === value).length
+                  : undefined,
+              }))}
+            />
+            <RvListToolbar
+              label={REVIEW_QUEUE.toolsLabel}
+              searchRef={searchRef}
+              search={{
+                id: 'rv-q-search',
+                label: REVIEW_QUEUE.search,
+                placeholder: REVIEW_QUEUE.searchPlaceholder,
+                value: filters.search,
+                onChange: (search) => change({ ...filters, search }),
+              }}
+              course={{
+                id: 'rv-q-course',
+                label: REVIEW_QUEUE.course,
+                value: filters.course ?? 'all',
+                options: courseOptions(scope, items ?? [], filters.course),
+                onChange: (value) => change({ ...filters, course: value === 'all' ? null : value }),
+              }}
+              count={loaded ? queueCountWords(shown.length, items.length, filtered) : undefined}
+              chips={loaded ? chips : []}
+              clear={loaded && filtered ? { label: CLEAR_FILTERS, onClear: clear } : undefined}
+            />
+          </>
+        )}
+        <RvListPanel id={PANEL_ID} labelledBy={empty ? null : rvListTabId(TABS_ID, tab)}>
+          {body}
+        </RvListPanel>
+      </ListSurface>
+    </>
   );
 }
 
-/** The table (f0) — labelled blocks below 760 px of content (f5). */
-function QueueTable({ items }: { readonly items: readonly QueueItem[] }) {
-  const { columns } = REVIEW_QUEUE;
-  return (
-    <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.item}</th>
-            <th scope="col">{columns.type}</th>
-            <th scope="col">{columns.formats}</th>
-            <th scope="col">{columns.waitingSince}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((item) => (
-            <tr key={`${item.ref.kind}:${item.ref.id}`}>
-              <td className="is-primary">
-                <strong>{item.name}</strong>
-                <span className="xr-meta block">
-                  <span className="xr-id">{item.ref.id}</span>
-                  {item.courseCode ? (
-                    <>
-                      {' · '}
-                      <span className="xw-nowrap">{item.courseCode}</span>
-                    </>
-                  ) : null}
-                  {` · ${item.who}`}
-                </span>
-                <span className="xr-meta block">{item.subLine}</span>
-              </td>
-              <td data-label={columns.type}>
-                <span className={item.type === 'recheck' ? 'xw-tag xw-tag--warn' : 'xw-tag'}>
-                  <Icon name={TYPE_ICON[item.type]} />
-                  {ITEM_TYPE_WORDS[item.type]}
-                </span>
-              </td>
-              <td data-label={columns.formats}>
-                <span className="xv-chips">
-                  {item.formats.map((format) => (
-                    <FormatBadge key={format} format={formatCode(format)} compact />
-                  ))}
-                </span>
-              </td>
-              <td data-label={columns.waitingSince}>
-                <span className="xw-nowrap">{dayMonthYear(item.waitingSince)}</span>
-              </td>
-              <td>
-                <Link
-                  className="xr-btn xr-btn--primary xr-btn--sm"
-                  href={
-                    item.ref.kind === 'UPD'
-                      ? reviewUpdateAddress(item.ref.id)
-                      : reviewSubmissionAddress(item.ref.id)
-                  }
-                  aria-label={reviewLabel(item.name)}
-                >
-                  {REVIEW_QUEUE.review}
-                </Link>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** B6-02 `qNoMatch`: the empty pattern with the search icon and “Clear filters”. */
-function NoMatch({ onClear }: { readonly onClear: () => void }) {
-  return (
-    <div className="xr-section-body">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="search" />
-        </span>
-        <h3 className="xr-h3 m-0">{REVIEW_QUEUE.noMatchTitle}</h3>
-        <p className="xr-body m-0 text-ink-2">{REVIEW_QUEUE.noMatchLine}</p>
-        <div className="flex flex-wrap gap-3">
-          <button type="button" className="xr-btn xr-btn--secondary" onClick={onClear}>
-            {REVIEW_QUEUE.clearFilters}
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/** f4 “Nothing waiting” (B6-11 f14): the done icon in the ok tint and “Open Reviewed by me”. */
-function NothingWaiting() {
-  return (
-    <div className="xr-section-body">
-      <div className="xr-empty">
-        <span className="xr-empty-icon xr-x-empty-icon--ok">
-          <Icon name="done" />
-        </span>
-        <h3 className="xr-h3 m-0">{REVIEW_QUEUE.emptyTitle}</h3>
-        <p className="xr-body m-0 text-ink-2">{REVIEW_QUEUE.emptyLine}</p>
-        <div className="flex flex-wrap gap-3">
-          <Link className="xr-btn xr-btn--secondary" href={REVIEWED_BY_ME_ADDRESS}>
-            {REVIEW_QUEUE.openReviewed}
-          </Link>
-        </div>
-      </div>
-    </div>
-  );
+/** One queue row (the export's `queueVals` `rows`). */
+function queueRow(
+  item: QueueItem,
+  reason: string | null,
+  today: string | null,
+  courseName: CourseNameOf,
+): RvQueueRow {
+  const kind = queueItemKind(item);
+  const age = today ? waitingAge(item.waitingSince, today) : null;
+  const look = focusOf(item, reason);
+  const codes = formatCodes(item.formats);
+  return {
+    key: `${item.ref.kind}:${item.ref.id}`,
+    href: reviewAddressOf(item),
+    name: item.name,
+    accessibleName: queueRowLabel(
+      item.name,
+      kind.label,
+      kind.detail,
+      dayMonthYear(item.waitingSince),
+    ),
+    courseCode: item.courseCode,
+    courseName: courseName(item.courseCode),
+    formats: <RvFormatBadges formats={codes} label={formatsLabel(codes)} />,
+    kind: <RvKindTag kind={kind.kind} label={kind.label} detail={kind.detail} />,
+    from: fromOf(item, kind),
+    flag: look.flag ?? undefined,
+    focus: look.focus ?? undefined,
+    age: age?.age ?? '',
+    since: age?.since ?? '',
+  };
 }

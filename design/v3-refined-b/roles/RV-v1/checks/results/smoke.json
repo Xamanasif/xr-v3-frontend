@@ -1,0 +1,162 @@
+[
+ {
+  "check": "[1440] overview: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] review page opens on the oldest item",
+  "pass": true,
+  "detail": "Flash Distillation"
+ },
+ {
+  "check": "[1440] breadcrumb names the experiment, not a record ID",
+  "pass": true,
+  "detail": "Review queue\nFlash Distillation"
+ },
+ {
+  "check": "[1440] review page: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] return without a reason is refused",
+  "pass": true,
+  "detail": "Check your decision\n\nAdd a reason so the vendor knows what to change"
+ },
+ {
+  "check": "[1440] the return is recorded",
+  "pass": true,
+  "detail": "Returned to vendor\n\nDecided by you on 27 Aug 2026, 11:20\n\nYour reason\n\u201cPlease st"
+ },
+ {
+  "check": "[1440] recorded decision: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] queue drops to 3 items",
+  "pass": true,
+  "detail": "3 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] queue: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] queue still shows course codes, vendors and formats",
+  "pass": true,
+  "detail": "narrow rows hide the sender line by design"
+ },
+ {
+  "check": "[1440] search still finds an item by its hidden record ID",
+  "pass": true,
+  "detail": "1 of 3 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] Reviewed by me lists 9 decisions after the return",
+  "pass": true,
+  "detail": "9 decisions \u00b7 newest first"
+ },
+ {
+  "check": "[1440] Reviewed by me: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] a decided item opens read-only",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] decided item: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] overview: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] review page opens on the oldest item",
+  "pass": true,
+  "detail": "Flash Distillation"
+ },
+ {
+  "check": "[375] breadcrumb names the experiment, not a record ID",
+  "pass": true,
+  "detail": "Review queue\nFlash Distillation"
+ },
+ {
+  "check": "[375] review page: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] return without a reason is refused",
+  "pass": true,
+  "detail": "Check your decision\n\nAdd a reason so the vendor knows what to change"
+ },
+ {
+  "check": "[375] the return is recorded",
+  "pass": true,
+  "detail": "Returned to vendor\n\nDecided by you on 27 Aug 2026, 11:20\n\nYour reason\n\u201cPlease st"
+ },
+ {
+  "check": "[375] recorded decision: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] queue drops to 3 items",
+  "pass": true,
+  "detail": "3 items \u00b7 oldest first"
+ },
+ {
+  "check": "[375] queue: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] queue still shows course codes, vendors and formats",
+  "pass": true,
+  "detail": "narrow rows hide the sender line by design"
+ },
+ {
+  "check": "[375] search still finds an item by its hidden record ID",
+  "pass": true,
+  "detail": "1 of 3 items \u00b7 oldest first"
+ },
+ {
+  "check": "[375] Reviewed by me lists 9 decisions after the return",
+  "pass": true,
+  "detail": "9 decisions \u00b7 newest first"
+ },
+ {
+  "check": "[375] Reviewed by me: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] a decided item opens read-only",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] decided item: no internal ID on screen",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] console clean",
+  "pass": true,
+  "detail": "[]"
+ }
+]

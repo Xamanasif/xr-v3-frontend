@@ -1,0 +1,42 @@
+[
+ {
+  "check": "[320] RV.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[320] RV02.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[320] RV05.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[320] RV03.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[320] RV04.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[320] RV06.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[320] RV-help.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[320] RV-scope.dc.html reflows without sideways scroll (WCAG 1.4.10)",
+  "pass": true,
+  "detail": "[]"
+ }
+]

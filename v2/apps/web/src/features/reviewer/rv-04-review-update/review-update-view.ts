@@ -1,23 +1,30 @@
 import type { ActorRef, CorrectionUpdate } from '@xr/domain';
-import type { StatusTone, TimelineEvent } from '@xr/ui';
+import type { RvComparisonRow, StandItem, TimelineEvent } from '@xr/ui/v3';
 
+import { comparisonFieldLabel } from '@/copy/corrections';
 import { dateTime, dayMonthYear } from '@/copy/dates';
-import { updateWords, wordsOf } from '@/copy/flow-state-words';
 import {
-  approvedMetaWords,
+  approvedBy,
   awaitingNextWords,
+  decidedByOn,
   quotedWords,
-  returnedMetaWords,
-  UPDATE_DECISION,
+  releasedNextWords,
+  releasedOnWords,
+  unchangedLive,
   UPDATE_HISTORY,
+  UPDATE_OUTCOME,
 } from '@/copy/review-update';
+import { decidedByYouOn, RV_STAND } from '@/copy/rv-shared';
 import type { UpdateForReviewView } from '@/queries/correction-view';
 
+import { markChanges } from './compare-words';
+
 /**
- * RV-04’s facts as B6-04 draws them, derived from `getUpdateForReview` alone: whether the
- * decision is open, the header chip, the decided panel and the history the reviewer reads. No
- * rule is decided here that the record or the board does not state: the service says whether the
- * update is decided; the history lists the steps the record shows to the Academic Reviewer.
+ * RV-04's facts as the export draws them (RV-v1 `RV.dc.html` `itemVals` for an update), derived
+ * from `getUpdateForReview` alone: whether the decision is open, what changes with its marks, the
+ * decided outcome and the history the reviewer reads. No rule is decided here that the record does
+ * not state: the service says whether the update is decided; the history lists the steps the
+ * record shows to the Academic Reviewer.
  */
 
 /** Who did something, by name (“Prof. A. Menon”, “Kavya Nair”). */
@@ -32,69 +39,122 @@ export function isOpen(view: UpdateForReviewView): boolean {
   return !view.decided && view.update.state === 'in-academic-review';
 }
 
-/** The header chip (B6-04 script `rvChipWords`, `rvChip_*`; state-copy `RV-04.chip`). */
-export function chipOf(update: CorrectionUpdate): {
-  readonly tone: StatusTone;
-  readonly words: string;
-} {
-  const words = wordsOf(updateWords(update.state, 'academic_reviewer'));
-  switch (update.state) {
-    case 'in-academic-review':
-      return { tone: 'wait', words: words ?? '' };
-    case 'returned':
-      return { tone: 'err', words: words ?? '' };
-    case 'awaiting-release-decision':
-    case 'on-hold':
-    case 'released':
-      return { tone: 'ok', words: words ?? '' };
-    default:
-      return { tone: 'off', words: words ?? UPDATE_DECISION.withdrawnChip };
-  }
+/**
+ * “What changes” (`I.cmp`): each changed field, the live value with what is removed struck and the
+ * proposed value with what is added highlighted; the version marked whole on both sides.
+ */
+export function changeRowsOf(view: UpdateForReviewView): RvComparisonRow[] {
+  return view.comparison.map((row) => {
+    const marks = markChanges(row.liveNow, row.proposed, { wholeValue: row.field === 'version' });
+    return {
+      key: `${row.field}-${row.format ?? ''}`,
+      field: comparisonFieldLabel(row),
+      before: marks.live,
+      after: marks.proposed,
+    };
+  });
 }
 
-/** The decided panel (B6-04 `rDecTitle`, `rDecMeta`, `rDecNext`; state-copy `RV-04.decided`). */
-export interface DecidedPanel {
-  readonly tone: StatusTone;
-  readonly title: string;
+/** The reviewer's decision the update's state rests on: the last one recorded. */
+function lastDecision(update: CorrectionUpdate, kind: 'approve' | 'return-to-content-manager') {
+  return update.reviewDecisions.findLast((entry) => entry.decision === kind) ?? null;
+}
+
+/** The outcome block (`doneBlock` for an update; state-copy `RV-04.decided`). */
+export interface UpdateOutcome {
+  /** “Decided by you on 27 Aug 2026, 11:20”; none for a withdrawal (not shown to the reviewer). */
   readonly meta: string | null;
-  readonly next: string | null;
+  /** A return's reason, quoted under “Your reason”. */
+  readonly reason: string | null;
+  readonly stand: readonly StandItem[];
+  readonly next: string;
 }
 
-export function decidedPanelOf(update: CorrectionUpdate, liveLabel: string): DecidedPanel {
-  switch (update.state) {
-    case 'awaiting-release-decision': {
-      const approval = update.reviewDecisions.findLast((entry) => entry.decision === 'approve');
-      return {
-        tone: 'ok',
-        title: UPDATE_DECISION.awaitingTitle,
-        meta: approval
-          ? approvedMetaWords(dayMonthYear(approval.at), actorName(approval.by))
-          : null,
-        next: awaitingNextWords(liveLabel),
-      };
-    }
-    case 'returned': {
-      const back = update.reviewDecisions.findLast(
-        (entry) => entry.decision === 'return-to-content-manager',
-      );
-      return {
-        tone: 'err',
-        title: UPDATE_DECISION.returnedTitle,
-        meta: back ? returnedMetaWords(dayMonthYear(back.at), back.reason ?? '') : null,
-        next: UPDATE_DECISION.returnedNext,
-      };
-    }
-    case 'withdrawn':
-      // The withdrawal’s reason is the Content Manager’s (UPD-17): only that it was withdrawn.
-      return { tone: 'off', title: UPDATE_DECISION.withdrawnTitle, meta: null, next: null };
-    default:
-      return { tone: 'off', title: UPDATE_DECISION.nothingTitle, meta: null, next: null };
+/**
+ * Where a decided update stands, as the reviewer may read it. `personId` is the reader: their own
+ * decision reads “by you”, another reviewer's by name (state-copy `RV-04.decided-by`). A hold reads
+ * as with the Super Admin, and a withdrawal names no reason or date (`updateForAudience`).
+ */
+export function outcomeOf(view: UpdateForReviewView, personId: string): UpdateOutcome {
+  const { update, live } = view;
+  const unchanged = { term: UPDATE_OUTCOME.stand.liveVersion, value: unchangedLive(live.label) };
+  const byWhom = (by: ActorRef) => (by.kind === 'person' && by.personId === personId ? null : by);
+  const decidedMeta = (entry: { readonly at: string; readonly by: ActorRef }) => {
+    const other = byWhom(entry.by);
+    const when = dateTime(entry.at);
+    return other ? decidedByOn(actorName(other), when) : decidedByYouOn(when);
+  };
+  if (update.state === 'withdrawn') {
+    return {
+      meta: null,
+      reason: null,
+      stand: [
+        { term: UPDATE_OUTCOME.stand.update, value: UPDATE_OUTCOME.stand.withdrawn },
+        unchanged,
+      ],
+      next: UPDATE_OUTCOME.withdrawnNext,
+    };
   }
+  if (update.state === 'returned') {
+    const back = lastDecision(update, 'return-to-content-manager');
+    return {
+      meta: back ? decidedMeta(back) : null,
+      reason: back?.reason ?? null,
+      stand: [{ term: RV_STAND.academicReview, value: UPDATE_OUTCOME.stand.returned }, unchanged],
+      next: UPDATE_OUTCOME.returnedNext,
+    };
+  }
+  const approval = lastDecision(update, 'approve');
+  const other = approval ? byWhom(approval.by) : null;
+  const approved = {
+    term: RV_STAND.academicReview,
+    value: other ? approvedBy(actorName(other)) : RV_STAND.approvedByYou,
+  };
+  if (update.state === 'released') {
+    const version = update.versionLabel ?? live.label;
+    return {
+      meta: approval ? decidedMeta(approval) : null,
+      reason: null,
+      stand: [
+        approved,
+        ...(update.release
+          ? [
+              {
+                term: UPDATE_OUTCOME.stand.release,
+                value: releasedOnWords(dayMonthYear(update.release.at)),
+              },
+            ]
+          : []),
+        { term: UPDATE_OUTCOME.stand.liveVersion, value: version },
+      ],
+      next: releasedNextWords(version),
+    };
+  }
+  // Approved: awaiting the release decision, or on hold (a hold is never shown to the reviewer).
+  return {
+    meta: approval ? decidedMeta(approval) : null,
+    reason: null,
+    stand: [
+      approved,
+      {
+        term: UPDATE_OUTCOME.stand.releaseDecision,
+        value: UPDATE_OUTCOME.stand.withTheSuperAdmin,
+      },
+      unchanged,
+      { term: RV_STAND.access, value: UPDATE_OUTCOME.stand.unchanged },
+    ],
+    next: awaitingNextWords(live.label),
+  };
+}
+
+/** When the reviewer's decision was recorded (the Decided fact): the last decision's instant. */
+export function decidedAt(update: CorrectionUpdate): string | null {
+  return update.reviewDecisions.at(-1)?.at ?? null;
 }
 
 /**
  * The update history as the reviewer reads it, newest first (state-copy `RV-04.history`): the
- * steps whose audience includes the Academic Reviewer, with the board’s words. `reader` is the
+ * steps whose audience includes the Academic Reviewer, with the boards' words. `reader` is the
  * signed-in reviewer’s name: the record names no recipient for “Sent for academic review”.
  */
 export function historyOf(update: CorrectionUpdate, reader: string): TimelineEvent[] {
@@ -103,39 +163,35 @@ export function historyOf(update: CorrectionUpdate, reader: string): TimelineEve
   for (const entry of update.history) {
     if (!entry.visibleTo.includes('academic_reviewer')) continue;
     const who = actorName(entry.actor);
-    const step = { id: entry.id, when: dateTime(entry.at) };
+    const when = dateTime(entry.at);
     switch (entry.event) {
       case 'started':
-        events.push({
-          ...step,
-          what: UPDATE_HISTORY.started,
-          note: UPDATE_HISTORY.startedNote(base),
-        });
+        events.push({ when, what: UPDATE_HISTORY.started, note: UPDATE_HISTORY.startedNote(base) });
         break;
       case 'sent-for-academic-review':
         events.push({
-          ...step,
+          when,
           what: UPDATE_HISTORY.sent,
           note: UPDATE_HISTORY.sentNote(reader, base),
         });
         break;
       case 'approved-by-reviewer':
         events.push({
-          ...step,
+          when,
           what: UPDATE_HISTORY.approved(who),
           note: UPDATE_HISTORY.approvedNote(base),
         });
         break;
       case 'returned-by-reviewer':
         events.push({
-          ...step,
+          when,
           what: UPDATE_HISTORY.returned(who),
           note: entry.note && entry.note.trim() !== '' ? quotedWords(entry.note) : null,
         });
         break;
       case 'released':
         events.push({
-          ...step,
+          when,
           what: UPDATE_HISTORY.released(who),
           note: update.versionLabel ? UPDATE_HISTORY.releasedNote(update.versionLabel) : null,
         });

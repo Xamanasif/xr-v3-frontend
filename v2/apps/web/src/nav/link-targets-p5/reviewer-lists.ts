@@ -3,55 +3,62 @@ import { pageRows } from '../link-targets-p3/rows';
 
 const OVERVIEW = '/reviewer';
 const QUEUE = '/reviewer/queue';
+const QUEUE_NEW = '/reviewer/queue?type=new';
+const QUEUE_RECHECK = '/reviewer/queue?type=recheck';
+const QUEUE_UPDATE = '/reviewer/queue?type=update';
+/** The queue on a scope course (the sample’s CHE ZG513 stands for any). */
+const QUEUE_COURSE = '/reviewer/queue?course=CHE+ZG513';
 const REVIEWED = '/reviewer/reviewed';
 /** RV-03 (and RV-06 once decided): the sample’s SUB-0086 stands for any submission. */
 const SUBMISSION = '/reviewer/submissions/SUB-0086';
 /** RV-06, the decided page, from Reviewed by me: the sample’s SUB-0081. */
 const DECIDED = '/reviewer/submissions/SUB-0081';
-/** RV-04 Review an update (`/reviewer/updates/[updateId]`, Phase 6): the sample’s UPD ids. */
+/** RV-04 Review an update (`/reviewer/updates/[updateId]`): the sample’s UPD ids. */
 const UPDATE = '/reviewer/updates/UPD-0005';
 const DECIDED_UPDATE = '/reviewer/updates/UPD-0004';
 
 /**
- * Phase 5 link targets: RV-01 Overview, RV-02 Review queue and RV-05 Reviewed by me (B6-01,
- * B6-02). RV-01’s one primary is “Review the oldest — <name>” (the queue’s first, whatever its
- * kind, state-copy `RV-01.oldest`); RV-02 draws a primary “Review” on every row, one per drawn row
- * kind; RV-05 has none. Every update action opens RV-04 (built in Phase 6).
+ * Link targets of RV-01 Overview, RV-02 Review queue and RV-05 Reviewed by me in the owner-approved
+ * V3 Refined B export (design/v3-refined-b/roles/RV-v1 `LINK-MAP.json`, “RV-01 Overview”, “RV-02
+ * Review queue”, “RV-05 Reviewed by me”). RV-01’s one primary is next in line’s gold “Start
+ * review” (the queue’s first, whatever its kind: state-copy `RV-01.oldest`); RV-02 and RV-05 draw
+ * none (each row is one link). Every update opens RV-04. No action is named by a record’s
+ * reference (state-copy `RV-lists.no-reference`).
  */
 export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
-  // RV-01 Overview (B6-01 f0 … f2).
+  // RV-01 Overview.
   ...pageRows('RV-01', OVERVIEW, [
     [
-      'Actions',
-      'Review the oldest — <name>',
-      'primary',
-      SUBMISSION,
-      'built',
-      'B6-01 f0, f2 `div.xw-actions > a.xr-btn--primary` (the queue’s first: RV-03, or RV-04 for an update; state-copy `RV-01.oldest`)',
-    ],
-    [
-      'Actions',
+      'Head',
       'Open the review queue',
       'secondary',
       QUEUE,
       'built',
-      'B6-01 f0, f2 `div.xw-actions > a.xr-btn--secondary`',
+      'RV-v1 LINK-MAP RV-01 “Open the review queue” (`div.rk-head-act > a.rb-btn`)',
     ],
     [
-      'Waiting row (new submission, re-check)',
+      'Next in line · waiting longest',
+      'Start review',
+      'primary',
+      SUBMISSION,
+      'built',
+      'RV-v1 LINK-MAP RV-01 “Next in line: Start review (the one gold primary)” — named “Start review: <name>”; RV-03, or RV-04 for an update (state-copy `RV-01.oldest`)',
+    ],
+    [
+      'Then, oldest first (new submission, resubmission, re-check)',
       'Review',
       'secondary',
       SUBMISSION,
       'built',
-      'B6-01 f0, f2 `li.xr-row > a.xr-btn--secondary.xr-btn--sm` (named “Review <name>”)',
+      'RV-v1 LINK-MAP RV-01 “Row: Review / Review update” (`div.rv-wl-act > a.rb-btn`, named “Review <name>”)',
     ],
     [
-      'Waiting row (update)',
+      'Then, oldest first (update)',
       'Review update',
       'secondary',
       UPDATE,
       'built',
-      'B6-01 f0, f2 `li.xr-row > a.xr-btn--secondary.xr-btn--sm` (named “Review update <name>”; `D.links.rupd`, state-copy `RV-01.update-row`)',
+      'RV-v1 LINK-MAP RV-01 “Row: Review / Review update” (named “Review the update to <name>”)',
     ],
     [
       'Nothing waiting',
@@ -59,43 +66,99 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       REVIEWED,
       'built',
-      'B6-01 f1 `div.xr-empty a.xr-btn--secondary`',
+      'RV-v1 LINK-MAP RV-01 (nothing waiting) “Open Reviewed by me” (`div.rv-calm-act > a.rb-btn`)',
+    ],
+    [
+      'In your queue',
+      'New submissions',
+      'secondary',
+      QUEUE_NEW,
+      'built',
+      'RV-v1 LINK-MAP RV-01 “In your queue: New submissions / Re-checks / Updates” (`a.rv-type`, named “New submissions: <n> items. Open them in the review queue”)',
+    ],
+    [
+      'In your queue',
+      'Re-checks',
+      'secondary',
+      QUEUE_RECHECK,
+      'built',
+      'RV-v1 LINK-MAP RV-01 “In your queue: … Re-checks …”',
+    ],
+    [
+      'In your queue',
+      'Updates',
+      'secondary',
+      QUEUE_UPDATE,
+      'built',
+      'RV-v1 LINK-MAP RV-01 “In your queue: … Updates”',
+    ],
+    [
+      'Your review scope',
+      '<course code> <course name>',
+      'secondary',
+      QUEUE_COURSE,
+      'built',
+      'RV-v1 LINK-MAP RV-01 “Your review scope: a course row” (`a.rv-course`, named “<code> <name>. Open the review queue for this course”; state-copy `RV-02.filters`)',
+    ],
+    [
+      'Recently decided',
+      'All decisions',
+      'secondary',
+      REVIEWED,
+      'built',
+      'RV-v1 LINK-MAP RV-01 “Recently decided: All decisions” (`a.rb-link`)',
+    ],
+    [
+      'Recently decided',
+      '<name>',
+      'secondary',
+      DECIDED,
+      'built',
+      'RV-v1 LINK-MAP RV-01 “Recently decided: a decision row” (`a.rv-recent-row`; RV-06, or RV-04 decided for an update)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `RV-01.failed`'],
   ]),
-  // RV-02 Review queue (B6-02 f0, f2 … f5; B6-11 f13, f14; B6-12 f0).
+  // RV-02 Review queue.
   ...pageRows('RV-02', QUEUE, [
     [
-      'Toolbar',
-      'Search the queue / Type / Course',
+      'Type tabs',
+      'All · New submissions · Re-checks · Updates',
       'secondary',
       null,
       'in-page',
-      'B6-02 f0, f5 `div.xr-toolbar` (the address mirrors `?type=`; state-copy `RV-02.filters`)',
+      'RV-v1 LINK-MAP RV-02 “Type tabs …” (the address mirrors `?type=`; state-copy `RV-02.filters`)',
+    ],
+    [
+      'Toolbar',
+      'Search the queue / Course',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 LINK-MAP RV-02 “Search and Course filter” (the address mirrors `?course=`)',
     ],
     [
       'Toolbar status',
-      'Clear filters',
+      'Remove filter <filter> · Clear filters',
       'secondary',
       null,
       'in-page',
-      'B6-02 script `qFiltered` (`div.xr-toolbar-status > button.xr-btn--text`)',
+      'RV-v1 LINK-MAP RV-02 “Filter chip ×”, “Clear filters (toolbar)”',
     ],
     [
-      'Queue row (new submission, re-check)',
-      'Review',
-      'primary',
+      'Queue row (new submission, resubmission, re-check)',
+      '<name>',
+      'secondary',
       SUBMISSION,
       'built',
-      'B6-02 f0, f5; B6-12 f0 `a.xr-btn--primary.xr-btn--sm` (named “Review <name>”)',
+      'RV-v1 LINK-MAP RV-02 “Row link (item name)” (`a.rk-rowlink`, named “<name>, <type>, waiting since <date>. Review it”)',
     ],
     [
       'Queue row (update)',
-      'Review',
-      'primary',
+      '<name>',
+      'secondary',
       UPDATE,
       'built',
-      'B6-02 f0, f5 `a.xr-btn--primary.xr-btn--sm` on the UPD-0005 row (named “Review <name>”; state-copy `RV-02.update-row`)',
+      'RV-v1 LINK-MAP RV-02 “Row link (item name)” — RV-04',
     ],
     [
       'No match',
@@ -103,7 +166,7 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-02 script `qNoMatch` (`div.xr-empty button.xr-btn--secondary`)',
+      'RV-v1 LINK-MAP RV-02 (no match) “Clear filters” (focus to the search)',
     ],
     [
       'Failed state',
@@ -111,7 +174,7 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-02 f3; B6-11 f13 `button.xr-btn--primary` (focus returns to the section heading)',
+      'RV-v1 LINK-MAP RV-02 (failed to load) “Try again” (focus to the title)',
     ],
     [
       'Nothing waiting',
@@ -119,35 +182,66 @@ export const P5_REVIEWER_LISTS_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       REVIEWED,
       'built',
-      'B6-02 f4; B6-11 f14 `div.xr-empty a.xr-btn--secondary`',
+      'RV-v1 LINK-MAP RV-02 (nothing waiting) “Open Reviewed by me”',
     ],
   ]),
-  // RV-05 Reviewed by me (B6-02 f1).
+  // RV-05 Reviewed by me.
   ...pageRows('RV-05', REVIEWED, [
     [
-      'Toolbar',
-      'Show',
+      'Show tabs',
+      'All · New submissions · Updates',
       'secondary',
       null,
       'in-page',
-      'B6-02 f1 `div.xr-toolbar select#Qr-f` (Everything I decided · New submissions · Updates)',
+      'RV-v1 LINK-MAP RV-05 “Tabs: All, New submissions, Updates …”',
+    ],
+    [
+      'Toolbar',
+      'Search your decisions · Remove filter <filter> · Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 LINK-MAP RV-05 “Search, chip ×”',
     ],
     [
       'Decision row (submission)',
-      'Open',
+      '<name>',
       'secondary',
       DECIDED,
       'built',
-      'B6-02 f1 `a.xr-btn--secondary.xr-btn--sm` (named “Open <name>”; RV-06, the decided page)',
+      'RV-v1 LINK-MAP RV-05 “Row link” (`a.rk-rowlink`, named “<name>, <decision> on <date>. Open it”; RV-06, read-only)',
     ],
     [
       'Decision row (update)',
-      'Open',
+      '<name>',
       'secondary',
       DECIDED_UPDATE,
       'built',
-      'B6-02 f1 `a.xr-btn--secondary.xr-btn--sm` on the UPD rows (named “Open <name>”; RV-04 decided, read-only; state-copy `RV-05.update-row`)',
+      'RV-v1 LINK-MAP RV-05 “Row link” — RV-04 decided, read-only',
     ],
-    ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `RV-05.failed`'],
+    [
+      'No match',
+      'Clear filters',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 LINK-MAP RV-05 (no match) “Clear filters”',
+    ],
+    [
+      'Nothing decided',
+      'Open the review queue',
+      'secondary',
+      QUEUE,
+      'built',
+      'RV-v1 LINK-MAP RV-05 (nothing decided) “Open the review queue”',
+    ],
+    [
+      'Failed state',
+      'Try again',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 LINK-MAP RV-05 (failed to load) “Try again” (focus to the title)',
+    ],
   ]),
 ];

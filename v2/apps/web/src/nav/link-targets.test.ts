@@ -252,12 +252,21 @@ describe('the link-target ledger', () => {
     expect(resolveAddress('/experiments')).toEqual({ kind: 'public-screen', screen: 'PU-04' });
   });
 
-  it('the external links are the experiment’s preview and, for the Academic Reviewer, a submission’s WEB link (T-30)', () => {
+  it('the external links are the experiment’s preview and, for the Academic Reviewer, a submission’s preview link and WEB link (T-30)', () => {
+    // RV-v1: the preview-link card (`a.rv-filecard--link`, named by the vendor's preview label, only
+    // when the submission holds a preview link) and the WEB card's "Open web link", on the review
+    // page and its decided state alike.
     expect(
       LINK_TARGET_LEDGER.filter((entry) => entry.outcome === 'external').map(
         (entry) => `${entry.screen} ${entry.action}`,
       ),
-    ).toEqual(['PU-06 Open preview', 'RV-03 Open web link', 'RV-06 Open web link']);
+    ).toEqual([
+      'PU-06 Open preview',
+      'RV-03 <preview label>',
+      'RV-03 Open web link',
+      'RV-06 <preview label>',
+      'RV-06 Open web link',
+    ]);
   });
 
   it('Sign out reaches the built sign-in card’s “Signed out” notice (XS-03, Package 1A)', () => {
@@ -498,9 +507,9 @@ describe('the link-target ledger', () => {
       // Phase 5: one primary per drawn state — VE-01's top attention item or Create (first visit),
       // VE-02's Create / the returned row's Revise, the editor's Continue per step and its DL-1
       // submit (VE-06 create, VE-08 resubmit) and result; the record's Edit draft / Revise; RV-01's
-      // oldest, RV-02's first row (a submission or an update), RV-03's decision; CM-01's first desk
-      // row (V3 CM-v1: its gold "Open decision"), CM-02's decision, CM-09's Save codes, CM-03's
-      // decision and CM-05's correction entry.
+      // next in line's gold "Start review" (V3 RV-v1; RV-02 and RV-05 rows are single links, no
+      // primary), RV-03's decision; CM-01's first desk row (V3 CM-v1: its gold "Open decision"),
+      // CM-02's decision, CM-09's Save codes, CM-03's decision and CM-05's correction entry.
       'VE-01: Revise “<name>”',
       'VE-01: Create experiment',
       'VE-02: Create experiment',
@@ -517,9 +526,7 @@ describe('the link-target ledger', () => {
       'VE-08: Open the experiment record',
       'VE-07: Edit draft',
       'VE-07: Revise and resubmit · Continue revising',
-      'RV-01: Review the oldest — <name>',
-      'RV-02: Review',
-      'RV-02: Review',
+      'RV-01: Start review',
       'RV-03: Approve · Return to vendor',
       'CM-01: Open decision',
       'CM-02: Open decision',

@@ -2048,6 +2048,222 @@
       "differences": [],
       "supersedes": [],
       "migration": "Content Manager integration, branch v3/refined-b-ui, 20 Oct 2026"
+    },
+    {
+      "id": "RV-shell",
+      "state": "The Academic Reviewer workspace in the V3 shell: rail (Overview, Review queue with its count, Reviewed by me), Menu drawer below 1024 px, top line date, XS account menu, Help & support",
+      "route": "/reviewer/*",
+      "sources": ["apps/web/src/features/reviewer/shared"],
+      "reference": {
+        "archive": "XR-V3-RV-Academic-Reviewer-FINAL-source.zip",
+        "archiveSha256": "6db794fd619534e4f2bc80096bae65a7a3143e5662ef19a914bb95856dca37dc",
+        "revision": "RV-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF)",
+        "renders": "XR-V3-RV-Academic-Reviewer-FINAL-screenshots.zip (SHA-256 d596a85db7073cbfeb47cc375641c51c5f2f5cc56bf06fc48d874ad5cb2b3885), kept by the owner",
+        "file": "design/v3-refined-b/roles/RV-v1/project/RV.dc.html",
+        "compared": [
+          "boards/RV-drawer-375.png",
+          "boards/RV-account.png",
+          "boards/RV-help.png",
+          "boards/RV-report-375.png",
+          "boards/RV-report-sent.png",
+          "boards/RV-signedout.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (27 Aug 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [
+        "The account menu, Help & support, Report a problem, signed out and the refusal pages are the delivered XS components (the export borrowed `rv-msg*`, `rv-menu*`, `rv-solo*` drafts).",
+        "Out-of-scope and not-sent items keep the product's not-found behaviour (existence not revealed); the export's “isn't in your review scope” / “isn't available” cards (RV-scope*, RV-unavailable) are not adopted."
+      ],
+      "supersedes": [
+        "05-academic-reviewer-help-built-top-bar",
+        "05-academic-reviewer-help-built-sidebar-head",
+        "05-academic-reviewer-help-built-sidebar-workspace",
+        "05-academic-reviewer-help-built-sidebar-help",
+        "05-academic-reviewer-help-built-sidebar-phase-5"
+      ],
+      "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "RV-01",
+      "state": "Overview: the review desk (oldest first with its waiting time), next in line, the queue by type, scope with course names, recent decisions; calm",
+      "route": "/reviewer",
+      "sources": ["apps/web/src/features/reviewer/rv-01-overview"],
+      "reference": {
+        "archive": "XR-V3-RV-Academic-Reviewer-FINAL-source.zip",
+        "archiveSha256": "6db794fd619534e4f2bc80096bae65a7a3143e5662ef19a914bb95856dca37dc",
+        "revision": "RV-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF)",
+        "renders": "XR-V3-RV-Academic-Reviewer-FINAL-screenshots.zip (SHA-256 d596a85db7073cbfeb47cc375641c51c5f2f5cc56bf06fc48d874ad5cb2b3885), kept by the owner",
+        "file": "design/v3-refined-b/roles/RV-v1/project/RV.dc.html",
+        "compared": [
+          "boards/RV.png",
+          "boards/RV01-1024.png",
+          "boards/RV01-768.png",
+          "boards/RV01-375.png",
+          "boards/RV01-calm.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (27 Aug 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "RV-02",
+      "state": "Review queue: type tabs with counts, course filter, type tags, what to look at, waiting time; filtered, no match, loading, couldn’t load, empty",
+      "route": "/reviewer/queue",
+      "sources": ["apps/web/src/features/reviewer/rv-02-queue"],
+      "reference": {
+        "archive": "XR-V3-RV-Academic-Reviewer-FINAL-source.zip",
+        "archiveSha256": "6db794fd619534e4f2bc80096bae65a7a3143e5662ef19a914bb95856dca37dc",
+        "revision": "RV-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF)",
+        "renders": "XR-V3-RV-Academic-Reviewer-FINAL-screenshots.zip (SHA-256 d596a85db7073cbfeb47cc375641c51c5f2f5cc56bf06fc48d874ad5cb2b3885), kept by the owner",
+        "file": "design/v3-refined-b/roles/RV-v1/project/RV.dc.html",
+        "compared": [
+          "boards/RV02.png",
+          "boards/RV02-1024.png",
+          "boards/RV02-768.png",
+          "boards/RV02-375.png",
+          "boards/RV02-filtered.png",
+          "boards/RV02-nomatch.png",
+          "boards/RV02-loading.png",
+          "boards/RV02-failed.png",
+          "boards/RV02-empty.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (27 Aug 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "RV-03",
+      "state": "Review a submission: identity card with page map, why it is here, learning outcomes (editor and rule), reference, decision panel with return inline and the approve confirmation; re-check, approved, returned, errors",
+      "route": "/reviewer/submissions/{submissionId}",
+      "sources": ["apps/web/src/features/reviewer/rv-03-review"],
+      "reference": {
+        "archive": "XR-V3-RV-Academic-Reviewer-FINAL-source.zip",
+        "archiveSha256": "6db794fd619534e4f2bc80096bae65a7a3143e5662ef19a914bb95856dca37dc",
+        "revision": "RV-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF)",
+        "renders": "XR-V3-RV-Academic-Reviewer-FINAL-screenshots.zip (SHA-256 d596a85db7073cbfeb47cc375641c51c5f2f5cc56bf06fc48d874ad5cb2b3885), kept by the owner",
+        "file": "design/v3-refined-b/roles/RV-v1/project/RV.dc.html",
+        "compared": [
+          "boards/RV03.png",
+          "boards/RV03-1024.png",
+          "boards/RV03-768.png",
+          "boards/RV03-375.png",
+          "boards/RV03-outcomes.png",
+          "boards/RV03-outcomes-375.png",
+          "boards/RV03-recheck.png",
+          "boards/RV03-return-errors.png",
+          "boards/RV03-return-filled.png",
+          "boards/RV03-editing-375.png",
+          "boards/RV03-confirm.png",
+          "boards/RV03-approved.png",
+          "boards/RV03-returned.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (27 Aug 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "RV-04",
+      "state": "Review an update: why, what changes (live against proposed), the live experiment, approve confirmation, return inline; approved, returned, stale",
+      "route": "/reviewer/updates/{updateId}",
+      "sources": ["apps/web/src/features/reviewer/rv-04-review-update"],
+      "reference": {
+        "archive": "XR-V3-RV-Academic-Reviewer-FINAL-source.zip",
+        "archiveSha256": "6db794fd619534e4f2bc80096bae65a7a3143e5662ef19a914bb95856dca37dc",
+        "revision": "RV-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF)",
+        "renders": "XR-V3-RV-Academic-Reviewer-FINAL-screenshots.zip (SHA-256 d596a85db7073cbfeb47cc375641c51c5f2f5cc56bf06fc48d874ad5cb2b3885), kept by the owner",
+        "file": "design/v3-refined-b/roles/RV-v1/project/RV.dc.html",
+        "compared": [
+          "boards/RV04.png",
+          "boards/RV04-1024.png",
+          "boards/RV04-768.png",
+          "boards/RV04-375.png",
+          "boards/RV04-confirm.png",
+          "boards/RV04-approved.png",
+          "boards/RV04-return-errors.png",
+          "boards/RV04-returned.png",
+          "boards/RV04-stale.png",
+          "boards/RV04-stale-armed.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (27 Aug 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "RV-05",
+      "state": "Reviewed by me: decisions by type with where each is now; updates only, no match, loading, couldn’t load, empty",
+      "route": "/reviewer/reviewed",
+      "sources": ["apps/web/src/features/reviewer/rv-05-reviewed"],
+      "reference": {
+        "archive": "XR-V3-RV-Academic-Reviewer-FINAL-source.zip",
+        "archiveSha256": "6db794fd619534e4f2bc80096bae65a7a3143e5662ef19a914bb95856dca37dc",
+        "revision": "RV-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF)",
+        "renders": "XR-V3-RV-Academic-Reviewer-FINAL-screenshots.zip (SHA-256 d596a85db7073cbfeb47cc375641c51c5f2f5cc56bf06fc48d874ad5cb2b3885), kept by the owner",
+        "file": "design/v3-refined-b/roles/RV-v1/project/RV.dc.html",
+        "compared": [
+          "boards/RV05.png",
+          "boards/RV05-1024.png",
+          "boards/RV05-768.png",
+          "boards/RV05-375.png",
+          "boards/RV05-updates.png",
+          "boards/RV05-nomatch.png",
+          "boards/RV05-loading.png",
+          "boards/RV05-failed.png",
+          "boards/RV05-empty.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (27 Aug 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "RV-06",
+      "state": "Decided item, read-only: approved, returned, update with the Super Admin, decided elsewhere",
+      "route": "/reviewer/submissions/{id}, /reviewer/updates/{id} (decided)",
+      "sources": [
+        "apps/web/src/features/reviewer/rv-03-review/review-submission.tsx",
+        "apps/web/src/features/reviewer/rv-04-review-update/review-update.tsx"
+      ],
+      "reference": {
+        "archive": "XR-V3-RV-Academic-Reviewer-FINAL-source.zip",
+        "archiveSha256": "6db794fd619534e4f2bc80096bae65a7a3143e5662ef19a914bb95856dca37dc",
+        "revision": "RV-v1 (FINAL — OWNER APPROVED, 21 Oct 2026; canvas https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF)",
+        "renders": "XR-V3-RV-Academic-Reviewer-FINAL-screenshots.zip (SHA-256 d596a85db7073cbfeb47cc375641c51c5f2f5cc56bf06fc48d874ad5cb2b3885), kept by the owner",
+        "file": "design/v3-refined-b/roles/RV-v1/project/RV.dc.html",
+        "compared": [
+          "boards/RV06.png",
+          "boards/RV06-375.png",
+          "boards/RV06-returned.png",
+          "boards/RV06-update.png",
+          "boards/RV06-elsewhere.png"
+        ]
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "Normal product build (next build, next start) through the real UI at each width, reviewed side by side with the export renders; measured on every capture: page width (no horizontal overflow), clipped text, the Public Sans weights, console errors. The behaviour is checked by the browser suites (apps/web/e2e) at the four widths.",
+      "tolerance": "No pixel tolerance is claimed: the export renders its own sample world (27 Aug 2026), the product binds the sample world. The shell is the same V3 shell on both sides. Differences are listed under differences, never masked.",
+      "differences": [],
+      "supersedes": [],
+      "migration": "Academic Reviewer integration, branch v3/refined-b-ui, 21 Oct 2026"
     }
   ],
   "foundationEvidence": {
@@ -2722,5 +2938,11 @@
     "tool": "tools/v3-reference/capture-product.mjs",
     "measured": "21 Content Manager cases × 4 widths (84 captures): every screen (the Overview, Ready to publish, the decision open and read-only, its Publish confirmation, the published result and the send-back errors, the library's Ready and Published views and a search with no match, the published experiment, Updates, the correction detail returned, on hold and released, its send errors and Withdraw dialog, course codes clean and with a duplicate refused, the Menu drawer). No horizontal overflow at any width, no clipped text (visually hidden words excluded), Public Sans 400, 600, 650, 700 and 800 loaded on every capture, no console error. After the owner's correction of 20 Oct 2026 no capture shows an internal reference (SUB-, UPD-, REQ-, ACC-, DTR-, SUP-) in its words or accessible names, except the sample world's seeded “what changes and why” of UPD-0004 and UPD-0003 (“Correction UPD-0004.”), quoted as written on the on-hold and released correction pages; a sweep of every screen, its dialogs and tab titles finds the same.",
     "review": "Reviewed side by side with the export renders of the same screen and width (sweep/<width>/*.png): the Overview, the decision page, the library's Published view, Updates and the correction detail. Layout, type, colour, spacing, icons, the identity bands, stage tracks, version changes and the shell match the export. What differs is the sample content (the product's fresh sample world, its clock on 2 Oct 2026, against the export's 27 Aug 2026 scenario) and the differences listed under each CM entry."
+  },
+  "productEvidenceRV": {
+    "note": "Not baselines. Captures of the normal product build (next build + next start, port 3310, in an isolated verification copy — the owner's servers were not touched) driven through the real UI by tools/v3-reference/capture-product.mjs (the RV_CASES), 21 Oct 2026, full page at each width with the window as tall as the page, device scale 1, reduced motion; run folders tools/v3-reference/.runs/2026-10-21T08-47-16-223Z-product and 2026-10-21T08-48-23-362Z-product (rv06-update, re-measured after the capture tool stopped counting visually hidden labels as clipped) (git-ignored).",
+    "tool": "tools/v3-reference/capture-product.mjs",
+    "measured": "9 Academic Reviewer cases × 4 widths (36 captures): Overview, Review queue, Reviewed by me, a submission needing learning outcomes, a re-check, the return errors, the decided submission (SUB-0070, its three outcomes), the decided update with the Super Admin, the Menu drawer. No horizontal overflow, no clipped text (visually hidden words excluded), all Public Sans weights, no console error. No internal reference in words or accessible names except the sample world's seeded “Correction UPD-0004.” quote on the decided update page; a sweep of every reviewer screen and tab title finds the same (and “Correction UPD-0003.”).",
+    "review": "Reviewed side by side with the export boards (RV, RV01–RV06 at their widths): layout, type, colour, spacing, icons, the desk, kind tags, identity cards and decision panel match. What differs is the sample content (the product's sample clock, 2 Oct 2026) and the differences listed under each RV entry."
   }
 }

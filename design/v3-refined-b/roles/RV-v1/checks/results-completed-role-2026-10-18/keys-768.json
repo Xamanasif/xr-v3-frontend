@@ -1,0 +1,102 @@
+[
+ {
+  "check": "[768] keyboard reaches \u201cReview the oldest\u201d",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] it shows a visible focus ring",
+  "pass": true,
+  "detail": "{'id': '', 'tag': 'A', 'text': 'Review the oldest: Flash Distillation', 'outline': 'solid 2px', 'rowOutline': '', 'choice': '', 'ref': ''}"
+ },
+ {
+  "check": "[768] Enter opens the review page, focus on its title",
+  "pass": true,
+  "detail": "{'id': 'rv-title', 'tag': 'H1', 'text': 'Flash Distillation', 'outline': 'solid 2px', 'rowOutline': '', 'choice': '', 'ref': ''}"
+ },
+ {
+  "check": "[768] keyboard reaches the outcome field",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] Add outcome by keyboard",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] keyboard reaches the decision radios",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] the radio card shows focus",
+  "pass": true,
+  "detail": "{'id': 'rv-c0', 'tag': 'INPUT', 'text': 'on', 'outline': 'solid 2px', 'rowOutline': '', 'choice': 'solid', 'ref': ''}"
+ },
+ {
+  "check": "[768] arrow key selects Return to vendor",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] keyboard reaches the decision button",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] missing reason error summary takes focus",
+  "pass": true,
+  "detail": "{'id': 'rv-errs', 'tag': 'DIV', 'text': 'Check your decision\\n\\nAdd a reason so the vendor kn', 'outline': 'solid 2px', 'rowOutline': '', 'choice': '', 'ref': ''}"
+ },
+ {
+  "check": "[768] summary link moves focus into the reason field",
+  "pass": true,
+  "detail": "{'id': 'rv-reason', 'tag': 'TEXTAREA', 'text': '', 'outline': 'solid 2px', 'rowOutline': '', 'choice': '', 'ref': ''}"
+ },
+ {
+  "check": "[768] keyboard reaches a field reference",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] the reference shows focus",
+  "pass": true,
+  "detail": "{'id': 'rv-ref-summary', 'tag': 'INPUT', 'text': 'on', 'outline': 'solid 2px', 'rowOutline': '', 'choice': '', 'ref': 'solid'}"
+ },
+ {
+  "check": "[768] Space ticks the reference",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] return recorded by keyboard, focus on the outcome",
+  "pass": true,
+  "detail": "{'id': 'rv-done', 'tag': 'DIV', 'text': 'Returned to vendor\\n\\nDecided by you on 27 Aug 2026,', 'outline': 'solid 2px', 'rowOutline': '', 'choice': '', 'ref': ''}"
+ },
+ {
+  "check": "[768] keyboard reaches \u201cBack to the review queue\u201d",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] queue heading focused after going back",
+  "pass": true,
+  "detail": "{'id': 'rv-h1-q', 'tag': 'H1', 'text': 'Review queue', 'outline': 'solid 2px', 'rowOutline': '', 'choice': '', 'ref': ''}"
+ },
+ {
+  "check": "[768] keyboard reaches a queue row link",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[768] the focused row is outlined as a whole",
+  "pass": true,
+  "detail": "{'id': '', 'tag': 'A', 'text': 'Venturi Meter Calibration', 'outline': 'none 0px', 'rowOutline': 'solid', 'choice': '', 'ref': ''}"
+ },
+ {
+  "check": "[768] keyboard journey console clean",
+  "pass": true,
+  "detail": "[]"
+ }
+]

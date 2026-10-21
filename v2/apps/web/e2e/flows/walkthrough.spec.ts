@@ -128,6 +128,11 @@ const rowWith = (page: Page, text: string | RegExp): Locator =>
   main(page).locator('tbody tr, li.xr-row, li.cm-trk').filter({ hasText: text });
 // The Super Admin's V3 lists (SA-v1) never show a record's reference: a device transfer's row is
 // the one whose link opens its address, and a content record's link is named by its title.
+// The Academic Reviewer's V3 screens (RV-v1): a queue row's link is named by the experiment (never
+// its reference), “<name>, <type>, waiting since <date>. Review it”; the item page's identity card.
+const reviewRowLink = (page: Page, name: string): Locator =>
+  main(page).getByRole('link', { name: new RegExp(`^${name}, `) });
+const reviewCard = (page: Page): Locator => main(page).locator('header.rv-idcard');
 const transferRow = (page: Page, reference: string): Locator =>
   main(page).locator('tbody tr', {
     has: page.locator(`a[href="/admin/operations/device-transfers/${reference}"]`),
@@ -678,25 +683,36 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await desk.bringToFront();
     await as(desk, EMAIL.menon, '/reviewer');
     await sidebar(desk, '/reviewer/queue');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: `Review ${COMPOSITE}` }));
+    await reachAndClick(desk, reviewRowLink(desk, COMPOSITE));
     await desk.waitForURL('**/reviewer/submissions/SUB-0077');
-    await expect(main(desk).locator('.xr-phead-meta .xr-status')).toHaveText(
-      'Waiting · revision 1',
+    // RV-03 (V3, RV-v1): the identity card's type tag and status; revision 1.
+    await expect(reviewCard(desk).locator('.rv-kind')).toHaveText('New submission');
+    await expect(reviewCard(desk).locator('.rv-meta-main .xr-st')).toHaveText(
+      'Waiting for your decision',
     );
+    await expect(
+      reviewCard(desk)
+        .locator('.rv-id-fact')
+        .filter({ hasText: /^Revision/ })
+        .locator('dd'),
+    ).toHaveText('1');
   });
 
   await test.step(stepTitle('E2'), async () => {
+    // RV-03 (V3, RV-v1): the return is inline in the panel — its reason and references there.
     await reachAndClick(desk, decision(desk).getByRole('radio', { name: /^Return to vendor/ }));
-    await reachAndClick(desk, decision(desk).getByRole('button', { name: 'Return to vendor' }));
-    const returning = desk.getByRole('dialog', { name: 'Return to vendor?' });
-    await returning
-      .getByRole('textbox', { name: 'Reason the vendor will see' })
+    await decision(desk)
+      .getByRole('textbox', { name: 'Reason the vendor will see (required)' })
       .fill(RETURN_REASON);
-    await returning
-      .getByRole('checkbox', { name: 'Formats & delivery · VR · Device need' })
+    await decision(desk)
+      .getByRole('group', { name: 'Formats & delivery · VR' })
+      .getByRole('checkbox', { name: 'Device need' })
       .check();
-    await returning.getByRole('button', { name: 'Return to vendor' }).click();
-    await expect(returning).toBeHidden();
+    const returnGo = decision(desk).getByRole('button', { name: 'Return to vendor' });
+    await returnGo.scrollIntoViewIfNeeded();
+    await reachAndClick(desk, returnGo);
+    await expect(desk.locator('#rv-done .xr-st--err')).toHaveText('Returned to vendor');
+    await expect(desk.getByRole('dialog')).toHaveCount(0);
     // B6-02 f1: while it is still returned, the reviewer's line reads "Returned to vendor".
     await sidebar(desk, '/reviewer/reviewed');
     await expect(rowWith(desk, COMPOSITE)).toContainText('Returned to vendor');
@@ -747,13 +763,20 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await signOut(desk, ACCOUNT.anil);
     await as(desk, EMAIL.menon, '/reviewer');
     // Once it has moved on, the decision names the revision it returned (B6-02 f1).
+    // RV-05 (V3, RV-v1): “Returned to vendor”, its type naming the revision returned.
     await sidebar(desk, '/reviewer/reviewed');
-    await expect(rowWith(desk, COMPOSITE)).toContainText('Returned to vendor · revision 1');
+    await expect(rowWith(desk, COMPOSITE).locator('td.rv-c-dec .xr-st')).toHaveText(
+      'Returned to vendor',
+    );
+    await expect(rowWith(desk, COMPOSITE).locator('.rv-kind')).toHaveText(
+      /^New submission\s*revision 1$/,
+    );
     await sidebar(desk, '/reviewer/queue');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: `Review ${COMPOSITE}` }));
+    await reachAndClick(desk, reviewRowLink(desk, COMPOSITE));
     await desk.waitForURL('**/reviewer/submissions/SUB-0077');
-    await expect(main(desk).locator('.xr-phead-meta .xr-status')).toHaveText(
-      'Resubmitted · revision 2',
+    await expect(reviewCard(desk).locator('.rv-kind')).toHaveText('Resubmittedrevision 2');
+    await expect(reviewCard(desk).locator('.rv-meta-main .xr-st')).toHaveText(
+      'Waiting for your decision',
     );
     await expect(main(desk)).toContainText(REVISED_DEVICE);
   });
@@ -765,11 +788,14 @@ test('Flows A–F and the device chain on one shared sample world, through the p
       await reachAndClick(desk, desk.getByRole('button', { name: 'Add outcome' }));
       await expect(add).toHaveValue('');
     }
+    // RV-03 (V3, RV-v1): nothing is chosen first — choose Approve, then press it.
+    await reachAndClick(desk, decision(desk).getByRole('radio', { name: /^Approve/ }));
     await reachAndClick(desk, decision(desk).getByRole('button', { name: 'Approve' }));
     const approve = desk.getByRole('dialog', { name: `Approve “${COMPOSITE}”?` });
+    await expect(approve).toContainText('Approving does not publish.');
     await approve.getByRole('button', { name: 'Approve' }).click();
     await expect(approve).toBeHidden();
-    await expect(desk.locator('#rv-dec .xr-status--ok')).toHaveText(
+    await expect(desk.locator('#rv-done .xr-st--ok')).toHaveText(
       'Approved — with the Content Manager',
     );
     await signOut(desk, ACCOUNT.menon);
@@ -820,8 +846,14 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await expect(main(desk)).toContainText('Published');
     await signOut(desk, ACCOUNT.anil);
     await as(desk, EMAIL.menon, '/reviewer');
+    // RV-05 (V3, RV-v1): “Approved”, and now “Published on <date>”.
     await sidebar(desk, '/reviewer/reviewed');
-    await expect(rowWith(desk, COMPOSITE).first()).toContainText('Approved — published');
+    await expect(rowWith(desk, COMPOSITE).first().locator('td.rv-c-dec .xr-st')).toHaveText(
+      'Approved',
+    );
+    await expect(rowWith(desk, COMPOSITE).first().locator('.rv-now')).toHaveText(
+      /^Published on \d{1,2} [A-Z][a-z]{2} 2026$/,
+    );
     await signOut(desk, ACCOUNT.menon);
     await admin.bringToFront();
     await allContent(admin);
@@ -866,17 +898,21 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await signOut(desk, ACCOUNT.kavya);
     await as(desk, EMAIL.menon, '/reviewer');
     await sidebar(desk, '/reviewer/queue');
-    await reachAndClick(desk, main(desk).getByRole('link', { name: `Review ${SHELL}` }));
+    await reachAndClick(desk, reviewRowLink(desk, SHELL));
     await desk.waitForURL(/\/reviewer\/updates\/UPD-\d{4}$/);
-    await expect(main(desk)).toContainText('Waiting for your decision');
+    await expect(reviewCard(desk).locator('.rv-meta-main .xr-st')).toHaveText(
+      'Waiting for your decision',
+    );
   });
 
   await test.step(stepTitle('F2'), async () => {
+    // RV-04 (V3, RV-v1): choose Approve update, then press it; the dialog names the experiment.
+    await reachAndClick(desk, decision(desk).getByRole('radio', { name: 'Approve update' }));
     await reachAndClick(desk, decision(desk).getByRole('button', { name: 'Approve update' }));
-    const approve = desk.getByRole('dialog', { name: /^Approve UPD-\d{4}\?$/ });
+    const approve = desk.getByRole('dialog', { name: `Approve the update to ${SHELL}?` });
     await reachAndClick(desk, approve.getByRole('button', { name: 'Approve update' }));
     await expect(approve).toBeHidden();
-    await expect(main(desk)).toContainText('Approved — with the Super Admin');
+    await expect(desk.locator('#rv-done .xr-st--ok')).toHaveText('Approved — with the Super Admin');
     await signOut(desk, ACCOUNT.menon);
     await as(desk, EMAIL.kavya, '/content-manager');
     await sidebar(desk, '/content-manager/updates');
@@ -906,8 +942,14 @@ test('Flows A–F and the device chain on one shared sample world, through the p
     await expect(rowWith(desk, SHELL)).toContainText('Released');
     await signOut(desk, ACCOUNT.kavya);
     await as(desk, EMAIL.menon, '/reviewer');
+    // RV-05 (V3, RV-v1): “Update approved”, and now “Released by the Super Admin”.
     await sidebar(desk, '/reviewer/reviewed');
-    await expect(rowWith(desk, SHELL).first()).toContainText('Update approved — released');
+    await expect(rowWith(desk, SHELL).first().locator('td.rv-c-dec .xr-st')).toHaveText(
+      'Update approved',
+    );
+    await expect(rowWith(desk, SHELL).first().locator('.rv-now')).toHaveText(
+      'Released by the Super Admin',
+    );
     await signOut(desk, ACCOUNT.menon);
   });
 

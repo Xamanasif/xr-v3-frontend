@@ -17,7 +17,7 @@
     "v3SeedSource": 5,
     "lockedLanding": 2,
     "pendingDesign": 116,
-    "migrated": 44
+    "migrated": 50
   },
   "designedByType": {
     "action": 1,
@@ -1958,14 +1958,17 @@
       "designed": true,
       "v46ProposedRoute": "/reviewer",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/reviewer/rv-01-overview"]
+        "status": "V3 presentation (Academic Reviewer export RV-v1), implemented",
+        "paths": [
+          "apps/web/src/features/reviewer/rv-01-overview",
+          "apps/web/src/features/reviewer/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export RV-v1 (design/v3-refined-b/roles/RV-v1; archive XR-V3-RV-Academic-Reviewer-FINAL-source.zip, SHA-256 6db794fd…7dc, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the review desk, next in line, queue by type, scope with course names, recent decisions, calm; bound to getReviewerOverview and the queue reads",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "List rows show only what the list reads hold (no outcome counts or changed fields)."
     },
     {
       "id": "RV-02",
@@ -1976,13 +1979,16 @@
       "designed": true,
       "v46ProposedRoute": "/reviewer/queue",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/reviewer/rv-02-queue"]
+        "status": "V3 presentation (Academic Reviewer export RV-v1), implemented",
+        "paths": [
+          "apps/web/src/features/reviewer/rv-02-queue",
+          "apps/web/src/features/reviewer/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
+      "designSupplied": "complete-role export RV-v1 (design/v3-refined-b/roles/RV-v1; archive XR-V3-RV-Academic-Reviewer-FINAL-source.zip, SHA-256 6db794fd…7dc, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — type tabs with counts (arrow keys), course filter, type tags, waiting time, the table; filtered, no match, loading, couldn’t load, empty; bound to getReviewQueue",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
       "openIssue": ""
     },
     {
@@ -1994,14 +2000,17 @@
       "designed": true,
       "v46ProposedRoute": "/reviewer/submissions/[submissionId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/reviewer/rv-03-review"]
+        "status": "V3 presentation (Academic Reviewer export RV-v1), implemented",
+        "paths": [
+          "apps/web/src/features/reviewer/rv-03-review",
+          "apps/web/src/features/reviewer/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export RV-v1 (design/v3-refined-b/roles/RV-v1; archive XR-V3-RV-Academic-Reviewer-FINAL-source.zip, SHA-256 6db794fd…7dc, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — identity card and page map, outcomes editor with the rule before Approve, reference blocks, decision panel (return inline, approve confirmation), re-check, approved, returned, stale; bound to getSubmissionForReview, approveSubmission, returnSubmission",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "No decision is preselected; Return is completed in the panel (no dialog). Out-of-scope items stay not found."
     },
     {
       "id": "RV-04",
@@ -2012,14 +2021,17 @@
       "designed": true,
       "v46ProposedRoute": "/reviewer/updates/[updateId]",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P6)",
-        "paths": ["apps/web/src/features/reviewer/rv-04-review-update"]
+        "status": "V3 presentation (Academic Reviewer export RV-v1), implemented",
+        "paths": [
+          "apps/web/src/features/reviewer/rv-04-review-update",
+          "apps/web/src/features/reviewer/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export RV-v1 (design/v3-refined-b/roles/RV-v1; archive XR-V3-RV-Academic-Reviewer-FINAL-source.zip, SHA-256 6db794fd…7dc, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — why, live against proposed comparison, the live experiment, approve confirmation, return inline, approved, returned, stale; bound to getUpdateForReview, approveUpdate, returnUpdate",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Approving releases nothing. The vendor fact and the withdrawal date are not in the reviewer's read."
     },
     {
       "id": "RV-05",
@@ -2030,14 +2042,17 @@
       "designed": true,
       "v46ProposedRoute": "/reviewer/reviewed",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
-        "paths": ["apps/web/src/features/reviewer/rv-05-reviewed"]
+        "status": "V3 presentation (Academic Reviewer export RV-v1), implemented",
+        "paths": [
+          "apps/web/src/features/reviewer/rv-05-reviewed",
+          "apps/web/src/features/reviewer/shared"
+        ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export RV-v1 (design/v3-refined-b/roles/RV-v1; archive XR-V3-RV-Academic-Reviewer-FINAL-source.zip, SHA-256 6db794fd…7dc, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — decisions with type tags and where each is now, updates only, no match, loading, couldn’t load, empty; bound to listReviewedByMe",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "Released updates read “Released by the Super Admin” without date or version (not in the list read). UPD-0006 follows the reviewer's withdrawn scope."
     },
     {
       "id": "RV-06",
@@ -2048,18 +2063,19 @@
       "designed": true,
       "v46ProposedRoute": "/reviewer/submissions/[submissionId] (decided, read-only)",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P5)",
+        "status": "V3 presentation (Academic Reviewer export RV-v1), implemented",
         "paths": [
           "apps/web/src/features/reviewer/rv-03-review/review-submission.tsx",
           "apps/web/src/features/reviewer/rv-03-review/review-view.ts",
-          "apps/web/src/features/reviewer/rv-05-reviewed/reviewed-by-me.tsx"
+          "apps/web/src/features/reviewer/rv-05-reviewed/reviewed-by-me.tsx",
+          "apps/web/src/features/reviewer/shared"
         ]
       },
-      "designSupplied": "pending complete-role export",
-      "ownerApproved": "not yet",
-      "implementationComplete": "not migrated",
-      "browserChecked": "no",
-      "openIssue": ""
+      "designSupplied": "complete-role export RV-v1 (design/v3-refined-b/roles/RV-v1; archive XR-V3-RV-Academic-Reviewer-FINAL-source.zip, SHA-256 6db794fd…7dc, FINAL — OWNER APPROVED 21 Oct 2026)",
+      "ownerApproved": "approved by the owner (FINAL — OWNER APPROVED, 21 Oct 2026; master integration instruction of 21 Oct 2026); implementation acceptance pending the owner's browser review",
+      "implementationComplete": "migrated — the decided submission and update pages, read-only, with their outcome blocks; bound to the same reads",
+      "browserChecked": "normal product build at 1440, 1024, 768 and 375: captured through the real UI and reviewed against the export renders (V3-COMPARISON-MAP.json); browser suites at the four widths (apps/web/e2e)",
+      "openIssue": "The rail keeps Review queue current (active-item map); the breadcrumb names the parent list."
     },
     {
       "id": "RV-07",

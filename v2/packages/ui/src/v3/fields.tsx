@@ -221,6 +221,13 @@ export interface ChoiceOption<Value extends string> {
   readonly description?: ReactNode;
   /** Shown but not available (`is-off`, a disabled radio); its description says why. */
   readonly unavailable?: boolean;
+  /**
+   * The id(s) of another element on the page that also describes this radio, read after its
+   * consequence line: the Academic Reviewer export (RV-v1) describes each decision by "Before you
+   * decide"'s "Whole Experiment." / "Whole update." line (`aria-describedby="rv-whole"`). None by
+   * default.
+   */
+  readonly describedBy?: string;
 }
 
 interface GroupProps {
@@ -277,6 +284,8 @@ export function ChoiceGroup<Value extends string>({
           const optionId = `${id}-${option.value}`;
           const titleId = `${optionId}-t`;
           const descriptionId = option.description ? `${optionId}-d` : undefined;
+          const describedBy =
+            [descriptionId, option.describedBy].filter(Boolean).join(' ') || undefined;
           return (
             <label
               key={option.value}
@@ -290,7 +299,7 @@ export function ChoiceGroup<Value extends string>({
                 checked={value === option.value}
                 disabled={option.unavailable ? true : undefined}
                 aria-labelledby={titleId}
-                aria-describedby={descriptionId}
+                aria-describedby={describedBy}
                 onChange={() => onChange(option.value)}
               />
               <span className="rk-choice-t" id={titleId}>

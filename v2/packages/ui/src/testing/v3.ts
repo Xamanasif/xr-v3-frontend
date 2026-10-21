@@ -102,7 +102,22 @@ export const CM_EXPORT_DIRECTORY = join(
   'project',
 );
 
-/** Every class a selector of the V3, XS, SA, VE and CM derivatives or the V3 patches names. */
+/**
+ * The owner-approved Academic Reviewer export (RV-v1): its live role root (`RV.dc.html`), read as
+ * the reference for the Academic Reviewer pages' markup, words and icons.
+ */
+export const RV_EXPORT_DIRECTORY = join(
+  V3_BOARDS_DIRECTORY,
+  '..',
+  '..',
+  '..',
+  '..',
+  'roles',
+  'RV-v1',
+  'project',
+);
+
+/** Every class a selector of the V3, XS, SA, VE, CM and RV derivatives or the V3 patches names. */
 export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
   [
     'rb-scoped.css',
@@ -110,6 +125,7 @@ export const V3_STYLESHEET_CLASS_NAMES: ReadonlySet<string> = new Set(
     'sa-scoped.css',
     've-scoped.css',
     'cm-scoped.css',
+    'rv-scoped.css',
     'patch.css',
   ].flatMap((sheet) => [...classNamesIn(readFileSync(join(V3_STYLES, sheet), 'utf8'))]),
 );
@@ -132,6 +148,11 @@ export function veExportText(file: string): string {
 /** The raw text of a CM export file (`Main.dc.html`, …), for markup, words and icon checks. */
 export function cmExportText(file: string): string {
   return readFileSync(join(CM_EXPORT_DIRECTORY, file), 'utf8');
+}
+
+/** The raw text of an RV export file (`RV.dc.html`, …), for markup, words and icon checks. */
+export function rvExportText(file: string): string {
+  return readFileSync(join(RV_EXPORT_DIRECTORY, file), 'utf8');
 }
 
 /**

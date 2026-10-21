@@ -67,6 +67,12 @@ const h1 = (page: Page) => page.getByRole('heading', { level: 1 });
 const button = (page: Page, name: string) => main(page).getByRole('button', { name, exact: true });
 const decision = (page: Page) => page.getByRole('complementary', { name: 'Your decision' });
 const region = (page: Page, name: string) => page.getByRole('region', { name });
+/**
+ * An Academic Reviewer's queue row link (V3, RV-v1), named by the experiment and never its
+ * reference: “<name>, <type>, waiting since <date>. Review it”.
+ */
+const reviewRowLink = (page: Page, name: string) =>
+  main(page).getByRole('link', { name: new RegExp(`^${name}, `) });
 
 async function signIn(page: Page, email: string): Promise<void> {
   await card(page).getByLabel('E-mail', { exact: true }).fill(email);
@@ -273,18 +279,25 @@ test('one tab, the product build: Flow E — create → return with a reason →
   await page.waitForURL((url) => url.pathname === '/reviewer');
   await expect(h1(page)).toHaveText('Overview');
   await sidebar(page, '/reviewer/queue');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Review ${COMPOSITE}` }));
+  await reachAndClick(page, reviewRowLink(page, COMPOSITE));
   await page.waitForURL('**/reviewer/submissions/SUB-0077');
   await expect(h1(page)).toHaveText(COMPOSITE);
+  // RV-03 (V3, RV-v1): the return is inline in the panel — its reason and references there.
   await reachAndClick(page, decision(page).getByRole('radio', { name: /^Return to vendor/ }));
-  await reachAndClick(page, decision(page).getByRole('button', { name: 'Return to vendor' }));
-  const returning = page.getByRole('dialog', { name: 'Return to vendor?' });
-  await returning.getByRole('textbox', { name: 'Reason the vendor will see' }).fill(REASON);
-  await returning.getByRole('checkbox', { name: 'Formats & delivery · VR · Device need' }).check();
-  await returning.getByRole('button', { name: 'Return to vendor' }).click();
-  await expect(returning).toBeHidden();
-  await expect(main(page)).toContainText(
-    'The vendor sees your reason and can revise and resubmit.',
+  await decision(page)
+    .getByRole('textbox', { name: 'Reason the vendor will see (required)' })
+    .fill(REASON);
+  await decision(page)
+    .getByRole('group', { name: 'Formats & delivery · VR' })
+    .getByRole('checkbox', { name: 'Device need' })
+    .check();
+  const returnGo = decision(page).getByRole('button', { name: 'Return to vendor' });
+  await returnGo.scrollIntoViewIfNeeded();
+  await reachAndClick(page, returnGo);
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  await expect(page.locator('#rv-done .xr-st--err')).toHaveText('Returned to vendor');
+  await expect(page.locator('#rv-done')).toContainText(
+    'The vendor sees your reason above their editor and can revise and resubmit.',
   );
   await signOut(page, MENON);
 
@@ -331,10 +344,12 @@ test('one tab, the product build: Flow E — create → return with a reason →
   await signIn(page, 'a.menon@wilp.example');
   await page.waitForURL((url) => url.pathname === '/reviewer');
   await sidebar(page, '/reviewer/queue');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Review ${COMPOSITE}` }));
+  await reachAndClick(page, reviewRowLink(page, COMPOSITE));
   await page.waitForURL('**/reviewer/submissions/SUB-0077');
-  await expect(main(page).locator('.xr-phead-meta .xr-status')).toHaveText(
-    'Resubmitted · revision 2',
+  // RV-03 (V3, RV-v1): the identity card's type tag and status.
+  await expect(main(page).locator('header.rv-idcard .rv-kind')).toHaveText('Resubmittedrevision 2');
+  await expect(main(page).locator('header.rv-idcard .rv-meta-main .xr-st')).toHaveText(
+    'Waiting for your decision',
   );
   await expect(main(page)).toContainText('What changed in revision 2');
   await expect(main(page)).toContainText(REVISED_DEVICE);
@@ -345,12 +360,14 @@ test('one tab, the product build: Flow E — create → return with a reason →
     await expect(add).toHaveValue('');
   }
   await checkState(page, COMPOSITE);
+  // Nothing is chosen first (V3, RV-v1): choose Approve, then press it.
+  await reachAndClick(page, decision(page).getByRole('radio', { name: /^Approve/ }));
   await reachAndClick(page, decision(page).getByRole('button', { name: 'Approve' }));
   const approve = page.getByRole('dialog', { name: `Approve “${COMPOSITE}”?` });
-  await expect(approve).toContainText('Approving does not publish it.');
+  await expect(approve).toContainText('Approving does not publish.');
   await approve.getByRole('button', { name: 'Approve' }).click();
   await expect(approve).toBeHidden();
-  await expect(page.locator('#rv-dec .xr-status--ok')).toHaveText(
+  await expect(page.locator('#rv-done .xr-st--ok')).toHaveText(
     'Approved — with the Content Manager',
   );
   await signOut(page, MENON);

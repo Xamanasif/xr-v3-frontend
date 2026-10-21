@@ -1,0 +1,747 @@
+[
+ {
+  "check": "[1440] overview H1",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] overview lists 4 waiting items oldest first",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] scope line shows three course codes",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] rail count is 4",
+  "pass": true,
+  "detail": "4\n, 4 items waiting for review"
+ },
+ {
+  "check": "[1440] one gold primary: review the oldest",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] overview no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] overview console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] queue H1 focused after nav",
+  "pass": true,
+  "detail": "rv-h1-q|Review queue"
+ },
+ {
+  "check": "[1440] queue count 4",
+  "pass": true,
+  "detail": "4 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] queue no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] item title focused",
+  "pass": true,
+  "detail": "rv-title|Flash Distillation"
+ },
+ {
+  "check": "[1440] eyebrow names SUB-0086 new submission",
+  "pass": true,
+  "detail": "SUB-0086 \u00b7 New submission"
+ },
+ {
+  "check": "[1440] documents listed",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] web link opens the vendor page in a new tab",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] no-outcomes notice shown",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] submission page no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 1925, 'overflow': []}"
+ },
+ {
+  "check": "[1440] return shows the reason field and references",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] pending hint before pressing",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] button reads Return to vendor",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] error summary focused",
+  "pass": true,
+  "detail": "rv-errs|Check your decision\n\nAdd a reason so the vendor knows what t"
+ },
+ {
+  "check": "[1440] missing reason error text",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] summary link focuses the reason field",
+  "pass": true,
+  "detail": "rv-reason|"
+ },
+ {
+  "check": "[1440] return recorded, outcome focused",
+  "pass": true,
+  "detail": "rv-done|Returned to vendor\n\nDecided by you on 27 Aug 2026, 11:20\n\nYo"
+ },
+ {
+  "check": "[1440] outcome pill Returned to vendor",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] outcome shows the reason and the reference",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] history shows the return first",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] decision controls gone (read-only)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] back to queue focuses its heading",
+  "pass": true,
+  "detail": "rv-h1-q|Review queue"
+ },
+ {
+  "check": "[1440] queue now 3 items without Flash Distillation",
+  "pass": true,
+  "detail": "3 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] rail count now 3",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] Reviewed by me lists the return first",
+  "pass": true,
+  "detail": "Flash Distillation\nSUB-0086 \u00b7 CHE ZG513\n\t\nNew submission\n\t\nReturned to vendor\nNow: With the vendor to revise\n\t27 Aug 2026"
+ },
+ {
+  "check": "[1440] Reviewed by me count 9",
+  "pass": true,
+  "detail": "9 decisions \u00b7 newest first"
+ },
+ {
+  "check": "[1440] overview now 3 waiting, oldest is Venturi",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] return journey console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] SUB-0077 shows what changed in revision 2",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] previous return reason quoted",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] package details open with reference",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] changed tag on device need",
+  "pass": true,
+  "detail": "Changed in revision 2"
+ },
+ {
+  "check": "[1440] edit focuses the outcome text",
+  "pass": true,
+  "detail": "rv-lo-ta-2|"
+ },
+ {
+  "check": "[1440] empty outcome edit refused",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] outcome saved message",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] move up announces new position",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] confirm dialog opens with focus on its title",
+  "pass": true,
+  "detail": "rv-dlg-t|Approve \u201cConduction Through a Composite Wall\u201d?"
+ },
+ {
+  "check": "[1440] dialog states approving does not publish",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] dialog Tab cycles Cancel \u2192 Approve \u2192 Cancel",
+  "pass": true,
+  "detail": "('rv-dlg-cancel|Cancel', 'rv-dlg-ok|Approve', 'rv-dlg-cancel|Cancel')"
+ },
+ {
+  "check": "[1440] Escape closes dialog and returns focus to the decision button",
+  "pass": true,
+  "detail": "rv-go|Approve"
+ },
+ {
+  "check": "[1440] approval recorded, outcome focused",
+  "pass": true,
+  "detail": "rv-done|Approved \u2014 with the Content Manager\n\nDecided by you on 27 Au"
+ },
+ {
+  "check": "[1440] outcome says with the Content Manager, not published",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] outcomes now read-only with the edit",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] head pill updated",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] Reviewed by me shows the approval first, now with the Content Manager",
+  "pass": true,
+  "detail": "Conduction Through a Composite Wall\nSUB-0077 \u00b7 ME ZG523\n\t\nNew submission\nRevision 2\n\t\nApproved\nNow: With the Content Manager \u00b7 not published\n\t27 Aug 2026"
+ },
+ {
+  "check": "[1440] earlier revision-1 return kept in history",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] reopening shows the decided item read-only (RV-06)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] breadcrumb returns to Reviewed by me",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] approve journey console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] pending hint needs an outcome",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] approve without outcomes refused in the summary",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] empty new outcome refused",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] outcome added message",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] outcome error cleared after adding",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] dialog counts 1 learning outcome",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] Cancel returns focus to the decision button",
+  "pass": true,
+  "detail": "rv-go|Approve"
+ },
+ {
+  "check": "[1440] re-check reason is the first section",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] delete announces and offers Undo",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] Undo restores outcome 2",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] re-check approval goes back to the Content Manager with 2 outcomes",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] re-check approved",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] type filter Update \u2192 1 of 4 with a chip",
+  "pass": true,
+  "detail": "1 of 4 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] update title and eyebrow",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] live vs proposed marks the reflux change",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] why from the Content Manager shown",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] no learning outcome editor on an update",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] update page no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 2103, 'overflow': []}"
+ },
+ {
+  "check": "[1440] update dialog: live 1.2 stays until release",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] update approved: with the Super Admin, 1.2 unchanged",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] the word Publish never appears on the update path",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] Reviewed by me: update approved, with the Super Admin",
+  "pass": true,
+  "detail": "Distillation Column\nUPD-0005 \u00b7 CHE ZG513\n\t\nUpdate\n\t\nUpdate approved\nNow: With the Super Admin for a release decision\n\t27 Aug 2026"
+ },
+ {
+  "check": "[1440] update journey console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] type filter Update \u2192 1 of 4 with a chip",
+  "pass": true,
+  "detail": "1 of 4 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] update title and eyebrow",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] live vs proposed marks the reflux change",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] why from the Content Manager shown",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] no learning outcome editor on an update",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] update page no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 2103, 'overflow': []}"
+ },
+ {
+  "check": "[1440] update return needs a reason",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] no field references on update returns",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] update returned to the Content Manager",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] update journey console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] search \"dist\" \u2192 2 of 4",
+  "pass": true,
+  "detail": "2 of 4 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] no match state with Clear filters",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] Clear filters resets and focuses search",
+  "pass": true,
+  "detail": "('4 items \u00b7 oldest first', 'rv-q-search|')"
+ },
+ {
+  "check": "[1440] reviewed shows 8 decisions in scope (UPD-0006 out of scope)",
+  "pass": true,
+  "detail": "8 decisions \u00b7 newest first"
+ },
+ {
+  "check": "[1440] Show updates \u2192 2 of 8",
+  "pass": true,
+  "detail": "2 of 8 decisions \u00b7 newest first"
+ },
+ {
+  "check": "[1440] held update shows only \u201cwith the Super Admin\u201d (no hold, no reason)",
+  "pass": true,
+  "detail": "Boiler Drum Level\nUPD-0004 \u00b7 CHE ZG513\n\t\nUpdate\n\t\nUpdate approved\nNow: With the Super Admin for a release decision\n\t14 Aug 2026"
+ },
+ {
+  "check": "[1440] RV-06 read-only: no decision controls, outcomes read-only",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV-06 states the past decision",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV-06 no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 1562, 'overflow': []}"
+ },
+ {
+  "check": "[1440] filters journey console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] account menu opens (name, role, Help, Sign out)",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] account menu fits the viewport",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] Escape closes the account menu, focus back on the button",
+  "pass": true,
+  "detail": "rv-acct-btn|AM\nProf. A. Menon\nAcademic Reviewer"
+ },
+ {
+  "check": "[1440] account menu Help opens Help & support",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] empty reports state carries the primary action",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] where is pre-filled from the page you came from",
+  "pass": true,
+  "detail": "Overview"
+ },
+ {
+  "check": "[1440] report without text refused with summary",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] report sent with a reference",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] my reports lists the new report",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] report detail opens",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] sign out shows the signed-out page without the workspace",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] signing in returns to Overview",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] shell journey console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] scope refusal title",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] no rail item current",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] nothing of the record shown",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV-scope.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV-scope.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] unavailable refusal title",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV-unavailable.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV-unavailable.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] queue keeps only ME ZG523 work",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] course filter lists two codes",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV-scope-withdrawn.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV-scope-withdrawn.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] stale refusal shown",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] withdrawn status, no reason shown",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV04-stale.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 1896, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV04-stale.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] loading message, count hidden",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV02-loading.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV02-loading.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] failed state with Try again",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV02-failed.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV02-failed.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] empty queue, no toolbar, no rail count",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV02-empty.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV02-empty.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] calm overview",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV01-calm.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV01-calm.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] first-time reviewer empty state",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV05-empty.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 900, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV05-empty.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] already decided refusal",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[1440] RV06-elsewhere.dc.html no horizontal overflow",
+  "pass": true,
+  "detail": "{'scrollW': 1440, 'clientW': 1440, 'docH': 2095, 'overflow': []}"
+ },
+ {
+  "check": "[1440] RV06-elsewhere.dc.html console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] stale: approve refused, refusal focused",
+  "pass": true,
+  "detail": "rv-refusal|Nothing was recorded\n\nThe Content Manager withdrew this upda"
+ },
+ {
+  "check": "[1440] stale: no approval recorded (history tops with the withdrawal)",
+  "pass": true,
+  "detail": "Withdrawn by the Content Manager\n\n27 Aug 2026\n\nVersion 1.2 stays live."
+ },
+ {
+  "check": "[1440] stale: withdrawn update left the queue",
+  "pass": true,
+  "detail": "3 items \u00b7 oldest first"
+ },
+ {
+  "check": "[1440] stale: Reviewed by me unchanged at 8",
+  "pass": true,
+  "detail": "8 decisions \u00b7 newest first"
+ }
+]

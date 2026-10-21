@@ -265,6 +265,12 @@ export * from './cm.js';
 export * from './cm-lists.js';
 export * from './cm-decision.js';
 export * from './cm-correction.js';
+// The Academic Reviewer role's patterns (RV-v1): what more than one reviewer screen group draws,
+// then what one screen group alone draws, one module per group.
+export * from './rv.js';
+export * from './rv-lists.js';
+export * from './rv-submission.js';
+export * from './rv-update.js';
 export {
   PlanBand,
   CourseGroup,

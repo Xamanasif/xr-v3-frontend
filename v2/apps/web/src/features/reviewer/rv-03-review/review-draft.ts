@@ -4,12 +4,12 @@ import { useCallback, useSyncExternalStore } from 'react';
 
 import { useSession } from '@/queries/session';
 
-/** The decision being made: Approve (the drawn default) or Return to vendor (B6-03 `g_choice`). */
+/** The decision being made: Approve or Return to vendor; none chosen at first (RV-v1 `choice: null`). */
 export type ReviewChoice = 'approve' | 'return';
 
 /**
- * What the reviewer has done on a submission so far (B6-03 script `g_lo`, `g_new`, `g_ed`,
- * `g_choice`, `g_reason`, `g_refs`): the working set of learning outcomes (LD-3; one set for the
+ * What the reviewer has done on a submission so far (RV-v1 `decOf`: `lo`, `newText`, `ed`,
+ * `choice`, `reason`, `refs`): the working set of learning outcomes (LD-3; one set for the
  * Experiment), the outcome being added or edited, the decision chosen and a return’s reason and
  * references. The set travels with the decision (OD-B6-04).
  */
@@ -23,13 +23,13 @@ export interface ReviewDraft {
   readonly newOutcome: string;
   /** The outcome being edited (one at a time) and its text as typed. */
   readonly editing: { readonly index: number; readonly text: string } | null;
-  readonly choice: ReviewChoice;
+  readonly choice: ReviewChoice | null;
   readonly reason: string;
   /** The references ticked, by option key (`reviewer-review.ts` `referenceOptions`). */
   readonly references: readonly string[];
 }
 
-/** The work on a record nobody has touched yet: its own outcomes, Approve chosen. */
+/** The work on a record nobody has touched yet: its own outcomes, no decision chosen. */
 export function startingDraft(record: {
   readonly rev: number;
   readonly learningOutcomes: readonly { readonly text: string }[];
@@ -39,7 +39,7 @@ export function startingDraft(record: {
     outcomes: record.learningOutcomes.map((outcome) => outcome.text),
     newOutcome: '',
     editing: null,
-    choice: 'approve',
+    choice: null,
     reason: '',
     references: [],
   };

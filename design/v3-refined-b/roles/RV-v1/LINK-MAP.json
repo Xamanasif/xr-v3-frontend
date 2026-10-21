@@ -1,0 +1,523 @@
+{
+ "about": "Every control in the Academic Reviewer live preview (project/RV.dc.html) of the FINAL owner-approved design, and the canvas index boards. 'in-role' controls change the view inside the one role-preview root and keep its state. 'anchor' controls move focus within the page. 'shared' controls reach the borrowed XS surfaces. 'external' links are sample vendor URLs (.example domains, deliberately unreachable) that open in a new tab. 'handoff' effects reach other roles only through the documented scenarios in HANDOFF.md and SCENARIOS.json. No control is an href=\"#\" placeholder: in-role links use href=\"#rv-top\" (a real anchor) plus a handler. Record IDs are no longer printed on any control label; routes still carry them.",
+ "testedKey": {
+  "J": "LOGIC TESTED by the journey suite at 1440, 1024, 768 and 375 (20 Oct run)",
+  "K": "LOGIC TESTED by the keyboard suite at 1440, 1024, 768 and 375 (20 Oct run)",
+  "L": "LOGIC TESTED by the link suite at 1440, 1024, 768 and 375 (20 Oct run)",
+  "smoke": "re-verified by the end-to-end smoke run at 1440 and 375 after the internal-ID correction (21 Oct)",
+  "S": "SOURCE CHECKED only"
+ },
+ "links": [
+  {
+   "source": "Shell",
+   "control": "Rail / phone menu: Overview",
+   "destination": "RV-01 Overview",
+   "route": "/reviewer",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "Shell",
+   "control": "Rail / phone menu: Review queue (waiting count)",
+   "destination": "RV-02 Review queue",
+   "route": "/reviewer/queue",
+   "class": "in-role",
+   "tested": "J (count asserted in the rail at 1440 and 1024; at 768 and 375 the same link sits in the phone menu)"
+  },
+  {
+   "source": "Shell",
+   "control": "Rail / phone menu: Reviewed by me",
+   "destination": "RV-05 Reviewed by me",
+   "route": "/reviewer/reviewed",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "Shell",
+   "control": "Rail foot / phone menu: Help & support",
+   "destination": "XS-07 Help & support (borrowed)",
+   "route": "/[workspace]/help",
+   "class": "shared",
+   "tested": "L"
+  },
+  {
+   "source": "Shell",
+   "control": "Menu button (below 1024 px)",
+   "destination": "phone menu drawer (focus trap, Escape, Close)",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J (768, 375) · L (Close button, 768, 375)"
+  },
+  {
+   "source": "Shell",
+   "control": "Account button (AM)",
+   "destination": "XS-05 account menu (borrowed)",
+   "route": "top bar",
+   "class": "shared",
+   "tested": "J"
+  },
+  {
+   "source": "XS-05 account menu",
+   "control": "Help & support",
+   "destination": "XS-07 Help & support (borrowed)",
+   "route": "/[workspace]/help",
+   "class": "shared",
+   "tested": "J"
+  },
+  {
+   "source": "XS-05 account menu",
+   "control": "Sign out",
+   "destination": "XS-03 signed out (borrowed)",
+   "route": "/signed-out",
+   "class": "shared",
+   "tested": "J"
+  },
+  {
+   "source": "XS-03 signed out",
+   "control": "Sign in",
+   "destination": "RV-01 Overview (stand-in for XS-01; no real authentication)",
+   "route": "/sign-in → /reviewer",
+   "class": "shared",
+   "tested": "J"
+  },
+  {
+   "source": "RV-01 Overview",
+   "control": "Open the review queue",
+   "destination": "RV-02",
+   "route": "/reviewer/queue",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-01 Overview",
+   "control": "Row: Review / Review update",
+   "destination": "RV-03 (submission or re-check) / RV-04 (update)",
+   "route": "detail routes",
+   "class": "in-role",
+   "tested": "J (approve, recheck)"
+  },
+  {
+   "source": "RV-01 Overview (nothing waiting)",
+   "control": "Open Reviewed by me",
+   "destination": "RV-05",
+   "route": "/reviewer/reviewed",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-01 Overview",
+   "control": "Next in line: Start review (the one gold primary)",
+   "destination": "RV-03 or RV-04 for the item waiting longest",
+   "class": "in-role",
+   "tested": "J · K · smoke"
+  },
+  {
+   "source": "RV-01 Overview",
+   "control": "In your queue: New submissions / Re-checks / Updates",
+   "destination": "RV-02 on the matching type tab",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-01 Overview",
+   "control": "Your review scope: a course row",
+   "destination": "RV-02 filtered to that course",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-01 Overview",
+   "control": "Recently decided: a decision row",
+   "destination": "RV-06 decided item (read-only), breadcrumb Reviewed by me",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-01 Overview",
+   "control": "Recently decided: All decisions",
+   "destination": "RV-05",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-02 Review queue",
+   "control": "Row link (item name)",
+   "destination": "RV-03 / RV-04",
+   "route": "detail routes",
+   "class": "in-role",
+   "tested": "J · K"
+  },
+  {
+   "source": "RV-02 Review queue",
+   "control": "Filter chip ×",
+   "destination": "removes that filter",
+   "route": "—",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-02 Review queue",
+   "control": "Clear filters (toolbar)",
+   "destination": "all filters cleared, focus to search",
+   "route": "—",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-02 Review queue (no match)",
+   "control": "Clear filters",
+   "destination": "all filters cleared, focus to search",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-02 Review queue (nothing waiting)",
+   "control": "Open Reviewed by me",
+   "destination": "RV-05",
+   "route": "/reviewer/reviewed",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-02 Review queue (failed to load)",
+   "control": "Try again",
+   "destination": "list reloads",
+   "route": "—",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-02 Review queue",
+   "control": "Type tabs: All, New submissions, Re-checks, Updates (arrow keys, Home, End; roving tabindex)",
+   "destination": "same list filtered by type; the tab panel is labelled by the selected tab",
+   "class": "in-role",
+   "tested": "J · L"
+  },
+  {
+   "source": "RV-02 Review queue",
+   "control": "Search and Course filter",
+   "destination": "same list, filtered; tab counts follow the search. The search still matches a record ID, which is no longer displayed",
+   "class": "in-role",
+   "tested": "J · smoke"
+  },
+  {
+   "source": "RV-03 / RV-04 detail",
+   "control": "Breadcrumb (Review queue or Reviewed by me)",
+   "destination": "the list the page sits under, heading focused. The current page names the experiment (it was the record ID before the final correction)",
+   "route": "/reviewer/queue or /reviewer/reviewed",
+   "class": "in-role",
+   "tested": "L (to the queue) · J (label after reopening a decided item) · smoke"
+  },
+  {
+   "source": "RV-03 / RV-04 detail",
+   "control": "Go to decision (only when the panel is below the content)",
+   "destination": "#rv-panel on the same page",
+   "route": "—",
+   "class": "anchor",
+   "tested": "L"
+  },
+  {
+   "source": "RV-03 / RV-04 identity card",
+   "control": "Page map: Re-check request, What changed, Why this correction, What changes, Learning outcomes, Description and documents, Live experiment, Formats and delivery, Review / Update history",
+   "destination": "that section, focused and scrolled to the top of the window",
+   "class": "anchor",
+   "tested": "J (RV-03) · L (RV-04, all four links)"
+  },
+  {
+   "source": "RV-03 / RV-04 decision panel",
+   "control": "Before you decide: See what changed / See what changes / Add an outcome",
+   "destination": "the change block, the comparison, or the outcome field",
+   "class": "anchor",
+   "tested": "J (RV-03) · L (RV-04)"
+  },
+  {
+   "source": "RV-03",
+   "control": "Preview link card (Two-minute walkthrough)",
+   "destination": "vendor's preview video, new tab, rel=noopener noreferrer (sample URL)",
+   "class": "external",
+   "tested": "J · L (target and rel asserted; not followed)"
+  },
+  {
+   "source": "RV-03 decision panel",
+   "control": "Field references, grouped by editor section (checkboxes, submissions only)",
+   "destination": "travel with the return to the vendor as section · field",
+   "class": "in-role",
+   "tested": "J · K (Space)"
+  },
+  {
+   "source": "RV-03",
+   "control": "Learning outcomes: Add, Edit, Save, Cancel, Delete, Undo, Move up, Move down",
+   "destination": "the outcome list on the page (travels with the decision)",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J · K · L (Move down, Cancel)"
+  },
+  {
+   "source": "RV-03",
+   "control": "View / Hide package details (AR, VR, MR cards)",
+   "destination": "package reference and install notes on the card",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-03",
+   "control": "Open web link (WEB card)",
+   "destination": "vendor's web build, new tab, rel=noopener noreferrer (sample .example URL)",
+   "route": "external",
+   "class": "external",
+   "tested": "J (target and href asserted; not followed)"
+  },
+  {
+   "source": "RV-03",
+   "control": "Preview link (Two-minute walkthrough)",
+   "destination": "vendor's preview video, new tab (sample .example URL)",
+   "route": "external",
+   "class": "external",
+   "tested": "L (target and rel asserted; not followed)"
+  },
+  {
+   "source": "RV-03",
+   "control": "Documents (file names)",
+   "destination": "none: names only, nothing is uploaded or downloadable (OD-B5-11)",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J (listed)"
+  },
+  {
+   "source": "RV-03 / RV-04 decision panel",
+   "control": "Decision radios (Approve / Return)",
+   "destination": "decision form state",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J · K (arrow keys)"
+  },
+  {
+   "source": "RV-03 decision panel",
+   "control": "Field references (checkboxes, submissions only)",
+   "destination": "travel with the return to the vendor",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J · K (Space)"
+  },
+  {
+   "source": "RV-03 / RV-04 decision panel",
+   "control": "Error summary links",
+   "destination": "the field in error (reason, outcomes, decision, outcome being edited)",
+   "route": "—",
+   "class": "anchor",
+   "tested": "J · K"
+  },
+  {
+   "source": "RV-03 decision panel",
+   "control": "Approve → dialog Approve",
+   "destination": "decision recorded; item leaves the queue; first in Reviewed by me; handoff: the Content Manager receives it (first publication stays theirs)",
+   "route": "—",
+   "class": "in-role + handoff (CM)",
+   "tested": "J"
+  },
+  {
+   "source": "RV-03 decision panel",
+   "control": "Return to vendor",
+   "destination": "decision recorded; handoff: the vendor sees the reason and references above their editor (VE-07/VE-08)",
+   "route": "—",
+   "class": "in-role + handoff (VE)",
+   "tested": "J · K"
+  },
+  {
+   "source": "RV-04 decision panel",
+   "control": "Approve update → dialog Approve update",
+   "destination": "decision recorded; handoff: the Super Admin's release decision (SA-10/SA-11); live version unchanged",
+   "route": "—",
+   "class": "in-role + handoff (SA)",
+   "tested": "J"
+  },
+  {
+   "source": "RV-04 decision panel",
+   "control": "Return to the Content Manager",
+   "destination": "decision recorded; handoff: the correction is editable again for the Content Manager (CM-08) with the reason first",
+   "route": "—",
+   "class": "in-role + handoff (CM)",
+   "tested": "J"
+  },
+  {
+   "source": "Confirmation dialog",
+   "control": "Cancel / Escape",
+   "destination": "dialog closes, focus back to the decision button",
+   "route": "—",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "Outcome block (after a decision)",
+   "control": "Back to the review queue / Back to Reviewed by me",
+   "destination": "RV-02 / RV-05 with the new state, heading focused",
+   "route": "list routes",
+   "class": "in-role",
+   "tested": "J · K"
+  },
+  {
+   "source": "RV-05 Reviewed by me",
+   "control": "Row link",
+   "destination": "RV-06 decided item (read-only)",
+   "route": "detail route, decided",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-05 Reviewed by me (no match)",
+   "control": "Clear filters",
+   "destination": "all filters cleared",
+   "route": "—",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-05 Reviewed by me (nothing decided)",
+   "control": "Open the review queue",
+   "destination": "RV-02",
+   "route": "/reviewer/queue",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "RV-05 Reviewed by me (failed to load)",
+   "control": "Try again",
+   "destination": "list reloads",
+   "route": "—",
+   "class": "in-role",
+   "tested": "L (harness-only wrapper with the failed list preset around the delivered RV.dc.html)"
+  },
+  {
+   "source": "RV-05 Reviewed by me",
+   "control": "Tabs: All, New submissions, Updates (arrow keys, Home, End; roving tabindex)",
+   "destination": "same list filtered by type, with Clear filters",
+   "class": "in-role",
+   "tested": "J"
+  },
+  {
+   "source": "RV-05 Reviewed by me",
+   "control": "Search, chip ×",
+   "destination": "same list, filtered; tab counts follow the search",
+   "class": "in-role",
+   "tested": "J · L"
+  },
+  {
+   "source": "RV-06 decided item",
+   "control": "Back to Reviewed by me / breadcrumb",
+   "destination": "RV-05",
+   "route": "/reviewer/reviewed",
+   "class": "in-role",
+   "tested": "J (breadcrumb label) · L (both clicked)"
+  },
+  {
+   "source": "Refusal: outside your review scope / not available",
+   "control": "Back to the review queue",
+   "destination": "RV-02",
+   "route": "/reviewer/queue",
+   "class": "in-role",
+   "tested": "L"
+  },
+  {
+   "source": "Refusal: outside your review scope / not available",
+   "control": "Help & support",
+   "destination": "XS-07 (borrowed)",
+   "route": "/[workspace]/help",
+   "class": "shared",
+   "tested": "L"
+  },
+  {
+   "source": "XS-07 Help & support",
+   "control": "Report a problem (empty list and list with reports)",
+   "destination": "report form; 'Where' pre-filled with the page you came from",
+   "route": "/[workspace]/help",
+   "class": "shared",
+   "tested": "J · L"
+  },
+  {
+   "source": "XS-07 report form",
+   "control": "Send report",
+   "destination": "validation (needs what happened) → sent, reference SUP-0214",
+   "route": "—",
+   "class": "shared",
+   "tested": "J"
+  },
+  {
+   "source": "XS-07 report form",
+   "control": "Cancel",
+   "destination": "Help & support list",
+   "route": "—",
+   "class": "shared",
+   "tested": "L"
+  },
+  {
+   "source": "XS-07 report form",
+   "control": "Error summary: Say what happened",
+   "destination": "focus to the text field",
+   "route": "—",
+   "class": "anchor",
+   "tested": "L"
+  },
+  {
+   "source": "XS-07 report sent",
+   "control": "View my reports / Back to Overview",
+   "destination": "Help & support list / RV-01",
+   "route": "—",
+   "class": "shared",
+   "tested": "J (View my reports) · L (Back to Overview)"
+  },
+  {
+   "source": "XS-07 my reports",
+   "control": "Report row",
+   "destination": "report detail",
+   "route": "—",
+   "class": "shared",
+   "tested": "J"
+  },
+  {
+   "source": "XS-07 report detail",
+   "control": "Help & support / Report a problem",
+   "destination": "list / form",
+   "route": "—",
+   "class": "shared",
+   "tested": "L"
+  },
+  {
+   "source": "Canvas index (Main.dc.html)",
+   "control": "64 board links and the two header buttons",
+   "destination": "every other canvas board",
+   "class": "canvas index",
+   "tested": "L (index check: all 64 targets exist and are served; every board except Main is linked)"
+  },
+  {
+   "source": "Canvas index (Coverage.dc.html, Checks.dc.html)",
+   "control": "board links and Back to the index",
+   "destination": "the boards each row names; Main",
+   "class": "canvas index",
+   "tested": "L (index check: all targets exist and are served)"
+  },
+  {
+   "source": "Canvas index (Main.dc.html)",
+   "control": "Earlier versions: the completed role and checkpoint 1",
+   "destination": "the two earlier canvases, new tab",
+   "class": "external",
+   "tested": "S"
+  }
+ ],
+ "notLinked": [
+  {
+   "what": "RV-07 courses in scope, learning outcomes, reviewer settings",
+   "why": "excluded; scope is one line on RV-01 and outcomes are edited on RV-03"
+  },
+  {
+   "what": "Publish, Release, Hold, partial-format approval, device certification",
+   "why": "not reviewer actions (first publication is the Content Manager's, release and hold are the Super Admin's)"
+  },
+  {
+   "what": "Account switcher or links into other roles' workspaces",
+   "why": "role boundary; other roles are reached only through the documented handoffs"
+  }
+ ],
+ "changedInRefinement": "New or changed controls compared with the completed role: the Overview desk (Start review, In your queue rows, scope rows, Recently decided rows, All decisions), the Review queue type tabs (were a Type select), the Reviewed by me tabs (were a Show select), the page map on review pages, the Before you decide links, the preview link card and the grouped field references. After acceptance: no control label prints a record ID, and the breadcrumb names the experiment. Routes are unchanged."
+}

@@ -24,8 +24,8 @@
 // It also writes the scoped derivative of each owner-approved role export's extension sheet
 // (ROLE_SHEETS; design/v3-refined-b/roles/, pack prompt 11): XS-v6's xs-shared.css →
 // src/styles/v3/xs-scoped.css, SA-v1's sa-role.css → src/styles/v3/sa-scoped.css, VE-v1's
-// v3-vendor.css → src/styles/v3/ve-scoped.css and CM-v1's cm.css → src/styles/v3/cm-scoped.css,
-// with the same selector-only transform. Before anything is written, the export must name this foundation,
+// v3-vendor.css → src/styles/v3/ve-scoped.css, CM-v1's cm.css → src/styles/v3/cm-scoped.css and
+// RV-v1's rv.css → src/styles/v3/rv-scoped.css, with the same selector-only transform. Before anything is written, the export must name this foundation,
 // its three base sheets must be the foundation's own bytes (a different base is a new foundation
 // version: STOP), and the extension sheet must match both the export's FOUNDATION-LOCK.json and
 // its checksums (the export's own SHA256SUMS.txt, or the list recorded at intake beside it).
@@ -413,6 +413,31 @@ export const ROLE_SHEETS = [
       'out; its borrowed XS sheet (xs-borrowed.css) is not generated — the delivered XS export draws it.',
     ],
   },
+  {
+    /** The workstream: RV · Academic Reviewer (6 screens). */
+    role: 'RV',
+    directory: join(repositoryRoot, 'design', 'v3-refined-b', 'roles', 'RV-v1'),
+    /** The role stylesheet (every rule selects an `rv-` class). */
+    sheet: 'project/rv.css',
+    /** No SHA256SUMS.txt in the export: the list recorded at intake, `RV-v1.SHA256SUMS.txt`. */
+    sums: 'beside',
+    output: join(packageRoot, 'src', 'styles', 'v3', 'rv-scoped.css'),
+    /**
+     * Rules left out when every selector names one of these: the export's borrowed shared surfaces
+     * (its COMPONENT-EXTENSIONS.md "Borrowed shared surfaces (XS contract, provisional)": "Not
+     * independent redesigns … replace them with the Shared Surfaces components at assembly";
+     * START-HERE "ASSEMBLY PENDING") — the account menu (`rv-acctwrap`, `rv-menu*`), the message
+     * template of the refusals and "Report sent" (`rv-msg*`, `rv-msgpage`, `rv-msgcard`), the file
+     * field and form actions of Report a problem (`rv-file`, `rv-formact`) and the signed-out page
+     * (`rv-solo*`). The delivered XS export (XS-v6) draws them. The export has no preview-only
+     * class family of its own: its canvas boards are wrappers importing the live root.
+     */
+    omit: /\.rv-(?:acctwrap|menu(?:-[\w-]+)?|msg(?:-[\w-]+|page|card)?|file|formact|solo(?:-[\w-]+)?)(?![\w-])/,
+    omitNote: [
+      'borrowed XS surfaces (rv-acctwrap, rv-menu*, rv-msg*, rv-msgpage, rv-msgcard, rv-file,',
+      'rv-formact, rv-solo*), which the delivered XS export draws, are left out.',
+    ],
+  },
 ];
 
 /** Whether every selector of a rule names something its export says is not product UI. */
@@ -420,17 +445,18 @@ export function previewOnlyRule(role, prelude) {
   return splitTopLevel(prelude, ',').every((selector) => role.omit.test(selector));
 }
 
-/** The export's recorded SHA-256 of one of its base sheets, in any of the four lock layouts. */
+/** The export's recorded SHA-256 of one of its base sheets, in any of the five lock layouts. */
 function exportedBaseSheet(exportLock, sheet) {
   return (
     exportLock.baseFiles?.[`project/${sheet}`]?.sha256 ??
     exportLock.byteIdenticalCopiesInProject?.[sheet]?.sha256 ??
     exportLock.sharedFilesShipped?.[`project/${sheet}`]?.sha256 ??
-    exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256
+    exportLock.baseFilesShipped?.[`project/${sheet}`]?.sha256 ??
+    exportLock.copiedBaseFiles?.[`project/${sheet}`]?.sha256
   );
 }
 
-/** The export's recorded SHA-256 of its extension sheet, in any of the four lock layouts. */
+/** The export's recorded SHA-256 of its extension sheet, in any of the five lock layouts. */
 function exportedLocalAddition(exportLock, sheet) {
   const entry = exportLock.localAdditions?.[sheet] ?? exportLock.localAdditions?.[basename(sheet)];
   return typeof entry === 'string' ? entry : entry?.sha256;

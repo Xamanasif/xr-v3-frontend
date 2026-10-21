@@ -1,0 +1,965 @@
+{
+ "about": "Explicit fixture snapshots for the Academic Reviewer design, with provenance. They are illustrative design scenarios, not canonical application data or service contracts. The React app keeps its current shared world; where it differs, keep the app’s facts and reproduce the layout (common/03).",
+ "fixtureSource": "project/RV.dc.html, class Component static getters COURSES, SCOPES, TIMES, REC, RB and REFS, extracted verbatim by checks/harness/extract_fixtures.js",
+ "scenarios": [
+  {
+   "scenarioId": "rv-2026-08-27",
+   "asOf": "2026-08-27",
+   "label": "Main sample world, Thursday 27 August 2026",
+   "persona": {
+    "name": "Prof. A. Menon",
+    "role": "Academic Reviewer",
+    "initials": "AM"
+   },
+   "scope": [
+    "ME ZG523",
+    "MEL ZG512",
+    "CHE ZG513"
+   ],
+   "source": "v46 Batch 6 sample world as embedded in B6-01, B6-02, B6-03, B6-04, B6-11, B6-12, B6-13 and B7-11",
+   "usedBy": "every board not listed under another scenario"
+  },
+  {
+   "scenarioId": "rv-2026-08-27-che-withdrawn",
+   "asOf": "2026-08-27",
+   "label": "CHE ZG513 removed from the reviewer's scope",
+   "difference": "scope = ME ZG523 · MEL ZG512; CHE ZG513 items leave the queue and the Course filter",
+   "basis": "Phase-6 report §5 (reported implementation behaviour): withdrawing a reviewer's scope removes the experiment from their queue; restoring it brings it back. Not a v46 board.",
+   "illustrative": true,
+   "usedBy": [
+    "RV-scope-withdrawn.dc.html"
+   ]
+  },
+  {
+   "scenarioId": "rv-calm",
+   "asOf": "2026-08-27",
+   "label": "Nothing waiting",
+   "difference": "the queue is empty (presentation preset; records unchanged)",
+   "basis": "v46 B6-01 and B6-02 calm and empty states",
+   "usedBy": [
+    "RV01-calm.dc.html",
+    "RV02-empty.dc.html"
+   ]
+  },
+  {
+   "scenarioId": "rv-first-time",
+   "asOf": "2026-08-27",
+   "label": "A reviewer who has not decided anything yet",
+   "difference": "Reviewed by me is empty (presentation preset)",
+   "basis": "v46 B6-02 empty state",
+   "usedBy": [
+    "RV05-empty.dc.html"
+   ]
+  },
+  {
+   "scenarioId": "rv-2026-08-27-stale",
+   "asOf": "2026-08-27",
+   "label": "UPD-0005 withdrawn by the Content Manager while the reviewer has it open",
+   "difference": "the next decision is refused and nothing is recorded; the page re-reads and shows \"Withdrawn by the Content Manager\" without a reason; the update leaves the queue; Reviewed by me is unchanged",
+   "basis": "Phase-6 report: a stale decision is refused and the page re-reads; every correction command checks the revision. OD-B6-06: the Content Manager may withdraw an update while it is in academic review. The withdrawal reason is withheld from the reviewer (Phase-6 H-2).",
+   "illustrative": true,
+   "usedBy": [
+    "RV04-stale-armed.dc.html",
+    "RV04-stale.dc.html"
+   ]
+  },
+  {
+   "scenarioId": "rv-2026-08-27-elsewhere",
+   "asOf": "2026-08-27",
+   "label": "SUB-0077 already approved in another window at 15:20",
+   "difference": "a second attempt records nothing new; the page shows the existing decision read-only",
+   "basis": "repeated-command protection (common/03); illustrative copy",
+   "illustrative": true,
+   "usedBy": [
+    "RV06-elsewhere.dc.html"
+   ]
+  },
+  {
+   "scenarioId": "rv-draft-withdrawn",
+   "asOf": "2026-08-27",
+   "label": "A draft withdrawn before it was ever sent",
+   "difference": "no record data at all: \"This item isn't available to you\"",
+   "basis": "Phase-6 report M-1 (rule UPD-16): a draft withdrawn before it was ever sent is hidden from the reviewer",
+   "usedBy": [
+    "RV-unavailable.dc.html"
+   ]
+  },
+  {
+   "scenarioId": "rv-out-of-scope",
+   "asOf": "2026-08-27",
+   "label": "UPD-0006 (EEE ZC341) opened by its address",
+   "difference": "EEE ZC341 is not in the 27 Aug scope: refusal, nothing of the record shown",
+   "basis": "effective-scope rule (brief: revoked scope is not readable); OD-B7-15",
+   "usedBy": [
+    "RV-scope.dc.html",
+    "RV-scope-375.dc.html"
+   ]
+  }
+ ],
+ "presentationPresets": {
+  "about": "Inspection-board starting states. They change what the board shows first, never the records.",
+  "list": {
+   "filtered": "queue: search \"dist\" + course CHE ZG513 · Reviewed by me: the Updates tab",
+   "nomatch": "search \"Heat exchanger\"",
+   "loading": "skeleton rows",
+   "failed": "failed to load with Try again",
+   "empty": "nothing waiting / nothing decided"
+  },
+  "item": [
+   "approve-blocked",
+   "return-errors",
+   "return-filled",
+   "confirm",
+   "approved",
+   "returned",
+   "deleted",
+   "editing",
+   "package-open",
+   "stale-armed",
+   "stale",
+   "elsewhere"
+  ],
+  "other": [
+   "overlay: drawer, account",
+   "help: errors, sent",
+   "view: signedout"
+  ]
+ },
+ "fixtures": {
+  "courses": {
+   "ME ZG523": "Thermodynamics & Heat Transfer",
+   "MEL ZG512": "Manufacturing Processes",
+   "CHE ZG513": "Process Instrumentation & Control",
+   "EEE ZC341": "Electrical Machines"
+  },
+  "scopes": {
+   "full": [
+    "ME ZG523",
+    "MEL ZG512",
+    "CHE ZG513"
+   ],
+   "che-withdrawn": [
+    "ME ZG523",
+    "MEL ZG512"
+   ]
+  },
+  "decisionClock": {
+   "times": [
+    "27 Aug 2026, 11:20",
+    "27 Aug 2026, 14:05",
+    "27 Aug 2026, 15:20",
+    "27 Aug 2026, 16:10",
+    "27 Aug 2026, 16:45",
+    "27 Aug 2026, 17:20"
+   ],
+   "provenance": "the first three are v46 sample times (B6-04, B6-12); later ones are illustrative"
+  },
+  "records": {
+   "SUB-0086": {
+    "kind": "sub",
+    "name": "Flash Distillation",
+    "course": "CHE ZG513",
+    "who": "Meridian Virtual Labs",
+    "rev": 1,
+    "st": "with_rv",
+    "since": "24 Aug 2026",
+    "iso": "2026-08-24",
+    "fmts": [
+     "WEB"
+    ],
+    "summary": "Flash a hot binary feed across a valve into a drum and find the vapour fraction from your own readings.",
+    "desc": "Learners set the feed temperature and the drum pressure, read the vapour and liquid flows, and compare the vapour fraction with an equilibrium calculation.",
+    "version": "1.0",
+    "preview": null,
+    "docs": [
+     "Flash drum handout.pdf"
+    ],
+    "deliv": {
+     "WEB": {
+      "link": "https://labs.meridian.example/flash-distillation",
+      "browser": "A current browser on a laptop or desktop"
+     }
+    },
+    "lo": [],
+    "hist": [
+     {
+      "w": "Submitted for academic review",
+      "t": "24 Aug 2026, 14:10",
+      "n": "Revision 1 · from Meridian Virtual Labs"
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-01",
+      "B6-02",
+      "B6-03",
+      "B6-11"
+     ],
+     "notes": "Oldest waiting item. No learning outcomes yet, so Approve is refused until one is added (B6-11 state; OD-B6-02)."
+    }
+   },
+   "SUB-0071": {
+    "kind": "sub",
+    "name": "Venturi Meter Calibration",
+    "course": "CHE ZG513",
+    "who": "Meridian Virtual Labs",
+    "rev": 1,
+    "st": "recheck",
+    "since": "25 Aug 2026",
+    "iso": "2026-08-25",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "summary": "Calibrate a Venturi meter against a weigh tank and find its discharge coefficient.",
+    "desc": "Learners vary the flow, read the throat and inlet pressures and the collected mass, and plot the discharge coefficient against the Reynolds number.",
+    "version": "1.0",
+    "preview": null,
+    "docs": [],
+    "deliv": {
+     "WEB": {
+      "link": "https://labs.meridian.example/venturi",
+      "browser": "A current browser on a laptop or desktop"
+     },
+     "AR": {
+      "label": "Venturi — AR build 1.0",
+      "device": "Phone or tablet with a rear camera, Android 12 / iOS 16 or later"
+     }
+    },
+    "recheck": {
+     "by": "Kavya Nair, Content Manager",
+     "when": "25 Aug 2026, 10:42",
+     "reason": "The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes."
+    },
+    "lo": [
+     "Calibrate a Venturi meter against a weigh tank.",
+     "Compare the discharge coefficient with a Pitot tube reading.",
+     "Explain where the pressure is recovered downstream of the throat."
+    ],
+    "hist": [
+     {
+      "w": "Sent back to the Academic Reviewer by Kavya Nair",
+      "t": "25 Aug 2026, 10:42",
+      "n": "“The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes.”"
+     },
+     {
+      "w": "Approved by Prof. A. Menon",
+      "t": "18 Aug 2026, 11:30",
+      "n": "Sent to the Content Manager with 3 learning outcomes."
+     },
+     {
+      "w": "Submitted for academic review",
+      "t": "10 Aug 2026, 09:20",
+      "n": "Revision 1 · from Meridian Virtual Labs"
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-01",
+      "B6-02",
+      "B6-03",
+      "B6-11"
+     ],
+     "notes": "Re-check sent back by the Content Manager on 25 Aug 2026, 10:42, with her reason (the Pitot-tube outcome)."
+    }
+   },
+   "UPD-0005": {
+    "kind": "upd",
+    "name": "Distillation Column",
+    "course": "CHE ZG513",
+    "who": "Kavya Nair",
+    "st": "in_review",
+    "since": "25 Aug 2026",
+    "iso": "2026-08-25",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "liveVer": "1.2",
+    "liveSince": "3 Jul 2026",
+    "newVer": "1.3",
+    "vendor": "Meridian Virtual Labs",
+    "sent": "25 Aug 2026, 16:00",
+    "cmp": [
+     {
+      "f": "Description",
+      "live": [
+       {
+        "t": "Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. "
+       },
+       {
+        "t": "Lowering",
+        "m": 1
+       },
+       {
+        "t": " the reflux ratio raises the overhead purity, at the cost of more reboiler heat."
+       }
+      ],
+      "prop": [
+       {
+        "t": "Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. "
+       },
+       {
+        "t": "Raising",
+        "m": 1
+       },
+       {
+        "t": " the reflux ratio raises the overhead purity, at the cost of more reboiler heat."
+       }
+      ]
+     },
+     {
+      "f": "WEB · web link",
+      "live": [
+       {
+        "t": "https://labs.meridian.example/distillation-column"
+       }
+      ],
+      "prop": [
+       {
+        "t": "https://labs.meridian.example/distillation-column"
+       },
+       {
+        "t": "-1-3",
+        "m": 1
+       }
+      ]
+     },
+     {
+      "f": "Version",
+      "live": [
+       {
+        "t": "1.2",
+        "m": 1
+       }
+      ],
+      "prop": [
+       {
+        "t": "1.3",
+        "m": 1
+       }
+      ]
+     }
+    ],
+    "why": "Corrects the reflux statement in the description: raising the reflux ratio raises overhead purity — v1.2 says the opposite. The web link moves to build 1.3, which carries the same correction in its on-screen notes.",
+    "summary": "Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.",
+    "lo": [
+     "Bring a column to steady state from cold start",
+     "Tune reflux ratio against an overhead purity target"
+    ],
+    "hist": [
+     {
+      "w": "Sent for academic review",
+      "t": "25 Aug 2026, 16:00",
+      "n": "To Prof. A. Menon. The live version 1.2 is unchanged."
+     },
+     {
+      "w": "Correction started from the published experiment",
+      "t": "25 Aug 2026, 15:40",
+      "n": "Pre-filled with the live version 1.2."
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-01",
+      "B6-02",
+      "B6-04",
+      "B6-13",
+      "B7-11"
+     ],
+     "notes": "Correction 1.2 → 1.3 in academic review. Comparison, reason, history and the sample return text come from B6-04."
+    }
+   },
+   "SUB-0077": {
+    "kind": "sub",
+    "name": "Conduction Through a Composite Wall",
+    "course": "ME ZG523",
+    "who": "Northline Simulation Studio",
+    "rev": 2,
+    "st": "with_rv",
+    "since": "26 Aug 2026",
+    "iso": "2026-08-26",
+    "resub": "26 Aug 2026",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "summary": "Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.",
+    "desc": "Learners build a wall from three layers — brick, insulation and plaster — set the hot-side and cold-side temperatures, and read the temperature at each interface. They compare the measured profile and heat flux with the series thermal-resistance model and explain where the two differ.",
+    "version": "1.0",
+    "preview": {
+     "label": "Two-minute walkthrough",
+     "url": "https://media.northline.example/composite-wall-walkthrough"
+    },
+    "docs": [
+     "Lab handout — Composite Wall.pdf",
+     "Thermocouple positions.pdf"
+    ],
+    "deliv": {
+     "WEB": {
+      "link": "https://labs.northline.example/composite-wall",
+      "browser": "A current Chrome, Edge, Firefox or Safari on a laptop or desktop, with a keyboard and mouse"
+     },
+     "VR": {
+      "label": "Composite Wall — VR build 1.0",
+      "ref": "NSS-CW-VR-1.0",
+      "device": "Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor",
+      "install": "Install the build named above on the headset and open “Composite Wall Lab”. On first launch, set the play-area boundary.",
+      "changed": true
+     }
+    },
+    "prevReturn": {
+     "when": "19 Aug 2026",
+     "reason": "Please clarify the VR device requirements."
+    },
+    "changes": [
+     {
+      "f": "Formats & delivery · VR · Device need",
+      "was": "VR headset",
+      "now": "Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor"
+     }
+    ],
+    "lo": [
+     "Explain conduction through layers in series using thermal resistance.",
+     "Predict interface temperatures from layer properties.",
+     "Compare measured and predicted heat flux and explain the difference."
+    ],
+    "hist": [
+     {
+      "w": "Resubmitted · revision 2",
+      "t": "26 Aug 2026, 11:30",
+      "n": "Northline Simulation Studio changed the VR device need."
+     },
+     {
+      "w": "Returned to vendor by Prof. A. Menon",
+      "t": "19 Aug 2026, 16:05",
+      "n": "“Please clarify the VR device requirements.”"
+     },
+     {
+      "w": "Submitted for academic review",
+      "t": "12 Aug 2026, 10:52",
+      "n": "Revision 1 · from Northline Simulation Studio"
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-01",
+      "B6-02",
+      "B6-03",
+      "B6-12"
+     ],
+     "notes": "Resubmitted as revision 2 on 26 Aug 2026 after the reviewer returned revision 1 on 19 Aug 2026. Approval at 15:20 is the B6-12 sample time."
+    }
+   },
+   "SUB-0074": {
+    "kind": "sub",
+    "name": "Transient Cooling",
+    "course": "ME ZG523",
+    "who": "Northline Simulation Studio",
+    "rev": 1,
+    "st": "with_cm",
+    "fmts": [
+     "WEB"
+    ],
+    "summary": "Cool a heated cylinder in still air and water, and test when the lumped-capacitance model holds.",
+    "desc": "Learners heat aluminium and steel cylinders, log their cooling in air and in water, and compare the curves with the lumped model using the Biot number.",
+    "version": "1.0",
+    "preview": null,
+    "docs": [],
+    "deliv": {
+     "WEB": {
+      "link": "https://labs.northline.example/transient-cooling",
+      "browser": "A current browser on a laptop or desktop"
+     }
+    },
+    "lo": [
+     "Decide when the lumped-capacitance model applies, using the Biot number.",
+     "Estimate a heat transfer coefficient from a measured cooling curve."
+    ],
+    "past": {
+     "dec": "approved",
+     "when": "14 Aug 2026, 15:10"
+    },
+    "hist": [
+     {
+      "w": "Approved by Prof. A. Menon",
+      "t": "14 Aug 2026, 15:10",
+      "n": "Sent to the Content Manager with 2 learning outcomes. Nothing is published."
+     },
+     {
+      "w": "Submitted for academic review",
+      "t": "6 Aug 2026, 12:02",
+      "n": "Revision 1 · from Northline Simulation Studio"
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-02",
+      "B6-03"
+     ],
+     "notes": "Decided (approved 14 Aug 2026, 15:10), with the Content Manager. Used for RV-06."
+    }
+   },
+   "SUB-0081": {
+    "kind": "sub",
+    "name": "Forced Convection",
+    "course": "ME ZG523",
+    "who": "Northline Simulation Studio",
+    "rev": 1,
+    "st": "returned",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "partial": true,
+    "past": {
+     "dec": "returned",
+     "when": "24 Aug 2026",
+     "reason": "The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.",
+     "refs": [
+      "Formats & delivery · AR · Device need",
+      "Formats & delivery · AR · Install notes"
+     ]
+    },
+    "hist": [
+     {
+      "w": "Returned to vendor by Prof. A. Menon",
+      "t": "24 Aug 2026",
+      "n": "“The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.”"
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-02"
+     ],
+     "notes": "Decided (returned 24 Aug 2026) with reason and two references. Partial: only list-level facts exist, so the decided page shows no description or delivery."
+    }
+   },
+   "SUB-0070": {
+    "kind": "sub",
+    "name": "Packed Bed Pressure Drop",
+    "course": "CHE ZG513",
+    "who": "Meridian Virtual Labs",
+    "rev": 1,
+    "st": "with_cm",
+    "fmts": [
+     "WEB",
+     "AR"
+    ],
+    "partial": true,
+    "summary": "Push air through a packed bed and compare the pressure drop you measure with the Ergun equation.",
+    "desc": "Learners change the air flow through beds of glass beads and Raschig rings, read the pressure drop, and fit the Ergun constants from their own data.",
+    "version": "1.0",
+    "past": {
+     "dec": "approved",
+     "when": "21 Aug 2026, 10:15"
+    },
+    "hist": [
+     {
+      "w": "Approved by Prof. A. Menon",
+      "t": "21 Aug 2026, 10:15",
+      "n": "Sent to the Content Manager."
+     },
+     {
+      "w": "Submitted for academic review",
+      "t": "12 Aug 2026, 13:00",
+      "n": "Revision 1 · from Meridian Virtual Labs"
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-02",
+      "B6-11"
+     ],
+     "notes": "Decided (approved 21 Aug 2026). Outcome count conflicts between sources; the outcome list is omitted."
+    }
+   },
+   "SUB-0052": {
+    "kind": "sub",
+    "name": "Fin-Tube Bundle",
+    "course": "ME ZG523",
+    "who": "Northline Simulation Studio",
+    "rev": 1,
+    "st": "published",
+    "pubWhen": "30 Jul 2026",
+    "fmts": [
+     "WEB",
+     "VR"
+    ],
+    "partial": true,
+    "summary": "Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.",
+    "past": {
+     "dec": "approved",
+     "when": "24 Jul 2026"
+    },
+    "hist": [
+     {
+      "w": "Published by the Content Manager",
+      "t": "30 Jul 2026",
+      "n": ""
+     },
+     {
+      "w": "Approved by Prof. A. Menon",
+      "t": "24 Jul 2026",
+      "n": "Sent to the Content Manager."
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-02",
+      "B6-12"
+     ],
+     "notes": "Approved 24 Jul 2026, published by the Content Manager on 30 Jul 2026. Partial."
+    }
+   },
+   "UPD-0004": {
+    "kind": "upd",
+    "name": "Boiler Drum Level",
+    "course": "CHE ZG513",
+    "who": "Kavya Nair",
+    "st": "awaiting",
+    "newVer": "2.1",
+    "fmts": null,
+    "partial": true,
+    "past": {
+     "dec": "approved",
+     "when": "14 Aug 2026"
+    },
+    "hist": [
+     {
+      "w": "Approved by Prof. A. Menon",
+      "t": "14 Aug 2026",
+      "n": "With the Super Admin for a release decision."
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-02",
+      "B7-11"
+     ],
+     "notes": "Update approved 14 Aug 2026; B7-11 puts it on hold on 20 Aug 2026. The reviewer sees only \"with the Super Admin\" (audience filtering; v46 reviewer list wording). Partial."
+    }
+   },
+   "UPD-0003": {
+    "kind": "upd",
+    "name": "Orifice Plate Metering",
+    "course": "CHE ZG513",
+    "who": "Kavya Nair",
+    "st": "released",
+    "newVer": "1.1",
+    "relWhen": "5 Aug 2026",
+    "fmts": null,
+    "partial": true,
+    "past": {
+     "dec": "approved",
+     "when": "30 Jul 2026"
+    },
+    "hist": [
+     {
+      "w": "Released by the Super Admin",
+      "t": "5 Aug 2026",
+      "n": "Version 1.1 is live."
+     },
+     {
+      "w": "Approved by Prof. A. Menon",
+      "t": "30 Jul 2026",
+      "n": "With the Super Admin for a release decision."
+     }
+    ],
+    "provenance": {
+     "sources": [
+      "B6-02"
+     ],
+     "notes": "Update approved 30 Jul 2026, released 5 Aug 2026; version 1.1 is live. Partial."
+    }
+   },
+   "UPD-0006": {
+    "kind": "upd",
+    "name": "Induction Motor Loading",
+    "course": "EEE ZC341",
+    "who": "Kavya Nair",
+    "st": "returned",
+    "newVer": "1.1",
+    "fmts": null,
+    "partial": true,
+    "past": {
+     "dec": "returned",
+     "when": "26 Aug 2026"
+    },
+    "hist": [],
+    "provenance": {
+     "sources": [
+      "B6-02"
+     ],
+     "notes": "EEE ZC341 is outside the 27 Aug scope (OD-B7-15). Kept in the fixtures but filtered out of every list; opening it gives the out-of-scope refusal."
+    }
+   }
+  },
+  "reviewedByMe": {
+   "rows": [
+    {
+     "key": "h-upd6",
+     "id": "UPD-0006",
+     "dec": "returned",
+     "when": "26 Aug 2026",
+     "iso": "2026-08-26"
+    },
+    {
+     "key": "h-sub81",
+     "id": "SUB-0081",
+     "dec": "returned",
+     "when": "24 Aug 2026",
+     "iso": "2026-08-24"
+    },
+    {
+     "key": "h-sub70",
+     "id": "SUB-0070",
+     "dec": "approved",
+     "when": "21 Aug 2026",
+     "iso": "2026-08-21"
+    },
+    {
+     "key": "h-sub77",
+     "id": "SUB-0077",
+     "dec": "returned",
+     "rev": 1,
+     "when": "19 Aug 2026",
+     "iso": "2026-08-19"
+    },
+    {
+     "key": "h-sub71",
+     "id": "SUB-0071",
+     "dec": "approved",
+     "when": "18 Aug 2026",
+     "iso": "2026-08-18"
+    },
+    {
+     "key": "h-sub74",
+     "id": "SUB-0074",
+     "dec": "approved",
+     "when": "14 Aug 2026",
+     "iso": "2026-08-14"
+    },
+    {
+     "key": "h-upd4",
+     "id": "UPD-0004",
+     "dec": "approved",
+     "when": "14 Aug 2026",
+     "iso": "2026-08-14"
+    },
+    {
+     "key": "h-upd3",
+     "id": "UPD-0003",
+     "dec": "approved",
+     "when": "30 Jul 2026",
+     "iso": "2026-07-30"
+    },
+    {
+     "key": "h-sub52",
+     "id": "SUB-0052",
+     "dec": "approved",
+     "when": "24 Jul 2026",
+     "iso": "2026-07-24"
+    }
+   ],
+   "provenance": "v46 B6-02 (newest first). Rows outside the effective scope are filtered out (UPD-0006), so the list shows 8."
+  },
+  "returnReferences": {
+   "options": [
+    {
+     "k": "summary",
+     "g": "Course & description ·",
+     "f": "Summary"
+    },
+    {
+     "k": "desc",
+     "g": "Course & description ·",
+     "f": "Description"
+    },
+    {
+     "k": "WEB_link",
+     "fmt": "WEB",
+     "g": "Formats & delivery · WEB ·",
+     "f": "Web link"
+    },
+    {
+     "k": "WEB_browser",
+     "fmt": "WEB",
+     "g": "Formats & delivery · WEB ·",
+     "f": "Browser and computer"
+    },
+    {
+     "k": "AR_pkg",
+     "fmt": "AR",
+     "g": "Formats & delivery · AR ·",
+     "f": "Package"
+    },
+    {
+     "k": "AR_device",
+     "fmt": "AR",
+     "g": "Formats & delivery · AR ·",
+     "f": "Device need"
+    },
+    {
+     "k": "AR_install",
+     "fmt": "AR",
+     "g": "Formats & delivery · AR ·",
+     "f": "Install notes"
+    },
+    {
+     "k": "VR_pkg",
+     "fmt": "VR",
+     "g": "Formats & delivery · VR ·",
+     "f": "Package"
+    },
+    {
+     "k": "VR_device",
+     "fmt": "VR",
+     "g": "Formats & delivery · VR ·",
+     "f": "Device need"
+    },
+    {
+     "k": "VR_install",
+     "fmt": "VR",
+     "g": "Formats & delivery · VR ·",
+     "f": "Install notes"
+    },
+    {
+     "k": "MR_pkg",
+     "fmt": "MR",
+     "g": "Formats & delivery · MR ·",
+     "f": "Package"
+    },
+    {
+     "k": "MR_device",
+     "fmt": "MR",
+     "g": "Formats & delivery · MR ·",
+     "f": "Device need"
+    },
+    {
+     "k": "MR_install",
+     "fmt": "MR",
+     "g": "Formats & delivery · MR ·",
+     "f": "Install notes"
+    },
+    {
+     "k": "preview",
+     "g": "Preview & documents ·",
+     "f": "Preview link"
+    }
+   ],
+   "provenance": "v46 B6-11 state 2 and OD-B5-10; offered only for the submission's own formats and only on submission returns"
+  }
+ },
+ "illustrativeAdditions": [
+  {
+   "what": "SUB-0077 revision-2 return reason: \"Please say which standalone headsets the VR build runs on, so institutions can check their devices.\" with references VR · Device need and VR · Install notes",
+   "where": "RV03-return-filled, RV03-returned and the live preview",
+   "why": "v46 only returns revision 1; the return path on the corrected scenario needs a sample reason"
+  },
+  {
+   "what": "Decision clock after the first three times: 16:10, 16:45, 17:20 on 27 Aug 2026",
+   "where": "live preview",
+   "why": "the preview can record more decisions than v46 timed"
+  },
+  {
+   "what": "Help & support report reference SUP-0214",
+   "where": "RV-report-sent and the live preview",
+   "why": "v46 uses SUP-0213 for two different reports; a new number collides with neither"
+  },
+  {
+   "what": "Refusal copy for \"decided in another window\" and \"withdrawn after you opened it\"",
+   "where": "RV06-elsewhere, RV04-stale",
+   "why": "the brief requires already-decided and stale-version refusals; v46 has no board for them"
+  },
+  {
+   "what": "CHE ZG513 scope-removed variant",
+   "where": "RV-scope-withdrawn",
+   "why": "demonstrates revoked scope from reported Phase-6 behaviour"
+  }
+ ],
+ "conflictsAndOmissions": [
+  {
+   "id": "OD-B7-15",
+   "what": "UPD-0006 (EEE ZC341) is in v46's Reviewed by me, but EEE ZC341 is not on the 27 Aug scope line; Batch 7 records that scope withdrawn on 1 Oct 2026.",
+   "treatment": "left out of Reviewed by me (8 decisions, not 9) and used as the out-of-scope refusal; still present in the fixtures, filtered by scope",
+   "ownerDecision": "confirm",
+   "integrationVerification": "Confirm against the live scope records before integration: if EEE ZC341 was in scope on 27 Aug 2026, UPD-0006 belongs in Reviewed by me and the count becomes 9. Nothing in the data was changed to fit the design."
+  },
+  {
+   "id": "SUB-0070 outcomes",
+   "what": "v46 queue data gives 3 learning outcomes; B6-11 shows none.",
+   "treatment": "the decided page omits the outcome list and count",
+   "ownerDecision": "confirm",
+   "integrationVerification": "Confirm the outcome count against the live record before integration. The design omits the list rather than choosing 3 or 0; nothing in the data was changed."
+  },
+  {
+   "id": "Partial records",
+   "what": "SUB-0081, SUB-0070, SUB-0052, UPD-0004, UPD-0003 and UPD-0006 have only list-level facts in v46.",
+   "treatment": "decided pages show only known facts; nothing invented"
+  },
+  {
+   "id": "UPD-0004 hold",
+   "what": "B7-11 puts UPD-0004 on hold on 20 Aug 2026.",
+   "treatment": "the reviewer sees \"Update approved — with the Super Admin\" as in v46's reviewer list; no hold status or reason (audience filtering)"
+  },
+  {
+   "id": "OD-B6-12",
+   "what": "v46 B6-12 publishes SUB-0077 on 28 Aug 2026.",
+   "treatment": "outside this scenario (asOf 27 Aug); approval only sends it to the Content Manager"
+  }
+ ],
+ "handoffs": [
+  {
+   "direction": "outbound",
+   "trigger": "Return a submission (RV-03)",
+   "to": "Vendor",
+   "effect": "Submission status Returned; the vendor sees the reason and the field references above their editor (VE-07, VE-08); a resubmission returns to the reviewer as the next revision (PC-66)"
+  },
+  {
+   "direction": "outbound",
+   "trigger": "Approve a submission or re-check (RV-03)",
+   "to": "Content Manager",
+   "effect": "Submission status With Content Manager, carrying the reviewer's outcome set; first publication is the Content Manager's decision; publishing grants no access"
+  },
+  {
+   "direction": "outbound",
+   "trigger": "Approve an update (RV-04)",
+   "to": "Super Admin",
+   "effect": "Update status Awaiting release decision; the live version is unchanged until the Super Admin releases (SA-10, SA-11); releasing grants no access"
+  },
+  {
+   "direction": "outbound",
+   "trigger": "Return an update (RV-04)",
+   "to": "Content Manager",
+   "effect": "Update status Returned; the correction is editable again with the reason shown first (CM-08); no field references (T-28)"
+  },
+  {
+   "direction": "inbound",
+   "trigger": "Content Manager sends a submission back for a re-check",
+   "effect": "queue row Re-check with her reason first (SUB-0071)"
+  },
+  {
+   "direction": "inbound",
+   "trigger": "Content Manager sends an update for academic review",
+   "effect": "queue row Update (UPD-0005)"
+  },
+  {
+   "direction": "inbound",
+   "trigger": "Vendor resubmits",
+   "effect": "queue row Resubmitted · revision 2, with what changed (SUB-0077)"
+  },
+  {
+   "direction": "inbound",
+   "trigger": "Content Manager withdraws an update in academic review",
+   "effect": "it leaves the queue; an open page refuses the next decision (stale)"
+  },
+  {
+   "direction": "inbound",
+   "trigger": "Super Admin withdraws or restores a reviewer scope",
+   "effect": "that course's items leave or return to the queue"
+  }
+ ],
+ "liveAcrossCanvases": false,
+ "unchangedByRefinement": "The FINAL complete-role design uses exactly these fixtures. On 20 Oct 2026 the extraction from the refined component and from the completed role were compared and were identical; the refinement and the later internal-ID correction changed presentation only. Record IDs are still carried in the data and the routes; they are no longer printed in reviewer-facing labels."
+}

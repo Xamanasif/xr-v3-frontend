@@ -1,0 +1,62 @@
+[
+ {
+  "check": "[375] long text stress-overview: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] long text stress-queue: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] long text stress-item: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] long text stress-reviewed: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[768] long text stress-overview: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[768] long text stress-queue: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[768] long text stress-item: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[768] long text stress-reviewed: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] long text stress-overview: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] long text stress-queue: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] long text stress-item: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[1440] long text stress-reviewed: no sideways overflow",
+  "pass": true,
+  "detail": "[]"
+ }
+]

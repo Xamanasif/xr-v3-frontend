@@ -7,9 +7,10 @@ import type { ScreenKey } from './screens';
  * The Academic Reviewer workspace's Phase-5 pages (boards B6-01 … B6-03, B6-11, B6-12): addresses,
  * titles and places in the shell. Sidebar owners are the active-item map's (Overview; Review queue
  * for RV-02, RV-03 and RV-06 — even when opened from Reviewed by me, B6-03 f4; Reviewed by me for
- * RV-05). Top bars: a destination's own page has no crumbs (B6-01 f0 "Overview", B6-02 f0 "Review
- * queue", f1 "Reviewed by me"); a submission "Review queue / SUB-0077" (B6-03 f0); an update
- * "Review queue / UPD-0005" (B6-04 f0; Phase 6, RV-04 — the mobile top bar "Review queue").
+ * RV-05). A destination's own page has no crumbs (B6-01 f0 "Overview", B6-02 f0 "Review queue",
+ * f1 "Reviewed by me"); a submission or an update sits under its parent list and is named by its
+ * experiment (RV-v1 "The breadcrumb names the experiment"; the owner's identifier rule: no record
+ * reference in a crumb, a browser tab or a prefilled place).
  */
 type ReviewerDestination = 'RV-01' | 'RV-02' | 'RV-05';
 
@@ -56,6 +57,25 @@ export interface ReviewerPlacement {
 }
 
 const QUEUE_CRUMB: BreadcrumbLevel = { label: REVIEW_QUEUE_TITLE, href: REVIEW_QUEUE_ADDRESS };
+const REVIEWED_CRUMB: BreadcrumbLevel = {
+  label: REVIEWED_BY_ME_TITLE,
+  href: REVIEWED_BY_ME_ADDRESS,
+};
+
+/**
+ * The list an item page sits under (RV-v1 `parentOf`): the Review queue while the item waits for
+ * the reviewer's decision, otherwise Reviewed by me.
+ */
+export type ReviewerParent = 'queue' | 'reviewed';
+
+export function reviewerParentOf(waiting: boolean): ReviewerParent {
+  return waiting ? 'queue' : 'reviewed';
+}
+
+/** The parent list as the breadcrumb's link (`nav.rk-crumbs a`). */
+export function reviewerParentCrumb(parent: ReviewerParent): BreadcrumbLevel {
+  return parent === 'reviewed' ? REVIEWED_CRUMB : QUEUE_CRUMB;
+}
 
 export function reviewerOverviewPlacement(): ReviewerPlacement {
   return { screen: 'RV-01', title: REVIEWER_OVERVIEW_TITLE, trail: [] };
@@ -69,26 +89,42 @@ export function reviewedByMePlacement(): ReviewerPlacement {
   return { screen: 'RV-05', title: REVIEWED_BY_ME_TITLE, trail: [] };
 }
 
-/** B6-03 f0 "Review queue / SUB-0077"; RV-06 once decided. While it loads, "Review queue". */
-export function reviewSubmissionPlacement(
-  submission: { readonly id: string; readonly name: string; readonly decided: boolean } | null,
-): ReviewerPlacement {
-  if (submission === null) return { screen: 'RV-03', title: REVIEW_QUEUE_TITLE, trail: [] };
-  return {
-    screen: submission.decided ? 'RV-06' : 'RV-03',
-    title: submission.name,
-    trail: [QUEUE_CRUMB],
-    currentCrumb: submission.id,
-  };
+/**
+ * An item page's place (RV-v1: "The breadcrumb names the experiment"; the owner's identifier rule —
+ * no record reference in a breadcrumb, a browser tab or the "Where" of Report a problem): under its
+ * parent list, the current crumb the experiment's name ("Review queue / Conduction Through a
+ * Composite Wall"; the tab "Conduction Through a Composite Wall · Review queue"). Without a parent,
+ * a waiting item sits under the Review queue and a decided one under Reviewed by me.
+ */
+function itemPlacement(screen: ScreenKey, name: string, parent: ReviewerParent): ReviewerPlacement {
+  const crumb = reviewerParentCrumb(parent);
+  return { screen, title: crumb.label, trail: [crumb], currentCrumb: name };
 }
 
-/** B6-04 f0 "Review queue / UPD-0005" (mobile: "Review queue"); while it loads, "Review queue". */
-export function reviewUpdatePlacement(updateId: string | null): ReviewerPlacement {
-  if (updateId === null) return { screen: 'RV-04', title: REVIEW_QUEUE_TITLE, trail: [] };
-  return {
-    screen: 'RV-04',
-    title: REVIEW_QUEUE_TITLE,
-    trail: [QUEUE_CRUMB],
-    currentCrumb: updateId,
-  };
+/** RV-03 (RV-06 once decided), named by the experiment. While it loads, "Review queue". */
+export function reviewSubmissionPlacement(
+  submission: {
+    readonly name: string;
+    readonly decided: boolean;
+    readonly parent?: ReviewerParent | null;
+  } | null,
+): ReviewerPlacement {
+  if (submission === null) return { screen: 'RV-03', title: REVIEW_QUEUE_TITLE, trail: [] };
+  return itemPlacement(
+    submission.decided ? 'RV-06' : 'RV-03',
+    submission.name,
+    submission.parent ?? reviewerParentOf(!submission.decided),
+  );
+}
+
+/** RV-04 (and its decided view), named by the experiment. While it loads, "Review queue". */
+export function reviewUpdatePlacement(
+  update: {
+    readonly name: string;
+    readonly decided: boolean;
+    readonly parent?: ReviewerParent | null;
+  } | null,
+): ReviewerPlacement {
+  if (update === null) return { screen: 'RV-04', title: REVIEW_QUEUE_TITLE, trail: [] };
+  return itemPlacement('RV-04', update.name, update.parent ?? reviewerParentOf(!update.decided));
 }

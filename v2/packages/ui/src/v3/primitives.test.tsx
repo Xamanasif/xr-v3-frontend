@@ -12,6 +12,7 @@ import {
   expectRenderedAsV3Drawn,
   expectV3ClassesOnly,
   cmExportText,
+  rvExportText,
   saExportText,
   v3BoardText,
   veExportText,
@@ -36,7 +37,7 @@ const XS_FILES = [
 ];
 
 describe('V3 icons', () => {
-  it('every icon is a path a V3 board or the XS, SA, VE or CM export draws', () => {
+  it('every icon is a path a V3 board or the XS, SA, VE, CM or RV export draws', () => {
     const drawn = [...BOARDS.map((file) => v3BoardText(file)), ...XS_FILES.map(xsExportText)].join(
       '\n',
     );
@@ -46,22 +47,35 @@ describe('V3 icons', () => {
     const veSprite = veExportText('Main.dc.html');
     // The Content Manager export (CM-v1) does the same with its `<symbol id="cmi-…">`.
     const cmSprite = cmExportText('Main.dc.html');
+    // The Academic Reviewer export (RV-v1) draws its rail glyphs inline and the rest as
+    // `<symbol id="rvi-…">`, both in its live root.
+    const rvRoot = rvExportText('RV.dc.html');
     for (const [name, path] of Object.entries(V3_ICON_PATHS)) {
       expect(
         drawn.includes(`d="${path}"`) ||
           saSprite.includes(`', '${path}']`) ||
           veSprite.includes(`<path d="${path}"></path></symbol>`) ||
-          cmSprite.includes(`<path d="${path}"></path></symbol>`),
+          cmSprite.includes(`<path d="${path}"></path></symbol>`) ||
+          rvRoot.includes(`<path d="${path}"></path>`),
         name,
       ).toBe(true);
     }
+  });
+
+  it('draws every glyph of the Academic Reviewer export (RV-v1 rail and `rvi-*` symbols)', () => {
+    const paths = new Set<string>(Object.values(V3_ICON_PATHS));
+    const glyphs = [...rvExportText('RV.dc.html').matchAll(/<path d="([^"]+)"><\/path>/g)].map(
+      (match) => match[1]!,
+    );
+    expect(glyphs.length).toBeGreaterThan(30);
+    for (const glyph of glyphs) expect(paths.has(glyph), glyph).toBe(true);
   });
 
   it('takes the shared icons from the v46 registry (one path per glyph, never two)', () => {
     const shared = Object.entries(V3_ICON_PATHS).filter(([, path]) =>
       Object.values(ICON_PATHS).includes(path as never),
     );
-    expect(shared.length).toBe(34);
+    expect(shared.length).toBe(35);
   });
 
   it('renders the core.css icon, decorative', () => {

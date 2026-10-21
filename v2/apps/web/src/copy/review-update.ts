@@ -1,18 +1,12 @@
 /**
  * The words of Phase 6’s CM-08 Updates list (board B6-09 f0; B6-13 f2; B7-11 f2) and RV-04 Review
- * an update (B6-04 f0 … f4; B6-13 f4; B7-11 f6). Every phrase is the frozen boards’ own, found
- * verbatim in their markup or script (`review-update.test.ts`); the composed lines take the
- * boards’ forms (B6-09 / B6-04 script `uRows`, `rvOver`, `rvMeta`, `raTitle`, `raBody`,
- * `rDecTitle`, `rDecMeta`, `rDecNext`, the update history’s `uh` entries) with the records’ values
- * — names, ids, codes, versions and dates are never copied from the boards. Status words come from
- * the role-relative table (`flow-state-words.ts` `updateWords`); the comparison’s words are the
- * shared ones (`corrections.ts`). What the boards do not word is a provisional entry of the
- * state-copy register (`state-copy-review-update.ts`, VD-12).
- *
- * P1-14 / VD-10: B6-04 writes a decision id into its open note (“… are still open (T-28).”). The
- * product shows the sentence without it (`STRIPPED_UPDATE`, state-copy `RV-04.decision-ids`); the
- * frozen wording is kept beside it, so the copy stays traceable. A correction is never called
- * “Publish”: it is approved, then released or held by the Super Admin.
+ * an update (V3: the owner-approved Academic Reviewer export RV-v1; was B6-04 f0 … f4; B6-13 f4;
+ * B7-11 f6). Every phrase is its source's own, found verbatim in its markup or script
+ * (`review-update.test.ts`); the composed lines take the source's forms with the records’ values
+ * — names, ids, codes, versions and dates are never copied from a board or the export. What the
+ * sources do not word is a provisional entry of the state-copy register
+ * (`state-copy-review-update.ts`, VD-12). A correction is never called “Publish”: it is approved,
+ * then released or held by the Super Admin.
  */
 import type { UpdateState } from '@xr/domain';
 
@@ -74,81 +68,96 @@ export function updateActionLabel(state: UpdateState, id: string, name: string):
   return `${continuesUpdate(state) ? UPDATES_LIST.continue : UPDATES_LIST.open} ${id} ${name}`;
 }
 
-// ---- RV-04 Review an update (B6-04 f0 … f4) ---------------------------------------------------
+// ---- RV-04 Review an update (V3: RV-v1 `RV.dc.html` item view for an update) -------------------
+//
+// The owner-approved Academic Reviewer export (design/v3-refined-b/roles/RV-v1, `RV.dc.html`
+// template lines ~398–664 and the Approve dialog ~778, script `itemVals`): every phrase is the
+// export's own (`review-update.test.ts` pins each against `rvExport('RV.dc.html')`); the composed
+// lines take the script's forms with the records' values. No reference (UPD-…) is ever part of
+// these words (the owner's identifier rule): the page, its crumb and its dialog are named by the
+// experiment. A correction is never called “Publish”: it is approved, then released or held by the
+// Super Admin.
 
-export const REVIEW_UPDATE = {
-  /** `rvNone` (B6-13 f4): the H1 when no update waits here, and before one is read. */
-  heading: 'Review an update',
-  noneTitle: 'No update is waiting for your decision',
-  noneLine: 'Corrections from the Content Manager appear in your review queue once they are sent.',
-  openQueue: 'Open the review queue',
-  /** `section` “Why — from the Content Manager” (`blockquote.xv-quote`). */
-  whyTitle: 'Why — from the Content Manager',
-  /** `section` “About this experiment · Live · read-only” (`dl.xl-kv.xv-kv`). */
-  aboutTitle: 'About this experiment',
-  aboutMeta: 'Live · read-only',
-  course: 'Course',
-  formats: 'Formats',
+//
+// What a submission and an update both draw (the sender, the shared facts, the panel's frame, the
+// status words, the refusal titles) is in `rv-shared.ts`; this module holds the update's own.
+
+/** The identity card's update facts (`facts` for an update) and the page map (`anchors`). */
+export const UPDATE_CARD = {
   liveVersion: 'Live version',
-  outcomes: 'Learning outcomes',
-  /** `section` “Update history · Newest first” (`ol.xr-timeline`). */
-  historyTitle: 'Update history',
-  historyMeta: 'Newest first',
+  proposedVersion: 'Proposed version',
+  anchors: {
+    why: 'Why this correction',
+    changes: 'What changes',
+    live: 'Live experiment',
+    history: 'Update history',
+  },
 } as const;
 
+/** “1.2 · since 3 Jul” (`R.liveVer + ' · since ' + short(R.liveSince)`). */
+export function liveSinceFact(label: string, since: string): string {
+  return `${label} · since ${since}`;
+}
+
+/** “Why this correction” (`#rv-s-why`): the Content Manager's reason, quoted. */
+export const WHY_BLOCK = {
+  title: 'Why this correction',
+  note: 'From the Content Manager',
+} as const;
+
+/** Under the reason (`whyBy`): “Kavya Nair, Content Manager · sent 25 Aug 2026, 16:00”. */
+export function whyByWords(name: string, sent: string | null): string {
+  return sent ? `${name}, Content Manager · sent ${sent}` : `${name}, Content Manager`;
+}
+
+/** “What changes” (`#rv-s-cmp`): live now beside proposed, the changed fields only. */
+export const CHANGES_BLOCK = {
+  title: 'What changes',
+  tableLabel: 'What changes, live now against proposed',
+  field: 'Field',
+  footnote: 'Removed text is struck through; added text is highlighted.',
+} as const;
+
+/** The block's note (`cmpNote`): “3 changed fields · everything else stays as in 1.2”. */
+export function changesNoteWords(count: number, liveLabel: string): string {
+  return `${plural(count, 'changed field')} · everything else stays as in ${liveLabel}`;
+}
+
+/** A column (`Live now · {{ I.liveVer }}`, `Proposed · {{ I.newVer }}`): “Live now · 1.2”. */
+export function columnWords(column: string, label: string | null): string {
+  return label ? `${column} · ${label}` : column;
+}
+
+/** The columns while the update is not released (the export's own). */
+export const CHANGES_COLUMNS = { before: 'Live now', after: 'Proposed' } as const;
+
 /**
- * A released update’s comparison columns (B7-05 f6 `cmpWas`, the table SA-11 draws once released):
- * the version its release replaced, then what was released. B6-04 draws no released state
+ * A released update's columns (B7-05 f6 `cmpWas`, the table SA-11 draws once released): the
+ * version its release replaced, then what was released. The export draws no released update page
  * (state-copy `RV-04.released`).
  */
 export const RELEASED_COLUMNS = { before: 'Live before', after: 'Released' } as const;
 
-/** The overline, upper-cased by CSS (`rvOver`): “UPD-0005 · Update (Content Manager correction)”. */
-export function reviewUpdateOverline(id: string): string {
-  return `${id} · Update (Content Manager correction)`;
-}
-
-/** The H1 (`lName · lVer → uVer`): “Distillation Column · 1.2 → 1.3”. */
-export function reviewUpdateTitle(name: string, from: string, to: string | null): string {
-  return `${name} · ${from} → ${to ?? ''}`.trimEnd();
-}
-
-/**
- * The header’s line (`rvMeta`): “From Kavya Nair · CHE ZG513 · live version 1.2”. A course with no
- * platform code is named by its name; an unknown course is left out (state-copy
- * `RV-04.no-course-code`).
- */
-export function reviewUpdateMeta(from: string, course: string | null, liveLabel: string): string {
-  return [`From ${from}`, ...(course ? [course] : []), `live version ${liveLabel}`].join(' · ');
-}
-
-/** “CHE ZG513 · Process Instrumentation & Control” (`course · cname`); no code: the name. */
-export function courseLineWords(code: string | null, name: string): string {
-  return code ? `${code} · ${name}` : name;
-}
-
-/** “1.2 · since 3 Jul 2026” (`lVer · since lSince`). */
-export function liveSinceWords(label: string, since: string): string {
-  return `${label} · since ${since}`;
-}
-
-/**
- * The B6-04 sentence that carries a decision id (P1-14 / VD-10: “Strip the suffix through a copy
- * table and keep the sentence”): `words` is shown, `drawn` is the frozen board’s wording.
- */
-export const STRIPPED_UPDATE = {
-  openNote: {
-    words:
-      'Whether a correction may change formats, and references on update returns, are still open.',
-    drawn:
-      'Whether a correction may change formats, and references on update returns, are still open (T-28).',
-    ids: ['T-28'],
-  },
+/** “The live experiment” (`#rv-s-live`): the live version's outcomes, read-only (OD-B6-09). */
+export const LIVE_BLOCK = {
+  kicker: 'Read-only context',
+  title: 'The live experiment',
+  footnote: 'Learning outcomes are not part of this correction.',
 } as const;
+
+/** The block's note (`liveNote`): “Version 1.2 · live since 3 Jul 2026”. */
+export function liveNoteWords(label: string, since: string): string {
+  return `Version ${label} · live since ${since}`;
+}
+
+/** “Learning outcomes in version 1.2” (`h3.rv-mini-h`). */
+export function liveOutcomesTitle(label: string): string {
+  return `Learning outcomes in version ${label}`;
+}
 
 /** The update history as the reviewer reads it (B6-04 script `uh`; B7-11 `histAdd`). */
 export const UPDATE_HISTORY = {
-  /** B6-04 f0: “Correction started from the published experiment” · “Pre-filled with the live version 1.2.” */
+  /** “Correction started from the published experiment” · “Pre-filled with the live version 1.2.” */
   started: 'Correction started from the published experiment',
   startedNote: (liveLabel: string) => `Pre-filled with the live version ${liveLabel}.`,
   sent: 'Sent for academic review',
@@ -164,17 +173,21 @@ export const UPDATE_HISTORY = {
   releasedNote: (versionLabel: string) => `Version ${versionLabel} is live for everyone.`,
 } as const;
 
-/** A reason as the boards quote it: “…”. */
+/** A reason as the export quotes it: “…”. */
 export function quotedWords(text: string): string {
   return `“${text}”`;
 }
 
-// ---- RV-04 decision panel (B6-04 f0, f3, f4; DL-1, DL-2) ----------------------------------------
+// ---- RV-04 decision panel (`#rv-panel`) ---------------------------------------------------------
 
+/** The panel's words for an update (`itemVals` `ready`, `choices`, `reasonLabel`, `path`). */
 export const UPDATE_DECISION = {
-  panelTitle: 'Your decision',
-  /** `fieldset.xr-fieldset > legend.xr-sr`. */
-  legend: 'Decision',
+  /** “Before you decide”: the whole update. */
+  wholeTitle: 'Whole update.',
+  wholeLine: 'You decide on every changed field together.',
+  seeChanges: 'See what changes',
+  /** The error when the button is pressed without a choice (`validate`: `e.choice`). */
+  chooseDecision: 'Choose a decision',
   approve: {
     title: 'Approve update',
     sub: 'Sends it to the Super Admin, who decides when to release it. The live version doesn’t change until then.',
@@ -183,49 +196,126 @@ export const UPDATE_DECISION = {
     title: 'Return to the Content Manager',
     sub: 'You’ll add a reason the Content Manager will see.',
   },
-  /** DL-1 (`dlgRA`). */
-  cancel: 'Cancel',
+  /** The reason, inline in the panel (no references on update returns, T-28). */
+  reasonLabel: 'Reason the Content Manager will see (required)',
+  reasonHint: 'Shown first on the correction when it is editable again.',
+  /** The pending line before the button while the reason is empty (`pending.reason`). */
+  pendingReason: 'Add the reason before you return it.',
+  /** While a command runs (product: repeat-press protection; the export draws no busy label). */
   approving: 'Approving…',
-  /** DL-2 (`dlgRR`). */
-  returnTitle: 'Return to the Content Manager?',
-  returnEffect: 'The Content Manager sees your reason and can change the update and send it again.',
-  reasonLabel: 'Reason the Content Manager will see',
   returning: 'Returning…',
-  /** The decided panel (`rDecTitle`, `rDecNext`) and its way back. */
-  awaitingTitle: 'Approved — awaiting the Super Admin’s release decision',
-  returnedTitle: 'Returned to the Content Manager',
-  returnedNext: 'The Content Manager can change it and send it again.',
-  withdrawnTitle: 'Withdrawn by the Content Manager',
-  nothingTitle: 'Nothing to decide',
-  backToQueue: 'Back to the review queue',
-  /** The header chip for a withdrawn update (B6-04 script `stw.withdrawn`; `updateWords` leaves it). */
-  withdrawnChip: 'Withdrawn',
+  /** “What happens next” for an update (`path`). */
+  path: {
+    youLine: 'Approve the update, or return it to the Content Manager.',
+    superAdmin: { title: 'Super Admin · release or hold', line: 'Approving does not release it.' },
+    liveTitle: 'Live version',
+  },
 } as const;
 
-/** DL-1’s title (`raTitle`): “Approve UPD-0005?”. */
-export function approveUpdateTitle(id: string): string {
-  return `Approve ${id}?`;
+/** “Version 1.2 stays live” · “until the Super Admin releases 1.3.” (`ready`, `#rvi-live`). */
+export function staysLiveTitle(liveLabel: string): string {
+  return `Version ${liveLabel} stays live`;
 }
+export function staysLiveLine(newLabel: string): string {
+  return `until the Super Admin releases ${newLabel}.`;
+}
+
+/** “3 changed fields.” (`ready`, `#rvi-update`). */
+export function changedFieldsTitle(count: number): string {
+  return `${plural(count, 'changed field')}.`;
+}
+
+/** The path's last step (`path[2].d`): “Version 1.2 stays live until a release. …”. */
+export function livePathLine(liveLabel: string): string {
+  return `Version ${liveLabel} stays live until a release. Releasing changes no one’s access.`;
+}
+
+/** The Approve dialog (`rk-dialog`, `dlgTitle` for an update, `nowList`, `laterList`). */
+export const APPROVE_DIALOG = {
+  /** The update's first “What happens now” line (the second is `RV_APPROVE_DIALOG.leavesQueue`). */
+  toSuperAdmin: 'It goes to the Super Admin for a release decision.',
+  noAccessChange: 'Releasing changes no one’s access.',
+  confirm: 'Approve update',
+  cancel: 'Cancel',
+} as const;
+
+/** The dialog's title, named by the experiment (`dlgTitle`): “Approve the update to <name>?”. */
+export function approveUpdateTitle(name: string): string {
+  return `Approve the update to ${name}?`;
+}
+
+/** “Version 1.3 goes live only if the Super Admin releases it. Version 1.2 stays live until then.” */
+export function goesLiveLater(newLabel: string, liveLabel: string): string {
+  return `Version ${newLabel} goes live only if the Super Admin releases it. Version ${liveLabel} stays live until then.`;
+}
+
+/** The refusal notice's line when withdrawn under the page (`refusalD`; titles in `RV_REFUSAL`). */
+export const UPDATE_REFUSAL = {
+  withdrawnLine:
+    'The Content Manager withdrew this update after you opened it. The page now shows where it stands.',
+} as const;
+
+// ---- RV-04 / RV-06 the outcome block (`rk-done`) ------------------------------------------------
+
+/** The outcome block for an update (`doneBlock` for `upd`). */
+export const UPDATE_OUTCOME = {
+  stand: {
+    returned: 'Returned to the Content Manager',
+    release: 'Release',
+    releaseDecision: 'Release decision',
+    withTheSuperAdmin: 'With the Super Admin',
+    liveVersion: 'Live version',
+    unchanged: 'Unchanged',
+    update: 'Update',
+    withdrawn: 'Withdrawn by the Content Manager',
+  },
+  returnedNext: 'The Content Manager can change it and send it again.',
+  withdrawnNext: 'There is nothing to decide.',
+} as const;
 
 /**
- * DL-1’s effect (`raBody`): approval sends it on and releases nothing — “It goes to the Super
- * Admin, who decides when to release it. Version 1.2 stays live until then.”
+ * Another reviewer's decision (a shared course scope; the export draws only the reader's own):
+ * “Decided by Prof. R. Iyer on 27 Aug 2026, 11:20” (state-copy `RV-04.decided-by`).
  */
-export function approveUpdateEffect(liveLabel: string): string {
-  return `It goes to the Super Admin, who decides when to release it. Version ${liveLabel} stays live until then.`;
+export function decidedByOn(name: string, when: string): string {
+  return `Decided by ${name} on ${when}`;
 }
 
-/** The approved panel’s line (`rDecMeta`): “27 Aug 2026 · Prof. A. Menon”. */
-export function approvedMetaWords(day: string, by: string): string {
-  return `${day} · ${by}`;
+/** Another reviewer's approval in the stand list (state-copy `RV-04.decided-by`). */
+export function approvedBy(name: string): string {
+  return `Approved by ${name}`;
 }
 
-/** The returned panel’s line (`rDecMeta`): “27 Aug 2026 · “The corrected sentence is right. …”” */
-export function returnedMetaWords(day: string, reason: string): string {
-  return `${day} · ${quotedWords(reason)}`;
+/** “Released on 5 Aug 2026” (`'Released on ' + R.relWhen`). */
+export function releasedOnWords(day: string): string {
+  return `Released on ${day}`;
 }
 
-/** The approved panel’s next step (`rDecNext`): nothing is released by an approval. */
+/** “1.2, unchanged” (`R.liveVer + ', unchanged'`). */
+export function unchangedLive(label: string): string {
+  return `${label}, unchanged`;
+}
+
+/** Released (`next`): “Version 1.1 is live. Releasing changed no one’s access.”. */
+export function releasedNextWords(label: string): string {
+  return `Version ${label} is live. Releasing changed no one’s access.`;
+}
+
+/** Awaiting the release decision (`next`): nothing is released by an approval. */
 export function awaitingNextWords(liveLabel: string): string {
   return `Version ${liveLabel} stays live. Release or hold is the Super Admin’s decision.`;
 }
+
+// ---- RV-04 not sent yet (product words, kept: lead decision 3, state-copy `RV-04.not-sent`) ------
+
+/**
+ * An update the service keeps from the reviewer (a draft, UPD-16): the product's existing words
+ * (B6-04 `rvNone`, B6-13 f4), drawn as the delivered XS message page; nothing about the draft.
+ */
+export const NOT_SENT = {
+  /** Before the update is read, and the tab's title while nothing is shown. */
+  heading: 'Review an update',
+  title: 'No update is waiting for your decision',
+  line: 'Corrections from the Content Manager appear in your review queue once they are sent.',
+  openQueue: 'Open the review queue',
+} as const;

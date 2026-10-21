@@ -434,3 +434,33 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 :where(.xr) .rk-dlg-body.rk-x-dlg-body-tight:not(:where([data-xr-v46], [data-xr-v46] *)) {
   padding-bottom: 12px;
 }
+
+/*
+ * V3P-15 · The Academic Reviewer export's cascade (design/v3-refined-b/roles/RV-v1,
+ * `project/RV.dc.html`). Its inline styles need no new rule: the one product spacing, the re-check
+ * block's line 12 px under the quote (`p.rk-next` `margin-top: 12px`), is V3P-12's
+ * `rk-x-next-above` (`RecordLine space="above"`); the others are the hidden icon sprite (the product
+ * draws each icon inline), the borrowed XS surfaces the delivered XS components draw (Help & support
+ * "My reports", the Report a problem form and a report's detail) and the drawer brand's
+ * `padding-top: 0` (the shell's; `.rb-brand` has no top padding).
+ *
+ * The export loads core.css, rb.css, rb-kit.css, then rv.css unlayered, so where a Refined B rule
+ * and an `rv-` rule set the same property on one element the more specific one wins there, while
+ * the product's `xr.v3.rv` layer wins whatever the specificity. Comparing both cascades on every
+ * element and longhand an `rv-` rule sets, on every Academic Reviewer screen state reached through
+ * the product (RV-01 … RV-06 with the queue and decision tabs, no match, calm and empty; the review
+ * page new, resubmitted and re-check, the outcome editing and its errors, the decision errors, the
+ * inline return and its errors, the confirmation, approved, returned, decided elsewhere and
+ * withdrawn; the decided pages; the not-found messages: the spine-start, after-flow-e and
+ * after-flow-f worlds, at 1440, 1024, 768 and 375, at rest and with hover / focus forced) finds
+ * these elements, and only these, where they differ; each rule restores, on exactly the elements
+ * both rules match, the declaration the export's winning rule gives:
+ * - Focus (core.css `.xr :where(a, button, …, [tabindex]):focus-visible` 0,2,0 over `.rv-filecard`
+ *   and `.rv-lo-msg` 0,1,0): the keyboard focus ring's 6 px corners on the preview-link card
+ *   ("Preview and documents", RV-03 and its decided state RV-06) and on the outcome editor's message
+ *   when it takes focus ("Outcome added — …", "Outcome 2 deleted." with Undo, RV-03).
+ */
+:where(.xr) .rv-filecard:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)),
+:where(.xr) .rv-lo-msg:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  border-radius: 6px;
+}

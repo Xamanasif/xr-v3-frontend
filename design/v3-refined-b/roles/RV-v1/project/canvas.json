@@ -1,0 +1,820 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-20T10:45:00Z"
+ },
+ "title": "XR Learning Platform — Design V3 · Academic Reviewer · Complete role · FINAL (owner approved 21 Oct 2026)",
+ "launch": {
+  "view": "canvas"
+ },
+ "pages": [],
+ "order": [
+  "Main.dc.html",
+  "Coverage.dc.html",
+  "Checks.dc.html",
+  "RV.dc.html",
+  "RV-375.dc.html",
+  "RV01-1024.dc.html",
+  "RV01-768.dc.html",
+  "RV01-375.dc.html",
+  "RV01-calm.dc.html",
+  "RV02.dc.html",
+  "RV02-1024.dc.html",
+  "RV02-768.dc.html",
+  "RV02-375.dc.html",
+  "RV02-filtered.dc.html",
+  "RV02-nomatch.dc.html",
+  "RV02-loading.dc.html",
+  "RV02-failed.dc.html",
+  "RV02-empty.dc.html",
+  "RV03.dc.html",
+  "RV03-1024.dc.html",
+  "RV03-768.dc.html",
+  "RV03-375.dc.html",
+  "RV03-outcomes.dc.html",
+  "RV03-outcomes-375.dc.html",
+  "RV03-recheck.dc.html",
+  "RV03-editing-375.dc.html",
+  "RV03-return-errors.dc.html",
+  "RV03-return-filled.dc.html",
+  "RV03-confirm.dc.html",
+  "RV03-approved.dc.html",
+  "RV03-returned.dc.html",
+  "RV04.dc.html",
+  "RV04-1024.dc.html",
+  "RV04-768.dc.html",
+  "RV04-375.dc.html",
+  "RV04-return-errors.dc.html",
+  "RV04-confirm.dc.html",
+  "RV04-approved.dc.html",
+  "RV04-returned.dc.html",
+  "RV04-stale-armed.dc.html",
+  "RV04-stale.dc.html",
+  "RV05.dc.html",
+  "RV05-1024.dc.html",
+  "RV05-768.dc.html",
+  "RV05-375.dc.html",
+  "RV05-updates.dc.html",
+  "RV05-nomatch.dc.html",
+  "RV05-loading.dc.html",
+  "RV05-failed.dc.html",
+  "RV05-empty.dc.html",
+  "RV06.dc.html",
+  "RV06-375.dc.html",
+  "RV06-returned.dc.html",
+  "RV06-update.dc.html",
+  "RV06-elsewhere.dc.html",
+  "RV-scope.dc.html",
+  "RV-scope-375.dc.html",
+  "RV-unavailable.dc.html",
+  "RV-scope-withdrawn.dc.html",
+  "RV-account.dc.html",
+  "RV-drawer-375.dc.html",
+  "RV-help.dc.html",
+  "RV-report-375.dc.html",
+  "RV-report-sent.dc.html",
+  "RV-signedout.dc.html"
+ ],
+ "notes": {
+  "n-status": {
+   "x": 3040,
+   "y": 1976,
+   "w": 480,
+   "fill": "green",
+   "text": "FINAL — owner approved 21 October 2026\nAll six screens and every state in one design, exported as the final source and screenshot archives. One correction was applied after acceptance: internal record IDs (SUB-…, UPD-…) no longer appear in reviewer-facing labels; they stay in the data, the routes and the search. This design replaces the completed role and checkpoint 1."
+  },
+  "n-play": {
+   "x": 3560,
+   "y": 1976,
+   "w": 480,
+   "fill": "blue",
+   "text": "How to review\nPress Play on the live preview board (first row below) or the phone board. Start the oldest review, return it with a reason, approve the corrected submission, review the update. Every other board starts in one state and stays usable. Main links every board; Coverage marks each subview; Checks has the evidence."
+  },
+  "n-rules": {
+   "x": 3040,
+   "y": 2446,
+   "w": 480,
+   "fill": "teal",
+   "text": "Rules kept\nApproving is not publishing: first publication stays with the Content Manager. Approving an update is not a release: version 1.2 stays live until the Super Admin releases 1.3. At least one learning outcome to approve. Reviewers never see hold or withdrawal reasons, drafts withdrawn before sending, or courses outside their scope. Course codes and record IDs stay visible."
+  },
+  "n-shared": {
+   "x": 3560,
+   "y": 2446,
+   "w": 480,
+   "fill": "yellow",
+   "text": "Shared pieces · assembly pending\nAccount menu, Help & support, report a problem, the signed-out page and the refusal wording are borrowed renderings of the shared (XS) contract, built from existing tokens. The final Shared Surfaces components replace them at assembly. The official WILP logo is still a placeholder."
+  },
+  "n-upd6": {
+   "x": 3040,
+   "y": 2916,
+   "w": 480,
+   "fill": "orange",
+   "text": "Open record · UPD-0006 (EEE ZC341)\nv46 lists this update in Reviewed by me, but EEE ZC341 is not on Prof. Menon's 27 Aug scope line (Batch 7 records that scope as withdrawn on 1 Oct 2026). Following the effective-scope rule it is left out of Reviewed by me (8 decisions, not 9) and used as the out-of-scope example. Please confirm (OD-B7-15)."
+  },
+  "n-sub70": {
+   "x": 3560,
+   "y": 2916,
+   "w": 480,
+   "fill": "orange",
+   "text": "Open record · SUB-0070 learning outcomes\nThe v46 queue data gives 3 learning outcomes; board B6-11 shows none. The decided page leaves the outcome list out instead of choosing one. Please confirm which is right."
+  },
+  "n-choices": {
+   "x": 3040,
+   "y": 3386,
+   "w": 480,
+   "fill": "blue",
+   "text": "Internal IDs: where they still appear\nNo reviewer screen shows a record ID. The Main and Coverage boards still name records (SUB-0070, UPD-0006 and the rest) because they are integration documentation, not product UI. Help & support still shows a support reference (SUP-0214) so a reviewer can quote it — a shared surface, not one of the six screens."
+  },
+  "n-more": {
+   "x": 3560,
+   "y": 3386,
+   "w": 480,
+   "fill": "yellow",
+   "text": "Also noted\nIllustrative sample additions, all listed in SCENARIOS.json: SUB-0077's revision-2 return reason, decision times after the first three, SUP-0214, the decided-in-another-window and withdrawn-while-open refusals, and the CHE ZG513 scope-removed variant. RV-07 is excluded and not drawn."
+  },
+  "row-live": {
+   "x": 0,
+   "y": 5143,
+   "kind": "title1",
+   "maxW": 1895,
+   "text": "Live role preview · one connected root · 1440 · 375 · press Play"
+  },
+  "row-rv01": {
+   "x": 0,
+   "y": 8184,
+   "kind": "title1",
+   "maxW": 3847,
+   "text": "RV-01 · Overview · 1024 · 768 · 375 · nothing waiting (1440 is the live board above)"
+  },
+  "row-rv02": {
+   "x": 0,
+   "y": 11225,
+   "kind": "title1",
+   "maxW": 3847,
+   "text": "RV-02 · Review queue · 1440 · 1024 · 768 · 375"
+  },
+  "row-rv02s": {
+   "x": 0,
+   "y": 13207,
+   "kind": "title1",
+   "maxW": 5856,
+   "text": "RV-02 · states: filters applied, no match, loading, failed to load, nothing waiting"
+  },
+  "row-rv03": {
+   "x": 0,
+   "y": 14527,
+   "kind": "title1",
+   "maxW": 3847,
+   "text": "RV-03 · Review a submission · SUB-0077, resubmitted as revision 2 · 1440 · 1024 · 768 · 375"
+  },
+  "row-rv03o": {
+   "x": 0,
+   "y": 20186,
+   "kind": "title1",
+   "maxW": 3870,
+   "text": "RV-03 · learning outcomes needed (SUB-0086) · re-check (SUB-0071) · editing an outcome"
+  },
+  "row-rv03f": {
+   "x": 0,
+   "y": 25428,
+   "kind": "title1",
+   "maxW": 7520,
+   "text": "RV-03 · return, confirmation and the recorded decision"
+  },
+  "row-rv04": {
+   "x": 0,
+   "y": 28674,
+   "kind": "title1",
+   "maxW": 3847,
+   "text": "RV-04 · Review an update · UPD-0005, Distillation Column 1.2 → 1.3 · 1440 · 1024 · 768 · 375"
+  },
+  "row-rv04s": {
+   "x": 0,
+   "y": 33153,
+   "kind": "title1",
+   "maxW": 9040,
+   "text": "RV-04 · return, confirmation, the recorded decision and a stale version"
+  },
+  "row-rv05": {
+   "x": 0,
+   "y": 35694,
+   "kind": "title1",
+   "maxW": 3847,
+   "text": "RV-05 · Reviewed by me · 1440 · 1024 · 768 · 375"
+  },
+  "row-rv05s": {
+   "x": 0,
+   "y": 38836,
+   "kind": "title1",
+   "maxW": 5856,
+   "text": "RV-05 · states: updates only, no match, loading, failed to load, nothing decided yet"
+  },
+  "row-rv06": {
+   "x": 0,
+   "y": 40156,
+   "kind": "title1",
+   "maxW": 6455,
+   "text": "RV-06 · Decided item, read-only · approved · returned · approved update · decided in another window"
+  },
+  "row-refuse": {
+   "x": 0,
+   "y": 43859,
+   "kind": "title1",
+   "maxW": 4935,
+   "text": "Refusals · outside your scope · not available · a course removed from your scope"
+  },
+  "row-shared": {
+   "x": 0,
+   "y": 45179,
+   "kind": "title1",
+   "maxW": 6910,
+   "text": "Shared pieces (borrowed XS renderings, assembly pending) · account menu · phone menu · Help & support · report a problem · report sent · signed out"
+  }
+ },
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 1440,
+   "h": 3954,
+   "title": "Academic Reviewer · complete role · FINAL — owner approved",
+   "expand": "fill"
+  },
+  "Coverage.dc.html": {
+   "x": 1520,
+   "y": 0,
+   "w": 1440,
+   "h": 4983,
+   "title": "Coverage register · every screen and subview",
+   "expand": "fill"
+  },
+  "Checks.dc.html": {
+   "x": 3040,
+   "y": 0,
+   "w": 1440,
+   "h": 2225,
+   "title": "Checks and evidence",
+   "expand": "fill"
+  },
+  "RV.dc.html": {
+   "x": 0,
+   "y": 5403,
+   "w": 1440,
+   "h": 1199,
+   "title": "RV-01 Overview · 1440 · live role preview",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-375.dc.html": {
+   "x": 1520,
+   "y": 5403,
+   "w": 375,
+   "h": 2621,
+   "title": "Live role preview · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV01-1024.dc.html": {
+   "x": 0,
+   "y": 8444,
+   "w": 1024,
+   "h": 1873,
+   "title": "RV-01 · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV01-768.dc.html": {
+   "x": 1104,
+   "y": 8444,
+   "w": 768,
+   "h": 1890,
+   "title": "RV-01 · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV01-375.dc.html": {
+   "x": 1952,
+   "y": 8444,
+   "w": 375,
+   "h": 2621,
+   "title": "RV-01 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV01-calm.dc.html": {
+   "x": 2407,
+   "y": 8444,
+   "w": 1440,
+   "h": 924,
+   "title": "RV-01 · nothing waiting · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02.dc.html": {
+   "x": 0,
+   "y": 11485,
+   "w": 1440,
+   "h": 980,
+   "title": "RV-02 Review queue · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-1024.dc.html": {
+   "x": 1520,
+   "y": 11485,
+   "w": 1024,
+   "h": 1187,
+   "title": "RV-02 · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-768.dc.html": {
+   "x": 2624,
+   "y": 11485,
+   "w": 768,
+   "h": 1187,
+   "title": "RV-02 · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-375.dc.html": {
+   "x": 3472,
+   "y": 11485,
+   "w": 375,
+   "h": 1562,
+   "title": "RV-02 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-filtered.dc.html": {
+   "x": 0,
+   "y": 13467,
+   "w": 1440,
+   "h": 900,
+   "title": "RV-02 · search “dist”, course CHE ZG513 · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-nomatch.dc.html": {
+   "x": 1520,
+   "y": 13467,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-02 · no match · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-loading.dc.html": {
+   "x": 2624,
+   "y": 13467,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-02 · loading · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-failed.dc.html": {
+   "x": 3728,
+   "y": 13467,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-02 · failed to load · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV02-empty.dc.html": {
+   "x": 4832,
+   "y": 13467,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-02 · nothing waiting · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03.dc.html": {
+   "x": 0,
+   "y": 14787,
+   "w": 1440,
+   "h": 2826,
+   "title": "RV-03 Review a submission · SUB-0077 revision 2 · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-1024.dc.html": {
+   "x": 1520,
+   "y": 14787,
+   "w": 1024,
+   "h": 3752,
+   "title": "RV-03 · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-768.dc.html": {
+   "x": 2624,
+   "y": 14787,
+   "w": 768,
+   "h": 3752,
+   "title": "RV-03 · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-375.dc.html": {
+   "x": 3472,
+   "y": 14787,
+   "w": 375,
+   "h": 5265,
+   "title": "RV-03 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-outcomes.dc.html": {
+   "x": 0,
+   "y": 20446,
+   "w": 1440,
+   "h": 1954,
+   "title": "RV-03 · learning outcomes needed: approve refused · SUB-0086 · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-outcomes-375.dc.html": {
+   "x": 1520,
+   "y": 20446,
+   "w": 375,
+   "h": 3715,
+   "title": "RV-03 · learning outcomes needed · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-recheck.dc.html": {
+   "x": 1975,
+   "y": 20446,
+   "w": 1440,
+   "h": 2527,
+   "title": "RV-03 · re-check from the Content Manager, outcome 2 deleted · SUB-0071",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-editing-375.dc.html": {
+   "x": 3495,
+   "y": 20446,
+   "w": 375,
+   "h": 4822,
+   "title": "RV-03 · editing an outcome · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-return-errors.dc.html": {
+   "x": 0,
+   "y": 25688,
+   "w": 1440,
+   "h": 2826,
+   "title": "RV-03 · return without a reason: errors",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-return-filled.dc.html": {
+   "x": 1520,
+   "y": 25688,
+   "w": 1440,
+   "h": 2826,
+   "title": "RV-03 · return filled in, with field references",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-confirm.dc.html": {
+   "x": 3040,
+   "y": 25688,
+   "w": 1440,
+   "h": 900,
+   "title": "RV-03 · approve: confirmation",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-approved.dc.html": {
+   "x": 4560,
+   "y": 25688,
+   "w": 1440,
+   "h": 2265,
+   "title": "RV-03 · approved: the Content Manager decides on publishing",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV03-returned.dc.html": {
+   "x": 6080,
+   "y": 25688,
+   "w": 1440,
+   "h": 2311,
+   "title": "RV-03 · returned to the vendor",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04.dc.html": {
+   "x": 0,
+   "y": 28934,
+   "w": 1440,
+   "h": 1965,
+   "title": "RV-04 Review an update · UPD-0005 · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-1024.dc.html": {
+   "x": 1520,
+   "y": 28934,
+   "w": 1024,
+   "h": 2924,
+   "title": "RV-04 · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-768.dc.html": {
+   "x": 2624,
+   "y": 28934,
+   "w": 768,
+   "h": 2924,
+   "title": "RV-04 · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-375.dc.html": {
+   "x": 3472,
+   "y": 28934,
+   "w": 375,
+   "h": 4059,
+   "title": "RV-04 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-return-errors.dc.html": {
+   "x": 0,
+   "y": 33413,
+   "w": 1440,
+   "h": 1965,
+   "title": "RV-04 · return without a reason: errors",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-confirm.dc.html": {
+   "x": 1520,
+   "y": 33413,
+   "w": 1440,
+   "h": 900,
+   "title": "RV-04 · approve: confirmation",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-approved.dc.html": {
+   "x": 3040,
+   "y": 33413,
+   "w": 1440,
+   "h": 2098,
+   "title": "RV-04 · approved: the Super Admin decides on release, live 1.2 unchanged",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-returned.dc.html": {
+   "x": 4560,
+   "y": 33413,
+   "w": 1440,
+   "h": 2121,
+   "title": "RV-04 · returned to the Content Manager",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-stale-armed.dc.html": {
+   "x": 6080,
+   "y": 33413,
+   "w": 1440,
+   "h": 1965,
+   "title": "RV-04 · withdrawn while open: press Approve update to see the refusal",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV04-stale.dc.html": {
+   "x": 7600,
+   "y": 33413,
+   "w": 1440,
+   "h": 2098,
+   "title": "RV-04 · stale version refused: nothing recorded",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05.dc.html": {
+   "x": 0,
+   "y": 35954,
+   "w": 1440,
+   "h": 1250,
+   "title": "RV-05 Reviewed by me · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-1024.dc.html": {
+   "x": 1520,
+   "y": 35954,
+   "w": 1024,
+   "h": 1769,
+   "title": "RV-05 · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-768.dc.html": {
+   "x": 2624,
+   "y": 35954,
+   "w": 768,
+   "h": 1769,
+   "title": "RV-05 · 768",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-375.dc.html": {
+   "x": 3472,
+   "y": 35954,
+   "w": 375,
+   "h": 2538,
+   "title": "RV-05 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-updates.dc.html": {
+   "x": 0,
+   "y": 39096,
+   "w": 1440,
+   "h": 900,
+   "title": "RV-05 · Updates tab · 1440",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-nomatch.dc.html": {
+   "x": 1520,
+   "y": 39096,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-05 · no match · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-loading.dc.html": {
+   "x": 2624,
+   "y": 39096,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-05 · loading · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-failed.dc.html": {
+   "x": 3728,
+   "y": 39096,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-05 · failed to load · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV05-empty.dc.html": {
+   "x": 4832,
+   "y": 39096,
+   "w": 1024,
+   "h": 900,
+   "title": "RV-05 · nothing decided yet · 1024",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV06.dc.html": {
+   "x": 0,
+   "y": 40416,
+   "w": 1440,
+   "h": 1854,
+   "title": "RV-06 Decided item · approved submission · SUB-0074",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV06-375.dc.html": {
+   "x": 1520,
+   "y": 40416,
+   "w": 375,
+   "h": 3283,
+   "title": "RV-06 · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV06-returned.dc.html": {
+   "x": 1975,
+   "y": 40416,
+   "w": 1440,
+   "h": 1234,
+   "title": "RV-06 · returned submission · SUB-0081",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV06-update.dc.html": {
+   "x": 3495,
+   "y": 40416,
+   "w": 1440,
+   "h": 1009,
+   "title": "RV-06 · approved update · UPD-0004",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV06-elsewhere.dc.html": {
+   "x": 5015,
+   "y": 40416,
+   "w": 1440,
+   "h": 2265,
+   "title": "RV-06 · already decided in another window · SUB-0077",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-scope.dc.html": {
+   "x": 0,
+   "y": 44119,
+   "w": 1440,
+   "h": 900,
+   "title": "Refusal · outside your review scope · UPD-0006",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-scope-375.dc.html": {
+   "x": 1520,
+   "y": 44119,
+   "w": 375,
+   "h": 812,
+   "title": "Refusal · outside scope · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-unavailable.dc.html": {
+   "x": 1975,
+   "y": 44119,
+   "w": 1440,
+   "h": 900,
+   "title": "Refusal · not available: a draft withdrawn before it was sent",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-scope-withdrawn.dc.html": {
+   "x": 3495,
+   "y": 44119,
+   "w": 1440,
+   "h": 900,
+   "title": "Scope change · CHE ZG513 removed: its items leave the queue",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-account.dc.html": {
+   "x": 0,
+   "y": 45439,
+   "w": 1440,
+   "h": 900,
+   "title": "Shared · account menu open",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-drawer-375.dc.html": {
+   "x": 1520,
+   "y": 45439,
+   "w": 375,
+   "h": 812,
+   "title": "Shared · menu open · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-help.dc.html": {
+   "x": 1975,
+   "y": 45439,
+   "w": 1440,
+   "h": 900,
+   "title": "Shared · Help & support",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-report-375.dc.html": {
+   "x": 3495,
+   "y": 45439,
+   "w": 375,
+   "h": 1030,
+   "title": "Shared · report a problem: errors · 375",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-report-sent.dc.html": {
+   "x": 3950,
+   "y": 45439,
+   "w": 1440,
+   "h": 900,
+   "title": "Shared · report sent · SUP-0214",
+   "expand": "fill",
+   "is_interactive": true
+  },
+  "RV-signedout.dc.html": {
+   "x": 5470,
+   "y": 45439,
+   "w": 1440,
+   "h": 900,
+   "title": "Shared · signed out",
+   "expand": "fill",
+   "is_interactive": true
+  }
+ },
+ "designSystems": []
+}

@@ -1,120 +1,105 @@
 /**
- * The words of Phase 5’s RV-03 Review a submission and RV-06 its decided read-only state (board
- * B6-03 f0 … f5; B6-11 f0 … f3; B6-12 f1). Every phrase is the frozen boards’ own, found verbatim in
- * their markup or script (`reviewer-review.test.ts`); the composed lines take the boards’ forms
- * with the records’ values (names, dates, counts are never copied from the boards). What B6-03
- * does not word is a provisional entry of the state-copy register
- * (`state-copy-reviewer-review.ts`, VD-12).
- *
- * P1-14 / VD-10: B6-03 writes two decision ids into its copy — “App package (provisional — T-14)”
- * and “… is still open (T-30).” The product shows both without the id (`STRIPPED_REVIEW`, state-copy
- * `RV-03.decision-ids`); the frozen wording is kept beside it, so the copy stays traceable.
+ * The words of RV-03 Review a submission and RV-06 its decided read-only state — the owner-approved
+ * Academic Reviewer export (V3 Refined B, design/v3-refined-b/roles/RV-v1, `project/RV.dc.html`
+ * item view, template and `itemVals`). Every phrase is the export's own, found verbatim in its
+ * template or script (`reviewer-review.test.ts`); the composed lines take the export's forms with
+ * the record's values (names, dates, counts are never copied from the sample world). What the
+ * export does not word is an entry of the state-copy register (`state-copy-reviewer-review.ts`,
+ * VD-12). No internal reference (SUB-, UPD-, …) is ever part of these words (owner, 21 Oct 2026).
  */
 import type { Technology } from '@xr/domain';
 
 import { stateWords } from './state-copy';
 
-// ---- the page (B6-03 f0 … f5) ------------------------------------------------------------------
+/** A plural as the export writes it: “1 outcome”, “3 learning outcomes” (`plural`). */
+export function plural(count: number, word: string): string {
+  return `${count} ${word}${count === 1 ? '' : 's'}`;
+}
+
+/** “WEB and VR”, “summary, description and VR device need” (`andList`). */
+export function andList(items: readonly string[]): string {
+  if (items.length <= 1) return items.join('');
+  return `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
+}
+
+/** A reason as the export quotes it: “Please clarify the VR device requirements.” */
+export function quoted(reason: string): string {
+  return `“${reason}”`;
+}
+
+// ---- the identity card (what the submission alone draws; the shared words are `rv-shared.ts`) ---
+
+export const IDENTITY_WORDS = {
+  revision: 'Revision',
+  version: 'Version',
+} as const;
+
+/** The revision fact: “2 · resubmitted 26 Aug”, or “1”. */
+export function revisionFact(revision: number, resubmitted: string | null): string {
+  return revision > 1 && resubmitted
+    ? `${revision} · resubmitted ${resubmitted}`
+    : String(revision);
+}
+
+/** The page map's entries (`anchors`). */
+export const PAGE_MAP = {
+  recheck: 'Re-check request',
+  changed: 'What changed',
+  outcomes: 'Learning outcomes',
+  details: 'Description and documents',
+  delivery: 'Formats and delivery',
+} as const;
+
+// ---- why it is here: the re-check and what changed -----------------------------------------------
 
 export const REVIEW_PAGE = {
-  /** `span.xr-overline` after the id (B6-03 script `rvOver`). */
-  overlineNew: 'New submission',
-  overlineRecheck: 'Re-check',
-  /** f3 `section.xv-reason` (the re-check’s reason, first on the page). */
-  recheckTitle: 'Sent back by the Content Manager for a re-check',
+  recheckTitle: 'Sent back for a re-check',
   recheckLine: 'Check it again and approve, or return it to the vendor.',
-  /** f0 `section.xg-changed`. */
-  changedMeta: 'Only what the vendor changed',
+  changedNote: 'Only what the vendor changed',
+  field: 'Field',
   was: 'Was',
   now: 'Now',
-  /** “Learning outcomes” (`section`, editable while it is with the reviewer). */
-  outcomesTitle: 'Learning outcomes',
-  outcomesMeta: 'One set for the Experiment · every format',
-  outcomesLead:
-    'You set these. The vendor and the Content Manager see the set you approve or return.',
-  noOutcomesTitle: 'No learning outcomes yet',
-  noOutcomesLine:
-    'Add at least one before you approve. One set for the Experiment, whichever format a learner uses.',
-  edit: 'Edit',
-  delete: 'Delete',
-  saveOutcome: 'Save outcome',
-  cancel: 'Cancel',
-  undo: 'Undo',
-  addLabel: 'Add a learning outcome',
-  addHint: 'What a learner can do after the experiment. Start with a verb.',
-  add: 'Add outcome',
-  /** Decided, with no outcomes (B6-03 script `noRoLo`). */
-  noneReadOnly: 'None.',
-  /** “Submission details” (`dl.xl-kv.xv-kv`). */
-  detailsTitle: 'Submission details',
-  detailsMeta: 'From the vendor',
-  course: 'Course',
-  summary: 'Summary',
-  description: 'Description',
-  version: 'Version',
-  formats: 'Formats',
-  preview: 'Preview',
-  documents: 'Documents',
+  /** A blank value in “Was” / “Now”. */
   none: 'None',
-  /** “Formats and delivery” (`div.xv-deliv` per format; T-30: no device testing here). */
+  detailsTitle: 'Description and documents',
+  description: 'Description',
+  previewAndDocuments: 'Preview and documents',
+  previewNote: 'Preview link · opens in a new tab',
+  noPreview: 'No preview link',
+  noDocuments: 'No documents',
+  noAttachments: 'No preview link or documents',
   deliveryTitle: 'Formats and delivery',
-  deliveryMeta: 'Read-only',
-  webTitle: 'Web link',
+  inThisSubmission: 'In this submission',
+  webKind: 'Web link',
+  packageKind: 'App package',
   webLink: 'Web link',
   browser: 'Browser and computer',
   openWebLink: 'Open web link',
   newTab: ' (opens in a new tab)',
   package: 'Package',
   deviceNeeded: 'Device needed',
-  changed: 'Changed',
   viewPackage: 'View package details',
   hidePackage: 'Hide package details',
   packageReference: 'Package reference',
   installNotes: 'Install notes',
-  /** A package given as a file name only (B6-03 script `d.ref`: “… (file)”, else “—”). */
-  fileSuffix: ' (file)',
+  deliveryOnly:
+    'You see delivery details and web links only. Opening a link is not a test on a real device.',
+  /** A value the vendor left empty, or a package given as a file name only (“… (file)”). */
   noValue: '—',
-  /** “Review history” (`ol.xr-timeline`, newest first). */
-  historyTitle: 'Review history',
-  historyMeta: 'Newest first',
+  fileSuffix: ' (file)',
 } as const;
 
-/**
- * The two B6-03 sentences that carry decision ids (P1-14 / VD-10: “Strip the suffix through a
- * copy table and keep the sentence”): `words` is shown, `drawn` is the frozen board’s wording.
- */
-export const STRIPPED_REVIEW = {
-  packageTitle: {
-    words: 'App package (provisional)',
-    drawn: 'App package (provisional — T-14)',
-    ids: ['T-14'],
-  },
-  deliveryOnly: {
-    words: 'You see delivery details and web links only. Who tests on a real device is still open.',
-    drawn:
-      'You see delivery details and web links only. Who tests on a real device is still open (T-30).',
-    ids: ['T-30'],
-  },
-} as const;
+/** The formats' names on their delivery cards (`FN`). */
+export const FORMAT_TITLES = {
+  web: 'Browser',
+  ar: 'Augmented reality',
+  vr: 'Virtual reality',
+  mr: 'Mixed reality',
+} as const satisfies Readonly<Record<Technology, string>>;
 
-/** The overline, upper-cased by CSS: “SUB-0077 · New submission”, “SUB-0071 · Re-check”. */
-export function overlineWords(id: string, recheck: boolean): string {
-  return `${id} · ${recheck ? REVIEW_PAGE.overlineRecheck : REVIEW_PAGE.overlineNew}`;
-}
-
-/** “Northline Simulation Studio · ME ZG523 · Thermodynamics & Heat Transfer” (`rvMeta`). */
-export function headerMetaWords(organisation: string, course: string | null): string {
-  return course ? `${organisation} · ${course}` : organisation;
-}
-
-/** “ME ZG523 · Thermodynamics & Heat Transfer” (the course row; `m.course · m.cname`). */
-export function courseWords(code: string | null, name: string): string {
-  return code ? `${code} · ${name}` : name;
-}
-
-/** The re-check’s meta line: “25 Aug 2026, 10:42 · Kavya Nair” (`rcWhen`). */
-export function recheckWhenWords(when: string, who: string): string {
-  return `${when} · ${who}`;
+/** The re-check's quote-by line: “Kavya Nair, Content Manager” (`R.recheck.by`). */
+export function recheckByWords(name: string): string {
+  return `${name}, Content Manager`;
 }
 
 /** “What changed in revision 2” (`chgTitle`). */
@@ -123,29 +108,33 @@ export function changedTitle(revision: number): string {
 }
 
 /**
- * “You returned revision 1 on 19 Aug: “Please clarify the VR device requirements.”” (`prevRet`).
- * Returned by another reviewer (undrawn): state-copy `RV-03.previous-return-other`.
+ * The previous return's quote-by line: “Your reason when you returned revision 1 · 19 Aug 2026”
+ * (`prevBy`). Returned by another reviewer (undrawn): state-copy `RV-03.previous-return-other`.
  */
-export function previousReturnWords(
-  revision: number,
-  day: string,
-  reason: string,
-  by: string | null,
-): string {
-  if (by === null) return `You returned revision ${revision} on ${day}: “${reason}”`;
+export function previousReturnBy(revision: number, day: string, by: string | null): string {
+  if (by === null) return `Your reason when you returned revision ${revision} · ${day}`;
   return stateWords('RV-03.previous-return-other')
     .replace('{name}', by)
     .replace('{revision}', String(revision))
-    .replace('{day}', day)
-    .replace('{reason}', reason);
+    .replace('{day}', day);
 }
 
-/** A board-style plural: “1 outcome”, “3 learning outcomes” (B6-03 script `plural`). */
-export function plural(count: number, word: string): string {
-  return `${count} ${word}${count === 1 ? '' : 's'}`;
+/** “Not included: AR, MR” (`'Not included: ' + fmtOut`). */
+export function notIncludedWords(codes: readonly string[]): string {
+  return `Not included: ${codes.join(', ')}`;
 }
 
-/** “What changed” rows: the editor’s step and field (`chg.f`, “Formats & delivery · VR · Device need”). */
+/** The formats line's badges, read: “In this submission: WEB and VR” (`fmtInAria`). */
+export function inThisSubmissionWords(codes: readonly string[]): string {
+  return `In this submission: ${andList(codes)}`;
+}
+
+/** “Changed in revision 2” beside a delivery value. */
+export function changedInRevision(revision: number): string {
+  return `Changed in revision ${revision}`;
+}
+
+/** “What changed” rows: the editor's step and field (“Formats & delivery · VR · Device need”). */
 const STEP_WORDS = {
   course: 'Course & description',
   formats: 'Formats & delivery',
@@ -188,8 +177,8 @@ function changedParts(key: string): {
 }
 
 /**
- * A “What changed” row’s field: “Formats & delivery · VR · Device need” (f0; the return
- * references’ own form). Fields B6-03 draws no change for take the editor’s labels (state-copy
+ * A “What changed” row's field: “Formats & delivery · VR · Device need” (the return references'
+ * own form). Fields the export draws no change for take the editor's labels (state-copy
  * `RV-03.what-changed-fields`).
  */
 export function changedFieldWords(key: string): string {
@@ -198,31 +187,44 @@ export function changedFieldWords(key: string): string {
   return format ? `${step} · ${format} · ${field}` : `${step} · ${field}`;
 }
 
-/** A blank value in “Was” / “Now”: “None”, as B6-03 writes an empty preview or document list. */
+/** A blank value in “Was” / “Now”: “None”. */
 export function changedValueWords(value: string): string {
   return value.trim() === '' ? REVIEW_PAGE.none : value;
 }
 
-/** “VR device need”, “summary”: a changed field in the history’s resubmission line. */
+/** “VR device need”, “summary”: a changed field in short (`fieldShort`). */
 function changedNoun(key: string): string {
   const { format, field } = changedParts(key);
   return format ? `${format} ${field.toLowerCase()}` : field.toLowerCase();
 }
 
-function listWords(items: readonly string[]): string {
-  if (items.length <= 1) return items.join('');
-  return `${items.slice(0, -1).join(', ')} and ${items.at(-1)}`;
-}
-
-// ---- the learning outcomes editor (B6-03 script, LD-3) -------------------------------------------
+// ---- the learning outcomes (LD-3) -----------------------------------------------------------------
 
 export const OUTCOME_WORDS = {
+  title: 'Learning outcomes',
+  subEditable:
+    'You set one list for the Experiment, used in every format. The vendor and the Content Manager see it with your decision.',
+  subReadOnly: 'One list for the Experiment, used in every format.',
+  requirementMet: 'Requirement met',
+  requirementNeeded: 'At least one needed to approve',
+  requirementReadOnly: 'Set by you · read-only',
   listLabel: 'Learning outcomes',
-  label: (n: number) => `Outcome ${n}`,
-  upLabel: (n: number) => `Move outcome ${n} up`,
-  downLabel: (n: number) => `Move outcome ${n} down`,
+  outcome: (n: number) => `Outcome ${n}`,
+  up: (n: number) => `Move outcome ${n} up`,
+  down: (n: number) => `Move outcome ${n} down`,
   editLabel: (n: number) => `Edit outcome ${n}`,
   deleteLabel: (n: number) => `Delete outcome ${n}`,
+  edit: 'Edit',
+  delete: 'Delete',
+  save: 'Save outcome',
+  cancel: 'Cancel',
+  undo: 'Undo',
+  noneTitle: 'No learning outcomes yet',
+  noneLine:
+    'Approve needs at least one. Add what a learner can do after this experiment; the same list applies to every format.',
+  addLabel: 'Add a learning outcome',
+  addHint: 'What a learner can do after the experiment. Start with a verb.',
+  add: 'Add outcome',
   moved: (from: number, up: boolean, to: number) =>
     `Outcome ${from} moved ${up ? 'up' : 'down'} — it is now outcome ${to}.`,
   deleted: (n: number) => `Outcome ${n} deleted.`,
@@ -231,58 +233,117 @@ export const OUTCOME_WORDS = {
   restored: (n: number) => `Outcome ${n} restored.`,
 } as const;
 
-// ---- the decision panel and its dialogs (B6-03 f0 … f5; B6-11 f0 … f3) -----------------------------
+// ---- the decision panel ----------------------------------------------------------------------------
 
 export const DECISION_WORDS = {
-  panelTitle: 'Your decision',
-  legend: 'Decision',
-  approve: {
-    title: 'Approve',
-    sub: 'Sends it to the Content Manager. Approving does not publish.',
-  },
-  return: { title: 'Return to vendor', sub: 'You’ll add a reason the vendor will see.' },
-  wholeExperiment: 'You decide for the whole Experiment — every format together.',
-  /** The panel’s error while an outcome is being edited (`g_aErr`). */
+  approve: 'Approve',
+  approveSub:
+    'Sends it to the Content Manager with its learning outcomes. Approving does not publish.',
+  approveSubRecheck:
+    'Sends it back to the Content Manager with its learning outcomes. Approving does not publish.',
+  returnToVendor: 'Return to vendor',
+  returnSub: 'You’ll add a reason the vendor will see. They can revise and resubmit.',
+  chooseDecision: 'Choose a decision',
+  /** While an outcome is being edited (`e.editing`). */
   editingFirst: 'Save or cancel the outcome you are editing first',
-  cancel: 'Cancel',
-  approving: 'Approving…',
-  returning: 'Returning…',
-  /** DL-2 (B6-11 f1). */
-  returnTitle: 'Return to vendor?',
-  returnEffect: 'The vendor sees your reason and can revise and resubmit.',
-  reasonLabel: 'Reason the vendor will see',
-  refsLegend: 'What it refers to',
-  optional: '(optional)',
+  reasonLabel: 'Reason the vendor will see (required)',
+  reasonHint: 'The vendor sees this above their editor.',
+  refsLegend: 'What it refers to (optional)',
   refsHint: 'The vendor sees these as links to the fields, above their editor.',
-  /** RV-06 (f4). */
-  backToQueue: 'Back to the review queue',
+  pendingEditing: 'Save or cancel the outcome you are editing first.',
+  pendingOutcomes: 'Add at least one learning outcome before you approve.',
+  pendingReason: 'Add the reason before you return it.',
+  cancel: 'Cancel',
 } as const;
 
-/** DL-1 (B6-11 f0): “Approve “Conduction Through a Composite Wall”?” (`aTitle`). */
+/**
+ * While a decision runs, its button says so (the export draws no busy look; the product's words
+ * from B6-03's script, as CM-v1's “Publishing…”).
+ */
+export const BUSY_WORDS = {
+  approving: 'Approving…',
+  returning: 'Returning…',
+} as const;
+
+/** “Before you decide” (`ready`, submission). */
+export const READY_WORDS = {
+  outcomesRule: 'Approve needs at least one.',
+  noOutcomes: 'No learning outcomes yet.',
+  addOutcome: 'Add an outcome',
+  whole: 'Whole Experiment.',
+  recheck: 'Re-check.',
+  recheckLine: 'The Content Manager sent it back to you.',
+  readWhy: 'Read why',
+  seeChanged: 'See what changed',
+} as const;
+
+/** “3 learning outcomes.” */
+export function readyOutcomes(count: number): string {
+  return `${plural(count, 'learning outcome')}.`;
+}
+
+/** “You decide for every format together: WEB and VR.” */
+export function readyWhole(codes: readonly string[]): string {
+  return `You decide for every format together: ${andList(codes)}.`;
+}
+
+/** “1 change since you returned it.” */
+export function readyChanges(count: number): string {
+  return `${plural(count, 'change')} since you returned it.`;
+}
+
+/** “What happens next” (`path`, submission). */
+export const PATH_WORDS = {
+  youLine: 'Approve it, or return it to the vendor.',
+  youLineRecheck: 'Approve it again, or return it to the vendor.',
+  contentManager: 'Content Manager · publication',
+  contentManagerLine: 'Approving does not publish.',
+  institutions: 'Institutions · student access',
+  institutionsLine: 'Publishing gives no one access.',
+} as const;
+
+// ---- the Approve confirmation ----------------------------------------------------------------------
+
+export const APPROVE_DIALOG = {
+  contentManagerDecides:
+    'The Content Manager decides whether to publish it. Approving does not publish.',
+  noAccess: 'Publishing gives no one access. Institutions give their students access separately.',
+} as const;
+
+/** The confirmation's title: “Approve “Conduction Through a Composite Wall”?” (`dlgTitle`). */
 export function approveTitle(name: string): string {
   return `Approve “${name}”?`;
 }
 
-/** DL-1’s one sentence (`aBody`): “Approving does not publish it.” */
-export function approveEffect(outcomes: number): string {
-  return `It goes to the Content Manager with its ${plural(outcomes, 'learning outcome')}. Approving does not publish it.`;
+/** “It goes to the Content Manager with its 3 learning outcomes.” (`nowList`). */
+export function approveGoes(outcomes: number, recheck: boolean): string {
+  return `${recheck ? 'It goes back to the Content Manager with its ' : 'It goes to the Content Manager with its '}${plural(outcomes, 'learning outcome')}.`;
 }
 
-/** One “What it refers to” option (`refOpts`): the editor’s step · format · field (OD-B5-10). */
+// ---- return references (OD-B5-10) ------------------------------------------------------------------
+
+/** One “What it refers to” option: the editor's step · format · field. */
 export interface ReferenceOption {
   readonly key: string;
+  /** The stored label, “Formats & delivery · VR · Device need” (the decided panel lists it). */
   readonly words: string;
-  readonly step: 'course-and-description' | 'formats-and-delivery' | 'preview-and-documents';
-  readonly format: Technology | null;
-  readonly field:
-    | 'summary'
-    | 'description'
-    | 'web-link'
-    | 'browser-and-computer'
-    | 'package'
-    | 'device-need'
-    | 'install-notes'
-    | 'preview-link';
+  /** The editor section the option is grouped under: “Formats & delivery · VR”. */
+  readonly group: string;
+  /** The field: “Device need”. */
+  readonly field: string;
+  readonly reference: {
+    readonly step: 'course-and-description' | 'formats-and-delivery' | 'preview-and-documents';
+    readonly format: Technology | null;
+    readonly field:
+      | 'summary'
+      | 'description'
+      | 'web-link'
+      | 'browser-and-computer'
+      | 'package'
+      | 'device-need'
+      | 'install-notes'
+      | 'preview-link';
+  };
 }
 
 const PACKAGE_FIELDS = [
@@ -291,103 +352,128 @@ const PACKAGE_FIELDS = [
   ['install-notes', 'Install notes'],
 ] as const;
 
+function option(
+  key: string,
+  group: string,
+  field: string,
+  reference: ReferenceOption['reference'],
+): ReferenceOption {
+  return { key, words: `${group} · ${field}`, group, field, reference };
+}
+
 /**
- * The references offered for the formats the submission has, in B6-03’s order: Course &
- * description, WEB, then each package format, then Preview & documents (`refOpts` filtered by the
- * chosen formats).
+ * The references offered for the formats the submission has, in the export's order (`REFS`):
+ * Course & description, WEB, then each package format, then Preview & documents — the preview
+ * link only when the submission has one.
  */
-export function referenceOptions(formats: readonly Technology[]): ReferenceOption[] {
+export function referenceOptions(
+  formats: readonly Technology[],
+  hasPreview: boolean,
+): ReferenceOption[] {
+  const course = 'Course & description';
   const options: ReferenceOption[] = [
-    {
-      key: 'summary',
-      words: 'Course & description · Summary',
+    option('summary', course, 'Summary', {
       step: 'course-and-description',
       format: null,
       field: 'summary',
-    },
-    {
-      key: 'description',
-      words: 'Course & description · Description',
+    }),
+    option('description', course, 'Description', {
       step: 'course-and-description',
       format: null,
       field: 'description',
-    },
+    }),
   ];
   if (formats.includes('web')) {
+    const web = 'Formats & delivery · WEB';
     options.push(
-      {
-        key: 'web:web-link',
-        words: 'Formats & delivery · WEB · Web link',
+      option('web:web-link', web, 'Web link', {
         step: 'formats-and-delivery',
         format: 'web',
         field: 'web-link',
-      },
-      {
-        key: 'web:browser-and-computer',
-        words: 'Formats & delivery · WEB · Browser and computer',
+      }),
+      option('web:browser-and-computer', web, 'Browser and computer', {
         step: 'formats-and-delivery',
         format: 'web',
         field: 'browser-and-computer',
-      },
+      }),
     );
   }
   for (const format of ['ar', 'vr', 'mr'] as const) {
     if (!formats.includes(format)) continue;
+    const group = `Formats & delivery · ${format.toUpperCase()}`;
     for (const [field, words] of PACKAGE_FIELDS) {
-      options.push({
-        key: `${format}:${field}`,
-        words: `Formats & delivery · ${format.toUpperCase()} · ${words}`,
-        step: 'formats-and-delivery',
-        format,
-        field,
-      });
+      options.push(
+        option(`${format}:${field}`, group, words, {
+          step: 'formats-and-delivery',
+          format,
+          field,
+        }),
+      );
     }
   }
-  options.push({
-    key: 'preview-link',
-    words: 'Preview & documents · Preview link',
-    step: 'preview-and-documents',
-    format: null,
-    field: 'preview-link',
-  });
+  if (hasPreview) {
+    options.push(
+      option('preview-link', 'Preview & documents', 'Preview link', {
+        step: 'preview-and-documents',
+        format: null,
+        field: 'preview-link',
+      }),
+    );
+  }
   return options;
 }
 
-// ---- the record as the reviewer sees it (B6-03 script `rvChipWords`, `decTitle`, `decNext`) ----------
+/** A stored reference (step · format · field) as the decided panel lists it. */
+export function referenceWords(reference: {
+  readonly step: string;
+  readonly format: Technology | null;
+  readonly field: string;
+}): string {
+  const found = referenceOptions(['web', 'ar', 'vr', 'mr'], true).find(
+    (entry) =>
+      entry.reference.step === reference.step &&
+      entry.reference.format === reference.format &&
+      entry.reference.field === reference.field,
+  );
+  return found?.words ?? reference.field;
+}
 
-/**
- * The decided panel’s status and the header chip once decided (RV-06, f4): approved and with the
- * Content Manager, published, returned by the reviewer, sent back to the vendor by the Content
- * Manager. Undrawn states take the register’s words (state-copy `RV-06.other`).
- */
-export const DECIDED_WORDS = {
-  withContentManager: 'Approved — with the Content Manager',
-  published: 'Approved — now published',
-  publishedChip: 'Approved — published',
-  returned: 'Returned to vendor',
-  returnedByContentManager: 'With the vendor',
+// ---- after deciding, and decided (RV-06) -----------------------------------------------------------
+
+export const DONE_WORDS = {
+  learningOutcomes: 'Learning outcomes',
+  publication: 'Publication',
+  references: 'References',
+  returnedToVendor: 'Returned to the vendor',
+  notPublishedDecides: 'Not published — the Content Manager decides',
+  notPublished: 'Not published',
+  noAccess: 'None — publishing gives no one access',
+  noReferences: 'None',
   nextWithContentManager:
     'The Content Manager decides whether to publish it. Nothing is published yet.',
-  nextReturned: 'The vendor sees your reason and can revise and resubmit.',
-  nextReturnedByContentManager: 'The Content Manager sent it back to the vendor.',
+  nextPublished: 'The Content Manager published it. Publishing gave no one access.',
+  nextReturnedHere:
+    'The vendor sees your reason above their editor and can revise and resubmit. A resubmission comes back to your queue as a new revision.',
+  nextReturned:
+    'The vendor can revise it and resubmit. A resubmission comes back to your queue as a new revision.',
 } as const;
 
-/** “The Content Manager published it on 29 Aug 2026.” (`decNext`, published). */
-export function publishedNextWords(day: string): string {
-  return `The Content Manager published it on ${day}.`;
+/** Another reviewer's decision (undrawn): “Decided by Prof. R. Iyer on 14 Aug 2026, 15:10”. */
+export function decidedByOther(when: string, by: string): string {
+  return stateWords('RV-06.decided-by-other').replace('{name}', by).replace('{when}', when);
 }
 
-/** The decided panel’s meta: “14 Aug 2026, 15:10 · Prof. A. Menon” (`decWhen`). */
-export function decidedWhenWords(when: string, who: string): string {
-  return `${when} · ${who}`;
+/** “3 outcomes”, “3 outcomes, sent with your decision”. */
+export function outcomesStand(count: number, here: boolean): string {
+  return `${plural(count, 'outcome')}${here ? ', sent with your decision' : ''}`;
 }
 
-/** A reason as B6-03 quotes it: “Please clarify the VR device requirements.” */
-export function quoted(reason: string): string {
-  return `“${reason}”`;
+/** “2 fields”, or “None”. */
+export function referencesStand(count: number): string {
+  return count > 0 ? plural(count, 'field') : DONE_WORDS.noReferences;
 }
 
-// ---- review history (B6-03 `sh`, newest first) ------------------------------------------------------
+// ---- review history (newest first) -----------------------------------------------------------------
 
 export const HISTORY_WORDS = {
   submitted: 'Submitted for academic review',
@@ -400,14 +486,12 @@ export const HISTORY_WORDS = {
   recheck: (who: string) => `Sent back to the Academic Reviewer by ${who}`,
   sentBackToVendor: (who: string) => `Sent back to the vendor by ${who}`,
   published: (who: string) => `Published by ${who}`,
-  publishedNote: (course: string, formats: readonly string[]) =>
-    `In the public catalogue under ${course} with ${formats.join(' and ')}. No one was given access.`,
 } as const;
 
 /**
- * The resubmission’s note: what the vendor changed, from “What changed” — “Northline Simulation
- * Studio changed the VR device need.” (f0); an earlier revision, or nothing reported, reads as
- * the first submission does (state-copy `RV-03.history-resubmitted`).
+ * The resubmission's note: what the vendor changed — “Northline Simulation Studio changed the VR
+ * device need.”; an earlier revision, or nothing reported, reads as the first submission does
+ * (state-copy `RV-03.history-resubmitted`).
  */
 export function resubmittedNoteWords(
   organisation: string,
@@ -417,9 +501,16 @@ export function resubmittedNoteWords(
   if (changed && changed.length > 0) {
     return stateWords('RV-03.history-resubmitted.changed')
       .replace('{organisation}', organisation)
-      .replace('{fields}', listWords([...new Set(changed.map(changedNoun))]));
+      .replace('{fields}', andList([...new Set(changed.map(changedNoun))]));
   }
   return stateWords('RV-03.history-resubmitted.revision')
     .replace('{revision}', String(revision))
     .replace('{organisation}', organisation);
+}
+
+/** The published entry's note (undrawn on the item view): state-copy `RV-03.history-published`. */
+export function publishedNoteWords(course: string, formats: readonly string[]): string {
+  return stateWords('RV-03.history-published')
+    .replace('{course}', course)
+    .replace('{formats}', andList(formats));
 }

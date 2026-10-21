@@ -1,217 +1,250 @@
 'use client';
 
-import type { Out, reviewedByMeOutput } from '@xr/contracts/draft';
-import { Field, Icon, Link, PageContent, PageHeader, Section, Select, StatusPill } from '@xr/ui';
+import {
+  Button,
+  ButtonLink,
+  ListState,
+  ListSurface,
+  PageHead,
+  type RvDecisionRow,
+  RvDecisionsTable,
+  RvKindTag,
+  RvListPanel,
+  RvListTabs,
+  rvListTabId,
+  RvListToolbar,
+  RvLoadingRows,
+} from '@xr/ui/v3';
 import { type ReactNode, useRef, useState } from 'react';
 
 import { dayMonthYear } from '@/copy/dates';
-import { reviewedByMeWords, wordsOf } from '@/copy/flow-state-words';
 import {
-  approvedOnlyWords,
+  CLEAR_FILTERS,
+  decisionRowLabel,
   decisionsCountWords,
-  openLabel,
+  decisionWords,
+  LIST_FAILED,
   REVIEWED_BY_ME,
-  type ReviewedFilter,
+  type ReviewedTab,
+  searchChip,
 } from '@/copy/reviewer-lists';
-import { stateWords } from '@/copy/state-copy';
-import {
-  REVIEWED_BY_ME_TITLE,
-  reviewedByMePlacement,
-  reviewSubmissionAddress,
-  reviewUpdateAddress,
-} from '@/nav/reviewer';
+import { REVIEW_QUEUE_ADDRESS, REVIEWED_BY_ME_TITLE, reviewedByMePlacement } from '@/nav/reviewer';
 import { useReviewedByMe } from '@/queries/production';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { ReviewerFailed, ReviewerLoading, useRetryFocus } from '../rv-02-queue/list-states';
+import {
+  approvedOf,
+  decidedAddressOf,
+  decidedAt,
+  decidedKind,
+  type DecidedRow,
+} from '../rv-02-queue/list-facts';
+import { type CourseNameOf, useRvCourseNames } from '../shared/course-names';
+import { reviewedRowStanding } from '../shared/standing';
+import { useRvTodayLine } from '../shared/waiting';
 
-export type DecidedRow = Out<typeof reviewedByMeOutput>[number];
+export type { DecidedRow } from '../rv-02-queue/list-facts';
 
-/** The Show filter (`rbShown`): an update, else a new submission (a re-check included). */
-export function showsRow(filter: ReviewedFilter, row: DecidedRow): boolean {
+/** The Show tabs (`reviewedVals` `TABS`): an update, else a submission (a re-check included). */
+export function showsRow(filter: ReviewedTab, row: DecidedRow): boolean {
   if (filter === 'update') return row.type === 'update';
   if (filter === 'new') return row.type !== 'update';
   return true;
 }
 
-/** The decision’s words and tone (B6-02 f1 `dec`, `kind`): approved ok, returned err. */
+/** The search (`reviewedVals`): the name, the internal reference (not shown) or the course code. */
+export function matchesSearch(row: DecidedRow, search: string): boolean {
+  const text = search.trim().toLocaleLowerCase('en');
+  return (
+    text === '' ||
+    [row.name, row.recordRef.id, row.courseCode ?? '']
+      .join(' ')
+      .toLocaleLowerCase('en')
+      .includes(text)
+  );
+}
+
+/** The decision's words and tone (`decLabel`, `stCls`): approved ok, returned err. */
 export function decisionView(row: DecidedRow): { readonly words: string; readonly ok: boolean } {
-  const ok = row.decision.decision === 'approve';
-  const words =
-    wordsOf(reviewedByMeWords(row)) ?? (ok ? approvedOnlyWords(row.type === 'update') : null);
-  // A return is always drawn (`reviewedByMeWords`); the fallback is for an approval only.
-  return { words: words ?? '', ok };
+  const ok = approvedOf(row);
+  return { words: decisionWords(ok, row.type === 'update'), ok };
 }
 
-/** When the reviewer decided: a submission decision’s `decidedAt`, an update decision’s `at`. */
-function decidedAt(row: DecidedRow): string {
-  const decision = row.decision as { readonly decidedAt?: string; readonly at?: string };
-  return decision.decidedAt ?? decision.at ?? '';
-}
-
-const FILTERS: readonly ReviewedFilter[] = ['all', 'new', 'update'];
+const TITLE_ID = 'rv-h1-rb';
+const TABS_ID = 'rv-rt';
+const PANEL_ID = 'rv-r-panel';
+const TABS: readonly ReviewedTab[] = ['all', 'new', 'update'];
 
 /**
- * RV-05 Reviewed by me — board B6-02 f1, at `/reviewer/reviewed`.
+ * RV-05 Reviewed by me — the V3 Refined B design (the owner-approved export
+ * design/v3-refined-b/roles/RV-v1, `RV.dc.html` `isReviewed` and `reviewedVals`), at
+ * `/reviewer/reviewed`.
  *
  * - **Read**: `ProductionService.listReviewedByMe` — each record the reviewer decided, with the
- *   last decision on it, newest first, and where the record is now.
- * - **As B6-02 draws it**: “Reviewed by me” with its one-line purpose; “Your decisions” ·
- *   “Read-only · newest first”; the Show filter (Everything I decided · New submissions ·
- *   Updates), the polite count “<n> of <n> decisions”; the table Item (name, “ID · code”) · Type ·
- *   Your decision (the decision and where it is now, in words: `reviewedByMeWords`, ok or err) ·
- *   Decided on · Open — the decided page (RV-06) for a submission, RV-04’s decided view for an
- *   update (Phase 6; state-copy `RV-05.update-row`). “Nothing decided yet” when the filter leaves
- *   nothing.
- * - Undrawn: loading and failed with “Try again” (state-copy `RV-05.loading`, `RV-05.failed`);
- *   an approval whose record is now somewhere the board draws no line for (`RV-05.approved`).
+ *   last decision on it, newest first, and where the record is now; the course names come from the
+ *   role's one catalogue lookup.
+ * - **As the export draws it**: the head (date on phones, “Reviewed by me”, its line); the surface
+ *   with the Show tabs (All, New submissions, Updates, each with its count), the search, the count,
+ *   the search's chip and “Clear filters”; the table Experiment (name, course) · Type (as decided)
+ *   · Your decision (approved or returned, and when) · Where it is now, each row one link to the
+ *   decided item, read-only (RV-06; an update RV-04 decided). No record is named by its reference.
+ * - **States**: no match (Clear filters), nothing decided (Open the review queue; no tools), loading
+ *   (the four-column skeleton; no counts) and couldn't load (Try again reads again and moves focus
+ *   to the title).
  */
 export function ReviewedByMe() {
   useShellPage(reviewedByMePlacement());
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const date = useRvTodayLine();
+  const courseName = useRvCourseNames();
   const read = useReviewedByMe();
-  const [filter, setFilter] = useState<ReviewedFilter>('all');
-  const headingRef = useRef<HTMLHeadingElement>(null);
+  const [tab, setTab] = useState<ReviewedTab>('all');
+  const [search, setSearch] = useState('');
   const rows = read.data?.ok ? read.data.value : null;
   const failed = read.isError || (read.data !== undefined && !read.data.ok);
-  const retried = useRetryFocus(rows !== null, headingRef);
 
   const retry = () => {
-    retried();
     void read.refetch();
+    titleRef.current?.focus();
   };
+  const clear = () => {
+    setTab('all');
+    setSearch('');
+  };
+
+  const loaded = rows !== null && !failed;
+  const empty = loaded && rows.length === 0;
+  const base = rows ? rows.filter((row) => matchesSearch(row, search)) : [];
+  const shown = base.filter((row) => showsRow(tab, row));
+  const filtered = search.trim() !== '' || tab !== 'all';
 
   let body: ReactNode;
   if (failed) {
     body = (
-      <div className="xr-section-body">
-        <ReviewerFailed title={stateWords('RV-05.failed')} onRetry={retry} />
-      </div>
+      <ListState
+        kind="failed"
+        title={REVIEWED_BY_ME.failedTitle}
+        action={<Button onClick={retry}>{LIST_FAILED.retry}</Button>}
+      >
+        {LIST_FAILED.line}
+      </ListState>
     );
   } else if (rows === null) {
-    body = <ReviewerLoading label={stateWords('RV-05.loading')} />;
-  } else {
-    const shown = rows.filter((row) => showsRow(filter, row));
+    body = <RvLoadingRows message={REVIEWED_BY_ME.loading} cells={[2, 1, 2, 1]} />;
+  } else if (empty) {
     body = (
-      <>
-        <div className="xr-toolbar [padding:0_24px_16px]">
-          <Field id="rb-f" label={REVIEWED_BY_ME.show}>
-            <Select
-              value={filter}
-              onChange={(event) => setFilter(event.target.value as ReviewedFilter)}
-              options={FILTERS.map((value) => ({
-                value,
-                label: REVIEWED_BY_ME.filters[value],
-              }))}
-            />
-          </Field>
-        </div>
-        <div className="xr-toolbar-status [padding:0_24px_12px]">
-          <span className="xr-meta" role="status">
-            {decisionsCountWords(shown.length, rows.length)}
-          </span>
-        </div>
-        {shown.length > 0 ? <DecisionsTable rows={shown} /> : <NothingDecided />}
-      </>
+      <ListState
+        kind="empty"
+        icon="check"
+        title={REVIEWED_BY_ME.emptyTitle}
+        action={<ButtonLink href={REVIEW_QUEUE_ADDRESS}>{REVIEWED_BY_ME.openQueue}</ButtonLink>}
+      >
+        {REVIEWED_BY_ME.emptyLine}
+      </ListState>
+    );
+  } else if (shown.length === 0) {
+    body = (
+      <ListState
+        kind="nomatch"
+        title={REVIEWED_BY_ME.noMatchTitle}
+        action={
+          <Button
+            onClick={() => {
+              clear();
+              searchRef.current?.focus();
+            }}
+          >
+            {CLEAR_FILTERS}
+          </Button>
+        }
+      >
+        {REVIEWED_BY_ME.noMatchLine}
+      </ListState>
+    );
+  } else {
+    body = (
+      <RvDecisionsTable
+        caption={REVIEWED_BY_ME.caption}
+        headers={REVIEWED_BY_ME.columns}
+        decidedLabel={REVIEWED_BY_ME.decidedLabel}
+        nowLabel={REVIEWED_BY_ME.nowLabel}
+        rows={shown.map((row) => decisionRow(row, courseName))}
+      />
     );
   }
 
   return (
-    <PageContent wrap="wide">
-      <PageHeader
-        className="mb-6"
+    <>
+      <PageHead
         title={REVIEWED_BY_ME_TITLE}
-        meta={<span className="xl-meta">{REVIEWED_BY_ME.lead}</span>}
+        titleId={TITLE_ID}
+        titleRef={titleRef}
+        titleFocusTarget
+        date={date}
+        lead={REVIEWED_BY_ME.lead}
       />
-      <Section
-        title={REVIEWED_BY_ME.sectionTitle}
-        headingId="rb-rh"
-        headingFocusTarget
-        headingRef={headingRef}
-        meta={REVIEWED_BY_ME.meta}
-      >
-        {body}
-      </Section>
-    </PageContent>
+      <ListSurface label={REVIEWED_BY_ME.surfaceLabel}>
+        {empty ? null : (
+          <>
+            <RvListTabs
+              label={REVIEWED_BY_ME.tabsLabel}
+              idPrefix={TABS_ID}
+              panelId={PANEL_ID}
+              three
+              value={tab}
+              onChange={setTab}
+              tabs={TABS.map((value) => ({
+                value,
+                label: REVIEWED_BY_ME.tabs[value],
+                count: loaded ? base.filter((row) => showsRow(value, row)).length : undefined,
+              }))}
+            />
+            <RvListToolbar
+              label={REVIEWED_BY_ME.toolsLabel}
+              searchRef={searchRef}
+              search={{
+                id: 'rv-r-search',
+                label: REVIEWED_BY_ME.search,
+                placeholder: REVIEWED_BY_ME.searchPlaceholder,
+                value: search,
+                onChange: setSearch,
+              }}
+              count={loaded ? decisionsCountWords(shown.length, rows.length, filtered) : undefined}
+              chips={
+                loaded && search.trim()
+                  ? [{ key: 'search', label: searchChip(search), onRemove: () => setSearch('') }]
+                  : []
+              }
+              clear={loaded && filtered ? { label: CLEAR_FILTERS, onClear: clear } : undefined}
+            />
+          </>
+        )}
+        <RvListPanel id={PANEL_ID} labelledBy={empty ? null : rvListTabId(TABS_ID, tab)}>
+          {body}
+        </RvListPanel>
+      </ListSurface>
+    </>
   );
 }
 
-/** B6-02 f1 table: Item · Type · Your decision · Decided on · Open. */
-function DecisionsTable({ rows }: { readonly rows: readonly DecidedRow[] }) {
-  const { columns } = REVIEWED_BY_ME;
-  return (
-    <div className="xr-table-wrap rounded-none border-x-0 border-b-0">
-      <table className="xr-table">
-        <thead>
-          <tr>
-            <th scope="col">{columns.item}</th>
-            <th scope="col">{columns.type}</th>
-            <th scope="col">{columns.decision}</th>
-            <th scope="col">{columns.decidedOn}</th>
-            <th scope="col">
-              <span className="xr-sr">{columns.action}</span>
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row) => {
-            const decision = decisionView(row);
-            const at = decidedAt(row);
-            return (
-              <tr key={`${row.recordRef.kind}:${row.recordRef.id}`}>
-                <td className="is-primary">
-                  <strong>{row.name}</strong>
-                  <span className="xr-meta block">
-                    <span className="xr-id">{row.recordRef.id}</span>
-                    {row.courseCode ? (
-                      <>
-                        {' · '}
-                        <span className="xw-nowrap">{row.courseCode}</span>
-                      </>
-                    ) : null}
-                  </span>
-                </td>
-                <td data-label={columns.type}>
-                  {row.type === 'update' ? REVIEWED_BY_ME.typeUpdate : REVIEWED_BY_ME.typeNew}
-                </td>
-                <td data-label={columns.decision}>
-                  <StatusPill tone={decision.ok ? 'ok' : 'err'}>{decision.words}</StatusPill>
-                </td>
-                <td data-label={columns.decidedOn}>
-                  <span className="xw-nowrap">{at ? dayMonthYear(at) : null}</span>
-                </td>
-                <td>
-                  <Link
-                    className="xr-btn xr-btn--secondary xr-btn--sm"
-                    href={
-                      row.recordRef.kind === 'UPD'
-                        ? reviewUpdateAddress(row.recordRef.id)
-                        : reviewSubmissionAddress(row.recordRef.id)
-                    }
-                    aria-label={openLabel(row.name)}
-                  >
-                    {REVIEWED_BY_ME.open}
-                  </Link>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-/** B6-02 `rbNone`: the Reviewed-by-me icon and “Nothing decided yet”. */
-function NothingDecided() {
-  return (
-    <div className="xr-section-body">
-      <div className="xr-empty">
-        <span className="xr-empty-icon">
-          <Icon name="reviewedByMe" />
-        </span>
-        <h3 className="xr-h3 m-0">{REVIEWED_BY_ME.emptyTitle}</h3>
-        <p className="xr-body m-0 text-ink-2">{REVIEWED_BY_ME.emptyLine}</p>
-      </div>
-    </div>
-  );
+/** One decision (the export's `reviewedVals` `rows`). */
+function decisionRow(row: DecidedRow, courseName: CourseNameOf): RvDecisionRow {
+  const kind = decidedKind(row);
+  const { words, ok } = decisionView(row);
+  const at = decidedAt(row);
+  const when = at ? dayMonthYear(at) : '';
+  return {
+    key: `${row.recordRef.kind}:${row.recordRef.id}`,
+    href: decidedAddressOf(row),
+    name: row.name,
+    accessibleName: decisionRowLabel(row.name, words, when),
+    courseCode: row.courseCode,
+    courseName: courseName(row.courseCode),
+    kind: <RvKindTag kind={kind.kind} label={kind.label} detail={kind.detail} />,
+    decision: words,
+    approved: ok,
+    when,
+    now: reviewedRowStanding(row)?.now ?? '',
+  };
 }

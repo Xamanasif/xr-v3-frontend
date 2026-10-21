@@ -14,7 +14,9 @@ export const SHELL_HELP = 'Help & support';
 /**
  * A V3 role shell's rail count that its role export words differently from board 06, by
  * `role:href` (the v46 shells keep board 06's words): the Content Manager's Ready to publish
- * (CM-v1 `Main.dc.html` `navVM`, "{n} experiments ready to publish", singular at 1).
+ * (CM-v1 `Main.dc.html` `navVM`, "{n} experiments ready to publish", singular at 1) and the
+ * Academic Reviewer's Review queue (RV-v1 `RV.dc.html` `navCountLabel`, "{n} items waiting for
+ * review", singular at 1).
  */
 export const V3_RAIL_COUNT_WORDS: Readonly<
   Partial<Record<string, { readonly other: string; readonly one?: string }>>
@@ -22,6 +24,10 @@ export const V3_RAIL_COUNT_WORDS: Readonly<
   'content_manager:/content-manager/ready': {
     other: '{n} experiments ready to publish',
     one: '{n} experiment ready to publish',
+  },
+  'academic_reviewer:/reviewer/queue': {
+    other: '{n} items waiting for review',
+    one: '{n} item waiting for review',
   },
 };
 

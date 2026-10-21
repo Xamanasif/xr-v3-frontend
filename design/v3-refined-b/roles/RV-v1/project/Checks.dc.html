@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Academic Reviewer · checks and evidence</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./rv.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+.ck-wrap{grid-column:1 / -1;width:100%;max-width:1360px;margin:0 auto;padding:56px 40px 72px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px}
+.ck-env{margin:0;font:400 15px/23px var(--sans);color:var(--ink-2)}
+.ck-table{width:100%;border-collapse:collapse;table-layout:fixed}
+.ck-table caption{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ck-table th{padding:12px 16px;border-bottom:1px solid var(--rb-line);background:#F7F8FC;text-align:left;font:600 14px/20px var(--sans);color:var(--ink-3)}
+.ck-table td{padding:14px 16px;border-bottom:1px solid var(--rb-line);vertical-align:top;font:400 15px/23px var(--sans);color:var(--ink-2)}
+.ck-table tr:last-child td{border-bottom:0}
+.ck-table td b{display:block;font:650 15.5px/22px var(--sans);color:var(--navy)}
+.ck-res{font:700 16px/23px var(--sans);color:var(--navy)}
+.ck-res span{display:block;font:400 14.5px/21px var(--sans);color:var(--ink-3)}
+.ck-c1{width:19%}.ck-c2{width:17%}.ck-c3{width:22%}.ck-c4{width:42%}
+.ck-list{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:8px;font:400 15.5px/24px var(--sans);color:var(--ink-2)}
+.ck-list b{color:var(--ink)}
+.ck-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px}
+</style>
+</helmet>
+<div class="xr rb">
+  <main class="ck-wrap">
+    <header class="rk-head">
+      <div class="rk-head-text">
+        <p class="rk-eyebrow">Academic Reviewer · complete role · FINAL — owner approved 21 October 2026</p>
+        <h1 class="rb-h1">Checks and evidence</h1>
+        <p class="rk-sub">Every number below comes from a run on these bytes. The 20 October figures are the full suite; the 21 October figures re-verify the design after the internal-ID correction. What was not tested is listed at the end.</p>
+      </div>
+      <div class="rk-head-act"><a class="rb-btn rb-btn--lg" href="Main.dc.html">Back to the index</a><a class="rb-btn rb-btn--lg" href="Coverage.dc.html">Coverage register</a></div>
+    </header>
+
+    <section class="rk-surface" aria-labelledby="ck-env">
+      <div class="rk-sec">
+        <div class="rk-sec-h"><h2 class="rb-h2" id="ck-env">Where it ran</h2></div>
+        <p class="ck-env">Headless Chromium 141 through Playwright 1.56, with the Claude Design type’s own runtime served as support.js. Public Sans was served from a local copy because this sandbox blocks Google Fonts, so line wrapping can differ slightly from the canvas. Each board ran at its own width; the journeys ran at 1440, 1024, 768 and 375.</p>
+      </div>
+    </section>
+
+    <section class="rk-surface" aria-label="Results">
+      <table class="ck-table">
+        <caption>Check results for the final Academic Reviewer design</caption>
+        <thead><tr><th scope="col" class="ck-c1">Suite</th><th scope="col" class="ck-c2">Widths</th><th scope="col" class="ck-c3">Result</th><th scope="col" class="ck-c4">What it covers</th></tr></thead>
+        <tbody>
+          <tr><td><b>Board renders</b></td><td>each board’s own width</td><td class="ck-res">62 of 62 boards<span>no sideways scroll, no console errors, no failed requests</span></td><td>Every component board on the canvas at its frame width and full height.</td></tr>
+          <tr><td><b>Journeys</b></td><td>1440 · 1024 · 768 · 375</td><td class="ck-res">918 passed, 0 failed<span>229 · 229 · 230 · 230</span></td><td>The completed role’s journeys (return, approve, outcomes needed, re-check, update approved and returned, filters, shell, states, stale version), plus checks for every refined pattern: the desk, tabs and arrow keys, type tags, page map, readiness links, grouped references, Reviewed by me, decided items and refusal cards.</td></tr>
+          <tr><td><b>Keyboard only</b></td><td>1440 · 1024 · 768 · 375</td><td class="ck-res">80 passed, 0 failed<span>20 at each width</span></td><td>From the page body to a recorded return and back to the queue, with a visible focus ring at each step.</td></tr>
+          <tr><td><b>Reflow at 320 px</b></td><td>320</td><td class="ck-res">11 of 11</td><td>WCAG 1.4.10 on the live root, queue, both review pages, outcomes needed, a filled return, Reviewed by me, two decided items, Help &amp; support and a refusal.</td></tr>
+          <tr><td><b>Long text</b></td><td>375 · 768 · 1440</td><td class="ck-res">21 of 21</td><td>Long experiment, vendor and person names on seven pages; no sideways overflow.</td></tr>
+          <tr><td><b>Links and controls</b></td><td>1440 · 1024 · 768 · 375</td><td class="ck-res">146 passed, 0 failed<span>36 · 36 · 37 · 37, plus 6 index checks</span></td><td>Every control the journeys don’t click: chips, Clear filters, Go to decision, page maps, Move down, Cancel, preview links, breadcrumbs, report links, list-state actions, refusal actions and back links.</td></tr>
+          <tr><td><b>Separators</b></td><td>all boards, plus long text at 4 widths</td><td class="ck-res">90 pages, none found</td><td>No divider starts or ends a wrapped line. This pass found and fixed three: the identity card’s sender at 1024 and 768, the fifth fact of an update, and Not included on phones.</td></tr>
+          <tr><td><b>Layout polish</b></td><td>all boards, plus long text at 4 widths</td><td class="ck-res">93 pages, none found</td><td>Button labels that wrap, clipped text, overlapping siblings, and targets under 24 px without the spacing WCAG 2.5.8 allows.</td></tr>
+          <tr><td><b>Automated WCAG 2.1 A and AA</b></td><td>each board’s own width</td><td class="ck-res">0 violations<span>axe-core 4.10.3</span></td><td>87 text nodes axe could not judge for contrast (pseudo-elements, overlap) were measured directly: all pass AA, the lowest 5.94:1. This pass also removed references to elements that were not on the page: the tab panel of an empty list, and the outcome edit field’s error.</td></tr>
+          <tr><td><b>Internal IDs out of sight</b><br><span class="ck-res"><span>21 Oct re-check</span></span></td><td>each board’s own width</td><td class="ck-res">0 on 62 of 62<span>reviewer screens</span></td><td>The rendered text of every board — visible copy plus aria-label, title, placeholder, alt and value — scanned for SUB-, UPD-, REQ- and ACC-style IDs. None on any reviewer screen. The Main and Coverage boards still carry them: they are integration documentation, not product UI.</td></tr>
+          <tr><td><b>End-to-end smoke</b><br><span class="ck-res"><span>21 Oct re-check</span></span></td><td>1440 · 375</td><td class="ck-res">32 passed, 0 failed</td><td>After the ID change: open the oldest item, add an outcome, refuse a return with no reason, record the return, queue drops to 3, Reviewed by me grows to 9, reopen a decided item read-only. Also: the breadcrumb names the experiment, search still finds an item by its hidden record ID, and course codes, vendor names and format badges are still shown.</td></tr>
+          <tr><td><b>Boards after the change</b><br><span class="ck-res"><span>21 Oct re-check</span></span></td><td>each board’s own width</td><td class="ck-res">65 of 65</td><td>Re-rendered from the corrected bytes: no sideways scroll, no console errors, no failed requests, every frame fits its content. Three frames shrank where the ID line left a row and were resized.</td></tr>
+          <tr><td><b>Source</b></td><td>—</td><td class="ck-res">22 of 22</td><td>Base files byte-identical to XR-V3-RB-1.0; the completed role and checkpoint 1 byte-identical to their ZIPs; the sample world (courses, scopes, records, decisions, references) identical to the completed role; rv.css additive (every selector has an rv- class, no tokens redefined, no new colour literals); every class used is defined and every rv- class defined is used; no decision IDs in the role’s visible copy; canvas.json valid.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <div class="ck-two">
+      <section class="rk-surface" aria-labelledby="ck-notes">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="ck-notes">Worth knowing</h2></div>
+          <ul class="ck-list">
+            <li>At 375 the <b>New submissions</b> tab label takes two lines; the tabs keep an equal height.</li>
+            <li>Standalone text links 19 to 22 px tall (breadcrumbs, All decisions, row titles) pass WCAG 2.5.8 through its spacing exception.</li>
+            <li>Full-page journey captures at 1440 and 1024 can show the rail where the window was scrolled. The board captures show it correctly.</li>
+          </ul>
+        </div>
+      </section>
+      <section class="rk-surface" aria-labelledby="ck-not">
+        <div class="rk-sec">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="ck-not">Not tested</h2></div>
+          <ul class="ck-list">
+            <li><b>Inside the claude.ai Design canvas.</b> The published files are the same bytes; your first open of the canvas is this check.</li>
+            <li><b>Screen readers.</b> Names, roles and focus order were checked in the DOM and by axe only.</li>
+            <li><b>Other browsers and devices.</b> Safari, Firefox, real touch devices, forced colours, 200% text zoom and print.</li>
+          </ul>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":2225}}'>
+class Component extends DCLogic {
+  renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

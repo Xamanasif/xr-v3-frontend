@@ -1,0 +1,83 @@
+--- project/RV.dc.html
++++ stress/RV.dc.html
+@@ -718,7 +718,7 @@
+   </sc-if>
+ </div>
+ </x-dc>
+-<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["overview","queue","reviewed","item","help","report","signedout"],"default":"overview","section":"State"},"record":{"editor":"enum","options":["","SUB-0077","SUB-0086","SUB-0071","UPD-0005","SUB-0074","SUB-0081","SUB-0070","SUB-0052","UPD-0004","UPD-0003","UPD-0006","draft-withdrawn"],"default":"","section":"State"},"preset":{"editor":"enum","options":["","approve-blocked","return-errors","return-filled","confirm","approved","returned","deleted","editing","package-open","stale-armed","stale","elsewhere"],"default":"","section":"State"},"listPreset":{"editor":"enum","options":["","filtered","nomatch","loading","failed","empty"],"default":"","section":"State"},"scope":{"editor":"enum","options":["full","che-withdrawn"],"default":"full","section":"State"},"overlay":{"editor":"enum","options":["","drawer","account"],"default":"","section":"State"},"helpPreset":{"editor":"enum","options":["","errors","sent"],"default":"","section":"State"},"$preview":{"width":1440,"height":900}}'>
++<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["overview","queue","reviewed","item","help","report","signedout"],"default":"overview","section":"State"},"record":{"editor":"enum","options":["","SUB-0077","SUB-0086","SUB-0071","UPD-0005","SUB-0074","SUB-0081","SUB-0070","SUB-0052","UPD-0004","UPD-0003","UPD-0006","draft-withdrawn"],"default":"","section":"State"},"preset":{"editor":"enum","options":["","approve-blocked","return-errors","return-filled","confirm","approved","returned","deleted","editing","package-open","stale-armed","stale","elsewhere"],"default":"","section":"State"},"listPreset":{"editor":"enum","options":["","filtered","nomatch","loading","failed","empty"],"default":"","section":"State"},"scope":{"editor":"enum","options":["full","che-withdrawn"],"default":"full","section":"State"},"overlay":{"editor":"enum","options":["","drawer","account"],"default":"","section":"State"},"helpPreset":{"editor":"enum","options":["","errors","sent"],"default":"","section":"State"},"$preview":{"width":1440,"height":1100}}'>
+ class Component extends DCLogic {
+   static get COURSES() { return { 'ME ZG523': 'Thermodynamics & Heat Transfer', 'MEL ZG512': 'Manufacturing Processes', 'CHE ZG513': 'Process Instrumentation & Control', 'EEE ZC341': 'Electrical Machines' }; }
+   static get SCOPES() { return { full: ['ME ZG523', 'MEL ZG512', 'CHE ZG513'], 'che-withdrawn': ['ME ZG523', 'MEL ZG512'] }; }
+@@ -729,19 +729,19 @@
+   // Records: v46 B6-01…B6-04, B6-11…B6-13, B7-11 sample world as of Thu 27 Aug 2026 (scenario rv-2026-08-27). See SCENARIOS.json.
+   static get REC() {
+     return {
+-      'SUB-0086': { kind: 'sub', name: 'Flash Distillation', course: 'CHE ZG513', who: 'Meridian Virtual Labs', rev: 1, st: 'with_rv', since: '24 Aug 2026', iso: '2026-08-24', fmts: ['WEB'],
++      'SUB-0086': { kind: 'sub', name: 'Flash Distillation of a Binary Feed with Variable Drum Pressure and Heat Loss to the Surroundings', course: 'CHE ZG513', who: 'Meridian Virtual Laboratories and Simulation Engineering Services Private Limited', rev: 1, st: 'with_rv', since: '24 Aug 2026', iso: '2026-08-24', fmts: ['WEB'],
+         summary: 'Flash a hot binary feed across a valve into a drum and find the vapour fraction from your own readings.',
+         desc: 'Learners set the feed temperature and the drum pressure, read the vapour and liquid flows, and compare the vapour fraction with an equilibrium calculation.',
+         version: '1.0', preview: null, docs: ['Flash drum handout.pdf'], deliv: { WEB: { link: 'https://labs.meridian.example/flash-distillation', browser: 'A current browser on a laptop or desktop' } },
+         lo: [], hist: [{ w: 'Submitted for academic review', t: '24 Aug 2026, 14:10', n: 'Revision 1 · from Meridian Virtual Labs' }] },
+-      'SUB-0071': { kind: 'sub', name: 'Venturi Meter Calibration', course: 'CHE ZG513', who: 'Meridian Virtual Labs', rev: 1, st: 'recheck', since: '25 Aug 2026', iso: '2026-08-25', fmts: ['WEB', 'AR'],
++      'SUB-0071': { kind: 'sub', name: 'Venturi Meter Calibration', course: 'CHE ZG513', who: 'Meridian Virtual Laboratories and Simulation Engineering Services Private Limited', rev: 1, st: 'recheck', since: '25 Aug 2026', iso: '2026-08-25', fmts: ['WEB', 'AR'],
+         summary: 'Calibrate a Venturi meter against a weigh tank and find its discharge coefficient.',
+         desc: 'Learners vary the flow, read the throat and inlet pressures and the collected mass, and plot the discharge coefficient against the Reynolds number.',
+         version: '1.0', preview: null, docs: [], deliv: { WEB: { link: 'https://labs.meridian.example/venturi', browser: 'A current browser on a laptop or desktop' }, AR: { label: 'Venturi — AR build 1.0', device: 'Phone or tablet with a rear camera, Android 12 / iOS 16 or later' } },
+         recheck: { by: 'Kavya Nair, Content Manager', when: '25 Aug 2026, 10:42', reason: 'The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes.' },
+         lo: ['Calibrate a Venturi meter against a weigh tank.', 'Compare the discharge coefficient with a Pitot tube reading.', 'Explain where the pressure is recovered downstream of the throat.'],
+         hist: [{ w: 'Sent back to the Academic Reviewer by Kavya Nair', t: '25 Aug 2026, 10:42', n: '“The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes.”' }, { w: 'Approved by Prof. A. Menon', t: '18 Aug 2026, 11:30', n: 'Sent to the Content Manager with 3 learning outcomes.' }, { w: 'Submitted for academic review', t: '10 Aug 2026, 09:20', n: 'Revision 1 · from Meridian Virtual Labs' }] },
+-      'UPD-0005': { kind: 'upd', name: 'Distillation Column', course: 'CHE ZG513', who: 'Kavya Nair', st: 'in_review', since: '25 Aug 2026', iso: '2026-08-25', fmts: ['WEB', 'VR'], liveVer: '1.2', liveSince: '3 Jul 2026', newVer: '1.3', vendor: 'Meridian Virtual Labs', sent: '25 Aug 2026, 16:00',
++      'UPD-0005': { kind: 'upd', name: 'Distillation Column', course: 'CHE ZG513', who: 'Kavya Nair-Raghunathan', st: 'in_review', since: '25 Aug 2026', iso: '2026-08-25', fmts: ['WEB', 'VR'], liveVer: '1.2', liveSince: '3 Jul 2026', newVer: '1.3', vendor: 'Meridian Virtual Laboratories and Simulation Engineering Services Private Limited', sent: '25 Aug 2026, 16:00',
+         cmp: [
+           { f: 'Description', live: [{ t: 'Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. ' }, { t: 'Lowering', m: 1 }, { t: ' the reflux ratio raises the overhead purity, at the cost of more reboiler heat.' }],
+             prop: [{ t: 'Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. ' }, { t: 'Raising', m: 1 }, { t: ' the reflux ratio raises the overhead purity, at the cost of more reboiler heat.' }] },
+@@ -751,7 +751,7 @@
+         summary: 'Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.',
+         lo: ['Bring a column to steady state from cold start', 'Tune reflux ratio against an overhead purity target'],
+         hist: [{ w: 'Sent for academic review', t: '25 Aug 2026, 16:00', n: 'To Prof. A. Menon. The live version 1.2 is unchanged.' }, { w: 'Correction started from the published experiment', t: '25 Aug 2026, 15:40', n: 'Pre-filled with the live version 1.2.' }] },
+-      'SUB-0077': { kind: 'sub', name: 'Conduction Through a Composite Wall', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 2, st: 'with_rv', since: '26 Aug 2026', iso: '2026-08-26', resub: '26 Aug 2026', fmts: ['WEB', 'VR'],
++      'SUB-0077': { kind: 'sub', name: 'Conduction Through a Composite Wall of Brick, Insulation and Plaster Layers', course: 'ME ZG523', who: 'Northline Simulation Studio for Thermal and Fluid Laboratories', rev: 2, st: 'with_rv', since: '26 Aug 2026', iso: '2026-08-26', resub: '26 Aug 2026', fmts: ['WEB', 'VR'],
+         summary: 'Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.',
+         desc: 'Learners build a wall from three layers — brick, insulation and plaster — set the hot-side and cold-side temperatures, and read the temperature at each interface. They compare the measured profile and heat flux with the series thermal-resistance model and explain where the two differ.',
+         version: '1.0', preview: { label: 'Two-minute walkthrough', url: 'https://media.northline.example/composite-wall-walkthrough' }, docs: ['Lab handout — Composite Wall.pdf', 'Thermocouple positions.pdf'],
+@@ -761,32 +761,32 @@
+         changes: [{ f: 'Formats & delivery · VR · Device need', was: 'VR headset', now: 'Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor' }],
+         lo: ['Explain conduction through layers in series using thermal resistance.', 'Predict interface temperatures from layer properties.', 'Compare measured and predicted heat flux and explain the difference.'],
+         hist: [{ w: 'Resubmitted · revision 2', t: '26 Aug 2026, 11:30', n: 'Northline Simulation Studio changed the VR device need.' }, { w: 'Returned to vendor by Prof. A. Menon', t: '19 Aug 2026, 16:05', n: '“Please clarify the VR device requirements.”' }, { w: 'Submitted for academic review', t: '12 Aug 2026, 10:52', n: 'Revision 1 · from Northline Simulation Studio' }] },
+-      'SUB-0074': { kind: 'sub', name: 'Transient Cooling', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 1, st: 'with_cm', fmts: ['WEB'],
++      'SUB-0074': { kind: 'sub', name: 'Transient Cooling', course: 'ME ZG523', who: 'Northline Simulation Studio for Thermal and Fluid Laboratories', rev: 1, st: 'with_cm', fmts: ['WEB'],
+         summary: 'Cool a heated cylinder in still air and water, and test when the lumped-capacitance model holds.',
+         desc: 'Learners heat aluminium and steel cylinders, log their cooling in air and in water, and compare the curves with the lumped model using the Biot number.',
+         version: '1.0', preview: null, docs: [], deliv: { WEB: { link: 'https://labs.northline.example/transient-cooling', browser: 'A current browser on a laptop or desktop' } },
+         lo: ['Decide when the lumped-capacitance model applies, using the Biot number.', 'Estimate a heat transfer coefficient from a measured cooling curve.'],
+         past: { dec: 'approved', when: '14 Aug 2026, 15:10' },
+         hist: [{ w: 'Approved by Prof. A. Menon', t: '14 Aug 2026, 15:10', n: 'Sent to the Content Manager with 2 learning outcomes. Nothing is published.' }, { w: 'Submitted for academic review', t: '6 Aug 2026, 12:02', n: 'Revision 1 · from Northline Simulation Studio' }] },
+-      'SUB-0081': { kind: 'sub', name: 'Forced Convection', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 1, st: 'returned', fmts: ['WEB', 'AR'], partial: true,
++      'SUB-0081': { kind: 'sub', name: 'Forced Convection', course: 'ME ZG523', who: 'Northline Simulation Studio for Thermal and Fluid Laboratories', rev: 1, st: 'returned', fmts: ['WEB', 'AR'], partial: true,
+         past: { dec: 'returned', when: '24 Aug 2026', reason: 'The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.', refs: ['Formats & delivery · AR · Device need', 'Formats & delivery · AR · Install notes'] },
+         hist: [{ w: 'Returned to vendor by Prof. A. Menon', t: '24 Aug 2026', n: '“The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.”' }] },
+-      'SUB-0070': { kind: 'sub', name: 'Packed Bed Pressure Drop', course: 'CHE ZG513', who: 'Meridian Virtual Labs', rev: 1, st: 'with_cm', fmts: ['WEB', 'AR'], partial: true,
++      'SUB-0070': { kind: 'sub', name: 'Packed Bed Pressure Drop', course: 'CHE ZG513', who: 'Meridian Virtual Laboratories and Simulation Engineering Services Private Limited', rev: 1, st: 'with_cm', fmts: ['WEB', 'AR'], partial: true,
+         summary: 'Push air through a packed bed and compare the pressure drop you measure with the Ergun equation.',
+         desc: 'Learners change the air flow through beds of glass beads and Raschig rings, read the pressure drop, and fit the Ergun constants from their own data.', version: '1.0',
+         past: { dec: 'approved', when: '21 Aug 2026, 10:15' },
+         hist: [{ w: 'Approved by Prof. A. Menon', t: '21 Aug 2026, 10:15', n: 'Sent to the Content Manager.' }, { w: 'Submitted for academic review', t: '12 Aug 2026, 13:00', n: 'Revision 1 · from Meridian Virtual Labs' }] },
+-      'SUB-0052': { kind: 'sub', name: 'Fin-Tube Bundle', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 1, st: 'published', pubWhen: '30 Jul 2026', fmts: ['WEB', 'VR'], partial: true,
++      'SUB-0052': { kind: 'sub', name: 'Fin-Tube Bundle', course: 'ME ZG523', who: 'Northline Simulation Studio for Thermal and Fluid Laboratories', rev: 1, st: 'published', pubWhen: '30 Jul 2026', fmts: ['WEB', 'VR'], partial: true,
+         summary: 'Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.',
+         past: { dec: 'approved', when: '24 Jul 2026' },
+         hist: [{ w: 'Published by the Content Manager', t: '30 Jul 2026', n: '' }, { w: 'Approved by Prof. A. Menon', t: '24 Jul 2026', n: 'Sent to the Content Manager.' }] },
+-      'UPD-0004': { kind: 'upd', name: 'Boiler Drum Level', course: 'CHE ZG513', who: 'Kavya Nair', st: 'awaiting', newVer: '2.1', fmts: null, partial: true,
++      'UPD-0004': { kind: 'upd', name: 'Boiler Drum Level', course: 'CHE ZG513', who: 'Kavya Nair-Raghunathan', st: 'awaiting', newVer: '2.1', fmts: null, partial: true,
+         past: { dec: 'approved', when: '14 Aug 2026' },
+         hist: [{ w: 'Approved by Prof. A. Menon', t: '14 Aug 2026', n: 'With the Super Admin for a release decision.' }] },
+-      'UPD-0003': { kind: 'upd', name: 'Orifice Plate Metering', course: 'CHE ZG513', who: 'Kavya Nair', st: 'released', newVer: '1.1', relWhen: '5 Aug 2026', fmts: null, partial: true,
++      'UPD-0003': { kind: 'upd', name: 'Orifice Plate Metering', course: 'CHE ZG513', who: 'Kavya Nair-Raghunathan', st: 'released', newVer: '1.1', relWhen: '5 Aug 2026', fmts: null, partial: true,
+         past: { dec: 'approved', when: '30 Jul 2026' },
+         hist: [{ w: 'Released by the Super Admin', t: '5 Aug 2026', n: 'Version 1.1 is live.' }, { w: 'Approved by Prof. A. Menon', t: '30 Jul 2026', n: 'With the Super Admin for a release decision.' }] },
+-      'UPD-0006': { kind: 'upd', name: 'Induction Motor Loading', course: 'EEE ZC341', who: 'Kavya Nair', st: 'returned', newVer: '1.1', fmts: null, partial: true,
++      'UPD-0006': { kind: 'upd', name: 'Induction Motor Loading', course: 'EEE ZC341', who: 'Kavya Nair-Raghunathan', st: 'returned', newVer: '1.1', fmts: null, partial: true,
+         past: { dec: 'returned', when: '26 Aug 2026' }, hist: [] }
+     };
+   }

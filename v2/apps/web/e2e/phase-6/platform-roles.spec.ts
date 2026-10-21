@@ -429,7 +429,8 @@ test.describe('SA-17 Role holder', () => {
     await switchIdentity(page, { personId: iyer.holder.personId });
     await push(page, '/reviewer/queue');
     await expect(heading(page, 'Review queue')).toBeVisible({ timeout: 90_000 });
-    await expect(main(page).locator('table.xr-table tbody td.is-primary strong')).toHaveText([
+    // RV-02 (V3, RV-v1): each row's link is the experiment's name.
+    await expect(main(page).locator('table.rk-table tbody a.rk-rowlink')).toHaveText([
       'DC Motor Speed Control',
     ]);
   });
@@ -494,7 +495,8 @@ test.describe('SA-17 Role holder', () => {
     await switchIdentity(page, MENON);
     await push(page, '/reviewer/queue');
     await expect(heading(page, 'Review queue')).toBeVisible({ timeout: 90_000 });
-    const queue = main(page).locator('table.xr-table tbody td.is-primary strong');
+    // RV-02 (V3, RV-v1): each row's link is the experiment's name.
+    const queue = main(page).locator('table.rk-table tbody a.rk-rowlink');
     await expect(queue).toHaveText(['Flash Distillation', 'Venturi Meter Calibration']);
     await expect(main(page)).not.toContainText(submission);
 

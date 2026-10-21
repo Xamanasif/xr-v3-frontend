@@ -1,0 +1,667 @@
+{
+ "role": "RV",
+ "surface": "Academic Reviewer",
+ "foundation": "XR-V3-RB-1.0",
+ "asOf": "2026-10-21",
+ "designVersion": "FINAL complete-role design — one design for every owned screen and state",
+ "ownedDesignedIds": 6,
+ "designedIds": 6,
+ "excluded": [
+  {
+   "id": "RV-07",
+   "screen": "Courses in scope · Learning outcomes · Reviewer settings",
+   "disposition": "NOT DESIGNED — excluded by the existing decision (scope is a card on RV-01; outcomes are edited on RV-03)"
+  }
+ ],
+ "supersedes": [
+  {
+   "version": "completed role",
+   "date": "2026-10-18",
+   "canvas": "https://claude.ai/artifact/DQmYyqbQPEFJ6NKqeZUJmJ",
+   "state": "preserved unchanged; superseded"
+  },
+  {
+   "version": "visual refinement checkpoint 1 (four anchor screens)",
+   "date": "2026-10-19",
+   "canvas": "https://claude.ai/artifact/GDmjHxHhFFYhdvw1n2pEKd",
+   "state": "preserved unchanged; reviewed, not approved; superseded"
+  }
+ ],
+ "roleStatus": {
+  "DESIGN_COMPLETE": true,
+  "CONNECTED_PREVIEW_COMPLETE": "yes, inside the role: one live root (project/RV.dc.html) with connected subviews; decisions persist across views",
+  "OWNER_VISUAL_ACCEPTANCE": "ACCEPTED",
+  "acceptedOn": "2026-10-21",
+  "acceptanceBasis": "Owner message of 21 October 2026: \"ACCEPTED — Academic Reviewer V3 Complete-Role Design … I approve the final Academic Reviewer visual design covering RV-01 through RV-06 and all 65 boards.\"",
+  "EXPORT": "FINAL source ZIP and FINAL screenshot ZIP produced on 21 October 2026 from the bytes in project/",
+  "ASSEMBLY_PENDING": [
+   "XS shared surfaces (account menu, Help & support, report a problem, sign-out/sign-in, refusal wording) are borrowed renderings",
+   "React integration (Claude Code) — not started"
+  ],
+  "summary": "FINAL — OWNER APPROVED 21 Oct 2026 · DESIGN COMPLETE · CONNECTED PREVIEW COMPLETE (in-role) · ASSEMBLY PENDING XS"
+ },
+ "postAcceptanceCorrection": {
+  "what": "Internal record IDs removed from reviewer-facing labels on all six screens",
+  "appliedOn": "2026-10-21",
+  "owner": "requested with the acceptance",
+  "removedFrom": [
+   "Review queue row (the record ID under the course; the format badges stay)",
+   "Reviewed by me row (the record ID under the course)",
+   "Identity card eyebrow on RV-03, RV-04 and RV-06 (the type tag and revision stay)",
+   "Breadcrumb current page, which now names the experiment",
+   "Search placeholders and the no-match hints, which no longer offer \"ID\""
+  ],
+  "kept": [
+   "Record IDs in the records, the route proposals (/reviewer/submissions/[submissionId], /reviewer/updates/[updateId]), the search index and the audit trail",
+   "Experiment names, course codes, course names, vendor and sender names, revision numbers, version numbers and format labels"
+  ],
+  "exceptions": [
+   {
+    "what": "Main.dc.html and Coverage.dc.html name records (SUB-0070, UPD-0006 and others)",
+    "why": "integration documentation on the canvas, not product UI; the owner asked for the two data discrepancies to be documented by ID"
+   },
+   {
+    "what": "Help & support shows a support reference (SUP-0214)",
+    "why": "a reference the reviewer is given so they can quote it, on a borrowed shared (XS) surface, not one of the six reviewer screens — flagged for the owner"
+   },
+   {
+    "what": "The VR delivery card shows a vendor package reference (NSS-CW-VR-1.0)",
+    "why": "a vendor-supplied build name, not an internal platform record ID"
+   }
+  ],
+  "verification": "The rendered text of all 65 boards — visible copy plus aria-label, title, placeholder, alt and value — scanned for SUB-/UPD-/REQ-/ACC-style IDs: none on any of the 62 reviewer boards. Plus a 32-check end-to-end smoke run at 1440 and 375."
+ },
+ "coverage": {
+  "subviews": 42,
+  "REDESIGNED": 30,
+  "REVIEWED AND UNCHANGED": 12,
+  "pending": 0,
+  "excluded": [
+   "RV-07 (Courses in scope · Learning outcomes · Reviewer settings): not designed, by the existing decision"
+  ],
+  "register": "COVERAGE.md · COVERAGE.json · project/Coverage.dc.html",
+  "byScreen": {
+   "RV-01": {
+    "subviews": 3,
+    "REDESIGNED": 3,
+    "REVIEWED AND UNCHANGED": 0
+   },
+   "RV-02": {
+    "subviews": 5,
+    "REDESIGNED": 4,
+    "REVIEWED AND UNCHANGED": 1
+   },
+   "RV-03": {
+    "subviews": 13,
+    "REDESIGNED": 10,
+    "REVIEWED AND UNCHANGED": 3
+   },
+   "RV-04": {
+    "subviews": 6,
+    "REDESIGNED": 3,
+    "REVIEWED AND UNCHANGED": 3
+   },
+   "RV-05": {
+    "subviews": 5,
+    "REDESIGNED": 4,
+    "REVIEWED AND UNCHANGED": 1
+   },
+   "RV-06": {
+    "subviews": 4,
+    "REDESIGNED": 3,
+    "REVIEWED AND UNCHANGED": 1
+   },
+   "Boundaries": {
+    "subviews": 3,
+    "REDESIGNED": 3,
+    "REVIEWED AND UNCHANGED": 0
+   },
+   "Shell": {
+    "subviews": 3,
+    "REDESIGNED": 0,
+    "REVIEWED AND UNCHANGED": 3
+   },
+   "RV-07": {
+    "subviews": 1,
+    "REDESIGNED": 0,
+    "REVIEWED AND UNCHANGED": 0
+   }
+  }
+ },
+ "liveEntry": {
+  "file": "project/RV.dc.html",
+  "canvasBoard": "RV-01 Overview · 1440 · live role preview",
+  "phone": "project/RV-375.dc.html",
+  "index": "project/Main.dc.html",
+  "coverage": "project/Coverage.dc.html",
+  "checks": "project/Checks.dc.html",
+  "publishedCanvas": "https://claude.ai/artifact/UoN1uXrBjqxqNtKTXLb3rF (private to the owner until shared)"
+ },
+ "sidebar": [
+  {
+   "label": "Overview",
+   "screen": "RV-01",
+   "kind": "in-role"
+  },
+  {
+   "label": "Review queue",
+   "screen": "RV-02",
+   "kind": "in-role",
+   "note": "shows the waiting count; counts agree with the desk and the list"
+  },
+  {
+   "label": "Reviewed by me",
+   "screen": "RV-05",
+   "kind": "in-role"
+  },
+  {
+   "label": "Help & support",
+   "screen": "XS (borrowed)",
+   "kind": "shared"
+  },
+  {
+   "label": "Account menu: Help & support · Sign out",
+   "screen": "XS (borrowed)",
+   "kind": "shared"
+  }
+ ],
+ "screens": [
+  {
+   "id": "RV-01",
+   "screen": "Overview",
+   "kind": "page",
+   "routeProposal": "/reviewer",
+   "v46Sources": [
+    "B6-01"
+   ],
+   "livePath": "start view; rail Overview",
+   "boards": [
+    "RV.dc.html",
+    "RV-375.dc.html",
+    "RV01-1024.dc.html",
+    "RV01-768.dc.html",
+    "RV01-375.dc.html",
+    "RV01-calm.dc.html"
+   ],
+   "states": [
+    "review desk: next in line (the item waiting longest, its waiting time, the one primary action) then the rest oldest first, each with its type tag and what to look at",
+    "In your queue: counts by type, each opening the matching queue tab",
+    "Your review scope: course codes with names, each opening the queue filtered",
+    "Recently decided: the last three decisions, each opening the decided item; All decisions",
+    "nothing waiting (calm) beside scope and recent decisions",
+    "updates after a decision (desk, counts and rail)"
+   ],
+   "actions": [
+    "Start review",
+    "Open the review queue",
+    "Review / Review update on a row",
+    "In your queue row",
+    "scope course row",
+    "Recently decided row",
+    "All decisions",
+    "Open Reviewed by me (calm state)"
+   ],
+   "evidence": {
+    "rendered": [
+     "1440",
+     "1024",
+     "768",
+     "375",
+     "320 reflow",
+     "long-text stress"
+    ],
+    "logicTested": [
+     "overview",
+     "return",
+     "blocked",
+     "approve",
+     "recheck",
+     "states (calm)",
+     "patterns (side cards)",
+     "smoke (21 Oct)"
+    ],
+    "keyboard": "keyboard journey starts here at every width"
+   },
+   "status": "DESIGN COMPLETE · REFINED · OWNER APPROVED",
+   "coverage": {
+    "subviews": 3,
+    "REDESIGNED": 3,
+    "REVIEWED AND UNCHANGED": 0
+   }
+  },
+  {
+   "id": "RV-02",
+   "screen": "Review queue",
+   "kind": "page",
+   "routeProposal": "/reviewer/queue",
+   "v46Sources": [
+    "B6-02",
+    "B6-12",
+    "B6-13"
+   ],
+   "livePath": "rail Review queue",
+   "boards": [
+    "RV02.dc.html",
+    "RV02-1024.dc.html",
+    "RV02-768.dc.html",
+    "RV02-375.dc.html",
+    "RV02-filtered.dc.html",
+    "RV02-nomatch.dc.html",
+    "RV02-loading.dc.html",
+    "RV02-failed.dc.html",
+    "RV02-empty.dc.html",
+    "RV-scope-withdrawn.dc.html"
+   ],
+   "states": [
+    "populated, oldest first (4 items)",
+    "type tabs with counts: All, New submissions, Re-checks, Updates (arrow keys, Home, End)",
+    "search (name, course or sender; it still matches a record ID, which is no longer displayed)",
+    "Course filter (effective scope only)",
+    "chips and Clear filters; tab counts follow the filters",
+    "What to look at column",
+    "no match",
+    "loading (counts hidden)",
+    "failed to load with Try again",
+    "nothing waiting",
+    "a course removed from scope: its items leave the queue",
+    "drafts are never listed"
+   ],
+   "actions": [
+    "open a row (RV-03 or RV-04)",
+    "type tab",
+    "search",
+    "course filter",
+    "remove chip",
+    "Clear filters",
+    "Try again"
+   ],
+   "evidence": {
+    "rendered": [
+     "1440",
+     "1024",
+     "768",
+     "375",
+     "320 reflow",
+     "long-text stress"
+    ],
+    "logicTested": [
+     "return",
+     "update",
+     "update-return",
+     "filters",
+     "states",
+     "stale-live",
+     "patterns (tabs)",
+     "smoke (21 Oct)"
+    ],
+    "keyboard": "tabs by arrow keys; row link focus outlines the whole row; heading focus after returning"
+   },
+   "status": "DESIGN COMPLETE · REFINED · OWNER APPROVED",
+   "coverage": {
+    "subviews": 5,
+    "REDESIGNED": 4,
+    "REVIEWED AND UNCHANGED": 1
+   }
+  },
+  {
+   "id": "RV-03",
+   "screen": "Review a submission",
+   "kind": "page",
+   "routeProposal": "/reviewer/submissions/[submissionId]",
+   "v46Sources": [
+    "B6-03",
+    "B6-11",
+    "B6-12"
+   ],
+   "livePath": "Overview or Review queue → any submission",
+   "boards": [
+    "RV03.dc.html",
+    "RV03-1024.dc.html",
+    "RV03-768.dc.html",
+    "RV03-375.dc.html",
+    "RV03-outcomes.dc.html",
+    "RV03-outcomes-375.dc.html",
+    "RV03-recheck.dc.html",
+    "RV03-editing-375.dc.html",
+    "RV03-return-errors.dc.html",
+    "RV03-return-filled.dc.html",
+    "RV03-confirm.dc.html",
+    "RV03-approved.dc.html",
+    "RV03-returned.dc.html"
+   ],
+   "states": [
+    "identity card with page map (type, title, summary, status, course, sender, facts; no record ID)",
+    "new submission (revision 1)",
+    "resubmitted revision 2: what changed, your earlier reason, changed tag",
+    "re-check from the Content Manager: her reason first",
+    "no learning outcomes yet: the rule stated before the attempt; approve refused until one is added",
+    "learning outcomes editor (one set for the Experiment, every format)",
+    "description and documents (cards; none said once)",
+    "formats as one line, then one delivery card per format",
+    "history (after the decision on one column)",
+    "decision panel: Before you decide, Approve (confirmation) or Return to vendor (reason required, grouped field references), What happens next",
+    "one error summary and the field error",
+    "approved: with the Content Manager, not published",
+    "returned to vendor: reason and references",
+    "refusals: outside scope, not available, already decided in another window"
+   ],
+   "actions": [
+    "page map links",
+    "Go to decision",
+    "Add / Edit / Save / Cancel / Delete / Undo / Move outcome",
+    "View package details",
+    "Open web link",
+    "preview link",
+    "Approve → confirm",
+    "Return to vendor",
+    "Back to the review queue / Reviewed by me"
+   ],
+   "evidence": {
+    "rendered": [
+     "1440",
+     "1024",
+     "768",
+     "375",
+     "320 reflow",
+     "long-text stress"
+    ],
+    "logicTested": [
+     "return",
+     "approve",
+     "blocked",
+     "recheck",
+     "states (already decided)",
+     "patterns (page map, readiness, grouped references)",
+     "smoke (21 Oct)"
+    ],
+    "keyboard": "outcome field, radios with arrow keys, error summary link, reference checkbox, dialog focus trap and Escape"
+   },
+   "status": "DESIGN COMPLETE · REFINED · OWNER APPROVED",
+   "coverage": {
+    "subviews": 13,
+    "REDESIGNED": 10,
+    "REVIEWED AND UNCHANGED": 3
+   }
+  },
+  {
+   "id": "RV-04",
+   "screen": "Review an update",
+   "kind": "page",
+   "routeProposal": "/reviewer/updates/[updateId]",
+   "v46Sources": [
+    "B6-04",
+    "B6-13",
+    "B7-11"
+   ],
+   "livePath": "Review queue → Distillation Column (update)",
+   "boards": [
+    "RV04.dc.html",
+    "RV04-1024.dc.html",
+    "RV04-768.dc.html",
+    "RV04-375.dc.html",
+    "RV04-return-errors.dc.html",
+    "RV04-confirm.dc.html",
+    "RV04-approved.dc.html",
+    "RV04-returned.dc.html",
+    "RV04-stale-armed.dc.html",
+    "RV04-stale.dc.html"
+   ],
+   "states": [
+    "identity card: live 1.2, proposed 1.3, waiting, formats, vendor; page map",
+    "why, from the Content Manager",
+    "what changes: live 1.2 against proposed 1.3, changed fields only",
+    "the live experiment (read-only, with its outcomes)",
+    "update history",
+    "approve update: confirmation; then with the Super Admin, live version unchanged; the word Publish never appears",
+    "return to the Content Manager: reason required, no field references",
+    "stale version: withdrawn while open, nothing recorded",
+    "outside scope refusal"
+   ],
+   "actions": [
+    "page map links",
+    "Approve update → confirm",
+    "Return to the Content Manager",
+    "Back to the review queue"
+   ],
+   "evidence": {
+    "rendered": [
+     "1440",
+     "1024",
+     "768",
+     "375",
+     "320 reflow",
+     "long-text stress"
+    ],
+    "logicTested": [
+     "update",
+     "update-return",
+     "stale-live",
+     "states (stale)",
+     "patterns (update order)",
+     "links (page map)"
+    ],
+    "keyboard": "same decision panel as RV-03"
+   },
+   "status": "DESIGN COMPLETE · REFINED · OWNER APPROVED",
+   "coverage": {
+    "subviews": 6,
+    "REDESIGNED": 3,
+    "REVIEWED AND UNCHANGED": 3
+   }
+  },
+  {
+   "id": "RV-05",
+   "screen": "Reviewed by me",
+   "kind": "page",
+   "routeProposal": "/reviewer/reviewed",
+   "v46Sources": [
+    "B6-02"
+   ],
+   "livePath": "rail Reviewed by me",
+   "boards": [
+    "RV05.dc.html",
+    "RV05-1024.dc.html",
+    "RV05-768.dc.html",
+    "RV05-375.dc.html",
+    "RV05-updates.dc.html",
+    "RV05-nomatch.dc.html",
+    "RV05-loading.dc.html",
+    "RV05-failed.dc.html",
+    "RV05-empty.dc.html"
+   ],
+   "states": [
+    "8 decisions in scope, newest first (audience filtered: no hold or withdrawal reasons)",
+    "tabs with counts: All, New submissions, Updates",
+    "columns: experiment (name, course code and name) · type · your decision · where it is now",
+    "search, chip, Clear filters",
+    "no match",
+    "loading and failed (counts hidden)",
+    "first-time reviewer: nothing decided yet",
+    "a decision taken in the preview appears first"
+   ],
+   "actions": [
+    "open a row (RV-06)",
+    "tab",
+    "search",
+    "Clear filters",
+    "Try again",
+    "Open the review queue"
+   ],
+   "evidence": {
+    "rendered": [
+     "1440",
+     "1024",
+     "768",
+     "375",
+     "320 reflow",
+     "long-text stress"
+    ],
+    "logicTested": [
+     "return",
+     "approve",
+     "update",
+     "filters",
+     "states (empty)",
+     "stale-live",
+     "final (tabs, columns)",
+     "smoke (21 Oct)"
+    ],
+    "keyboard": "tabs by arrow keys; reachable from the rail at every width"
+   },
+   "status": "DESIGN COMPLETE · REFINED · OWNER APPROVED",
+   "coverage": {
+    "subviews": 5,
+    "REDESIGNED": 4,
+    "REVIEWED AND UNCHANGED": 1
+   }
+  },
+  {
+   "id": "RV-06",
+   "screen": "Decided item (read-only)",
+   "kind": "state",
+   "routeProposal": "/reviewer/submissions/[submissionId] (decided, read-only); decided updates use the update route",
+   "v46Sources": [
+    "B6-03",
+    "B6-12"
+   ],
+   "livePath": "Reviewed by me or Recently decided → any row; or a page right after its decision",
+   "boards": [
+    "RV06.dc.html",
+    "RV06-375.dc.html",
+    "RV06-returned.dc.html",
+    "RV06-update.dc.html",
+    "RV06-elsewhere.dc.html"
+   ],
+   "states": [
+    "approved, with the Content Manager",
+    "approved and published",
+    "returned to vendor with reason and references",
+    "approved update with the Super Admin",
+    "released update",
+    "already decided in another window: nothing new recorded",
+    "outcomes read-only; no decision controls",
+    "partial records: only known facts, nothing repeated"
+   ],
+   "actions": [
+    "Back to Reviewed by me / breadcrumb"
+   ],
+   "evidence": {
+    "rendered": [
+     "1440",
+     "375",
+     "320 reflow",
+     "long-text stress"
+    ],
+    "logicTested": [
+     "approve (reopen decided)",
+     "filters (Transient Cooling)",
+     "states (already decided)",
+     "final (partial records, history card)",
+     "smoke (21 Oct)"
+    ],
+    "keyboard": "focus moves to the outcome after a decision"
+   },
+   "status": "DESIGN COMPLETE · REFINED · OWNER APPROVED",
+   "coverage": {
+    "subviews": 4,
+    "REDESIGNED": 3,
+    "REVIEWED AND UNCHANGED": 1
+   }
+  }
+ ],
+ "boundaries": {
+  "boards": [
+   "RV-scope.dc.html",
+   "RV-scope-375.dc.html",
+   "RV-unavailable.dc.html",
+   "RV-scope-withdrawn.dc.html"
+  ],
+  "coverage": {
+   "subviews": 3,
+   "REDESIGNED": 3,
+   "REVIEWED AND UNCHANGED": 0
+  }
+ },
+ "sharedBorrowed": [
+  {
+   "surface": "Account menu",
+   "boards": [
+    "RV-account.dc.html"
+   ],
+   "status": "BORROWED — ASSEMBLY PENDING XS"
+  },
+  {
+   "surface": "Phone menu (drawer)",
+   "boards": [
+    "RV-drawer-375.dc.html"
+   ],
+   "status": "V3 shell pattern (rb drawer)"
+  },
+  {
+   "surface": "Help & support, report a problem, report sent, report detail",
+   "boards": [
+    "RV-help.dc.html",
+    "RV-report-375.dc.html",
+    "RV-report-sent.dc.html"
+   ],
+   "status": "BORROWED — ASSEMBLY PENDING XS",
+   "note": "shows the support reference SUP-0214 — flagged under postAcceptanceCorrection.exceptions"
+  },
+  {
+   "surface": "Signed out / sign in",
+   "boards": [
+    "RV-signedout.dc.html"
+   ],
+   "status": "BORROWED — ASSEMBLY PENDING XS (no real authentication)"
+  },
+  {
+   "surface": "Refusal messages: outside scope, not available",
+   "boards": [
+    "RV-scope.dc.html",
+    "RV-scope-375.dc.html",
+    "RV-unavailable.dc.html"
+   ],
+   "status": "shared message template in a role card — wording ASSEMBLY PENDING XS"
+  }
+ ],
+ "shellCoverage": {
+  "subviews": 3,
+  "REDESIGNED": 0,
+  "REVIEWED AND UNCHANGED": 3
+ },
+ "openDecisions": [
+  {
+   "id": "OD-B7-15",
+   "what": "UPD-0006 (EEE ZC341) is in the v46 Reviewed by me list but EEE ZC341 is not on the 27 Aug 2026 scope line; Batch 7 records that scope withdrawn on 1 Oct 2026",
+   "treatment": "left out of Reviewed by me (8 decisions, not 9) and used as the out-of-scope refusal; the record is still in the fixtures, filtered by scope",
+   "integrationVerification": "confirm against the live scope records; if the course was in scope on 27 Aug, the list is 9. No data was changed to fit the design",
+   "owner": "confirm"
+  },
+  {
+   "id": "SUB-0070 outcomes",
+   "what": "the v46 queue data gives 3 learning outcomes; board B6-11 shows none",
+   "treatment": "the decided page omits the outcome list and count rather than choosing a number",
+   "integrationVerification": "confirm the outcome count against the live record. No data was changed to fit the design",
+   "owner": "confirm"
+  },
+  {
+   "id": "SUP-0214",
+   "what": "Help & support still shows a support reference",
+   "treatment": "kept: the reviewer needs it to follow up; shared surface, not one of the six screens",
+   "owner": "say if it should be hidden too"
+  },
+  {
+   "id": "XS assembly",
+   "what": "shared surfaces are borrowed renderings",
+   "treatment": "replace with the Shared Surfaces components at assembly",
+   "owner": "none (assembly step)"
+  },
+  {
+   "id": "WILP logo",
+   "what": "official logo not supplied",
+   "treatment": "reserved slot with a placeholder",
+   "owner": "supply the asset"
+  }
+ ],
+ "checksSummary": "See CHECKS.md. 20 Oct full suite on the then-current bytes: 65 of 65 boards rendered clean; journeys 229/229/230/230 at 1440/1024/768/375; keyboard 20 per width; 320 px reflow 11/11; long-text 21/21; links 36/36/37/37 plus 6 index checks; separator and layout audits clean; axe-core WCAG 2.1 A/AA 0 violations; source checks 22/22. 21 Oct after the internal-ID correction: all 65 boards re-rendered clean, 0 internal IDs in the rendered text of the 62 reviewer boards, 32-check smoke run passed at 1440 and 375."
+}

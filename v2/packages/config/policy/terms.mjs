@@ -194,6 +194,17 @@ export const CANVAS_CLASS_PATTERNS = [
   /^cm-dock(?:-[\w-]*)?$/,
   /^cm-pub(?:bar|body|logo|prod)?$/,
   /^xsb-[\w-]+$/,
+  // The Academic Reviewer export's borrowed XS surfaces (design/v3-refined-b/roles/RV-v1/
+  // COMPONENT-EXTENSIONS.md "Borrowed shared surfaces (XS contract, provisional)": "replace them
+  // with the Shared Surfaces components at assembly"): the account menu, the message template of
+  // the refusals and "Report sent", Report a problem's file field and form actions, and the
+  // signed-out page. The export has no preview-only class family of its own.
+  /^rv-acctwrap$/,
+  /^rv-menu(?:-[\w-]*)?$/,
+  /^rv-msg(?:-[\w-]*|page|card)?$/,
+  /^rv-file$/,
+  /^rv-formact$/,
+  /^rv-solo(?:-[\w-]*)?$/,
 ];
 
 /**

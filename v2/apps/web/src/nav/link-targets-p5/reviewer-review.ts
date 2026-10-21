@@ -2,27 +2,52 @@ import type { LedgerEntry } from '../link-targets';
 import { pageRows } from '../link-targets-p3/rows';
 
 const QUEUE = '/reviewer/queue';
+const REVIEWED = '/reviewer/reviewed';
 /** A submission with the reviewer (RV-03): the sample’s SUB-0086 stands for any. */
 const REVIEW = '/reviewer/submissions/SUB-0086';
-/** A decided submission (RV-06, B6-03 f4): the sample’s SUB-0074. */
+/** A decided submission (RV-06): the sample’s SUB-0074. */
 const DECIDED = '/reviewer/submissions/SUB-0074';
 
 /**
- * Phase 5 link targets: RV-03 Review a submission and RV-06 its decided state (B6-03 f0 … f5,
- * B6-11 f0 … f3, B6-12 f1). RV-03’s one primary is the panel’s button — Approve (DL-1) or Return to
- * vendor (DL-2), a command either way; RV-06 draws no primary. Submissions are addressed by id.
+ * RV-03 Review a submission and RV-06 its decided state — the owner-approved Academic Reviewer
+ * export (RV-v1 `RV.dc.html` item view; LINK-MAP RV-03, RV-06). RV-03’s one primary is the panel’s
+ * button — Approve (the confirmation) or Return to vendor (completed in the panel), a command
+ * either way; RV-06 draws no primary. Submissions are addressed by id; no visible word names one.
  */
 export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
-  // RV-03 Review a submission (B6-03 f0 … f3, f5; B6-11 f0 … f3).
+  // RV-03 Review a submission (RV03, RV03-outcomes, -recheck, -editing, -return-*, -confirm).
   ...pageRows('RV-03', REVIEW, [
-    ['Back link', 'Review queue', 'secondary', QUEUE, 'built', 'B6-03 f0 … f5 `a.xr-back`'],
     [
-      'Below 860 px of content',
+      'Breadcrumb',
+      'Review queue',
+      'secondary',
+      QUEUE,
+      'built',
+      'RV-v1 LINK-MAP RV-03 `nav.rk-crumbs a` (the parent list; the current crumb is the experiment)',
+    ],
+    [
+      'Identity card, while the panel sits below the content',
       'Go to decision',
       'secondary',
-      '#rv-decision',
+      '#rv-panel',
       'in-page',
-      'B6-03 f2, f3, f5 `a.xr-jump` (focus moves to the panel)',
+      'RV-v1 `a.rb-btn.rk-goto` (focus moves to the panel’s heading)',
+    ],
+    [
+      'Identity card · On this page',
+      'Re-check request · What changed · Learning outcomes · Description and documents · Formats and delivery · Review history',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 `nav.rv-onpage a` (each section’s heading scrolls to the top and takes focus)',
+    ],
+    [
+      'Your decision · Before you decide',
+      'Add an outcome · Read why · See what changed',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 `ul.rv-ready-list a` (the outcome field, or the section, takes focus)',
     ],
     [
       'Learning outcomes',
@@ -30,7 +55,7 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-03 f0, f3 `button.xg-icobtn` (`aria-disabled` at the ends)',
+      'RV-v1 `button.rv-ibtn` (disabled at the ends and while an outcome is edited)',
     ],
     [
       'Learning outcomes',
@@ -38,7 +63,7 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-03 f0, f3 `button.xr-btn--text` (named “Edit outcome <n>”) → the outcome’s field, “Save outcome” · “Cancel”',
+      'RV-v1 `button.rv-ibtn-t` (named “Edit outcome <n>”) → the outcome’s field, “Save outcome” · “Cancel”',
     ],
     [
       'Learning outcomes',
@@ -46,7 +71,7 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-03 f0, f3 `button.xg-del` (named “Delete outcome <n>”) → “Outcome <n> deleted.” · “Undo”',
+      'RV-v1 `button.rv-ibtn-t` (named “Delete outcome <n>”) → “Outcome <n> deleted.” · “Undo”',
     ],
     [
       'Learning outcomes',
@@ -54,7 +79,15 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-03 f0, f2, f3, f5 `div.xg-addlo button.xr-btn--secondary`',
+      'RV-v1 `div.rv-lo-addrow button.rb-btn`',
+    ],
+    [
+      'Description and documents',
+      '<preview label>',
+      'secondary',
+      null,
+      'external',
+      'RV-v1 `a.rv-filecard--link` (the vendor’s preview link, in a new tab, announced)',
     ],
     [
       'Formats and delivery · WEB',
@@ -62,7 +95,7 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'external',
-      'B6-03 f0 … f5 `a.xr-btn--secondary.xr-btn--sm` (the vendor’s web link, in a new tab, announced; T-30)',
+      'RV-v1 `a.rb-btn.rv-ext` (the vendor’s web link, in a new tab, announced; T-30)',
     ],
     [
       'Formats and delivery · AR / VR / MR',
@@ -70,7 +103,7 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'in-page',
-      'B6-03 f0, f3 `button.xr-btn--text[aria-expanded]` (package reference and install notes in place)',
+      'RV-v1 `div.rv-dcard-act button[aria-expanded]` (package reference and install notes in place)',
     ],
     [
       'Your decision panel',
@@ -78,36 +111,59 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'primary',
       null,
       'in-page',
-      'B6-03 f0 … f3, f5 `button#Rm-rgo.xr-btn--primary.xr-btn--block` → DL-1 (B6-11 f0) or DL-2 (B6-11 f1); with no outcome, “Add at least one learning outcome before you approve” (B6-11 f2)',
+      'RV-v1 `button#rv-go.rb-btn--primary.rk-go` → the confirmation (Approve) or the return, sent from the panel with its reason and references; errors in “Check your decision” (`div.rk-errsum` links focus their fields)',
     ],
     [
-      'DL-1 Approve',
+      'Approve confirmation',
       'Cancel · Approve',
       'secondary',
       null,
       'in-page',
-      'B6-11 f0 `div.xr-dialog-foot` (“Approving does not publish it.”; Approve sends the set, then RV-06)',
+      'RV-v1 `div.rk-dlg-foot` (“Approving does not publish.”; Approve sends the set, then the decided outcome)',
     ],
     [
-      'DL-2 Return to vendor',
-      'Cancel · Return to vendor',
+      'Your decision · after deciding',
+      'Back to the review queue',
       'secondary',
-      null,
-      'in-page',
-      'B6-11 f1 `div.xr-dialog-foot` (a reason is required; references optional; then RV-06)',
+      QUEUE,
+      'built',
+      'RV-v1 `div.rk-done a.rb-btn` (`backLabel`, the parent list)',
     ],
     ['Failed state', 'Try again', 'secondary', null, 'in-page', 'state-copy `RV-03.failed`'],
   ]),
-  // RV-06 Decided · read-only (B6-03 f4).
+  // RV-06 Decided · read-only (RV06, RV06-returned, RV06-elsewhere).
   ...pageRows('RV-06', DECIDED, [
-    ['Back link', 'Review queue', 'secondary', QUEUE, 'built', 'B6-03 f4 `a.xr-back`'],
     [
-      'Below 860 px of content',
+      'Breadcrumb',
+      'Reviewed by me',
+      'secondary',
+      REVIEWED,
+      'built',
+      'RV-v1 LINK-MAP RV-06 `nav.rk-crumbs a` (a decided item sits under Reviewed by me)',
+    ],
+    [
+      'Identity card, while the panel sits below the content',
       'Go to decision',
       'secondary',
-      '#rv-decision',
+      '#rv-panel',
       'in-page',
-      'B6-03 f4 `a.xr-jump`',
+      'RV-v1 `a.rb-btn.rk-goto`',
+    ],
+    [
+      'Identity card · On this page',
+      'Learning outcomes · Description and documents · Formats and delivery · Review history',
+      'secondary',
+      null,
+      'in-page',
+      'RV-v1 `nav.rv-onpage a`',
+    ],
+    [
+      'Description and documents',
+      '<preview label>',
+      'secondary',
+      null,
+      'external',
+      'RV-v1 `a.rv-filecard--link` (the vendor’s preview link, in a new tab, announced; the decided page keeps the item view)',
     ],
     [
       'Formats and delivery · WEB',
@@ -115,15 +171,15 @@ export const P5_REVIEWER_REVIEW_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       null,
       'external',
-      'B6-03 f4 `a.xr-btn--secondary.xr-btn--sm` (in a new tab, announced)',
+      'RV-v1 `a.rb-btn.rv-ext` (in a new tab, announced)',
     ],
     [
-      'Decided panel',
-      'Back to the review queue',
+      'Decided outcome',
+      'Back to Reviewed by me',
       'secondary',
-      QUEUE,
+      REVIEWED,
       'built',
-      'B6-03 f4 `a.xr-btn--secondary.xr-btn--block`',
+      'RV-v1 `div.rk-done a.rb-btn` (`backLabel`)',
     ],
   ]),
 ];

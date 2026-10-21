@@ -1,0 +1,664 @@
+{
+ "Main.dc.html": {
+  "w": 1440,
+  "frame": 3954,
+  "docH": 3930,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": [
+   "SUB-0070",
+   "UPD-0006"
+  ]
+ },
+ "Coverage.dc.html": {
+  "w": 1440,
+  "frame": 4983,
+  "docH": 4983,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": [
+   "SUB-0071",
+   "SUB-0074",
+   "SUB-0077",
+   "SUB-0081",
+   "SUB-0086",
+   "UPD-0004",
+   "UPD-0005",
+   "UPD-0006"
+  ]
+ },
+ "Checks.dc.html": {
+  "w": 1440,
+  "frame": 2225,
+  "docH": 2201,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV.dc.html": {
+  "w": 1440,
+  "frame": 1199,
+  "docH": 1175,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-375.dc.html": {
+  "w": 375,
+  "frame": 2621,
+  "docH": 2597,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV01-1024.dc.html": {
+  "w": 1024,
+  "frame": 1873,
+  "docH": 1849,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV01-768.dc.html": {
+  "w": 768,
+  "frame": 1890,
+  "docH": 1866,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV01-375.dc.html": {
+  "w": 375,
+  "frame": 2621,
+  "docH": 2597,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV01-calm.dc.html": {
+  "w": 1440,
+  "frame": 924,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02.dc.html": {
+  "w": 1440,
+  "frame": 980,
+  "docH": 956,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-1024.dc.html": {
+  "w": 1024,
+  "frame": 1187,
+  "docH": 1163,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-768.dc.html": {
+  "w": 768,
+  "frame": 1187,
+  "docH": 1163,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-375.dc.html": {
+  "w": 375,
+  "frame": 1562,
+  "docH": 1538,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-filtered.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-nomatch.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-loading.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-failed.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV02-empty.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03.dc.html": {
+  "w": 1440,
+  "frame": 2826,
+  "docH": 2802,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-1024.dc.html": {
+  "w": 1024,
+  "frame": 3752,
+  "docH": 3728,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-768.dc.html": {
+  "w": 768,
+  "frame": 3752,
+  "docH": 3728,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-375.dc.html": {
+  "w": 375,
+  "frame": 5265,
+  "docH": 5241,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-outcomes.dc.html": {
+  "w": 1440,
+  "frame": 1954,
+  "docH": 1930,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-outcomes-375.dc.html": {
+  "w": 375,
+  "frame": 3715,
+  "docH": 3691,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-recheck.dc.html": {
+  "w": 1440,
+  "frame": 2527,
+  "docH": 2503,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-editing-375.dc.html": {
+  "w": 375,
+  "frame": 4822,
+  "docH": 4798,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-return-errors.dc.html": {
+  "w": 1440,
+  "frame": 2826,
+  "docH": 2802,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-return-filled.dc.html": {
+  "w": 1440,
+  "frame": 2826,
+  "docH": 2802,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-confirm.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 2802,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-approved.dc.html": {
+  "w": 1440,
+  "frame": 2265,
+  "docH": 2241,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV03-returned.dc.html": {
+  "w": 1440,
+  "frame": 2311,
+  "docH": 2287,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04.dc.html": {
+  "w": 1440,
+  "frame": 1965,
+  "docH": 1941,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-1024.dc.html": {
+  "w": 1024,
+  "frame": 2924,
+  "docH": 2900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-768.dc.html": {
+  "w": 768,
+  "frame": 2924,
+  "docH": 2900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-375.dc.html": {
+  "w": 375,
+  "frame": 4059,
+  "docH": 4035,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-return-errors.dc.html": {
+  "w": 1440,
+  "frame": 1965,
+  "docH": 1941,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-confirm.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 1941,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-approved.dc.html": {
+  "w": 1440,
+  "frame": 2098,
+  "docH": 2074,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-returned.dc.html": {
+  "w": 1440,
+  "frame": 2121,
+  "docH": 2097,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-stale-armed.dc.html": {
+  "w": 1440,
+  "frame": 1965,
+  "docH": 1941,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV04-stale.dc.html": {
+  "w": 1440,
+  "frame": 2098,
+  "docH": 2074,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05.dc.html": {
+  "w": 1440,
+  "frame": 1250,
+  "docH": 1226,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-1024.dc.html": {
+  "w": 1024,
+  "frame": 1769,
+  "docH": 1745,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-768.dc.html": {
+  "w": 768,
+  "frame": 1769,
+  "docH": 1745,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-375.dc.html": {
+  "w": 375,
+  "frame": 2538,
+  "docH": 2514,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-updates.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-nomatch.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-loading.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-failed.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV05-empty.dc.html": {
+  "w": 1024,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV06.dc.html": {
+  "w": 1440,
+  "frame": 1854,
+  "docH": 1830,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV06-375.dc.html": {
+  "w": 375,
+  "frame": 3283,
+  "docH": 3259,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV06-returned.dc.html": {
+  "w": 1440,
+  "frame": 1234,
+  "docH": 1210,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV06-update.dc.html": {
+  "w": 1440,
+  "frame": 1009,
+  "docH": 985,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV06-elsewhere.dc.html": {
+  "w": 1440,
+  "frame": 2265,
+  "docH": 2241,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-scope.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-scope-375.dc.html": {
+  "w": 375,
+  "frame": 812,
+  "docH": 812,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-unavailable.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-scope-withdrawn.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-account.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 1175,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-drawer-375.dc.html": {
+  "w": 375,
+  "frame": 812,
+  "docH": 1538,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-help.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-report-375.dc.html": {
+  "w": 375,
+  "frame": 1030,
+  "docH": 1006,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-report-sent.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ },
+ "RV-signedout.dc.html": {
+  "w": 1440,
+  "frame": 900,
+  "docH": 900,
+  "overflow_ok": true,
+  "fits_frame": true,
+  "console_errors": [],
+  "failed_requests": [],
+  "ids": []
+ }
+}

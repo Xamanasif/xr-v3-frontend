@@ -1,37 +1,52 @@
 /**
- * The words of CM-08 Updates (B6-09 f0; B6-13 f2; B7-11 f2) and RV-04 Review an update (B6-04 f0 …
- * f4; B6-13 f4; B7-11 f6) are the frozen boards’: each drawn phrase is found verbatim in its
- * board’s markup or script, the composed ones with the script’s own pieces; the sentence with a
- * decision id is shown without it (P1-14 / VD-10); the undrawn forms are provisional entries of
- * the state-copy register, each with its decision and no decision id in its words. A correction is
- * never called “Publish”.
+ * The words of CM-08 Updates (B6-09 f0; B6-13 f2; B7-11 f2) are the frozen boards’; RV-04 Review an
+ * update (V3) takes the owner-approved Academic Reviewer export’s (RV-v1 `RV.dc.html`): each drawn
+ * phrase is found verbatim in its source’s markup or script, the composed ones with the script’s own
+ * pieces; the undrawn forms are provisional entries of the state-copy register, each with its
+ * decision and no decision id in its words. No RV-04 word carries an internal reference, and a
+ * correction is never called “Publish”.
  */
 import { describe, expect, it } from 'vitest';
 
-import { board } from '@/test-support/boards';
+import { board, rvExport } from '@/test-support/boards';
 
 import {
-  approvedMetaWords,
-  approveUpdateEffect,
+  APPROVE_DIALOG,
   approveUpdateTitle,
   awaitingNextWords,
+  CHANGES_BLOCK,
+  CHANGES_COLUMNS,
+  changedFieldsTitle,
+  changesNoteWords,
+  columnWords,
+  approvedBy,
   continuesUpdate,
-  courseLineWords,
-  liveSinceWords,
+  decidedByOn,
+  goesLiveLater,
+  LIVE_BLOCK,
+  liveNoteWords,
+  liveOutcomesTitle,
+  livePathLine,
+  liveSinceFact,
+  NOT_SENT,
   quotedWords,
-  returnedMetaWords,
-  REVIEW_UPDATE,
-  reviewUpdateMeta,
-  reviewUpdateOverline,
   RELEASED_COLUMNS,
-  reviewUpdateTitle,
-  STRIPPED_UPDATE,
+  releasedNextWords,
+  releasedOnWords,
+  staysLiveLine,
+  staysLiveTitle,
+  unchangedLive,
+  UPDATE_CARD,
   UPDATE_DECISION,
   UPDATE_HISTORY,
+  UPDATE_OUTCOME,
+  UPDATE_REFUSAL,
   updateActionLabel,
   updateLineWords,
   UPDATES_LIST,
   updatesCountWords,
+  WHY_BLOCK,
+  whyByWords,
   WITH_WORDS,
 } from './review-update';
 import { STATE_COPY } from './state-copy';
@@ -97,94 +112,130 @@ describe('CM-08 Updates (B6-09 f0)', () => {
   });
 });
 
-describe('RV-04 Review an update (B6-04 f0 … f4; B6-13 f4)', () => {
-  it.each(strings(REVIEW_UPDATE))('“%s” is on B6-04', (phrase) => {
-    expect(B6_04).toContain(phrase);
+/** The export's live role root (RV-v1 `RV.dc.html`): its markup and script, `&amp;` read. */
+const RV = rvExport('RV.dc.html').replace(/&amp;/g, '&');
+/** The internal references the owner's rule keeps out of every reviewer page. */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+describe('RV-04 Review an update (V3: RV-v1 `RV.dc.html`)', () => {
+  it.each(
+    strings([
+      UPDATE_CARD,
+      WHY_BLOCK,
+      CHANGES_BLOCK,
+      CHANGES_COLUMNS,
+      LIVE_BLOCK,
+      UPDATE_REFUSAL,
+      UPDATE_OUTCOME,
+      APPROVE_DIALOG,
+    ]),
+  )('“%s” is the export’s', (phrase) => {
+    expect(RV).toContain(phrase);
   });
 
-  it('B6-13 f4 draws the same “nothing to decide” state', () => {
-    for (const phrase of [
-      REVIEW_UPDATE.heading,
-      REVIEW_UPDATE.noneTitle,
-      REVIEW_UPDATE.noneLine,
-      REVIEW_UPDATE.openQueue,
-    ]) {
-      expect(B6_13).toContain(phrase);
-    }
+  it.each(
+    strings(UPDATE_DECISION).filter((phrase) => phrase !== 'Approving…' && phrase !== 'Returning…'),
+  )('the panel: “%s” is the export’s', (phrase) => {
+    expect(RV).toContain(phrase);
   });
 
-  it.each(strings(UPDATE_DECISION))('the panel and dialogs: “%s” is on B6-04', (phrase) => {
-    expect(B6_04).toContain(phrase);
+  it('the composed lines take the export’s forms (`itemVals` for an update)', () => {
+    expect(liveSinceFact('1.2', '3 Jul')).toBe('1.2 · since 3 Jul');
+    expect(RV).toContain("R.liveVer + (R.liveSince ? ' · since ' + this.short(R.liveSince) : '')");
+    expect(whyByWords('Kavya Nair', '25 Aug 2026, 16:00')).toBe(
+      'Kavya Nair, Content Manager · sent 25 Aug 2026, 16:00',
+    );
+    expect(RV).toContain("R.who + ', Content Manager · sent ' + (R.sent || '')");
+    expect(changesNoteWords(3, '1.2')).toBe('3 changed fields · everything else stays as in 1.2');
+    expect(changesNoteWords(1, '1.0')).toBe('1 changed field · everything else stays as in 1.0');
+    expect(RV).toContain(
+      "this.plural(R.cmp.length, 'changed field') + ' · everything else stays as in ' + R.liveVer",
+    );
+    expect(columnWords(CHANGES_COLUMNS.before, '1.2')).toBe('Live now · 1.2');
+    expect(columnWords(CHANGES_COLUMNS.after, '1.3')).toBe('Proposed · 1.3');
+    expect(RV).toContain('Live now · {{ I.liveVer }}');
+    expect(RV).toContain('Proposed · {{ I.newVer }}');
+    expect(liveNoteWords('1.2', '3 Jul 2026')).toBe('Version 1.2 · live since 3 Jul 2026');
+    expect(RV).toContain("'Version ' + R.liveVer + (R.liveSince ? ' · live since ' + R.liveSince");
+    expect(liveOutcomesTitle('1.2')).toBe('Learning outcomes in version 1.2');
+    expect(RV).toContain('Learning outcomes in version {{ I.liveVer }}');
   });
 
-  it('the header takes B6-04’s forms (`rvOver`, the H1, `rvMeta`)', () => {
-    expect(reviewUpdateOverline('UPD-0005')).toBe('UPD-0005 · Update (Content Manager correction)');
-    expect(B6_04).toContain("(u ? u.id : 'UPD') + ' · Update (Content Manager correction)'");
-    expect(reviewUpdateTitle('Distillation Column', '1.2', '1.3')).toBe(
-      'Distillation Column · 1.2 → 1.3',
+  it('the panel’s composed lines (`ready`, `path`)', () => {
+    expect(staysLiveTitle('1.2')).toBe('Version 1.2 stays live');
+    expect(staysLiveLine('1.3')).toBe('until the Super Admin releases 1.3.');
+    expect(RV).toContain(
+      "t: 'Version ' + R.liveVer + ' stays live', d: 'until the Super Admin releases ' + R.newVer + '.'",
     );
-    expect(B6_04).toContain('{{ m.lName }} · {{ m.lVer }} → {{ m.uVer }}');
-    expect(reviewUpdateMeta('Kavya Nair', 'CHE ZG513', '1.2')).toBe(
-      'From Kavya Nair · CHE ZG513 · live version 1.2',
+    expect(changedFieldsTitle(3)).toBe('3 changed fields.');
+    expect(changedFieldsTitle(1)).toBe('1 changed field.');
+    expect(RV).toContain("t: this.plural(R.cmp.length, 'changed field') + '.'");
+    expect(livePathLine('1.2')).toBe(
+      'Version 1.2 stays live until a release. Releasing changes no one’s access.',
     );
-    expect(B6_04).toContain("'From ' + D.cm + ' · ' + D.dist.course + ' · live version ' + L.ver");
-    // No course known: the course is left out (state-copy `RV-04.no-course-code`).
-    expect(reviewUpdateMeta('Kavya Nair', null, '1.2')).toBe('From Kavya Nair · live version 1.2');
-    expect(courseLineWords('CHE ZG513', 'Process Instrumentation & Control')).toBe(
-      'CHE ZG513 · Process Instrumentation & Control',
-    );
-    expect(B6_04).toContain('{{ m.course }} · {{ m.cname }}');
-    expect(courseLineWords(null, 'Fluid Mechanics')).toBe('Fluid Mechanics');
-    expect(liveSinceWords('1.2', '3 Jul 2026')).toBe('1.2 · since 3 Jul 2026');
-    expect(B6_04).toContain('{{ m.lVer }} · since {{ m.lSince }}');
-  });
-
-  it('DL-1 says approval goes to the Super Admin and releases nothing (`raTitle`, `raBody`)', () => {
-    expect(approveUpdateTitle('UPD-0005')).toBe('Approve UPD-0005?');
-    expect(B6_04).toContain("o.raTitle = 'Approve ' + (u ? u.id : '') + '?'");
-    expect(approveUpdateEffect('1.2')).toBe(
-      'It goes to the Super Admin, who decides when to release it. Version 1.2 stays live until then.',
-    );
-    expect(B6_04).toContain(
-      "o.raBody = 'It goes to the Super Admin, who decides when to release it. Version ' + L.ver + ' stays live until then.'",
-    );
-    expect(B6_04).toContain(
-      '“It goes to the Super Admin, who decides when to release it. Version 1.2 stays live until then.”',
+    expect(RV).toContain(
+      "d: 'Version ' + R.liveVer + ' stays live until a release. Releasing changes no one’s access.'",
     );
   });
 
-  it('the decided panel (`rDecMeta`, `rDecNext`)', () => {
-    expect(approvedMetaWords('27 Aug 2026', 'Prof. A. Menon')).toBe('27 Aug 2026 · Prof. A. Menon');
-    expect(returnedMetaWords('27 Aug 2026', 'The corrected sentence is right.')).toBe(
-      '27 Aug 2026 · “The corrected sentence is right.”',
+  it('the Approve dialog is named by the experiment, never by its reference', () => {
+    expect(approveUpdateTitle('Distillation Column')).toBe(
+      'Approve the update to Distillation Column?',
     );
-    expect(B6_04).toContain(
-      "o.rDecMeta = ust === 'awaiting' && u ? day(u.appr) + ' · ' + D.rv : ust === 'returned' && u && u.ret ? day(u.ret.when) + ' · “' + u.ret.reason + '”' : ''",
+    expect(RV).toContain("'Approve the update to ' + R.name + '?'");
+    expect(approveUpdateTitle('Distillation Column')).not.toMatch(REFERENCE);
+    expect(goesLiveLater('1.3', '1.2')).toBe(
+      'Version 1.3 goes live only if the Super Admin releases it. Version 1.2 stays live until then.',
     );
+    expect(RV).toContain(
+      "'Version ' + R.newVer + ' goes live only if the Super Admin releases it. Version ' + R.liveVer + ' stays live until then.'",
+    );
+  });
+
+  it('the outcome block’s composed lines (`doneBlock` for an update)', () => {
+    // Another reviewer's decision (undrawn; state-copy `RV-04.decided-by`): the export's forms
+    // with the name in place of “you”.
+    expect(decidedByOn('Prof. R. Iyer', '27 Aug 2026, 11:20')).toBe(
+      'Decided by Prof. R. Iyer on 27 Aug 2026, 11:20',
+    );
+    expect(RV).toContain("'Decided by you on ' + src.when");
+    expect(approvedBy('Prof. R. Iyer')).toBe('Approved by Prof. R. Iyer');
+    expect(RV).toContain("'Approved by ' + by");
+    expect(releasedOnWords('5 Aug 2026')).toBe('Released on 5 Aug 2026');
+    expect(RV).toContain("v: 'Released on ' + R.relWhen");
+    expect(unchangedLive('1.2')).toBe('1.2, unchanged');
+    expect(RV).toContain("v: R.liveVer + ', unchanged'");
+    expect(releasedNextWords('1.1')).toBe(
+      'Version 1.1 is live. Releasing changed no one’s access.',
+    );
+    expect(RV).toContain("'Version ' + R.newVer + ' is live. Releasing changed no one’s access.'");
     expect(awaitingNextWords('1.2')).toBe(
       'Version 1.2 stays live. Release or hold is the Super Admin’s decision.',
     );
-    expect(B6_04).toContain(
-      "'Version ' + L.ver + ' stays live. Release or hold is the Super Admin’s decision.'",
-    );
+    expect(RV).toContain("'Release or hold is the Super Admin’s decision.'");
+    expect(RV).toContain("'Version ' + R.liveVer + ' stays live. '");
   });
 
-  it('the history (`uh`; B7-11 `histAdd` for the release)', () => {
-    expect(B6_04).toContain(UPDATE_HISTORY.sent);
+  it('the history keeps the boards’ steps (`uh`; B7-11 `histAdd`), as the export lists them', () => {
+    expect(RV).toContain(UPDATE_HISTORY.sent);
+    expect(RV).toContain(UPDATE_HISTORY.started);
     expect(UPDATE_HISTORY.sentNote('Prof. A. Menon', '1.2')).toBe(
       'To Prof. A. Menon. The live version 1.2 is unchanged.',
     );
-    expect(B6_04).toContain('To Prof. A. Menon. The live version 1.2 is unchanged.');
+    expect(RV).toContain('To Prof. A. Menon. The live version 1.2 is unchanged.');
+    expect(UPDATE_HISTORY.startedNote('1.2')).toBe('Pre-filled with the live version 1.2.');
+    expect(RV).toContain('Pre-filled with the live version 1.2.');
     expect(UPDATE_HISTORY.approved('Prof. A. Menon')).toBe('Approved by Prof. A. Menon');
     expect(UPDATE_HISTORY.approvedNote('1.2')).toBe(
       'With the Super Admin for a release decision. The live version stays 1.2 until then.',
     );
-    expect(B6_04).toContain(
-      "what: 'Approved by ' + D.rv, when: w, note: 'With the Super Admin for a release decision. The live version stays ' + c.live.ver + ' until then.'",
+    expect(RV).toContain(
+      "n: 'With the Super Admin for a release decision. The live version stays ' + R.liveVer + ' until then.'",
     );
     expect(UPDATE_HISTORY.returned('Prof. A. Menon')).toBe('Returned by Prof. A. Menon');
-    expect(B6_04).toContain("what: 'Returned by ' + D.rv");
+    expect(RV).toContain("w: 'Returned by ' + by");
     expect(quotedWords('Please also say it.')).toBe('“Please also say it.”');
+    // The release is B7-11's (the export draws no released update page).
     expect(UPDATE_HISTORY.released('Arjun Mehta')).toBe('Released by Arjun Mehta');
     expect(UPDATE_HISTORY.releasedNote('1.3')).toBe('Version 1.3 is live for everyone.');
     expect(B7_11).toContain(
@@ -197,23 +248,36 @@ describe('RV-04 Review an update (B6-04 f0 … f4; B6-13 f4)', () => {
     for (const phrase of strings(RELEASED_COLUMNS)) expect(b7_05).toContain(phrase);
   });
 
-  it('the open note is shown without its decision id (P1-14 / VD-10)', () => {
-    const note = STRIPPED_UPDATE.openNote;
-    expect(B6_04).toContain(note.drawn);
-    expect(note.words).toBe(note.drawn.replace(' (T-28)', ''));
-    expect(note.ids).toEqual(['T-28']);
-    expect(note.words).not.toMatch(/T-\d/);
+  it('not sent yet keeps the product’s words (B6-04 `rvNone`, B6-13 f4; lead decision 3)', () => {
+    for (const phrase of strings(NOT_SENT)) {
+      expect(B6_04).toContain(phrase);
+      expect(B6_13).toContain(phrase);
+    }
   });
 
-  it('never says “Publish” (the published experiment is named, never the act)', () => {
+  it('no reference and no “Publish” in any RV-04 word', () => {
     const all = [
-      ...strings(REVIEW_UPDATE),
-      ...strings(UPDATE_DECISION),
-      ...strings(UPDATES_LIST),
-      approveUpdateEffect('1.2'),
+      ...strings([
+        UPDATE_CARD,
+        WHY_BLOCK,
+        CHANGES_BLOCK,
+        LIVE_BLOCK,
+        UPDATE_DECISION,
+        UPDATE_REFUSAL,
+        UPDATE_OUTCOME,
+        APPROVE_DIALOG,
+        NOT_SENT,
+      ]),
+      approveUpdateTitle('Distillation Column'),
+      goesLiveLater('1.3', '1.2'),
       awaitingNextWords('1.2'),
+      releasedNextWords('1.3'),
+      livePathLine('1.2'),
     ];
-    for (const phrase of all) expect(phrase).not.toMatch(/\bpublish(?:es|ing)?\b/i);
+    for (const phrase of all) {
+      expect(phrase).not.toMatch(REFERENCE);
+      expect(phrase).not.toMatch(/\bpublish(?:es|ing)?\b/i);
+    }
   });
 });
 

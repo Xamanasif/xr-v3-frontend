@@ -6,8 +6,9 @@ import { joinClasses } from '../internal/classes.js';
  * inline in each rail, and the `rbi-*` / `rki-*` symbols of SA01, SA02, IA01 and IA02, plus the
  * ones the Entry & shared export (XS-v6) draws in its sign-in card, account menu, Help pages and
  * messages, the Super Admin export (SA-v1) in its sprite, the Vendor export (VE-v1) in its
- * `vei-*` symbols and the Content Manager export (CM-v1) in its `cmi-*` symbols. Thirty-four are
- * the very paths of the v46 registry (taken from it, so the two never drift); the others are new to V3.
+ * `vei-*` symbols, the Content Manager export (CM-v1) in its `cmi-*` symbols and the Academic
+ * Reviewer export (RV-v1) in its rail and its `rvi-*` symbols. Thirty-five are the very paths of
+ * the v46 registry (taken from it, so the two never drift); the others are new to V3.
  * `primitives.test.tsx` checks every path against the board or export that draws it.
  */
 export const V3_ICON_PATHS = {
@@ -46,6 +47,9 @@ export const V3_ICON_PATHS = {
   updates: ICON_PATHS.updates,
   courseCodes: ICON_PATHS.courseCodes,
   externalLink: ICON_PATHS.externalLink,
+  // Shared with the v46 registry, drawn by the Academic Reviewer export (RV-v1 `RV.dc.html` rail):
+  // Review queue's list.
+  reviewQueue: ICON_PATHS.reviewQueue,
   // Shared with the v46 registry, drawn by the XS export (XS-v6).
   back: ICON_PATHS.back,
   signOut: ICON_PATHS.signOut,
@@ -91,6 +95,26 @@ export const V3_ICON_PATHS = {
   document: 'M7 3h7l5 5v13H7zM14 3v5h5M10 13h6M10 17h6',
   // New in the Content Manager export (CM-v1 `cmi-cross`): a publishing check that is not met.
   cross: 'M7 7l10 10M17 7 7 17',
+  // New in the Academic Reviewer export (RV-v1 `RV.dc.html` `rvi-*` symbols): the four kinds of
+  // review work (`rvi-new`, `rvi-resub`, `rvi-recheck`, `rvi-update`), the delete of an outcome
+  // (`rvi-trash`), a document and the preview link (`rvi-doc`, `rvi-play`), the correction's note
+  // (`rvi-msg`), the whole-item and stays-live readiness lines (`rvi-layers`, `rvi-live`), the
+  // queue flag (`rvi-flag`) and the two refusals (`rvi-scope`, `rvi-none`).
+  kindNew: 'M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M12 11v6M9 14h6',
+  kindResubmission:
+    'M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h4.5M14 3l5 5v3M14 3v5h5M21 16.5a3.6 3.6 0 1 1-1.1-2.6M21 12.8v3.3h-3.3',
+  kindRecheck: 'M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4',
+  kindUpdate: 'M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4M14 20h6',
+  trash: 'M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6',
+  documentText:
+    'M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h6',
+  playDisc: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10.2 8.6v6.8l5.4-3.4z',
+  message: 'M4 5h16v11H10l-6 4zM8 9.5h8M8 12.5h5',
+  layersStack: 'M12 3 3 8l9 5 9-5zM3 12.5l9 5 9-5M3 16.8l9 4.7 9-4.7',
+  live: 'M12 12h.01M8.6 15.4a4.8 4.8 0 0 1 0-6.8M15.4 8.6a4.8 4.8 0 0 1 0 6.8M5.7 18.3a8.9 8.9 0 0 1 0-12.6M18.3 5.7a8.9 8.9 0 0 1 0 12.6',
+  flag: 'M5 21V4M5 4h11l-2 4 2 4H5',
+  outsideScope: 'M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9.5 12.5h5',
+  unavailable: 'M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM5.6 5.6l12.8 12.8',
 } as const satisfies Record<string, string>;
 
 export type V3IconName = keyof typeof V3_ICON_PATHS;

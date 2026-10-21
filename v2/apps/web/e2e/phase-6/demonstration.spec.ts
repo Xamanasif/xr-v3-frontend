@@ -251,16 +251,17 @@ async function approveAsReviewer(page: Page, name: string): Promise<void> {
   await signIn(page, 'a.menon@wilp.example');
   await page.waitForURL((url) => url.pathname === '/reviewer');
   await sidebar(page, '/reviewer/queue');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Review ${name}` }));
+  // RV-02 (V3, RV-v1): the row's link is named by the experiment, never its reference.
+  await reachAndClick(page, main(page).getByRole('link', { name: new RegExp(`^${name}, `) }));
   await page.waitForURL(/\/reviewer\/updates\/UPD-\d{4}$/);
+  // RV-04 (V3, RV-v1): choose Approve update, then press it; the dialog names the experiment.
+  await reachAndClick(page, decision(page).getByRole('radio', { name: 'Approve update' }));
   await reachAndClick(page, decision(page).getByRole('button', { name: 'Approve update' }));
-  const approve = page.getByRole('dialog', { name: /^Approve UPD-\d{4}\?$/ });
+  const approve = page.getByRole('dialog', { name: `Approve the update to ${name}?` });
   await expect(approve).toContainText('It goes to the Super Admin');
   await reachAndClick(page, approve.getByRole('button', { name: 'Approve update' }));
   await expect(approve).toBeHidden();
-  await expect(main(page).locator('#ru-dec .xr-status--ok')).toHaveText(
-    'Approved — awaiting the Super Admin’s release decision',
-  );
+  await expect(page.locator('#rv-done .xr-st--ok')).toHaveText('Approved — with the Super Admin');
   await signOut(page, MENON);
 }
 

@@ -17,6 +17,9 @@
  * - the committed `v3/cm-scoped.css` is the same for the Content Manager role sheet of the
  *   owner-approved Content Manager export (design/v3-refined-b/roles/CM-v1), less its scenario
  *   handoff box and public-page handoff frame (its borrowed XS sheet is not generated);
+ * - the committed `v3/rv-scoped.css` is the same for the Academic Reviewer role sheet of the
+ *   owner-approved Academic Reviewer export (design/v3-refined-b/roles/RV-v1), less the borrowed
+ *   XS surfaces the delivered XS export replaces;
  * - the central patches (`v3/patch.css`) are confined the same way and use only allow-listed
  *   product classes — except V3P-09's container name on the v46 app root that holds a V3 region;
  * - the entry puts both in `xr.v3`, nothing reaches `:root`, `html` or `body`, nothing loads a URL,
@@ -110,6 +113,9 @@ const veDerived = readFileSync(veRole.output, 'utf8');
 const cmRole = ROLE_SHEETS.find((role) => role.role === 'CM')!;
 const cmSource = readFileSync(join(cmRole.directory, cmRole.sheet), 'utf8');
 const cmDerived = readFileSync(cmRole.output, 'utf8');
+const rvRole = ROLE_SHEETS.find((role) => role.role === 'RV')!;
+const rvSource = readFileSync(join(rvRole.directory, rvRole.sheet), 'utf8');
+const rvDerived = readFileSync(rvRole.output, 'utf8');
 
 /** The top-level grouping at-rules of `css`, each with the style rules directly inside it. */
 function groupsOf(css: string): { readonly prelude: string; readonly rules: Rule[] }[] {
@@ -230,7 +236,7 @@ describe('generated rb-scoped.css', () => {
 
 describe('generated xs-scoped.css (the XS export, design/v3-refined-b/roles/XS-v6)', () => {
   it('is exactly what the generator writes from the locked extension sheet', () => {
-    expect(ROLE_SHEETS.map((role) => role.role)).toEqual(['XS', 'SA', 'VE', 'CM']);
+    expect(ROLE_SHEETS.map((role) => role.role)).toEqual(['XS', 'SA', 'VE', 'CM', 'RV']);
     expect(xsDerived).toBe(renderRoleCss(readRoleInput(xsRole)));
   });
 
@@ -466,6 +472,107 @@ describe('the selector transform', () => {
   });
 });
 
+/** [ids, classes / attributes / pseudo-classes, types] of a selector (`:where` counts 0). */
+function specificity(selector: string): [number, number, number] {
+  let rest = selector;
+  const inner: [number, number, number][] = [];
+  rest = rest.replace(/:where\((?:[^()]|\([^()]*\))*\)/g, '');
+  rest = rest.replace(/:(?:not|is)\(((?:[^()]|\([^()]*\))*)\)/g, (_match, list: string) => {
+    inner.push(
+      splitTopLevel(list, ',')
+        .map((part) => specificity(part))
+        .sort((x, y) => y[0] - x[0] || y[1] - x[1] || y[2] - x[2])[0]!,
+    );
+    return '';
+  });
+  const ids = (rest.match(/#[\w-]+/g) ?? []).length;
+  const classes = (rest.match(/\.[\w-]+|\[[^\]]*\]|:(?!:)[\w-]+/g) ?? []).length;
+  const types = (rest.replace(/\[[^\]]*\]|[.#:][\w-]+/g, ' ').match(/[a-z][\w-]*/gi) ?? []).length;
+  return inner.reduce<[number, number, number]>(
+    (sum, part) => [sum[0] + part[0], sum[1] + part[1], sum[2] + part[2]],
+    [ids, classes, types],
+  );
+}
+
+function outranks(a: readonly number[], b: readonly number[]): boolean {
+  return a[0]! > b[0]! || (a[0] === b[0] && (a[1]! > b[1]! || (a[1] === b[1] && a[2]! > b[2]!)));
+}
+
+/** A rule block's declarations, one `property: value` each. */
+function declarations(block: string): string[] {
+  return block
+    .split(';')
+    .map((declaration) => declaration.replace(/\s+/g, ' ').trim())
+    .filter(Boolean)
+    .map((declaration) => declaration.replace(/\s*:\s*/, ': '));
+}
+
+/**
+ * A restoration of the export's cascade (V3P-13, V3P-15): the patch's selector (the elements both
+ * rules match), the export's winning Refined B rule (its source selector in core.css / rb.css /
+ * rb-kit.css), the role rule it beats there and the declarations restored — each one the Refined B
+ * rule's own, on a property the role rule sets too.
+ */
+interface Restoration {
+  readonly patch: string;
+  readonly refined: string;
+  readonly role: string;
+  readonly css: string;
+}
+
+/** Each restoration is in patch.css, as the export's winning Refined B rule declares it. */
+function expectRestorations(restorations: readonly Restoration[], roleDerived: string): void {
+  const patchRules = rulesOf(patch);
+  const derivedRules = rulesOf(derived);
+  const roleRules = rulesOf(roleDerived);
+  for (const restoration of restorations) {
+    const prelude = `${SCOPE_PREFIX}${restoration.patch}${ISLAND_EXCLUSION}`;
+    const found = patchRules.filter((rule) =>
+      splitTopLevel(rule.prelude, ',')
+        .map((part) => part.trim())
+        .includes(prelude),
+    );
+    expect(found, restoration.patch).toHaveLength(1);
+    const restored = declarations(found[0]!.block);
+    expect(restored.join('; '), restoration.patch).toBe(declarations(restoration.css).join('; '));
+    // The export's winning rule declares each restored value…
+    const refined = derivedRules.filter(
+      (rule) => rule.prelude === scopeComplexSelector(restoration.refined),
+    );
+    expect(refined.length, restoration.refined).toBeGreaterThan(0);
+    for (const declaration of restored) {
+      expect(
+        refined.some((rule) => declarations(rule.block).includes(declaration)),
+        `${restoration.refined} ${declaration}`,
+      ).toBe(true);
+    }
+    // …the role rule sets the same properties, and is less specific (it wins only in its layer).
+    const role = roleRules.filter(
+      (rule) => rule.prelude === scopeComplexSelector(restoration.role),
+    );
+    expect(role.length, restoration.role).toBeGreaterThan(0);
+    const roleProperties = new Set(
+      role.flatMap((rule) =>
+        declarations(rule.block).map((declaration) => declaration.split(':')[0]!),
+      ),
+    );
+    for (const declaration of restored) {
+      const property = declaration.split(':')[0]!;
+      // The property itself, or the margin / padding shorthand that sets it.
+      const covered =
+        roleProperties.has(property) ||
+        ['margin', 'padding'].some(
+          (shorthand) => roleProperties.has(shorthand) && property.startsWith(`${shorthand}-`),
+        );
+      expect(covered, `${restoration.role} ${property}`).toBe(true);
+    }
+    expect(
+      outranks(specificity(restoration.refined), specificity(restoration.role)),
+      `${restoration.refined} outranks ${restoration.role}`,
+    ).toBe(true);
+  }
+}
+
 /** The product classes one patch (`V3P-nn`) names, up to the next patch. */
 function patchClasses(id: string): Set<string> {
   const start = patch.indexOf(`V3P-${id} ·`);
@@ -502,7 +609,7 @@ describe('patch.css (V3P-nn)', () => {
     expect([...product].sort()).toEqual([...V3_PRODUCT_CLASS_ALLOW_LIST].sort());
   });
 
-  it('numbers its patches V3P-01 … V3P-14 in order; V3P-06 and V3P-07 are retired, not reused', () => {
+  it('numbers its patches V3P-01 … V3P-15 in order; V3P-06 and V3P-07 are retired, not reused', () => {
     expect([...patch.matchAll(/V3P-(\d\d) ·/g)].map((match) => match[1])).toEqual([
       '01',
       '02',
@@ -518,6 +625,7 @@ describe('patch.css (V3P-nn)', () => {
       '12',
       '13',
       '14',
+      '15',
     ]);
     for (const retired of ['06', '07']) {
       expect(patch).toMatch(new RegExp(`V3P-${retired} · retired`));
@@ -656,146 +764,58 @@ describe('patch.css (V3P-nn)', () => {
   });
 
   it("V3P-13: the export's cascade — the Refined B declaration that wins there, on the elements both rules match", () => {
-    /**
-     * Each restoration: the patch's selector (the elements both rules match), the export's
-     * winning Refined B rule (its source selector in core.css / rb.css / rb-kit.css), the Vendor
-     * rule it beats there (v3-vendor.css) and the declarations restored — each one the Refined B
-     * rule's own, on a property the Vendor rule sets too.
-     */
-    const CASCADE: readonly {
-      readonly patch: string;
-      readonly refined: string;
-      readonly vendor: string;
-      readonly css: string;
-    }[] = [
+    // The Vendor rules (v3-vendor.css) that win only by their layer, and what the export shows.
+    const CASCADE: readonly Restoration[] = [
       {
         patch: '.rk-fieldset legend.vr-legend',
         refined: '.rk-fieldset legend',
-        vendor: '.vr-legend',
+        role: '.vr-legend',
         css: 'margin-bottom: 10px;',
       },
       {
         patch: '.rk-fieldset legend > span.vr-sec-t',
         refined: '.rk-fieldset legend > span:not(.sc-interp)',
-        vendor: '.vr-sec-t',
+        role: '.vr-sec-t',
         css: 'font: 400 14.5px/21px var(--sans); color: var(--ink-3);',
       },
       {
         patch: '.rk-fieldset legend > span.vr-sec-d',
         refined: '.rk-fieldset legend > span:not(.sc-interp)',
-        vendor: '.vr-sec-d',
+        role: '.vr-sec-d',
         css: 'margin-top: 2px;',
       },
       {
         patch: '.rb-btn--ghost.vr-chg',
         refined: '.rb .rb-btn--ghost',
-        vendor: '.vr-chg',
+        role: '.vr-chg',
         css: 'min-height: 40px;',
       },
       {
         patch: '.rk-rowlink.vr-name',
         refined: '.rb .rk-rowlink',
-        vendor: '.vr-name',
+        role: '.vr-name',
         css: 'display: inline; color: var(--navy); font: 650 16.5px/23px var(--sans);',
       },
       {
         patch: '.rk-rowlink.vr-name:hover',
         refined: '.rb .rk-rowlink:hover',
-        vendor: '.vr-name:hover',
+        role: '.vr-name:hover',
         css: 'color: var(--navy);',
       },
       {
         patch: '.vr-linkbtn:focus-visible',
         refined: '.xr :where(a,button,input,select,textarea,[tabindex]):focus-visible',
-        vendor: '.vr-linkbtn',
+        role: '.vr-linkbtn',
         css: 'border-radius: 6px;',
       },
       {
         patch: '.vr-ret:focus-visible',
         refined: '.xr :where(a,button,input,select,textarea,[tabindex]):focus-visible',
-        vendor: '.vr-ret',
+        role: '.vr-ret',
         css: 'border-radius: 6px;',
       },
     ];
-    /** [ids, classes / attributes / pseudo-classes, types] of a selector (`:where` counts 0). */
-    const specificity = (selector: string): [number, number, number] => {
-      let rest = selector;
-      const inner: [number, number, number][] = [];
-      rest = rest.replace(/:where\((?:[^()]|\([^()]*\))*\)/g, '');
-      rest = rest.replace(/:(?:not|is)\(((?:[^()]|\([^()]*\))*)\)/g, (_match, list: string) => {
-        inner.push(
-          splitTopLevel(list, ',')
-            .map((part) => specificity(part))
-            .sort((x, y) => y[0] - x[0] || y[1] - x[1] || y[2] - x[2])[0]!,
-        );
-        return '';
-      });
-      const ids = (rest.match(/#[\w-]+/g) ?? []).length;
-      const classes = (rest.match(/\.[\w-]+|\[[^\]]*\]|:(?!:)[\w-]+/g) ?? []).length;
-      const types = (rest.replace(/\[[^\]]*\]|[.#:][\w-]+/g, ' ').match(/[a-z][\w-]*/gi) ?? [])
-        .length;
-      return inner.reduce<[number, number, number]>(
-        (sum, part) => [sum[0] + part[0], sum[1] + part[1], sum[2] + part[2]],
-        [ids, classes, types],
-      );
-    };
-    const outranks = (a: readonly number[], b: readonly number[]) =>
-      a[0]! > b[0]! || (a[0] === b[0] && (a[1]! > b[1]! || (a[1] === b[1] && a[2]! > b[2]!)));
-    const declarations = (block: string) =>
-      block
-        .split(';')
-        .map((declaration) => declaration.replace(/\s+/g, ' ').trim())
-        .filter(Boolean)
-        .map((declaration) => declaration.replace(/\s*:\s*/, ': '));
-    const patchRules = rulesOf(patch);
-    const derivedRules = rulesOf(derived);
-    const vendorRules = rulesOf(veDerived);
-    for (const restoration of CASCADE) {
-      const prelude = `${SCOPE_PREFIX}${restoration.patch}${ISLAND_EXCLUSION}`;
-      const found = patchRules.filter((rule) =>
-        splitTopLevel(rule.prelude, ',')
-          .map((part) => part.trim())
-          .includes(prelude),
-      );
-      expect(found, restoration.patch).toHaveLength(1);
-      const restored = declarations(found[0]!.block);
-      expect(restored.join('; '), restoration.patch).toBe(declarations(restoration.css).join('; '));
-      // The export's winning rule declares each restored value…
-      const refined = derivedRules.filter(
-        (rule) => rule.prelude === scopeComplexSelector(restoration.refined),
-      );
-      expect(refined.length, restoration.refined).toBeGreaterThan(0);
-      for (const declaration of restored) {
-        expect(
-          refined.some((rule) => declarations(rule.block).includes(declaration)),
-          `${restoration.refined} ${declaration}`,
-        ).toBe(true);
-      }
-      // …the Vendor rule sets the same properties, and is less specific (it wins only in its layer).
-      const vendor = vendorRules.filter(
-        (rule) => rule.prelude === scopeComplexSelector(restoration.vendor),
-      );
-      expect(vendor.length, restoration.vendor).toBeGreaterThan(0);
-      const vendorProperties = new Set(
-        vendor.flatMap((rule) =>
-          declarations(rule.block).map((declaration) => declaration.split(':')[0]!),
-        ),
-      );
-      for (const declaration of restored) {
-        const property = declaration.split(':')[0]!;
-        // The property itself, or the margin / padding shorthand that sets it.
-        const covered =
-          vendorProperties.has(property) ||
-          ['margin', 'padding'].some(
-            (shorthand) => vendorProperties.has(shorthand) && property.startsWith(`${shorthand}-`),
-          );
-        expect(covered, `${restoration.vendor} ${property}`).toBe(true);
-      }
-      expect(
-        outranks(specificity(restoration.refined), specificity(restoration.vendor)),
-        `${restoration.refined} outranks ${restoration.vendor}`,
-      ).toBe(true);
-    }
+    expectRestorations(CASCADE, veDerived);
   });
 
   it("V3P-14: the Content Manager export's inline spacings, on the element it styles, as it writes them", () => {
@@ -923,7 +943,7 @@ describe('patch.css (V3P-nn)', () => {
     const start = patch.indexOf('V3P-14 ·');
     expect(start).toBeGreaterThan(0);
     expect(
-      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2, patch.indexOf('/*\n * V3P-15 ·')))
         .map((rule) => rule.prelude)
         .sort(),
     ).toEqual(
@@ -931,7 +951,9 @@ describe('patch.css (V3P-nn)', () => {
         .map((element) => `${SCOPE_PREFIX}${element}${ISLAND_EXCLUSION}`)
         .sort(),
     );
-    expect(patch.slice(start)).toContain('finds no element where they differ');
+    expect(patch.slice(start, patch.indexOf('V3P-15 ·'))).toContain(
+      'finds no element where they differ',
+    );
     /*
      * One spacing is an earlier patch's: the note under CM-03's delivery rows is 12 px under the
      * rows as V3P-12's note under a list (`Hint under="list"`, `rk-x-hint-list`).
@@ -972,6 +994,82 @@ describe('patch.css (V3P-nn)', () => {
       0,
     );
     expect(occurrences, 'each export style= is patched or recorded as not patched').toBe(styled);
+  });
+
+  it("V3P-15: the Academic Reviewer export's inline styles — none needs a new rule", () => {
+    const main = readFileSync(join(rvRole.directory, 'project', 'RV.dc.html'), 'utf8');
+    /** The export's template: the markup before its logic script. */
+    const template = main.slice(0, main.indexOf('<script type="text/x-dc"'));
+    // V3P-15 adds no product class: it restores the export's cascade only.
+    expect([...patchClasses('15')]).toEqual([]);
+    /*
+     * The one product spacing is an earlier patch's: the re-check block's line 12 px under the
+     * quote (RV-03) is V3P-12's line under a quote (`RecordLine space="above"`, `rk-x-next-above`).
+     */
+    const REUSED = {
+      element: '.rk-next.rk-x-next-above',
+      css: 'margin-top: 12px;',
+      exported:
+        '<p class="rk-next" style="margin-top: 12px">Check it again and approve, or return it to the vendor.</p>',
+    };
+    const reused = rulesOf(patch).filter(
+      (rule) => rule.prelude === `${SCOPE_PREFIX}${REUSED.element}${ISLAND_EXCLUSION}`,
+    );
+    expect(reused).toHaveLength(1);
+    expect(reused[0]!.block.replace(/\s+/g, ' ').trim()).toBe(REUSED.css);
+    /*
+     * Every other `style=` of the export is accounted for: the hidden icon sprite (the product
+     * draws each icon inline), the borrowed XS surfaces the delivered XS components draw (Help &
+     * support "My reports", the Report a problem form, a report's detail) and the drawer brand's
+     * `padding-top: 0` (the shell's; `.rb-brand` has no top padding).
+     */
+    const NOT_PATCHED = [
+      '<svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">',
+      '<section aria-labelledby="rv-hp-h" style="display: flex; flex-direction: column; gap: 14px">',
+      '<div class="rk-surface" style="max-width: 760px">\n        <div class="rk-sec" style="display: flex; flex-direction: column; gap: 20px">',
+      '<div class="rk-surface" style="max-width: 860px">',
+      '<div class="rb-brand" style="padding-top: 0">',
+    ];
+    const accounted = [REUSED.exported, ...NOT_PATCHED];
+    const styled = [...template.matchAll(/style="[^"]*"/g)].length;
+    expect(styled).toBe(7);
+    for (const markup of accounted) expect(template, markup).toContain(markup);
+    const stylesIn = (markup: string) => (markup.match(/style="/g) ?? []).length;
+    const occurrences = accounted.reduce(
+      (count, markup) => count + (template.split(markup).length - 1) * stylesIn(markup),
+      0,
+    );
+    expect(occurrences, 'each export style= is patched or recorded as not patched').toBe(styled);
+  });
+
+  it("V3P-15: the Academic Reviewer export's cascade — the Refined B declaration that wins there, on the elements both rules match", () => {
+    // The Reviewer rules (rv.css) that win only by their layer, and what the export shows.
+    const CASCADE: readonly Restoration[] = [
+      {
+        patch: '.rv-filecard:focus-visible',
+        refined: '.xr :where(a,button,input,select,textarea,[tabindex]):focus-visible',
+        role: '.rv-filecard',
+        css: 'border-radius: 6px;',
+      },
+      {
+        patch: '.rv-lo-msg:focus-visible',
+        refined: '.xr :where(a,button,input,select,textarea,[tabindex]):focus-visible',
+        role: '.rv-lo-msg',
+        css: 'border-radius: 6px;',
+      },
+    ];
+    expectRestorations(CASCADE, rvDerived);
+    // V3P-15 holds these rules and no other.
+    const start = patch.indexOf('V3P-15 ·');
+    expect(start).toBeGreaterThan(0);
+    expect(
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+        .flatMap((rule) => splitTopLevel(rule.prelude, ','))
+        .map((part) => part.trim())
+        .sort(),
+    ).toEqual(
+      CASCADE.map((restoration) => `${SCOPE_PREFIX}${restoration.patch}${ISLAND_EXCLUSION}`).sort(),
+    );
   });
 
   it('leaves no v46 declaration on a shared class name inside a V3 root (V3P-08)', () => {
@@ -1235,6 +1333,115 @@ describe('generated cm-scoped.css (the Content Manager export, design/v3-refined
   });
 });
 
+describe('generated rv-scoped.css (the Academic Reviewer export, design/v3-refined-b/roles/RV-v1)', () => {
+  /** What the export says is borrowed from the shared surfaces, never its product UI (its COMPONENT-EXTENSIONS.md). */
+  const LEFT_OUT =
+    /\.rv-(?:acctwrap|menu(?:-[\w-]+)?|msg(?:-[\w-]+|page|card)?|file|formact|solo(?:-[\w-]+)?)(?![\w-])/;
+
+  it('is exactly what the generator writes from the locked role sheet', () => {
+    expect(rvDerived).toBe(renderRoleCss(readRoleInput(rvRole)));
+  });
+
+  it("is built on this foundation: the export's three base sheets are the locked bytes", () => {
+    const exportLock = JSON.parse(
+      readFileSync(join(rvRole.directory, 'FOUNDATION-LOCK.json'), 'utf8'),
+    ) as {
+      foundationId: string;
+      copiedBaseFiles: Record<string, { sha256: string; lockedAs: string; identical: boolean }>;
+      localAdditions: Record<string, { sha256: string }>;
+    };
+    expect(exportLock.foundationId).toBe(FOUNDATION_ID);
+    for (const sheet of SHEETS) {
+      const copied = exportLock.copiedBaseFiles[`project/${sheet}`];
+      expect(copied?.sha256, sheet).toBe(lock.baseFiles[`references/v3/project/${sheet}`]);
+      expect(copied?.lockedAs, sheet).toBe(`references/v3/project/${sheet}`);
+      expect(copied?.identical, sheet).toBe(true);
+      expect(sha256(readFileSync(join(rvRole.directory, 'project', sheet))), sheet).toBe(
+        lock.baseFiles[`references/v3/project/${sheet}`],
+      );
+    }
+    expect(exportLock.localAdditions['project/rv.css']?.sha256).toBe(sha256(rvSource));
+  });
+
+  it('leaves out only the borrowed XS surfaces', () => {
+    const left = rulesOf(rvSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && previewOnlyRule(rvRole, rule.prelude),
+    );
+    expect(left.length).toBeGreaterThan(0);
+    for (const rule of left) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector.trim(), rule.prelude).toMatch(LEFT_OUT);
+      }
+    }
+    expect(rvDerived).not.toMatch(LEFT_OUT);
+    // The role's own components stay, the document cards and the refusal notice among them.
+    for (const kept of [
+      '.rv-kind',
+      '.rv-desk',
+      '.rv-qtabs',
+      '.rv-idcard',
+      '.rv-lowrap',
+      '.rv-files',
+      '.rv-filecard',
+      '.rv-file-ico',
+      '.rv-refusal',
+    ]) {
+      expect(rvDerived, kept).toContain(kept);
+      expect(previewOnlyRule(rvRole, kept)).toBe(false);
+    }
+    expect(previewOnlyRule(rvRole, '.rv-menu,.rv-desk')).toBe(false);
+  });
+
+  it('keeps every other declaration block and at-rule in order and changes only selectors', () => {
+    // A grouping at-rule whose every rule is left out goes with them: the signed-out page's narrow
+    // padding and the account menu's reduced motion.
+    const groups = groupsOf(rvSource);
+    const dropped = groups.filter(
+      (group) =>
+        group.rules.length > 0 &&
+        group.rules.every((rule) => previewOnlyRule(rvRole, rule.prelude)),
+    );
+    expect(dropped.length).toBe(2);
+    for (const group of dropped) {
+      for (const rule of group.rules) expect(rule.prelude, group.prelude).toMatch(LEFT_OUT);
+    }
+    expect(groupsOf(rvDerived).map((group) => group.prelude)).toEqual(
+      groups.filter((group) => !dropped.includes(group)).map((group) => group.prelude),
+    );
+    const expected = rulesOf(rvSource).filter(
+      (rule) => !rule.prelude.startsWith('@') && !previewOnlyRule(rvRole, rule.prelude),
+    );
+    const scoped = rulesOf(rvDerived).filter((rule) => !rule.prelude.startsWith('@'));
+    expect(scoped.length).toBe(expected.length);
+    scoped.forEach((rule, index) => {
+      const source = expected[index]!;
+      expect(rule.block, source.prelude).toBe(source.block);
+      const before = splitTopLevel(source.prelude, ',').map((part) => part.trim());
+      const after = splitTopLevel(rule.prelude, ',').map((part) => part.trim());
+      after.forEach((selector, position) => {
+        expect(selector).toContain(ISLAND_EXCLUSION);
+        expect(selector.replace(SCOPE_PREFIX, '').replace(ISLAND_EXCLUSION, '')).toBe(
+          before[position],
+        );
+      });
+    });
+  });
+
+  it('selects only rv- classes (shared classes only under a role parent), no root, URL, keyframes or token', () => {
+    for (const rule of rulesOf(rvSource).filter(
+      (candidate) => !candidate.prelude.startsWith('@'),
+    )) {
+      for (const selector of splitTopLevel(rule.prelude, ',')) {
+        expect(selector, selector).toMatch(/\.rv-/);
+      }
+    }
+    expect(rvDerived).not.toMatch(/url\(|@import|@keyframes|[{;]\s*--[\w-]+\s*:/);
+    expect(
+      rulesOf(rvDerived).filter((rule) => /(^|[\s,])(:root|html|body)\b/.test(rule.prelude)),
+    ).toEqual([]);
+  });
+});
+
 describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
   it('reserves xr.v3 after xr.product and imports the derivatives, then the patches', () => {
     const statements = entry
@@ -1242,14 +1449,15 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
       .trim()
       .split(';')
       .map((part) => part.trim());
-    expect(statements.slice(0, 8)).toEqual([
+    expect(statements.slice(0, 9)).toEqual([
       '@layer properties, theme, xr.v46, xr.product, xr.v3, utilities',
-      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.patch',
+      '@layer xr.v3.rb, xr.v3.xs, xr.v3.sa, xr.v3.ve, xr.v3.cm, xr.v3.rv, xr.v3.patch',
       "@import './rb-scoped.css' layer(xr.v3.rb)",
       "@import './xs-scoped.css' layer(xr.v3.xs)",
       "@import './sa-scoped.css' layer(xr.v3.sa)",
       "@import './ve-scoped.css' layer(xr.v3.ve)",
       "@import './cm-scoped.css' layer(xr.v3.cm)",
+      "@import './rv-scoped.css' layer(xr.v3.rv)",
       "@import './patch.css' layer(xr.v3.patch)",
     ]);
   });
@@ -1270,5 +1478,6 @@ describe('the V3 entry (@xr/ui/styles-v3.css)', () => {
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/sa-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/ve-scoped.css');
     expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/cm-scoped.css');
+    expect(ignore.split('\n')).toContain('packages/ui/src/styles/v3/rv-scoped.css');
   });
 });

@@ -1,0 +1,142 @@
+[
+ {
+  "check": "[375] rail Help & support opens Help & support",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] Overview \u201cOpen the review queue\u201d opens the queue, heading focused",
+  "pass": true,
+  "detail": "rv-h1-q"
+ },
+ {
+  "check": "[375] queue chip \u00d7 removes the Type filter",
+  "pass": true,
+  "detail": "4 items \u00b7 oldest first"
+ },
+ {
+  "check": "[375] queue toolbar Clear filters resets",
+  "pass": true,
+  "detail": "('4 items \u00b7 oldest first', 'rv-q-search')"
+ },
+ {
+  "check": "[375] \u201cGo to decision\u201d is an anchor to the decision panel",
+  "pass": true,
+  "detail": "#rv-panel"
+ },
+ {
+  "check": "[375] \u201cGo to decision\u201d brings the panel into view",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] outcome Move down announces the new position",
+  "pass": true,
+  "detail": "Outcome 1 moved down \u2014 it is now outcome 2."
+ },
+ {
+  "check": "[375] outcome Cancel leaves edit mode, focus on Edit",
+  "pass": true,
+  "detail": "rv-lo-1-ed"
+ },
+ {
+  "check": "[375] preview link opens in a new tab",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] breadcrumb returns to the review queue, heading focused",
+  "pass": true,
+  "detail": "rv-h1-q"
+ },
+ {
+  "check": "[375] report Cancel returns to Help & support",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] report error-summary link focuses the text field",
+  "pass": true,
+  "detail": "rv-hp-what"
+ },
+ {
+  "check": "[375] sent page \u201cBack to Overview\u201d opens the Overview",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] Help (with reports) \u201cReport a problem\u201d opens the form",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] report detail \u201cReport a problem\u201d opens the form",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] report detail \u201cHelp & support\u201d returns to the list",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] drawer Close button closes it, focus on Menu",
+  "pass": true,
+  "detail": "rv-menu-btn"
+ },
+ {
+  "check": "[375] links run console clean",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "[375] calm Overview \u201cOpen Reviewed by me\u201d opens Reviewed by me",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] empty queue \u201cOpen Reviewed by me\u201d opens Reviewed by me",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] failed queue \u201cTry again\u201d loads the list",
+  "pass": true,
+  "detail": "4 items \u00b7 oldest first"
+ },
+ {
+  "check": "[375] empty Reviewed by me \u201cOpen the review queue\u201d opens the queue",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] Reviewed by me no-match \u201cClear filters\u201d resets",
+  "pass": true,
+  "detail": "8 decisions \u00b7 newest first"
+ },
+ {
+  "check": "[375] failed Reviewed by me \u201cTry again\u201d loads the list",
+  "pass": true,
+  "detail": "8 decisions \u00b7 newest first"
+ },
+ {
+  "check": "[375] RV-06 \u201cBack to Reviewed by me\u201d opens Reviewed by me, heading focused",
+  "pass": true,
+  "detail": "rv-h1-rb"
+ },
+ {
+  "check": "[375] RV-06 breadcrumb opens Reviewed by me",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] refusal \u201cBack to the review queue\u201d opens the queue",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "[375] refusal \u201cHelp & support\u201d opens Help & support",
+  "pass": true,
+  "detail": ""
+ }
+]

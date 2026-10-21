@@ -175,7 +175,7 @@ export function placeWordsOf(returnTo: string | null): string | null {
       }
       if (outcome.screen === 'FA-20' || outcome.screen === 'FA-21') return FACULTY_STUDENTS_TITLE;
       // Phase 5: each page names its destination and a submission its drawn reference ("My
-      // experiments › SUB-0077", "Review queue › SUB-0077", "Ready to publish › SUB-0077");
+      // experiments › SUB-0077", "Ready to publish › SUB-0077"; the reviewer's names none);
       // published experiments are addressed by ids, so they name the library alone.
       if (outcome.screen === 'VE-01') return VENDOR_OVERVIEW_TITLE;
       if (
@@ -188,9 +188,10 @@ export function placeWordsOf(returnTo: string | null): string | null {
         return reference ? `${MY_EXPERIMENTS_TITLE} › ${reference}` : MY_EXPERIMENTS_TITLE;
       }
       if (outcome.screen === 'RV-01') return REVIEWER_OVERVIEW_TITLE;
-      if (outcome.screen === 'RV-02' || outcome.screen === 'RV-03') {
-        return reference ? `${REVIEW_QUEUE_TITLE} › ${reference}` : REVIEW_QUEUE_TITLE;
-      }
+      // The Academic Reviewer's pages never show a record's reference (the owner-approved
+      // reviewer export, RV-v1 HANDOFF "Internal technical identifiers"): a submission's address
+      // names the Review queue alone.
+      if (outcome.screen === 'RV-02' || outcome.screen === 'RV-03') return REVIEW_QUEUE_TITLE;
       if (outcome.screen === 'RV-05') return REVIEWED_BY_ME_TITLE;
       if (outcome.screen === 'CM-01') return CM_OVERVIEW_TITLE;
       if (outcome.screen === 'CM-02' || outcome.screen === 'CM-03') {
@@ -210,16 +211,14 @@ export function placeWordsOf(returnTo: string | null): string | null {
       // export, SA-v1 HANDOFF: "Internal references … never appear in visible text"): their
       // addresses name the destination alone.
       if (outcome.screen === 'SA-18' || outcome.screen === 'SA-19') return OPERATIONS_TITLE;
-      // Phase 6: an update names its drawn reference in the Content Manager's and the Academic
-      // Reviewer's workspaces ("Updates › UPD-0005", "Review queue › UPD-0005"); the Super
+      // Phase 6: an update names its drawn reference in the Content Manager's workspace
+      // ("Updates › UPD-0005"; the Academic Reviewer's names none, as above); the Super
       // Admin's Content and Operations name the destination alone (SA-v1); areas, courses,
       // holders and published experiments are addressed by ids, so they do too.
       if (outcome.screen === 'CM-08') {
         return reference ? `${UPDATES_TITLE} › ${reference}` : UPDATES_TITLE;
       }
-      if (outcome.screen === 'RV-04') {
-        return reference ? `${REVIEW_QUEUE_TITLE} › ${reference}` : REVIEW_QUEUE_TITLE;
-      }
+      if (outcome.screen === 'RV-04') return REVIEW_QUEUE_TITLE;
       if (
         outcome.screen === 'SA-10' ||
         outcome.screen === 'SA-11' ||

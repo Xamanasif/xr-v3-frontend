@@ -1,0 +1,1509 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Academic Reviewer — XR Learning Platform</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="./core.css">
+<link rel="stylesheet" href="./rb.css">
+<link rel="stylesheet" href="./rb-kit.css">
+<link rel="stylesheet" href="./rv.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400..800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#F3F4F9}
+a{color:#3B49B8}a:hover{color:#141B5E}
+</style>
+</helmet>
+<div class="xr rb">
+  <svg width="0" height="0" style="position: absolute; overflow: hidden" aria-hidden="true" focusable="false">
+    <symbol id="rvi-search" viewBox="0 0 24 24"><path d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM16 16l5 5"></path></symbol>
+    <symbol id="rvi-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"></path></symbol>
+    <symbol id="rvi-right" viewBox="0 0 24 24"><path d="M9.5 6l6 6-6 6"></path></symbol>
+    <symbol id="rvi-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"></path></symbol>
+    <symbol id="rvi-lock" viewBox="0 0 24 24"><path d="M7 11V8a5 5 0 0 1 10 0v3M5 11h14v10H5zM12 15v2.5"></path></symbol>
+    <symbol id="rvi-alert" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7.5v5.5M12 16.5h.01"></path></symbol>
+    <symbol id="rvi-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></symbol>
+    <symbol id="rvi-clock" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM12 7v5l3 2"></path></symbol>
+    <symbol id="rvi-inbox" viewBox="0 0 24 24"><path d="M4 13l2.5-7h11L20 13v6H4zM4 13h5l1.5 2h3L15 13h5"></path></symbol>
+    <symbol id="rvi-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .6-8 6 6 0 0 0-11.4-1.5A4.5 4.5 0 0 0 7 18zM12 11v4M12 17.5h.01"></path></symbol>
+    <symbol id="rvi-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"></path></symbol>
+    <symbol id="rvi-down" viewBox="0 0 24 24"><path d="M12 5v14M6 13l6 6 6-6"></path></symbol>
+    <symbol id="rvi-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4"></path></symbol>
+    <symbol id="rvi-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6.5 7l1 13h9l1-13M10 11v6M14 11v6"></path></symbol>
+    <symbol id="rvi-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></symbol>
+    <symbol id="rvi-doc" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M9 13h6M9 17h6"></path></symbol>
+    <symbol id="rvi-new" viewBox="0 0 24 24"><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM14 3v5h5M12 11v6M9 14h6"></path></symbol>
+    <symbol id="rvi-resub" viewBox="0 0 24 24"><path d="M14 3H7a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h4.5M14 3l5 5v3M14 3v5h5M21 16.5a3.6 3.6 0 1 1-1.1-2.6M21 12.8v3.3h-3.3"></path></symbol>
+    <symbol id="rvi-recheck" viewBox="0 0 24 24"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8M4 4v4h4M4 13a8 8 0 0 0 14.3 4.9L20 16M20 20v-4h-4"></path></symbol>
+    <symbol id="rvi-update" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4M14 20h6"></path></symbol>
+    <symbol id="rvi-msg" viewBox="0 0 24 24"><path d="M4 5h16v11H10l-6 4zM8 9.5h8M8 12.5h5"></path></symbol>
+    <symbol id="rvi-layers" viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5zM3 12.5l9 5 9-5M3 16.8l9 4.7 9-4.7"></path></symbol>
+    <symbol id="rvi-live" viewBox="0 0 24 24"><path d="M12 12h.01M8.6 15.4a4.8 4.8 0 0 1 0-6.8M15.4 8.6a4.8 4.8 0 0 1 0 6.8M5.7 18.3a8.9 8.9 0 0 1 0-12.6M18.3 5.7a8.9 8.9 0 0 1 0 12.6"></path></symbol>
+    <symbol id="rvi-help" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></symbol>
+    <symbol id="rvi-out" viewBox="0 0 24 24"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 16l4-4-4-4M14 12H4"></path></symbol>
+    <symbol id="rvi-calm" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"></path></symbol>
+    <symbol id="rvi-scope" viewBox="0 0 24 24"><path d="M12 3 5 6v5.5c0 4.3 3 8 7 9.5 4-1.5 7-5.2 7-9.5V6zM9.5 12.5h5"></path></symbol>
+    <symbol id="rvi-none" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM5.6 5.6l12.8 12.8"></path></symbol>
+    <symbol id="rvi-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5"></path></symbol>
+    <symbol id="rvi-play" viewBox="0 0 24 24"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM10.2 8.6v6.8l5.4-3.4z"></path></symbol>
+  </svg>
+
+  <sc-if value="{{ isSolo }}" hint-placeholder-val="{{ false }}">
+  <div class="rv-solo">
+    <div class="rv-solo-top"><span class="rv-solo-logo">Official WILP logo</span><span class="rv-solo-name">XR Learning Platform</span></div>
+    <main class="rv-solo-main" id="rv-top">
+      <div class="rv-msg">
+        <span class="rv-msg-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-out"></use></svg></span>
+        <h1 class="rb-h1" id="rv-h1-out" tabindex="-1">You’re signed out</h1>
+        <p class="rv-msg-d">Sign in again to continue reviewing. Your decisions are kept.</p>
+        <div class="rv-msg-act"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ signIn }}">Sign in</button></div>
+      </div>
+    </main>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isShell }}" hint-placeholder-val="{{ true }}">
+  <aside class="rb-rail" aria-label="Academic Reviewer workspace">
+    <div class="rb-brand">
+      <div class="rb-logo">Official WILP logo</div>
+      <p class="rb-product">XR Learning Platform</p>
+      <p class="rb-ws"><span class="rb-ws-role">Academic Reviewer</span></p>
+    </div>
+    <nav class="rb-nav" aria-label="Academic Reviewer navigation">
+      <a href="#rv-top" data-route="/reviewer" aria-current="{{ nav.ov }}" onClick="{{ goOverview }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+      <a href="#rv-top" data-route="/reviewer/queue" aria-current="{{ nav.q }}" onClick="{{ goQueue }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path></svg><span>Review queue</span><sc-if value="{{ hasNavCount }}" hint-placeholder-val="{{ true }}"><span class="rb-count"><span aria-hidden="true">{{ navCount }}</span><span class="xr-sr">, {{ navCountLabel }}</span></span></sc-if></a>
+      <a href="#rv-top" data-route="/reviewer/reviewed" aria-current="{{ nav.rb }}" onClick="{{ goReviewed }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></svg><span>Reviewed by me</span></a>
+    </nav>
+    <div class="rb-rail-foot">
+      <nav class="rb-nav" aria-label="Help"><a href="#rv-top" data-route="/reviewer/help" aria-current="{{ nav.help }}" onClick="{{ goHelp }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span>Help &amp; support</span></a></nav>
+    </div>
+  </aside>
+
+  <div class="rb-main">
+    <div class="rb-top">
+      <button type="button" class="rb-menu" id="rv-menu-btn" aria-expanded="{{ menuExp }}" onClick="{{ openMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>Menu</button>
+      <p class="rb-top-date">Thursday 27 August 2026</p>
+      <div class="rv-acctwrap" onKeyDown="{{ acctKey }}">
+        <button type="button" class="rb-acct" id="rv-acct-btn" aria-expanded="{{ acctExp }}" aria-controls="rv-acct-menu" aria-label="Account menu, Prof. A. Menon, Academic Reviewer" onClick="{{ toggleAcct }}"><span class="xr-avatar" aria-hidden="true">AM</span><span class="rb-acct-text" aria-hidden="true"><span class="rb-acct-name">Prof. A. Menon</span><span class="rb-acct-role">Academic Reviewer</span></span><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9.5l6 6 6-6"></path></svg></button>
+        <sc-if value="{{ acctOpen }}" hint-placeholder-val="{{ false }}">
+        <div class="rv-menu" id="rv-acct-menu">
+          <div class="rv-menu-head"><span class="rv-menu-name">Prof. A. Menon</span><span class="rv-menu-meta">Academic Reviewer</span></div>
+          <a class="rv-menu-item" id="rv-acct-help" href="#rv-top" onClick="{{ acctHelp }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-help"></use></svg>Help &amp; support</a>
+          <div class="rv-menu-sep" role="separator"></div>
+          <button type="button" class="rv-menu-item" onClick="{{ signOut }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-out"></use></svg>Sign out</button>
+        </div>
+        </sc-if>
+      </div>
+    </div>
+
+    <main class="rb-page" id="rv-top">
+
+      <sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">Thursday 27 August 2026</p>
+          <h1 class="rb-h1" id="rv-h1-ov" tabindex="-1">Overview</h1>
+          <p class="rk-sub">{{ OV.sub }}</p>
+        </div>
+        <div class="rk-head-act"><a class="rb-btn" href="#rv-top" onClick="{{ goQueue }}">Open the review queue</a></div>
+      </div>
+      <div class="rv-desk">
+        <section class="rb-panel rv-wait" aria-labelledby="rv-ov-h">
+          <div class="rv-wait-h"><h2 class="rb-h2" id="rv-ov-h">Waiting for your decision</h2><p class="rb-note">{{ OV.note }}</p></div>
+          <sc-if value="{{ OV.has }}" hint-placeholder-val="{{ true }}">
+          <div class="rv-next">
+            <p class="rv-next-k"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-clock"></use></svg>Next in line · waiting longest</p>
+            <div class="rv-next-body">
+              <div class="rv-next-main">
+                <span class="{{ OV.next.kindCls }}"><span class="rv-kind-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use class="rv-u-new" href="#rvi-new"></use><use class="rv-u-resub" href="#rvi-resub"></use><use class="rv-u-recheck" href="#rvi-recheck"></use><use class="rv-u-update" href="#rvi-update"></use></svg></span><span class="rv-kind-t">{{ OV.next.kindT }}</span><sc-if value="{{ OV.next.hasKindD }}" hint-placeholder-val="{{ false }}"><span class="rv-kind-d">{{ OV.next.kindD }}</span></sc-if></span>
+                <h3 class="rv-next-t">{{ OV.next.name }}</h3>
+                <p class="rv-next-meta"><span class="rv-meta-course"><span class="rk-code">{{ OV.next.course }}</span><span>{{ OV.next.courseName }}</span></span></p>
+                <p class="rv-from">{{ OV.next.from }}</p>
+                <div class="rv-next-facts">
+                  <span class="rk-fmts" role="img" aria-label="{{ OV.next.fmtAria }}"><sc-for list="{{ OV.next.fmts }}" as="f" hint-placeholder-count="1"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span>
+                  <sc-if value="{{ OV.next.hasFlag }}" hint-placeholder-val="{{ true }}"><span class="rk-tag-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-flag"></use></svg>{{ OV.next.flag }}</span></sc-if>
+                  <sc-if value="{{ OV.next.hasFocus }}" hint-placeholder-val="{{ false }}"><span class="rv-focus">{{ OV.next.focus }}</span></sc-if>
+                </div>
+              </div>
+              <div class="rv-next-side">
+                <p class="rv-age rv-age--lg"><b>{{ OV.next.age }}</b><span>{{ OV.next.since }}</span></p>
+                <a class="rb-btn rb-btn--primary rb-btn--lg rv-btn-wrap" href="#rv-top" aria-label="{{ OV.next.aria }}" onClick="{{ OV.next.open }}">{{ OV.next.act }}</a>
+              </div>
+            </div>
+          </div>
+          <sc-if value="{{ OV.hasRest }}" hint-placeholder-val="{{ true }}">
+          <h3 class="rv-then">Then, oldest first</h3>
+          <ul class="rv-wl">
+            <sc-for list="{{ OV.rest }}" as="r" hint-placeholder-count="3">
+            <li class="rv-wl-row">
+              <p class="rv-age"><b>{{ r.age }}</b><span>{{ r.since }}</span></p>
+              <div class="rv-wl-main">
+                <span class="{{ r.kindCls }}"><span class="rv-kind-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use class="rv-u-new" href="#rvi-new"></use><use class="rv-u-resub" href="#rvi-resub"></use><use class="rv-u-recheck" href="#rvi-recheck"></use><use class="rv-u-update" href="#rvi-update"></use></svg></span><span class="rv-kind-t">{{ r.kindT }}</span><sc-if value="{{ r.hasKindD }}" hint-placeholder-val="{{ false }}"><span class="rv-kind-d">{{ r.kindD }}</span></sc-if></span>
+                <p class="rv-wl-t">{{ r.name }}</p>
+                <p class="rv-wl-meta"><span class="rv-meta-course"><span class="rk-code">{{ r.course }}</span><span class="rv-wl-cname">{{ r.courseName }}</span></span></p>
+                <p class="rv-from">{{ r.from }}</p>
+                <sc-if value="{{ r.hasFocus }}" hint-placeholder-val="{{ true }}"><p class="rv-wl-focus">{{ r.focus }}</p></sc-if>
+                <sc-if value="{{ r.hasFlag }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-flag"></use></svg>{{ r.flag }}</span></sc-if>
+              </div>
+              <div class="rv-wl-act"><a class="rb-btn" href="#rv-top" aria-label="{{ r.aria }}" onClick="{{ r.open }}">{{ r.act }}</a></div>
+            </li>
+            </sc-for>
+          </ul>
+          </sc-if>
+          </sc-if>
+          <sc-if value="{{ OV.calm }}" hint-placeholder-val="{{ false }}">
+          <div class="rb-calm" role="status">
+            <span class="rb-calm-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-calm"></use></svg></span>
+            <p class="rb-calm-t">Nothing is waiting for your decision</p>
+            <p class="rb-calm-d">New submissions, updates and re-checks appear here when they reach you.</p>
+          </div>
+          <div class="rv-calm-act"><a class="rb-btn" href="#rv-top" onClick="{{ goReviewed }}">Open Reviewed by me</a></div>
+          </sc-if>
+        </section>
+
+        <div class="rv-side">
+          <sc-if value="{{ OV.has }}" hint-placeholder-val="{{ true }}">
+          <section class="rb-panel rv-sidecard" aria-labelledby="rv-ty-h">
+            <h2 class="rv-side-h" id="rv-ty-h">In your queue</h2>
+            <ul class="rv-types">
+              <sc-for list="{{ OV.types }}" as="t" hint-placeholder-count="3">
+              <li><a class="rv-type" href="#rv-top" aria-label="{{ t.aria }}" onClick="{{ t.go }}"><span class="{{ t.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use class="rv-u-new" href="#rvi-new"></use><use class="rv-u-recheck" href="#rvi-recheck"></use><use class="rv-u-update" href="#rvi-update"></use></svg></span><span><span class="rv-type-t">{{ t.t }}</span><span class="rv-type-d">{{ t.d }}</span></span><b class="rv-type-n" aria-hidden="true">{{ t.nTxt }}</b></a></li>
+              </sc-for>
+            </ul>
+          </section>
+          </sc-if>
+          <section class="rb-panel rv-sidecard" aria-labelledby="rv-sc-h">
+            <h2 class="rv-side-h" id="rv-sc-h">Your review scope</h2>
+            <ul class="rv-courses">
+              <sc-for list="{{ OV.courses }}" as="c" hint-placeholder-count="3">
+              <li><a class="rv-course" href="#rv-top" aria-label="{{ c.aria }}" onClick="{{ c.go }}"><span class="rk-code">{{ c.code }}</span><span class="rv-course-t">{{ c.t }}</span><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-right"></use></svg></a></li>
+              </sc-for>
+            </ul>
+            <p class="rv-side-note">Only these courses reach your queue.</p>
+          </section>
+          <section class="rb-panel rv-sidecard" aria-labelledby="rv-rc-h">
+            <div class="rv-side-hrow"><h2 class="rv-side-h" id="rv-rc-h">Recently decided</h2><a class="rb-link" href="#rv-top" onClick="{{ goReviewed }}">All decisions</a></div>
+            <sc-if value="{{ OV.hasRecent }}" hint-placeholder-val="{{ true }}">
+            <ul class="rv-recent">
+              <sc-for list="{{ OV.recent }}" as="h" hint-placeholder-count="3">
+              <li><a class="rv-recent-row" href="#rv-top" aria-label="{{ h.aria }}" onClick="{{ h.open }}"><span class="rv-recent-t">{{ h.name }}</span><span class="rv-recent-d"><span class="{{ h.stCls }}"><i></i>{{ h.dec }}</span><span>{{ h.when }}</span></span><span class="rv-recent-now">{{ h.now }}</span></a></li>
+              </sc-for>
+            </ul>
+            </sc-if>
+            <sc-if value="{{ OV.noRecent }}" hint-placeholder-val="{{ false }}"><p class="rv-side-note">Nothing decided yet. Your decisions appear here, newest first.</p></sc-if>
+          </section>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isQueue }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">Thursday 27 August 2026</p>
+          <h1 class="rb-h1" id="rv-h1-q" tabindex="-1">Review queue</h1>
+          <p class="rk-sub">Everything waiting for your academic decision, oldest first. Drafts are never listed.</p>
+        </div>
+      </div>
+      <section class="rk-surface" aria-label="Items waiting for your decision">
+        <sc-if value="{{ Q.showTools }}" hint-placeholder-val="{{ true }}">
+        <div class="rv-qtabs">
+          <div class="rk-tabs" role="tablist" aria-label="Review type" onKeyDown="{{ Q.tabKey }}">
+            <sc-for list="{{ Q.tabs }}" as="t" hint-placeholder-count="4"><button type="button" class="rk-tab" role="tab" id="{{ t.id }}" aria-selected="{{ t.sel }}" aria-controls="rv-q-panel" tabindex="{{ t.tab }}" onClick="{{ t.pick }}">{{ t.t }}<sc-if value="{{ t.hasN }}" hint-placeholder-val="{{ true }}"><span class="rv-tabn"><span class="xr-sr">, </span>{{ t.n }}</span></sc-if></button></sc-for>
+          </div>
+        </div>
+        <div class="rk-toolbar">
+          <div class="rk-tools" role="search" aria-label="Filter the review queue">
+            <div class="rk-field rk-search">
+              <label class="rk-label" for="rv-q-search">Search the queue</label>
+              <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-search"></use></svg><input id="rv-q-search" class="rk-input" type="search" placeholder="Name, course or sender" autocomplete="off" value="{{ Q.q }}" onChange="{{ Q.onQ }}"></div>
+            </div>
+            <div class="rk-field rk-field--st">
+              <label class="rk-label" for="rv-q-course">Course</label>
+              <div class="rk-selwrap"><select id="rv-q-course" class="rk-select" value="{{ Q.course }}" onChange="{{ Q.onCourse }}"><option value="all">All courses</option><sc-for list="{{ scopeCodes }}" as="c" hint-placeholder-count="3"><option value="{{ c }}">{{ c }}</option></sc-for></select><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-chev"></use></svg></div>
+            </div>
+          </div>
+          <sc-if value="{{ Q.showLine }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-statusline">
+            <sc-if value="{{ Q.showCount }}" hint-placeholder-val="{{ true }}"><p class="rk-count" role="status">{{ Q.count }}</p></sc-if>
+            <sc-for list="{{ Q.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-x"></use></svg></button></span></sc-for>
+            <sc-if value="{{ Q.hasFilters }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ Q.clear }}">Clear filters</button></sc-if>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <div id="rv-q-panel" role="{{ Q.panelRole }}" aria-labelledby="{{ Q.panelBy }}">
+        <sc-if value="{{ Q.has }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-tablewrap">
+          <table class="rk-table rv-qtable">
+            <caption>Items waiting for your decision, oldest first</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="rv-c-item">Experiment</th>
+                <th scope="col" class="rv-c-kind">Review type</th>
+                <th scope="col" class="rv-c-focus">What to look at</th>
+                <th scope="col" class="rv-c-when" aria-sort="descending">Waiting</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ Q.rows }}" as="r" hint-placeholder-count="4">
+              <tr onClick="{{ r.open }}">
+                <td class="rv-c-item"><a class="rk-rowlink" href="#rv-top" data-route="{{ r.route }}" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}">{{ r.name }}</a><span class="rv-cell-course"><span class="rk-code">{{ r.course }}</span>{{ r.courseName }}</span><span class="rv-cell-ref"><span class="rk-fmts" role="img" aria-label="{{ r.fmtAria }}"><sc-for list="{{ r.fmts }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></span></td>
+                <td class="rv-c-kind"><span class="{{ r.kindCls }}"><span class="rv-kind-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use class="rv-u-new" href="#rvi-new"></use><use class="rv-u-resub" href="#rvi-resub"></use><use class="rv-u-recheck" href="#rvi-recheck"></use><use class="rv-u-update" href="#rvi-update"></use></svg></span><span class="rv-kind-t">{{ r.kindT }}</span><sc-if value="{{ r.hasKindD }}" hint-placeholder-val="{{ false }}"><span class="rv-kind-d">{{ r.kindD }}</span></sc-if></span><span class="rk-small">{{ r.from }}</span></td>
+                <td class="rv-c-focus"><sc-if value="{{ r.hasFlag }}" hint-placeholder-val="{{ false }}"><span class="rk-tag-warn"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-flag"></use></svg>{{ r.flag }}</span></sc-if><sc-if value="{{ r.hasFocus }}" hint-placeholder-val="{{ true }}"><span class="rv-focus-t">{{ r.focus }}</span></sc-if></td>
+                <td class="rv-c-when"><span class="rk-inlabel">Waiting </span><span class="rv-age"><b>{{ r.age }}</b><span>{{ r.sinceTxt }}</span></span></td>
+              </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        </sc-if>
+        <sc-if value="{{ Q.none }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-search"></use></svg></span>
+          <p class="rk-state-t">No items match these filters</p>
+          <p class="rk-state-d">Try fewer filters, or a different spelling of the name, course or sender.</p>
+          <button type="button" class="rb-btn" onClick="{{ Q.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ Q.empty }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-inbox"></use></svg></span>
+          <p class="rk-state-t">Nothing is waiting for your decision</p>
+          <p class="rk-state-d">New submissions, updates from the Content Manager and re-checks appear here, oldest first.</p>
+          <a class="rb-btn" href="#rv-top" onClick="{{ goReviewed }}">Open Reviewed by me</a>
+        </div>
+        </sc-if>
+        <sc-if value="{{ Q.loading }}" hint-placeholder-val="{{ false }}">
+        <div aria-busy="true">
+          <p class="rk-loading-msg" role="status">Loading the review queue…</p>
+          <div class="rk-skel-row rv-skel4" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          <div class="rk-skel-row rv-skel4" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          <div class="rk-skel-row rv-skel4" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ Q.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="alert">
+          <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-cloud"></use></svg></span>
+          <p class="rk-state-t">We couldn’t load the review queue</p>
+          <p class="rk-state-d">Nothing has changed. Try again.</p>
+          <button type="button" class="rb-btn" onClick="{{ Q.retry }}">Try again</button>
+        </div>
+        </sc-if>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isReviewed }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">Thursday 27 August 2026</p>
+          <h1 class="rb-h1" id="rv-h1-rb" tabindex="-1">Reviewed by me</h1>
+          <p class="rk-sub">What you approved or returned, newest first. Opening one shows it read-only.</p>
+        </div>
+      </div>
+      <section class="rk-surface" aria-label="Your decisions">
+        <sc-if value="{{ R.showTools }}" hint-placeholder-val="{{ true }}">
+        <div class="rv-qtabs rv-qtabs--3">
+          <div class="rk-tabs" role="tablist" aria-label="Show" onKeyDown="{{ R.tabKey }}">
+            <sc-for list="{{ R.tabs }}" as="t" hint-placeholder-count="3"><button type="button" class="rk-tab" role="tab" id="{{ t.id }}" aria-selected="{{ t.sel }}" aria-controls="rv-r-panel" tabindex="{{ t.tab }}" onClick="{{ t.pick }}">{{ t.t }}<sc-if value="{{ t.hasN }}" hint-placeholder-val="{{ true }}"><span class="rv-tabn"><span class="xr-sr">, </span>{{ t.n }}</span></sc-if></button></sc-for>
+          </div>
+        </div>
+        <div class="rk-toolbar">
+          <div class="rk-tools rv-tools--solo" role="search" aria-label="Filter your decisions">
+            <div class="rk-field rk-search">
+              <label class="rk-label" for="rv-r-search">Search your decisions</label>
+              <div class="rk-inputwrap"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-search"></use></svg><input id="rv-r-search" class="rk-input" type="search" placeholder="Name or course" autocomplete="off" value="{{ R.q }}" onChange="{{ R.onQ }}"></div>
+            </div>
+          </div>
+          <sc-if value="{{ R.showLine }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-statusline">
+            <sc-if value="{{ R.showCount }}" hint-placeholder-val="{{ true }}"><p class="rk-count" role="status">{{ R.count }}</p></sc-if>
+            <sc-for list="{{ R.chips }}" as="c" hint-placeholder-count="0"><span class="rk-chip">{{ c.label }}<button type="button" aria-label="{{ c.aria }}" onClick="{{ c.rm }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-x"></use></svg></button></span></sc-for>
+            <sc-if value="{{ R.hasFilters }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ R.clear }}">Clear filters</button></sc-if>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <div id="rv-r-panel" role="{{ R.panelRole }}" aria-labelledby="{{ R.panelBy }}">
+        <sc-if value="{{ R.has }}" hint-placeholder-val="{{ true }}">
+        <div class="rk-tablewrap">
+          <table class="rk-table rv-rtable">
+            <caption>Your decisions, newest first</caption>
+            <thead>
+              <tr>
+                <th scope="col" class="rv-c-item">Experiment</th>
+                <th scope="col" class="rv-c-kind">Type</th>
+                <th scope="col" class="rv-c-dec" aria-sort="descending">Your decision</th>
+                <th scope="col" class="rv-c-now">Where it is now</th>
+              </tr>
+            </thead>
+            <tbody>
+              <sc-for list="{{ R.rows }}" as="r" hint-placeholder-count="8">
+              <tr onClick="{{ r.open }}">
+                <td class="rv-c-item"><a class="rk-rowlink" href="#rv-top" data-route="{{ r.route }}" onClick="{{ r.openLink }}" aria-label="{{ r.aria }}">{{ r.name }}</a><span class="rv-cell-course"><span class="rk-code">{{ r.course }}</span>{{ r.courseName }}</span></td>
+                <td class="rv-c-kind"><span class="{{ r.kindCls }}"><span class="rv-kind-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use class="rv-u-new" href="#rvi-new"></use><use class="rv-u-resub" href="#rvi-resub"></use><use class="rv-u-recheck" href="#rvi-recheck"></use><use class="rv-u-update" href="#rvi-update"></use></svg></span><span class="rv-kind-t">{{ r.kindT }}</span><sc-if value="{{ r.hasKindD }}" hint-placeholder-val="{{ false }}"><span class="rv-kind-d">{{ r.kindD }}</span></sc-if></span></td>
+                <td class="rv-c-dec"><span class="{{ r.stCls }}"><i></i>{{ r.dec }}</span><span class="rk-small"><span class="rk-inlabel">Decided </span>{{ r.when }}</span></td>
+                <td class="rv-c-now"><span class="rk-inlabel">Now: </span><span class="rv-now">{{ r.now }}</span></td>
+              </tr>
+              </sc-for>
+            </tbody>
+          </table>
+        </div>
+        </sc-if>
+        <sc-if value="{{ R.none }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="status">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-search"></use></svg></span>
+          <p class="rk-state-t">No decisions match these filters</p>
+          <p class="rk-state-d">Try fewer filters, or a different spelling of the name or course.</p>
+          <button type="button" class="rb-btn" onClick="{{ R.clear }}">Clear filters</button>
+        </div>
+        </sc-if>
+        <sc-if value="{{ R.empty }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state">
+          <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-calm"></use></svg></span>
+          <p class="rk-state-t">You haven’t decided anything yet</p>
+          <p class="rk-state-d">Items you approve or return appear here, newest first.</p>
+          <a class="rb-btn" href="#rv-top" onClick="{{ goQueue }}">Open the review queue</a>
+        </div>
+        </sc-if>
+        <sc-if value="{{ R.loading }}" hint-placeholder-val="{{ false }}">
+        <div aria-busy="true">
+          <p class="rk-loading-msg" role="status">Loading your decisions…</p>
+          <div class="rk-skel-row rv-skel4" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          <div class="rk-skel-row rv-skel4" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+          <div class="rk-skel-row rv-skel4" aria-hidden="true"><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div><div><span class="rk-skel"></span><span class="rk-skel"></span></div><div><span class="rk-skel"></span></div></div>
+        </div>
+        </sc-if>
+        <sc-if value="{{ R.failed }}" hint-placeholder-val="{{ false }}">
+        <div class="rk-state" role="alert">
+          <span class="rk-state-ico rk-state-ico--err" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-cloud"></use></svg></span>
+          <p class="rk-state-t">We couldn’t load your decisions</p>
+          <p class="rk-state-d">Nothing has changed. Try again.</p>
+          <button type="button" class="rb-btn" onClick="{{ R.retry }}">Try again</button>
+        </div>
+        </sc-if>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isItem }}" hint-placeholder-val="{{ false }}">
+      <div>
+      <p class="rb-eyebrow-date">Thursday 27 August 2026</p>
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#rv-top" onClick="{{ I.back }}">{{ I.fromLabel }}</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-right"></use></svg><span aria-current="page">{{ I.title }}</span></nav>
+      </div>
+      <header class="rv-idcard">
+        <div class="rv-id-top">
+          <div class="rv-id-text">
+            <p class="rv-id-eyebrow"><span class="{{ I.kindCls }}"><span class="rv-kind-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use class="rv-u-new" href="#rvi-new"></use><use class="rv-u-resub" href="#rvi-resub"></use><use class="rv-u-recheck" href="#rvi-recheck"></use><use class="rv-u-update" href="#rvi-update"></use></svg></span><span class="rv-kind-t">{{ I.kindT }}</span><sc-if value="{{ I.hasKindD }}" hint-placeholder-val="{{ true }}"><span class="rv-kind-d">{{ I.kindD }}</span></sc-if></span></p>
+            <h1 class="rk-title" id="rv-title" tabindex="-1">{{ I.title }}</h1>
+            <sc-if value="{{ I.hasLead }}" hint-placeholder-val="{{ true }}"><p class="rv-id-lead">{{ I.lead }}</p></sc-if>
+            <div class="rk-meta"><span class="rv-meta-main"><span class="{{ I.stClsLg }}"><i></i>{{ I.stLabel }}</span><span class="rv-meta-course"><span class="rk-code">{{ I.course }}</span>{{ I.courseName }}</span></span><span class="rv-meta-who">{{ I.who }}</span></div>
+          </div>
+          <a class="rb-btn rk-goto" href="#rv-panel">Go to decision</a>
+        </div>
+        <dl class="rv-id-facts"><sc-for list="{{ I.facts }}" as="f" hint-placeholder-count="4"><div class="rv-id-fact"><dt>{{ f.k }}</dt><dd>{{ f.v }}</dd></div></sc-for></dl>
+        <nav class="rv-onpage" aria-label="On this page"><span class="rv-onpage-k" aria-hidden="true">On this page</span><sc-for list="{{ I.anchors }}" as="a" hint-placeholder-count="4"><a href="{{ a.href }}" onClick="{{ a.go }}">{{ a.t }}<sc-if value="{{ a.hasN }}" hint-placeholder-val="{{ false }}"><span class="rv-onpage-n">{{ a.n }}</span></sc-if></a></sc-for></nav>
+      </header>
+
+      <div class="rk-detailwrap">
+        <div class="rk-detail rv-detail">
+          <div class="rk-mainsheet rv-main">
+
+            <sc-if value="{{ I.hasRecheck }}" hint-placeholder-val="{{ false }}">
+            <section class="rk-surface rv-block rv-block--attn" aria-labelledby="rv-s-recheck">
+              <div class="rv-band"><h2 class="rb-h2" id="rv-s-recheck" tabindex="-1"><span class="rv-band-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-recheck"></use></svg></span>Sent back for a re-check</h2><p class="rv-band-note">{{ I.recheckWhen }}</p></div>
+              <blockquote class="rk-quote rv-quote"><p>{{ I.recheckReason }}</p><p class="rk-quote-by">{{ I.recheckBy }}</p></blockquote>
+              <p class="rk-next" style="margin-top: 12px">Check it again and approve, or return it to the vendor.</p>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ I.hasChanges }}" hint-placeholder-val="{{ false }}">
+            <section class="rk-surface rv-block" aria-labelledby="rv-s-chg">
+              <div class="rv-band"><h2 class="rb-h2" id="rv-s-chg" tabindex="-1"><span class="rv-band-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-resub"></use></svg></span>{{ I.chgTitle }}</h2><p class="rv-band-note">Only what the vendor changed</p></div>
+              <div class="rv-chg">
+                <blockquote class="rk-quote rv-quote"><p>“{{ I.prevReason }}”</p><p class="rk-quote-by">{{ I.prevBy }}</p></blockquote>
+                <div class="rv-cmpwrap">
+                  <div class="rv-cmp" role="table" aria-label="{{ I.chgTitle }}">
+                    <div class="rv-cmp-row rv-cmp-row--head" role="row"><span class="xr-sr" role="columnheader">Field</span><span role="columnheader">Was</span><span role="columnheader">Now</span></div>
+                    <sc-for list="{{ I.changes }}" as="c" hint-placeholder-count="1">
+                    <div class="rv-cmp-row" role="row"><span class="rv-cmp-f" role="rowheader">{{ c.f }}</span><span class="rv-cmp-v rv-cmp-v--was" role="cell"><span class="rv-cmp-k">Was</span><del>{{ c.was }}</del></span><span class="rv-cmp-v" role="cell"><span class="rv-cmp-k">Now</span>{{ c.now }}</span></div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ I.hasWhy }}" hint-placeholder-val="{{ false }}">
+            <section class="rk-surface rv-block" aria-labelledby="rv-s-why">
+              <div class="rv-band"><h2 class="rb-h2" id="rv-s-why" tabindex="-1"><span class="rv-band-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-msg"></use></svg></span>Why this correction</h2><p class="rv-band-note">From the Content Manager</p></div>
+              <blockquote class="rk-quote rv-quote"><p>{{ I.why }}</p><p class="rk-quote-by">{{ I.whyBy }}</p></blockquote>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ I.hasCmp }}" hint-placeholder-val="{{ false }}">
+            <section class="rk-surface rv-block" aria-labelledby="rv-s-cmp">
+              <div class="rv-block-h"><h2 class="rb-h2" id="rv-s-cmp" tabindex="-1">What changes</h2><p class="rb-note">{{ I.cmpNote }}</p></div>
+              <div class="rv-cmpwrap">
+                <div class="rv-cmp" role="table" aria-label="What changes, live now against proposed">
+                  <div class="rv-cmp-row rv-cmp-row--head" role="row"><span class="xr-sr" role="columnheader">Field</span><span role="columnheader">Live now · {{ I.liveVer }}</span><span role="columnheader">Proposed · {{ I.newVer }}</span></div>
+                  <sc-for list="{{ I.cmp }}" as="c" hint-placeholder-count="3">
+                  <div class="rv-cmp-row" role="row"><span class="rv-cmp-f" role="rowheader">{{ c.f }}</span><span class="rv-cmp-v rv-cmp-v--was" role="cell"><span class="rv-cmp-k">Live now · {{ I.liveVer }}</span><sc-for list="{{ c.live }}" as="s" hint-placeholder-count="1"><sc-if value="{{ s.mark }}" hint-placeholder-val="{{ false }}"><del>{{ s.t }}</del></sc-if><sc-if value="{{ s.plain }}" hint-placeholder-val="{{ true }}">{{ s.t }}</sc-if></sc-for></span><span class="rv-cmp-v" role="cell"><span class="rv-cmp-k">Proposed · {{ I.newVer }}</span><sc-for list="{{ c.prop }}" as="s" hint-placeholder-count="1"><sc-if value="{{ s.mark }}" hint-placeholder-val="{{ false }}"><ins>{{ s.t }}</ins></sc-if><sc-if value="{{ s.plain }}" hint-placeholder-val="{{ true }}">{{ s.t }}</sc-if></sc-for></span></div>
+                  </sc-for>
+                </div>
+              </div>
+              <p class="rv-footnote">Removed text is struck through; added text is highlighted.</p>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ I.hasLo }}" hint-placeholder-val="{{ true }}">
+            <section class="{{ I.loBlockCls }}" aria-labelledby="rv-s-lo">
+              <div class="rv-lo-head">
+                <div class="rv-lo-headtext"><h2 class="rb-h2" id="rv-s-lo" tabindex="-1">Learning outcomes</h2><p class="rv-lo-sub">{{ I.loSub }}</p></div>
+                <span class="{{ I.loReqCls }}"><svg viewBox="0 0 24 24" aria-hidden="true"><use class="rv-u-check" href="#rvi-check"></use><use class="rv-u-alert" href="#rvi-alert"></use><use class="rv-u-lock" href="#rvi-lock"></use></svg>{{ I.loReq }}</span>
+              </div>
+              <sc-if value="{{ I.loEditable }}" hint-placeholder-val="{{ true }}">
+              <div class="rv-lowrap">
+                <sc-if value="{{ I.loHasMsg }}" hint-placeholder-val="{{ false }}"><div class="rv-lo-msg" id="rv-lo-msg" tabindex="-1" role="status"><span>{{ I.loMsg }}</span><sc-if value="{{ I.loCanUndo }}" hint-placeholder-val="{{ false }}"><button type="button" class="rk-clear" onClick="{{ I.loUndo }}">Undo</button></sc-if></div></sc-if>
+                <sc-if value="{{ I.loHas }}" hint-placeholder-val="{{ true }}">
+                <ol class="rv-lo" aria-label="Learning outcomes">
+                  <sc-for list="{{ I.lo }}" as="o" hint-placeholder-count="3">
+                  <li class="{{ o.cls }}">
+                    <span class="rv-lo-n" aria-hidden="true">{{ o.n }}</span>
+                    <sc-if value="{{ o.viewing }}" hint-placeholder-val="{{ true }}">
+                    <p class="rv-lo-t"><span class="xr-sr">Outcome {{ o.n }}: </span>{{ o.t }}</p>
+                    <div class="rv-lo-act">
+                      <button type="button" class="rb-btn rb-btn--ghost rv-ibtn" id="{{ o.upId }}" aria-label="Move outcome {{ o.n }} up" disabled="{{ o.upDis }}" onClick="{{ o.up }}"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-up"></use></svg></button>
+                      <button type="button" class="rb-btn rb-btn--ghost rv-ibtn" id="{{ o.dnId }}" aria-label="Move outcome {{ o.n }} down" disabled="{{ o.dnDis }}" onClick="{{ o.dn }}"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-down"></use></svg></button>
+                      <button type="button" class="rb-btn rb-btn--ghost rv-ibtn-t" id="{{ o.edId }}" aria-label="Edit outcome {{ o.n }}" disabled="{{ o.lockDis }}" onClick="{{ o.edit }}"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-edit"></use></svg>Edit</button>
+                      <button type="button" class="rb-btn rb-btn--ghost rv-ibtn-t" aria-label="Delete outcome {{ o.n }}" disabled="{{ o.lockDis }}" onClick="{{ o.del }}"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-trash"></use></svg>Delete</button>
+                    </div>
+                    </sc-if>
+                    <sc-if value="{{ o.editing }}" hint-placeholder-val="{{ false }}">
+                    <div class="rv-lo-edit">
+                      <label class="rk-label" for="{{ o.taId }}">Outcome {{ o.n }}</label>
+                      <textarea id="{{ o.taId }}" class="rk-textarea" value="{{ I.edText }}" aria-invalid="{{ I.edInv }}" aria-describedby="{{ I.edDesc }}" onChange="{{ I.onEdText }}"></textarea>
+                      <sc-if value="{{ I.hasEdErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="rv-lo-ed-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>{{ I.edErr }}</p></sc-if>
+                      <div class="rv-lo-editact"><button type="button" class="rb-btn rb-btn--navy" onClick="{{ o.save }}">Save outcome</button><button type="button" class="rb-btn" onClick="{{ o.cancel }}">Cancel</button></div>
+                    </div>
+                    </sc-if>
+                  </li>
+                  </sc-for>
+                </ol>
+                </sc-if>
+                <sc-if value="{{ I.loNone }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-notice rk-notice--warn">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-flag"></use></svg>
+                  <p class="rk-notice-t">No learning outcomes yet</p>
+                  <p class="rk-notice-d">Approve needs at least one. Add what a learner can do after this experiment; the same list applies to every format.</p>
+                </div>
+                </sc-if>
+                <div class="rv-lo-add">
+                  <div class="rk-field">
+                    <label class="rk-label" for="rv-lo-new">Add a learning outcome</label>
+                    <p class="rk-hint" id="rv-lo-new-hint">What a learner can do after the experiment. Start with a verb.</p>
+                    <div class="rv-lo-addrow">
+                      <input id="rv-lo-new" class="rk-input" type="text" autocomplete="off" value="{{ I.newText }}" aria-invalid="{{ I.newInv }}" aria-describedby="rv-lo-new-hint rv-lo-new-err rv-lo-err" onChange="{{ I.onNewText }}">
+                      <button type="button" class="rb-btn" onClick="{{ I.addLo }}">Add outcome</button>
+                    </div>
+                    <sc-if value="{{ I.hasNewErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="rv-lo-new-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>{{ I.newErr }}</p></sc-if>
+                    <sc-if value="{{ I.he.outcomes }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="rv-lo-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>{{ I.e.outcomes }}</p></sc-if>
+                  </div>
+                </div>
+              </div>
+              </sc-if>
+              <sc-if value="{{ I.loReadonly }}" hint-placeholder-val="{{ false }}">
+              <ol class="rv-lo-ro" aria-label="Learning outcomes"><sc-for list="{{ I.loRo }}" as="t" hint-placeholder-count="2"><li>{{ t }}</li></sc-for></ol>
+              </sc-if>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ I.hasVendor }}" hint-placeholder-val="{{ true }}">
+            <section class="rk-surface rv-block" aria-labelledby="rv-s-det">
+              <div class="rv-block-h"><div><p class="rv-block-k">{{ I.vendorK }}</p><h2 class="rb-h2" id="rv-s-det" tabindex="-1">Description and documents</h2></div><p class="rb-note">Read-only</p></div>
+              <sc-if value="{{ I.hasDesc }}" hint-placeholder-val="{{ true }}"><div class="rv-prose"><h3 class="rv-mini-h">Description</h3><p>{{ I.desc }}</p></div></sc-if>
+              <sc-if value="{{ I.showAttach }}" hint-placeholder-val="{{ true }}">
+              <div class="rv-attach">
+                <h3 class="rv-mini-h">Preview and documents</h3>
+                <ul class="rv-files">
+                  <sc-if value="{{ I.hasPreview }}" hint-placeholder-val="{{ true }}"><li><a class="rv-filecard rv-filecard--link" href="{{ I.previewUrl }}" target="_blank" rel="noopener noreferrer"><span class="rv-file-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-play"></use></svg></span><span class="rv-file-text"><span class="rv-file-t">{{ I.previewLabel }}</span><span class="rv-file-d">Preview link · opens in a new tab</span></span><svg class="rv-file-go" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-ext"></use></svg></a></li></sc-if>
+                  <sc-if value="{{ I.noPreviewOnly }}" hint-placeholder-val="{{ false }}"><li class="rv-filecard rv-filecard--none"><span class="rv-file-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-play"></use></svg></span><span class="rv-file-text"><span class="rv-file-t">No preview link</span></span></li></sc-if>
+                  <sc-for list="{{ I.docs }}" as="f" hint-placeholder-count="2"><li class="rv-filecard"><span class="rv-file-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-doc"></use></svg></span><span class="rv-file-text"><span class="rv-file-t">{{ f }}</span></span></li></sc-for>
+                  <sc-if value="{{ I.noDocsOnly }}" hint-placeholder-val="{{ false }}"><li class="rv-filecard rv-filecard--none"><span class="rv-file-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-doc"></use></svg></span><span class="rv-file-text"><span class="rv-file-t">No documents</span></span></li></sc-if>
+                  <sc-if value="{{ I.noAttach }}" hint-placeholder-val="{{ false }}"><li class="rv-filecard rv-filecard--none rv-filecard--wide"><span class="rv-file-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-doc"></use></svg></span><span class="rv-file-text"><span class="rv-file-t">No preview link or documents</span></span></li></sc-if>
+                </ul>
+              </div>
+              </sc-if>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ I.hasLive }}" hint-placeholder-val="{{ false }}">
+            <section class="rk-surface rv-block" aria-labelledby="rv-s-live">
+              <div class="rv-block-h"><div><p class="rv-block-k">Read-only context</p><h2 class="rb-h2" id="rv-s-live" tabindex="-1">The live experiment</h2></div><p class="rb-note">{{ I.liveNote }}</p></div>
+              <h3 class="rv-mini-h">Learning outcomes in version {{ I.liveVer }}</h3>
+              <ol class="rv-lo-ro"><sc-for list="{{ I.liveLo }}" as="t" hint-placeholder-count="2"><li>{{ t }}</li></sc-for></ol>
+              <p class="rv-footnote">Learning outcomes are not part of this correction.</p>
+            </section>
+            </sc-if>
+
+            <sc-if value="{{ I.hasDeliv }}" hint-placeholder-val="{{ true }}">
+            <section class="rk-surface rv-block" aria-labelledby="rv-s-del">
+              <div class="rv-block-h"><div><p class="rv-block-k">{{ I.vendorK }}</p><h2 class="rb-h2" id="rv-s-del" tabindex="-1">Formats and delivery</h2></div><p class="rb-note">Read-only</p></div>
+              <p class="rv-fmtline"><span class="rv-fmtline-row"><span class="rv-fmtline-in"><span class="rv-fmtline-k">In this submission</span><span class="rk-fmts" role="img" aria-label="{{ I.fmtInAria }}"><sc-for list="{{ I.fmts }}" as="f" hint-placeholder-count="2"><span class="xr-fmt" aria-hidden="true">{{ f }}</span></sc-for></span></span><sc-if value="{{ I.hasFmtOut }}" hint-placeholder-val="{{ true }}"><span class="rv-fmtline-out">Not included: {{ I.fmtOut }}</span></sc-if></span></p>
+              <div class="rv-deliv">
+                <sc-for list="{{ I.deliv }}" as="d" hint-placeholder-count="2">
+                <div class="rv-dcard">
+                  <div class="rv-dcard-h"><span class="xr-fmt" aria-hidden="true">{{ d.code }}</span><h3 class="rv-dcard-t"><span class="xr-sr">{{ d.code }}, </span>{{ d.title }}</h3><span class="rv-dcard-k">{{ d.kind }}</span></div>
+                  <sc-if value="{{ d.isWeb }}" hint-placeholder-val="{{ true }}">
+                  <dl class="rk-dl"><dt>Web link</dt><dd>{{ d.link }}</dd><dt>Browser and computer</dt><dd>{{ d.browser }}</dd></dl>
+                  <div class="rv-dcard-act"><a class="rb-btn rv-ext" href="{{ d.link }}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" aria-hidden="true" class="xr-ico"><use href="#rvi-ext"></use></svg>Open web link<span class="xr-sr"> (opens in a new tab)</span></a></div>
+                  </sc-if>
+                  <sc-if value="{{ d.isPkg }}" hint-placeholder-val="{{ false }}">
+                  <dl class="rk-dl"><dt>Package</dt><dd>{{ d.label }}</dd><dt>Device needed</dt><dd>{{ d.device }}<sc-if value="{{ d.changed }}" hint-placeholder-val="{{ false }}"><span class="rv-tag">Changed in revision {{ I.rev }}</span></sc-if></dd></dl>
+                  <sc-if value="{{ d.hasMore }}" hint-placeholder-val="{{ false }}">
+                  <div class="rv-dcard-act"><button type="button" class="rb-btn" aria-expanded="{{ d.exp }}" aria-controls="{{ d.pkgId }}" onClick="{{ d.toggle }}"><svg class="xr-ico xr-ico--18" viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-chev"></use></svg>{{ d.toggleLabel }}</button></div>
+                  <sc-if value="{{ d.open }}" hint-placeholder-val="{{ false }}"><div class="rv-pkg" id="{{ d.pkgId }}"><dl class="rk-dl"><dt>Package reference</dt><dd>{{ d.ref }}</dd><dt>Install notes</dt><dd>{{ d.install }}</dd></dl></div></sc-if>
+                  </sc-if>
+                  </sc-if>
+                </div>
+                </sc-for>
+              </div>
+              <p class="rv-footnote">You see delivery details and web links only. Opening a link is not a test on a real device.</p>
+            </section>
+            </sc-if>
+          </div>
+
+          <aside class="rk-aside" id="rv-panel" aria-labelledby="rv-panel-h">
+            <div class="rk-panel">
+              <div class="rk-panel-head"><h2 id="rv-panel-h">Your decision</h2></div>
+              <div class="rk-panel-body">
+                <sc-if value="{{ I.hasRefusal }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-notice rk-notice--warn rv-refusal" id="rv-refusal" tabindex="-1" role="alert">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>
+                  <p class="rk-notice-t">{{ I.refusalT }}</p>
+                  <p class="rk-notice-d">{{ I.refusalD }}</p>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ I.open }}" hint-placeholder-val="{{ true }}">
+                <div class="rv-ready">
+                  <p class="rv-ready-h">Before you decide</p>
+                  <ul class="rv-ready-list">
+                    <sc-for list="{{ I.ready }}" as="x" hint-placeholder-count="2"><li class="{{ x.cls }}" id="{{ x.id }}"><span class="{{ x.icoCls }}" aria-hidden="true"><svg viewBox="0 0 24 24"><use class="rv-u-check" href="#rvi-check"></use><use class="rv-u-alert" href="#rvi-alert"></use><use class="rv-u-layers" href="#rvi-layers"></use><use class="rv-u-recheck" href="#rvi-recheck"></use><use class="rv-u-resub" href="#rvi-resub"></use><use class="rv-u-live" href="#rvi-live"></use><use class="rv-u-update" href="#rvi-update"></use></svg></span><span><b>{{ x.t }}</b> {{ x.d }}<sc-if value="{{ x.hasLink }}" hint-placeholder-val="{{ false }}"> <a href="{{ x.href }}" onClick="{{ x.go }}">{{ x.link }}</a></sc-if></span></li></sc-for>
+                  </ul>
+                </div>
+                <sc-if value="{{ I.hasErrs }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-errsum" id="rv-errs" tabindex="-1" role="alert">
+                  <p class="rk-errsum-t">Check your decision</p>
+                  <ul><sc-for list="{{ I.errList }}" as="er" hint-placeholder-count="1"><li><a href="{{ er.href }}" onClick="{{ er.go }}">{{ er.t }}</a></li></sc-for></ul>
+                </div>
+                </sc-if>
+                <fieldset class="{{ I.choiceFs }}">
+                  <legend>Decision</legend>
+                  <div class="rk-choices">
+                    <sc-for list="{{ I.choices }}" as="c" hint-placeholder-count="2"><label class="rk-choice" for="{{ c.id }}"><input type="radio" name="rv-choice" id="{{ c.id }}" checked="{{ c.checked }}" aria-describedby="rv-whole" onChange="{{ c.onChange }}"><span class="rk-choice-t">{{ c.t }}</span><span class="rk-choice-d">{{ c.d }}</span></label></sc-for>
+                  </div>
+                  <sc-if value="{{ I.he.choice }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="rv-choice-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>{{ I.e.choice }}</p></sc-if>
+                </fieldset>
+                <sc-if value="{{ I.he.editing }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>{{ I.e.editing }}</p></sc-if>
+
+                <sc-if value="{{ I.isReturn }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-field">
+                  <label class="rk-label" for="rv-reason">{{ I.reasonLabel }}</label>
+                  <p class="rk-hint" id="rv-reason-hint">{{ I.reasonHint }}</p>
+                  <textarea id="rv-reason" class="rk-textarea" value="{{ I.reason }}" aria-invalid="{{ I.reasonInv }}" aria-describedby="rv-reason-hint rv-reason-err" onChange="{{ I.onReason }}"></textarea>
+                  <sc-if value="{{ I.he.reason }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="rv-reason-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>{{ I.e.reason }}</p></sc-if>
+                </div>
+                <sc-if value="{{ I.hasRefOpts }}" hint-placeholder-val="{{ false }}">
+                <fieldset class="rk-fieldset">
+                  <legend>What it refers to (optional)<span>The vendor sees these as links to the fields, above their editor.</span></legend>
+                  <div class="rv-refgrps"><sc-for list="{{ I.refGroups }}" as="g" hint-placeholder-count="3"><fieldset class="rv-refgrp"><legend class="rv-refgrp-h">{{ g.title }}</legend><div class="rv-refs"><sc-for list="{{ g.opts }}" as="o" hint-placeholder-count="2"><label class="rv-ref" for="{{ o.id }}"><input type="checkbox" id="{{ o.id }}" checked="{{ o.checked }}" onChange="{{ o.onChange }}"><span>{{ o.f }}</span></label></sc-for></div></fieldset></sc-for></div>
+                </fieldset>
+                </sc-if>
+                </sc-if>
+
+                <sc-if value="{{ I.hasPending }}" hint-placeholder-val="{{ false }}"><p class="rk-pending"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-clock"></use></svg>{{ I.pending }}</p></sc-if>
+                <button type="button" class="rb-btn rb-btn--primary rk-go" id="rv-go" onClick="{{ I.go }}">{{ I.goLabel }}</button>
+                <div class="rv-path">
+                  <p class="rv-path-h">What happens next</p>
+                  <ol class="rv-path-list"><sc-for list="{{ I.path }}" as="p" hint-placeholder-count="3"><li class="{{ p.cls }}"><span class="rv-path-n" aria-hidden="true">{{ p.n }}</span><span><span class="rv-path-t">{{ p.t }}</span><span class="rv-path-d">{{ p.d }}</span></span></li></sc-for></ol>
+                </div>
+                </sc-if>
+
+                <sc-if value="{{ I.done }}" hint-placeholder-val="{{ false }}">
+                <div class="rk-done" id="rv-done" tabindex="-1">
+                  <p><span class="{{ I.doneStCls }}"><i></i>{{ I.doneLabel }}</span></p>
+                  <sc-if value="{{ I.hasDoneMeta }}" hint-placeholder-val="{{ true }}"><p class="rk-done-meta">{{ I.doneMeta }}</p></sc-if>
+                  <sc-if value="{{ I.hasDoneReason }}" hint-placeholder-val="{{ false }}"><div class="rv-done-q"><b>Your reason</b>“{{ I.doneReason }}”<sc-if value="{{ I.hasDoneRefs }}" hint-placeholder-val="{{ false }}"><ul class="rv-reflist"><sc-for list="{{ I.doneRefs }}" as="r" hint-placeholder-count="1"><li>{{ r }}</li></sc-for></ul></sc-if></div></sc-if>
+                  <dl class="rk-stand"><sc-for list="{{ I.stand }}" as="st" hint-placeholder-count="3"><div><dt>{{ st.k }}</dt><dd>{{ st.v }}</dd></div></sc-for></dl>
+                  <sc-if value="{{ I.hasNext }}" hint-placeholder-val="{{ true }}"><p class="rk-next">{{ I.next }}</p></sc-if>
+                  <a class="rb-btn" href="#rv-top" onClick="{{ I.back }}">{{ I.backLabel }}</a>
+                </div>
+                </sc-if>
+              </div>
+            </div>
+          </aside>
+
+          <section class="{{ I.histCls }}" aria-labelledby="rv-s-hist">
+            <div class="rv-block-h"><h2 class="rb-h2" id="rv-s-hist" tabindex="-1">{{ I.histTitle }}</h2><p class="rb-note">Newest first</p></div>
+            <ol class="rk-tl">
+              <sc-for list="{{ I.hist }}" as="h" hint-placeholder-count="2"><li class="{{ h.cls }}"><p class="rk-tl-w">{{ h.w }}</p><p class="rk-tl-t">{{ h.t }}</p><sc-if value="{{ h.hasN }}" hint-placeholder-val="{{ false }}"><p class="rk-tl-n">{{ h.n }}</p></sc-if></li></sc-for>
+            </ol>
+          </section>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isRefusal }}" hint-placeholder-val="{{ false }}">
+      <div class="rv-msgpage">
+        <p class="rb-eyebrow-date">Thursday 27 August 2026</p>
+        <div class="rk-surface rv-msg rv-msgcard">
+          <span class="rv-msg-ico" aria-hidden="true"><sc-if value="{{ M.scope }}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24"><use href="#rvi-scope"></use></svg></sc-if><sc-if value="{{ M.unavailable }}" hint-placeholder-val="{{ false }}"><svg viewBox="0 0 24 24"><use href="#rvi-none"></use></svg></sc-if></span>
+          <h1 class="rb-h1" id="rv-h1-msg" tabindex="-1">{{ M.title }}</h1>
+          <p class="rv-msg-d">{{ M.d }}</p>
+          <div class="rv-msg-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#rv-top" onClick="{{ goQueue }}">Back to the review queue</a><a class="rb-link" href="#rv-top" onClick="{{ goHelp }}">Help &amp; support</a></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isHelp }}" hint-placeholder-val="{{ false }}">
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rb-eyebrow-date">Thursday 27 August 2026</p>
+          <h1 class="rb-h1" id="rv-h1-help" tabindex="-1">Help &amp; support</h1>
+          <p class="rk-sub">Something isn’t working? Report it here and follow what happens.</p>
+        </div>
+        <sc-if value="{{ HP.hasReports }}" hint-placeholder-val="{{ false }}"><div class="rk-head-act"><a class="rb-btn rb-btn--primary" href="#rv-top" onClick="{{ HP.toForm }}">Report a problem</a></div></sc-if>
+      </div>
+      <section aria-labelledby="rv-hp-h" style="display: flex; flex-direction: column; gap: 14px">
+        <div class="rb-sec-head"><h2 class="rb-h2" id="rv-hp-h">My reports</h2><p class="rb-note">{{ HP.count }}</p></div>
+        <div class="rb-queue">
+          <sc-if value="{{ HP.hasReports }}" hint-placeholder-val="{{ false }}">
+          <div class="rb-g"><ul class="rb-rows">
+            <sc-for list="{{ HP.reports }}" as="r" hint-placeholder-count="1">
+            <li class="rb-row"><div class="rb-row-main"><p class="rb-row-t"><a class="rk-rowlink" href="#rv-top" onClick="{{ r.open }}">{{ r.title }}</a></p><p class="rb-row-d">{{ r.ref }} · sent {{ r.sent }}</p></div><p class="rb-row-when"><b>{{ r.sentShort }}</b><span>sent</span></p><div class="rb-row-act"><span class="xr-st xr-st--info"><i></i>Open</span></div></li>
+            </sc-for>
+          </ul></div>
+          </sc-if>
+          <sc-if value="{{ HP.noReports }}" hint-placeholder-val="{{ true }}">
+          <div class="rk-state">
+            <span class="rk-state-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-help"></use></svg></span>
+            <p class="rk-state-t">No reports yet</p>
+            <p class="rk-state-d">If something isn’t working, report it and follow it here.</p>
+            <a class="rb-btn rb-btn--primary" href="#rv-top" onClick="{{ HP.toForm }}">Report a problem</a>
+          </div>
+          </sc-if>
+        </div>
+      </section>
+      </sc-if>
+
+      <sc-if value="{{ isReport }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#rv-top" onClick="{{ goHelp }}">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-right"></use></svg><span aria-current="page">Report a problem</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <h1 class="rb-h1" id="rv-h1-rep" tabindex="-1">Report a problem</h1>
+          <p class="rk-sub">Describe what went wrong. You can follow your report in My reports.</p>
+        </div>
+      </div>
+      <div class="rk-surface" style="max-width: 760px">
+        <div class="rk-sec" style="display: flex; flex-direction: column; gap: 20px">
+          <sc-if value="{{ HP.hasErr }}" hint-placeholder-val="{{ false }}">
+          <div class="rk-errsum" id="rv-hp-errs" tabindex="-1" role="alert"><p class="rk-errsum-t">One thing needs fixing</p><ul><li><a href="#rv-hp-what" onClick="{{ HP.goWhat }}">Say what happened</a></li></ul></div>
+          </sc-if>
+          <div class="rk-field">
+            <label class="rk-label" for="rv-hp-what">What happened?</label>
+            <p class="rk-hint" id="rv-hp-what-hint">Say what you were doing and what you saw.</p>
+            <textarea id="rv-hp-what" class="rk-textarea" value="{{ HP.what }}" aria-invalid="{{ HP.whatInv }}" aria-describedby="rv-hp-what-hint rv-hp-what-err" onChange="{{ HP.onWhat }}"></textarea>
+            <sc-if value="{{ HP.hasErr }}" hint-placeholder-val="{{ false }}"><p class="rk-ferr" id="rv-hp-what-err"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-alert"></use></svg>Say what happened, so it can be looked into</p></sc-if>
+          </div>
+          <div class="rk-field">
+            <label class="rk-label" for="rv-hp-where">Where did it happen?</label>
+            <p class="rk-hint" id="rv-hp-where-hint">Filled in from the page you came from. Change it if needed.</p>
+            <input id="rv-hp-where" class="rk-input" type="text" autocomplete="off" value="{{ HP.where }}" aria-describedby="rv-hp-where-hint" onChange="{{ HP.onWhere }}">
+          </div>
+          <div class="rk-field">
+            <label class="rk-label" for="rv-hp-shot">Screenshot (optional)</label>
+            <p class="rk-hint" id="rv-hp-shot-hint">A picture of the screen can help.</p>
+            <input id="rv-hp-shot" class="rv-file" type="file" accept="image/*" aria-describedby="rv-hp-shot-hint" onChange="{{ HP.onShot }}">
+          </div>
+          <div class="rv-formact"><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" onClick="{{ HP.send }}">Send report</button><a class="rb-btn rb-btn--lg" href="#rv-top" onClick="{{ goHelp }}">Cancel</a></div>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isSent }}" hint-placeholder-val="{{ false }}">
+      <div class="rv-msg">
+        <span class="rv-msg-ico rv-msg-ico--ok" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#rvi-check"></use></svg></span>
+        <h1 class="rb-h1" id="rv-h1-sent" tabindex="-1">Report sent</h1>
+        <p class="rv-msg-d">Your reference is {{ HP.lastRef }}. You can follow it in My reports.</p>
+        <div class="rv-msg-act"><a class="rb-btn rb-btn--primary rb-btn--lg" href="#rv-top" onClick="{{ goHelp }}">View my reports</a><a class="rb-btn rb-btn--lg" href="#rv-top" onClick="{{ goOverview }}">Back to Overview</a></div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isReportDetail }}" hint-placeholder-val="{{ false }}">
+      <nav class="rk-crumbs" aria-label="Breadcrumb"><a href="#rv-top" onClick="{{ goHelp }}">Help &amp; support</a><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-right"></use></svg><span aria-current="page">{{ HD.ref }}</span></nav>
+      <div class="rk-head">
+        <div class="rk-head-text">
+          <p class="rk-eyebrow">{{ HD.ref }}</p>
+          <h1 class="rk-title" id="rv-h1-rd" tabindex="-1">{{ HD.title }}</h1>
+          <div class="rk-meta"><span class="xr-st xr-st--info rk-st-lg"><i></i>Open</span><span>Sent {{ HD.sent }}</span></div>
+        </div>
+      </div>
+      <div class="rk-surface" style="max-width: 860px">
+        <section class="rk-sec" aria-labelledby="rv-rd-what">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="rv-rd-what">What you reported</h2></div>
+          <dl class="rk-dl"><dt>What happened</dt><dd>{{ HD.what }}</dd><dt>Where</dt><dd>{{ HD.where }}</dd><dt>Screenshot</dt><dd>{{ HD.shot }}</dd></dl>
+        </section>
+        <section class="rk-sec" aria-labelledby="rv-rd-hist">
+          <div class="rk-sec-h"><h2 class="rb-h2" id="rv-rd-hist">History</h2></div>
+          <ol class="rk-tl"><li class="is-latest"><p class="rk-tl-w">Sent</p><p class="rk-tl-t">{{ HD.sent }}</p></li></ol>
+        </section>
+        <section class="rk-sec"><p class="rk-next">Something else isn’t working? <a class="rb-link" href="#rv-top" onClick="{{ HP.toForm }}">Report a problem</a></p></section>
+      </div>
+      </sc-if>
+
+    </main>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ I.confirm }}" hint-placeholder-val="{{ false }}">
+  <div class="rk-scrim" aria-hidden="true"></div>
+  <div class="rk-dialog" role="dialog" aria-modal="true" aria-labelledby="rv-dlg-t" aria-describedby="rv-dlg-d" onKeyDown="{{ I.dlgKey }}">
+    <div class="rk-dlg-head"><h2 id="rv-dlg-t" tabindex="-1">{{ I.dlgTitle }}</h2><p id="rv-dlg-d">Check what approving does now, and what happens only after later decisions.</p></div>
+    <div class="rk-dlg-body">
+      <div class="rk-dlg-group rk-dlg-now"><h3>What happens now</h3><ul class="rk-dlg-list"><sc-for list="{{ I.nowList }}" as="n" hint-placeholder-count="2"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-check"></use></svg><span>{{ n }}</span></li></sc-for></ul></div>
+      <div class="rk-dlg-group rk-dlg-later"><h3>Only after later decisions</h3><ul class="rk-dlg-list"><sc-for list="{{ I.laterList }}" as="n" hint-placeholder-count="2"><li><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#rvi-clock"></use></svg><span>{{ n }}</span></li></sc-for></ul></div>
+    </div>
+    <div class="rk-dlg-foot"><button type="button" class="rb-btn rb-btn--lg" id="rv-dlg-cancel" onClick="{{ I.cancel }}">Cancel</button><button type="button" class="rb-btn rb-btn--primary rb-btn--lg" id="rv-dlg-ok" onClick="{{ I.doConfirm }}">{{ I.dlgOk }}</button></div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+  <button type="button" class="rb-scrim" aria-label="Close menu" tabindex="-1" onClick="{{ closeMenu }}"></button>
+  <div class="rb-drawer" role="dialog" aria-modal="true" aria-label="Menu" onKeyDown="{{ drawerKey }}">
+    <div class="rb-drawer-head">
+      <p class="rb-product">XR Learning Platform</p>
+      <button type="button" class="rb-close" id="rv-menu-close" aria-label="Close menu" onClick="{{ closeMenu }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+    </div>
+    <div class="rb-brand" style="padding-top: 0"><div class="rb-logo">Official WILP logo</div><p class="rb-ws"><span class="rb-ws-role">Academic Reviewer</span></p></div>
+    <nav class="rb-nav" aria-label="Academic Reviewer navigation">
+      <a href="#rv-top" aria-current="{{ nav.ov }}" onClick="{{ goOverview }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 4h7v4h-7zM13 10h7v10h-7zM4 13h7v7H4z"></path></svg><span>Overview</span></a>
+      <a href="#rv-top" aria-current="{{ nav.q }}" onClick="{{ goQueue }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01"></path></svg><span>Review queue</span><sc-if value="{{ hasNavCount }}" hint-placeholder-val="{{ true }}"><span class="rb-count"><span aria-hidden="true">{{ navCount }}</span><span class="xr-sr">, {{ navCountLabel }}</span></span></sc-if></a>
+      <a href="#rv-top" aria-current="{{ nav.rb }}" onClick="{{ goReviewed }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM8 12.5l2.7 2.7L16 9.8"></path></svg><span>Reviewed by me</span></a>
+    </nav>
+    <div class="rb-rail-foot"><nav class="rb-nav" aria-label="Help"><a href="#rv-top" aria-current="{{ nav.help }}" onClick="{{ goHelp }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM9.6 9.4a2.5 2.5 0 0 1 4.9.8c0 1.7-2.5 2.2-2.5 3.8M12 17h.01"></path></svg><span>Help &amp; support</span></a></nav></div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"view":{"editor":"enum","options":["overview","queue","reviewed","item","help","report","signedout"],"default":"overview","section":"State"},"record":{"editor":"enum","options":["","SUB-0077","SUB-0086","SUB-0071","UPD-0005","SUB-0074","SUB-0081","SUB-0070","SUB-0052","UPD-0004","UPD-0003","UPD-0006","draft-withdrawn"],"default":"","section":"State"},"preset":{"editor":"enum","options":["","approve-blocked","return-errors","return-filled","confirm","approved","returned","deleted","editing","package-open","stale-armed","stale","elsewhere"],"default":"","section":"State"},"listPreset":{"editor":"enum","options":["","filtered","nomatch","loading","failed","empty"],"default":"","section":"State"},"scope":{"editor":"enum","options":["full","che-withdrawn"],"default":"full","section":"State"},"overlay":{"editor":"enum","options":["","drawer","account"],"default":"","section":"State"},"helpPreset":{"editor":"enum","options":["","errors","sent"],"default":"","section":"State"},"$preview":{"width":1440,"height":1199}}'>
+class Component extends DCLogic {
+  static get COURSES() { return { 'ME ZG523': 'Thermodynamics & Heat Transfer', 'MEL ZG512': 'Manufacturing Processes', 'CHE ZG513': 'Process Instrumentation & Control', 'EEE ZC341': 'Electrical Machines' }; }
+  static get SCOPES() { return { full: ['ME ZG523', 'MEL ZG512', 'CHE ZG513'], 'che-withdrawn': ['ME ZG523', 'MEL ZG512'] }; }
+  static get FN() { return { WEB: 'Browser', AR: 'Augmented reality', VR: 'Virtual reality', MR: 'Mixed reality' }; }
+  static get FM() { return ['WEB', 'AR', 'VR', 'MR']; }
+  // Sample clock: the first three are v46 sample times (B6-04, B6-12); later ones are illustrative.
+  static get TIMES() { return ['27 Aug 2026, 11:20', '27 Aug 2026, 14:05', '27 Aug 2026, 15:20', '27 Aug 2026, 16:10', '27 Aug 2026, 16:45', '27 Aug 2026, 17:20']; }
+  // Records: v46 B6-01…B6-04, B6-11…B6-13, B7-11 sample world as of Thu 27 Aug 2026 (scenario rv-2026-08-27). See SCENARIOS.json.
+  static get REC() {
+    return {
+      'SUB-0086': { kind: 'sub', name: 'Flash Distillation', course: 'CHE ZG513', who: 'Meridian Virtual Labs', rev: 1, st: 'with_rv', since: '24 Aug 2026', iso: '2026-08-24', fmts: ['WEB'],
+        summary: 'Flash a hot binary feed across a valve into a drum and find the vapour fraction from your own readings.',
+        desc: 'Learners set the feed temperature and the drum pressure, read the vapour and liquid flows, and compare the vapour fraction with an equilibrium calculation.',
+        version: '1.0', preview: null, docs: ['Flash drum handout.pdf'], deliv: { WEB: { link: 'https://labs.meridian.example/flash-distillation', browser: 'A current browser on a laptop or desktop' } },
+        lo: [], hist: [{ w: 'Submitted for academic review', t: '24 Aug 2026, 14:10', n: 'Revision 1 · from Meridian Virtual Labs' }] },
+      'SUB-0071': { kind: 'sub', name: 'Venturi Meter Calibration', course: 'CHE ZG513', who: 'Meridian Virtual Labs', rev: 1, st: 'recheck', since: '25 Aug 2026', iso: '2026-08-25', fmts: ['WEB', 'AR'],
+        summary: 'Calibrate a Venturi meter against a weigh tank and find its discharge coefficient.',
+        desc: 'Learners vary the flow, read the throat and inlet pressures and the collected mass, and plot the discharge coefficient against the Reynolds number.',
+        version: '1.0', preview: null, docs: [], deliv: { WEB: { link: 'https://labs.meridian.example/venturi', browser: 'A current browser on a laptop or desktop' }, AR: { label: 'Venturi — AR build 1.0', device: 'Phone or tablet with a rear camera, Android 12 / iOS 16 or later' } },
+        recheck: { by: 'Kavya Nair, Content Manager', when: '25 Aug 2026, 10:42', reason: 'The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes.' },
+        lo: ['Calibrate a Venturi meter against a weigh tank.', 'Compare the discharge coefficient with a Pitot tube reading.', 'Explain where the pressure is recovered downstream of the throat.'],
+        hist: [{ w: 'Sent back to the Academic Reviewer by Kavya Nair', t: '25 Aug 2026, 10:42', n: '“The second learning outcome mentions a Pitot tube, which this experiment does not use. Please check the outcomes.”' }, { w: 'Approved by Prof. A. Menon', t: '18 Aug 2026, 11:30', n: 'Sent to the Content Manager with 3 learning outcomes.' }, { w: 'Submitted for academic review', t: '10 Aug 2026, 09:20', n: 'Revision 1 · from Meridian Virtual Labs' }] },
+      'UPD-0005': { kind: 'upd', name: 'Distillation Column', course: 'CHE ZG513', who: 'Kavya Nair', st: 'in_review', since: '25 Aug 2026', iso: '2026-08-25', fmts: ['WEB', 'VR'], liveVer: '1.2', liveSince: '3 Jul 2026', newVer: '1.3', vendor: 'Meridian Virtual Labs', sent: '25 Aug 2026, 16:00',
+        cmp: [
+          { f: 'Description', live: [{ t: 'Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. ' }, { t: 'Lowering', m: 1 }, { t: ' the reflux ratio raises the overhead purity, at the cost of more reboiler heat.' }],
+            prop: [{ t: 'Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. ' }, { t: 'Raising', m: 1 }, { t: ' the reflux ratio raises the overhead purity, at the cost of more reboiler heat.' }] },
+          { f: 'WEB · web link', live: [{ t: 'https://labs.meridian.example/distillation-column' }], prop: [{ t: 'https://labs.meridian.example/distillation-column' }, { t: '-1-3', m: 1 }] },
+          { f: 'Version', live: [{ t: '1.2', m: 1 }], prop: [{ t: '1.3', m: 1 }] }],
+        why: 'Corrects the reflux statement in the description: raising the reflux ratio raises overhead purity — v1.2 says the opposite. The web link moves to build 1.3, which carries the same correction in its on-screen notes.',
+        summary: 'Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.',
+        lo: ['Bring a column to steady state from cold start', 'Tune reflux ratio against an overhead purity target'],
+        hist: [{ w: 'Sent for academic review', t: '25 Aug 2026, 16:00', n: 'To Prof. A. Menon. The live version 1.2 is unchanged.' }, { w: 'Correction started from the published experiment', t: '25 Aug 2026, 15:40', n: 'Pre-filled with the live version 1.2.' }] },
+      'SUB-0077': { kind: 'sub', name: 'Conduction Through a Composite Wall', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 2, st: 'with_rv', since: '26 Aug 2026', iso: '2026-08-26', resub: '26 Aug 2026', fmts: ['WEB', 'VR'],
+        summary: 'Measure the temperature profile across a three-layer wall and compare it with the series-resistance model.',
+        desc: 'Learners build a wall from three layers — brick, insulation and plaster — set the hot-side and cold-side temperatures, and read the temperature at each interface. They compare the measured profile and heat flux with the series thermal-resistance model and explain where the two differ.',
+        version: '1.0', preview: { label: 'Two-minute walkthrough', url: 'https://media.northline.example/composite-wall-walkthrough' }, docs: ['Lab handout — Composite Wall.pdf', 'Thermocouple positions.pdf'],
+        deliv: { WEB: { link: 'https://labs.northline.example/composite-wall', browser: 'A current Chrome, Edge, Firefox or Safari on a laptop or desktop, with a keyboard and mouse' },
+          VR: { label: 'Composite Wall — VR build 1.0', ref: 'NSS-CW-VR-1.0', device: 'Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor', install: 'Install the build named above on the headset and open “Composite Wall Lab”. On first launch, set the play-area boundary.', changed: true } },
+        prevReturn: { when: '19 Aug 2026', reason: 'Please clarify the VR device requirements.' },
+        changes: [{ f: 'Formats & delivery · VR · Device need', was: 'VR headset', now: 'Standalone VR headset — no PC or cable needed — and about 2 × 2 m of clear floor' }],
+        lo: ['Explain conduction through layers in series using thermal resistance.', 'Predict interface temperatures from layer properties.', 'Compare measured and predicted heat flux and explain the difference.'],
+        hist: [{ w: 'Resubmitted · revision 2', t: '26 Aug 2026, 11:30', n: 'Northline Simulation Studio changed the VR device need.' }, { w: 'Returned to vendor by Prof. A. Menon', t: '19 Aug 2026, 16:05', n: '“Please clarify the VR device requirements.”' }, { w: 'Submitted for academic review', t: '12 Aug 2026, 10:52', n: 'Revision 1 · from Northline Simulation Studio' }] },
+      'SUB-0074': { kind: 'sub', name: 'Transient Cooling', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 1, st: 'with_cm', fmts: ['WEB'],
+        summary: 'Cool a heated cylinder in still air and water, and test when the lumped-capacitance model holds.',
+        desc: 'Learners heat aluminium and steel cylinders, log their cooling in air and in water, and compare the curves with the lumped model using the Biot number.',
+        version: '1.0', preview: null, docs: [], deliv: { WEB: { link: 'https://labs.northline.example/transient-cooling', browser: 'A current browser on a laptop or desktop' } },
+        lo: ['Decide when the lumped-capacitance model applies, using the Biot number.', 'Estimate a heat transfer coefficient from a measured cooling curve.'],
+        past: { dec: 'approved', when: '14 Aug 2026, 15:10' },
+        hist: [{ w: 'Approved by Prof. A. Menon', t: '14 Aug 2026, 15:10', n: 'Sent to the Content Manager with 2 learning outcomes. Nothing is published.' }, { w: 'Submitted for academic review', t: '6 Aug 2026, 12:02', n: 'Revision 1 · from Northline Simulation Studio' }] },
+      'SUB-0081': { kind: 'sub', name: 'Forced Convection', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 1, st: 'returned', fmts: ['WEB', 'AR'], partial: true,
+        past: { dec: 'returned', when: '24 Aug 2026', reason: 'The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.', refs: ['Formats & delivery · AR · Device need', 'Formats & delivery · AR · Install notes'] },
+        hist: [{ w: 'Returned to vendor by Prof. A. Menon', t: '24 Aug 2026', n: '“The AR install notes don’t say which phones and tablets it runs on. Add the supported devices and the install steps.”' }] },
+      'SUB-0070': { kind: 'sub', name: 'Packed Bed Pressure Drop', course: 'CHE ZG513', who: 'Meridian Virtual Labs', rev: 1, st: 'with_cm', fmts: ['WEB', 'AR'], partial: true,
+        summary: 'Push air through a packed bed and compare the pressure drop you measure with the Ergun equation.',
+        desc: 'Learners change the air flow through beds of glass beads and Raschig rings, read the pressure drop, and fit the Ergun constants from their own data.', version: '1.0',
+        past: { dec: 'approved', when: '21 Aug 2026, 10:15' },
+        hist: [{ w: 'Approved by Prof. A. Menon', t: '21 Aug 2026, 10:15', n: 'Sent to the Content Manager.' }, { w: 'Submitted for academic review', t: '12 Aug 2026, 13:00', n: 'Revision 1 · from Meridian Virtual Labs' }] },
+      'SUB-0052': { kind: 'sub', name: 'Fin-Tube Bundle', course: 'ME ZG523', who: 'Northline Simulation Studio', rev: 1, st: 'published', pubWhen: '30 Jul 2026', fmts: ['WEB', 'VR'], partial: true,
+        summary: 'Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.',
+        past: { dec: 'approved', when: '24 Jul 2026' },
+        hist: [{ w: 'Published by the Content Manager', t: '30 Jul 2026', n: '' }, { w: 'Approved by Prof. A. Menon', t: '24 Jul 2026', n: 'Sent to the Content Manager.' }] },
+      'UPD-0004': { kind: 'upd', name: 'Boiler Drum Level', course: 'CHE ZG513', who: 'Kavya Nair', st: 'awaiting', newVer: '2.1', fmts: null, partial: true,
+        past: { dec: 'approved', when: '14 Aug 2026' },
+        hist: [{ w: 'Approved by Prof. A. Menon', t: '14 Aug 2026', n: 'With the Super Admin for a release decision.' }] },
+      'UPD-0003': { kind: 'upd', name: 'Orifice Plate Metering', course: 'CHE ZG513', who: 'Kavya Nair', st: 'released', newVer: '1.1', relWhen: '5 Aug 2026', fmts: null, partial: true,
+        past: { dec: 'approved', when: '30 Jul 2026' },
+        hist: [{ w: 'Released by the Super Admin', t: '5 Aug 2026', n: 'Version 1.1 is live.' }, { w: 'Approved by Prof. A. Menon', t: '30 Jul 2026', n: 'With the Super Admin for a release decision.' }] },
+      'UPD-0006': { kind: 'upd', name: 'Induction Motor Loading', course: 'EEE ZC341', who: 'Kavya Nair', st: 'returned', newVer: '1.1', fmts: null, partial: true,
+        past: { dec: 'returned', when: '26 Aug 2026' }, hist: [] }
+    };
+  }
+  // Reviewed by me, as v46 B6-02 lists it (newest first). Rows outside the effective scope are not shown (UPD-0006: see OD-B7-15 in SCENARIOS.json).
+  static get RB() {
+    return [
+      { key: 'h-upd6', id: 'UPD-0006', dec: 'returned', when: '26 Aug 2026', iso: '2026-08-26' },
+      { key: 'h-sub81', id: 'SUB-0081', dec: 'returned', when: '24 Aug 2026', iso: '2026-08-24' },
+      { key: 'h-sub70', id: 'SUB-0070', dec: 'approved', when: '21 Aug 2026', iso: '2026-08-21' },
+      { key: 'h-sub77', id: 'SUB-0077', dec: 'returned', rev: 1, when: '19 Aug 2026', iso: '2026-08-19' },
+      { key: 'h-sub71', id: 'SUB-0071', dec: 'approved', when: '18 Aug 2026', iso: '2026-08-18' },
+      { key: 'h-sub74', id: 'SUB-0074', dec: 'approved', when: '14 Aug 2026', iso: '2026-08-14' },
+      { key: 'h-upd4', id: 'UPD-0004', dec: 'approved', when: '14 Aug 2026', iso: '2026-08-14' },
+      { key: 'h-upd3', id: 'UPD-0003', dec: 'approved', when: '30 Jul 2026', iso: '2026-07-30' },
+      { key: 'h-sub52', id: 'SUB-0052', dec: 'approved', when: '24 Jul 2026', iso: '2026-07-24' }
+    ];
+  }
+  // Return references the vendor can follow (v46 B6-11 state 2 · OD-B5-10). Offered only for the formats the submission has.
+  static get REFS() {
+    return [
+      { k: 'summary', g: 'Course & description ·', f: 'Summary' }, { k: 'desc', g: 'Course & description ·', f: 'Description' },
+      { k: 'WEB_link', fmt: 'WEB', g: 'Formats & delivery · WEB ·', f: 'Web link' }, { k: 'WEB_browser', fmt: 'WEB', g: 'Formats & delivery · WEB ·', f: 'Browser and computer' },
+      { k: 'AR_pkg', fmt: 'AR', g: 'Formats & delivery · AR ·', f: 'Package' }, { k: 'AR_device', fmt: 'AR', g: 'Formats & delivery · AR ·', f: 'Device need' }, { k: 'AR_install', fmt: 'AR', g: 'Formats & delivery · AR ·', f: 'Install notes' },
+      { k: 'VR_pkg', fmt: 'VR', g: 'Formats & delivery · VR ·', f: 'Package' }, { k: 'VR_device', fmt: 'VR', g: 'Formats & delivery · VR ·', f: 'Device need' }, { k: 'VR_install', fmt: 'VR', g: 'Formats & delivery · VR ·', f: 'Install notes' },
+      { k: 'MR_pkg', fmt: 'MR', g: 'Formats & delivery · MR ·', f: 'Package' }, { k: 'MR_device', fmt: 'MR', g: 'Formats & delivery · MR ·', f: 'Device need' }, { k: 'MR_install', fmt: 'MR', g: 'Formats & delivery · MR ·', f: 'Install notes' },
+      { k: 'preview', g: 'Preview & documents ·', f: 'Preview link' }
+    ];
+  }
+
+  state = { view: null, rec: null, from: null, where: null, menu: null, acct: null, q: null, qType: null, qCourse: null, qMode: null, r: null, rShow: null, rMode: null, dec: {}, done: {}, rows: [], clock: 0, help: null, signedOut: false };
+
+  scope() { return Component.SCOPES[this.props.scope === 'che-withdrawn' ? 'che-withdrawn' : 'full']; }
+  rec(id) { return Component.REC[id] || null; }
+  T(v) { return String(v == null ? '' : v).trim(); }
+  plural(n, w) { return n + ' ' + w + (n === 1 ? '' : 's'); }
+  focusId(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) { el.focus(); if (el.scrollIntoView) el.scrollIntoView({ block: 'nearest' }); } }, 60); }
+  goAnchor(id) { window.setTimeout(() => { const el = document.getElementById(id); if (el) { if (el.scrollIntoView) el.scrollIntoView({ block: 'start' }); try { el.focus({ preventScroll: true }); } catch (e) { el.focus(); } } }, 30); }
+  toTop() { try { window.scrollTo(0, 0); } catch (e) {} }
+  ageOf(iso) { const d = Math.round((Date.UTC(2026, 7, 27) - Date.parse(iso + 'T00:00:00Z')) / 86400000); return d <= 0 ? 'Today' : d === 1 ? '1 day' : d + ' days'; }
+  short(when) { return String(when).split(' ').slice(0, 2).join(' '); }
+  courseName(code) { return Component.COURSES[code] || ''; }
+  andList(a) { a = (a || []).filter(Boolean); return a.length <= 1 ? (a[0] || '') : a.slice(0, -1).join(', ') + ' and ' + a[a.length - 1]; }
+  excerpt(t, n) { t = String(t || ''); return t.length <= n ? t : t.slice(0, n).replace(/\s+\S*$/, '') + '…'; }
+  // "Formats & delivery · VR · Device need" → "VR device need"; "WEB · web link" → "web link"; "Description" → "description"
+  fieldShort(f) {
+    const p = String(f).split(' · '), last = p[p.length - 1], lf = last.charAt(0).toLowerCase() + last.slice(1);
+    const code = p.length > 1 && /^(WEB|AR|VR|MR)$/.test(p[p.length - 2]) ? p[p.length - 2] : '';
+    return code && !/^web link/.test(lf) ? code + ' ' + lf : lf;
+  }
+
+  // ── presentation helpers: the review type, where it came from and what to look at first (derived from the record; no ranking, no new rules)
+  kindOf(id) {
+    const R = this.rec(id);
+    if (R.kind === 'upd') return { key: 'update', t: 'Update', d: R.liveVer ? R.liveVer + ' → ' + R.newVer : 'to version ' + R.newVer };
+    if (R.st === 'recheck') return { key: 'recheck', t: 'Re-check', d: '' };
+    if (R.rev > 1) return { key: 'resub', t: 'Resubmitted', d: 'revision ' + R.rev };
+    return { key: 'new', t: 'New submission', d: '' };
+  }
+  // the tag's icon is picked in CSS from the rv-kind--<key> class (all four icons are in the markup; no bound href)
+  kindVals(id) { const k = this.kindOf(id); return { kindCls: 'rv-kind rv-kind--' + k.key, kindT: k.t, kindD: k.d, hasKindD: !!k.d }; }
+  // who sent it, with the revision kept visible for submissions (the resubmission's revision number is in its type tag)
+  fromOf(id) {
+    const R = this.rec(id);
+    if (R.kind === 'upd') return 'From ' + R.who + ', Content Manager';
+    if (R.st === 'recheck') return 'Revision ' + (R.rev || 1) + ' · sent back by ' + R.recheck.by;
+    if (R.rev > 1) return (R.resub ? 'Resubmitted ' + this.short(R.resub) + ' · ' : '') + 'from ' + R.who;
+    return 'Revision ' + (R.rev || 1) + ' · from ' + R.who;
+  }
+  focusOf(id) {
+    const R = this.rec(id), lo = this.loOf(id);
+    if (R.kind === 'upd') { const f = (R.cmp || []).map(c => c.f).filter(x => x !== 'Version').map(x => this.fieldShort(x)); return { flag: '', text: f.length ? 'Changes the ' + this.andList(f) + ' · version ' + R.newVer : '' }; }
+    if (R.st === 'recheck') return { flag: '', text: '“' + this.excerpt(R.recheck.reason, 74) + '”' };
+    if (R.rev > 1 && R.changes && R.changes.length) return { flag: '', text: 'Changed since your return: ' + this.andList(R.changes.map(c => this.fieldShort(c.f))) };
+    return lo.length ? { flag: '', text: this.plural(lo.length, 'learning outcome') + ' set by you' } : { flag: 'No learning outcomes yet', text: '' };
+  }
+  typeOf(id) { const R = this.rec(id); return R.kind === 'upd' ? 'upd' : R.st === 'recheck' ? 'recheck' : 'sub'; }
+
+  // ── access: the reviewer reads only items in the effective scope; unsent or withdrawn-before-sent drafts are never readable
+  access(id) {
+    const R = this.rec(id);
+    if (!R) return 'unavailable';
+    if (this.scope().indexOf(R.course) < 0) return 'scope';
+    return 'ok';
+  }
+  qEmpty() { return this.props.listPreset === 'empty' && (this.props.view === 'queue' || this.props.view === 'overview'); }
+  rEmpty() { return this.props.listPreset === 'empty' && this.props.view === 'reviewed'; }
+
+  // ── presets for inspection boards (a starting state only; everything stays usable)
+  startRec() { return this.props.view === 'item' && this.props.record ? this.props.record : null; }
+  presetDec(id) {
+    if (id !== this.startRec()) return {};
+    const R = this.rec(id), upd = R && R.kind === 'upd';
+    switch (this.props.preset) {
+      case 'approve-blocked': return { choice: 'approve', errs: { outcomes: 'Add at least one learning outcome before you approve' } };
+      case 'return-errors': return { choice: 'return', errs: { reason: upd ? 'Add a reason so the Content Manager knows what to change' : 'Add a reason so the vendor knows what to change' } };
+      case 'return-filled': return upd ? { choice: 'return', reason: 'The corrected sentence is right. Please also say that the purity gain levels off at high reflux, as the build 1.3 notes do.' }
+        : { choice: 'return', reason: 'Please say which standalone headsets the VR build runs on, so institutions can check their devices.', refs: ['VR_device', 'VR_install'] };
+      case 'confirm': return { choice: 'approve', confirm: true };
+      case 'deleted': return R && R.lo && R.lo.length > 1 ? { lo: R.lo.filter((x, i) => i !== 1), msg: 'Outcome 2 deleted.', undo: { t: R.lo[1], i: 1 } } : {};
+      case 'editing': return R && R.lo && R.lo.length > 1 ? { ed: 1, edText: R.lo[1] } : {};
+      case 'package-open': return { pkg: { VR: true, AR: true, MR: true } };
+      case 'stale-armed': return { choice: 'approve', staleArmed: true };
+      case 'stale': return { refusal: 'stale' };
+      case 'elsewhere': return { refusal: 'elsewhere' };
+      default: return {};
+    }
+  }
+  presetDone(id) {
+    if (id !== this.startRec()) return null;
+    const R = this.rec(id), upd = R && R.kind === 'upd';
+    switch (this.props.preset) {
+      case 'approved': return { dec: 'approved', when: upd ? '27 Aug 2026, 11:20' : '27 Aug 2026, 15:20', nlo: R && R.lo ? R.lo.length : 0 };
+      case 'returned': return upd ? { dec: 'returned', when: '27 Aug 2026, 11:20', reason: 'The corrected sentence is right. Please also say that the purity gain levels off at high reflux, as the build 1.3 notes do.' }
+        : { dec: 'returned', when: '27 Aug 2026, 15:20', reason: 'Please say which standalone headsets the VR build runs on, so institutions can check their devices.', refs: ['Formats & delivery · VR · Device need', 'Formats & delivery · VR · Install notes'] };
+      case 'stale': return { dec: 'withdrawn', when: '27 Aug 2026' };
+      case 'elsewhere': return { dec: 'approved', when: '27 Aug 2026, 15:20', nlo: R && R.lo ? R.lo.length : 0, elsewhere: true };
+      default: return null;
+    }
+  }
+  decOf(id) {
+    const base = { choice: null, reason: '', refs: [], errs: {}, confirm: false, refusal: null, staleArmed: false, lo: null, ed: -1, edText: '', edErr: '', newText: '', newErr: '', msg: '', undo: null, pkg: {} };
+    return Object.assign(base, this.presetDec(id), this.state.dec[id] || {});
+  }
+  decSet(id, patch) { const cur = this.decOf(id); this.setState({ dec: Object.assign({}, this.state.dec, { [id]: Object.assign({}, cur, patch) }) }); }
+  doneOf(id) { return this.state.done[id] || this.presetDone(id); }
+  loOf(id) { const d = this.decOf(id), R = this.rec(id); return d.lo || (R && R.lo ? R.lo.slice() : []); }
+  isWaiting(id) { const R = this.rec(id); return !!R && (R.st === 'with_rv' || R.st === 'recheck' || R.st === 'in_review') && !this.doneOf(id); }
+  queueIds() {
+    if (this.qEmpty()) return [];
+    return Object.keys(Component.REC).filter(id => this.isWaiting(id) && this.access(id) === 'ok').sort((a, b) => this.rec(a).iso.localeCompare(this.rec(b).iso));
+  }
+  nowTime() { const T = Component.TIMES; return T[Math.min(this.state.clock, T.length - 1)]; }
+
+  // ── where a record stands now, as the reviewer is allowed to see it (no hold or withdrawal reasons: audience filtered)
+  standing(id) {
+    const R = this.rec(id), d = this.doneOf(id);
+    if (d) {
+      if (d.dec === 'withdrawn') return { key: 'withdrawn', label: 'Withdrawn by the Content Manager', cls: 'xr-st rk-st-ended', now: 'Withdrawn by the Content Manager' };
+      if (R.kind === 'upd') return d.dec === 'approved' ? { key: 'awaiting', label: 'Approved — with the Super Admin', cls: 'xr-st xr-st--ok', now: 'With the Super Admin for a release decision' } : { key: 'returned', label: 'Returned to the Content Manager', cls: 'xr-st xr-st--err', now: 'With the Content Manager' };
+      return d.dec === 'approved' ? { key: 'with_cm', label: 'Approved — with the Content Manager', cls: 'xr-st xr-st--ok', now: 'With the Content Manager · not published' } : { key: 'returned', label: 'Returned to vendor', cls: 'xr-st xr-st--err', now: 'With the vendor to revise' };
+    }
+    switch (R.st) {
+      case 'with_rv': return { key: 'waiting', label: 'Waiting for your decision', cls: 'xr-st xr-st--info', now: R.rev > 1 ? 'Revision ' + R.rev + ' is in your queue' : 'In your queue' };
+      case 'recheck': return { key: 'waiting', label: 'Waiting for your decision', cls: 'xr-st xr-st--info', now: 'Back in your queue for a re-check' };
+      case 'in_review': return { key: 'waiting', label: 'Waiting for your decision', cls: 'xr-st xr-st--info', now: 'In your queue' };
+      case 'with_cm': return { key: 'with_cm', label: 'Approved — with the Content Manager', cls: 'xr-st xr-st--ok', now: 'With the Content Manager · not published' };
+      case 'published': return { key: 'published', label: 'Approved — published', cls: 'xr-st xr-st--ok', now: 'Published on ' + R.pubWhen };
+      case 'returned': return R.kind === 'upd' ? { key: 'returned', label: 'Returned to the Content Manager', cls: 'xr-st xr-st--err', now: 'With the Content Manager' } : { key: 'returned', label: 'Returned to vendor', cls: 'xr-st xr-st--err', now: 'With the vendor to revise' };
+      case 'awaiting': return { key: 'awaiting', label: 'Approved — with the Super Admin', cls: 'xr-st xr-st--ok', now: 'With the Super Admin for a release decision' };
+      case 'released': return { key: 'released', label: 'Approved — released', cls: 'xr-st xr-st--ok', now: 'Released on ' + R.relWhen + ' · version ' + R.newVer + ' is live' };
+      default: return { key: 'none', label: '', cls: 'xr-st', now: '' };
+    }
+  }
+
+  // ── navigation
+  nav(view, extra, focus) {
+    this.setState(Object.assign({ view, menu: false, acct: false }, extra || {}));
+    this.toTop();
+    if (focus) this.focusId(focus);
+  }
+  open(id, from) {
+    const v = this.curView();
+    const where = v === 'queue' ? 'Review queue' : v === 'reviewed' ? 'Reviewed by me' : 'Overview';
+    // a review page sits under the Review queue, or under Reviewed by me when opened from there
+    this.nav('item', { rec: id, from: (from || v) === 'reviewed' ? 'reviewed' : 'queue', where }, 'rv-title');
+  }
+  // a review page sits under the Review queue while the record is (or was, on this page) waiting; otherwise under Reviewed by me
+  parentOf(id) { if (this.state.rec === id && this.state.from) return this.state.from; const R = this.rec(id); return R && (R.st === 'with_rv' || R.st === 'recheck' || R.st === 'in_review') ? 'queue' : 'reviewed'; }
+  curView() {
+    if (this.state.signedOut) return 'signedout';
+    return this.state.view || this.props.view || 'overview';
+  }
+
+  // ── RV-01 overview: next in line, the rest oldest first, the queue's composition, scope and recent decisions
+  overviewVals() {
+    const ids = this.queueIds(), n = ids.length;
+    const row = (id, i) => {
+      const R = this.rec(id), upd = R.kind === 'upd', f = this.focusOf(id);
+      return Object.assign({ key: id, name: R.name, course: R.course, courseName: this.courseName(R.course), from: this.fromOf(id),
+        fmts: R.fmts || [], fmtAria: 'Formats: ' + (R.fmts || []).join(', '), age: this.ageOf(R.iso), since: 'since ' + this.short(R.since),
+        flag: f.flag, hasFlag: !!f.flag, focus: f.text, hasFocus: !!f.text,
+        act: i === 0 ? 'Start review' : upd ? 'Review update' : 'Review',
+        aria: (i === 0 ? 'Start review: ' : upd ? 'Review the update to ' : 'Review ') + R.name,
+        open: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.open(id, 'overview'); } }, this.kindVals(id));
+    };
+    const rows = ids.map(row);
+    const cnt = t => ids.filter(id => this.typeOf(id) === t).length;
+    const nResub = ids.filter(id => this.typeOf(id) === 'sub' && this.rec(id).rev > 1).length;
+    const goType = v => ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.setState({ qType: v, q: '', qCourse: 'all' }); this.nav('queue', {}, 'rv-h1-q'); };
+    const types = [
+      { key: 'sub', t: 'New submissions', d: 'From vendors' + (nResub ? ' · ' + nResub + (nResub === 1 ? ' is a resubmission' : ' are resubmissions') : ''), n: cnt('sub'), icoCls: 'rv-kind-ico rv-kind--new' },
+      { key: 'recheck', t: 'Re-checks', d: 'Sent back by the Content Manager', n: cnt('recheck'), icoCls: 'rv-kind-ico rv-kind-ico--recheck rv-kind--recheck' },
+      { key: 'upd', t: 'Updates', d: 'Corrections to published experiments', n: cnt('upd'), icoCls: 'rv-kind-ico rv-kind-ico--update rv-kind--update' }
+    ].map(t => Object.assign(t, { nTxt: String(t.n), go: goType(t.key), aria: t.t + ': ' + this.plural(t.n, 'item') + '. Open them in the review queue' }));
+    const courses = this.scope().map(code => ({ code, t: this.courseName(code), aria: code + ' ' + this.courseName(code) + '. Open the review queue for this course',
+      go: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.setState({ qCourse: code, qType: 'all', q: '' }); this.nav('queue', {}, 'rv-h1-q'); } }));
+    // the calm board empties the queue, so a decision whose item is waiting again would contradict it: left out there
+    const recent = this.reviewedRows().filter(h => !(this.qEmpty() && this.isWaiting(h.id))).slice(0, 3).map(h => {
+      const R = this.rec(h.id), upd = R.kind === 'upd', st = this.standing(h.id);
+      const dec = h.dec === 'approved' ? (upd ? 'Update approved' : 'Approved') : (upd ? 'Returned' : 'Returned to vendor');
+      return { key: h.key, name: R.name, dec, stCls: 'xr-st rv-st-sm ' + (h.dec === 'approved' ? 'xr-st--ok' : 'xr-st--err'), when: h.when, now: st.now,
+        aria: R.name + ', ' + dec.toLowerCase() + ' on ' + h.when + '. Now: ' + st.now + '. Open it',
+        open: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.open(h.id, 'reviewed'); } };
+    });
+    const empty = { key: '', name: '', course: '', courseName: '', from: '', fmts: [], fmtAria: '', age: '', since: '', flag: '', hasFlag: false, focus: '', hasFocus: false, act: '', aria: '', open: () => {}, kindCls: 'rv-kind', kindT: '', kindD: '', hasKindD: false };
+    return { has: n > 0, calm: n === 0, next: n ? rows[0] : empty, rest: rows.slice(1), hasRest: n > 1, types, courses, recent, hasRecent: recent.length > 0, noRecent: recent.length === 0,
+      note: n ? 'Oldest first' : 'Nothing waiting',
+      sub: n ? (n === 1 ? '1 item is waiting for your academic decision.' : n + ' items are waiting for your academic decision, oldest first.') : 'Nothing is waiting for your decision.' };
+  }
+
+  // ── RV-02 queue: type tabs (same four filters as before), search and course, then the table
+  queueVals() {
+    const s = this.state, P = this.props, LP = P.view === 'queue' ? P.listPreset : '';
+    const pre = LP === 'filtered' ? { q: 'dist', qCourse: 'CHE ZG513' } : LP === 'nomatch' ? { q: 'Heat exchanger' } : {};
+    const pick = (k, d) => (s[k] !== null && s[k] !== undefined) ? s[k] : (pre[k] !== undefined ? pre[k] : d);
+    const qRaw = pick('q', ''), q = qRaw.trim().toLowerCase(), type = pick('qType', 'all'), course = pick('qCourse', 'all');
+    const mode = s.qMode || (LP === 'loading' ? 'loading' : LP === 'failed' ? 'failed' : 'ok');
+    const all = this.queueIds();
+    const base = all.filter(id => { const R = this.rec(id); return (!q || [R.name, id, R.course, R.who].join(' ').toLowerCase().includes(q)) && (course === 'all' || R.course === course); });
+    const list = base.filter(id => type === 'all' || this.typeOf(id) === type);
+    const TABS = [['all', 'All'], ['sub', 'New submissions'], ['recheck', 'Re-checks'], ['upd', 'Updates']];
+    // counts only once the list has loaded (no figures while loading or after a failed load)
+    const tabs = TABS.map(([v, t]) => ({ v, id: 'rv-qt-' + v, t, n: String(v === 'all' ? base.length : base.filter(id => this.typeOf(id) === v).length), hasN: mode === 'ok',
+      sel: type === v ? 'true' : 'false', tab: type === v ? '0' : '-1', pick: () => { this.setState({ qType: v }); } }));
+    const tabKey = ev => {
+      const k = ev.key, i = Math.max(0, TABS.findIndex(x => x[0] === type));
+      let j = i;
+      if (k === 'ArrowRight' || k === 'ArrowDown') j = (i + 1) % TABS.length; else if (k === 'ArrowLeft' || k === 'ArrowUp') j = (i - 1 + TABS.length) % TABS.length; else if (k === 'Home') j = 0; else if (k === 'End') j = TABS.length - 1; else return;
+      ev.preventDefault(); this.setState({ qType: TABS[j][0] }); this.focusId('rv-qt-' + TABS[j][0]);
+    };
+    const chips = [];
+    if (q) chips.push({ label: 'Search: “' + qRaw.trim() + '”', rm: () => this.setState({ q: '' }) });
+    if (course !== 'all') chips.push({ label: 'Course: ' + course, rm: () => this.setState({ qCourse: 'all' }) });
+    chips.forEach(c => { c.aria = 'Remove filter ' + c.label; });
+    const rows = list.map(id => {
+      const R = this.rec(id), t = this.typeOf(id), f = this.focusOf(id);
+      const open = () => this.open(id, 'queue');
+      return Object.assign({ name: R.name, ref: id, course: R.course, courseName: this.courseName(R.course), from: this.fromOf(id),
+        flag: f.flag, hasFlag: !!f.flag, focus: f.text, hasFocus: !!f.text,
+        fmts: R.fmts, fmtAria: 'Formats: ' + R.fmts.join(', '), age: this.ageOf(R.iso), sinceTxt: 'since ' + this.short(R.since),
+        route: R.kind === 'upd' ? '/reviewer/updates/' + id : '/reviewer/submissions/' + id,
+        aria: R.name + ', ' + this.kindOf(id).t.toLowerCase() + (this.kindOf(id).d ? ' ' + this.kindOf(id).d : '') + ', waiting since ' + R.since + '. Review it',
+        open, openLink: ev => { if (ev) { ev.preventDefault(); ev.stopPropagation(); } open(); } }, this.kindVals(id));
+    });
+    const ok = mode === 'ok', empty = ok && all.length === 0, filtered = !!q || course !== 'all' || type !== 'all';
+    return { q: qRaw, onQ: ev => this.setState({ q: ev.target.value }), type, course, onCourse: ev => this.setState({ qCourse: ev.target.value }),
+      tabs, tabKey, panelBy: empty ? null : 'rv-qt-' + type, panelRole: empty ? null : 'tabpanel',
+      chips, hasFilters: filtered, clear: () => { this.setState({ q: '', qType: 'all', qCourse: 'all' }); this.focusId('rv-q-search'); },
+      count: filtered ? list.length + ' of ' + this.plural(all.length, 'item') + ' · oldest first' : this.plural(all.length, 'item') + ' · oldest first',
+      showCount: ok && !empty, showLine: ok && !empty, showTools: !empty || !ok, rows, has: ok && list.length > 0, none: ok && !empty && list.length === 0, empty,
+      loading: mode === 'loading', failed: mode === 'failed', retry: () => { this.setState({ qMode: 'ok' }); this.focusId('rv-h1-q'); } };
+  }
+
+  // ── reviewed by me
+  reviewedRows() {
+    if (this.rEmpty()) return [];
+    const session = this.state.rows.slice().reverse();
+    return session.concat(Component.RB).filter(h => this.access(h.id) === 'ok');
+  }
+  reviewedVals() {
+    const s = this.state, P = this.props, LP = P.view === 'reviewed' ? P.listPreset : '';
+    const pre = LP === 'filtered' ? { rShow: 'upd' } : LP === 'nomatch' ? { r: 'Heat exchanger' } : {};
+    const pick = (k, d) => (s[k] !== null && s[k] !== undefined) ? s[k] : (pre[k] !== undefined ? pre[k] : d);
+    const qRaw = pick('r', ''), q = qRaw.trim().toLowerCase(), show = pick('rShow', 'all');
+    const mode = s.rMode || (LP === 'loading' ? 'loading' : LP === 'failed' ? 'failed' : 'ok');
+    const all = this.reviewedRows();
+    const base = all.filter(h => { const R = this.rec(h.id); return !q || [R.name, h.id, R.course].join(' ').toLowerCase().includes(q); });
+    const list = base.filter(h => show === 'all' || this.rec(h.id).kind === show);
+    // Show tabs: the same three values the Show filter had (everything · new submissions · updates)
+    const TABS = [['all', 'All'], ['sub', 'New submissions'], ['upd', 'Updates']];
+    const tabs = TABS.map(([v, t]) => ({ v, id: 'rv-rt-' + v, t, n: String(v === 'all' ? base.length : base.filter(h => this.rec(h.id).kind === v).length), hasN: mode === 'ok',
+      sel: show === v ? 'true' : 'false', tab: show === v ? '0' : '-1', pick: () => { this.setState({ rShow: v }); } }));
+    const tabKey = ev => {
+      const k = ev.key, i = Math.max(0, TABS.findIndex(x => x[0] === show));
+      let j = i;
+      if (k === 'ArrowRight' || k === 'ArrowDown') j = (i + 1) % TABS.length; else if (k === 'ArrowLeft' || k === 'ArrowUp') j = (i - 1 + TABS.length) % TABS.length; else if (k === 'Home') j = 0; else if (k === 'End') j = TABS.length - 1; else return;
+      ev.preventDefault(); this.setState({ rShow: TABS[j][0] }); this.focusId('rv-rt-' + TABS[j][0]);
+    };
+    const chips = [];
+    if (q) chips.push({ label: 'Search: “' + qRaw.trim() + '”', rm: () => this.setState({ r: '' }) });
+    chips.forEach(c => { c.aria = 'Remove filter ' + c.label; });
+    const rows = list.map(h => {
+      const R = this.rec(h.id), st = this.standing(h.id), upd = R.kind === 'upd';
+      const decLabel = h.dec === 'approved' ? (upd ? 'Update approved' : 'Approved') : (upd ? 'Returned to the Content Manager' : 'Returned to vendor');
+      // the type of the item as decided (not its type today): an update, a resubmission with its revision, or a new submission
+      const k = upd ? { key: 'update', t: 'Update', d: R.liveVer ? R.liveVer + ' → ' + R.newVer : 'to version ' + R.newVer }
+        : h.rev > 1 ? { key: 'resub', t: 'Resubmitted', d: 'revision ' + h.rev } : { key: 'new', t: 'New submission', d: h.rev ? 'revision ' + h.rev : '' };
+      const open = () => this.open(h.id, 'reviewed');
+      return { name: R.name, id: h.id, course: R.course, courseName: this.courseName(R.course),
+        kindCls: 'rv-kind rv-kind--' + k.key, kindT: k.t, kindD: k.d, hasKindD: !!k.d,
+        dec: decLabel, stCls: 'xr-st rv-st-wrap ' + (h.dec === 'approved' ? 'xr-st--ok' : 'xr-st--err'), now: st.now, when: h.when,
+        route: upd ? '/reviewer/updates/' + h.id : '/reviewer/submissions/' + h.id,
+        aria: R.name + ', ' + decLabel.toLowerCase() + ' on ' + h.when + '. Open it', open, openLink: ev => { if (ev) { ev.preventDefault(); ev.stopPropagation(); } open(); } };
+    });
+    const ok = mode === 'ok', empty = ok && all.length === 0, filtered = !!q || show !== 'all';
+    return { q: qRaw, onQ: ev => this.setState({ r: ev.target.value }), show, tabs, tabKey, panelBy: empty ? null : 'rv-rt-' + show, panelRole: empty ? null : 'tabpanel',
+      chips, hasFilters: filtered, clear: () => { this.setState({ r: '', rShow: 'all' }); this.focusId('rv-r-search'); },
+      count: filtered ? list.length + ' of ' + this.plural(all.length, 'decision') + ' · newest first' : this.plural(all.length, 'decision') + ' · newest first',
+      showCount: ok && !empty, showLine: ok && !empty, showTools: !empty || !ok, rows, has: ok && list.length > 0, none: ok && !empty && list.length === 0, empty,
+      loading: mode === 'loading', failed: mode === 'failed', retry: () => { this.setState({ rMode: 'ok' }); this.focusId('rv-h1-rb'); } };
+  }
+
+  // ── the review page (RV-03 submission · RV-04 update · RV-06 decided, read-only)
+  itemVals(id) {
+    const R = this.rec(id);
+    if (!R) return { confirm: false };
+    const d = this.decOf(id), done = this.doneOf(id), upd = R.kind === 'upd', sub = !upd, recheck = R.st === 'recheck';
+    const waiting = this.isWaiting(id), st = this.standing(id);
+    const from = this.parentOf(id);
+    const fromLabel = from === 'reviewed' ? 'Reviewed by me' : from === 'overview' ? 'Overview' : 'Review queue';
+    const back = ev => { if (ev && ev.preventDefault) ev.preventDefault(); if (from === 'reviewed') this.nav('reviewed', {}, 'rv-h1-rb'); else if (from === 'overview') this.nav('overview', {}, 'rv-h1-ov'); else this.nav('queue', {}, 'rv-h1-q'); };
+    const lo = this.loOf(id), editable = sub && waiting && !d.refusal;
+    const set = patch => this.decSet(id, patch);
+    const anchorGo = target => ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.goAnchor(target); };
+    // learning outcomes editor (one set for the Experiment, LD-3; edits travel with the decision, OD-B6-04)
+    const loItems = lo.map((t, i) => {
+      const editing = editable && d.ed === i;
+      return { t, n: String(i + 1), cls: 'rv-lo-item' + (editing ? ' is-editing' : ''), viewing: !editing, editing,
+        upId: 'rv-lo-' + i + '-up', dnId: 'rv-lo-' + i + '-dn', edId: 'rv-lo-' + i + '-ed', taId: 'rv-lo-ta-' + i,
+        upDis: i === 0 || d.ed >= 0, dnDis: i === lo.length - 1 || d.ed >= 0, lockDis: d.ed >= 0,
+        up: () => { if (i === 0 || d.ed >= 0) return; const a = lo.slice(); a[i] = a[i - 1]; a[i - 1] = t; set({ lo: a, undo: null, msg: 'Outcome ' + (i + 1) + ' moved up — it is now outcome ' + i + '.' }); this.focusId(i - 1 === 0 ? 'rv-lo-' + (i - 1) + '-dn' : 'rv-lo-' + (i - 1) + '-up'); },
+        dn: () => { if (i === lo.length - 1 || d.ed >= 0) return; const a = lo.slice(); a[i] = a[i + 1]; a[i + 1] = t; set({ lo: a, undo: null, msg: 'Outcome ' + (i + 1) + ' moved down — it is now outcome ' + (i + 2) + '.' }); this.focusId(i + 1 === lo.length - 1 ? 'rv-lo-' + (i + 1) + '-up' : 'rv-lo-' + (i + 1) + '-dn'); },
+        edit: () => { if (d.ed >= 0) return; set({ ed: i, edText: t, edErr: '', msg: '', undo: null }); this.focusId('rv-lo-ta-' + i); },
+        del: () => { if (d.ed >= 0) return; set({ lo: lo.filter((x, k) => k !== i), undo: { t, i }, msg: 'Outcome ' + (i + 1) + ' deleted.', errs: Object.assign({}, d.errs, { editing: undefined }) }); this.focusId('rv-lo-msg'); },
+        save: () => { const v = this.T(this.decOf(id).edText); if (!v) { set({ edErr: 'Enter the outcome text, or cancel' }); this.focusId('rv-lo-ta-' + i); return; } const a = lo.slice(); a[i] = v; const e = Object.assign({}, d.errs); delete e.editing; set({ lo: a, ed: -1, edErr: '', errs: e, msg: 'Outcome ' + (i + 1) + ' saved.' }); this.focusId('rv-lo-' + i + '-ed'); },
+        cancel: () => { const e = Object.assign({}, d.errs); delete e.editing; set({ ed: -1, edErr: '', errs: e }); this.focusId('rv-lo-' + i + '-ed'); } };
+    });
+    const addLo = () => { const v = this.T(this.decOf(id).newText); if (!v) { set({ newErr: 'Enter the outcome text' }); this.focusId('rv-lo-new'); return; } const e = Object.assign({}, d.errs); delete e.outcomes; set({ lo: lo.concat([v]), newText: '', newErr: '', undo: null, errs: e, msg: 'Outcome added — ' + this.plural(lo.length + 1, 'outcome') + ' in the list.' }); this.focusId('rv-lo-new'); };
+    const loUndo = () => { const u = d.undo; if (!u) return; const a = lo.slice(); a.splice(u.i, 0, u.t); set({ lo: a, undo: null, msg: 'Outcome ' + (u.i + 1) + ' restored.' }); this.focusId('rv-lo-' + u.i + '-ed'); };
+
+    // delivery cards (read-only; a web link opens the vendor's page; package details on demand)
+    const deliv = sub && R.deliv ? Component.FM.filter(f => R.deliv[f]).map(f => {
+      const x = R.deliv[f], web = f === 'WEB', openPkg = !!d.pkg[f];
+      return { code: f, title: Component.FN[f], kind: web ? 'Web link' : 'App package', isWeb: web, isPkg: !web, link: x.link || '', browser: x.browser || '',
+        label: x.label || '', device: x.device || '', changed: !!x.changed && waiting, ref: x.ref || '', install: x.install || '', hasMore: !!(x.ref || x.install),
+        open: openPkg, exp: openPkg ? 'true' : 'false', pkgId: 'rv-pkg-' + f, toggleLabel: openPkg ? 'Hide package details' : 'View package details',
+        toggle: () => set({ pkg: Object.assign({}, d.pkg, { [f]: !openPkg }) }) };
+    }) : [];
+    // formats: one line — the ones in this submission as badges, the rest named (no large per-format tiles)
+    const fmtOutList = Component.FM.filter(f => (R.fmts || []).indexOf(f) < 0);
+
+    // history (newest first), with the decision taken in this preview on top
+    const hist = (R.hist || []).slice();
+    if (done) {
+      const by = 'Prof. A. Menon';
+      if (done.dec === 'withdrawn') hist.unshift({ w: 'Withdrawn by the Content Manager', t: done.when, n: 'Version ' + R.liveVer + ' stays live.' });
+      else if (upd) hist.unshift(done.dec === 'approved' ? { w: 'Approved by ' + by, t: done.when, n: 'With the Super Admin for a release decision. The live version stays ' + R.liveVer + ' until then.' } : { w: 'Returned by ' + by, t: done.when, n: '“' + done.reason + '”' });
+      else hist.unshift(done.dec === 'approved' ? { w: 'Approved by ' + by, t: done.when, n: 'Sent to the Content Manager with ' + this.plural(done.nlo || lo.length, 'learning outcome') + '. Nothing is published.' } : { w: 'Returned to vendor by ' + by, t: done.when, n: '“' + done.reason + '”' + (done.refs && done.refs.length ? ' · refers to ' + done.refs.join('; ') : '') });
+    }
+    hist.forEach((h, i) => { h.cls = i === 0 ? 'is-latest' : ''; h.hasN = !!h.n; });
+
+    // decision panel
+    const choices = (upd ? [
+      { v: 'approve', t: 'Approve update', d: 'Sends it to the Super Admin, who decides when to release it. The live version doesn’t change until then.' },
+      { v: 'return', t: 'Return to the Content Manager', d: 'You’ll add a reason the Content Manager will see.' }
+    ] : [
+      { v: 'approve', t: 'Approve', d: recheck ? 'Sends it back to the Content Manager with its learning outcomes. Approving does not publish.' : 'Sends it to the Content Manager with its learning outcomes. Approving does not publish.' },
+      { v: 'return', t: 'Return to vendor', d: 'You’ll add a reason the vendor will see. They can revise and resubmit.' }
+    ]).map((c, i) => Object.assign(c, { id: 'rv-c' + i, checked: d.choice === c.v, onChange: () => { const e = Object.assign({}, this.decOf(id).errs); delete e.choice; delete e.reason; if (c.v !== 'approve') delete e.outcomes; set({ choice: c.v, errs: e }); } }));
+    const isReturn = d.choice === 'return';
+    const refOpts = sub ? Component.REFS.filter(r => !r.fmt || R.fmts.indexOf(r.fmt) >= 0).filter(r => r.k !== 'preview' || R.preview).map(r => ({ id: 'rv-ref-' + r.k, g: r.g, f: r.f, checked: d.refs.indexOf(r.k) >= 0,
+      onChange: () => { const cur = this.decOf(id).refs; set({ refs: cur.indexOf(r.k) >= 0 ? cur.filter(x => x !== r.k) : cur.concat([r.k]) }); } })) : [];
+    // the same references, shown under their editor section (the stored label stays "section · field")
+    const refGroups = [];
+    refOpts.forEach(o => { const title = o.g.replace(/\s*·\s*$/, ''); let grp = refGroups.find(x => x.title === title); if (!grp) { grp = { key: 'g' + refGroups.length, title, opts: [] }; refGroups.push(grp); } grp.opts.push(o); });
+    const refLabel = k => { const r = Component.REFS.find(x => x.k === k); return r ? r.g + ' ' + r.f : k; };
+    const validate = () => {
+      const c = this.decOf(id), e = {};
+      if (c.ed >= 0) e.editing = 'Save or cancel the outcome you are editing first';
+      if (!c.choice) e.choice = 'Choose a decision';
+      if (c.choice === 'approve' && sub && !this.loOf(id).length) e.outcomes = 'Add at least one learning outcome before you approve';
+      if (c.choice === 'return' && !this.T(c.reason)) e.reason = upd ? 'Add a reason so the Content Manager knows what to change' : 'Add a reason so the vendor knows what to change';
+      return e;
+    };
+    const target = { editing: 'rv-lo-ta-' + d.ed, choice: 'rv-c0', outcomes: 'rv-lo-new', reason: 'rv-reason' };
+    const order = ['editing', 'choice', 'outcomes', 'reason'];
+    const errList = order.filter(k => d.errs[k]).map(k => ({ t: d.errs[k], href: '#' + target[k], go: ev => { if (ev) ev.preventDefault(); this.focusId(target[k]); } }));
+    const record = (patch) => {
+      const c = this.decOf(id), when = this.nowTime();
+      if (c.staleArmed) {
+        this.setState({ done: Object.assign({}, this.state.done, { [id]: { dec: 'withdrawn', when: '27 Aug 2026' } }), dec: Object.assign({}, this.state.dec, { [id]: Object.assign({}, c, { confirm: false, refusal: 'stale', staleArmed: false }) }) });
+        this.focusId('rv-refusal'); return;
+      }
+      const entry = Object.assign({ when }, patch);
+      const row = { key: 's-' + id + '-' + this.state.rows.length, id, dec: entry.dec, rev: sub && R.rev > 1 ? R.rev : 0, when: '27 Aug 2026', iso: '2026-08-27' };
+      this.setState({ done: Object.assign({}, this.state.done, { [id]: entry }), dec: Object.assign({}, this.state.dec, { [id]: Object.assign({}, c, { confirm: false, errs: {} }) }), rows: this.state.rows.concat([row]), clock: this.state.clock + 1 });
+      this.focusId('rv-done');
+    };
+    const go = () => {
+      const e = validate();
+      if (Object.keys(e).length) { set({ errs: e }); this.focusId('rv-errs'); return; }
+      const c = this.decOf(id);
+      if (c.choice === 'approve') { set({ confirm: true, errs: {} }); this.focusId('rv-dlg-t'); }
+      else record({ dec: 'returned', reason: this.T(c.reason), refs: c.refs.map(refLabel) });
+    };
+    const cancel = () => { set({ confirm: false }); this.focusId('rv-go'); };
+    const doConfirm = () => record({ dec: 'approved', nlo: this.loOf(id).length, lo: this.loOf(id) });
+    const dlgKey = ev => {
+      if (ev.key === 'Escape') { ev.preventDefault(); cancel(); return; }
+      if (ev.key === 'Tab') {
+        const first = document.getElementById('rv-dlg-cancel'), last = document.getElementById('rv-dlg-ok'), a = document.activeElement;
+        if (ev.shiftKey && (a === first || (a && a.id === 'rv-dlg-t'))) { ev.preventDefault(); if (last) last.focus(); }
+        else if (!ev.shiftKey && a === last) { ev.preventDefault(); if (first) first.focus(); }
+      }
+    };
+    // the hint before the button; left out while the same problem is already shown as an error (no message twice)
+    const pendKey = !d.choice ? '' : d.ed >= 0 ? 'editing' : (d.choice === 'approve' && sub && !lo.length) ? 'outcomes' : (isReturn && !this.T(d.reason)) ? 'reason' : '';
+    const pending = !pendKey || d.errs[pendKey] ? '' : { editing: 'Save or cancel the outcome you are editing first.', outcomes: 'Add at least one learning outcome before you approve.', reason: 'Add the reason before you return it.' }[pendKey];
+    const nlo = lo.length;
+    const nowList = upd ? ['It goes to the Super Admin for a release decision.', 'It leaves your review queue and is listed in Reviewed by me.']
+      : [(recheck ? 'It goes back to the Content Manager with its ' : 'It goes to the Content Manager with its ') + this.plural(nlo, 'learning outcome') + '.', 'It leaves your review queue and is listed in Reviewed by me.'];
+    const laterList = upd ? ['Version ' + R.newVer + ' goes live only if the Super Admin releases it. Version ' + R.liveVer + ' stays live until then.', 'Releasing changes no one’s access.']
+      : ['The Content Manager decides whether to publish it. Approving does not publish.', 'Publishing gives no one access. Institutions give their students access separately.'];
+
+    // outcome block (decided in this preview, or decided before: RV-06)
+    let doneBlock = { done: false };
+    const past = R.past;
+    const decided = done || (!waiting && past);
+    if (decided) {
+      const src = done || past, isPast = !done;
+      const meta = src.dec === 'withdrawn' ? 'Withdrawn on ' + src.when : (!isPast && done.elsewhere ? 'Decided by you on ' + src.when + ', in another window' : 'Decided by you on ' + src.when);
+      let stand = [], next = '';
+      const lbl = done ? st.label : this.standing(id).label;
+      if (src.dec === 'withdrawn') { stand = [{ k: 'Update', v: 'Withdrawn by the Content Manager' }, { k: 'Live version', v: R.liveVer + ', unchanged' }]; next = 'There is nothing to decide.'; }
+      else if (upd && src.dec === 'approved') {
+        stand = [{ k: 'Academic review', v: 'Approved by you' }];
+        if (st.key === 'released') { stand.push({ k: 'Release', v: 'Released on ' + R.relWhen }, { k: 'Live version', v: R.newVer }); next = 'Version ' + R.newVer + ' is live. Releasing changed no one’s access.'; }
+        else { stand.push({ k: 'Release decision', v: 'With the Super Admin' }); if (R.liveVer) stand.push({ k: 'Live version', v: R.liveVer + ', unchanged' }); stand.push({ k: 'Access', v: 'Unchanged' }); next = (R.liveVer ? 'Version ' + R.liveVer + ' stays live. ' : '') + 'Release or hold is the Super Admin’s decision.'; }
+      } else if (upd) { stand = [{ k: 'Academic review', v: 'Returned to the Content Manager' }]; if (R.liveVer) stand.push({ k: 'Live version', v: R.liveVer + ', unchanged' }); next = 'The Content Manager can change it and send it again.'; }
+      else if (src.dec === 'approved') {
+        const n = src.nlo || (R.lo ? R.lo.length : 0);
+        stand = [{ k: 'Academic review', v: 'Approved by you' }];
+        if (!R.partial || n) stand.push({ k: 'Learning outcomes', v: this.plural(n, 'outcome') + (isPast ? '' : ', sent with your decision') });
+        if (st.key === 'published') { stand.push({ k: 'Publication', v: 'Published on ' + R.pubWhen }); next = 'The Content Manager published it. Publishing gave no one access.'; }
+        else { stand.push({ k: 'Publication', v: 'Not published — the Content Manager decides' }, { k: 'Access', v: 'None — publishing gives no one access' }); next = 'The Content Manager decides whether to publish it. Nothing is published yet.'; }
+      } else {
+        stand = [{ k: 'Academic review', v: 'Returned to the vendor' }, { k: 'References', v: src.refs && src.refs.length ? this.plural(src.refs.length, 'field') : 'None' }, { k: 'Publication', v: 'Not published' }];
+        next = isPast ? 'The vendor can revise it and resubmit. A resubmission comes back to your queue as a new revision.' : 'The vendor sees your reason above their editor and can revise and resubmit. A resubmission comes back to your queue as a new revision.';
+      }
+      doneBlock = { done: true, doneLabel: lbl, doneStCls: (done ? st.cls : this.standing(id).cls) + ' rk-st-lg rv-st-wrap', doneMeta: meta, hasDoneMeta: !!meta,
+        hasDoneReason: !!src.reason, doneReason: src.reason || '', doneRefs: src.refs || [], hasDoneRefs: !!(src.refs && src.refs.length), stand, next, hasNext: !!next };
+    }
+    const refusalT = d.refusal === 'stale' ? 'Nothing was recorded' : 'Nothing new was recorded';
+    const refusalD = d.refusal === 'stale' ? 'The Content Manager withdrew this update after you opened it. The page now shows where it stands.' : 'You had already approved this in another window. The page now shows that decision.';
+
+    // identity card: facts (no duplicates of the head), page map with counts
+    const decidedSrc = done || (!waiting ? past : null);
+    const facts = [];
+    if (sub) {
+      if (waiting) facts.push({ k: 'Waiting', v: this.ageOf(R.iso) + ' · since ' + this.short(R.since) });
+      else if (decidedSrc) facts.push({ k: decidedSrc.dec === 'withdrawn' ? 'Withdrawn' : 'Decided', v: decidedSrc.when });
+      facts.push({ k: 'Revision', v: R.rev > 1 && R.resub ? R.rev + ' · resubmitted ' + this.short(R.resub) : String(R.rev || 1) });
+      if (R.version) facts.push({ k: 'Version', v: R.version });
+      facts.push({ k: 'Formats', v: (R.fmts || []).join(' · ') });
+    } else {
+      if (R.liveVer) facts.push({ k: 'Live version', v: R.liveVer + (R.liveSince ? ' · since ' + this.short(R.liveSince) : '') });
+      facts.push({ k: 'Proposed version', v: R.newVer });
+      if (waiting) facts.push({ k: 'Waiting', v: this.ageOf(R.iso) + ' · sent ' + this.short(R.since) });
+      else if (decidedSrc) facts.push({ k: decidedSrc.dec === 'withdrawn' ? 'Withdrawn' : 'Decided', v: decidedSrc.when });
+      if (R.fmts) facts.push({ k: 'Formats', v: R.fmts.join(' · ') });
+      if (R.vendor) facts.push({ k: 'Vendor', v: R.vendor });
+    }
+    const hasRecheck = recheck && waiting, hasChanges = sub && waiting && !!R.changes, hasCmp = upd && !!R.cmp, hasWhy = upd && !!R.why;
+    // the vendor block shows only when there is something the identity card does not already say
+    const showAttach = sub && !R.partial;
+    const hasLo = sub && (!R.partial || (R.lo && R.lo.length > 0)), hasVendor = sub && (!!R.desc || showAttach), hasLive = upd && !R.partial;
+    const hasDocs = !!(R.docs && R.docs.length);
+    const anchors = [];
+    if (hasRecheck) anchors.push({ href: '#rv-s-recheck', t: 'Re-check request' });
+    if (hasChanges) anchors.push({ href: '#rv-s-chg', t: 'What changed' });
+    if (hasWhy) anchors.push({ href: '#rv-s-why', t: 'Why this correction' });
+    if (hasCmp) anchors.push({ href: '#rv-s-cmp', t: 'What changes', n: String(R.cmp.length) });
+    if (hasLo) anchors.push({ href: '#rv-s-lo', t: 'Learning outcomes', n: String(editable ? lo.length : (done && done.lo ? done.lo.length : lo.length)) });
+    if (hasVendor) anchors.push({ href: '#rv-s-det', t: 'Description and documents' });
+    if (hasLive) anchors.push({ href: '#rv-s-live', t: 'Live experiment' });
+    if (deliv.length) anchors.push({ href: '#rv-s-del', t: 'Formats and delivery', n: String(deliv.length) });
+    anchors.push({ href: '#rv-s-hist', t: upd ? 'Update history' : 'Review history' });
+    anchors.forEach(a => { a.hasN = !!a.n; a.n = a.n || ''; a.go = anchorGo(a.href.slice(1)); });
+
+    // readiness: only stated rules (approve needs one outcome; a decision covers every format or every changed field)
+    const ready = [];
+    if (sub) {
+      if (lo.length) ready.push({ cls: 'is-ok', ico: '#rvi-check', t: this.plural(lo.length, 'learning outcome') + '.', d: 'Approve needs at least one.' });
+      else ready.push({ cls: 'is-need', ico: '#rvi-alert', t: 'No learning outcomes yet.', d: 'Approve needs at least one.', link: 'Add an outcome', href: '#rv-lo-new', go: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.focusId('rv-lo-new'); } });
+      ready.push({ cls: 'is-info', id: 'rv-whole', ico: '#rvi-layers', t: 'Whole Experiment.', d: 'You decide for every format together: ' + this.andList(R.fmts) + '.' });
+      if (recheck) ready.push({ cls: 'is-info', ico: '#rvi-recheck', t: 'Re-check.', d: 'The Content Manager sent it back to you.', link: 'Read why', href: '#rv-s-recheck', go: anchorGo('rv-s-recheck') });
+      else if (R.rev > 1 && R.changes) ready.push({ cls: 'is-info', ico: '#rvi-resub', t: this.plural(R.changes.length, 'change') + ' since you returned it.', d: '', link: 'See what changed', href: '#rv-s-chg', go: anchorGo('rv-s-chg') });
+    } else {
+      ready.push({ cls: 'is-info', id: 'rv-whole', ico: '#rvi-layers', t: 'Whole update.', d: 'You decide on every changed field together.' });
+      if (R.liveVer) ready.push({ cls: 'is-info', ico: '#rvi-live', t: 'Version ' + R.liveVer + ' stays live', d: 'until the Super Admin releases ' + R.newVer + '.' });
+      if (R.cmp) ready.push({ cls: 'is-info', ico: '#rvi-update', t: this.plural(R.cmp.length, 'changed field') + '.', d: '', link: 'See what changes', href: '#rv-s-cmp', go: anchorGo('rv-s-cmp') });
+    }
+    ready.forEach((x, i) => { x.id = x.id || 'rv-ready-' + i; x.hasLink = !!x.link; x.link = x.link || ''; x.href = x.href || '#rv-panel'; x.go = x.go || (() => {}); x.d = x.d || ''; x.icoCls = 'rv-ready-ico is-' + x.ico.replace('#rvi-', ''); });
+    const path = (upd ? [
+      { n: '1', t: 'You · academic decision', d: 'Approve the update, or return it to the Content Manager.', now: true },
+      { n: '2', t: 'Super Admin · release or hold', d: 'Approving does not release it.' },
+      { n: '3', t: 'Live version', d: 'Version ' + R.liveVer + ' stays live until a release. Releasing changes no one’s access.' }
+    ] : [
+      { n: '1', t: 'You · academic decision', d: recheck ? 'Approve it again, or return it to the vendor.' : 'Approve it, or return it to the vendor.', now: true },
+      { n: '2', t: 'Content Manager · publication', d: 'Approving does not publish.' },
+      { n: '3', t: 'Institutions · student access', d: 'Publishing gives no one access.' }
+    ]).map(p => Object.assign(p, { cls: p.now ? 'is-now' : '' }));
+
+    const loReq = editable ? (lo.length ? 'Requirement met' : 'At least one needed to approve') : 'Set by you · read-only';
+    const loReqCls = 'rv-req ' + (editable ? (lo.length ? 'rv-req--ok' : 'rv-req--need') : 'rv-req--ro');
+    const loBlockCls = 'rk-surface rv-block rv-block--work' + (d.errs.outcomes ? ' is-invalid' : '');
+    const meta1 = upd ? 'From ' + R.who + ', Content Manager' : 'From ' + R.who;
+    return Object.assign({
+      id, title: R.name, stClsLg: st.cls + ' rk-st-lg rv-st-wrap', stLabel: st.label, who: meta1, fromLabel, back,
+      backLabel: from === 'reviewed' ? 'Back to Reviewed by me' : from === 'overview' ? 'Back to Overview' : 'Back to the review queue',
+      lead: R.summary || '', hasLead: !!R.summary, course: R.course, courseName: this.courseName(R.course),
+      fmts: R.fmts || [], fmtAria: 'Formats: ' + (R.fmts || []).join(', '), facts, anchors,
+      hasRecheck, recheckWhen: recheck ? R.recheck.when : '', recheckReason: recheck ? R.recheck.reason : '', recheckBy: recheck ? R.recheck.by : '',
+      hasChanges, chgTitle: 'What changed in revision ' + R.rev, changes: R.changes || [],
+      prevReason: R.prevReturn ? R.prevReturn.reason : '', prevBy: R.prevReturn ? 'Your reason when you returned revision ' + (R.rev - 1) + ' · ' + R.prevReturn.when : '',
+      hasCmp, liveVer: R.liveVer || '', newVer: R.newVer || '', cmp: (R.cmp || []).map(c => ({ f: c.f, live: c.live.map(s => ({ t: s.t, mark: !!s.m, plain: !s.m })), prop: c.prop.map(s => ({ t: s.t, mark: !!s.m, plain: !s.m })) })),
+      cmpNote: hasCmp ? this.plural(R.cmp.length, 'changed field') + ' · everything else stays as in ' + R.liveVer : '',
+      hasWhy, why: R.why || '', whyBy: upd ? R.who + ', Content Manager · sent ' + (R.sent || '') : '',
+      hasLo, loEditable: editable, loReadonly: sub && !editable,
+      loSub: editable ? 'You set one list for the Experiment, used in every format. The vendor and the Content Manager see it with your decision.' : 'One list for the Experiment, used in every format.',
+      loReq, loReqCls, loBlockCls, loRo: done && done.lo ? done.lo : lo,
+      lo: loItems, loHas: lo.length > 0, loNone: lo.length === 0, loMsg: d.msg, loHasMsg: !!d.msg, loCanUndo: !!d.undo, loUndo,
+      edText: d.edText, onEdText: ev => set({ edText: ev.target.value, edErr: '' }), hasEdErr: !!d.edErr, edErr: d.edErr, edInv: d.edErr ? 'true' : 'false', edDesc: d.edErr ? 'rv-lo-ed-err' : null,
+      newText: d.newText, onNewText: ev => set({ newText: ev.target.value, newErr: '' }), hasNewErr: !!d.newErr, newErr: d.newErr, newInv: d.newErr || d.errs.outcomes ? 'true' : 'false', addLo,
+      hasVendor, vendorK: 'From ' + R.who, desc: R.desc || '', hasDesc: !!R.desc, version: R.version || '', hasVersion: !!R.version, showAttach,
+      hasPreview: !!R.preview, noPreviewOnly: !R.preview && hasDocs, noDocsOnly: !!R.preview && !hasDocs, noAttach: !R.preview && !hasDocs,
+      previewLabel: R.preview ? R.preview.label : '', previewUrl: R.preview ? R.preview.url : '',
+      docs: R.docs || [], hasDocs,
+      hasLive, liveNote: upd && R.liveVer ? 'Version ' + R.liveVer + (R.liveSince ? ' · live since ' + R.liveSince : '') : '', liveLo: R.lo || [], liveVendor: R.vendor || '', liveSince: R.liveSince || '',
+      deliv, hasDeliv: deliv.length > 0, fmtInAria: 'In this submission: ' + this.andList(R.fmts || []), fmtOut: fmtOutList.join(', '), hasFmtOut: fmtOutList.length > 0, rev: String(R.rev || ''),
+      histTitle: upd ? 'Update history' : 'Review history', hist,
+      // waiting: the history is reference, kept quiet under the work; decided: it is the record, so it is a card
+      histCls: waiting && !d.refusal ? 'rv-block rv-block--quiet rv-hist' : 'rk-surface rv-block rv-hist rv-hist--card',
+      open: waiting && !d.refusal, hasRefusal: !!d.refusal, refusalT, refusalD, ready, path,
+      choices, choiceFs: 'rk-fieldset' + (d.errs.choice ? ' is-invalid' : ''), isReturn,
+      reasonLabel: upd ? 'Reason the Content Manager will see (required)' : 'Reason the vendor will see (required)',
+      reasonHint: upd ? 'Shown first on the correction when it is editable again.' : 'The vendor sees this above their editor.',
+      reason: d.reason, reasonInv: d.errs.reason ? 'true' : 'false', onReason: ev => { const e = Object.assign({}, this.decOf(id).errs); delete e.reason; set({ reason: ev.target.value, errs: e }); },
+      refOpts, refGroups, hasRefOpts: refOpts.length > 0,
+      e: { choice: d.errs.choice || '', outcomes: d.errs.outcomes || '', reason: d.errs.reason || '', editing: d.errs.editing || '' },
+      he: { choice: !!d.errs.choice, outcomes: !!d.errs.outcomes, reason: !!d.errs.reason, editing: !!d.errs.editing },
+      hasErrs: errList.length > 0, errList, pending, hasPending: !!pending,
+      goLabel: isReturn ? (upd ? 'Return to the Content Manager' : 'Return to vendor') : (upd ? 'Approve update' : 'Approve'), go,
+      confirm: !!d.confirm && waiting && !d.refusal, cancel, doConfirm, dlgKey,
+      dlgTitle: upd ? 'Approve the update to ' + R.name + '?' : 'Approve “' + R.name + '”?', dlgOk: upd ? 'Approve update' : 'Approve', nowList, laterList
+    }, this.kindVals(id), doneBlock.done ? doneBlock : { done: false, doneLabel: '', doneStCls: '', doneMeta: '', hasDoneMeta: false, hasDoneReason: false, doneReason: '', doneRefs: [], hasDoneRefs: false, stand: [], next: '', hasNext: false });
+  }
+
+  // ── help & support (borrowed XS-07 contract, provisional V3 rendering)
+  helpState() {
+    const P = this.props, base = { what: '', where: '', shot: '', err: false, reports: [], last: null, sub: 'list', open: null };
+    if (!this.state.help) {
+      if (P.view === 'report') return Object.assign(base, { sub: 'form', where: 'Review queue', err: P.helpPreset === 'errors' });
+      if (P.view === 'help' && P.helpPreset === 'sent') return Object.assign(base, { sub: 'sent', last: 'SUP-0214', reports: [{ ref: 'SUP-0214', title: 'The review queue count didn’t change after I approved an item', what: 'The review queue count didn’t change after I approved an item.', where: 'Review queue', shot: 'No screenshot added', sent: '27 Aug 2026' }] });
+      return base;
+    }
+    return Object.assign(base, this.state.help);
+  }
+  helpSet(patch) { this.setState({ help: Object.assign({}, this.helpState(), patch) }); }
+  helpVals() {
+    const h = this.helpState();
+    const reports = h.reports.slice().reverse().map(r => Object.assign({}, r, { sentShort: this.short(r.sent), open: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.helpSet({ sub: 'detail', open: r.ref }); this.nav('help', {}, 'rv-h1-rd'); } }));
+    const toForm = ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.helpSet({ sub: 'form', what: '', err: false, shot: '', where: this.state.where || h.where || 'Help & support' }); this.nav('help', {}, 'rv-h1-rep'); };
+    const send = () => {
+      const c = this.helpState(), what = this.T(c.what);
+      if (!what) { this.helpSet({ err: true }); this.focusId('rv-hp-errs'); return; }
+      const ref = 'SUP-' + String(214 + c.reports.length).padStart(4, '0');
+      const title = what.length > 72 ? what.slice(0, 70).replace(/\s+\S*$/, '') + '…' : what.replace(/[.]$/, '');
+      this.helpSet({ sub: 'sent', last: ref, err: false, reports: c.reports.concat([{ ref, title, what, where: this.T(c.where) || 'Not given', shot: c.shot || 'No screenshot added', sent: '27 Aug 2026' }]) });
+      this.nav('help', {}, 'rv-h1-sent');
+    };
+    const det = h.reports.find(r => r.ref === h.open) || { ref: '', title: '', what: '', where: '', shot: '', sent: '' };
+    return {
+      HP: { reports, hasReports: reports.length > 0, noReports: reports.length === 0, count: reports.length ? this.plural(reports.length, 'report') : 'None yet', toForm,
+        what: h.what, onWhat: ev => this.helpSet({ what: ev.target.value, err: false }), whatInv: h.err ? 'true' : 'false', hasErr: !!h.err,
+        where: h.where, onWhere: ev => this.helpSet({ where: ev.target.value }), onShot: ev => { const f = ev.target.files && ev.target.files[0]; this.helpSet({ shot: f ? f.name : '' }); },
+        goWhat: ev => { if (ev) ev.preventDefault(); this.focusId('rv-hp-what'); }, send, lastRef: h.last || '' },
+      HD: det, helpSub: h.sub
+    };
+  }
+
+  renderVals() {
+    const s = this.state, P = this.props;
+    const view = this.curView();
+    const id = s.rec || this.startRec() || 'SUB-0077';
+    const acc = view === 'item' ? this.access(id) : 'ok';
+    const H = this.helpVals();
+    const helpSub = view === 'help' || view === 'report' ? (s.help ? H.helpSub : (view === 'report' ? 'form' : H.helpSub)) : '';
+    const isItem = view === 'item' && acc === 'ok';
+    const I = isItem ? this.itemVals(id) : { confirm: false };
+    const qn = this.queueIds().length;
+    const menuOpen = s.menu === null ? P.overlay === 'drawer' : !!s.menu;
+    const acctOpen = s.acct === null ? P.overlay === 'account' : !!s.acct;
+    const curNav = view === 'overview' ? 'ov' : view === 'queue' ? 'q' : view === 'reviewed' ? 'rb' : (view === 'help' || view === 'report') ? 'help' : (isItem ? (this.parentOf(id) === 'reviewed' ? 'rb' : 'q') : '');
+    const navv = { ov: curNav === 'ov' ? 'page' : 'false', q: curNav === 'q' ? 'page' : 'false', rb: curNav === 'rb' ? 'page' : 'false', help: curNav === 'help' ? 'page' : 'false' };
+    const whereLabel = v => v === 'queue' ? 'Review queue' : v === 'reviewed' ? 'Reviewed by me' : v === 'item' ? (this.rec(id) && this.rec(id).kind === 'upd' ? 'Review an update · ' : 'Review a submission · ') + id : 'Overview';
+    const goHelp = ev => { if (ev && ev.preventDefault) ev.preventDefault(); const w = whereLabel(view); this.setState({ help: Object.assign({}, this.helpState(), { sub: 'list' }), where: view === 'help' || view === 'report' ? s.where : w }); this.nav('help', {}, 'rv-h1-help'); };
+    return {
+      isSolo: view === 'signedout', isShell: view !== 'signedout',
+      isOverview: view === 'overview', isQueue: view === 'queue', isReviewed: view === 'reviewed', isItem, isRefusal: view === 'item' && acc !== 'ok',
+      isHelp: helpSub === 'list', isReport: helpSub === 'form', isSent: helpSub === 'sent', isReportDetail: helpSub === 'detail',
+      M: { scope: acc === 'scope', unavailable: acc === 'unavailable', title: acc === 'scope' ? 'This item isn’t in your review scope' : 'This item isn’t available to you',
+        d: acc === 'scope' ? 'It belongs to a course you don’t review. Items you can review are in your review queue.' : 'It isn’t waiting for an academic decision. Items waiting for you are in your review queue.' },
+      scopeCodes: this.scope(), OV: this.overviewVals(), Q: this.queueVals(), R: this.reviewedVals(), I, HP: H.HP, HD: H.HD,
+      nav: navv, hasNavCount: qn > 0, navCount: String(qn), navCountLabel: this.plural(qn, 'item') + ' waiting for review',
+      goOverview: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.nav('overview', {}, 'rv-h1-ov'); },
+      goQueue: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.nav('queue', {}, 'rv-h1-q'); },
+      goReviewed: ev => { if (ev && ev.preventDefault) ev.preventDefault(); this.nav('reviewed', {}, 'rv-h1-rb'); },
+      goHelp,
+      menuOpen, menuExp: menuOpen ? 'true' : 'false',
+      openMenu: () => { this.setState({ menu: true, acct: false }); this.focusId('rv-menu-close'); },
+      closeMenu: () => { this.setState({ menu: false }); this.focusId('rv-menu-btn'); },
+      drawerKey: ev => {
+        if (ev.key === 'Escape') { ev.preventDefault(); this.setState({ menu: false }); this.focusId('rv-menu-btn'); return; }
+        if (ev.key !== 'Tab') return;
+        const items = Array.prototype.slice.call(ev.currentTarget.querySelectorAll('a[href], button:not([disabled])'));
+        if (!items.length) return;
+        const first = items[0], last = items[items.length - 1];
+        if (ev.shiftKey && document.activeElement === first) { ev.preventDefault(); last.focus(); }
+        else if (!ev.shiftKey && document.activeElement === last) { ev.preventDefault(); first.focus(); }
+      },
+      acctOpen, acctExp: acctOpen ? 'true' : 'false',
+      toggleAcct: () => this.setState({ acct: !acctOpen, menu: false }),
+      acctKey: ev => { if (ev.key === 'Escape' && acctOpen) { ev.preventDefault(); this.setState({ acct: false }); this.focusId('rv-acct-btn'); } },
+      acctHelp: ev => { goHelp(ev); },
+      signOut: () => { this.setState({ signedOut: true, acct: false, menu: false }); this.toTop(); this.focusId('rv-h1-out'); },
+      signIn: () => { this.setState({ signedOut: false, view: 'overview' }); this.toTop(); this.focusId('rv-h1-ov'); }
+    };
+  }
+}
+</script>
+</body>
+</html>

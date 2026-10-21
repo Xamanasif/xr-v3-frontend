@@ -1,0 +1,546 @@
+{
+ "about": "Coverage register of the FINAL, owner-approved Academic Reviewer complete-role design. Every owned screen and important subview, marked against the completed role of 18 Oct 2026. Generated from the Coverage board on the canvas, so the two always agree.",
+ "status": "FINAL — OWNER APPROVED 21 October 2026",
+ "baseline": "completed role (canvas https://claude.ai/artifact/DQmYyqbQPEFJ6NKqeZUJmJ, 18 Oct 2026) and visual refinement checkpoint 1 (https://claude.ai/artifact/GDmjHxHhFFYhdvw1n2pEKd, 19 Oct 2026) — both preserved unchanged and superseded by this design",
+ "postAcceptanceCorrection": "Internal record IDs (SUB-…, UPD-… and any REQ-/ACC-style identifier) were removed from reviewer-facing labels on all six screens: the queue rows, Reviewed by me rows, the identity card and the breadcrumb, which now names the experiment. The IDs remain in the records, the route proposals, the search and the audit trail. Experiment names, course codes, vendor names and format labels are unchanged. Verified by scanning the rendered text of every board (CHECKS.md).",
+ "statusKey": {
+  "REDESIGNED": "the subview’s own design changed in this refinement",
+  "REVIEWED AND UNCHANGED": "inspected against the refined direction and kept; it now renders inside the refined pages",
+  "EXCLUDED": "not designed, by the existing decision"
+ },
+ "summary": {
+  "subviews": 42,
+  "REDESIGNED": 30,
+  "REVIEWED AND UNCHANGED": 12,
+  "pending": 0,
+  "excluded": [
+   "RV-07 (Courses in scope · Learning outcomes · Reviewer settings): not designed, by the existing decision"
+  ]
+ },
+ "groups": [
+  {
+   "group": "RV-01",
+   "groupTitle": "Overview",
+   "subviews": 3,
+   "REDESIGNED": 3,
+   "REVIEWED AND UNCHANGED": 0
+  },
+  {
+   "group": "RV-02",
+   "groupTitle": "Review queue",
+   "subviews": 5,
+   "REDESIGNED": 4,
+   "REVIEWED AND UNCHANGED": 1
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subviews": 13,
+   "REDESIGNED": 10,
+   "REVIEWED AND UNCHANGED": 3
+  },
+  {
+   "group": "RV-04",
+   "groupTitle": "Review an update",
+   "subviews": 6,
+   "REDESIGNED": 3,
+   "REVIEWED AND UNCHANGED": 3
+  },
+  {
+   "group": "RV-05",
+   "groupTitle": "Reviewed by me",
+   "subviews": 5,
+   "REDESIGNED": 4,
+   "REVIEWED AND UNCHANGED": 1
+  },
+  {
+   "group": "RV-06",
+   "groupTitle": "Decided item, read-only",
+   "subviews": 4,
+   "REDESIGNED": 3,
+   "REVIEWED AND UNCHANGED": 1
+  },
+  {
+   "group": "Boundaries",
+   "groupTitle": "Refusals and scope",
+   "subviews": 3,
+   "REDESIGNED": 3,
+   "REVIEWED AND UNCHANGED": 0
+  },
+  {
+   "group": "Shell",
+   "groupTitle": "Shell and borrowed shared surfaces",
+   "subviews": 3,
+   "REDESIGNED": 0,
+   "REVIEWED AND UNCHANGED": 3
+  },
+  {
+   "group": "RV-07",
+   "groupTitle": "Courses in scope · Learning outcomes · Reviewer settings",
+   "subviews": 1,
+   "REDESIGNED": 0,
+   "REVIEWED AND UNCHANGED": 0
+  }
+ ],
+ "subviews": [
+  {
+   "group": "RV-01",
+   "groupTitle": "Overview",
+   "subview": "Waiting items · review desk",
+   "boards": [
+    "RV.dc.html (1440 live)",
+    "RV01-375.dc.html (375)",
+    "RV-375.dc.html (375 live)"
+   ],
+   "change": "Was one panel of identical rows stretched across the page, the gold button away from the item it opened. Now a review desk: the item waiting longest leads with its waiting time and the only gold action, Start review; the rest follow oldest first with type tags and what to look at. Side cards: the queue by type, your scope with course names, your last three decisions. Every figure counts existing records.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-01",
+   "groupTitle": "Overview",
+   "subview": "Mid widths",
+   "boards": [
+    "RV01-1024.dc.html (1024)",
+    "RV01-768.dc.html (768)"
+   ],
+   "change": "The desk runs full width; In your queue and Your review scope sit two across beneath it, Recently decided full width.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-01",
+   "groupTitle": "Overview",
+   "subview": "Nothing waiting",
+   "boards": [
+    "RV01-calm.dc.html (1440)"
+   ],
+   "change": "Was a calm message on an empty page. Now the message and Open Reviewed by me sit beside your scope and recent decisions. A decision whose item is waiting again is left out here, so it can’t contradict the empty queue.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-02",
+   "groupTitle": "Review queue",
+   "subview": "Everything waiting",
+   "boards": [
+    "RV02.dc.html (1440)",
+    "RV02-375.dc.html (375)"
+   ],
+   "change": "Type was plain text in a select, and a resubmission read as New submission. Now tabs with counts for the same four filters; arrow keys move between them. Type tags with distinct icons: a resubmission shows its revision, an update 1.2 → 1.3. A What to look at column. Course names with the codes, formats beside the record ID, waiting time in bold.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-02",
+   "groupTitle": "Review queue",
+   "subview": "Mid widths",
+   "boards": [
+    "RV02-1024.dc.html (1024)",
+    "RV02-768.dc.html (768)"
+   ],
+   "change": "Three-column rows (item · type and what to look at · waiting) carrying the same tags.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-02",
+   "groupTitle": "Review queue",
+   "subview": "Filters applied",
+   "boards": [
+    "RV02-filtered.dc.html (1440)"
+   ],
+   "change": "Search and course chips with Clear filters under the tabs; the tab counts follow the search.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-02",
+   "groupTitle": "Review queue",
+   "subview": "Loading · failed to load",
+   "boards": [
+    "RV02-loading.dc.html (1024)",
+    "RV02-failed.dc.html (1024)"
+   ],
+   "change": "Loading rows match the new four-column table. The tabs show no counts until the list has loaded, and none when it fails. Try again kept.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-02",
+   "groupTitle": "Review queue",
+   "subview": "No match · nothing waiting",
+   "boards": [
+    "RV02-nomatch.dc.html (1024)",
+    "RV02-empty.dc.html (1024)"
+   ],
+   "change": "Both messages and their actions (Clear filters; Open Reviewed by me) kept. No match sits under the new tabs; nothing waiting keeps no toolbar and no rail count. Its list area no longer claims to be a tab panel when no tabs are shown (screen readers only).",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Resubmission SUB-0077, revision 2",
+   "boards": [
+    "RV03.dc.html (1440)",
+    "RV03-375.dc.html (375)"
+   ],
+   "change": "Every section had the same weight, a fact strip repeated the details and nothing helped you move through a long page. Now an identity card (type, ID, title, summary, status, course, sender, facts) with a page map, then blocks in three weights: what changed, your learning outcomes, the vendor’s material. On phones the decision comes before the history.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Mid widths",
+   "boards": [
+    "RV03-1024.dc.html (1024)",
+    "RV03-768.dc.html (768)"
+   ],
+   "change": "One column: the identity card with Go to decision, the content, the decision panel, then the history. Separators in the card never start or end a wrapped line.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Description and documents",
+   "boards": [
+    "RV03.dc.html (SUB-0077)",
+    "RV06.dc.html (none sent)"
+   ],
+   "change": "The description at reading width; the preview link and each document as a card. A record with neither says so once.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Formats and delivery",
+   "boards": [
+    "RV03.dc.html (1440)",
+    "RV03-375.dc.html (375)"
+   ],
+   "change": "A large tile per format became one line: In this submission WEB · VR, then Not included: AR, MR (its own line on phones). The per-format delivery cards are kept.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Review history",
+   "boards": [
+    "RV03.dc.html (waiting)",
+    "RV06.dc.html (decided)"
+   ],
+   "change": "Continues the content column on wide screens and follows the decision on narrow ones; a quiet block while the item waits, a card once it is decided.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Decision panel",
+   "boards": [
+    "RV03.dc.html (1440)",
+    "RV03-375.dc.html (375)"
+   ],
+   "change": "Opens with Before you decide (outcomes, what the decision covers, what changed) and ends with What happens next: you → Content Manager → institutions. Decision wording unchanged.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Learning outcomes needed (SUB-0086)",
+   "boards": [
+    "RV03-outcomes.dc.html (1440)",
+    "RV03-outcomes-375.dc.html (375)"
+   ],
+   "change": "The rule appeared only after pressing Approve, then three times. Now Before you decide states it up front with Add an outcome; pressing Approve gives one summary and the error at the outcome field, and the hint steps aside. Rule unchanged: at least one outcome to approve.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Re-check, an outcome deleted (SUB-0071)",
+   "boards": [
+    "RV03-recheck.dc.html (1440)"
+   ],
+   "change": "The Content Manager’s reason leads as the why-it-is-here block, the identity card says Re-check, and the deleted outcome offers Undo.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Return: reason required",
+   "boards": [
+    "RV03-return-errors.dc.html (1440)"
+   ],
+   "change": "One error summary in the panel and the error at the reason field; the pending hint steps aside instead of repeating it.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Return: reason and field references",
+   "boards": [
+    "RV03-return-filled.dc.html (1440)"
+   ],
+   "change": "Field references grouped by editor section, each group with its own heading; the two pre-filled ones ticked. The recorded return lists them as section · field.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Editing an outcome",
+   "boards": [
+    "RV03-editing-375.dc.html (375)"
+   ],
+   "change": "Inline edit with Save and Cancel kept; it sits in the new outcomes block. The field now points to its error message only while one is shown (screen readers only).",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Confirm approval",
+   "boards": [
+    "RV03-confirm.dc.html (1440)"
+   ],
+   "change": "The dialog already separates what happens now from later decisions. Kept.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-03",
+   "groupTitle": "Review a submission",
+   "subview": "Approved · returned",
+   "boards": [
+    "RV03-approved.dc.html (approved)",
+    "RV03-returned.dc.html (returned)"
+   ],
+   "change": "The outcome block and its wording kept as the panel’s end state; around it, the redesigned page, now read-only.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-04",
+   "groupTitle": "Review an update",
+   "subview": "UPD-0005, Distillation Column 1.2 → 1.3",
+   "boards": [
+    "RV04.dc.html (1440)",
+    "RV04-375.dc.html (375)"
+   ],
+   "change": "The comparison came before the reason; the live version and the release chain only at the bottom. Now why this correction → what changes (live 1.2 against proposed 1.3, changed fields only) → the live experiment and its outcomes, read-only. The vendor joins the facts. What happens next: you → Super Admin, release or hold → live version.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-04",
+   "groupTitle": "Review an update",
+   "subview": "Mid widths",
+   "boards": [
+    "RV04-1024.dc.html (1024)",
+    "RV04-768.dc.html (768)"
+   ],
+   "change": "One column in the same order, the panel after the content and before the history. The fifth fact wraps flush left, without a stray divider.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-04",
+   "groupTitle": "Review an update",
+   "subview": "Return: reason required",
+   "boards": [
+    "RV04-return-errors.dc.html (1440)"
+   ],
+   "change": "The same single-error pattern as RV-03. No field references on update returns.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-04",
+   "groupTitle": "Review an update",
+   "subview": "Confirm approval",
+   "boards": [
+    "RV04-confirm.dc.html (1440)"
+   ],
+   "change": "Says what happens now and that 1.2 stays live until the Super Admin releases 1.3. Kept.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-04",
+   "groupTitle": "Review an update",
+   "subview": "Approved · returned",
+   "boards": [
+    "RV04-approved.dc.html (approved)",
+    "RV04-returned.dc.html (returned)"
+   ],
+   "change": "Outcome blocks and wording kept; around them, the redesigned page.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-04",
+   "groupTitle": "Review an update",
+   "subview": "Stale version refused · stale refusal, live",
+   "boards": [
+    "RV04-stale.dc.html (refused)",
+    "RV04-stale-armed.dc.html (live)"
+   ],
+   "change": "The refusal and the withdrawn status (no reason shown) kept; nothing is recorded.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-05",
+   "groupTitle": "Reviewed by me",
+   "subview": "All decisions",
+   "boards": [
+    "RV05.dc.html (1440)",
+    "RV05-375.dc.html (375)"
+   ],
+   "change": "Was a generic table: type as plain text, the outcome pill competing with its Now line. Now tabs for All, New submissions and Updates (the same three Show choices) with counts, and four columns: experiment (name, course code and name, ID) · type (tag with revision or version) · your decision (pill and date) · where it is now, given the weight.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-05",
+   "groupTitle": "Reviewed by me",
+   "subview": "Mid widths",
+   "boards": [
+    "RV05-1024.dc.html (1024)",
+    "RV05-768.dc.html (768)"
+   ],
+   "change": "Two-column rows: the experiment on the left; type, decision, date and where it is now on the right.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-05",
+   "groupTitle": "Reviewed by me",
+   "subview": "Updates only",
+   "boards": [
+    "RV05-updates.dc.html (1440)"
+   ],
+   "change": "The Updates tab selected, with Clear filters, instead of a select and a chip.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-05",
+   "groupTitle": "Reviewed by me",
+   "subview": "Loading · failed to load",
+   "boards": [
+    "RV05-loading.dc.html (1024)",
+    "RV05-failed.dc.html (1024)"
+   ],
+   "change": "Loading rows match the four-column table; the tabs show no counts until the list has loaded. Try again kept.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-05",
+   "groupTitle": "Reviewed by me",
+   "subview": "No match · nothing decided yet",
+   "boards": [
+    "RV05-nomatch.dc.html (1024)",
+    "RV05-empty.dc.html (1024)"
+   ],
+   "change": "Messages and actions kept; no match sits under the new tabs. The empty list no longer claims to be a tab panel (screen readers only).",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-06",
+   "groupTitle": "Decided item, read-only",
+   "subview": "Approved submission (SUB-0074)",
+   "boards": [
+    "RV06.dc.html (1440)",
+    "RV06-375.dc.html (375)"
+   ],
+   "change": "The identity card and page map of RV-03, with the decision date. Outcomes read-only; the panel shows your decision and where the record stands: academic review, outcomes, publication, access.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-06",
+   "groupTitle": "Decided item, read-only",
+   "subview": "Returned submission (SUB-0081)",
+   "boards": [
+    "RV06-returned.dc.html (1440)"
+   ],
+   "change": "A record with few details no longer gets a thin block repeating course and formats. The panel quotes your reason with its field references; the history is a card.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-06",
+   "groupTitle": "Decided item, read-only",
+   "subview": "Approved update with the Super Admin (UPD-0004)",
+   "boards": [
+    "RV06-update.dc.html (1440)"
+   ],
+   "change": "The same decision-first treatment; it says only that the update is with the Super Admin for a release decision. Hold reasons are never shown.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "RV-06",
+   "groupTitle": "Decided item, read-only",
+   "subview": "Already decided elsewhere (SUB-0077)",
+   "boards": [
+    "RV06-elsewhere.dc.html (1440)"
+   ],
+   "change": "The refusal notice kept; under it, the redesigned read-only item.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "Boundaries",
+   "groupTitle": "Refusals and scope",
+   "subview": "Outside your scope (UPD-0006)",
+   "boards": [
+    "RV-scope.dc.html (1440)",
+    "RV-scope-375.dc.html (375)"
+   ],
+   "change": "A message on a large empty page became one card with the heading and two ways on: back to the review queue, Help & support. Nothing of the record shown; wording from the shared message template.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "Boundaries",
+   "groupTitle": "Refusals and scope",
+   "subview": "Not available (a draft withdrawn before it was sent)",
+   "boards": [
+    "RV-unavailable.dc.html (1440)"
+   ],
+   "change": "The same card.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "Boundaries",
+   "groupTitle": "Refusals and scope",
+   "subview": "Queue after a scope is withdrawn (CHE ZG513)",
+   "boards": [
+    "RV-scope-withdrawn.dc.html (1440)"
+   ],
+   "change": "Shown in the redesigned queue. Behaviour kept: the course’s items leave the queue and the course filter lists two codes.",
+   "status": "REDESIGNED"
+  },
+  {
+   "group": "Shell",
+   "groupTitle": "Shell and borrowed shared surfaces",
+   "subview": "Rail, page header, phone menu button",
+   "boards": [
+    "every board"
+   ],
+   "change": "The XR-V3-RB-1.0 shell: rail with the queue count, date line, account button. Kept.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "Shell",
+   "groupTitle": "Shell and borrowed shared surfaces",
+   "subview": "Account menu · phone menu",
+   "boards": [
+    "RV-account.dc.html (1440)",
+    "RV-drawer-375.dc.html (375)"
+   ],
+   "change": "Borrowed renderings of the shared contract; Shared Surfaces owns them. Kept.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "Shell",
+   "groupTitle": "Shell and borrowed shared surfaces",
+   "subview": "Help & support · report a problem · report sent · signed out",
+   "boards": [
+    "RV-help.dc.html (help)",
+    "RV-report-375.dc.html (report)",
+    "RV-report-sent.dc.html (sent)",
+    "RV-signedout.dc.html (signed out)"
+   ],
+   "change": "Borrowed renderings; Shared Surfaces owns them and replaces them at assembly. Their empty areas are passed on as a note, not restyled here.",
+   "status": "REVIEWED AND UNCHANGED"
+  },
+  {
+   "group": "RV-07",
+   "groupTitle": "Courses in scope · Learning outcomes · Reviewer settings",
+   "subview": "Not designed",
+   "boards": [
+    "—"
+   ],
+   "change": "Excluded by the existing decision. Scope is a card on the Overview; outcomes are edited on the review page.",
+   "status": "EXCLUDED"
+  }
+ ]
+}

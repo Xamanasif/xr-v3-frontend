@@ -1,0 +1,77 @@
+[
+ {
+  "check": "base CSS byte-identical to the locked foundation",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "rv.css: all 380 selectors carry an rv- class",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "rv.css defines no :root or custom property",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "no unused rv- classes (208 defined)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "every static class in the 65 boards is defined (341)",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "no decision identifiers (OD-, LD-, PC-, T-) in the role\u2019s visible copy",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "no record ID printed by the template on any of the six reviewer screens",
+  "pass": true,
+  "detail": "the one remaining {{ r.ref }} hole is the support reference (SUP-0214) in the Help & support reports list \u2014 a borrowed shared (XS) surface, flagged in ROLE-STATUS"
+ },
+ {
+  "check": "record IDs still carried in the data and the routes",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "search still matches on the record ID",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "canvas.json: 65 boards, all present, order complete",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "every board\u2019s preview size equals its canvas frame",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "canvas.json: no overlapping frames",
+  "pass": true,
+  "detail": "[]"
+ },
+ {
+  "check": "Main links 64 boards, all present",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "no href=\"#\" placeholder in the role component",
+  "pass": true,
+  "detail": ""
+ },
+ {
+  "check": "the only ID-shaped hole left in the template is the shared support reference",
+  "pass": true,
+  "detail": "1 hole(s): ['{{ r.ref }}']"
+ }
+]

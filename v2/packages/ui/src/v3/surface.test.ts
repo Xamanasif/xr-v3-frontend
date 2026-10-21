@@ -185,6 +185,59 @@ const RUNTIME_EXPORTS = [
   'ReportListSurface',
   'ReportRows',
   'ReportSection',
+  // The Academic Reviewer role (RV-v1): the shared patterns (rv.tsx), then one module per screen
+  // group (rv-lists.tsx, rv-submission.tsx, rv-update.tsx).
+  'RV_KIND_ICON',
+  'RvBandHead',
+  'RvBlock',
+  'RvBlockHead',
+  'RvComparison',
+  'RvCourse',
+  'RvDecisionOutcome',
+  'RvDetail',
+  'RvFootnote',
+  'RvFormatBadges',
+  'RvHistory',
+  'RvIdCard',
+  'RvKindTag',
+  'RvOutcomesReadOnly',
+  'RvPath',
+  'RvQuote',
+  'RvReadyList',
+  'RvRefusal',
+  'RvStatus',
+  'RvCalm',
+  'RvDecisionsTable',
+  'RvDesk',
+  'RvListPanel',
+  'RvListTabs',
+  'rvListTabId',
+  'RvListToolbar',
+  'RvLoadingRows',
+  'RvNextInLine',
+  'RvQueueTable',
+  'RvQueueTypes',
+  'RvRecentDecisions',
+  'RvScopeCourses',
+  'RvSide',
+  'RvSideCard',
+  'RvWaitList',
+  'RvWaitPanel',
+  'RV_OUTCOME_IDS',
+  'RvChangeSet',
+  'RvChangedTag',
+  'RvDeliveryCard',
+  'RvDeliveryCards',
+  'RvExternalLink',
+  'RvFileCards',
+  'RvFormatLine',
+  'RvMiniHeading',
+  'RvOutcomesBlock',
+  'RvOutcomesEditor',
+  'RvProse',
+  'RvReferenceGroups',
+  'RvRequirement',
+  'RvLiveExperiment',
   'SaMessage',
   'ScopeItem',
   'ScopeList',
@@ -280,9 +333,13 @@ describe('@xr/ui/v3 surface', () => {
     for (const name of ['ListSurface', 'FOUNDATION_ID', 'V46Island', 'TermTrack', 'PlanBand']) {
       expect(Object.keys(root)).not.toContain(name);
     }
-    // No Vendor (VE-v1) or Content Manager (CM-v1) name is shared with the v46 root entry.
+    // No Vendor (VE-v1), Content Manager (CM-v1) or Academic Reviewer (RV-v1) name is shared with
+    // the v46 root entry.
     expect(Object.keys(v3).filter((name) => name.startsWith('Vendor') && name in root)).toEqual([]);
     expect(Object.keys(v3).filter((name) => /^Cm[A-Z]/.test(name) && name in root)).toEqual([]);
+    expect(
+      Object.keys(v3).filter((name) => /^(?:Rv|RV_|rv)[A-Z]/.test(name) && name in root),
+    ).toEqual([]);
     const shared = Object.keys(v3).filter((name) => name in root);
     expect(shared.sort()).toEqual(
       [

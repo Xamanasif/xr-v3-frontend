@@ -2,49 +2,92 @@
 
 import type { Result, ServiceError } from '@xr/contracts/draft';
 import { FORMAT_META, inDisplayOrder } from '@xr/domain';
+import { BackLink, PageContent, PageHeader } from '@xr/ui';
 import {
-  BackLink,
+  Breadcrumbs,
   Button,
-  ChoiceCard,
-  ChoiceList,
+  ButtonLink,
+  ChoiceGroup,
   ConfirmDialog,
-  DecisionLayout,
+  DecisionPanel,
+  ErrorSummary,
+  type ErrorSummaryItem,
   Field,
-  FormatBadge,
-  Icon,
-  JumpLink,
-  Link,
+  MessagePage,
   Notice,
-  PageContent,
-  PageHeader,
-  RadioGroup,
-  ReasonDialog,
-  Section,
-  SectionBody,
-  StatusPill,
+  PendingHint,
+  RvBandHead,
+  RvBlock,
+  RvBlockHead,
+  RvComparison,
+  RvCourse,
+  RvDecisionOutcome,
+  RvDetail,
+  RvFootnote,
+  RvHistory,
+  RvIdCard,
+  RvKindTag,
+  RvLiveExperiment,
+  RvPath,
+  type RvPageLink,
+  RvQuote,
+  type RvReadyItem,
+  RvReadyList,
+  RvRefusal,
+  RvStatus,
   Textarea,
   Timeline,
-} from '@xr/ui';
+  V46Island,
+} from '@xr/ui/v3';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
 
-import { COMPARISON } from '@/copy/corrections';
-import { dayMonthYear } from '@/copy/dates';
+import { dateTime, dayMonth, dayMonthYear } from '@/copy/dates';
 import {
-  approveUpdateEffect,
+  APPROVE_DIALOG,
   approveUpdateTitle,
-  courseLineWords,
-  liveSinceWords,
+  CHANGES_BLOCK,
+  CHANGES_COLUMNS,
+  changedFieldsTitle,
+  changesNoteWords,
+  columnWords,
+  goesLiveLater,
+  LIVE_BLOCK,
+  liveNoteWords,
+  liveOutcomesTitle,
+  livePathLine,
+  liveSinceFact,
+  NOT_SENT,
   RELEASED_COLUMNS,
-  REVIEW_UPDATE,
-  reviewUpdateMeta,
-  reviewUpdateOverline,
-  reviewUpdateTitle,
-  STRIPPED_UPDATE,
+  staysLiveLine,
+  staysLiveTitle,
+  UPDATE_CARD,
   UPDATE_DECISION,
+  UPDATE_REFUSAL,
+  WHY_BLOCK,
+  whyByWords,
 } from '@/copy/review-update';
+import {
+  formatsFact,
+  fromContentManager,
+  RV_APPROVE_DIALOG,
+  RV_BACK,
+  RV_FACT_TERMS,
+  RV_ITEM,
+  RV_REFUSAL,
+  waitingSentFact,
+} from '@/copy/rv-shared';
 import { stateWords } from '@/copy/state-copy';
+import { NOT_YOUR_WORKSPACE } from '@/copy/xs';
 import { useAppNavigation } from '@/nav/navigation';
-import { REVIEW_QUEUE_ADDRESS, REVIEW_QUEUE_TITLE, reviewUpdatePlacement } from '@/nav/reviewer';
+import {
+  REVIEW_QUEUE_ADDRESS,
+  REVIEW_QUEUE_TITLE,
+  REVIEWED_BY_ME_ADDRESS,
+  type ReviewerParent,
+  reviewerParentCrumb,
+  reviewerParentOf,
+  reviewUpdatePlacement,
+} from '@/nav/reviewer';
 import type { UpdateForReviewView } from '@/queries/correction-view';
 import { useUpdateForReview } from '@/queries/corrections';
 import {
@@ -55,20 +98,35 @@ import {
 import { useCurrentSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
 
-import { CorrectionComparison } from '../../shared/correction-comparison/correction-comparison';
 import { RecordGuard } from '../../shared/record-guard/record-guard';
-import { useShellPage } from '../../shared/workspace-frame/shell-page';
-import { actorName, chipOf, decidedPanelOf, historyOf, isOpen } from './review-update-view';
+import { useShellPage, useWorkspaceIdentity } from '../../shared/workspace-frame/shell-page';
+import { updateKind } from '../shared/kind';
+import { updateRecordStanding } from '../shared/standing';
+import { useRvToday, useRvTodayLine, waitingAge } from '../shared/waiting';
+import {
+  actorName,
+  changeRowsOf,
+  decidedAt,
+  historyOf,
+  isOpen,
+  outcomeOf,
+} from './review-update-view';
 
-/** The page’s element ids (B6-04 `Um-…`): the panel, its heading, button and result; the field. */
-const PANEL_ID = 'ru-decision';
-const PANEL_TITLE_ID = 'ru-dp';
-const GO_ID = 'ru-go';
-const DECIDED_ID = 'ru-dec';
-const REASON_ID = 'ru-reason';
-const TITLE_ID = 'ru-h';
+/** The export's ids (RV-v1 `RV.dc.html` item view). */
+const TITLE_ID = 'rv-title';
+const PANEL_ID = 'rv-panel';
+const PANEL_TITLE_ID = 'rv-panel-h';
+const DONE_ID = 'rv-done';
+const REFUSAL_ID = 'rv-refusal';
+const ERRORS_ID = 'rv-errs';
+const GO_ID = 'rv-go';
+const CHOICE_ID = 'rv-choice';
+/** "Whole update." in Before you decide: it describes each decision (RV-v1 `aria-describedby`). */
+const WHOLE_ID = 'rv-whole';
+const REASON_ID = 'rv-reason';
+const SECTION = { why: 'rv-s-why', changes: 'rv-s-cmp', live: 'rv-s-live', history: 'rv-s-hist' };
 
-/** The experiment as the catalogue lists it: its course and learning outcomes (`null`: unread). */
+/** The experiment as the catalogue lists it: its course and the live learning outcomes. */
 interface ExperimentFacts {
   readonly courseCode: string | null;
   readonly courseName: string;
@@ -76,30 +134,36 @@ interface ExperimentFacts {
 }
 
 /**
- * RV-04 Review an update — board B6-04 f0 … f4, B6-13 f4 and B7-11 f6, at
- * `/reviewer/updates/[updateId]`.
+ * RV-04 Review an update, and RV-06 for an update once decided — the owner-approved Academic
+ * Reviewer export (V3 Refined B, design/v3-refined-b/roles/RV-v1, `RV.dc.html` item view for an
+ * update; boards RV04, RV04-1024/768/375, RV04-return-errors, -confirm, -approved, -returned,
+ * -stale-armed, -stale, RV06-update), at `/reviewer/updates/[updateId]`.
  *
  * - **Read**: `CorrectionService.getUpdateForReview` — the update, the comparison of its changed
  *   fields with the live version, the live version and whether it is decided — and the experiment
- *   as the public catalogue lists it (its course and learning outcomes; the live version only).
- * - **As B6-04 draws it** (AR-4; the panel beside the content from 860 px of content, under it
- *   below with “Go to decision”; `xg-static`): the back link, “UPD-0005 · Update (Content Manager
- *   correction)”, “<name> · <from> → <to>”, the chip and “From <Content Manager> · <course> · live
- *   version <v>”; “What changes · Changed fields only” (the shared comparison, CM-08 / SA-11);
- *   “Why — from the Content Manager”; “About this experiment · Live · read-only” (course, formats,
- *   the live version and since when, the learning outcomes, the open note without its id);
- *   “Update history · Newest first”.
- * - **Decide** (“Your decision”): Approve update (the default) through DL-1 — “It goes to the Super
- *   Admin, who decides when to release it. Version <v> stays live until then.”: approval releases
- *   and publishes nothing — or Return to the Content Manager through DL-2 with a required reason
- *   (no references: open, T-28). Each carries the update’s revision from when its dialog opened.
- * - **Refusals**: stale → read again, a calm warning in the panel (`RV-04.stale.*`); withdrawn or
- *   decided elsewhere → the current state with `RV-04.moved-on`; failed for now → the dialog stays
- *   open (`RV-04.unavailable`); not found or outside the reviewer’s scope → the in-shell not-found
- *   page; not sent yet (a draft the service keeps from the reviewer) → B6-13 f4’s “No update is
- *   waiting for your decision” (`RV-04.not-sent`).
- * - **Decided** (f3, f4; withdrawn, on hold, released): the panel’s result with “Back to the
- *   review queue” (`RV-04.decided`); focus moves to it after a decision made here.
+ *   as the public catalogue lists it (its course and the live learning outcomes). Loading and a
+ *   failed read keep the application's existing page states (as CM-v1 HANDOFF §4).
+ * - **As the export draws it**: the breadcrumb (the parent list, then the experiment's name), the
+ *   identity card (Update · <from> → <to>, the name, the summary, the status, the course, “From
+ *   <Content Manager>, Content Manager”; live version, proposed version, waiting or decided,
+ *   formats; the page map), then *Why this correction*, *What changes* (live now beside proposed,
+ *   removed words struck, added words highlighted), *The live experiment* (its outcomes read-only)
+ *   and the update history, beside “Your decision”. No reference (UPD-…) is ever shown; the
+ *   Content Manager's reason is quoted as written.
+ * - **Decide**: no choice at first; *Before you decide*, the choice, the one gold button, *What
+ *   happens next*. Approve update asks first (“Approve the update to <name>?”: it goes to the Super
+ *   Admin; the live version stays until a release — approval releases nothing). Return to the
+ *   Content Manager takes its required reason in the panel and is sent at once. Errors show in
+ *   “Check your decision”, which takes focus, and at their field. Each command carries the update's
+ *   revision (`expectedRev`) and ignores a repeated press.
+ * - **Refused**: withdrawn under the page → “Nothing was recorded” and the withdrawn outcome;
+ *   decided elsewhere → “Nothing new was recorded”; changed but still waiting → “This update changed
+ *   since you opened it” with the panel open; failed for now → the dialog (or the panel) says so;
+ *   not found or outside the reviewer’s scope → the in-shell not-found page; not sent yet (a draft
+ *   the service keeps from the reviewer) → the XS message page (`RV-04.not-sent`).
+ * - **Decided** (RV-06): the outcome block — status, when, the reason of a return, where it stands,
+ *   what happens next and the way back to the parent list; focus moves to it after a decision made
+ *   here.
  */
 export function ReviewUpdate({ updateId }: { readonly updateId: string }) {
   const read = useUpdateForReview(updateId);
@@ -108,9 +172,15 @@ export function ReviewUpdate({ updateId }: { readonly updateId: string }) {
   const experiment = useReviewUpdateExperiment(experimentId);
   const session = useCurrentSession();
   const reader = session.data?.ok ? (session.data.value?.session.displayName ?? '') : '';
-  // The top bar reads “Review queue” below 1024 px and the crumbs “Review queue / UPD-0005” from
-  // 1024 px (B6-04 f0 … f4).
-  useShellPage(reviewUpdatePlacement(answer ? answer.update.id : null));
+  // The list the page sits under (RV-v1 `parentOf`): the Review queue while the update waited for
+  // the reviewer when the page opened, otherwise Reviewed by me — kept after a decision made here.
+  const [parent, setParent] = useState<ReviewerParent | null>(null);
+  if (answer && parent === null) setParent(reviewerParentOf(isOpen(answer)));
+  useShellPage(
+    reviewUpdatePlacement(
+      answer ? { name: answer.live.catalogue.name, decided: !isOpen(answer), parent } : null,
+    ),
+  );
 
   const facts: ExperimentFacts | null = experiment.data?.ok
     ? {
@@ -120,158 +190,144 @@ export function ReviewUpdate({ updateId }: { readonly updateId: string }) {
       }
     : null;
   const experimentPending = experimentId !== null && experiment.isPending;
-  // While it loads or fails: the back link and the page’s heading (`RV-04.loading`).
+  const guard = (
+    <RecordGuard
+      read={{
+        data: experimentPending ? undefined : read.data,
+        isPending: read.isPending || experimentPending,
+        isError: read.isError,
+        refetch: () => void read.refetch(),
+      }}
+      loadingLabel={stateWords('RV-04.loading')}
+      failed={{ title: stateWords('RV-04.failed'), line: stateWords('RV-04.failed.line') }}
+      refusals={{ 'invalid-state': <NotSent /> }}
+    >
+      {(view) => (
+        <Review
+          key={view.update.id}
+          view={view}
+          experiment={facts}
+          reader={reader}
+          parent={parent ?? reviewerParentOf(isOpen(view))}
+          onReread={() => read.refetch()}
+        />
+      )}
+    </RecordGuard>
+  );
+  // While it loads or fails: the application's existing page states, with the page's heading.
   const bare = read.isError || read.data === undefined || experimentPending;
+  if (!bare) return guard;
   return (
-    <PageContent wrap="wide">
-      {bare ? <BareHeader /> : null}
-      <RecordGuard
-        read={{
-          data: experimentPending ? undefined : read.data,
-          isPending: read.isPending || experimentPending,
-          isError: read.isError,
-          refetch: () => void read.refetch(),
-        }}
-        loadingLabel={stateWords('RV-04.loading')}
-        failed={{ title: stateWords('RV-04.failed'), line: stateWords('RV-04.failed.line') }}
-        refusals={{ 'invalid-state': <NotSent /> }}
-      >
-        {(view) => (
-          <Review
-            key={view.update.id}
-            view={view}
-            experiment={facts}
-            reader={reader}
-            onReread={() => void read.refetch()}
-          />
-        )}
-      </RecordGuard>
-    </PageContent>
+    <V46Island>
+      <PageContent wrap="wide">
+        <PageHeader
+          className="[margin:8px_0_16px]"
+          back={<BackLink href={REVIEW_QUEUE_ADDRESS}>{REVIEW_QUEUE_TITLE}</BackLink>}
+          title={NOT_SENT.heading}
+        />
+        {guard}
+      </PageContent>
+    </V46Island>
   );
 }
 
-/** Before the update is read (or when it can’t be): the back link and the page’s heading. */
-function BareHeader() {
-  return (
-    <PageHeader
-      className="[margin:8px_0_16px]"
-      back={<BackLink href={REVIEW_QUEUE_ADDRESS}>{REVIEW_QUEUE_TITLE}</BackLink>}
-      title={REVIEW_UPDATE.heading}
-    />
-  );
-}
-
-/** B6-04 `rvNone`, B6-13 f4: nothing to decide until it is sent (state-copy `RV-04.not-sent`). */
+/**
+ * Not sent yet (a draft the service keeps from the reviewer, UPD-16): the delivered XS message
+ * page in the V3 shell, with the product's words (state-copy `RV-04.not-sent`) — nothing about the
+ * draft.
+ */
 function NotSent() {
+  const { help } = useWorkspaceIdentity();
   return (
-    <>
-      <PageHeader
-        className="[margin:8px_0_16px]"
-        back={<BackLink href={REVIEW_QUEUE_ADDRESS}>{REVIEW_QUEUE_TITLE}</BackLink>}
-        title={REVIEW_UPDATE.heading}
-        titleId={TITLE_ID}
-        titleFocusTarget
-      />
-      <div className="xr-section">
-        <div className="xr-empty">
-          <span className="xr-empty-icon xr-x-empty-icon--ok">
-            <Icon name="done" />
-          </span>
-          <h2 className="xr-h3 m-0">{REVIEW_UPDATE.noneTitle}</h2>
-          <p className="xr-body m-0 text-ink-2">{REVIEW_UPDATE.noneLine}</p>
-          <div className="flex flex-wrap gap-3">
-            <Link className="xr-btn xr-btn--secondary" href={REVIEW_QUEUE_ADDRESS}>
-              {REVIEW_UPDATE.openQueue}
-            </Link>
-          </div>
-        </div>
-      </div>
-    </>
+    <MessagePage
+      kind="done"
+      title={NOT_SENT.title}
+      titleId={TITLE_ID}
+      primary={{ href: REVIEW_QUEUE_ADDRESS, label: NOT_SENT.openQueue }}
+      secondary={{ href: help, label: NOT_YOUR_WORKSPACE.help }}
+    >
+      {NOT_SENT.line}
+    </MessagePage>
   );
 }
 
-/** What the panel says after a refused decision. */
-type PanelNotice = 'stale' | 'moved-on' | null;
-
-/** The choice (B6-04 `rvc`) and the open dialog: DL-1 Approve or DL-2 Return. */
+/** Why a decision was refused: the update had changed, or was no longer waiting (re-read). */
+type Refusal = 'stale' | 'moved-on' | null;
 type Choice = 'approve' | 'return';
+interface PanelErrors {
+  readonly choice?: string;
+  readonly reason?: string;
+}
 
 function Review({
   view,
   experiment,
   reader,
+  parent,
   onReread,
 }: {
   readonly view: UpdateForReviewView;
   readonly experiment: ExperimentFacts | null;
   readonly reader: string;
-  readonly onReread: () => void;
+  readonly parent: ReviewerParent;
+  readonly onReread: () => Promise<unknown>;
 }) {
   const navigation = useAppNavigation();
+  const { personId } = useWorkspaceIdentity();
+  const today = useRvToday();
+  const todayLine = useRvTodayLine();
   const { update, live } = view;
   const open = isOpen(view);
-  const chip = chipOf(update);
   const name = live.catalogue.name;
+  const proposedLabel = update.versionLabel ?? '';
 
-  const [choice, setChoice] = useState<Choice>('approve');
-  const [dialog, setDialog] = useState<Choice | null>(null);
-  /** The update’s revision when the dialog opened: the decision is sent on it (`expectedRev`). */
-  const [decisionRev, setDecisionRev] = useState(update.rev);
+  const [choice, setChoice] = useState<Choice | null>(null);
   const [reason, setReason] = useState('');
-  const [reasonError, setReasonError] = useState<string | null>(null);
-  const [notice, setNotice] = useState<PanelNotice>(null);
+  const [errors, setErrors] = useState<PanelErrors>({});
+  const [dialogOpen, setDialogOpen] = useState(false);
+  /** The update’s revision when the dialog opened: approval is sent on it (`expectedRev`). */
+  const [decisionRev, setDecisionRev] = useState(update.rev);
+  const [refusal, setRefusal] = useState<Refusal>(null);
   const [sendFailed, setSendFailed] = useState(false);
   const [gone, setGone] = useState(false);
-  const [focusTitle, setFocusTitle] = useState(0);
+  const [focusRefusal, setFocusRefusal] = useState(0);
   const decidedFocus = useRef(false);
-  const decidedRef = useRef<HTMLDivElement>(null);
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const doneRef = useRef<HTMLDivElement>(null);
+  const refusalRef = useRef<HTMLDivElement>(null);
+  const errorsRef = useRef<HTMLDivElement>(null);
 
   const approve = useCommand((ports) => ports.corrections.approveUpdate);
   const giveBack = useCommand((ports) => ports.corrections.returnUpdate);
 
-  // A refusal: focus to the panel’s heading, where the notice is.
+  // A refusal: focus to the notice at the top of the panel (the export's `focusId('rv-refusal')`).
   useEffect(() => {
-    if (focusTitle > 0) titleRef.current?.focus();
-  }, [focusTitle]);
+    if (focusRefusal > 0) refusalRef.current?.focus();
+  }, [focusRefusal]);
 
-  // Decided here: focus moves to the decided panel (B6-04 `focus(pid + '-r-dec')`).
+  // Decided here: focus moves to the outcome (the export's `focusId('rv-done')`).
   useEffect(() => {
     if (open || !decidedFocus.current) return;
     decidedFocus.current = false;
-    decidedRef.current?.focus();
+    doneRef.current?.focus();
   });
 
   if (gone) return navigation.notFound();
 
-  const go = () => {
-    setNotice(null);
-    setDecisionRev(update.rev);
-    setSendFailed(false);
-    setReasonError(null);
-    if (choice === 'return') setReason('');
-    setDialog(choice);
-  };
-
-  const cancel = () => {
-    setDialog(null);
-    setSendFailed(false);
-    setReasonError(null);
-  };
-
   /** What an answer to a decision means for the page (refusals are values, ADR-0008). */
-  const answered = (result: Result<unknown, ServiceError>) => {
+  const answered = (result: Result<unknown, ServiceError>, returning: boolean) => {
     if (result.ok) {
-      setDialog(null);
-      setNotice(null);
+      setDialogOpen(false);
+      setRefusal(null);
+      setErrors({});
       decidedFocus.current = true;
       return;
     }
     const error = result.error;
     if (error.kind === 'validation-failed') {
       const issue = returnReasonIssue(error);
-      if (issue && dialog === 'return') {
-        setReasonError(issue);
+      if (issue && returning) {
+        setErrors({ reason: issue });
+        errorsRef.current?.focus();
         return;
       }
     }
@@ -279,272 +335,417 @@ function Review({
       setGone(true);
       return;
     }
-    // Stale, withdrawn or decided elsewhere: nothing was written. The update is read again and
-    // the next attempt is sent on the update as now shown.
-    setDialog(null);
-    setNotice(error.kind === 'stale-version' ? 'stale' : 'moved-on');
-    onReread();
-    setFocusTitle((count) => count + 1);
+    // Stale, withdrawn or decided elsewhere: nothing was written. The update is read again; the
+    // notice then says what happened, from the update as it is now.
+    setDialogOpen(false);
+    const kind: Refusal = error.kind === 'stale-version' ? 'stale' : 'moved-on';
+    void onReread().then(() => {
+      setRefusal(kind);
+      setFocusRefusal((count) => count + 1);
+    });
   };
 
   const failed = () => setSendFailed(true);
 
+  const go = () => {
+    const found: PanelErrors = {
+      ...(choice === null ? { choice: UPDATE_DECISION.chooseDecision } : {}),
+      ...(choice === 'return'
+        ? (() => {
+            const issue = returnUpdateIssue({ id: update.id, reason, expectedRev: update.rev });
+            return issue ? { reason: issue } : {};
+          })()
+        : {}),
+    };
+    setErrors(found);
+    if (Object.keys(found).length > 0) {
+      errorsRef.current?.focus();
+      return;
+    }
+    setRefusal(null);
+    setSendFailed(false);
+    if (choice === 'approve') {
+      setDecisionRev(update.rev);
+      setDialogOpen(true);
+      return;
+    }
+    if (giveBack.busy) return;
+    giveBack
+      .run({ id: update.id, reason, expectedRev: update.rev })
+      .then((result) => answered(result, true), failed);
+  };
+
   const sendApprove = () => {
     if (approve.busy) return;
     setSendFailed(false);
-    approve.run({ id: update.id, expectedRev: decisionRev }).then(answered, failed);
+    approve
+      .run({ id: update.id, expectedRev: decisionRev })
+      .then((result) => answered(result, false), failed);
   };
 
-  const sendReturn = () => {
-    if (giveBack.busy) return;
-    setSendFailed(false);
-    const input = { id: update.id, reason, expectedRev: decisionRev };
-    const issue = returnUpdateIssue(input);
-    if (issue) {
-      setReasonError(issue);
-      return;
-    }
-    giveBack.run(input).then(answered, failed);
-  };
+  // ---- the identity card --------------------------------------------------------------------------
+  const kind = updateKind(update);
+  const standing = updateRecordStanding(update);
+  const formats = inDisplayOrder(live.formats.map((entry) => entry.format)).map(
+    (format) => FORMAT_META[format].code,
+  );
+  const decidedOn = decidedAt(update);
+  const waitingSince = update.sentForReviewAt;
+  const facts = [
+    {
+      key: 'live',
+      term: UPDATE_CARD.liveVersion,
+      value: liveSinceFact(live.label, dayMonth(live.liveFrom)),
+    },
+    ...(proposedLabel
+      ? [{ key: 'proposed', term: UPDATE_CARD.proposedVersion, value: proposedLabel }]
+      : []),
+    ...(open && waitingSince && today
+      ? [
+          {
+            key: 'waiting',
+            term: RV_FACT_TERMS.waiting,
+            value: (() => {
+              const age = waitingAge(waitingSince, today);
+              return waitingSentFact(age.age, age.day);
+            })(),
+          },
+        ]
+      : []),
+    ...(!open && update.state !== 'withdrawn' && decidedOn
+      ? [{ key: 'decided', term: RV_FACT_TERMS.decided, value: dateTime(decidedOn) }]
+      : []),
+    ...(formats.length > 0
+      ? [{ key: 'formats', term: RV_FACT_TERMS.formats, value: formatsFact(formats) }]
+      : []),
+  ];
+  const changeRows = changeRowsOf(view);
+  const why = update.whatChangesAndWhy;
+  const hasLive = experiment !== null;
+  const pageMap: RvPageLink[] = [
+    ...(why ? [{ targetId: SECTION.why, label: UPDATE_CARD.anchors.why }] : []),
+    ...(changeRows.length > 0
+      ? [
+          {
+            targetId: SECTION.changes,
+            label: UPDATE_CARD.anchors.changes,
+            count: String(changeRows.length),
+          },
+        ]
+      : []),
+    ...(hasLive ? [{ targetId: SECTION.live, label: UPDATE_CARD.anchors.live }] : []),
+    { targetId: SECTION.history, label: UPDATE_CARD.anchors.history },
+  ];
 
-  // ---- the panel (B6-04 `rvOpen`, `rvClosed`) ----
+  // ---- the panel ----------------------------------------------------------------------------------
+  let notice: ReactNode = null;
+  if (refusal !== null) {
+    const [title, detail] =
+      update.state === 'withdrawn'
+        ? [RV_REFUSAL.stale, UPDATE_REFUSAL.withdrawnLine]
+        : open
+          ? [stateWords('RV-04.stale.title'), stateWords('RV-04.stale.line')]
+          : [RV_REFUSAL.elsewhere, stateWords('RV-04.moved-on')];
+    notice = <RvRefusal id={REFUSAL_ID} refusalRef={refusalRef} title={title} detail={detail} />;
+  }
+  const back =
+    parent === 'reviewed'
+      ? { href: REVIEWED_BY_ME_ADDRESS, label: RV_BACK.reviewed }
+      : { href: REVIEW_QUEUE_ADDRESS, label: RV_BACK.queue };
+
   let panel: ReactNode;
   if (open) {
+    const ready: RvReadyItem[] = [
+      {
+        id: WHOLE_ID,
+        tone: 'info',
+        icon: 'layers',
+        title: UPDATE_DECISION.wholeTitle,
+        detail: UPDATE_DECISION.wholeLine,
+      },
+      ...(proposedLabel
+        ? [
+            {
+              id: 'rv-ready-1',
+              tone: 'info' as const,
+              icon: 'live' as const,
+              title: staysLiveTitle(live.label),
+              detail: staysLiveLine(proposedLabel),
+            },
+          ]
+        : []),
+      ...(changeRows.length > 0
+        ? [
+            {
+              id: 'rv-ready-2',
+              tone: 'info' as const,
+              icon: 'update' as const,
+              title: changedFieldsTitle(changeRows.length),
+              link: { label: UPDATE_DECISION.seeChanges, targetId: SECTION.changes },
+            },
+          ]
+        : []),
+    ];
+    const summary: ErrorSummaryItem[] = [
+      ...(errors.choice ? [{ fieldId: CHOICE_ID, summaryText: errors.choice }] : []),
+      ...(errors.reason ? [{ fieldId: REASON_ID, summaryText: errors.reason }] : []),
+    ];
+    const returning = choice === 'return';
+    const pending =
+      returning && reason.trim() === '' && !errors.reason ? UPDATE_DECISION.pendingReason : null;
     panel = (
       <>
-        {notice === 'stale' ? (
-          <Notice tone="warn" role="alert" title={stateWords('RV-04.stale.title')}>
-            {stateWords('RV-04.stale.line')}
-          </Notice>
-        ) : null}
-        <RadioGroup
-          legend={UPDATE_DECISION.legend}
-          legendClass="xr-sr"
+        {notice}
+        <RvReadyList title={RV_ITEM.beforeYouDecide} items={ready} />
+        <ErrorSummary
+          ref={errorsRef}
+          id={ERRORS_ID}
+          title={RV_ITEM.checkYourDecision}
+          items={summary}
+        />
+        <ChoiceGroup<Choice>
+          id={CHOICE_ID}
+          name={CHOICE_ID}
+          legend={RV_ITEM.decision}
+          error={errors.choice}
           value={choice}
-          onValueChange={(value) => setChoice(value === 'return' ? 'return' : 'approve')}
+          onChange={(value) => {
+            setChoice(value);
+            setErrors({});
+          }}
+          options={[
+            {
+              value: 'approve',
+              title: UPDATE_DECISION.approve.title,
+              description: UPDATE_DECISION.approve.sub,
+
+              describedBy: WHOLE_ID,
+            },
+            {
+              value: 'return',
+              title: UPDATE_DECISION.return.title,
+              description: UPDATE_DECISION.return.sub,
+
+              describedBy: WHOLE_ID,
+            },
+          ]}
+        />
+        {returning ? (
+          <Field
+            id={REASON_ID}
+            label={UPDATE_DECISION.reasonLabel}
+            hint={UPDATE_DECISION.reasonHint}
+            error={errors.reason}
+          >
+            <Textarea
+              value={reason}
+              onChange={(event) => {
+                setReason(event.target.value);
+                setErrors((current) => (current.choice ? { choice: current.choice } : {}));
+              }}
+            />
+          </Field>
+        ) : null}
+        {returning && sendFailed ? <UnavailableNotice /> : null}
+        {pending ? <PendingHint>{pending}</PendingHint> : null}
+        <Button
+          id={GO_ID}
+          variant="primary"
+          className="rk-go"
+          busy={giveBack.busy}
+          busyLabel={UPDATE_DECISION.returning}
+          onClick={go}
         >
-          <ChoiceList>
-            <ChoiceCard
-              value="approve"
-              id="ru-ua"
-              title={UPDATE_DECISION.approve.title}
-              sub={UPDATE_DECISION.approve.sub}
-            />
-            <ChoiceCard
-              value="return"
-              id="ru-ur"
-              title={UPDATE_DECISION.return.title}
-              sub={UPDATE_DECISION.return.sub}
-            />
-          </ChoiceList>
-        </RadioGroup>
-        <Button id={GO_ID} variant="primary" block onClick={go}>
-          {choice === 'approve' ? UPDATE_DECISION.approve.title : UPDATE_DECISION.return.title}
+          {returning ? UPDATE_DECISION.return.title : UPDATE_DECISION.approve.title}
         </Button>
+        <RvPath
+          title={RV_ITEM.whatHappensNext}
+          steps={[
+            {
+              key: 'you',
+              number: '1',
+              title: RV_ITEM.youAcademicDecision,
+              detail: UPDATE_DECISION.path.youLine,
+              now: true,
+            },
+            {
+              key: 'super-admin',
+              number: '2',
+              title: UPDATE_DECISION.path.superAdmin.title,
+              detail: UPDATE_DECISION.path.superAdmin.line,
+            },
+            {
+              key: 'live',
+              number: '3',
+              title: UPDATE_DECISION.path.liveTitle,
+              detail: livePathLine(live.label),
+            },
+          ]}
+        />
       </>
     );
   } else {
-    const decided = decidedPanelOf(update, live.label);
+    const outcome = outcomeOf(view, personId);
     panel = (
-      <div id={DECIDED_ID} ref={decidedRef} tabIndex={-1} className="flex flex-col gap-3">
-        {notice !== null ? (
-          <Notice tone="info" role="status">
-            {stateWords('RV-04.moved-on')}
-          </Notice>
-        ) : null}
-        {/* B6-04 f3, f4 draw the chip across the panel. */}
-        <StatusPill tone={decided.tone} className="self-stretch">
-          {decided.title}
-        </StatusPill>
-        {decided.meta ? <p className="xr-small m-0 text-ink-2">{decided.meta}</p> : null}
-        {decided.next ? <p className="xr-body m-0 text-ink">{decided.next}</p> : null}
-        <Link className="xr-btn xr-btn--secondary xr-btn--block" href={REVIEW_QUEUE_ADDRESS}>
-          {UPDATE_DECISION.backToQueue}
-        </Link>
-      </div>
+      <>
+        {notice}
+        <RvDecisionOutcome
+          id={DONE_ID}
+          outcomeRef={doneRef}
+          status={
+            standing ? (
+              <RvStatus tone={standing.tone} size="lg">
+                {standing.label}
+              </RvStatus>
+            ) : null
+          }
+          meta={outcome.meta}
+          reason={outcome.reason ? { label: RV_ITEM.yourReason, text: outcome.reason } : undefined}
+          stand={outcome.stand}
+          next={outcome.next}
+          action={<ButtonLink href={back.href}>{back.label}</ButtonLink>}
+        />
+      </>
     );
   }
 
-  const course = experiment ? courseLineWords(experiment.courseCode, experiment.courseName) : null;
+  const released = update.state === 'released';
+  const columns = released ? RELEASED_COLUMNS : CHANGES_COLUMNS;
   return (
     <>
-      <PageHeader
-        className="[margin:8px_0_16px]"
-        back={<BackLink href={REVIEW_QUEUE_ADDRESS}>{REVIEW_QUEUE_TITLE}</BackLink>}
-        overline={reviewUpdateOverline(update.id)}
-        title={reviewUpdateTitle(name, update.baseVersionLabel, update.versionLabel)}
+      <RvIdCard
+        date={todayLine}
+        breadcrumbs={<Breadcrumbs levels={[reviewerParentCrumb(parent)]} current={name} />}
+        kind={<RvKindTag kind={kind.kind} label={kind.label} detail={kind.detail} />}
+        title={name}
         titleId={TITLE_ID}
-        titleFocusTarget
-        meta={
+        lead={live.catalogue.summary}
+        status={
+          standing ? (
+            <RvStatus tone={standing.tone} size="lg">
+              {standing.label}
+            </RvStatus>
+          ) : null
+        }
+        course={
+          experiment ? (
+            <RvCourse placement="card" code={experiment.courseCode} name={experiment.courseName} />
+          ) : null
+        }
+        who={fromContentManager(actorName(update.startedBy))}
+        goTo={{ label: RV_ITEM.goToDecision, targetId: PANEL_ID, focusId: PANEL_TITLE_ID }}
+        facts={facts}
+        pageMapLabel={RV_ITEM.onThisPage}
+        pageMap={pageMap}
+      />
+      <RvDetail
+        panelId={PANEL_ID}
+        panelLabelledBy={PANEL_TITLE_ID}
+        main={
           <>
-            <StatusPill tone={chip.tone}>{chip.words}</StatusPill>
-            <span>
-              {reviewUpdateMeta(
-                actorName(update.startedBy),
-                experiment ? (experiment.courseCode ?? experiment.courseName) : null,
-                live.label,
-              )}
-            </span>
+            {why ? (
+              <RvBlock labelledBy={SECTION.why}>
+                <RvBandHead
+                  titleId={SECTION.why}
+                  icon="message"
+                  title={WHY_BLOCK.title}
+                  note={WHY_BLOCK.note}
+                />
+                <RvQuote
+                  quote={why}
+                  by={whyByWords(
+                    actorName(update.startedBy),
+                    update.sentForReviewAt ? dateTime(update.sentForReviewAt) : null,
+                  )}
+                />
+              </RvBlock>
+            ) : null}
+            {changeRows.length > 0 ? (
+              <RvBlock labelledBy={SECTION.changes}>
+                <RvBlockHead
+                  titleId={SECTION.changes}
+                  title={CHANGES_BLOCK.title}
+                  note={changesNoteWords(changeRows.length, update.baseVersionLabel)}
+                />
+                <RvComparison
+                  label={CHANGES_BLOCK.tableLabel}
+                  fieldHeader={CHANGES_BLOCK.field}
+                  beforeHeader={columnWords(columns.before, update.baseVersionLabel)}
+                  afterHeader={columnWords(columns.after, update.versionLabel)}
+                  rows={changeRows}
+                />
+                <RvFootnote>{CHANGES_BLOCK.footnote}</RvFootnote>
+              </RvBlock>
+            ) : null}
+            {experiment ? (
+              <RvLiveExperiment
+                titleId={SECTION.live}
+                kicker={LIVE_BLOCK.kicker}
+                title={LIVE_BLOCK.title}
+                note={liveNoteWords(live.label, dayMonthYear(live.liveFrom))}
+                outcomesTitle={liveOutcomesTitle(live.label)}
+                outcomes={experiment.outcomes}
+                footnote={LIVE_BLOCK.footnote}
+              />
+            ) : null}
           </>
         }
-      />
-      <JumpLink targetId={PANEL_ID} className="mb-4" />
-      <DecisionLayout
-        jump={false}
-        panel={{
-          id: PANEL_ID,
-          title: UPDATE_DECISION.panelTitle,
-          titleId: PANEL_TITLE_ID,
-          titleFocusTarget: true,
-          titleRef,
-          position: 'static',
-          children: panel,
-        }}
-      >
-        <WhatChanges view={view} />
-        <Section title={REVIEW_UPDATE.whyTitle} headingId="ru-ry">
-          <SectionBody>
-            <blockquote className="xv-quote bg-(--xr-surface-2)">
-              {update.whatChangesAndWhy ?? ''}
-            </blockquote>
-          </SectionBody>
-        </Section>
-        <AboutExperiment view={view} course={course} outcomes={experiment?.outcomes ?? []} />
-        <Section
-          title={REVIEW_UPDATE.historyTitle}
-          meta={REVIEW_UPDATE.historyMeta}
-          headingId="ru-hh"
-        >
-          <SectionBody>
-            <Timeline markLatest={false} events={historyOf(update, reader)} />
-          </SectionBody>
-        </Section>
-      </DecisionLayout>
-      {open ? (
-        <>
-          <ConfirmDialog
-            open={dialog === 'approve'}
-            align="decision"
-            idPrefix="ru-a"
-            title={approveUpdateTitle(update.id)}
-            effect={<strong>{approveUpdateEffect(live.label)}</strong>}
-            notice={sendFailed ? <UnavailableNotice /> : undefined}
-            cancelLabel={UPDATE_DECISION.cancel}
-            confirmLabel={UPDATE_DECISION.approve.title}
-            busy={approve.busy}
-            busyLabel={UPDATE_DECISION.approving}
-            returnFocusFallback={decidedRef}
-            onConfirm={sendApprove}
-            onCancel={cancel}
-          />
-          <ReasonDialog
-            open={dialog === 'return'}
-            align="decision"
-            idPrefix="ru-r"
-            title={UPDATE_DECISION.returnTitle}
-            effect={UPDATE_DECISION.returnEffect}
-            cancelLabel={UPDATE_DECISION.cancel}
-            confirmLabel={UPDATE_DECISION.return.title}
-            busy={giveBack.busy}
-            busyLabel={UPDATE_DECISION.returning}
-            returnFocusFallback={decidedRef}
-            onConfirm={sendReturn}
-            onCancel={cancel}
+        panel={
+          <DecisionPanel title={RV_ITEM.yourDecision} titleId={PANEL_TITLE_ID}>
+            {panel}
+          </DecisionPanel>
+        }
+        history={
+          <RvHistory
+            titleId={SECTION.history}
+            title={RV_ITEM.updateHistory}
+            note={RV_ITEM.newestFirst}
+            variant={open && refusal === null ? 'quiet' : 'card'}
           >
-            <Field
-              id={REASON_ID}
-              label={UPDATE_DECISION.reasonLabel}
-              error={reasonError ?? undefined}
-            >
-              <Textarea
-                className="min-h-[104px]"
-                value={reason}
-                onChange={(event) => {
-                  setReason(event.target.value);
-                  setReasonError(null);
-                }}
-              />
-            </Field>
-            {sendFailed ? <UnavailableNotice /> : null}
-          </ReasonDialog>
-        </>
+            <Timeline events={historyOf(update, reader)} />
+          </RvHistory>
+        }
+      />
+      {open ? (
+        <ConfirmDialog
+          open={dialogOpen}
+          idPrefix="rv-dlg"
+          title={approveUpdateTitle(name)}
+          description={RV_APPROVE_DIALOG.description}
+          groups={[
+            {
+              kind: 'now',
+              title: RV_APPROVE_DIALOG.now,
+              items: [APPROVE_DIALOG.toSuperAdmin, RV_APPROVE_DIALOG.leavesQueue],
+            },
+            {
+              kind: 'later',
+              title: RV_APPROVE_DIALOG.later,
+              items: [goesLiveLater(proposedLabel, live.label), APPROVE_DIALOG.noAccessChange],
+            },
+          ]}
+          cancelLabel={APPROVE_DIALOG.cancel}
+          confirmLabel={APPROVE_DIALOG.confirm}
+          busy={approve.busy}
+          busyLabel={UPDATE_DECISION.approving}
+          holdWhileBusy
+          returnFocusFallback={doneRef}
+          onConfirm={sendApprove}
+          onCancel={() => {
+            setDialogOpen(false);
+            setSendFailed(false);
+          }}
+        >
+          {sendFailed ? <UnavailableNotice /> : null}
+        </ConfirmDialog>
       ) : null}
     </>
   );
 }
 
-/** A decision that failed for now: the dialog stays open (state-copy `RV-04.unavailable`). */
+/** A decision that failed for now: nothing was lost (state-copy `RV-04.unavailable`). */
 function UnavailableNotice() {
   return (
-    <Notice tone="err" role="alert">
-      {stateWords('RV-04.unavailable')}
-    </Notice>
-  );
-}
-
-/**
- * “What changes · Changed fields only” — the shared comparison (B6-04 f0; CM-08, SA-11); once
- * released, with the version its release replaced, “Live before · Released” (state-copy
- * `RV-04.released`).
- */
-function WhatChanges({ view }: { readonly view: UpdateForReviewView }) {
-  return (
-    <Section title={COMPARISON.whatChanges} meta={COMPARISON.changedOnly} headingId="ru-rw">
-      <SectionBody className="flex flex-col gap-[14px]">
-        {view.comparison.length === 0 ? (
-          <p className="xr-body m-0 text-ink-2">{COMPARISON.nothingChanged}</p>
-        ) : view.update.state === 'released' ? (
-          <CorrectionComparison rows={view.comparison} columns={RELEASED_COLUMNS} />
-        ) : (
-          <CorrectionComparison rows={view.comparison} />
-        )}
-      </SectionBody>
-    </Section>
-  );
-}
-
-/** “About this experiment · Live · read-only” (`dl.xl-kv.xv-kv`; B6-04 f0). */
-function AboutExperiment({
-  view,
-  course,
-  outcomes,
-}: {
-  readonly view: UpdateForReviewView;
-  readonly course: string | null;
-  readonly outcomes: readonly string[];
-}) {
-  const { live } = view;
-  const formats = inDisplayOrder(live.formats.map((entry) => entry.format));
-  return (
-    <Section title={REVIEW_UPDATE.aboutTitle} meta={REVIEW_UPDATE.aboutMeta} headingId="ru-rc">
-      <SectionBody>
-        <dl className="xl-kv xv-kv">
-          <dt>{REVIEW_UPDATE.course}</dt>
-          <dd>{course ?? ''}</dd>
-          <dt>{REVIEW_UPDATE.formats}</dt>
-          <dd>
-            <span className="xv-chips">
-              {formats.map((format) => (
-                <FormatBadge key={format} format={FORMAT_META[format].code} compact />
-              ))}
-            </span>
-          </dd>
-          <dt>{REVIEW_UPDATE.liveVersion}</dt>
-          <dd>{liveSinceWords(live.label, dayMonthYear(live.liveFrom))}</dd>
-          <dt>{REVIEW_UPDATE.outcomes}</dt>
-          <dd>
-            <ul className="xv-los">
-              {outcomes.map((outcome, index) => (
-                <li key={index}>{outcome}</li>
-              ))}
-            </ul>
-          </dd>
-        </dl>
-        <p className="xl-open [margin:12px_0_0]">
-          <Icon name="info" size={16} />
-          <span>{STRIPPED_UPDATE.openNote.words}</span>
-        </p>
-      </SectionBody>
-    </Section>
+    <Notice tone="warn" icon="alertCircle" role="alert" title={stateWords('RV-04.unavailable')} />
   );
 }

@@ -91,7 +91,16 @@ const UPDATE_TITLE = `Update to ${SHELL}`;
 const RETURN_REASON = 'Please name the readings the coefficient is found from.';
 const WITHDRAW_REASON = 'Raised by mistake — the vendor is rewriting the summary first.';
 
-const chip = (page: Page) => main(page).locator('.xr-phead-meta .xr-status');
+/** The Academic Reviewer's item page (V3, RV-v1): the identity card's status. */
+const chip = (page: Page) => main(page).locator('header.rv-idcard .rv-meta-main .xr-st');
+/** RV-03 / RV-04's decided outcome (V3, RV-v1: `#rv-done`, focused). */
+const rvDone = (page: Page) => page.locator('#rv-done');
+/**
+ * An Academic Reviewer's queue or decisions row link (V3, RV-v1), named by the experiment and never
+ * its reference: “<name>, <type>, waiting since <date>. Review it”.
+ */
+const rvRowLink = (page: Page, name: string) =>
+  main(page).getByRole('link', { name: new RegExp(`^${name}, `) });
 /** The Vendor's V3 record (VE-07, VE-v1): the status pill in the page head's meta. */
 const vendorChip = (page: Page) => main(page).locator('.rk-head .rk-meta .xr-st');
 const field = (page: Page, label: string) =>
@@ -103,7 +112,8 @@ const VERSION_FIELD = 'New version label (required to send)';
 const cmDone = (page: Page) => page.locator('#cm-d-done');
 /** CM-08's state notice in the “Your update” panel (V3, CM-v1: `#cm-u-state`). */
 const cmState = (page: Page) => page.locator('#cm-u-state');
-const rows = (page: Page) => main(page).locator('table.xr-table tbody tr');
+/** The Academic Reviewer's V3 lists (RV-02 Review queue, RV-05 Reviewed by me; RV-v1). */
+const rows = (page: Page) => main(page).locator('table.rk-table tbody tr');
 
 // The Super Admin's V3 screens (SA-v1): the kit's page head, record table and status chips.
 const saChip = (page: Page) => main(page).locator('.rk-head .rk-meta .xr-st');
@@ -179,7 +189,7 @@ async function submitComposite(page: Page): Promise<void> {
 async function approveComposite(page: Page): Promise<void> {
   await startAs(page, 'menon');
   await sidebar(page, '/reviewer/queue');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Review ${COMPOSITE}` }));
+  await reachAndClick(page, rvRowLink(page, COMPOSITE));
   await page.waitForURL(`**/reviewer/submissions/${SUB}`);
   await expect(h1(page)).toHaveText(COMPOSITE);
   const add = page.getByRole('textbox', { name: /^Add a learning outcome/ });
@@ -188,12 +198,14 @@ async function approveComposite(page: Page): Promise<void> {
     await reachAndClick(page, page.getByRole('button', { name: 'Add outcome' }));
     await expect(add).toHaveValue('');
   }
+  // RV-03 (V3, RV-v1): nothing is chosen first — choose Approve, then press it.
+  await reachAndClick(page, decision(page).getByRole('radio', { name: /^Approve/ }));
   await reachAndClick(page, decision(page).getByRole('button', { name: 'Approve' }));
   const approve = page.getByRole('dialog', { name: `Approve “${COMPOSITE}”?` });
-  await expect(approve).toContainText('Approving does not publish it.');
+  await expect(approve).toContainText('Approving does not publish.');
   await reachAndClick(page, approve.getByRole('button', { name: 'Approve' }));
   await expect(approve).toBeHidden();
-  await expect(page.locator('#rv-dec .xr-status--ok')).toHaveText(
+  await expect(rvDone(page).locator('.xr-st--ok')).toHaveText(
     'Approved — with the Content Manager',
   );
   await signOut(page, ACCOUNT.menon);
@@ -270,9 +282,11 @@ async function sendShellCorrection(page: Page): Promise<{ id: string; live: stri
 async function reviewShellCorrection(page: Page, id: string): Promise<void> {
   await startAs(page, 'menon');
   await sidebar(page, '/reviewer/queue');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Review ${SHELL}` }));
+  await reachAndClick(page, rvRowLink(page, SHELL));
   await page.waitForURL(`**/reviewer/updates/${id}`);
-  await expect(h1(page)).toHaveText(`${SHELL} · 1.0 → 1.1`);
+  // RV-04 (V3, RV-v1): the H1 names the experiment; the version change is the type tag's detail.
+  await expect(h1(page)).toHaveText(SHELL);
+  await expect(main(page).locator('header.rv-idcard .rv-kind-d')).toHaveText('1.0 → 1.1');
   await expect(chip(page)).toHaveText('Waiting for your decision');
 }
 
@@ -343,16 +357,22 @@ test('E-alt1 · the Content Manager sends an approved submission back to the Aca
   // RV-05: his approval, “later sent back for a re-check”; RV-02 → RV-03: back for a re-check.
   await startAs(page, 'menon');
   await sidebar(page, '/reviewer/reviewed');
-  await expect(rows(page).filter({ hasText: COMPOSITE }).locator('.xr-status')).toHaveText(
-    'Approved — later sent back for a re-check',
-  );
+  // RV-05 (V3, RV-v1): the decision and, beside it, where the record is now.
+  const decided = rows(page).filter({ hasText: COMPOSITE });
+  await expect(decided.locator('td.rv-c-dec .xr-st')).toHaveText('Approved');
+  await expect(decided.locator('.rv-now')).toHaveText('Back in your queue for a re-check');
   await sidebar(page, '/reviewer/queue');
-  await expect(rows(page).filter({ hasText: COMPOSITE })).toContainText('Re-check');
-  await reachAndClick(page, main(page).getByRole('link', { name: `Review ${COMPOSITE}` }));
+  await expect(rows(page).filter({ hasText: COMPOSITE }).locator('.rv-kind')).toHaveText(
+    'Re-check',
+  );
+  await reachAndClick(page, rvRowLink(page, COMPOSITE));
   await page.waitForURL(`**/reviewer/submissions/${SUB}`);
-  await expect(chip(page)).toHaveText('Back for a re-check');
-  const recheck = region(page, 'Sent back by the Content Manager for a re-check');
-  await expect(recheck.locator('blockquote')).toHaveText(RECHECK_REASON);
+  // RV-03 (V3, RV-v1): a re-check is waiting for his decision; its type tag says why.
+  await expect(main(page).locator('header.rv-idcard .rv-kind')).toHaveText('Re-check');
+  await expect(chip(page)).toHaveText('Waiting for your decision');
+  const recheck = region(page, 'Sent back for a re-check');
+  await expect(recheck.locator('blockquote p').first()).toHaveText(RECHECK_REASON);
+  await expect(recheck.locator('.rk-quote-by')).toHaveText('Kavya Nair, Content Manager');
   await checkState(page, COMPOSITE);
   await signOut(page, ACCOUNT.menon);
 });
@@ -504,8 +524,10 @@ test('Hold and Lift hold · a held correction goes back to waiting for the Super
   await toSignIn(page);
   const { id, live } = await sendShellCorrection(page);
   await reviewShellCorrection(page, id);
+  // RV-04 (V3, RV-v1): choose Approve update, then press it; the dialog names the experiment.
+  await reachAndClick(page, decision(page).getByRole('radio', { name: 'Approve update' }));
   await reachAndClick(page, decision(page).getByRole('button', { name: 'Approve update' }));
-  const approve = page.getByRole('dialog', { name: `Approve ${id}?` });
+  const approve = page.getByRole('dialog', { name: `Approve the update to ${SHELL}?` });
   await reachAndClick(page, approve.getByRole('button', { name: 'Approve update' }));
   await expect(approve).toBeHidden();
   await signOut(page, ACCOUNT.menon);
@@ -616,26 +638,24 @@ test('F-alt return · the Academic Reviewer returns a correction to the Content 
     page,
     decision(page).getByRole('radio', { name: /^Return to the Content Manager/ }),
   );
-  await reachAndClick(
-    page,
-    decision(page).getByRole('button', { name: 'Return to the Content Manager' }),
-  );
-  const dialog = page.getByRole('dialog', { name: 'Return to the Content Manager?' });
-  const reason = dialog.getByRole('textbox', { name: 'Reason the Content Manager will see' });
-  await reachAndClick(page, dialog.getByRole('button', { name: 'Return to the Content Manager' }));
-  await expect(dialog.locator('.xr-error')).toHaveText(
+  // RV-04 (V3, RV-v1): the return is inline in the panel — its reason there, no dialog.
+  const reason = decision(page).getByRole('textbox', {
+    name: 'Reason the Content Manager will see (required)',
+  });
+  const go = decision(page).getByRole('button', { name: 'Return to the Content Manager' });
+  await reachAndClick(page, go);
+  await expect(decision(page).locator('#rv-errs')).toBeFocused();
+  await expect(decision(page).locator('.rk-field .rk-ferr')).toHaveText(
     'Add a reason so the Content Manager knows what to change',
   );
   await expect(reason).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(chip(page)).toHaveText('Waiting for your decision');
   await type(reason, RETURN_REASON);
-  await reachAndClick(page, dialog.getByRole('button', { name: 'Return to the Content Manager' }));
-  await expect(dialog).toBeHidden();
-  await expect(page.locator('#ru-dec .xr-status--err')).toHaveText(
-    'Returned to the Content Manager',
-  );
+  await reachAndClick(page, go);
+  await expect(rvDone(page).locator('.xr-st--err')).toHaveText('Returned to the Content Manager');
   await expect(chip(page)).toHaveText('Returned to the Content Manager');
-  await checkState(page, `${SHELL} · 1.0 → 1.1`);
+  await checkState(page, SHELL);
   await signOut(page, ACCOUNT.menon);
 
   // CM-08: “Returned”, the reviewer's reason first, and the correction hers to change again.
@@ -665,7 +685,8 @@ test('F-alt withdraw · the Content Manager withdraws a correction in academic r
   // RV-02: the correction waits in Prof. A. Menon's Review queue.
   await startAs(page, 'menon');
   await sidebar(page, '/reviewer/queue');
-  const names = rows(page).locator('td.is-primary strong');
+  // RV-02 (V3, RV-v1): each row's link is the experiment's name.
+  const names = rows(page).locator('a.rk-rowlink');
   await expect(names.filter({ hasText: SHELL })).toHaveCount(1);
   const before = await names.allTextContents();
   await signOut(page, ACCOUNT.menon);
@@ -701,6 +722,6 @@ test('F-alt withdraw · the Content Manager withdraws a correction in academic r
   await startAs(page, 'menon');
   await sidebar(page, '/reviewer/queue');
   await expect(names).toHaveText(before.filter((name) => name !== SHELL));
-  await expect(main(page).getByRole('link', { name: `Review ${SHELL}` })).toHaveCount(0);
+  await expect(rvRowLink(page, SHELL)).toHaveCount(0);
   await signOut(page, ACCOUNT.menon);
 });
