@@ -17,8 +17,6 @@ import { testPlatform } from '@/test-support/platform';
 import { renderInTab, testNavigation } from '@/test-support/workspace';
 
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
-import { AreaExplorer } from './pu-01-landing/explorer';
-import { Landing } from './pu-01-landing/landing';
 import { AllAreas } from './pu-02-areas/areas';
 import { AreaPage } from './pu-03-area/area';
 import { Catalogue } from './pu-04-catalogue/catalogue';
@@ -134,145 +132,7 @@ describe('the public shell (B1-01 header, menu sheet, footer)', () => {
   });
 });
 
-describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
-  it('reads every count from the world: explorer, featured, formats (“areas 5 / 4 / 3, formats 12 / 5 / 7 / 2”)', async () => {
-    await show(<Landing />, '/');
-    const region = await screen.findByRole('region', { name: 'Engineering areas' });
-    expect(
-      within(region)
-        .getAllByRole('group')
-        .map((group) => group.getAttribute('aria-label')),
-    ).toEqual([
-      '1 of 3: Mechanical & Manufacturing',
-      '2 of 3: Electrical & Electronics',
-      '3 of 3: Chemical & Process',
-    ]);
-    expect(within(region).getByText('5 experiments · 2 courses', { selector: 'p' })).toBeVisible();
-    expect(within(region).getByRole('link', { name: /Browse 5 experiments/ })).toHaveAttribute(
-      'href',
-      '/experiments?area=mechanical-manufacturing',
-    );
-    expect(within(region).getByText('ME ZG523 · Thermodynamics & Heat Transfer')).toBeVisible();
-    await screen.findByRole('link', { name: 'CNC Turning Centre' });
-    expect(
-      [...document.querySelectorAll('.xp-grid--4 .xp-card-title a')].map(
-        (link) => link.textContent,
-      ),
-    ).toEqual([
-      'CNC Turning Centre',
-      'Shell-and-Tube Heat Exchanger',
-      'Induction Motor Loading',
-      'Distillation Column',
-    ]);
-    expect([...document.querySelectorAll('.xp-card-tag')].map((tag) => tag.textContent)).toEqual([
-      'Mechanical',
-      'Mechanical',
-      'Electrical',
-      'Chemical',
-    ]);
-    expect(screen.getByRole('link', { name: /Browse all 12 experiments/ })).toHaveAttribute(
-      'href',
-      '/experiments',
-    );
-    expect([...document.querySelectorAll('.xp-fcard-n')].map((line) => line.textContent)).toEqual([
-      'Available in 12 of 12 experiments',
-      'Available in 5 of 12 experiments',
-      'Available in 7 of 12 experiments',
-      'Available in 2 of 12 experiments',
-    ]);
-    expect(screen.getByRole('link', { name: 'Browse MR experiments' })).toHaveAttribute(
-      'href',
-      '/experiments?format=mr',
-    );
-  });
-
-  it('the hero: one primary, Sign in for students and faculty, the depicted experiment, the drawing described', async () => {
-    await show(<Landing />, '/');
-    const hero = screen.getByRole('heading', { level: 1 });
-    expect(hero).toHaveTextContent('Set the conditions.See what follows.Understand why.');
-    const caption = await screen.findByRole('link', {
-      name: 'ME ZG523 · Shell-and-Tube Heat Exchanger',
-    });
-    expect(caption).toHaveAttribute('href', '/experiments/shell-and-tube-heat-exchanger');
-    expect(
-      [...caption.parentElement!.querySelectorAll('.xr-fmt--on-dark')].map(
-        (chip) => chip.textContent,
-      ),
-    ).toEqual(['WEB', 'AR', 'VR']);
-    expect(
-      screen.getByRole('img', { name: /a shell-and-tube heat exchanger in cutaway/ }),
-    ).toBeVisible();
-    expect(screen.getByRole('link', { name: 'Already have access? Sign in' })).toHaveAttribute(
-      'href',
-      '/sign-in',
-    );
-    // One gold primary in the hero (B1-01); For institutions draws its own further down.
-    const heroSection = document.querySelector('.xp-hero')!;
-    expect(heroSection.querySelectorAll('.xr-btn--primary.xp-cta')).toHaveLength(1);
-    const paths = heroSection.querySelector('ul.xp-paths')!;
-    expect([...paths.querySelectorAll('.xp-path-who')].map((who) => who.textContent)).toEqual([
-      'Students and faculty',
-      'Institutions',
-    ]);
-    expect(
-      within(paths as HTMLElement).getByRole('link', { name: 'Request institutional access' }),
-    ).toHaveAttribute('href', '/selection');
-  });
-
-  it('PU-14 is the `#for-institutions` section with four steps; its heading can take focus', async () => {
-    await show(<Landing />, '/');
-    const section = document.getElementById('for-institutions')!;
-    expect(within(section).getByRole('heading', { level: 2 })).toHaveAttribute('tabindex', '-1');
-    expect([...section.querySelectorAll('.xp-step4-t')].map((title) => title.textContent)).toEqual([
-      'Browse and select',
-      'Request institutional access',
-      'BITS reviews — payment may be required',
-      'Your administrator gives students access',
-    ]);
-    // B1-01 `div.xp-inst-foot`: the one way on, to Your selection (PU-07, Package 1C).
-    expect(
-      within(section)
-        .getAllByRole('link')
-        .map((link) => link.getAttribute('href')),
-    ).toEqual(['/selection']);
-    expect(within(section).getByRole('link', { name: 'Request institutional access' })).toHaveClass(
-      'xr-btn',
-      'xr-btn--primary',
-      'xp-cta',
-    );
-  });
-
-  it('the explorer: Next and ← → move the selected area; Home / End jump; the move is announced', async () => {
-    const user = userEvent.setup();
-    await show(<Landing />, '/');
-    const region = await screen.findByRole('region', { name: 'Engineering areas' });
-    const selected = () =>
-      region.querySelector('.xp-ex-card.is-selected')!.getAttribute('aria-label');
-    expect(within(region).getByRole('button', { name: 'Previous area' })).toBeDisabled();
-    await user.click(within(region).getByRole('button', { name: 'Next area' }));
-    expect(selected()).toBe('2 of 3: Electrical & Electronics');
-    expect(region.querySelector('[aria-live="polite"]')).toHaveTextContent(
-      'Electrical & Electronics, area 2 of 3',
-    );
-    within(region)
-      .getByRole('link', { name: /Browse 4 experiments/ })
-      .focus();
-    await user.keyboard('{End}');
-    expect(selected()).toBe('3 of 3: Chemical & Process');
-    await waitFor(() =>
-      expect(within(region).getByRole('link', { name: /Browse 3 experiments/ })).toHaveFocus(),
-    );
-    await user.keyboard('{ArrowLeft}');
-    expect(selected()).toBe('2 of 3: Electrical & Electronics');
-    await user.keyboard('{Home}');
-    expect(selected()).toBe('1 of 3: Mechanical & Manufacturing');
-    // A neighbouring card selects itself and is not a tab stop.
-    const mini = within(region).getByRole('button', { name: 'Show Chemical & Process' });
-    expect(mini).toHaveAttribute('tabindex', '-1');
-    await user.click(mini);
-    expect(selected()).toBe('3 of 3: Chemical & Process');
-  });
-});
+// PU-01 Landing with PU-14 — the V1 landing since prompt 13 — is `pu-01-landing/landing.test.tsx`.
 
 describe('PU-02 / PU-03 / PU-05 (B1-03)', () => {
   it('PU-02: the header facts link, one card per area with its counts', async () => {
@@ -690,36 +550,5 @@ describe('loading and failed states (B1-03 “All areas · loading / failed + re
     ).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await screen.findByRole('heading', { level: 1, name: 'Fin-Tube Bundle' })).toBeVisible();
-  });
-
-  it('PU-01: the explorer section fails on its own, the rest of the landing stays', async () => {
-    const { runtime } = await failing('CatalogueService.listAreas');
-    render(runtime, <Landing />, '/');
-    expect(
-      await screen.findByRole('heading', { name: 'We couldn’t load the engineering areas' }),
-    ).toBeVisible();
-    expect(await screen.findByRole('link', { name: 'CNC Turning Centre' })).toBeVisible();
-    expect(screen.getByRole('heading', { level: 1 })).toBeVisible();
-  });
-
-  it('PU-01: B1-01 “Areas loading (or art failed) → plain list” when the areas’ courses cannot be read', async () => {
-    const platform = await testPlatform();
-    faults(platform.sample).failNext('CatalogueService.getArea');
-    render(platform.runtime, <Landing />, '/');
-    const list = await screen.findByRole('link', { name: 'Electrical & Electronics' });
-    expect(list.closest('ul')).toHaveClass('xp-ex-list');
-    expect(list.nextElementSibling).toHaveTextContent('4 experiments · 2 courses');
-    // The featured cards still show, without their area tags (state-copy `PU-01.featured-tag`).
-    expect(await screen.findByRole('link', { name: 'CNC Turning Centre' })).toBeVisible();
-    expect(document.querySelectorAll('.xp-card-tag')).toHaveLength(0);
-  });
-
-  it('PU-01: an explorer with no area to show renders nothing (the landing shows the plain list)', async () => {
-    const { runtime } = await testPlatform();
-    const { container } = renderInTab(<AreaExplorer areas={[]} />, {
-      runtime,
-      navigation: testNavigation('/'),
-    });
-    expect(container).toBeEmptyDOMElement();
   });
 });

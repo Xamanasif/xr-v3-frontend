@@ -218,9 +218,9 @@ H part 1 (the Student launches the sample WEB activity) live.
   experiment); real simulation content (WEB, AR, VR, MR builds) is an external dependency. The
   illustrative simulation stages of the design prototypes are not product data and are not shown.
 - **Resource links** in the sample data are placeholders.
-- **The official WILP logo** slot is reserved (a placeholder box); the official logo has been
-  supplied and will be placed with the approved Public Landing.
-- **The Public Landing** is the preserved simplified homepage; the approved premium landing is a
-  separate, pending integration (see the readiness report).
+- **The Public Landing:** the demo build (3360/3361) still serves the earlier simplified homepage;
+  the approved premium landing with the official WILP logo is integrated and awaiting the owner's
+  acceptance on its own review build (http://localhost:3362/). The other pages still show the
+  reserved logo slot.
 - Some screens show honest “still open” notes for decisions not yet taken (e.g. how licences are
   counted; prototype field sets) — these are intentional.

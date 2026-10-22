@@ -1,6 +1,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 
 import { reachAndClick } from '../support';
+import { landingCatalogue, landingSignIn, onLanding } from '../support/landing';
 
 /**
  * The public request through its screens (Phase-1 Package 1C; B1-05 → B1-06 → B1-07 → B1-08), as a
@@ -12,8 +13,17 @@ import { reachAndClick } from '../support';
 /** The public header's row from 1024 px; the menu sheet below it (B1-01). */
 export const wide = (page: Page) => (page.viewportSize()?.width ?? 0) >= 1024;
 
-/** A public header destination, by its link name. */
+/**
+ * A public header destination, by its link name. On the landing (its own header, owner decision
+ * D-3) “Browse experiments” is its gold catalogue button and “Sign in” its Sign in; it has no
+ * Areas or Selection link — those are reached from the catalogue's header.
+ */
 export async function headerLink(page: Page, name: string): Promise<void> {
+  if (await onLanding(page)) {
+    if (name === 'Browse experiments') return landingCatalogue(page);
+    if (name === 'Sign in') return landingSignIn(page);
+    throw new Error(`The landing's header has no “${name}”: open the catalogue first.`);
+  }
   if (wide(page)) {
     await reachAndClick(
       page,

@@ -3857,6 +3857,56 @@
       "differences": [],
       "supersedes": [],
       "migration": "Student integration, branch v3/refined-b-ui, 21 Oct 2026"
+    },
+    {
+      "id": "PU-01",
+      "state": "The owner's approved V1 Public Landing (with the PU-14 “For institutions” section) at `/`: sticky header, three-scene animated hero with Pause/Play, Featured, the Explore accordion, “Inside a simulation”, Formats with previews, Academic quality, the six access steps, closing band, footer; owner decisions D-3/D-4/D-5/D-7 (Sign in link, “XR Learning Platform”, one request button, no durations)",
+      "route": "/",
+      "sources": ["apps/web/src/features/public/pu-01-landing", "apps/web/src/app/(landing)"],
+      "reference": {
+        "archive": "21 · FROZEN · Premium Direction B2 - BITS Immersive Experience.dc.html (File-35 handoff FROZEN_SOURCE, version v1790241320737635)",
+        "archiveSha256": "3dbe9412df26e8479379e10f5f76cc1d87923f773a7be3e226f6c30b75a4d07c",
+        "revision": "V1 approved landing (owner authorisation of the fidelity integration, 22 Oct 2026)",
+        "renders": "rendered from the frozen file with its design runtime at each width and state, side by side with the product (evidence outside the repository)",
+        "file": "design/v1-landing/21 · FROZEN · Premium Direction B2 - BITS Immersive Experience.dc.html",
+        "compared": []
+      },
+      "widths": [1440, 1024, 768, 375],
+      "method": "The frozen file rendered in its design runtime and the product page captured at the same width and state (initial, each hero scene after rotation, paused, each story step, each explorer area, a format preview, the lower sections, reduced motion); section boxes measured against the frozen render; motion timings measured over a full hero cycle.",
+      "tolerance": "No pixel tolerance is claimed: animation phase and the owner's decisions differ by design; every difference is listed under differences.",
+      "differences": [
+        "Owner decisions (22 Oct 2026): “Sign in” added to the header (nav link at ≥ 1024 px, a small link beside “Catalogue” below); the brand reads “XR Learning Platform”; one “Request institutional access” button below the six access steps (to /selection); featured durations hidden.",
+        "Accessibility corrections: links and landmarks instead of navigation buttons, a focus-only skip link, the Pause control also on phones, the off-state chip text raised from 3.9:1 to 4.5:1, focus-visible rings.",
+        "Navigation goes to the product's own catalogue routes (/experiments with q/area/format), not the frozen file's catalogue subview."
+      ],
+      "supersedes": [
+        "b1-01-f0-band",
+        "b1-01-f0-explorer",
+        "b1-01-f0-explorer-head",
+        "b1-01-f0-featured-grid",
+        "b1-01-f0-featured-head",
+        "b1-01-f0-footer",
+        "b1-01-f0-formats",
+        "b1-01-f0-header",
+        "b1-01-f0-hero-cta",
+        "b1-01-f0-hero-figure",
+        "b1-01-f0-hero-heading",
+        "b1-01-f0-hero-lead",
+        "b1-01-f0-hero-paths",
+        "b1-01-f0-institutions",
+        "b1-01-f0-institutions-steps",
+        "b1-01-f0-whole-frame",
+        "b1-01-f1-mobile-header",
+        "b1-01-f1-mobile-hero-cta",
+        "b1-01-f1-mobile-hero-figure",
+        "b1-01-f1-mobile-hero-heading",
+        "b1-01-f2-menu-list",
+        "b1-01-f2-menu-sheet",
+        "b1-02-f0-explorer",
+        "b1-02-f2-explorer",
+        "b1-02-f4-explorer"
+      ],
+      "migration": "Public Landing V1 fidelity integration, branch v3/refined-b-ui, 22 Oct 2026"
     }
   ],
   "foundationEvidence": {

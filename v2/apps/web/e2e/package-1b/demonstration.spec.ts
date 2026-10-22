@@ -1,6 +1,7 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { reachAndClick } from '../support';
+import { landingCatalogue, landingSignIn } from '../support/landing';
 import { expectSameDocument, markDocument } from '../support/workspace';
 
 /**
@@ -35,13 +36,15 @@ async function header(page: Page, name: string): Promise<void> {
 test('one tab, the product build: landing → areas → course → catalogue → experiment → selection → access → sign in and back', async ({
   page,
 }) => {
-  // 1. The public landing at `/`.
+  // 1. The public landing at `/` (the V1 landing, prompt 13).
   await page.goto('/');
   await expect(page.getByRole('heading', { level: 1 })).toContainText('Set the conditions.');
-  await expect(page.getByRole('region', { name: 'Engineering areas' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Experiment areas' })).toBeVisible();
   const mark = await markDocument(page);
 
-  // 2. Engineering areas.
+  // 2. Engineering areas: the landing's header has no Areas (owner decision D-3), so its catalogue
+  // button leads on and the catalogue's header opens them.
+  await landingCatalogue(page);
   await header(page, 'Areas');
   await page.waitForURL('**/areas');
   await expect(page.getByRole('heading', { level: 1, name: 'Engineering areas' })).toBeVisible();
@@ -118,15 +121,14 @@ test('one tab, the product build: landing → areas → course → catalogue →
   await expect(
     page.getByRole('heading', {
       level: 2,
-      name: 'Anyone can browse. Institutions request access.',
+      name: 'Anyone can browse. Institutions grant access.',
     }),
   ).toBeFocused();
 
-  // 11. Sign in, and back to a valid destination: the public catalogue, PU-04 (the XS link map,
-  // design/v3-refined-b/roles/XS-v6/LINK-MAP.json "Back to experiments"; P1-17).
-  if (wide(page)) await reachAndClick(page, page.locator('header a.xp-signin'));
-  else await header(page, 'Sign in');
-  await page.waitForURL('**/sign-in');
+  // 11. Sign in from the landing's header (D-3), and back to a valid destination: the public
+  // catalogue, PU-04 (the XS link map, design/v3-refined-b/roles/XS-v6/LINK-MAP.json "Back to
+  // experiments"; P1-17).
+  await landingSignIn(page);
   await expect(page.getByRole('heading', { level: 1, name: 'Sign in' })).toBeVisible();
   await reachAndClick(page, page.getByRole('link', { name: 'Back to experiments' }));
   await page.waitForURL((url) => url.pathname === '/experiments');

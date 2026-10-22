@@ -2,7 +2,7 @@ import type { BrowserContext, Locator, Page, TestInfo } from '@playwright/test';
 
 import { compareAll } from '../../../../tools/board-capture/src/parity.mjs';
 import { bootWorld } from '../support';
-import { type CompareItem, expect, test } from './support';
+import { type CompareItem, expect, recordSuperseded, test } from './support';
 
 /**
  * Phase-1 Package 1B: boards B1-01 (PU-01 Landing, PU-14), B1-02 (the area explorer), B1-03
@@ -13,10 +13,8 @@ import { type CompareItem, expect, test } from './support';
  * Where the world holds the board's state the part is compared at the component tolerance; where
  * the world differs from the board's sample, the comparison names its register entry (DEV-27,
  * DEV-28; DEV-23 for the back icon; DEV-29 art; DEV-31 a whole frame's fractional height) —
- * measured, pinned and reported for the owner's review, never approved here. Since Package 1C the
- * drawn ways into the Selection render (DEV-26 is no longer observed): B1-01 "Mobile 375 · menu
- * open" draws one experiment in the selection, so its product page starts with one in the tab's
- * browser-session selection. Not compared
+ * measured, pinned and reported for the owner's review, never approved here. B1-01 and B1-02 are
+ * superseded by the owner's approved V1 landing (prompt 13; below). Not compared
  * (no reachable product state): B1-01 "Areas loading → plain list" and "Area without artwork"
  * (every area has artwork; the plain list shows only while the courses load or fail — jsdom),
  * B1-02's nine-area proofs (test fixtures, not product data), B1-03 "All areas · loading",
@@ -25,19 +23,6 @@ import { type CompareItem, expect, test } from './support';
  */
 const SPINE_START = 'spine-start';
 const FROZEN = new Date('2026-10-14T10:00:00+05:30');
-
-/** A browser-session selection as the tab stores it (`xr.selection.v1`, ADR-0004 §2). */
-const ONE_IN_SELECTION = JSON.stringify({
-  items: [
-    {
-      experimentId: 'shell-and-tube-heat-exchanger',
-      formats: ['web', 'vr'],
-      addedAt: '2026-10-02T04:30:00.000Z',
-    },
-  ],
-  lastRemoved: null,
-  lastRemovedAt: null,
-});
 
 async function open(
   context: BrowserContext,
@@ -83,12 +68,6 @@ function collector(testInfo: TestInfo) {
   };
 }
 
-const landingReady = async (page: Page) => {
-  await expect(page.locator('.xp-ex-card.is-selected')).toBeVisible();
-  await expect(page.locator('.xp-sec--tint .xp-card')).toHaveCount(4);
-  await expect(page.locator('.xp-hero-cap')).toBeVisible();
-  await expect(page.locator('.xp-fcard-n')).toHaveCount(4);
-};
 const areasReady = async (page: Page) => {
   await expect(page.locator('.xp-acard')).toHaveCount(3);
 };
@@ -107,184 +86,19 @@ const experimentReady = async (page: Page) => {
   await expect(page.locator('.xp-mini').first()).toBeVisible();
 };
 
-test.describe('B1-01 · PU-01 Landing and PU-14 on the built page', () => {
-  let frames: Locator;
-
-  test.beforeEach(async ({ openBoardPage }) => {
-    const { page: board } = await openBoardPage('B1-01-Public-Landing.dc.html', { uncrop: true });
-    frames = board.locator('.b1-frame');
-    await expect(frames).toHaveCount(5);
-  });
-
-  test('f0 · Landing · 1440', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 1440, '/', landingReady);
-    await rest(ours);
-    const frame = frames.nth(0);
-    await run([
-      {
-        name: 'b1-01-f0-header',
-        reference: frame.locator('header.xp-head'),
-        product: ours.locator('header.xp-head'),
-      },
-      {
-        name: 'b1-01-f0-hero-heading',
-        reference: frame.locator('h1.xp-hero-h'),
-        product: ours.locator('h1.xp-hero-h'),
-      },
-      {
-        name: 'b1-01-f0-hero-lead',
-        reference: frame.locator('.xp-hero-lead'),
-        product: ours.locator('.xp-hero-lead'),
-      },
-      {
-        name: 'b1-01-f0-hero-cta',
-        reference: frame.locator('.xp-hero-text > a.xp-cta'),
-        product: ours.locator('.xp-hero-text > a.xp-cta'),
-      },
-      {
-        name: 'b1-01-f0-hero-paths',
-        reference: frame.locator('ul.xp-paths'),
-        product: ours.locator('ul.xp-paths'),
-      },
-      {
-        name: 'b1-01-f0-hero-figure',
-        reference: frame.locator('figure.xp-hero-fig'),
-        product: ours.locator('figure.xp-hero-fig'),
-        deviation: 'DEV-29',
-      },
-      {
-        name: 'b1-01-f0-explorer-head',
-        reference: frame.locator('section[aria-labelledby="L-ex-h"] .xp-sec-head'),
-        product: ours.locator('section[aria-labelledby="landing-explore"] .xp-sec-head'),
-      },
-      {
-        name: 'b1-01-f0-explorer',
-        reference: frame.locator('.xp-ex'),
-        product: ours.locator('.xp-ex'),
-      },
-      {
-        name: 'b1-01-f0-featured-head',
-        reference: frame.locator('.xp-sec--tint .xp-sec-head'),
-        product: ours.locator('.xp-sec--tint .xp-sec-head'),
-      },
-      {
-        name: 'b1-01-f0-featured-grid',
-        reference: frame.locator('.xp-sec--tint .xp-grid'),
-        product: ours.locator('.xp-sec--tint .xp-grid'),
-      },
-      {
-        name: 'b1-01-f0-formats',
-        reference: frame.locator('.xp-sec--lilac'),
-        product: ours.locator('.xp-sec--lilac'),
-        deviation: 'DEV-29',
-      },
-      {
-        name: 'b1-01-f0-institutions-steps',
-        reference: frame.locator('#for-institutions ol.xp-steps4'),
-        product: ours.locator('#for-institutions ol.xp-steps4'),
-      },
-      {
-        name: 'b1-01-f0-institutions',
-        reference: frame.locator('#for-institutions'),
-        product: ours.locator('#for-institutions'),
-      },
-      {
-        name: 'b1-01-f0-band',
-        reference: frame.locator('section.xp-band'),
-        product: ours.locator('section.xp-band'),
-      },
-      {
-        name: 'b1-01-f0-footer',
-        reference: frame.locator('footer.xp-foot'),
-        product: ours.locator('footer.xp-foot'),
-      },
-      {
-        name: 'b1-01-f0-whole-frame',
-        reference: frame.locator('.xp'),
-        product: ours.locator('div.xp'),
-        kind: 'screen',
-        frame: true,
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
-
-  test('f1 · Mobile 375 · top of page · f2 · menu open', async ({ context }, testInfo) => {
-    const { run, failures } = collector(testInfo);
-    const ours = await open(context, 375, '/', landingReady);
-    await rest(ours);
-    await run([
-      {
-        name: 'b1-01-f1-mobile-header',
-        reference: frames.nth(1).locator('header.xp-head'),
-        product: ours.locator('header.xp-head'),
-      },
-      {
-        name: 'b1-01-f1-mobile-hero-heading',
-        reference: frames.nth(1).locator('h1.xp-hero-h'),
-        product: ours.locator('h1.xp-hero-h'),
-      },
-      {
-        name: 'b1-01-f1-mobile-hero-cta',
-        reference: frames.nth(1).locator('.xp-hero-text > a.xp-cta'),
-        product: ours.locator('.xp-hero-text > a.xp-cta'),
-      },
-      {
-        name: 'b1-01-f1-mobile-hero-figure',
-        reference: frames.nth(1).locator('figure.xp-hero-fig'),
-        product: ours.locator('figure.xp-hero-fig'),
-      },
-    ]);
-    // f2 draws one experiment in the selection ("Selection 1"): a tab whose session holds one.
-    const selected = await open(context, 375, '/', landingReady, ONE_IN_SELECTION);
-    await selected.getByRole('button', { name: 'Menu' }).click();
-    await expect(selected.locator('#public-menu')).toBeVisible();
-    await rest(selected);
-    await run([
-      {
-        name: 'b1-01-f2-menu-sheet',
-        reference: frames.nth(2).locator('.xp-sheet'),
-        product: selected.locator('.xp-sheet'),
-      },
-      {
-        name: 'b1-01-f2-menu-list',
-        reference: frames.nth(2).locator('ul.xp-sheet-list'),
-        product: selected.locator('ul.xp-sheet-list'),
-      },
-    ]);
-    expect(failures).toEqual([]);
-  });
+/*
+ * SUPERSEDED. PU-01 and its PU-14 section are now the owner's approved V1 landing (prompt 13,
+ * 22 Oct 2026; design/v1-landing; docs/v3/V3-COMPARISON-MAP.json `productScreens` PU-01): the v46
+ * landing boards B1-01 and B1-02 no longer describe `/`, every comparison of them is retired by
+ * name and recorded as such, nothing of them is captured, and the landing is checked against its
+ * frozen source by e2e/landing-v1 at the four widths. The pins keep the v46 measurements as history.
+ */
+test('B1-01 · PU-01 Landing and PU-14 — superseded by the approved V1 landing', async () => {
+  await recordSuperseded(test.info(), 'b1-01-');
 });
 
-test.describe('B1-02 · the engineering-area explorer on the built landing', () => {
-  let frames: Locator;
-
-  test.beforeEach(async ({ openBoardPage }) => {
-    const { page: board } = await openBoardPage('B1-02-Area-Explorer.dc.html', { uncrop: true });
-    frames = board.locator('.b1-frame');
-    await expect(frames).toHaveCount(5);
-  });
-
-  for (const [index, width, label] of [
-    [0, 1440, 'three areas · 1440'],
-    [2, 375, 'mobile 375 · three areas'],
-    [4, 768, 'tablet 768'],
-  ] as const) {
-    test(`f${index} · ${label}`, async ({ context }, testInfo) => {
-      const { run, failures } = collector(testInfo);
-      const ours = await open(context, width, '/', landingReady);
-      await rest(ours);
-      await run([
-        {
-          name: `b1-02-f${index}-explorer`,
-          reference: frames.nth(index).locator('.xp-ex'),
-          product: ours.locator('.xp-ex'),
-        },
-      ]);
-      expect(failures).toEqual([]);
-    });
-  }
+test('B1-02 · the engineering-area explorer — superseded by the approved V1 landing', async () => {
+  await recordSuperseded(test.info(), 'b1-02-');
 });
 
 test.describe('B1-03 · PU-02, PU-03 and PU-05 on the built pages', () => {

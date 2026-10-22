@@ -37,134 +37,16 @@ export const PUBLIC_SHELL = {
   close: 'Close',
 } as const;
 
-// ---- PU-01 Landing (B1-01) and the explorer (B1-02) ----
-
-export const LANDING = {
-  hero: {
-    eyebrow: 'BITS Pilani · Work Integrated Learning Programmes',
-    lines: ['Set the conditions.', 'See what follows.'],
-    emphasis: 'Understand why.',
-    lead: 'Simulations of the lab experiments in engineering courses — in the browser, and in AR, VR and MR where an experiment offers them.',
-    browse: 'Browse experiments',
-    studentsWho: 'Students and faculty',
-    studentsLink: 'Already have access? Sign in',
-    institutionsWho: 'Institutions',
-    institutionsLink: 'Request institutional access',
-    illustration: 'Illustration · concept artwork, not a simulation capture',
-  },
-  explorer: {
-    eyebrow: 'Explore by area',
-    title: 'Every experiment, by engineering area.',
-    lead: 'Pick an area to see its courses, then browse its experiments.',
-    region: 'Engineering areas',
-    carousel: 'carousel',
-    slide: 'slide',
-    viewArea: 'View area',
-    previous: 'Previous area',
-    next: 'Next area',
-    swipe: 'Swipe for more areas',
-    viewAll: 'View all areas',
-  },
-  featured: {
-    eyebrow: 'Featured experiments',
-    title: 'Start with these experiments.',
-    lead: 'A selection across the engineering areas, including one experiment available in all four formats.',
-    cta: 'View experiment',
-  },
-  formats: {
-    eyebrow: 'Formats',
-    title: 'One experiment. Four ways to run it.',
-    lead: 'WEB, AR, VR and MR are equal options. Each experiment shows the formats it is available in.',
-  },
-  institutions: {
-    eyebrow: 'For institutions',
-    title: 'Anyone can browse. Institutions request access.',
-    lead: 'Running an experiment needs access arranged through your institution.',
-    request: 'Request institutional access',
-  },
-  band: {
-    label: 'Browse experiments',
-    title: 'Find the experiments for your course.',
-    action: 'Browse experiments',
-  },
-} as const;
-
-/** "2 of 3" (B1-02 `pos`). */
-export function positionWords(index: number, count: number): string {
-  return `${index + 1} of ${count}`;
-}
-
-/** The slide's name, "2 of 9: Area name" (B1-02 "each card is a group named …"). */
-export function slideLabel(index: number, count: number, name: string): string {
-  return `${positionWords(index, count)}: ${name}`;
-}
-
-/** The polite announcement of the newly selected area (B1-02 `live`). */
-export function areaAnnouncement(index: number, count: number, name: string): string {
-  return `${name}, area ${index + 1} of ${count}`;
-}
-
-/** "5 experiments · 2 courses" (B1-02 `meta`). */
-export function areaCountsWords(experiments: number, courses: number): string {
-  return `${experimentsWords(experiments)} · ${coursesWords(courses)}`;
-}
+// ---- PU-01 Landing: since prompt 13 the V1 landing's words are `landing-v1.ts` ----
 
 /** "Browse 5 experiments" (B1-02 `browse`; B1-03 PU-03 button). */
 export function browseCountWords(experiments: number): string {
   return experiments === 1 ? 'Browse 1 experiment' : `Browse ${experiments} experiments`;
 }
 
-/** "Show Mechanical & Manufacturing" (B1-02 `pickLabel`). */
-export function pickAreaLabel(name: string): string {
-  return `Show ${name}`;
-}
-
-/** "Browse all 12 experiments" (B1-01 featured head). */
-export function browseAllWords(total: number): string {
-  return `Browse all ${experimentsWords(total)}`;
-}
-
 /** "ME ZG523 · Thermodynamics & Heat Transfer", or the name alone without a code (T-17). */
 export function courseLine(platformCode: string | null, courseName: string): string {
   return platformCode ? `${platformCode} · ${courseName}` : courseName;
-}
-
-/** The B1-01 format cards: code, name, "How it runs" as B1-01 words it. */
-export const FORMAT_CARDS: readonly {
-  readonly format: Technology;
-  readonly name: string;
-  readonly text: string;
-}[] = [
-  {
-    format: 'web',
-    name: 'Browser',
-    text: 'The experiment in a web browser, on a laptop or desktop.',
-  },
-  {
-    format: 'ar',
-    name: 'Augmented reality',
-    text: 'The experiment overlaid on your surroundings, on a supported phone or tablet.',
-  },
-  {
-    format: 'vr',
-    name: 'Virtual reality',
-    text: 'The experiment in a virtual lab, on a supported headset.',
-  },
-  {
-    format: 'mr',
-    name: 'Mixed reality',
-    text: 'The experiment combined with your real surroundings, on a supported device.',
-  },
-];
-
-/** "Available in 5 of 12 experiments" (B1-01 `xp-fcard-n`). */
-export function availableInWords(count: number, total: number): string {
-  return `Available in ${count} of ${experimentsWords(total)}`;
-}
-
-/** "Browse VR experiments" (B1-01 `xp-fcard-link`). */
-export function browseFormatWords(format: Technology): string {
-  return `Browse ${FORMAT_META[format].code} experiments`;
 }
 
 /** PU-14 "How institutional access works" — the four steps (B1-01 landing; B1-05 mini version). */

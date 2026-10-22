@@ -9,6 +9,7 @@ import {
   reachAndClick,
   TEST_HOOKS_URL,
 } from '../support';
+import { checkLanding } from '../support/landing';
 import { checkState, smallTargets } from '../support/screen-checks';
 import { SUPER_ADMIN } from '../support/workspace';
 
@@ -174,20 +175,23 @@ test.describe('the test-hook build (spine-start world, the Super Admin)', () => 
 });
 
 test.describe('the product build', () => {
-  test('PU-01 area explorer at a phone width: swiped to the second area, the page checked', async ({
+  test('PU-01 area explorer at a phone width: the second area opened, the page checked', async ({
     page,
     viewport,
   }) => {
-    test.skip((viewport?.width ?? 0) >= 600, 'The swipe counter is the explorer below 600 px.');
+    test.skip((viewport?.width ?? 0) >= 560, 'The explorer stacks vertically below 560 px.');
     await page.goto('/');
-    const region = page.getByRole('region', { name: 'Engineering areas' });
-    await expect(region.getByText('Swipe for more areas')).toBeVisible();
-    await region.locator('.xp-ex-track').evaluate((track) => {
-      const second = track.children[1] as HTMLElement;
-      track.scrollTo({ left: second.offsetLeft - 2 });
-    });
-    await expect(region.locator('.xp-ex-count')).toHaveText('2 of 3');
-    await checkState(page, 'Set the conditions.');
+    // The V1 landing's accordion (prompt 13; frozen 529–560): a tap opens an area.
+    const group = page.getByRole('group', { name: 'Experiment areas' });
+    await reachAndClick(
+      page,
+      group.getByRole('button', { name: /^Show Electrical & Electronics/ }),
+    );
+    await expect(
+      group.getByRole('button', { name: 'Selected: Electrical & Electronics, 4 experiments' }),
+    ).toHaveAttribute('aria-pressed', 'true');
+    await expect(group.getByRole('link', { name: /Browse 4 experiments/ })).toBeVisible();
+    await checkLanding(page);
   });
 
   test('PU-08 “Until a fixed date”: the end date asked for, checked on every width', async ({

@@ -76,10 +76,11 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
 
   it('seven static workspace bases and no dynamic root segment (ADR-0005 §1; D-12)', () => {
     const roots = readdirSync(APP).filter((entry) => statSync(join(APP, entry)).isDirectory());
-    // Plus the `(auth)` and `(public)` route groups (ADR-0005 §1), which add no URL segment, and
-    // Phase 7's `/prototype` support pages (a local prototype build's, not a workspace).
+    // Plus the `(auth)`, `(public)` and `(landing)` route groups (ADR-0005 §1; the landing's own
+    // since prompt 13, D-13), which add no URL segment, and Phase 7's `/prototype` support pages (a
+    // local prototype build's, not a workspace).
     expect(roots.filter((entry) => !entry.startsWith('_')).sort()).toEqual(
-      [...WORKSPACES, 'healthz', '(auth)', '(public)', 'prototype'].sort(),
+      [...WORKSPACES, 'healthz', '(auth)', '(public)', '(landing)', 'prototype'].sort(),
     );
     expect(roots.some((entry) => entry.startsWith('['))).toBe(false);
     // Private folders hold route-level modules only, never a route.
@@ -108,7 +109,6 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
       '(public)/experiments/[experimentId]/page.tsx',
       '(public)/experiments/page.tsx',
       '(public)/layout.tsx',
-      '(public)/page.tsx',
       '(public)/request-access/page.tsx',
       '(public)/request-access/sent/page.tsx',
       '(public)/requests/[requestId]/page.tsx',

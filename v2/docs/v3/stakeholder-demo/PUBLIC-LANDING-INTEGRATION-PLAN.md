@@ -763,3 +763,28 @@ The sample world matches the frozen fixture exactly (checked on 3360):
 11. **Footer claim.** "Sample courses and experiments · illustrative concept artwork · no production data" (917). → D-11
 12. **Fonts.** The T1–T4 SVG labels name JetBrains Mono (165), which is never loaded; the system monospace renders. The plan keeps the fallback (no font added). Recorded only so a visual difference against another machine is not misread.
 13. **Infrastructure, not the design.** `xr-public.css` `.xp{overflow:hidden}` (line 6) prevents the frozen `position:sticky` header and story stage if the landing stays inside the public shell. → D-13
+
+---
+
+## 8. Owner decisions (22 Oct 2026)
+
+The owner authorised the integration (prompt 13) with `21 · FROZEN · Premium Direction B2 – BITS
+Immersive Experience.dc.html` (SHA-256 `3dbe9412…4d07c`) as the sole visual and interaction
+authority and `branding/bits-pilani-wilp-logo.png` as the official logo (D-1, D-2), and decided:
+
+| Decision         | Owner's choice                                                                                                                                                                                                                                                             |
+| ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| D-3 header entry | Keep the frozen header layout; add **“Sign in”** as a fourth nav link in the frozen nav style at ≥ 1024 px, and a small “Sign in” text link beside the gold “Catalogue” button below 1024 px. Selection, Request access and Areas stay reachable from the catalogue pages. |
+| D-5 PU-14        | Keep the six frozen steps and wording; add **one “Request institutional access” button** below them (frozen secondary-button style) to the existing selection / request flow (`/selection`).                                                                               |
+| D-4 name         | **“XR Learning Platform”** on the landing (consistent with every V3 screen).                                                                                                                                                                                               |
+| D-7 durations    | **Hidden** on the featured cards (no product data).                                                                                                                                                                                                                        |
+
+Implementation details settled by following the frozen source (not owner decisions): D-6 featured
+“View in catalogue” keeps the frozen catalogue search (`/experiments?q=…`); D-8 the Pause control
+is also shown on phones (WCAG 2.2.2 — a necessary accessibility correction); D-9 the real viewport
+height drives the sticky story, falling back to the frozen tap mode on short viewports; D-10
+semantic links, landmarks and a focus-only skip link, and the off-state chip text raised from 3.9:1
+to 4.5:1; D-11 the footer note kept; D-12 styles scoped in the existing `xr.product` layer; D-13 `/`
+in its own route group outside the v46 public shell; D-14 bound to the existing catalogue reads
+with defined fallbacks; D-15 the v46 B1-01 comparisons retired by name in the comparison map; D-16
+the frozen four-format chips with off-states.

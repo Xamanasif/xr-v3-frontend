@@ -118,4 +118,42 @@ export const RECORDED_SCAN_EXCEPTIONS: readonly ScanException[] = [
     removal:
       'the owner decides the B6-03 wording against B8-03 "Role-name variants 0", with OD-1B-04 (Phase-5 record)',
   },
+  // PU-01 with PU-14, the V1 Direction B2 landing (owner-authorised prompt 13, 22 Oct 2026). The
+  // owner locked the original landing's wording (pack common/01-OWNER-DECISIONS.md decision 2:
+  // "Preserve its visual composition, wording, artwork …") and named `21 · FROZEN · Premium
+  // Direction B2 - BITS Immersive Experience.dc.html` (SHA-256 3dbe9412…4d07c) its sole authority;
+  // these four drawn phrases meet the v46 B8-03 word rules. Kept as drawn, the conflict visible.
+  {
+    rule: 'role-name-variants',
+    file: 'apps/web/src/copy/landing-v1.ts',
+    found: 'look at how a learner can investigate one experiment.',
+    evidence:
+      '21 FROZEN line 569, the “Inside a simulation” lead: "A representative look at how a learner can investigate one experiment." ("a learner" is the generic noun, as the Package-1B exception above)',
+    removal:
+      'the owner rewords the V1 landing (prompt 13 §5) or decides OD-1B-04 against the frozen wording',
+  },
+  {
+    rule: 'internal-jargon',
+    file: 'apps/web/src/copy/landing-v1.ts',
+    found: 'tion access is provisioned',
+    evidence:
+      '21 FROZEN line 1861, PU-14 step 05: "Institution access is provisioned" — "The institution’s access is activated for the agreed content and term."',
+    removal: 'the owner rewords the V1 landing’s access steps (prompt 13 §5)',
+  },
+  {
+    rule: 'internal-jargon',
+    file: 'apps/web/src/copy/landing-v1.ts',
+    found: 'nts within the provisioned scope.',
+    evidence:
+      '21 FROZEN line 1862, PU-14 step 06: "Its administrator assigns students within the provisioned scope."',
+    removal: 'the owner rewords the V1 landing’s access steps (prompt 13 §5)',
+  },
+  {
+    rule: 'academic-quality',
+    file: 'apps/web/src/copy/landing-v1.ts',
+    found: 'Academic quality',
+    evidence:
+      '21 FROZEN line 727, the eyebrow of the “Academically reviewed. Built around your courses.” section (a section name, not a quality claim; its claims are the frozen trust points 1851–1854)',
+    removal: 'the owner rewords the V1 landing’s academic section (prompt 13 §5)',
+  },
 ];

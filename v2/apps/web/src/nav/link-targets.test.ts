@@ -390,7 +390,7 @@ describe('the link-target ledger', () => {
       // Package 1D: SA-07's one primary per drawn state — no Institute Admin (B7-03 f1), paused (f2).
       'SA-07: Assign Institute Admin',
       'SA-07: Restore access',
-      'PU-01: Browse experiments',
+      'PU-01: Browse the catalogue',
       'PU-03: Browse N experiments',
       'PU-06: Add to selection',
       // Package 1C: one primary per drawn state — PU-07 the summary's (from 1024 px) or the bottom

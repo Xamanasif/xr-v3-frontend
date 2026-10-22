@@ -12,6 +12,7 @@ import {
   wide,
 } from '../package-1c/flow';
 import { reachAndClick } from '../support';
+import { checkLanding, landingCatalogue, landingSignIn, onLanding } from '../support/landing';
 import { checkState } from '../support/screen-checks';
 import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 
@@ -63,6 +64,8 @@ async function signOut(page: Page, accountLine: string): Promise<void> {
 
 /** From a public page: the header's Sign in (the menu sheet below 1024 px). */
 async function toSignIn(page: Page): Promise<void> {
+  // The landing draws its own header with Sign in at every width (owner decision D-3).
+  if (await onLanding(page)) return landingSignIn(page);
   if (wide(page)) await reachAndClick(page, page.locator('header a.xp-signin'));
   else await headerLink(page, 'Sign in');
   await page.waitForURL('**/sign-in');
@@ -74,8 +77,13 @@ async function sidebar(page: Page, href: string): Promise<void> {
   await page.waitForURL(`**${href}`);
 }
 
-/** Landing → engineering areas → an area → a course → its experiment (PU-01 → 02 → 03 → 05 → 06). */
+/**
+ * Landing → engineering areas → an area → a course → its experiment (PU-01 → 02 → 03 → 05 → 06).
+ * The landing's header has no Areas (owner decision D-3): its catalogue button leads on, and the
+ * catalogue's header has Areas.
+ */
 async function browseToShellAndTube(page: Page): Promise<void> {
+  if (await onLanding(page)) await landingCatalogue(page);
   await headerLink(page, 'Areas');
   await page.waitForURL('**/areas');
   await checkState(page, 'Engineering areas');
@@ -148,11 +156,14 @@ async function decide(page: Page, route: 'internal' | 'external'): Promise<void>
 test('Flow A and B1 in one tab of the product build: browse → select → request → decide → pay → access → institution → Institute Admin', async ({
   page,
 }) => {
-  test.slow();
+  // Nine screens and a full accessibility check on each, starting on the V1 landing (prompt 13),
+  // whose check alone scans a page of 7,500 px: about 96 s at 375 px on a product build, past the
+  // tripled default (`test.slow()`, 90 s). Every step still passes; only the budget grows.
+  test.setTimeout(180_000);
   // 1. The public landing (PU-01): the only document load.
   await page.goto('/');
   const mark = await markDocument(page);
-  await checkState(page, 'Set the conditions.');
+  await checkLanding(page);
 
   // 2. Engineering areas, an area, a course, the catalogue, an experiment (PU-02 … PU-06).
   await browseToShellAndTube(page);

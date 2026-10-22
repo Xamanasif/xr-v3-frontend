@@ -4,7 +4,7 @@
  * and the web app's sources, so they run UNCACHED with the other repository scans.
  */
 import { createHash } from 'node:crypto';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
 import { afterAll, describe, expect, it } from 'vitest';
@@ -277,10 +277,25 @@ describe('V3 status register and comparison map (docs/v3)', () => {
     );
   });
 
-  it('PU-01 and PU-14 stay locked, with their own landing-fidelity state (HOLD)', () => {
+  it('PU-01 and PU-14 stay locked, with their own landing-fidelity state', () => {
     for (const id of lock.lockedLandingScreenIds) {
       const entry = entries.find((candidate) => candidate.id === id)!;
-      expect(entry.landingFidelity, id).toMatch(/^HOLD/);
+      // HOLD until the owner authorised prompt 13 (22 Oct 2026); INTEGRATED only from the frozen
+      // V1 source kept byte for byte in design/v1-landing.
+      expect(entry.landingFidelity, id).toMatch(/^(?:HOLD|INTEGRATED — prompt 13 authorised)/);
+      if (entry.landingFidelity?.startsWith('INTEGRATED')) {
+        expect(
+          existsSync(
+            join(
+              repositoryRoot,
+              'design',
+              'v1-landing',
+              '21 · FROZEN · Premium Direction B2 - BITS Immersive Experience.dc.html',
+            ),
+          ),
+          id,
+        ).toBe(true);
+      }
       expect(entry.implementationComplete, id).toMatch(/^not migrated/);
     }
   });
@@ -340,9 +355,12 @@ describe('scope boundary: only migrated screens load the V3 layer (ADR-0010)', (
     expect(unnamed).toEqual([]);
     // Today: the Entry & shared surfaces (XS), the Super Admin (SA), the Vendor (VE), the Content
     // Manager (CM), the Academic Reviewer (RV), the Institute Admin (IA), the Faculty member (FA)
-    // and the Student (ST), and nothing of the locked landing.
+    // and the Student (ST). The V1 public landing (PU, prompt 13) is on the map for its parity
+    // supersession (the retired b1-01-* comparisons) and its fidelity evidence, not because it
+    // loads the V3 layer: no landing source is an importer (the check above), and the landing
+    // never loads it (the test below).
     expect(new Set(screens.map((screen) => screen.id.slice(0, 2)))).toEqual(
-      new Set(['XS', 'SA', 'VE', 'CM', 'RV', 'IA', 'FA', 'ST']),
+      new Set(['XS', 'SA', 'VE', 'CM', 'RV', 'IA', 'FA', 'ST', 'PU']),
     );
     for (const file of importers) {
       expect(file, file).toMatch(
@@ -350,12 +368,19 @@ describe('scope boundary: only migrated screens load the V3 layer (ADR-0010)', (
       );
     }
     summary.push(
-      `V3 layer loaded by ${importers.length} web sources (XS, SA, VE, CM, RV, IA, FA, ST), all on the comparison map`,
+      `V3 layer loaded by ${importers.length} web sources (XS, SA, VE, CM, RV, IA, FA, ST), all on the comparison map; the V1 landing (PU) is on the map without loading it`,
     );
   });
 
   it('the root layout and the public landing never load it', () => {
-    for (const file of ['apps/web/src/app/layout.tsx', 'apps/web/src/app/(public)/page.tsx']) {
+    // The landing renders in its own `(landing)` group since prompt 13 (D-13).
+    for (const file of [
+      'apps/web/src/app/layout.tsx',
+      'apps/web/src/app/(landing)/layout.tsx',
+      'apps/web/src/app/(landing)/page.tsx',
+      'apps/web/src/features/public/pu-01-landing/landing.tsx',
+      'apps/web/src/features/public/pu-01-landing/landing-v1.css',
+    ]) {
       expect(readFileSync(join(workspaceRoot, file), 'utf8'), file).not.toMatch(
         /@xr\/ui\/(?:v3|styles-v3\.css)|wght@400\.\.800/,
       );

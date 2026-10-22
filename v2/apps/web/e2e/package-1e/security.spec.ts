@@ -21,6 +21,7 @@ import {
   signInAs,
   TEST_HOOKS_URL,
 } from '../support';
+import { landingSignIn, onLanding } from '../support/landing';
 import { ACCOUNT_LINES, expectSameDocument, markDocument, SUPER_ADMIN } from '../support/workspace';
 
 /**
@@ -45,6 +46,8 @@ async function ticketOf(page: Page): Promise<string> {
 }
 
 async function toSignIn(page: Page): Promise<void> {
+  // The landing draws its own header with Sign in at every width (owner decision D-3).
+  if (await onLanding(page)) return landingSignIn(page);
   if (wide(page)) await reachAndClick(page, page.locator('header a.xp-signin'));
   else await headerLink(page, 'Sign in');
   await page.waitForURL('**/sign-in');

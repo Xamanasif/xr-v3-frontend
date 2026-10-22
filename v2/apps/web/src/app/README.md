@@ -41,17 +41,17 @@ the workspaces.
 **Phase-1 Package 1B** adds the public surface (TE-8: rendered in the browser from the tab's one
 sample world), by the same rules:
 
-| Path                          | File(s)                                             | Shows                                                            |
-| ----------------------------- | --------------------------------------------------- | ---------------------------------------------------------------- |
-| every public page             | `(public)/layout.tsx`, `_public/public-route.tsx`   | PublicFrame: skip link, header + menu sheet, `main#main`, footer |
-| `/`                           | `(public)/page.tsx`                                 | PU-01 Landing, with PU-14 at `#for-institutions` (B1-01, B1-02)  |
-| `/areas`                      | `(public)/areas/page.tsx`                           | PU-02 All engineering areas (B1-03)                              |
-| `/areas/[areaId]`             | `(public)/areas/[areaId]/page.tsx`                  | PU-03 Engineering area; unknown or hidden → B1-03's message      |
-| `/courses/[courseId]`         | `(public)/courses/[courseId]/page.tsx`              | PU-05 Course (keyed by the course id, D-13)                      |
-| `/courses`                    | `next.config.ts` `redirects()`                      | → `/areas` (Appendix A §3.7 row 1), 307                          |
-| `/experiments`                | `(public)/experiments/page.tsx`                     | PU-04 Catalogue, `?area=&course=&format=&q=&sort=&view=`         |
-| `/experiments/[experimentId]` | `(public)/experiments/[experimentId]/page.tsx`      | PU-06 Experiment (`?format=` from a one-format catalogue)        |
-| any other address             | `not-found.tsx` (root) → `_public/public-route.tsx` | PU-15 public variant, HTTP 404, now inside the public frame      |
+| Path                          | File(s)                                                                   | Shows                                                                                                         |
+| ----------------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| every other public page       | `(public)/layout.tsx`, `_public/public-route.tsx`                         | PublicFrame: skip link, header + menu sheet, `main#main`, footer                                              |
+| `/`                           | `(landing)/layout.tsx`, `(landing)/page.tsx`, `_public/landing-route.tsx` | PU-01 Landing, with PU-14 at `#for-institutions` — the V1 landing (prompt 13), outside the PublicFrame (D-13) |
+| `/areas`                      | `(public)/areas/page.tsx`                                                 | PU-02 All engineering areas (B1-03)                                                                           |
+| `/areas/[areaId]`             | `(public)/areas/[areaId]/page.tsx`                                        | PU-03 Engineering area; unknown or hidden → B1-03's message                                                   |
+| `/courses/[courseId]`         | `(public)/courses/[courseId]/page.tsx`                                    | PU-05 Course (keyed by the course id, D-13)                                                                   |
+| `/courses`                    | `next.config.ts` `redirects()`                                            | → `/areas` (Appendix A §3.7 row 1), 307                                                                       |
+| `/experiments`                | `(public)/experiments/page.tsx`                                           | PU-04 Catalogue, `?area=&course=&format=&q=&sort=&view=`                                                      |
+| `/experiments/[experimentId]` | `(public)/experiments/[experimentId]/page.tsx`                            | PU-06 Experiment (`?format=` from a one-format catalogue)                                                     |
+| any other address             | `not-found.tsx` (root) → `_public/public-route.tsx`                       | PU-15 public variant, HTTP 404, now inside the public frame                                                   |
 
 `_public/public-route.tsx` is the public pages' one module that reads Next.js navigation; its
 `replace` mirrors a page's view into the address with `history.replaceState` (no history entry, no

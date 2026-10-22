@@ -110,3 +110,10 @@ servers stopped — `start-demo.sh`.
 
 Evidence (screenshots, logs, audit data) is outside the repository in
 `/Users/mymac/Desktop/XR-V3-stakeholder-demo/evidence/`.
+
+## G. Update — the approved Public Landing (22 Oct 2026, evening)
+
+The owner authorised the V1 landing integration (prompt 13) and decided D-3, D-4, D-5 and D-7. The
+approved premium landing is now integrated at `/` (see `PUBLIC-LANDING-FIDELITY-CHECKLIST.md`) and
+awaits the owner's acceptance on its review build, http://localhost:3362/. The demo build on
+3360/3361 is unchanged until the landing is accepted.

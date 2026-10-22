@@ -2,6 +2,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { openInTab, sendRequest, statusHead } from '../package-1c/flow';
 import { reachAndClick } from '../support';
+import { landingSignIn, onLanding } from '../support/landing';
 import { checkState } from '../support/screen-checks';
 import { expectSameDocument, markDocument, revealSidebar, sidebarLink } from '../support/workspace';
 
@@ -93,6 +94,8 @@ async function sidebar(page: Page, href: string): Promise<void> {
 }
 
 async function toSignIn(page: Page): Promise<void> {
+  // The landing draws its own header with Sign in at every width (owner decision D-3).
+  if (await onLanding(page)) return landingSignIn(page);
   if ((page.viewportSize()?.width ?? 0) >= 1024) {
     await reachAndClick(page, page.locator('header a.xp-signin'));
   } else {
@@ -125,10 +128,9 @@ async function type(field: Locator, value: string): Promise<void> {
 
 /** The public catalogue (PU-04) from the public footer, in the same tab. */
 async function catalogue(page: Page): Promise<void> {
-  await reachAndClick(
-    page,
-    page.locator('footer').getByRole('link', { name: 'Browse experiments' }),
-  );
+  // The landing's footer names the catalogue “Catalogue” (frozen 2037).
+  const name = (await onLanding(page)) ? 'Catalogue' : 'Browse experiments';
+  await reachAndClick(page, page.locator('footer').getByRole('link', { name }));
   await page.waitForURL((url) => url.pathname === '/experiments');
   await expect(main(page).getByRole('heading', { level: 3, name: SHELL })).toBeVisible();
 }

@@ -14,19 +14,12 @@ import {
   CATALOGUE,
   COURSE,
   EXPERIMENT,
-  FORMAT_CARDS,
   HOW_ACCESS_WORKS,
-  LANDING,
   PUBLIC_SHELL,
-  areaAnnouncement,
   areaChip,
-  areaCountsWords,
-  availableInWords,
   backToFormatWords,
   backToWords,
-  browseAllWords,
   browseCountWords,
-  browseFormatWords,
   chooseOneFormatWords,
   courseChip,
   courseEyebrow,
@@ -37,12 +30,9 @@ import {
   formatFacetWords,
   inSelectionFormats,
   notAvailableWords,
-  pickAreaLabel,
-  positionWords,
   resultCountWords,
   searchChip,
   showCountWords,
-  slideLabel,
   stepWords,
 } from './public';
 
@@ -69,7 +59,7 @@ function strings(value: unknown): string[] {
   return [];
 }
 
-describe('the public shell and the landing are B1-01’s (and B1-02’s explorer)', () => {
+describe('the public shell and PU-14’s steps are B1-01’s (the V1 landing’s words: landing-v1.test.ts)', () => {
   it.each(strings(PUBLIC_SHELL).filter((text) => !['Main', 'Footer'].includes(text)))(
     '%s',
     (text) => {
@@ -82,13 +72,6 @@ describe('the public shell and the landing are B1-01’s (and B1-02’s explorer
     expect(B1_01).toContain('<nav aria-label="Footer">');
   });
 
-  it.each(strings(LANDING).filter((text) => !['carousel', 'slide'].includes(text)))(
-    '%s',
-    (text) => {
-      expect(B1_01).toContain(text);
-    },
-  );
-
   it.each(strings(ACCESS_STEPS))('PU-14 step: %s', (text) => {
     expect(B1_01).toContain(text);
   });
@@ -100,45 +83,14 @@ describe('the public shell and the landing are B1-01’s (and B1-02’s explorer
     expect(B1_01).toContain('<span class="xp-step4-n">Step 4</span>');
   });
 
-  it.each(strings(FORMAT_CARDS).filter((text) => !['web', 'ar', 'vr', 'mr'].includes(text)))(
-    'format card: %s',
-    (text) => {
-      expect(B1_01).toContain(text);
-    },
-  );
-
   it('the count formulas are the boards’', () => {
-    expect(areaCountsWords(5, 2)).toBe('5 experiments · 2 courses');
-    expect(B1_01).toContain('5 experiments · 2 courses');
-    expect(areaCountsWords(3, 1)).toBe('3 experiments · 1 course');
-    expect(B1_01).toContain('3 experiments · 1 course');
     expect(browseCountWords(5)).toBe('Browse 5 experiments');
     expect(B1_02).toContain('Browse 5 experiments');
-    expect(browseAllWords(12)).toBe('Browse all 12 experiments');
-    expect(B1_01).toContain('Browse all 12 experiments');
-    expect(availableInWords(5, 12)).toBe('Available in 5 of 12 experiments');
-    expect(B1_01).toContain('Available in 5 of 12 experiments');
-    expect(browseFormatWords('vr')).toBe('Browse VR experiments');
-    expect(B1_01).toContain('Browse VR experiments');
     expect(courseLine('ME ZG523', 'Thermodynamics & Heat Transfer')).toBe(
       'ME ZG523 · Thermodynamics & Heat Transfer',
     );
     expect(B1_01).toContain('ME ZG523 · Thermodynamics & Heat Transfer');
     expect(courseLine(null, 'Fluid Mechanics')).toBe('Fluid Mechanics');
-  });
-
-  it('the explorer’s positions, slide names and announcement follow B1-02’s script', () => {
-    expect(positionWords(1, 3)).toBe('2 of 3');
-    expect(slideLabel(1, 3, 'Electrical & Electronics')).toBe('2 of 3: Electrical & Electronics');
-    expect(B1_01).toContain('aria-label="2 of 3: Electrical & Electronics"');
-    expect(pickAreaLabel('Chemical & Process')).toBe('Show Chemical & Process');
-    expect(B1_01).toContain('aria-label="Show Chemical & Process"');
-    expect(areaAnnouncement(0, 3, 'Mechanical & Manufacturing')).toBe(
-      'Mechanical & Manufacturing, area 1 of 3',
-    );
-    expect(B1_02).toContain("live: list[sel].name + ', area ' + (sel + 1) + ' of ' + n");
-    expect(B1_02).toContain('aria-roledescription="carousel"');
-    expect(B1_02).toContain('aria-roledescription="slide"');
   });
 });
 

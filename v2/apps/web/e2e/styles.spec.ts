@@ -81,9 +81,13 @@ test.describe('built CSS: layers', () => {
   });
 
   test('the eight v46 sheets sit in xr.v46 in the B8-07 order, before the product layer', () => {
-    const css = builtCssFiles()
+    // The global sheet: the one built file that holds the v46 layer. Route chunks (the V1 landing's
+    // own stylesheet, entirely in xr.product since prompt 13) are checked by the layer test above.
+    const sheets = builtCssFiles()
       .map((file) => readFileSync(file, 'utf8'))
-      .join('\n');
+      .filter((text) => text.includes('@layer xr.v46{'));
+    expect(sheets).toHaveLength(1);
+    const css = sheets[0]!;
     const v46 = css.indexOf('@layer xr.v46{');
     const product = css.indexOf('@layer xr.product{');
     expect(v46).toBeGreaterThanOrEqual(0);

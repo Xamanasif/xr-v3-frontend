@@ -204,7 +204,8 @@ const PACKAGE_1A_PAGES: readonly PageRoute[] = [
  */
 const PACKAGE_1B_PAGES: readonly PageRoute[] = (
   [
-    ['/', '(public)/page.tsx', 'PU-01'],
+    // PU-01 (with PU-14) in its own `(landing)` group since prompt 13 (owner decision D-13).
+    ['/', '(landing)/page.tsx', 'PU-01'],
     ['/areas', '(public)/areas/page.tsx', 'PU-02'],
     ['/areas/[areaId]', '(public)/areas/[areaId]/page.tsx', 'PU-03'],
     ['/experiments', '(public)/experiments/page.tsx', 'PU-04'],
@@ -670,6 +671,7 @@ export const ROUTE_FILES: readonly string[] = [
   'healthz/route.ts',
   '(auth)/layout.tsx',
   '(public)/layout.tsx',
+  '(landing)/layout.tsx',
   ...WORKSPACES.flatMap((workspace) => [`${workspace}/layout.tsx`, `${workspace}/not-found.tsx`]),
 ];
 

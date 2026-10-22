@@ -1,375 +1,425 @@
 'use client';
 
-import type { CatalogueEntry } from '@xr/contracts/draft';
-import { FORMAT_META } from '@xr/domain';
-import { Link } from '@xr/ui';
-import { useMemo } from 'react';
+import './landing-v1.css';
 
+import { SkipLink } from '@xr/ui';
 import {
-  ACCESS_STEPS,
-  AREAS,
-  CATALOGUE,
-  FORMAT_CARDS,
-  LANDING,
-  areaCountsWords,
-  availableInWords,
-  browseAllWords,
-  browseFormatWords,
-  courseLine,
-  stepWords,
-} from '@/copy/public';
+  type PointerEvent,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from 'react';
+
+import { HERO_SCENES } from '@/copy/landing-v1';
+import { AREAS, CATALOGUE } from '@/copy/public';
 import { DocumentTitle } from '@/features/shared/document-title';
-import { FOR_INSTITUTIONS_ID } from '@/nav/public-nav';
-import { usePublicAreas, usePublicCatalogue, usePublicStructure } from '@/queries/catalogue';
+import { useAppNavigation } from '@/nav/navigation';
+import { usePublicCatalogue, usePublicStructure } from '@/queries/catalogue';
 
-import { PublicMain } from '../shell/public-frame';
-import { Drawing, atmosphereClass, descriptionOf, fullDrawingOf, isKnownArt } from '../shared/art';
-import { ArrowButtonLink, FailedBlock, FormatChips, MoreLink } from '../shared/blocks';
-import { AreaExplorer } from './explorer';
+import { FailedBlock } from '../shared/blocks';
+import { LandingArtDefs } from './art-defs';
+import { areaPanels, featuredCards, formatCounts, heroChips } from './bind';
+import { Explorer, Featured } from './discover';
+import { LandingHeader, type LandingSection } from './header';
+import { Hero, Tricolour } from './hero';
+import { heroReducer, INITIAL_HERO, motionOn, ROTATION_MS, rotates } from './hero-state';
+import {
+  breakpointOf,
+  INTRO_DELAY_MS,
+  landingLayout,
+  REVEAL_DELAY_MS,
+  storyConfig,
+  type StoryConfig,
+} from './layout';
+import { Academic, Access, Closing, Formats, LandingFooter } from './lower';
+import { setupReveal } from './reveal';
+import { Story } from './story';
+import { StoryEngine } from './story-engine';
 
-/** The hero's one static scene: its drawing (B1-01 `art/thermal.svg`, "One static scene"). */
-const HERO_DRAWING = 'thermal';
+const REDUCE_QUERY = '(prefers-reduced-motion: reduce)';
+
+function subscribeReduce(onChange: () => void): () => void {
+  if (typeof window.matchMedia !== 'function') return () => undefined;
+  const query = window.matchMedia(REDUCE_QUERY);
+  query.addEventListener('change', onChange);
+  return () => query.removeEventListener('change', onChange);
+}
+
+const reducedNow = () =>
+  typeof window.matchMedia === 'function' && window.matchMedia(REDUCE_QUERY).matches;
+
+/** `prefers-reduced-motion`, read and followed as the frozen file does (1118–1124). */
+function useReducedMotion(): boolean {
+  return useSyncExternalStore(subscribeReduce, reducedNow, () => false);
+}
+
+/** The hero's parallax layers move together (frozen `heroMove` 1248, `heroLeave` 1252). */
+function moveLayers(
+  layers: readonly (HTMLElement | null)[],
+  transition: string,
+  transform: string,
+): void {
+  for (const layer of layers) {
+    if (!layer) continue;
+    layer.style.transition = transition;
+    layer.style.transform = transform;
+  }
+}
+
+/** The document offset of an element (the frozen `offsetTop`, 1555). */
+function offsetTopOf(element: HTMLElement): number {
+  let y = 0;
+  for (
+    let node: HTMLElement | null = element;
+    node;
+    node = node.offsetParent as HTMLElement | null
+  ) {
+    y += node.offsetTop;
+  }
+  return y;
+}
 
 /**
- * PU-01 Landing with PU-14 "How institutional access works" (B1-01, B1-02): header → hero →
- * explorer → featured → formats → for institutions → closing band → footer. One gold primary in
- * the hero (Browse experiments); students and faculty sign in; institutions request access — to
- * Your selection, step 1 of the request (PU-07, built in Package 1C). Every number is the sample
- * world's (B1-01 "Counts").
+ * PU-01 Landing with PU-14 — the V1 Direction B2 landing (owner-authorised prompt 13): an isolated,
+ * one-to-one translation of `21 · FROZEN · Premium Direction B2 - BITS Immersive Experience`'s
+ * LANDING view (SHA-256 3dbe9412…4d07c) — not its catalogue subview, harness or scaled frame.
+ * Section order (frozen 404–920): sticky header → hero → tricolour → Featured → Explore by area →
+ * Inside a simulation → Formats → Academic quality → For institutions (PU-14) → closing band →
+ * footer.
+ *
+ * It owns the frozen component's state (1106: the hero scene and motion, the selector's hover,
+ * the explorer's area, the previewed format, the featured hover, the story step, the intro) and
+ * its timers, observers and listeners, and reads its data from the existing catalogue reads
+ * (`bind.ts`). Its look is `landing-v1.css`, scoped to the landing root in the `xr.product` layer.
+ * The landing renders outside the v46 public shell (its own route group), so its header sticks.
  */
 export function Landing() {
-  const areas = usePublicAreas();
+  const navigation = useAppNavigation();
+  const reduce = useReducedMotion();
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const heroRef = useRef<HTMLDivElement | null>(null);
+  const parallax = useRef<(HTMLDivElement | null)[]>([]);
+  const parallaxLayer = useCallback((index: number, node: HTMLDivElement | null) => {
+    parallax.current[index] = node;
+  }, []);
+  const trackRef = useRef<HTMLDivElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+
+  const [width, setWidth] = useState<number | null>(null);
+  const [viewH, setViewH] = useState<number | null>(null);
+  const [hero, dispatch] = useReducer(heroReducer, INITIAL_HERO);
+  const [intro, setIntro] = useState(false);
+  const [heroHover, setHeroHover] = useState(-1);
+  const [expSel, setExpSel] = useState(0);
+  const [fmtSel, setFmtSel] = useState(-1);
+  const [featHover, setFeatHover] = useState(-1);
+  const [storySel, setStorySel] = useState(0);
+
+  // ---- data (bind.ts; D-14) ----
   const structure = usePublicStructure();
   const all = usePublicCatalogue({ text: '', areaId: null, featured: false, sort: 'default' });
   const featured = usePublicCatalogue({ text: '', areaId: null, featured: true, sort: 'default' });
   const entries = all.data?.ok ? all.data.value.entries : null;
   const total = all.data?.ok ? all.data.value.total : null;
-
-  /** The area of each course, for the featured cards' tags (state-copy `PU-01.featured-tag`). */
-  const areaOfCourse = useMemo(() => {
-    const map = new Map<string, string>();
-    if (structure.data?.ok)
-      for (const { area, courses } of structure.data.value)
-        for (const course of courses) map.set(course.id, area.name);
-    return map;
-  }, [structure.data]);
-
-  // State-copy `PU-01.hero-caption`: the published experiment the hero drawing depicts.
-  const heroEntry =
-    entries?.find(
-      (entry) => isKnownArt(entry.artworkKey) && fullDrawingOf(entry.artworkKey) === HERO_DRAWING,
-    ) ?? null;
-
-  return (
-    <>
-      <DocumentTitle title="" />
-      <PublicMain>
-        <Hero entry={heroEntry} />
-        <div className="xp-ribbon" aria-hidden="true" />
-        <section className="xp-sec" aria-labelledby="landing-explore">
-          <div className="xp-in">
-            <SectionHead
-              id="landing-explore"
-              eyebrow={LANDING.explorer.eyebrow}
-              title={LANDING.explorer.title}
-              lead={LANDING.explorer.lead}
-            />
-            {/* B1-01 "Areas loading (or art failed) → plain list": the explorer when the areas'
-                courses are known, the readable plain list while they load or if that read fails,
-                the failed block only when the areas themselves cannot be read. */}
-            {areas.isError ? (
-              <FailedBlock
-                compact
-                title={AREAS.failedTitle}
-                line={AREAS.failedLine}
-                retryLabel={AREAS.retry}
-                onRetry={() => {
-                  void areas.refetch();
-                  void structure.refetch();
-                }}
-                forward={{ href: '/experiments', label: AREAS.browse }}
-              />
-            ) : structure.data?.ok && structure.data.value.length > 0 ? (
-              <AreaExplorer areas={structure.data.value} />
-            ) : areas.data?.ok ? (
-              <PlainAreaList areas={areas.data.value} />
-            ) : (
-              <span className="xr-sr" role="status">
-                {AREAS.loading}
-              </span>
-            )}
-          </div>
-        </section>
-        <section className="xp-sec xp-sec--tint" aria-labelledby="landing-featured">
-          <div className="xp-in">
-            <SectionHead
-              id="landing-featured"
-              eyebrow={LANDING.featured.eyebrow}
-              title={LANDING.featured.title}
-              lead={LANDING.featured.lead}
-              more={total === null ? null : { href: '/experiments', label: browseAllWords(total) }}
-            />
-            {featured.isError ? (
-              <FailedBlock
-                title={CATALOGUE.failedTitle}
-                line={CATALOGUE.failedLine}
-                retryLabel={CATALOGUE.retry}
-                onRetry={() => void featured.refetch()}
-              />
-            ) : featured.data?.ok && (structure.data !== undefined || structure.isError) ? (
-              // The cards wait for the structure read for their area tags; if that read fails the
-              // cards still show, without tags (state-copy `PU-01.featured-tag`).
-              <div className="xp-grid xp-grid--4">
-                {featured.data.value.entries.map((entry) => (
-                  <FeaturedCard
-                    key={entry.experimentId}
-                    entry={entry}
-                    areaName={areaOfCourse.get(entry.courseId) ?? null}
-                  />
-                ))}
-              </div>
-            ) : (
-              <span className="xr-sr" role="status">
-                {CATALOGUE.loading}
-              </span>
-            )}
-          </div>
-        </section>
-        <section className="xp-sec xp-sec--lilac" aria-labelledby="landing-formats">
-          <div className="xp-in">
-            <SectionHead
-              id="landing-formats"
-              eyebrow={LANDING.formats.eyebrow}
-              title={LANDING.formats.title}
-              lead={LANDING.formats.lead}
-            />
-            <FormatCards entries={entries} total={total} />
-          </div>
-        </section>
-        <ForInstitutions />
-        <section className="xp-band" aria-label={LANDING.band.label}>
-          <div className="xp-in xp-band-row">
-            <p className="xp-band-h">{LANDING.band.title}</p>
-            <ArrowButtonLink href="/experiments" className="xr-btn xp-btn-navy xp-cta">
-              {LANDING.band.action}
-            </ArrowButtonLink>
-          </div>
-        </section>
-      </PublicMain>
-    </>
+  const structureRows = structure.data?.ok ? structure.data.value : null;
+  const chips = useMemo(() => heroChips(entries), [entries]);
+  const cards = useMemo(
+    () => (featured.data?.ok ? featuredCards(featured.data.value.entries, structureRows) : []),
+    [featured.data, structureRows],
   );
-}
+  const panels = useMemo(() => (structureRows ? areaPanels(structureRows) : []), [structureRows]);
+  const counts = useMemo(() => (entries ? formatCounts(entries) : null), [entries]);
 
-function SectionHead({
-  id,
-  eyebrow,
-  title,
-  lead,
-  more = null,
-  focusable = false,
-}: {
-  readonly id: string;
-  readonly eyebrow: string;
-  readonly title: string;
-  readonly lead: string;
-  readonly more?: { readonly href: string; readonly label: string } | null;
-  /** PU-14: the heading takes focus when the page is opened at `#for-institutions`. */
-  readonly focusable?: boolean;
-}) {
-  return (
-    <div className="xp-sec-head">
-      <div className="xp-sec-head-main">
-        <span className="xp-eyebrow">{eyebrow}</span>
-        <h2 id={id} className="xp-h2" tabIndex={focusable ? -1 : undefined}>
-          {title}
-        </h2>
-      </div>
-      <div className="xp-sec-head-side">
-        <p className="xp-lead">{lead}</p>
-        {more ? <MoreLink href={more.href}>{more.label}</MoreLink> : null}
-      </div>
-    </div>
-  );
-}
+  // ---- measure (the frozen frame width; the real viewport height, D-9) ----
+  useLayoutEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    const measure = () => {
+      setWidth(root.clientWidth);
+      setViewH(window.innerHeight);
+    };
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure);
+    observer?.observe(root);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, []);
+  const layout = landingLayout(width ?? 1440);
+  const narrow = width !== null && breakpointOf(width) !== 'mid' && breakpointOf(width) !== 'wide';
+  const config: StoryConfig | null =
+    width === null || viewH === null ? null : storyConfig(width, reduce, viewH);
+  const configRef = useRef(config);
+  // The sticky stage's top (1740 `stageTop`): a value only the viewport decides, written onto the
+  // root as a custom property, as the story engine writes the stage's.
+  const stickyTop = config?.stickyTop ?? null;
+  useLayoutEffect(() => {
+    if (stickyTop !== null) rootRef.current?.style.setProperty('--pl1-stage-top', `${stickyTop}px`);
+  }, [stickyTop]);
+  const storySelRef = useRef(storySel);
+  // The story engine runs outside React (requestAnimationFrame); it reads the latest of both.
+  useLayoutEffect(() => {
+    configRef.current = config;
+    storySelRef.current = storySel;
+  });
 
-function Hero({ entry }: { readonly entry: CatalogueEntry | null }) {
-  return (
-    <section className="xp-hero xp-dark" aria-labelledby="landing-hero">
-      <div className="xp-in xp-hero-grid">
-        <div className="xp-hero-text">
-          <span className="xp-eyebrow xp-eyebrow--on-dark">{LANDING.hero.eyebrow}</span>
-          <h1 id="landing-hero" className="xp-hero-h">
-            {LANDING.hero.lines.map((line) => (
-              <span key={line}>{line}</span>
-            ))}
-            <em>{LANDING.hero.emphasis}</em>
-          </h1>
-          <p className="xp-hero-lead">{LANDING.hero.lead}</p>
-          <ArrowButtonLink href="/experiments" className="xr-btn xr-btn--primary xp-cta">
-            {LANDING.hero.browse}
-          </ArrowButtonLink>
-          <ul className="xp-paths m-0 mt-2 p-0 pt-5">
-            <li className="xp-path">
-              <span className="xp-path-who">{LANDING.hero.studentsWho}</span>
-              <Link href="/sign-in">{LANDING.hero.studentsLink}</Link>
-            </li>
-            <li className="xp-path">
-              <span className="xp-path-who">{LANDING.hero.institutionsWho}</span>
-              <Link href="/selection">{LANDING.hero.institutionsLink}</Link>
-            </li>
-          </ul>
-        </div>
-        <figure className="xp-hero-fig">
-          <span className="xp-illus">{LANDING.hero.illustration}</span>
-          <div className="xp-hero-art">
-            <Drawing artKey={HERO_DRAWING} description={descriptionOf(HERO_DRAWING)} />
-          </div>
-          {entry ? (
-            <figcaption className="xp-hero-cap">
-              <Link
-                className="xp-hero-course"
-                href={`/experiments/${encodeURIComponent(entry.experimentId)}`}
-              >
-                {courseLine(entry.platformCode, entry.name)}
-              </Link>
-              <FormatChips formats={entry.availableIn} variant="on-dark" />
-            </figcaption>
-          ) : null}
-        </figure>
-      </div>
-    </section>
-  );
-}
+  // ---- reduced motion stops rotation (1120–1122) ----
+  useEffect(() => {
+    if (reduce) dispatch({ type: 'reduce', matches: true });
+  }, [reduce]);
 
-/** B1-01 "Areas loading (or art failed) → plain list": readable at once. */
-function PlainAreaList({
-  areas,
-}: {
-  readonly areas: readonly {
-    readonly id: string;
-    readonly name: string;
-    readonly courseCount: number;
-    readonly experimentCount: number;
-  }[];
-}) {
-  return (
-    <>
-      <ul className="xp-ex-list">
-        {areas.map((area) => (
-          <li key={area.id}>
-            <Link href={`/areas/${encodeURIComponent(area.id)}`}>{area.name}</Link>
-            <span className="xr-meta">
-              {areaCountsWords(area.experimentCount, area.courseCount)}
-            </span>
-          </li>
-        ))}
-      </ul>
-      <div className="xp-ex-ctrl">
-        <MoreLink href="/areas" className="ml-0">
-          {LANDING.explorer.viewAll}
-        </MoreLink>
-      </div>
-    </>
-  );
-}
+  // ---- the intro stagger, 90 ms after mount (1152) ----
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIntro(true), INTRO_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, []);
 
-function FeaturedCard({
-  entry,
-  areaName,
-}: {
-  readonly entry: CatalogueEntry;
-  readonly areaName: string | null;
-}) {
-  const art = isKnownArt(entry.artworkKey) ? entry.artworkKey : null;
-  return (
-    <article className="xp-card">
-      <div className={art ? `xp-card-media ${atmosphereClass(art)}` : 'xp-card-media'}>
-        {art ? <Drawing artKey={art} /> : null}
-        {/* State-copy `PU-01.featured-tag`: the first word of the area's name. */}
-        {areaName ? <span className="xp-card-tag">{areaName.split(' ')[0]}</span> : null}
-      </div>
-      <div className="xp-card-body">
-        <span className="xp-card-course">{courseLine(entry.platformCode, entry.courseName)}</span>
-        <h3 className="xp-card-title">
-          <Link href={`/experiments/${encodeURIComponent(entry.experimentId)}`}>{entry.name}</Link>
-        </h3>
-        <p className="xp-card-text">{entry.summary}</p>
-        <div className="xp-card-foot">
-          <FormatChips formats={entry.availableIn} />
-          <span className="xp-card-cta" aria-hidden="true">
-            {LANDING.featured.cta}
-          </span>
-        </div>
-      </div>
-    </article>
-  );
-}
+  // ---- scroll reveals, 160 ms after mount (1153, setupReveal 1190–1214) ----
+  useEffect(() => {
+    let release: (() => void) | null = null;
+    const timer = window.setTimeout(() => {
+      if (rootRef.current) release = setupReveal(rootRef.current, reducedNow());
+    }, REVEAL_DELAY_MS);
+    return () => {
+      window.clearTimeout(timer);
+      release?.();
+    };
+  }, []);
 
-/** B1-01 Formats: "Available in N of 12 experiments", each card filtering the catalogue. */
-function FormatCards({
-  entries,
-  total,
-}: {
-  readonly entries: readonly CatalogueEntry[] | null;
-  readonly total: number | null;
-}) {
-  return (
-    <div className="xp-grid xp-grid--4">
-      {FORMAT_CARDS.map((card) => {
-        const key = `fmt-${card.format}`;
-        const count = entries?.filter((entry) => entry.availableIn.includes(card.format)).length;
-        return (
-          <article className="xp-card xp-fcard" key={card.format}>
-            <div className={`xp-card-media ${atmosphereClass(key)}`}>
-              <Drawing artKey={key} />
-            </div>
-            <div className="xp-card-body">
-              <h3 className="xp-fcard-code">
-                <strong>{FORMAT_META[card.format].code}</strong>
-                <span>{card.name}</span>
-              </h3>
-              <p className="xp-card-text">{card.text}</p>
-              {count !== undefined && total !== null ? (
-                <p className="xp-fcard-n">{availableInWords(count, total)}</p>
-              ) : null}
-              <Link className="xp-fcard-link" href={`/experiments?format=${card.format}`}>
-                {browseFormatWords(card.format)}
-              </Link>
-            </div>
-          </article>
+  // ---- hero rotation (tick 1218–1231; visibilitychange 1148) ----
+  const live = rotates(hero, reduce);
+  useEffect(() => {
+    if (!live) return;
+    let timer = 0;
+    const tick = () => {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => {
+        timer = 0;
+        if (document.hidden) return;
+        const node = heroRef.current;
+        if (node) {
+          const box = node.getBoundingClientRect();
+          // Skipped while the hero is off screen (1227), then tried again.
+          if (box.bottom < 40 || box.top > window.innerHeight) {
+            tick();
+            return;
+          }
+        }
+        dispatch({ type: 'advance', count: HERO_SCENES.length });
+      }, ROTATION_MS);
+    };
+    const onVisibility = () => {
+      if (document.hidden) {
+        window.clearTimeout(timer);
+        timer = 0;
+      } else tick();
+    };
+    tick();
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.clearTimeout(timer);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [live, hero.gen]);
+
+  // ---- pointer parallax (heroMove 1236–1250, heroLeave 1251–1253) ----
+  const pointer = useRef({ x: 0, y: 0, raf: 0 });
+  useEffect(() => {
+    const state = pointer.current;
+    return () => {
+      if (state.raf) window.cancelAnimationFrame(state.raf);
+    };
+  }, []);
+  const onHeroMove = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (reduce) return;
+      const node = heroRef.current;
+      if (!node) return;
+      const box = node.getBoundingClientRect();
+      if (!box.width || !box.height) return;
+      const state = pointer.current;
+      state.x = (event.clientX - box.left) / box.width - 0.5;
+      state.y = (event.clientY - box.top) / box.height - 0.5;
+      if (state.raf) return;
+      state.raf = window.requestAnimationFrame(() => {
+        state.raf = 0;
+        const tx = (-state.x * 14).toFixed(1);
+        const ty = (-state.y * 9).toFixed(1);
+        moveLayers(
+          parallax.current,
+          'transform 600ms cubic-bezier(.2,.7,.2,1)',
+          `translate3d(${tx}px,${ty}px,0)`,
         );
-      })}
-    </div>
+      });
+    },
+    [reduce],
   );
-}
+  const onHeroLeave = useCallback(() => {
+    moveLayers(parallax.current, 'transform 900ms cubic-bezier(.2,.7,.2,1)', 'translate3d(0,0,0)');
+  }, []);
 
-/** PU-14 "How institutional access works" — the landing's `#for-institutions` section (B1-01). */
-function ForInstitutions() {
+  // ---- the story engine (1255–1449) ----
+  const engineRef = useRef<StoryEngine | null>(null);
+  useEffect(() => {
+    const engine = new StoryEngine({
+      config: () => configRef.current,
+      stage: () => stageRef.current,
+      track: () => trackRef.current,
+      selected: () => storySelRef.current,
+      select: (index) => setStorySel(index),
+    });
+    engineRef.current = engine;
+    const kick = () => engine.kick();
+    const invalidate = () => engine.invalidate();
+    const input = () => engine.input();
+    window.addEventListener('scroll', kick, { passive: true });
+    window.addEventListener('resize', invalidate);
+    // Wheel, touch, pointer and key input cancel a scroll-mode tween before the index acts
+    // (`_onStoryInput` 1156–1157 sits under the buttons' own handlers).
+    const inputs = ['wheel', 'touchstart', 'pointerdown', 'keydown'] as const;
+    for (const name of inputs)
+      window.addEventListener(name, input, { passive: true, capture: true });
+    const observer =
+      typeof ResizeObserver === 'undefined' || !rootRef.current
+        ? null
+        : new ResizeObserver(invalidate);
+    if (observer && rootRef.current) observer.observe(rootRef.current);
+    let alive = true;
+    try {
+      void document.fonts?.ready.then(() => {
+        if (alive) invalidate();
+      });
+    } catch {
+      // No font loading API: the 1.5 s geometry refresh covers it.
+    }
+    engine.sync();
+    return () => {
+      alive = false;
+      engine.destroy();
+      engineRef.current = null;
+      window.removeEventListener('scroll', kick);
+      window.removeEventListener('resize', invalidate);
+      for (const name of inputs) window.removeEventListener(name, input, { capture: true });
+      observer?.disconnect();
+    };
+  }, []);
+  // After every render: the geometry may have moved and the mode may have changed (1161–1175).
+  useEffect(() => {
+    engineRef.current?.sync();
+  });
+
+  // ---- section scrolling (scrollToRef / goSection 1552–1563) ----
+  const goSection = useCallback(
+    (section: LandingSection) => {
+      const target = document.getElementById(section);
+      if (!target) return;
+      const top = Math.max(0, offsetTopOf(target) - layout.headerH);
+      if (reducedNow()) window.scrollTo(0, top);
+      else window.scrollTo({ top, behavior: 'smooth' });
+    },
+    [layout.headerH],
+  );
+
+  const motion = motionOn(hero, reduce);
+  const ambientOn = !reduce && hero.ambient;
+
+  const featuredStatus = featured.isError ? (
+    <FailedBlock
+      title={CATALOGUE.failedTitle}
+      line={CATALOGUE.failedLine}
+      retryLabel={CATALOGUE.retry}
+      onRetry={() => void featured.refetch()}
+    />
+  ) : featured.data?.ok ? null : (
+    <span className="xr-sr" role="status">
+      {CATALOGUE.loading}
+    </span>
+  );
+  const explorerStatus = structure.isError ? (
+    <FailedBlock
+      compact
+      title={AREAS.failedTitle}
+      line={AREAS.failedLine}
+      retryLabel={AREAS.retry}
+      onRetry={() => void structure.refetch()}
+      forward={{ href: '/experiments', label: AREAS.browse }}
+    />
+  ) : structureRows ? null : (
+    <span className="xr-sr" role="status">
+      {AREAS.loading}
+    </span>
+  );
+
   return (
-    <section className="xp-sec" id={FOR_INSTITUTIONS_ID} aria-labelledby="landing-institutions">
-      <div className="xp-in">
-        <SectionHead
-          id="landing-institutions"
-          eyebrow={LANDING.institutions.eyebrow}
-          title={LANDING.institutions.title}
-          lead={LANDING.institutions.lead}
-          focusable
-        />
-        <ol className="xp-steps4">
-          {ACCESS_STEPS.map((step, index) => (
-            <li className="xp-step4" key={step.title}>
-              <span className="xp-step4-n">{stepWords(index)}</span>
-              <span className="xp-step4-t">{step.title}</span>
-              <span className="xp-step4-d">{step.detail}</span>
-            </li>
-          ))}
-        </ol>
-        <div className="xp-inst-foot">
-          <Link className="xr-btn xr-btn--primary xp-cta" href="/selection">
-            {LANDING.institutions.request}
-          </Link>
-        </div>
+    <div ref={rootRef} className="pl1" data-landing="v1">
+      <div
+        className="pl1-root"
+        data-intro={intro || reduce ? 'on' : undefined}
+        data-reduce={reduce ? 'on' : undefined}
+        data-still={ambientOn ? undefined : 'on'}
+        data-motion={motion ? 'on' : undefined}
+        data-smode={config?.mode ?? 'scroll'}
+      >
+        <DocumentTitle title="" />
+        <LandingArtDefs />
+        <SkipLink />
+        <LandingHeader goSection={goSection} />
+        <main id="main" tabIndex={-1} className="pl1-main">
+          <Hero
+            state={hero}
+            reduce={reduce}
+            hover={heroHover}
+            chips={chips}
+            heroRef={heroRef}
+            parallaxLayer={parallaxLayer}
+            onPointerMove={onHeroMove}
+            onPointerLeave={onHeroLeave}
+            onSelect={(index) => dispatch({ type: 'select', index })}
+            onHover={(index, on) =>
+              setHeroHover((current) => (on ? index : current === index ? -1 : current))
+            }
+            onTogglePlay={() => dispatch({ type: 'toggle', reduce })}
+            goSection={goSection}
+          />
+          <Tricolour />
+          <Featured
+            cards={cards}
+            total={total}
+            hover={featHover}
+            reduce={reduce}
+            onHover={(index, on) =>
+              setFeatHover((current) => (on ? index : current === index ? -1 : current))
+            }
+            onOpen={(href) => navigation.navigate(href)}
+            status={featuredStatus}
+          />
+          <Explorer
+            panels={panels}
+            selected={Math.min(expSel, Math.max(0, panels.length - 1))}
+            narrow={narrow}
+            onSelect={setExpSel}
+            status={explorerStatus}
+          />
+          <Story
+            selected={storySel}
+            trackRef={trackRef}
+            stageRef={stageRef}
+            onChoose={(index) => engineRef.current?.choose(index)}
+          />
+          <Formats counts={counts} total={total} selected={fmtSel} onPreview={setFmtSel} />
+          <Academic />
+          <Access />
+          <Closing />
+        </main>
+        <LandingFooter goSection={goSection} />
       </div>
-    </section>
+    </div>
   );
 }

@@ -2,6 +2,7 @@ import { expect, type Locator, type Page } from '@playwright/test';
 
 import { addShellAndTube, fillDetails, headerLink, panelOf, shown, wide } from '../package-1c/flow';
 import { reachAndClick } from '../support';
+import { landingSignIn, onLanding } from '../support/landing';
 import { revealSidebar, sidebarLink } from '../support/workspace';
 
 /**
@@ -67,8 +68,9 @@ export async function signOut(page: Page, accountLine: string): Promise<void> {
   await page.waitForURL('**/sign-in?reason=signed-out');
 }
 
-/** From a public page: the header's Sign in (the menu sheet below 1024 px). */
+/** From a public page: the header's Sign in (the menu sheet below 1024 px; the landing's own). */
 export async function toSignIn(page: Page): Promise<void> {
+  if (await onLanding(page)) return landingSignIn(page);
   if (wide(page)) await reachAndClick(page, page.locator('header a.xp-signin'));
   else await headerLink(page, 'Sign in');
   await page.waitForURL('**/sign-in');
@@ -108,11 +110,14 @@ export async function type(field: Locator, value: string): Promise<void> {
   await field.pressSequentially(value);
 }
 
-/** The public catalogue (PU-04) from the public footer, in the same tab. */
+/** The public catalogue (PU-04) from the public footer, in the same tab (the landing's “Catalogue”). */
 export async function catalogue(page: Page): Promise<void> {
+  const landing = await onLanding(page);
   await reachAndClick(
     page,
-    page.locator('footer').getByRole('link', { name: 'Browse experiments' }),
+    page
+      .locator('footer')
+      .getByRole('link', { name: landing ? 'Catalogue' : 'Browse experiments' }),
   );
   await page.waitForURL((url) => url.pathname === '/experiments');
 }

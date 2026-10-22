@@ -197,7 +197,7 @@ test.describe('the product build ignores the test seam', () => {
     const response = await page.goto('/');
     expect(response?.status()).toBe(200);
     await expect(page.getByRole('heading', { level: 1 })).toContainText('Set the conditions.');
-    await expect(page.locator('header a.xp-signin')).toHaveText('Sign in');
+    await expect(page.locator('header a.pl1-signin')).toHaveText('Sign in');
     expect(await page.evaluate((key) => key in window, TEST_HOOKS_GLOBAL)).toBe(false);
     await expectNoDeveloperSurfaces(page);
   });

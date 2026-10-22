@@ -1,11 +1,13 @@
 import { expect, type Page, test } from '@playwright/test';
 
 import { expectNoAxeViolations, expectNoInvisibleFocusTargets, reachAndClick } from '../support';
+import { checkLanding } from '../support/landing';
 import { checkState, smallTargets } from '../support/screen-checks';
 import { expectSameDocument, markDocument } from '../support/workspace';
 
 /**
- * The public surface — PU-01 Landing with PU-14, PU-02 / PU-03 / PU-05 (B1-03), PU-04 Catalogue
+ * The public surface — PU-01 Landing with PU-14 (the V1 landing since prompt 13; its own suite is
+ * `e2e/landing-v1/`), PU-02 / PU-03 / PU-05 (B1-03), PU-04 Catalogue
  * (B1-04), PU-06 Experiment (B1-05) and the framed public PU-15 — on the PRODUCT build (no test
  * hooks; the tab's own spine-start world, signed out), at 1440, 1024, 768 and 375 (Phase-1
  * Package 1B). Every drawn state passes the screen checks (axe WCAG 2.0/2.1/2.2 A+AA, one H1, no
@@ -16,12 +18,12 @@ import { expectSameDocument, markDocument } from '../support/workspace';
  */
 
 const wide = (page: Page) => (page.viewportSize()?.width ?? 0) >= 1024;
-const phone = (page: Page) => (page.viewportSize()?.width ?? 0) < 600;
 
+/** The V1 landing (prompt 13), its data read: the featured cards and the area explorer. */
 async function landing(page: Page): Promise<void> {
   await page.goto('/');
-  await expect(page.getByRole('region', { name: 'Engineering areas' })).toBeVisible();
-  await expect(page.getByRole('link', { name: 'CNC Turning Centre' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Experiment areas' })).toBeVisible();
+  await expect(page.getByRole('heading', { level: 3, name: 'CNC Turning Centre' })).toBeVisible();
 }
 
 /** A public header destination: in the header from 1024 px, in the menu sheet below. */
@@ -37,76 +39,74 @@ async function openFromHeader(page: Page, name: string): Promise<void> {
   }
 }
 
-test.describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
-  test('default: hero, explorer, featured, formats, for institutions, band — counts from the world', async ({
+test.describe('PU-01 Landing with PU-14 — the V1 landing (prompt 13)', () => {
+  test('default: hero, featured, explorer, story, formats, academic, for institutions, band — counts from the world', async ({
     page,
   }) => {
     await landing(page);
     await expect(page).toHaveTitle('XR Learning Platform');
-    // Nothing moves on its own: the explorer has no timer (B1-02 "no auto-advance"). Checked
-    // before the focus walk: below 600 px every card's links are tab stops and the counter follows
-    // the card a focused link scrolls into view (B1-02 "the counter follows the swipe").
-    const selected = page.locator('.xp-ex-card.is-selected');
-    await expect(selected).toHaveAttribute('aria-label', '1 of 3: Mechanical & Manufacturing');
+    // Nothing in the explorer moves on its own (the accordion has no timer).
+    const selected = page.locator('[data-sel][aria-pressed="true"]');
+    await expect(selected).toHaveAttribute(
+      'aria-label',
+      'Selected: Mechanical & Manufacturing, 5 experiments',
+    );
     await page.waitForTimeout(1500);
-    await expect(selected).toHaveAttribute('aria-label', '1 of 3: Mechanical & Manufacturing');
-    await checkState(page, 'Set the conditions.');
-    await expect(page.locator('.xp-fcard-n')).toHaveText([
-      'Available in 12 of 12 experiments',
-      'Available in 5 of 12 experiments',
-      'Available in 7 of 12 experiments',
-      'Available in 2 of 12 experiments',
+    await expect(selected).toHaveAttribute(
+      'aria-label',
+      'Selected: Mechanical & Manufacturing, 5 experiments',
+    );
+    await checkLanding(page);
+    await expect(page.locator('.pl1-fcard-n')).toHaveText([
+      'Offered in 12 of 12 experiments',
+      'Offered in 5 of 12 experiments',
+      'Offered in 7 of 12 experiments',
+      'Offered in 2 of 12 experiments',
     ]);
-    // Since Package 1C every drawn way into the Selection is there (B1-01): the header's Selection
-    // count and Request access, the hero's Institutions path and the For institutions button.
-    await expect(page.locator('header a.xp-sel')).toHaveAttribute('href', '/selection');
-    await expect(page.locator('header a.xp-access')).toHaveAttribute('href', '/selection');
+    // The landing's one way into the Selection (owner decision D-5): PU-14's request button.
+    await expect(page.locator('main a[href="/selection"]')).toHaveCount(1);
     await expect(
-      page.locator('ul.xp-paths').getByRole('link', { name: /Request institutional access/ }),
+      page.locator('#for-institutions').getByRole('link', { name: 'Request institutional access' }),
     ).toHaveAttribute('href', '/selection');
-    await expect(page.locator('.xp-inst-foot a[href="/selection"]')).toHaveCount(1);
+    await expect(page.locator('header a.pl1-signin')).toHaveAttribute('href', '/sign-in');
   });
 
-  test('the explorer: Next / arrows (≥ 600 px) or the swipe counter (< 600 px)', async ({
+  test('the explorer: focus selects, arrows / Home / End move and focus; hover from 1024 px', async ({
     page,
   }) => {
     await landing(page);
-    const region = page.getByRole('region', { name: 'Engineering areas' });
-    if (phone(page)) {
-      await expect(region.getByRole('button', { name: 'Next area' })).toBeHidden();
-      await expect(region.getByText('Swipe for more areas')).toBeVisible();
-      await region.locator('.xp-ex-track').evaluate((track) => {
-        const second = track.children[1] as HTMLElement;
-        track.scrollTo({ left: second.offsetLeft - 2 });
-      });
-      await expect(region.locator('.xp-ex-count')).toHaveText('2 of 3');
-      return;
-    }
-    await reachAndClick(page, region.getByRole('button', { name: 'Next area' }));
-    await expect(region.locator('.xp-ex-card.is-selected')).toHaveAttribute(
-      'aria-label',
-      '2 of 3: Electrical & Electronics',
-    );
-    await expect(region.locator('[aria-live="polite"]')).toHaveText(
-      'Electrical & Electronics, area 2 of 3',
-    );
-    await region.getByRole('link', { name: /Browse 4 experiments/ }).focus();
+    const group = page.getByRole('group', { name: 'Experiment areas' });
+    const selected = () =>
+      group.locator('[data-sel][aria-pressed="true"]').getAttribute('aria-label');
+    await reachAndClick(page, group.getByRole('button', { name: /^Show Electrical/ }));
+    await expect.poll(selected).toBe('Selected: Electrical & Electronics, 4 experiments');
     await page.keyboard.press('ArrowRight');
-    await expect(region.getByRole('link', { name: /Browse 3 experiments/ })).toBeFocused();
-    // At either end the pressed button is disabled (B1-02): focus moves to the other one.
-    await reachAndClick(page, region.getByRole('button', { name: 'Previous area' }));
-    await reachAndClick(page, region.getByRole('button', { name: 'Previous area' }));
-    await expect(region.locator('.xp-ex-count')).toHaveText('1 of 3');
-    await expect(region.getByRole('button', { name: 'Previous area' })).toBeDisabled();
-    await expect(region.getByRole('button', { name: 'Next area' })).toBeFocused();
-    await checkState(page, 'Set the conditions.');
+    await expect(group.getByRole('button', { name: /^Selected: Chemical/ })).toBeFocused();
+    await page.keyboard.press('Home');
+    await expect.poll(selected).toBe('Selected: Mechanical & Manufacturing, 5 experiments');
+    await page.keyboard.press('ArrowLeft');
+    await expect.poll(selected).toBe('Selected: Chemical & Process, 3 experiments');
+    // A closed panel's Browse is no Tab stop; the open one's is.
+    await expect(group.locator('.pl1-xp.is-on a')).toHaveAttribute('tabindex', '0');
+    await expect(group.locator('.pl1-xp:not(.is-on) a')).toHaveCount(2);
+    for (const link of await group.locator('.pl1-xp:not(.is-on) a').all()) {
+      await expect(link).toHaveAttribute('tabindex', '-1');
+    }
+    if (wide(page)) {
+      await group.locator('.pl1-xp').nth(1).hover();
+      await expect.poll(selected).toBe('Selected: Electrical & Electronics, 4 experiments');
+    }
+    await checkLanding(page);
   });
 
-  test('the menu sheet below 1024 px: same items, Sign in, an inert page; Esc returns to Menu', async ({
+  test('the menu sheet below 1024 px (the public shell): same items, Sign in, an inert page; Esc returns to Menu', async ({
     page,
   }) => {
     test.skip(wide(page), 'The header shows its items from 1024 px.');
-    await landing(page);
+    // The landing draws its own frozen header (no menu, D-3); the public shell's menu is on every
+    // other public page.
+    await page.goto('/areas');
+    await expect(page.getByRole('heading', { level: 1, name: 'Engineering areas' })).toBeVisible();
     await reachAndClick(page, page.getByRole('button', { name: 'Menu' }));
     const sheet = page.locator('#public-menu');
     // Since Package 1C the sheet's Selection row and its Request access button too (B1-01
@@ -120,7 +120,7 @@ test.describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
       'Request access',
     ]);
     await expect(page.locator('main')).toHaveAttribute('inert', '');
-    await checkState(page, 'Set the conditions.');
+    await checkState(page, 'Engineering areas');
     await page.keyboard.press('Escape');
     await expect(page.getByRole('button', { name: 'Menu' })).toBeFocused();
     await expect(sheet).toBeHidden();
@@ -146,7 +146,7 @@ test.describe('PU-01 Landing with PU-14 (B1-01, B1-02)', () => {
     await page.waitForURL('**/#for-institutions');
     const heading = page.getByRole('heading', {
       level: 2,
-      name: 'Anyone can browse. Institutions request access.',
+      name: 'Anyone can browse. Institutions grant access.',
     });
     await expect(heading).toBeFocused();
     await expect(heading).toBeInViewport();
@@ -434,18 +434,20 @@ test.describe('breakpoint boundaries (xr-public.css @container xp: 600 · 760 ·
   test.skip(({ viewport }) => viewport?.width !== 1440, 'The boundaries are set per test.');
 
   for (const [width, expected] of [
-    [599, { menu: true, filterButton: true, signIn: false, swipe: true, brandName: false }],
-    [600, { menu: true, filterButton: true, signIn: false, swipe: false, brandName: true }],
-    [1023, { menu: true, filterButton: true, signIn: false, swipe: false, brandName: true }],
-    [1024, { menu: false, filterButton: false, signIn: true, swipe: false, brandName: false }],
-    [1359, { menu: false, filterButton: false, signIn: true, swipe: false, brandName: false }],
-    [1360, { menu: false, filterButton: false, signIn: true, swipe: false, brandName: true }],
+    [599, { menu: true, filterButton: true, signIn: false, brandName: false }],
+    [600, { menu: true, filterButton: true, signIn: false, brandName: true }],
+    [1023, { menu: true, filterButton: true, signIn: false, brandName: true }],
+    [1024, { menu: false, filterButton: false, signIn: true, brandName: false }],
+    [1359, { menu: false, filterButton: false, signIn: true, brandName: false }],
+    [1360, { menu: false, filterButton: false, signIn: true, brandName: true }],
   ] as const) {
-    test(`${width} px: header, explorer and catalogue switch as drawn, nothing scrolls sideways`, async ({
+    test(`${width} px: the public header and the catalogue switch as drawn, nothing scrolls sideways`, async ({
       page,
     }) => {
       await page.setViewportSize({ width, height: 900 });
-      await landing(page);
+      // The public shell's header (the landing draws its own: e2e/landing-v1).
+      await page.goto('/areas');
+      await expect(page.getByRole('link', { name: 'Chemical & Process' })).toBeVisible();
       await expect(page.getByRole('button', { name: 'Menu' })).toBeVisible({
         visible: expected.menu,
       });
@@ -453,7 +455,6 @@ test.describe('breakpoint boundaries (xr-public.css @container xp: 600 · 760 ·
       await expect(page.locator('header .xp-brand-name')).toBeVisible({
         visible: expected.brandName,
       });
-      await expect(page.getByText('Swipe for more areas')).toBeVisible({ visible: expected.swipe });
       expect(
         await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
       ).toBe(true);

@@ -36,16 +36,16 @@
       "type": "page",
       "designed": true,
       "v46ProposedRoute": "/",
-      "landingFidelity": "HOLD — prompt 13 not authorised; V1 fidelity NOT restored",
+      "landingFidelity": "INTEGRATED — prompt 13 authorised by the owner on 22 Oct 2026; source design/v1-landing (SHA-256 3dbe9412…4d07c); owner acceptance pending",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
-        "paths": ["apps/web/src/features/public/pu-01-landing"]
+        "status": "V1 approved landing (21 · FROZEN Premium Direction B2), implemented",
+        "paths": ["apps/web/src/features/public/pu-01-landing", "apps/web/src/app/(landing)"]
       },
       "designSupplied": "locked-original-landing (V1)",
-      "ownerApproved": "locked by the owner (not part of the redesign)",
-      "implementationComplete": "not migrated; current simplified v46 homepage preserved unchanged",
-      "browserChecked": "no V3 check (out of scope); unchanged route",
-      "openIssue": "Locked V1 landing. The current homepage is the simplified v46 one — preserved, NOT the restored V1 experience. Fidelity integration is HOLD ONLY (prompt 13): its own owner go-ahead and the official WILP asset are required."
+      "ownerApproved": "locked by the owner (the approved original V1 landing; not part of the V3 redesign); fidelity integration authorised 22 Oct 2026; implementation acceptance pending the owner's browser review",
+      "implementationComplete": "not migrated to V3 (locked V1 landing, by design); the approved V1 landing restored at `/` — three-scene hero, Featured, Explore accordion, story, Formats, Academic quality, the six access steps; owner decisions: Sign in link, “XR Learning Platform”, one request button, no durations",
+      "browserChecked": "frozen file rendered beside the product at 1440, 1024, 768 and 375 (each hero scene, paused, story steps, explorer areas, format preview, reduced motion); motion timings over a full hero cycle; browser suites (apps/web/e2e)",
+      "openIssue": "Owner acceptance of the fidelity result pending. Below 374 px the header shows the logo tile without the brand text (Sign in added by the owner's decision does not leave room; the frozen file draws no width below 375)."
     },
     {
       "id": "PU-02",
@@ -270,19 +270,16 @@
       "type": "state",
       "designed": true,
       "v46ProposedRoute": "/ (#for-institutions section)",
-      "landingFidelity": "HOLD — prompt 13 not authorised; V1 fidelity NOT restored",
+      "landingFidelity": "INTEGRATED — prompt 13 authorised by the owner on 22 Oct 2026; source design/v1-landing (SHA-256 3dbe9412…4d07c); owner acceptance pending",
       "currentImplementation": {
-        "status": "v46 presentation, implemented (P1)",
-        "paths": [
-          "apps/web/src/features/public/pu-01-landing/landing.tsx",
-          "apps/web/src/features/shared/workspace-frame/route-focus.ts"
-        ]
+        "status": "V1 approved landing (21 · FROZEN Premium Direction B2), implemented",
+        "paths": ["apps/web/src/features/public/pu-01-landing", "apps/web/src/app/(landing)"]
       },
       "designSupplied": "locked-original-landing (V1)",
-      "ownerApproved": "locked by the owner (not part of the redesign)",
-      "implementationComplete": "not migrated; current simplified v46 homepage preserved unchanged",
-      "browserChecked": "no V3 check (out of scope); unchanged route",
-      "openIssue": "Section of the locked V1 landing (#for-institutions), not a new page. Same HOLD as PU-01."
+      "ownerApproved": "locked by the owner (the approved original V1 landing; not part of the V3 redesign); fidelity integration authorised 22 Oct 2026; implementation acceptance pending the owner's browser review",
+      "implementationComplete": "not migrated to V3 (locked V1 landing, by design); the approved V1 landing restored at `/` — three-scene hero, Featured, Explore accordion, story, Formats, Academic quality, the six access steps; owner decisions: Sign in link, “XR Learning Platform”, one request button, no durations",
+      "browserChecked": "frozen file rendered beside the product at 1440, 1024, 768 and 375 (each hero scene, paused, story steps, explorer areas, format preview, reduced motion); motion timings over a full hero cycle; browser suites (apps/web/e2e)",
+      "openIssue": "The six frozen steps plus the owner's one “Request institutional access” button."
     },
     {
       "id": "PU-15",
