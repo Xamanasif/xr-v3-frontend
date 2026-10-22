@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { actAs, bootWorld, reachAndClick, TEST_HOOKS_URL } from '../support';
-import { checkState } from '../support/screen-checks';
+import { checkState as checkScreen } from '../support/screen-checks';
 import { currentSidebarItem, expectSameDocument, markDocument } from '../support/workspace';
 
 /**
@@ -20,7 +20,9 @@ import { currentSidebarItem, expectSameDocument, markDocument } from '../support
  * Anil's SUB-0077 submitted through his own port and returned by Prof. A. Menon — then Anil revises
  * with real clicks and typing and resubmits; he reads “Submitted” (M-3), the stale revise link is
  * refused, and the reviewer's queue holds revision 2 (the routing stand-in, PC-66), read through the
- * seam.
+ * seam. No state names the experiment by its reference (the owner's identifier rule for the
+ * Vendor, 22 Oct 2026): every checked state is searched for one; the reference is read from the
+ * address only.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -103,10 +105,47 @@ const CONTENT = {
   documents: [],
 };
 
+/** An internal reference no Vendor page shows (the owner's identifier rule, 22 Oct 2026). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference in the page's words (visible or visually hidden), accessible names,
+ * titles, placeholders or the browser tab's title (state-copy `VE-02.no-reference`).
+ */
+async function expectNoReferences(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const reference = new RegExp(source);
+    const hits: string[] = [];
+    const visible = document.body.innerText.match(reference);
+    if (visible) hits.push(`innerText: ${visible[0]}`);
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.parentElement?.closest('script, style, noscript, template')) continue;
+      const hidden = (node.textContent ?? '').match(reference);
+      if (hidden) hits.push(`text: ${hidden[0]} in <${node.parentElement?.tagName.toLowerCase()}>`);
+    }
+    for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+      for (const name of ['aria-label', 'title', 'placeholder']) {
+        const value = element.getAttribute(name) ?? '';
+        if (reference.test(value)) hits.push(`${name}: ${value}`);
+      }
+    }
+    if (reference.test(document.title)) hits.push(`document.title: ${document.title}`);
+    return hits;
+  }, REFERENCE.source);
+  expect(found).toEqual([]);
+}
+
+/** `checkState`, and no internal reference anywhere on the page. */
+async function checkState(page: Page, title: string): Promise<void> {
+  await checkScreen(page, title);
+  await expectNoReferences(page);
+}
+
 const main = (page: Page) => page.locator('main');
 const heading = (page: Page, name: string) => page.getByRole('heading', { level: 1, name });
 const width = (page: Page) => page.viewportSize()?.width ?? 1440;
-/** The head's eyebrow (`p.rk-eyebrow`) and the meta line's id words (`div.rk-meta > span`). */
+/** The head's eyebrow (`p.rk-eyebrow`) and the meta line's last words (`div.rk-meta > span`). */
 const overline = (page: Page) => main(page).locator('.rk-head .rk-eyebrow');
 const idLine = (page: Page) => main(page).locator('.rk-head .rk-meta > span').last();
 const summary = (page: Page) => page.locator('#Ve-err');
@@ -237,7 +276,7 @@ test.describe('VE-03 … VE-06 · Flow E: Anil creates and submits SUB-0077', ()
     // Save draft — the first save mints SUB-0077; the draft's own address, no new document.
     await reachAndClick(page, button(page, 'Save draft'));
     await expect(page).toHaveURL(/\/vendor\/experiments\/SUB-0077\/edit$/);
-    await expect(idLine(page)).toHaveText('SUB-0077 · only you can see a draft', {
+    await expect(idLine(page)).toHaveText('Only you can see a draft', {
       timeout: 60_000,
     });
     await expect(overline(page)).toHaveText('Edit draft · Step 1 of 4');
@@ -356,9 +395,7 @@ test.describe('VE-03 … VE-06 · Flow E: Anil creates and submits SUB-0077', ()
     // The outcome card: Submitted for academic review, with the record and My experiments.
     await expect(heading(page, 'Submitted for academic review')).toBeVisible({ timeout: 60_000 });
     const card = page.locator('#Ve-done');
-    await expect(card.locator('.rk-eyebrow')).toHaveText(
-      'SUB-0077 · Conduction Through a Composite Wall',
-    );
+    await expect(card.locator('.rk-eyebrow')).toHaveText('Conduction Through a Composite Wall');
     await expect(card).toContainText(
       'It is with the Academic Reviewer. Nothing is published. You can’t edit it while it is being reviewed.',
     );
@@ -513,7 +550,7 @@ test.describe('VE-09 Edit draft · read-only', () => {
     await bootWorld(page, { fixture: 'spine-start', session: ANIL });
     await page.goto('/vendor/experiments/SUB-0083/edit');
     await expect(heading(page, 'Surface Roughness in Turning')).toBeVisible({ timeout: 90_000 });
-    await expect(overline(page)).toHaveText('Experiment · SUB-0083');
+    await expect(overline(page)).toHaveText('Experiment');
     await expect(main(page).locator('.rk-meta .xr-st')).toHaveText('Draft · read-only');
     await expect(main(page).locator('.rk-notice--warn .rk-notice-t')).toHaveText(
       'MEL ZG512 is no longer assigned to you',
@@ -545,6 +582,7 @@ test.describe('VE-09 Edit draft · read-only', () => {
     await expect(main(page)).toContainText(
       'It is with the Content Manager. Nothing is needed from you now.',
     );
+    await expect(main(page).locator('.rk-state > .rk-eyebrow')).toHaveText('Transient Cooling');
     await checkState(page, title);
     await shot(page, 'VE-09_refused');
     await reachAndClick(page, main(page).getByRole('link', { name: 'Open the experiment record' }));
@@ -588,7 +626,7 @@ test.describe('VE-08 Revise and resubmit · Flow E E2', () => {
     await expect(overline(page)).toHaveText('Revise and resubmit · Step 1 of 4', {
       timeout: 60_000,
     });
-    await expect(idLine(page)).toHaveText('SUB-0077 · revision 1 was returned');
+    await expect(idLine(page)).toHaveText('Revision 1 was returned');
     const reason = page.getByRole('region', { name: 'Returned by the Academic Reviewer' });
     await expect(reason.locator('blockquote')).toHaveText(REASON);
     await expect(reason.locator('.vr-ret-m')).toHaveText(/ · Prof\. A\. Menon$/);
@@ -643,9 +681,7 @@ test.describe('VE-08 Revise and resubmit · Flow E E2', () => {
     await expect(heading(page, 'Submitted')).toBeVisible({ timeout: 60_000 });
     const card = page.locator('#Ve-done');
     await expect(card).toContainText('Your changes have been submitted for review.');
-    await expect(card.locator('.rk-eyebrow')).toHaveText(
-      'SUB-0077 · Conduction Through a Composite Wall',
-    );
+    await expect(card.locator('.rk-eyebrow')).toHaveText('Conduction Through a Composite Wall');
     await expect(card.locator('.vr-facts .xr-st')).toHaveText('Submitted');
     await expect(card).not.toContainText('Reviewer');
     await expect(card).not.toContainText('Content Manager');

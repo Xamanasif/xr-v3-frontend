@@ -245,8 +245,11 @@ async function openSendBack(page: Page): Promise<Locator> {
 async function vendorRecord(page: Page): Promise<void> {
   await startAs(page, 'anil');
   await sidebar(page, '/vendor/experiments');
-  // VE-02 (V3): the row's link is named by the experiment, its ID, status and last change.
-  await reachAndClick(page, main(page).getByRole('link', { name: new RegExp(`^${COMPOSITE}, `) }));
+  // VE-02 (V3): the row's link is named by the experiment, its status and last change — never
+  // the reference (the owner's identifier rule for the Vendor); it is found by its address.
+  const link = main(page).locator(`a.vr-name[href="/vendor/experiments/${SUB}"]`);
+  await expect(link).toHaveAccessibleName(new RegExp(`^${COMPOSITE}, `));
+  await reachAndClick(page, link);
   await page.waitForURL(`**/vendor/experiments/${SUB}`);
   await expect(h1(page)).toHaveText(COMPOSITE);
 }

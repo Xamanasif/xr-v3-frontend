@@ -99,7 +99,9 @@ export interface VendorEditorStep {
 }
 
 export interface VendorEditorOutline {
-  /** The outline's kicker (`p.ve-prog-k`), which names the aside: "SUB-0087 · draft". */
+  /**
+   * The outline's kicker (`p.ve-prog-k`), which names the aside: "Draft", "Revision 1 returned".
+   */
   readonly kicker: ReactNode;
   readonly kickerId: string;
   /** The experiment's name (`p.ve-prog-t`). */
@@ -802,7 +804,7 @@ export interface VendorEditorOutcomeProps {
   readonly titleRef?: Ref<HTMLHeadingElement>;
   /** Today's date on phones (`p.rb-eyebrow-date`). */
   readonly date?: ReactNode;
-  /** "SUB-0087 · Natural Convection from a Vertical Plate". */
+  /** The experiment's name: "Natural Convection from a Vertical Plate". */
   readonly eyebrow: ReactNode;
   /** "Submitted for academic review", "Submitted". */
   readonly title: ReactNode;
@@ -887,7 +889,7 @@ export function VendorEditorOutcome({
 export interface VendorEditorRefusalProps {
   readonly titleId: string;
   readonly titleRef?: Ref<HTMLHeadingElement>;
-  /** "SUB-0081 · Forced Convection". */
+  /** The experiment's name: "Forced Convection". */
   readonly eyebrow: ReactNode;
   /** "This experiment was already submitted". */
   readonly title: ReactNode;

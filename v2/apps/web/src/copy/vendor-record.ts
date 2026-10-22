@@ -4,11 +4,12 @@
  * record view `V.record`, its script `recView` and HANDOFF §2–§3). Every phrase is the export's
  * own, found verbatim in its markup or script (`vendor-record.test.ts`); the composed lines take
  * the script's forms (`recView`: `eyebrow`, `meta`, `intro`, `pendingText`, `histPendingNote`,
- * `stand`, `deliv`) with the record's values — names, ids and dates are never copied from the
- * export. What the export does not word is a provisional entry of the state-copy register
- * (`state-copy-vendor-record.ts`, VD-12). The status pill's words are the shared role-relative
- * table's (`flow-state-words.ts`); the reference chips name a field as the editor does
- * (`vendor-editor.ts` `referenceWords`).
+ * `stand`, `deliv`) with the record's values — names and dates are never copied from the export,
+ * and no line carries the submission's reference (owner's identifier rule, 22 Oct 2026; state-copy
+ * `VE-02.no-reference`). What the export does not word is a provisional entry of the state-copy
+ * register (`state-copy-vendor-record.ts`, VD-12). The status pill's words are the shared
+ * role-relative table's (`flow-state-words.ts`); the reference chips name a field as the editor
+ * does (`vendor-editor.ts` `referenceWords`).
  */
 import type { Technology } from '@xr/domain';
 
@@ -138,10 +139,11 @@ export const RETURNING_ROLE = {
   'content-manager': 'Content Manager',
 } as const;
 
-/** The head's eyebrow (`p.rk-eyebrow`, script `eyebrow`): “Experiment · SUB-0081”. */
-export function recordEyebrow(id: string): string {
-  return `Experiment · ${id}`;
-}
+/**
+ * The head's eyebrow (`p.rk-eyebrow`): “Experiment” — the script's `eyebrow` (“Experiment · ” and
+ * the submission's reference) without the reference (state-copy `VE-02.no-reference`).
+ */
+export const RECORD_EYEBROW = 'Experiment';
 
 /** The head's “Revision 2” (script `meta`; not for a draft). */
 export function revisionMeta(revision: number): string {

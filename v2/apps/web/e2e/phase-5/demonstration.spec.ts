@@ -242,8 +242,11 @@ test('one tab, the product build: Flow E — create → return with a reason →
   await type(page.getByLabel('Description', { exact: true }), CONTENT.description);
   await type(page.getByLabel('Version', { exact: true }), CONTENT.version);
   await reachAndClick(page, button(page, 'Save draft'));
+  // The first save gives the draft its own address (SUB-0077); no word on the page shows the
+  // reference (the owner's identifier rule for the Vendor, 22 Oct 2026).
   await page.waitForURL('**/vendor/experiments/SUB-0077/edit');
-  await expect(main(page).locator('.rk-head .rk-meta')).toContainText('SUB-0077');
+  await expect(main(page).locator('.rk-head .rk-meta')).toContainText('Only you can see a draft');
+  await expect(main(page)).not.toContainText(/\bSUB-\d+/);
   await reachAndClick(page, button(page, 'Continue'));
   await expect(h1(page)).toHaveText('Formats and delivery');
   await reachAndClick(page, page.getByRole('checkbox', { name: /^WEB Browser/ }));

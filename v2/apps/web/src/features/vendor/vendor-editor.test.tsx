@@ -12,7 +12,9 @@
  * with Change, the confirmation and the outcome card, the read-only draft, the refusals, and a
  * revision returned by the Academic Reviewer: the returned reason (focused first), its references
  * jumping to tagged fields, Save changes and Resubmit → “Submitted” (M-3) — and the one world
- * moving: the reviewer's queue holds revision 2.
+ * moving: the reviewer's queue holds revision 2. No state names the experiment by its reference
+ * (the owner's identifier rule for the Vendor, 22 Oct 2026; state-copy `VE-02.no-reference`): each
+ * is checked, and the reference is read from the address only.
  */
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -163,7 +165,23 @@ function text(element: Element | null): string {
 }
 const title = async (name: string) =>
   screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
-/** The head's eyebrow (`p.rk-eyebrow`) and the meta line's id words (`div.rk-meta > span`). */
+/** An internal reference no Vendor page shows (the owner's identifier rule, 22 Oct 2026). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/** No reference in the words, names, titles or placeholders drawn, nor in the tab's title. */
+function expectNoReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
+
+/** The head's eyebrow (`p.rk-eyebrow`) and the meta line's last words (`div.rk-meta > span`). */
 const eyebrow = () => text(main().querySelector('.rk-head .rk-eyebrow'));
 const idLine = () => text(main().querySelector('.rk-head .rk-meta > span:last-child'));
 const crumbs = () => screen.getByRole('navigation', { name: 'Breadcrumb' });
@@ -178,7 +196,10 @@ const block = (name: string) =>
 const field = (label: string) => screen.getByLabelText(label, { exact: true });
 /** The top stepper (`nav.ve-steps`) and the aside outline (`aside.ve-edaside`). */
 const stepper = () => main().querySelector<HTMLElement>('nav.ve-steps')!;
-const outline = () => screen.getByRole('complementary', { name: /draft|returned|not saved yet/ });
+const outline = () =>
+  screen.getByRole('complementary', {
+    name: /^(?:Draft|Revision \d+ returned|New experiment · not saved yet)$/,
+  });
 const actions = () => main().querySelector<HTMLElement>('.vr-actions')!;
 
 async function fillStepOne(user: ReturnType<typeof userEvent.setup>, name: string = FLOW_E.name) {
@@ -288,6 +309,7 @@ describe('VE-03 Course and description', () => {
       // The shell: My experiments is the current destination.
       const rail = screen.getByRole('navigation', { name: 'Vendor navigation' });
       expect(rail.querySelector('[aria-current="page"]')).toHaveAttribute('href', LIST);
+      expectNoReferences();
     },
     SLOW,
   );
@@ -329,6 +351,7 @@ describe('VE-03 Course and description', () => {
         'Course and name 3 to fix Catalogue text 1 to fix',
       );
       expect(moves).toEqual([]);
+      expectNoReferences();
     },
     SLOW,
   );
@@ -346,6 +369,7 @@ describe('VE-03 Course and description', () => {
       expect(summaryLinks()).toEqual([words]);
       expect(fieldError('Ve-name')).toBe(words);
       expect(moves).toEqual([]);
+      expectNoReferences();
     },
     SLOW,
   );
@@ -362,7 +386,7 @@ describe('VE-03 Course and description', () => {
       await fillStepOne(user);
       await user.click(button('Save draft'));
       await waitFor(() => expect(moves).toEqual(['replace /vendor/experiments/SUB-0077/edit']));
-      await waitFor(() => expect(idLine()).toBe('SUB-0077 · only you can see a draft'));
+      await waitFor(() => expect(idLine()).toBe('Only you can see a draft'));
       expect(eyebrow()).toBe('Edit draft · Step 1 of 4');
       expect(text(crumbs())).toBe(`My experiments ${FLOW_E.name} Edit draft`);
       expect(within(crumbs()).getByRole('link', { name: FLOW_E.name })).toHaveAttribute(
@@ -376,7 +400,8 @@ describe('VE-03 Course and description', () => {
       expect(saved.parentElement).toBe(actions());
       expect(text(saved)).toMatch(/^Draft saved · \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d$/);
       expect(saved).toHaveFocus();
-      expect(text(outline().querySelector('.ve-prog-k'))).toBe('SUB-0077 · draft');
+      expect(text(outline().querySelector('.ve-prog-k'))).toBe('Draft');
+      expectNoReferences();
       expect(text(outline().querySelector('.ve-prog-meta b'))).toMatch(
         /^Last saved \d{1,2} [A-Z][a-z]{2} 2026, \d\d:\d\d$/,
       );
@@ -392,6 +417,7 @@ describe('VE-03 Course and description', () => {
       // A change clears the saved line.
       await user.type(field('Version'), '1');
       expect(document.getElementById('Ve-saved')).toBeNull();
+      expectNoReferences();
     },
     SLOW,
   );
@@ -422,6 +448,7 @@ describe('VE-03 Course and description', () => {
       go(NEW);
       await title('Course and description');
       expect(field('Experiment name')).toHaveValue('');
+      expectNoReferences();
     },
     SLOW,
   );
@@ -471,6 +498,7 @@ describe('VE-03 Course and description', () => {
       );
       expect(await screen.findByTestId('elsewhere')).toHaveTextContent('/vendor');
       expect(moves).toEqual(['push /vendor']);
+      expectNoReferences();
     },
     SLOW,
   );
@@ -528,6 +556,7 @@ describe('VE-03 Course and description', () => {
         'MEL ZG512 is no longer one of your assigned courses. Choose one of your courses.';
       await waitFor(() => expect(summaryLinks()).toEqual([words]));
       expect(fieldError('Ve-course')).toBe(words);
+      expectNoReferences();
     },
     SLOW,
   );
@@ -646,6 +675,7 @@ describe('VE-04 Formats and delivery', () => {
       // An outline entry moves focus to its block.
       await user.click(within(outline()).getByRole('button', { name: /MR · Mixed reality/ }));
       await waitFor(() => expect(document.getElementById('Ve-MR-t')).toHaveFocus());
+      expectNoReferences();
     },
     SLOW,
   );
@@ -677,6 +707,7 @@ describe('VE-04 Formats and delivery', () => {
       expect(
         within(block('Virtual reality · App package')).getByLabelText('Device needed'),
       ).toHaveValue(FLOW_E.device);
+      expectNoReferences();
     },
     SLOW,
   );
@@ -823,7 +854,8 @@ describe('VE-05 Preview and documents · VE-06 Check and submit', () => {
       await title('Submitted for academic review');
       const card = document.getElementById('Ve-done')!;
       expect(card).toHaveClass('rk-surface', 'vr-outcome');
-      expect(text(card.querySelector('.rk-eyebrow'))).toBe(`SUB-0077 · ${FLOW_E.name}`);
+      expect(text(card.querySelector('.rk-eyebrow'))).toBe(FLOW_E.name);
+      expectNoReferences();
       expect(text(card.querySelector('.vr-outcome-d'))).toBe(
         'It is with the Academic Reviewer. Nothing is published. You can’t edit it while it is being reviewed.',
       );
@@ -865,6 +897,7 @@ describe('VE-05 Preview and documents · VE-06 Check and submit', () => {
         ),
       ).toHaveLength(0);
       expect(moves.filter((move) => move.startsWith('replace'))).toEqual([]);
+      expectNoReferences();
     },
     SLOW,
   );
@@ -894,6 +927,7 @@ describe('VE-05 Preview and documents · VE-06 Check and submit', () => {
       await user.click(button('Add document'));
       await user.click(button('Remove Lab handout — Composite Wall.pdf'));
       expect(text(main().querySelector('p.vr-empty'))).toBe('No documents added.');
+      expectNoReferences();
     },
     SLOW,
   );
@@ -920,6 +954,7 @@ describe('VE-05 Preview and documents · VE-06 Check and submit', () => {
       );
       expect(submissionsNamed(sample, FLOW_E.name)).toHaveLength(0);
       expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Check and submit');
+      expectNoReferences();
     },
     SLOW,
   );
@@ -948,10 +983,11 @@ describe('VE-09 Edit draft', () => {
       await title('Formats and delivery');
       expect(moves).toEqual(['replace /vendor/experiments/SUB-0079/edit?step=formats']);
       expect(eyebrow()).toBe('Edit draft · Step 2 of 4');
-      expect(idLine()).toBe('SUB-0079 · only you can see a draft');
+      expect(idLine()).toBe('Only you can see a draft');
       expect(text(crumbs())).toBe('My experiments Pin Fin Efficiency Edit draft');
       expect(screen.getByRole('checkbox', { name: /Browser/ })).toBeChecked();
       expect(block('Browser · Web link')).toBeInTheDocument();
+      expectNoReferences();
     },
     SLOW,
   );
@@ -961,7 +997,7 @@ describe('VE-09 Edit draft', () => {
     async () => {
       await anilAt('/vendor/experiments/SUB-0083/edit');
       await title('Surface Roughness in Turning');
-      expect(eyebrow()).toBe('Experiment · SUB-0083');
+      expect(eyebrow()).toBe('Experiment');
       expect(text(crumbs())).toBe('My experiments Surface Roughness in Turning Read-only');
       expect(main().querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--paused', 'rk-st-lg');
       expect(text(main().querySelector('.rk-meta .xr-st'))).toBe('Draft · read-only');
@@ -993,6 +1029,7 @@ describe('VE-09 Edit draft', () => {
       );
       expect(screen.queryByRole('button', { name: 'Save draft' })).toBeNull();
       expect(document.querySelector('.vr-form')).toBeNull();
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1007,7 +1044,7 @@ describe('VE-08 Revise and resubmit', () => {
       const { user, moves } = await anilAt('/vendor/experiments/SUB-0081/revise');
       await title('Course and description');
       expect(eyebrow()).toBe('Revise and resubmit · Step 1 of 4');
-      expect(idLine()).toBe('SUB-0081 · revision 1 was returned');
+      expect(idLine()).toBe('Revision 1 was returned');
       expect(main().querySelector('.rk-meta .xr-st')).toHaveClass('xr-st--err');
       expect(text(crumbs())).toBe('My experiments Forced Convection Revise and resubmit');
       const reason = await screen.findByRole('region', {
@@ -1031,7 +1068,7 @@ describe('VE-08 Revise and resubmit', () => {
         'Formats & delivery · AR · Install notes',
       ]);
       expect(button('Save changes')).toBeInTheDocument();
-      expect(text(outline().querySelector('.ve-prog-k'))).toBe('SUB-0081 · revision 1 returned');
+      expect(text(outline().querySelector('.ve-prog-k'))).toBe('Revision 1 returned');
       expect(text(outline().querySelector('.ve-prog-meta'))).toBe(
         'No changes saved yet Others see revision 1 as submitted until you resubmit.',
       );
@@ -1056,6 +1093,7 @@ describe('VE-08 Revise and resubmit', () => {
           .map((each) => text(each.querySelector('label'))),
       ).toEqual(['Device needed', 'Install notes']);
       expect(text(ar.querySelector('.ve-reftag'))).toBe('Referred to in the return');
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1109,7 +1147,8 @@ describe('VE-08 Revise and resubmit', () => {
       expect(text(card.querySelector('.vr-outcome-d'))).toBe(
         'Your changes have been submitted for review.',
       );
-      expect(text(card.querySelector('.rk-eyebrow'))).toBe('SUB-0081 · Forced Convection');
+      expect(text(card.querySelector('.rk-eyebrow'))).toBe('Forced Convection');
+      expectNoReferences();
       expect([...card.querySelectorAll('.vr-facts > div')].map(text).slice(0, 2)).toEqual([
         'Status Submitted',
         'Revision 2',
@@ -1138,6 +1177,7 @@ describe('VE-08 Revise and resubmit', () => {
       expect(main()).toHaveTextContent(
         /It was submitted on \d{1,2} [A-Z][a-z]{2} 2026\. You can’t edit it after it is submitted\. If it is returned to you, you can revise it here\./,
       );
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1154,6 +1194,7 @@ describe('VE-08 Revise and resubmit', () => {
       expect(device.closest('.rk-field')!.querySelector('.ve-reftag')).toHaveTextContent(
         'Referred to in the return',
       );
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1185,6 +1226,7 @@ describe('VE-08 Revise and resubmit', () => {
         name: 'Returned by the Academic Reviewer',
       });
       await waitFor(() => expect(reason).toHaveFocus());
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1223,6 +1265,7 @@ describe('VE-08 Revise and resubmit', () => {
       expect(field('Summary').closest('.rk-field')!.querySelector('.ve-reftag')).toHaveTextContent(
         'Referred to in the return',
       );
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1235,6 +1278,7 @@ describe('VE-08 Revise and resubmit', () => {
         expect(moves).toEqual(['replace /vendor/experiments/SUB-0081/revise?step=preview']),
       );
       await title('Preview and documents');
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1250,7 +1294,7 @@ describe('the editor’s other states', () => {
         name: 'This experiment was approved by the Academic Reviewer',
       });
       expect(refusal.querySelector('.rk-state.rk-state--roomy .ve-ico-lock')).not.toBeNull();
-      expect(text(refusal.querySelector('.rk-eyebrow'))).toBe('SUB-0074 · Transient Cooling');
+      expect(text(refusal.querySelector('.rk-eyebrow'))).toBe('Transient Cooling');
       expect(text(refusal.querySelector('.rk-state-d'))).toBe(
         'It is with the Content Manager. Nothing is needed from you now.',
       );
@@ -1262,6 +1306,7 @@ describe('the editor’s other states', () => {
         LIST,
       );
       expect(text(crumbs())).toBe('My experiments Transient Cooling Edit draft');
+      expectNoReferences();
     },
     SLOW,
   );
@@ -1272,6 +1317,7 @@ describe('the editor’s other states', () => {
       await anilAt('/vendor/experiments/SUB-0086/edit');
       expect(await title('We can’t find that page')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Save draft' })).toBeNull();
+      expectNoReferences();
     },
     SLOW,
   );

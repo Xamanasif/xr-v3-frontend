@@ -8,7 +8,9 @@
  * and submits, Prof. A. Menon returns and approves, Anil resubmits — the routing stand-in routes it
  * at once, PC-66 — Kavya Nair publishes or sends back) while the page reads the one world. Anil’s
  * Save changes on a returned record (the changes saved, not resubmitted); the undrawn loading,
- * failed, not found, not permitted and policy-open states; the tabs and `?tab=history`.
+ * failed, not found, not permitted and policy-open states; the tabs and `?tab=history`. No state
+ * names the experiment by its reference (the owner's identifier rule for the Vendor, 22 Oct 2026;
+ * state-copy `VE-02.no-reference`): each is checked, and the reference is read from addresses.
  */
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -155,6 +157,22 @@ function show(runtime: PlatformRuntime, submissionId: string, search = '') {
   };
 }
 
+/** An internal reference no Vendor page shows (the owner's identifier rule, 22 Oct 2026). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/** No reference in the words, names, titles or placeholders drawn, nor in the tab's title. */
+function expectNoReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
+
 const main = () => screen.getByRole('main');
 const text = (element: Element | null) => (element?.textContent ?? '').replace(/\s+/g, ' ').trim();
 const title = (name: string) => screen.findByRole('heading', { level: 1, name }, { timeout: 5000 });
@@ -226,6 +244,7 @@ function currentTab(): string {
 async function readHistory(page: ReturnType<typeof show>) {
   page.tab('history');
   await waitFor(() => expect(historySheet()).toBeVisible());
+  expectNoReferences();
   const entries = { what: what(), notes: notes(), text: text(historySheet()) };
   page.tab('details');
   await waitFor(() => expect(screen.getByRole('region', { name: 'Formats and delivery' })));
@@ -245,7 +264,7 @@ describe('VE-07 — a draft (VE-07_draft)', () => {
       '/vendor/experiments',
     );
     expect(text(crumbs.querySelector('[aria-current="page"]'))).toBe('Pin Fin Efficiency');
-    expect(eyebrow()).toBe('Experiment · SUB-0079');
+    expect(eyebrow()).toBe('Experiment');
     await waitFor(() => expect(metaFacts()[0]).toBe('ME ZG523'));
     // A draft has no revision in the head (`meta`), only the course and the last change.
     expect(metaFacts()).toEqual([
@@ -307,6 +326,7 @@ describe('VE-07 — a draft (VE-07_draft)', () => {
       'href',
       '/vendor/experiments',
     );
+    expectNoReferences();
   });
 
   it('Edit draft opens the editor at the step the draft last reached', async () => {
@@ -328,6 +348,7 @@ describe('VE-07 — a draft (VE-07_draft)', () => {
       'href',
       '/vendor/experiments/SUB-0079/edit?step=preview',
     );
+    expectNoReferences();
   });
 });
 
@@ -408,6 +429,7 @@ describe('VE-07 — returned by the Academic Reviewer (VE-07_returned)', () => {
       'With the Academic Reviewer. Nothing is published.',
       'Only you can see a draft.',
     ]);
+    expectNoReferences();
   });
 
   it('changes saved, not resubmitted: stated inside the panel, Continue revising, the private-changes note', async () => {
@@ -464,6 +486,7 @@ describe('VE-07 — returned by the Academic Reviewer (VE-07_returned)', () => {
       'Submitted for academic review',
       'Draft saved',
     ]);
+    expectNoReferences();
   });
 });
 
@@ -505,6 +528,7 @@ describe('VE-07 — read-only states (VE-07_with-cm, VE-07_readonly, VE-07_publi
       'Draft saved',
     ]);
     expect(history.notes[0]).toBe('With the Content Manager.');
+    expectNoReferences();
   });
 
   it('a draft whose course is no longer assigned: Draft · read-only, Ask for help, no Edit draft', async () => {
@@ -531,6 +555,7 @@ describe('VE-07 — read-only states (VE-07_with-cm, VE-07_readonly, VE-07_publi
     expect(rows('Course and description')[0]).toBe('Course = MEL ZG512 · Manufacturing Processes');
     expect(stand()).toEqual(['Formats = Formats: WEB', expect.stringMatching(/^Last change = /)]);
     expect(links()).toEqual(['My experiments', 'Ask for help', ...TABS]);
+    expectNoReferences();
   });
 
   it('published: the day, the formats published, read-only; no catalogue link', async () => {
@@ -563,6 +588,7 @@ describe('VE-07 — read-only states (VE-07_with-cm, VE-07_readonly, VE-07_publi
     const history = await readHistory(page);
     expect(history.what[0]).toBe('Published by the Content Manager');
     expect(history.notes[0]).toBe('WEB and VR are live in the catalogue.');
+    expectNoReferences();
   });
 });
 
@@ -611,6 +637,7 @@ describe('VE-07 — Flow E on one world (SUB-0077)', () => {
       'Nothing is needed from you now. You can edit it again only if it is returned to you.',
     );
     expect(intro()).toBe('Revision 1 as it was submitted on 7 Oct 2026.');
+    expectNoReferences();
     let history = await readHistory(page);
     expect(history.what).toEqual(['Submitted for academic review', 'Draft saved']);
     expect(history.text).toContain('7 Oct 2026, 10:52');
@@ -639,6 +666,7 @@ describe('VE-07 — Flow E on one world (SUB-0077)', () => {
     expect(
       [...region('Learning outcomes').querySelectorAll('ol.ve-los li')].map((item) => text(item)),
     ).toEqual(OUTCOMES);
+    expectNoReferences();
     history = await readHistory(page);
     expect(history.notes[0]).toBe(
       'Academic Reviewer: “Please clarify the VR device requirements.”',
@@ -679,6 +707,7 @@ describe('VE-07 — Flow E on one world (SUB-0077)', () => {
       'Last change = 21 Oct 2026',
     ]);
     expect(links()).toEqual(['My experiments', ...TABS]);
+    expectNoReferences();
     history = await readHistory(page);
     expect(history.what).toEqual([
       'Submitted · revision 2',
@@ -703,6 +732,7 @@ describe('VE-07 — Flow E on one world (SUB-0077)', () => {
     await waitFor(() => expect(pill()).toHaveTextContent('With Content Manager'));
     expect(notice()).toHaveTextContent('Approved by the Academic Reviewer on 22 Oct 2026.');
     // The routing entry is never the Vendor’s to read (HANDOFF §2): “Submitted · revision 2” stays.
+    expectNoReferences();
     history = await readHistory(page);
     expect(history.what).toEqual([
       'Approved by the Academic Reviewer',
@@ -731,10 +761,12 @@ describe('VE-07 — Flow E on one world (SUB-0077)', () => {
       'Published = 23 Oct 2026',
       'Last change = 23 Oct 2026',
     ]);
+    expectNoReferences();
     history = await readHistory(page);
     expect(history.what[0]).toBe('Published by the Content Manager');
     expect(history.notes[0]).toBe('WEB and VR are live in the catalogue.');
     expect(links()).toEqual(['My experiments', ...TABS]);
+    expectNoReferences();
   });
 
   it('returned by the Content Manager (VE-07_returned-by-cm): her reason, the chip, Revise and resubmit', async () => {
@@ -775,9 +807,11 @@ describe('VE-07 — Flow E on one world (SUB-0077)', () => {
     expect(page.navigation.navigate).toHaveBeenCalledWith(
       '/vendor/experiments/SUB-0074/revise?field=summary',
     );
+    expectNoReferences();
     const history = await readHistory(page);
     expect(history.what[0]).toBe('Returned with a reason');
     expect(history.notes[0]).toBe('Content Manager: “The summary runs to three sentences…”');
+    expectNoReferences();
   });
 
   it('back with the Academic Reviewer for a re-check (VE-07_recheck): nothing is needed; her reason is not shown', async () => {
@@ -806,10 +840,12 @@ describe('VE-07 — Flow E on one world (SUB-0077)', () => {
     );
     expect(main()).not.toHaveTextContent('Please check the second outcome');
     expect(links()).toEqual(['My experiments', ...TABS]);
+    expectNoReferences();
     const history = await readHistory(page);
     expect(history.what[0]).toBe('Back with the Academic Reviewer for a re-check');
     expect(history.notes[0]).toBe('Sent back by the Content Manager. Nothing is needed from you.');
     expect(history.text).not.toContain('Please check the second outcome');
+    expectNoReferences();
   });
 });
 
@@ -863,6 +899,7 @@ describe('VE-13 Submission and version history (`?tab=history`)', () => {
         screen.getByRole('heading', { level: 2, name: 'Submission and version history' }),
       ).toHaveFocus(),
     );
+    expectNoReferences();
   });
 
   it('any other tab value shows the record at its bare address', async () => {
@@ -871,6 +908,7 @@ describe('VE-13 Submission and version history (`?tab=history`)', () => {
     await title('Forced Convection');
     expect(page.navigation.replace).toHaveBeenCalledWith('/vendor/experiments/SUB-0081');
     expect(currentTab()).toBe('Details');
+    expectNoReferences();
   });
 
   it('the Vendor’s entries only: an override is the Super Admin’s; a routing entry is never shown', () => {
@@ -966,6 +1004,7 @@ describe('VE-07 — not found, not permitted, policy-open, loading and failed (u
     expect(
       text(screen.getByRole('navigation', { name: 'Breadcrumb' }).querySelector('[aria-current]')),
     ).toBe('Experiment record');
+    expectNoReferences();
   });
 
   it('a colleague’s record (policy-open SUB-15): a calm state', async () => {
@@ -985,6 +1024,7 @@ describe('VE-07 — not found, not permitted, policy-open, loading and failed (u
     expect(calm).toHaveTextContent(
       'Opening a colleague’s experiment isn’t settled yet. Your own experiments are in My experiments.',
     );
+    expectNoReferences();
   });
 
   it('announces loading; a failed read has Try again, which reads again', async () => {
@@ -1008,5 +1048,6 @@ describe('VE-07 — not found, not permitted, policy-open, loading and failed (u
     expect(state).toHaveTextContent('Nothing has changed. Try again.');
     await user.click(screen.getByRole('button', { name: 'Try again' }));
     expect(await title('Forced Convection')).toBeVisible();
+    expectNoReferences();
   });
 });

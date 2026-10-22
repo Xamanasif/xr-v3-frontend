@@ -24,7 +24,9 @@ import {
  * activity's links, the status tabs (the address mirrors them), the search, “Changed in the last 7
  * days”, the sort, Clear filters, the row links and the Overview's actions — is done by real clicks
  * and typing; the pages they open may be other builders' (only their address and their one h1 are
- * asserted there).
+ * asserted there). No state names an experiment by its reference (the owner's identifier rule for
+ * the Vendor, 22 Oct 2026): every checked state is searched for one, and rows are found by their
+ * link's address.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -41,6 +43,37 @@ const REASON =
 const SHOTS =
   process.env['XR_PRODUCT_SHOTS'] ??
   '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/a566da95-3982-4d42-9ae6-383145b4d848/scratchpad/ve-workspace/shots';
+
+/** An internal reference no Vendor page shows (the owner's identifier rule, 22 Oct 2026). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference in the page's words (visible or visually hidden), accessible names,
+ * titles, placeholders or the browser tab's title (state-copy `VE-02.no-reference`).
+ */
+async function expectNoReferences(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const reference = new RegExp(source);
+    const hits: string[] = [];
+    const visible = document.body.innerText.match(reference);
+    if (visible) hits.push(`innerText: ${visible[0]}`);
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.parentElement?.closest('script, style, noscript, template')) continue;
+      const hidden = (node.textContent ?? '').match(reference);
+      if (hidden) hits.push(`text: ${hidden[0]} in <${node.parentElement?.tagName.toLowerCase()}>`);
+    }
+    for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+      for (const name of ['aria-label', 'title', 'placeholder']) {
+        const value = element.getAttribute(name) ?? '';
+        if (reference.test(value)) hits.push(`${name}: ${value}`);
+      }
+    }
+    if (reference.test(document.title)) hits.push(`document.title: ${document.title}`);
+    return hits;
+  }, REFERENCE.source);
+  expect(found).toEqual([]);
+}
 
 type PortAnswer<T> = { readonly ok: true; readonly value: T } | { readonly ok: false };
 
@@ -125,7 +158,7 @@ const list = (page: Page) => page.getByRole('region', { name: 'Your experiments'
 const tools = (page: Page) => page.getByRole('search', { name: 'Search your experiments' });
 const count = (page: Page) => tools(page).getByRole('status');
 const search = (page: Page) =>
-  tools(page).getByRole('searchbox', { name: 'Search by name, ID or course' });
+  tools(page).getByRole('searchbox', { name: 'Search by name or course' });
 const recent = (page: Page) =>
   tools(page).getByRole('checkbox', { name: 'Changed in the last 7 days' });
 const tabs = (page: Page) => page.getByRole('group', { name: 'Show experiments by status' });
@@ -133,6 +166,9 @@ const tab = (page: Page, name: string) => tabs(page).getByRole('button', { name 
 const toolsClear = (page: Page) => tools(page).getByRole('button', { name: 'Clear filters' });
 const table = (page: Page) => list(page).getByRole('table');
 const names = (page: Page) => table(page).locator('tbody a.vr-name');
+/** A row's name link, found by the record's address (no row shows the reference). */
+const recordLink = (page: Page, id: string) =>
+  table(page).locator(`tbody a.vr-name[href="/vendor/experiments/${id}"]`);
 const row = (page: Page, name: string) =>
   table(page)
     .locator('tbody tr')
@@ -153,6 +189,7 @@ async function chooseTab(page: Page, name: string): Promise<void> {
 async function checkState(page: Page, title: string): Promise<void> {
   await expect(page.getByText('Compiling', { exact: false })).toHaveCount(0, { timeout: 90_000 });
   await checkScreen(page, title);
+  await expectNoReferences(page);
 }
 
 async function shot(page: Page, name: string): Promise<void> {
@@ -301,8 +338,13 @@ test.describe('VE-01 Overview → VE-02 My experiments', () => {
       'Surface Roughness in Turning',
       'Fin-Tube Bundle',
     ]);
+    // The line under a name is the course code alone; the record is the link's address.
     await expect(row(page, 'Conduction Through a Composite Wall').locator('.vr-meta')).toHaveText(
-      `${id} · ME ZG523`,
+      'ME ZG523',
+    );
+    await expect(recordLink(page, id)).toHaveText('Conduction Through a Composite Wall');
+    await expect(recordLink(page, id)).toHaveAccessibleName(
+      /^Conduction Through a Composite Wall, With Academic Reviewer, last change \d{1,2} [A-Z][a-z]{2} 2026\. Open the experiment record$/,
     );
     await expect(
       row(page, 'Conduction Through a Composite Wall').locator('.xr-st--info'),
@@ -323,7 +365,10 @@ test.describe('VE-01 Overview → VE-02 My experiments', () => {
       'Draft · read-only',
     );
     await expect(row(page, 'Surface Roughness in Turning').locator('.vr-meta')).toHaveText(
-      'SUB-0083 · MEL ZG512',
+      'MEL ZG512',
+    );
+    await expect(recordLink(page, 'SUB-0083')).toHaveAccessibleName(
+      'Surface Roughness in Turning, Draft · read-only, last change 14 Aug 2026. Open the experiment record',
     );
     await expect(row(page, 'Forced Convection').locator('.xr-fmt')).toHaveText(['WEB', 'AR']);
     await expect(currentSidebarItem(page)).toHaveAttribute('href', '/vendor/experiments');
@@ -350,9 +395,7 @@ test.describe('VE-01 Overview → VE-02 My experiments', () => {
     await search(page).fill('Radiation');
     await expect(list(page).getByText('No experiments match')).toBeVisible();
     await expect(count(page)).toHaveText('0 of 6 experiments');
-    await expect(list(page)).toContainText(
-      'Try a different name, ID or course, or clear the filters.',
-    );
+    await expect(list(page)).toContainText('Try a different name or course, or clear the filters.');
     await shot(page, 'VE-02_nomatch');
     await checkState(page, 'My experiments');
     await reachAndClick(
@@ -363,9 +406,11 @@ test.describe('VE-01 Overview → VE-02 My experiments', () => {
     await expect(search(page)).toHaveValue('');
     await expect(search(page)).toBeFocused();
 
-    // The search: an id, then a course code.
+    // The search: a reference (the service still matches one; the row does not show it), then a
+    // course code.
     await search(page).pressSequentially('SUB-0081');
     await expect(names(page)).toHaveText(['Forced Convection']);
+    await expect(recordLink(page, 'SUB-0081')).toHaveText('Forced Convection');
     await expect(count(page)).toHaveText('1 of 6 experiments');
     await search(page).fill('MEL ZG512');
     await expect(names(page)).toHaveText(['Surface Roughness in Turning']);
@@ -408,22 +453,22 @@ test.describe('VE-01 Overview → VE-02 My experiments', () => {
     );
     await expectOpened(page, /\/vendor\/experiments\/SUB-0079\/edit$/, mark);
     await toMyExperiments(page);
-    await reachAndClick(
-      page,
-      table(page).getByRole('link', { name: /^Transient Cooling, SUB-0074,/ }),
+    await expect(recordLink(page, 'SUB-0074')).toHaveAccessibleName(
+      /^Transient Cooling, With Content Manager, last change /,
     );
+    await reachAndClick(page, recordLink(page, 'SUB-0074'));
     await expectOpened(page, /\/vendor\/experiments\/SUB-0074$/, mark);
     await toMyExperiments(page);
-    await reachAndClick(
-      page,
-      table(page).getByRole('link', { name: /^Surface Roughness in Turning, SUB-0083,/ }),
+    await expect(recordLink(page, 'SUB-0083')).toHaveAccessibleName(
+      /^Surface Roughness in Turning, Draft · read-only, last change /,
     );
+    await reachAndClick(page, recordLink(page, 'SUB-0083'));
     await expectOpened(page, /\/vendor\/experiments\/SUB-0083$/, mark);
     await toMyExperiments(page);
-    await reachAndClick(
-      page,
-      table(page).getByRole('link', { name: /^Fin-Tube Bundle, SUB-0052,/ }),
+    await expect(recordLink(page, 'SUB-0052')).toHaveAccessibleName(
+      /^Fin-Tube Bundle, Published, last change /,
     );
+    await reachAndClick(page, recordLink(page, 'SUB-0052'));
     await expectOpened(page, /\/vendor\/experiments\/SUB-0052$/, mark);
     await toMyExperiments(page);
     await reachAndClick(

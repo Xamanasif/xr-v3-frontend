@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { expect, type Locator, type Page, test } from '@playwright/test';
 
 import { actAs, bootWorld, reachAndClick, TEST_HOOKS_URL } from '../support';
-import { checkState } from '../support/screen-checks';
+import { checkState as checkScreen } from '../support/screen-checks';
 import { currentSidebarItem, expectSameDocument, markDocument } from '../support/workspace';
 
 /**
@@ -18,7 +18,9 @@ import { currentSidebarItem, expectSameDocument, markDocument } from '../support
  * the CI seam (Anil saves and submits, Prof. A. Menon returns and approves, Anil saves changes or
  * resubmits, Kavya Nair publishes or sends back) — set-up only: the page under test is read live
  * as the one world moves, and its own controls (the breadcrumb, the head’s action, a reference
- * chip, the tabs) are real clicks.
+ * chip, the tabs) are real clicks. No state names the experiment by its reference (the owner's
+ * identifier rule for the Vendor, 22 Oct 2026): every checked state is searched for one; the
+ * reference is read from the address only.
  */
 test.use({ baseURL: TEST_HOOKS_URL });
 // The test-hook build is a dev server shared by parallel suites: pages compile on first hit.
@@ -35,6 +37,43 @@ const TABS = ['Details', 'Submission and version history'];
 const SHOTS =
   process.env['XR_PRODUCT_SHOTS'] ??
   '/private/tmp/claude-501/-Users-mymac-Desktop-AR-VR-frontend-v46/a566da95-3982-4d42-9ae6-383145b4d848/scratchpad/ve-record/shots';
+
+/** An internal reference no Vendor page shows (the owner's identifier rule, 22 Oct 2026). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/**
+ * No internal reference in the page's words (visible or visually hidden), accessible names,
+ * titles, placeholders or the browser tab's title (state-copy `VE-02.no-reference`).
+ */
+async function expectNoReferences(page: Page): Promise<void> {
+  const found = await page.evaluate((source) => {
+    const reference = new RegExp(source);
+    const hits: string[] = [];
+    const visible = document.body.innerText.match(reference);
+    if (visible) hits.push(`innerText: ${visible[0]}`);
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+      if (node.parentElement?.closest('script, style, noscript, template')) continue;
+      const hidden = (node.textContent ?? '').match(reference);
+      if (hidden) hits.push(`text: ${hidden[0]} in <${node.parentElement?.tagName.toLowerCase()}>`);
+    }
+    for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+      for (const name of ['aria-label', 'title', 'placeholder']) {
+        const value = element.getAttribute(name) ?? '';
+        if (reference.test(value)) hits.push(`${name}: ${value}`);
+      }
+    }
+    if (reference.test(document.title)) hits.push(`document.title: ${document.title}`);
+    return hits;
+  }, REFERENCE.source);
+  expect(found).toEqual([]);
+}
+
+/** `checkState`, and no internal reference anywhere on the page. */
+async function checkState(page: Page, title: string): Promise<void> {
+  await checkScreen(page, title);
+  await expectNoReferences(page);
+}
 
 type PortAnswer<T> = { readonly ok: true; readonly value: T } | { readonly ok: false };
 
@@ -230,7 +269,7 @@ test.describe('VE-07 Experiment record — the seeded states', () => {
     await open(page, 'SUB-0079', 'Pin Fin Efficiency');
     await expect(crumbs(page).getByRole('link')).toHaveText(['My experiments']);
     await expect(crumbs(page).locator('[aria-current="page"]')).toHaveText('Pin Fin Efficiency');
-    await expect(eyebrow(page)).toHaveText('Experiment · SUB-0079');
+    await expect(eyebrow(page)).toHaveText('Experiment');
     await expectPill(page, 'Draft', null);
     await expect(metaFacts(page)).toHaveText(['ME ZG523', /^Last change \d+ \w{3} 2026$/]);
     await expectNotice(
@@ -291,7 +330,7 @@ test.describe('VE-07 Experiment record — the seeded states', () => {
   }) => {
     await bootWorld(page, { fixture: 'spine-start', session: ANIL });
     await open(page, 'SUB-0081', 'Forced Convection');
-    await expect(eyebrow(page)).toHaveText('Experiment · SUB-0081');
+    await expect(eyebrow(page)).toHaveText('Experiment');
     await expectPill(page, 'Returned', /xr-st--err/);
     await expect(metaFacts(page)).toHaveText(['ME ZG523', 'Revision 1', /^Last change /]);
     const reason = region(page, 'Returned by the Academic Reviewer');

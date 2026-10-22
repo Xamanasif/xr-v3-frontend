@@ -59,9 +59,9 @@ text, no console error).
 pages it links to, signed in as Super Admin, Vendor, Content Manager, Academic Reviewer and
 Institute Admin, and booted as Faculty and Student (after Flow C / D): **no internal reference
 (SUB-, UPD-, REQ-, ACC-, SACC-, DTR-, ASMT-, ATT-, Q-, GRP-, FMAP-)** in words, accessible names,
-placeholders or tab titles for SA, CM, RV, IA, FA and ST, except the allowed seeded text quoted as
-written (“Correction UPD-000n.” on update pages) and support references on Help. **One exception
-needs your decision: the Vendor** (§6, item 1).
+placeholders or tab titles for every role, except the allowed seeded text quoted as written
+(“Correction UPD-000n.” on update pages) and support references on Help. The Vendor was brought
+under the rule afterwards, on your decision (§6, item 1).
 
 ## 4. Safety
 
@@ -134,14 +134,10 @@ sign in as Ranganathan or Rahul.
 
 ## 6. Decisions and items for the owner
 
-1. **Vendor still shows submission references (needs your decision).** The Vendor was accepted on
-   20 Oct before the identifier rule was extended to every role; its Experiments list (row words
-   and accessible names, e.g. “Pin Fin Efficiency, SUB-0079, Draft …”), record pages and the
-   revise page (“SUB-0081 · revision 1 was returned”) show SUB- references as the VE export draws
-   them (`VE-INTEGRATION-RECORD.md`: “The Vendor sees its own submission IDs where the export shows
-   them”). Changing it means changing an accepted role, so it was not done in this run. If you
-   want the rule applied, it is a small, Vendor-only words change (name the submission by its
-   experiment and revision), with its own commit and re-check.
+1. **Vendor identifier rule — done on your decision (22 Oct 2026).** The Vendor (accepted on 20 Oct,
+   before the rule covered every role) showed SUB- references on its Experiments list, record and
+   editor pages. On your instruction they were replaced by words in a separate Vendor-only commit
+   (`VE-INTEGRATION-RECORD.md` §10); every role is now free of internal references.
 2. **Simulation stages — product dependency.** The Student export's illustrative stages are not
    product data and were left out. Needed to show them: the real activity's stage names and count,
    and a per-student stage fact in the runtime data.

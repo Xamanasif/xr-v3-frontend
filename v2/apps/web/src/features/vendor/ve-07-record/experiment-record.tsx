@@ -42,7 +42,7 @@ import {
   previewWords,
   publishedTitle,
   RECORD,
-  recordEyebrow,
+  RECORD_EYEBROW,
   returnedStandWords,
   reviseGoToLabel,
   revisionMeta,
@@ -109,7 +109,8 @@ function tabOf(search: string): { readonly tab: RecordTab; readonly normalise: b
  * - **Reads**: `ProductionService.getRecord` — the submission, its guards (a course no longer
  *   assigned) and the decision that last returned it; the course’s code and name
  *   (`production-vendor-record.ts`). Every role’s command refreshes it in the same tab (BC14).
- * - **As the export draws it**: the breadcrumb, “Experiment · SUB-…”, the name, the status pill
+ * - **As the export draws it**: the breadcrumb, “Experiment” (the export's eyebrow without the
+ *   submission's reference, state-copy `VE-02.no-reference`), the name, the status pill
  *   and the course, revision and last change; at most one action (Edit draft · Revise and
  *   resubmit · Continue revising). The status is stated once more, and only once: the
  *   returned-reason panel (who, when, the reason, “What it refers to” chips into the editor, the
@@ -274,7 +275,7 @@ function Record({
           />
         }
         date={today}
-        eyebrow={recordEyebrow(submission.id)}
+        eyebrow={RECORD_EYEBROW}
         title={submission.content.name}
         titleId={TITLE_ID}
         titleRef={titleRef}

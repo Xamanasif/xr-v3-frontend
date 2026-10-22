@@ -5,8 +5,10 @@
  * `project/Main.dc.html`: the editor's template and its script's `edView`, `dlgView`), and of the
  * returned-record notice the editor and the record share. Every drawn phrase is the export's own,
  * found verbatim in its markup or script (`vendor-editor.test.ts`); the composed lines take the
- * script's forms with the records' values — names, ids, codes and dates are never copied from the
- * sample. What the export does not draw is a provisional entry of the state-copy register
+ * script's forms with the records' values — names, codes and dates are never copied from the
+ * sample, and no line or name carries the submission's reference: where the script's form writes
+ * one, it is left out (owner's identifier rule, 22 Oct 2026; state-copy `VE-02.no-reference`).
+ * What the export does not draw is a provisional entry of the state-copy register
  * (`state-copy-vendor-editor.ts`, VD-12). The field errors are the contract's catalogue (`VE-03.*`,
  * `VE-04.*`, `VE-05.*`: v46's exact messages), worded by the service and by
  * `queries/production-editor.ts`.
@@ -86,11 +88,14 @@ export function overlineWords(mode: EditorMode, step: number): string {
   return `${EDITOR.modeWords[mode]} · Step ${step} of 4`;
 }
 
-/** “Not saved yet”, “SUB-0087 · only you can see a draft”, “SUB-0081 · revision 1 was returned” (`o.idLine`). */
-export function idLineWords(id: string | null, mode: EditorMode, revision: number): string {
-  if (id === null) return EDITOR.notSaved;
-  if (mode === 'revise') return `${id} · revision ${revision} was returned`;
-  return `${id} · only you can see a draft`;
+/**
+ * The head's meta line (`o.idLine` without the submission's reference, state-copy
+ * `VE-02.no-reference`): “Not saved yet”, “Only you can see a draft”, “Revision 1 was returned”.
+ */
+export function idLineWords(saved: boolean, mode: EditorMode, revision: number): string {
+  if (!saved) return EDITOR.notSaved;
+  if (mode === 'revise') return `Revision ${revision} was returned`;
+  return 'Only you can see a draft';
 }
 
 /** The top stepper's button name: “Step 2 of 4, Formats and delivery, in progress” (`x.aria`). */
@@ -103,9 +108,12 @@ export function partsLabel(title: string): string {
   return `Parts of ${title}`;
 }
 
-/** The outline's kicker: “SUB-0087 · draft”, “SUB-0081 · revision 1 returned” (`o.progK`). */
-export function outlineKicker(id: string, mode: EditorMode, revision: number): string {
-  return mode === 'revise' ? `${id} · revision ${revision} returned` : `${id} · draft`;
+/**
+ * The outline's kicker (`o.progK` without the submission's reference, state-copy
+ * `VE-02.no-reference`): “Draft”, “Revision 1 returned”.
+ */
+export function outlineKicker(mode: EditorMode, revision: number): string {
+  return mode === 'revise' ? `Revision ${revision} returned` : 'Draft';
 }
 
 /** “Last saved 27 Aug 2026, 10:40” (the outline and the read-only draft's meta line). */
@@ -415,9 +423,13 @@ export const DONE = {
   backToList: 'Back to My experiments',
 } as const;
 
-/** “SUB-0087 · Natural Convection from a Vertical Plate” (the outcome's and the refusal's eyebrow). */
-export function subLineWords(id: string, name: string): string {
-  return `${id} · ${name}`;
+/**
+ * The outcome's and the refusal's eyebrow: the experiment's name, “Natural Convection from a
+ * Vertical Plate” (`o.doneEyebrow`, `o.refEyebrow` without the submission's reference, state-copy
+ * `VE-02.no-reference`); “Untitled experiment” for a record without one.
+ */
+export function subLineWords(name: string): string {
+  return name.trim() || EDITOR.untitled;
 }
 
 /** The outcome's formats in words: “Formats: WEB, VR” (`o.doneFmtAria`). */
@@ -481,10 +493,11 @@ export const READ_ONLY = {
   help: 'Ask for help',
 } as const;
 
-/** “Experiment · SUB-0083” (`o.roEyebrow`). */
-export function readOnlyEyebrow(id: string): string {
-  return `Experiment · ${id}`;
-}
+/**
+ * “Experiment” (`o.roEyebrow`, “Experiment · ” and the submission's reference, without the
+ * reference: state-copy `VE-02.no-reference`).
+ */
+export const READ_ONLY_EYEBROW = 'Experiment';
 
 /** The notice's title: “MEL ZG512 is no longer assigned to you”. */
 export function noLongerAssignedTitle(code: string): string {

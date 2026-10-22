@@ -179,6 +179,10 @@ dialogs); all against the export's own markup (`veExportText`), with `expectV3Cl
 the screens themselves in apps/web unit tests (`features/vendor/*.test.tsx`) and e2e
 (`e2e/phase-5/vendor-{home,editor,record}.spec.ts`).
 
+Identifier rule (22 Oct 2026, `docs/v3/VE-INTEGRATION-RECORD.md` §10): `VendorExperimentRow.id`
+is optional — the product no longer passes it, so `.vr-meta` shows the course code alone (or is
+left out); with an `id` the row draws as before.
+
 ### Shared Vendor components (`ve.tsx`)
 
 | Component                                  | Classes                                                                                                                                                                                | Source (VE-v1 `Main.dc.html`)                                                                                                                                                      | Behaviour / notes                                                                                                                                                                                                                                                                                                                                                                                                                             | Tests              |

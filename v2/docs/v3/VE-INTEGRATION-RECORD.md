@@ -97,8 +97,8 @@ messages), refusals, stale checks and repeat-press protection; the role permissi
 world and its persistence (TE-6); what other roles see (a saved revision stays private: the
 service already serves other roles the submitted revision). No service contract, permission,
 workflow or publication rule changed; no backend was added; no sample record or preview logic of
-the export was imported. The Vendor sees its own submission IDs (SUB-…) where the export shows
-them.
+the export was imported. The Vendor first saw its own submission IDs (SUB-…) where the export
+shows them; the owner's identifier rule (§10) has since replaced them with words.
 
 ## 5. Decisions and discrepancies
 
@@ -216,3 +216,25 @@ minutes):
    **Continue revising** → Check and submit → **Resubmit** (neutral wording: “Submitted · revision
    2”).
 5. **Help & support** in the rail foot; the account menu (top right) → Sign out.
+
+## 10. Identifier rule applied (22 Oct 2026)
+
+The owner asked, after the four-role run (22 Oct 2026), to apply the identifier rule to the
+Vendor as a separate Vendor-only change: no SUB- reference in the Vendor's words, accessible
+names, placeholders, breadcrumbs or tab titles; the references stay in the addresses, keys,
+service calls and records (the template is the Content Manager's correction, `ff58c5c`).
+
+- VE-02: the row link reads “<name>, <status>, last change <date>. Open the experiment record”; the
+  line under a name shows the course code alone (left out when the course has none); search
+  “Search by name or course” and its no-match line (the service search still matches a typed
+  reference).
+- VE-07 / VE-13: the head eyebrow “Experiment”.
+- Editor: “Only you can see a draft”, “Revision 1 was returned”; the outline kicker “Draft” /
+  “Revision 1 returned”; outcome and refusal eyebrows name the experiment (“Untitled experiment”
+  when blank); the read-only eyebrow “Experiment”; the crumb falls back to “Untitled experiment”.
+- Kit: `VendorExperimentRow.id` optional (additive; with it the row draws as before).
+- Checks: reference checks on every drawn state (unit, kit and the three Vendor specs); packages/ui
+  1,505 and apps/web 7,761 unit tests; scans 46; the Vendor specs 71 passed at four widths on the
+  test-hook server; on a product build phase-5, phase-6, flows and foundation at 1440 (239 passed)
+  and phase-5 + the alternates flow at 1024 / 768 / 375 (40 / 39 / 41 passed), 0 failed; a sweep
+  of every Vendor page as Anil Shetty: no reference.

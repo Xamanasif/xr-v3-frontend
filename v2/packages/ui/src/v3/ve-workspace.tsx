@@ -445,7 +445,7 @@ export interface VendorListToolsProps {
   readonly label: string;
   readonly search: {
     readonly id: string;
-    /** Read by assistive technology only (`label.xr-sr`): "Search by name, ID or course". */
+    /** Read by assistive technology only (`label.xr-sr`): "Search by name or course". */
     readonly label: string;
     readonly placeholder?: string;
     readonly value: string;
@@ -549,10 +549,14 @@ export interface VendorExperimentRow {
   /** The record: the name's link, and a press anywhere on the row, go there. */
   readonly href: string;
   readonly name: ReactNode;
-  /** "Forced Convection, SUB-0081, Returned, last change 24 Aug 2026. Open the experiment record". */
+  /** "Forced Convection, Returned, last change 24 Aug 2026. Open the experiment record". */
   readonly accessibleName: string;
-  /** Under the name (`span.vr-meta`): the submission ID, then " · " and the course when known. */
-  readonly id: ReactNode;
+  /**
+   * Under the name (`span.vr-meta`): an identifier, then " · " and the course when known. Optional:
+   * without it the line is the course alone, and without either it is left out (a page that never
+   * shows an internal reference passes the course only).
+   */
+  readonly id?: ReactNode;
   readonly course?: ReactNode;
   readonly formats: readonly FormatCode[];
   /** "Formats: WEB, AR". */
@@ -676,10 +680,14 @@ function ExperimentRow({
         >
           {row.name}
         </Link>
-        <span className="vr-meta">
-          <span>{row.id}</span>
-          {row.course ? <> · {row.course}</> : null}
-        </span>
+        {row.id ? (
+          <span className="vr-meta">
+            <span>{row.id}</span>
+            {row.course ? <> · {row.course}</> : null}
+          </span>
+        ) : row.course ? (
+          <span className="vr-meta">{row.course}</span>
+        ) : null}
       </td>
       <td role="cell" className="vr-c-fmt">
         <FormatBadges formats={row.formats} label={row.formatsLabel} />

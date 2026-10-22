@@ -48,6 +48,19 @@ import {
   VendorEditorTextarea,
 } from './ve-editor.js';
 
+/** An internal reference (the owner's identifier rule for the Vendor, 22 Oct 2026; SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/** No internal reference in the words, the names, the titles or the placeholders drawn. */
+function expectNoReference(container: Element): void {
+  expect(container.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of container.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '').not.toMatch(REFERENCE);
+    }
+  }
+}
+
 const MAIN = veExportText('Main.dc.html');
 
 /** The export's template only (the markup before its logic script). */
@@ -118,7 +131,7 @@ describe('VendorEditorLayout (`div.rk-detailwrap`: `nav.ve-steps`, the form, `as
           steps={steps(onSelect)}
           formLabelledBy="t"
           outline={{
-            kicker: 'SUB-0087 · draft',
+            kicker: 'Draft',
             kickerId: 'k',
             name: 'Natural Convection',
             saved: 'Last saved 27 Aug 2026, 10:40',
@@ -142,7 +155,7 @@ describe('VendorEditorLayout (`div.rk-detailwrap`: `nav.ve-steps`, the form, `as
     expect(top[1]!.textContent).toBe('2Formats');
     const form = screen.getByRole('region', { name: 'Formats and delivery' });
     expect(form.parentElement).toHaveClass('rk-mainsheet');
-    const aside = screen.getByRole('complementary', { name: 'SUB-0087 · draft' });
+    const aside = screen.getByRole('complementary', { name: 'Draft' });
     expect(aside).toHaveClass('rk-aside', 've-edaside');
     const nav = within(aside).getByRole('navigation', { name: 'Steps' });
     const outlineSteps = within(nav).getAllByRole('button');
@@ -164,6 +177,7 @@ describe('VendorEditorLayout (`div.rk-detailwrap`: `nav.ve-steps`, the form, `as
     expect(aside.querySelector('.ve-prog-meta')!.innerHTML).toBe(
       '<span><b>Last saved 27 Aug 2026, 10:40</b></span><span>Only you can see a draft.</span>',
     );
+    expectNoReference(container);
     expectV3ClassesOnly(container);
     await assertNoAxeViolations(container);
   });
@@ -589,7 +603,7 @@ describe('the outcome card, the refusal and the read-only sheet', () => {
           id="done"
           titleId="h"
           date="Thursday 27 August 2026"
-          eyebrow="SUB-0087 · Natural Convection"
+          eyebrow="Natural Convection"
           title="Submitted for academic review"
           text="It is with the Academic Reviewer."
           statusTerm="Status"
@@ -612,6 +626,7 @@ describe('the outcome card, the refusal and the read-only sheet', () => {
       'Formats',
     ]);
     expect(outcome.querySelector('.vr-facts .xr-st')!.className).toBe('xr-st xr-st--info rk-st-lg');
+    expectNoReference(container);
     const chips = outcome.querySelector('.ve-chips')!;
     expect(chips.querySelector('.xr-sr')).toHaveTextContent('Formats: WEB, VR');
     expect(
@@ -635,7 +650,7 @@ describe('the outcome card, the refusal and the read-only sheet', () => {
       <div className="xr rb">
         <VendorEditorRefusal
           titleId="h"
-          eyebrow="SUB-0081 · Forced Convection"
+          eyebrow="Forced Convection"
           title="This experiment was already submitted"
           text="It was submitted on 27 Aug 2026."
           actions={<Button variant="primary">Open the experiment record</Button>}
@@ -674,6 +689,7 @@ describe('the outcome card, the refusal and the read-only sheet', () => {
     expect(sheet.className).toBe('rk-surface vr-sheet');
     expect(sheet.querySelector('.vr-sec > .vr-dlvs.vr-dlvs--after > .vr-dlv')).not.toBeNull();
     expect(sheet.querySelector('.ve-chips .xr-fmt')).not.toHaveAttribute('aria-hidden');
+    expectNoReference(container);
     expectV3ClassesOnly(container);
     await assertNoAxeViolations(container);
   });

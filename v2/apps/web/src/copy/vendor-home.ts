@@ -6,10 +6,14 @@
  * `listMyExperiments` and `getEditor` answer (PC-62: facts, never words). Every phrase is the
  * export's own, found verbatim in its markup or script (`vendor-home.test.ts`); the composed lines
  * take the script's forms with the records' values (names, reasons and dates are never copied
- * from the export's sample world). What the export does not word is a provisional entry of the
- * state-copy register (`state-copy-vendor-home.ts`, VD-12).
+ * from the export's sample world). No line or name carries an internal reference (SUB-): where the
+ * script's form writes one it is left out and the experiment is named by content (owner's
+ * identifier rule, 22 Oct 2026; state-copy `VE-02.no-reference`). What the export does not word
+ * is a provisional entry of the state-copy register (`state-copy-vendor-home.ts`, VD-12).
  */
 import type { MyExperimentsStatus } from '@/queries/production';
+
+import { stateWords } from './state-copy';
 
 /** The studio band's and the list head's action, and the empty states' (`data-to="VE-03"`). */
 export const CREATE_EXPERIMENT = 'Create experiment';
@@ -170,8 +174,6 @@ export const MY_EXPERIMENTS_WORDS = {
   listLabel: 'Your experiments',
   /** `div.vr-tools[role=search][aria-label]`. */
   toolsLabel: 'Search your experiments',
-  /** `label.xr-sr` and the placeholder of `input#ve-q`. */
-  searchLabel: 'Search by name, ID or course',
   /** `label.vr-toggle` (the VE-13 filter). */
   recent: 'Changed in the last 7 days',
   clearFilters: 'Clear filters',
@@ -196,11 +198,20 @@ export const MY_EXPERIMENTS_WORDS = {
   savedNotResubmitted: 'Changes saved, not resubmitted',
   /** No match. */
   noMatchTitle: 'No experiments match',
-  noMatchLine: 'Try a different name, ID or course, or clear the filters.',
   /** No experiments yet. */
   emptyTitle: 'You haven’t created an experiment yet',
   emptyLine:
     'Create one, describe it, add its formats and delivery, and submit it for academic review.',
+} as const;
+
+/**
+ * The search's words and its no-match line: the export's without “ID” (state-copy `VE-02.search`,
+ * `VE-02.no-match-line`; `VE-02.no-reference`). The service's search still matches a reference.
+ */
+export const MY_EXPERIMENTS_SEARCH = {
+  /** `label.xr-sr` and the placeholder of `input#ve-q`. */
+  label: stateWords('VE-02.search'),
+  noMatchLine: stateWords('VE-02.no-match-line'),
 } as const;
 
 /** The tab keys: All, then the six statuses the service filters on (`listMyExperimentsInput`). */
@@ -240,9 +251,13 @@ export function formatsName(codes: readonly string[]): string {
   return `Formats: ${codes.join(', ') || 'none chosen'}`;
 }
 
-/** The name link's name: “Forced Convection, SUB-0081, Returned, last change 24 Aug 2026. Open …”. */
-export function experimentRowName(name: string, id: string, status: string, when: string): string {
-  return `${name}, ${id}, ${status}, last change ${when}. Open the experiment record`;
+/**
+ * The name link's name: “Forced Convection, Returned, last change 24 Aug 2026. Open the experiment
+ * record” — the script's `aria` without the submission's reference (state-copy
+ * `VE-02.no-reference`).
+ */
+export function experimentRowName(name: string, status: string, when: string): string {
+  return `${name}, ${status}, last change ${when}. Open the experiment record`;
 }
 
 /** “Revise Forced Convection”. */

@@ -107,11 +107,11 @@ export const P5_VENDOR_HOME_LINK_TARGETS: readonly LedgerEntry[] = [
     ],
     [
       'Tool row',
-      'Search by name, ID or course / Changed in the last 7 days',
+      'Search by name or course / Changed in the last 7 days',
       'secondary',
       null,
       'in-page',
-      'VE-v1 LINK-MAP L25 (`div.vr-tools[role=search]`: `input#ve-q`, `label.vr-toggle`; the address mirrors `?changed=last-7-days`, state-copy `VE-02.changed-recently`)',
+      'VE-v1 LINK-MAP L25 (`div.vr-tools[role=search]`: `input#ve-q` named “Search by name or course”, state-copy `VE-02.search`; `label.vr-toggle`; the address mirrors `?changed=last-7-days`, state-copy `VE-02.changed-recently`)',
     ],
     [
       'Tool row',
@@ -135,7 +135,7 @@ export const P5_VENDOR_HOME_LINK_TARGETS: readonly LedgerEntry[] = [
       'secondary',
       RETURNED_RECORD,
       'built',
-      'VE-v1 LINK-MAP L22 (`a.rk-rowlink.vr-name`, named “<name>, <id>, <status>, last change <date>. Open the experiment record”; a press anywhere on the row; state-copy `VE-02.row-action`)',
+      'VE-v1 LINK-MAP L22 (`a.rk-rowlink.vr-name`, named “<name>, <status>, last change <date>. Open the experiment record” — never the reference, state-copy `VE-02.no-reference`; a press anywhere on the row; state-copy `VE-02.row-action`)',
     ],
     [
       'Experiment row (returned)',

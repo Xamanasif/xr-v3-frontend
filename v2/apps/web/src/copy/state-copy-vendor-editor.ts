@@ -60,8 +60,9 @@ export const STATE_COPY_VENDOR_EDITOR = {
     screen: 'VE-03',
     state: 'The first Save draft of a new experiment',
     words: null,
-    rule: 'The receipt gives the id (“SUB-0077”); the address becomes the draft’s own (`/vendor/experiments/SUB-0077/edit`, the step kept) without a history entry, and the editor reads as an edited draft: “Edit draft · Step n of 4”, “SUB-0077 · only you can see a draft”, “Draft saved · <date, time>” next to Cancel or Back, which takes focus. The export keeps “Create experiment” in the eyebrow after the first save; the product names the mode of the address it is on.',
-    basis: 'VE-v1 HANDOFF §4 “submission ID on first save”; `Main.dc.html` `edSave`; OD-B5-07',
+    rule: 'The receipt gives the id, which goes into the address only: the address becomes the draft’s own (`/vendor/experiments/<SUB id>/edit`, the step kept) without a history entry, and the editor reads as an edited draft: “Edit draft · Step n of 4”, “Only you can see a draft”, “Draft saved · <date, time>” next to Cancel or Back, which takes focus; no words show the id (`VE-02.no-reference`). The export keeps “Create experiment” in the eyebrow after the first save; the product names the mode of the address it is on.',
+    basis:
+      'VE-v1 HANDOFF §4 “submission ID on first save”; `Main.dc.html` `edSave`; OD-B5-07; Owner’s identifier rule for the Vendor, 22 Oct 2026: no internal reference (SA-v1 rule)',
     status: 'provisional',
     decisions: ['VD-12', 'OD-B5-07'],
   },

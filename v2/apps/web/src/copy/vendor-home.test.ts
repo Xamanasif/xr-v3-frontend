@@ -2,8 +2,10 @@
  * The words of VE-01 Overview and VE-02 My experiments are the owner-approved Vendor export's
  * (V3 Refined B, design/v3-refined-b/roles/VE-v1 `project/Main.dc.html`): each drawn phrase is in
  * its markup or script verbatim, and each composed line takes the script's form with the records'
- * values. The undrawn forms and rules are provisional entries of the state-copy register, each with
- * its decision and no decision id in its words.
+ * values — except that no line or name carries the submission's reference: where the script's
+ * form writes one, it is left out (the owner's identifier rule for the Vendor, 22 Oct 2026;
+ * state-copy `VE-02.no-reference`). The undrawn forms and rules are provisional entries of the
+ * state-copy register, each with its decision and no decision id in its words.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -26,6 +28,7 @@ import {
   formatsName,
   HISTORY_WORDS,
   leadMeta,
+  MY_EXPERIMENTS_SEARCH,
   MY_EXPERIMENTS_WORDS,
   onDay,
   READ_ONLY_DRAFT,
@@ -47,6 +50,9 @@ import {
 const MAIN = veExport('Main.dc.html');
 /** The markup with its tags removed and `&amp;` read, then the raw source (attributes, script). */
 const WORDS = `${MAIN.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${MAIN}`;
+
+/** An internal reference (the owner's identifier rule for the Vendor, 22 Oct 2026; SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -190,8 +196,9 @@ describe('VE-02 My experiments words are the export’s', () => {
     expect(formatsName(['WEB', 'AR'])).toBe('Formats: WEB, AR');
     expect(formatsName([])).toBe('Formats: none chosen');
     expect(MAIN).toContain("fmtAria: 'Formats: ' + (fm.join(', ') || 'none chosen')");
-    expect(experimentRowName('Forced Convection', 'SUB-0081', 'Returned', '24 Aug 2026')).toBe(
-      'Forced Convection, SUB-0081, Returned, last change 24 Aug 2026. Open the experiment record',
+    // The script's name without `r.id` (state-copy `VE-02.no-reference`).
+    expect(experimentRowName('Forced Convection', 'Returned', '24 Aug 2026')).toBe(
+      'Forced Convection, Returned, last change 24 Aug 2026. Open the experiment record',
     );
     expect(MAIN).toContain(
       "aria: r.data.name + ', ' + r.id + ', ' + Component.STL[r.st] + ', last change ' + this.dl(r.last) + '. Open the experiment record'",
@@ -215,6 +222,40 @@ describe('VE-02 My experiments words are the export’s', () => {
       expect(MAIN).toContain(piece);
     }
     expect(MAIN).toContain(STATUS_LINES.recheck);
+  });
+
+  it('the search names no reference: the export’s words without “ID” (state-copy `VE-02.search`)', () => {
+    // Recorded departures: the search is the service's (name, reference or course) and still
+    // matches a reference typed into it; the field no longer names it.
+    expect(MAIN).toContain('placeholder="Search by name, ID or course"');
+    expect(MY_EXPERIMENTS_SEARCH.label).toBe('Search by name or course');
+    expect(STATE_COPY_VENDOR_HOME['VE-02.search'].words).toBe(MY_EXPERIMENTS_SEARCH.label);
+    expect(WORDS).toContain('Try a different name, ID or course, or clear the filters.');
+    expect(MY_EXPERIMENTS_SEARCH.noMatchLine).toBe(
+      'Try a different name or course, or clear the filters.',
+    );
+    expect(STATE_COPY_VENDOR_HOME['VE-02.no-match-line'].words).toBe(
+      MY_EXPERIMENTS_SEARCH.noMatchLine,
+    );
+  });
+
+  it('no word of the overview or the list carries a reference (state-copy `VE-02.no-reference`)', () => {
+    const words = [
+      ...strings(VENDOR_OVERVIEW_WORDS),
+      ...strings(MY_EXPERIMENTS_WORDS),
+      ...strings(MY_EXPERIMENTS_SEARCH),
+      ...strings(STATUS_TABS),
+      experimentRowName('Forced Convection', 'Returned', '24 Aug 2026'),
+      reviseRowName('Forced Convection'),
+      editDraftRowName('Pin Fin Efficiency'),
+      activityName('Draft saved', 'Pin Fin Efficiency', '25 Aug 2026, 17:20'),
+    ];
+    for (const phrase of words) expect(phrase).not.toMatch(REFERENCE);
+    const entry = STATE_COPY_VENDOR_HOME['VE-02.no-reference'];
+    expect(entry.basis).toContain(
+      'Owner’s identifier rule for the Vendor, 22 Oct 2026: no internal reference (SA-v1 rule',
+    );
+    expect(STATE_COPY['VE-02.no-reference']).toBe(entry);
   });
 
   it('the sort’s words: “Sort: newest first”, “…, last change, newest first. Change order”', () => {

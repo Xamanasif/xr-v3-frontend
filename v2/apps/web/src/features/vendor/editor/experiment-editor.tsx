@@ -583,7 +583,7 @@ export function ExperimentEditor({
         ...(named
           ? [
               {
-                label: named.content.name || named.id,
+                label: named.content.name.trim() || EDITOR.untitled,
                 href: experimentRecordAddress(named.id),
               },
             ]
@@ -766,7 +766,7 @@ export function ExperimentEditor({
         meta={
           <>
             {status}
-            <span>{idLineWords(submission?.id ?? null, shownMode, submission?.revision ?? 1)}</span>
+            <span>{idLineWords(submission !== null, shownMode, submission?.revision ?? 1)}</span>
           </>
         }
       />
@@ -786,9 +786,7 @@ export function ExperimentEditor({
         steps={steps}
         formLabelledBy={TITLE_ID}
         outline={{
-          kicker: submission
-            ? outlineKicker(submission.id, shownMode, submission.revision)
-            : EDITOR.newKicker,
+          kicker: submission ? outlineKicker(shownMode, submission.revision) : EDITOR.newKicker,
           kickerId: OUTLINE_KICKER_ID,
           name: draft.name.trim() || EDITOR.untitled,
           saved: savedOutline,

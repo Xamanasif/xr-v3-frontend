@@ -2,8 +2,10 @@
  * The words of VE-07 Experiment record and VE-13 Submission and version history are the
  * owner-approved Vendor export's (design/v3-refined-b/roles/VE-v1, `Main.dc.html`): each drawn
  * phrase is found verbatim in its markup or script, the composed ones with the script’s own pieces
- * (`recView`, `deliv`, the `hist` entries); the undrawn forms are provisional entries of the
- * state-copy register, each with its decision and no decision id in its words.
+ * (`recView`, `deliv`, the `hist` entries) — except that no line carries the submission's
+ * reference: where the script's form writes one, it is left out (the owner's identifier rule for
+ * the Vendor, 22 Oct 2026; state-copy `VE-02.no-reference`); the undrawn forms are provisional
+ * entries of the state-copy register, each with its decision and no decision id in its words.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -26,7 +28,7 @@ import {
   publishedNote,
   publishedTitle,
   RECORD,
-  recordEyebrow,
+  RECORD_EYEBROW,
   resubmittedWhat,
   returnedNote,
   returnedStandWords,
@@ -44,6 +46,9 @@ const MAIN = (() => {
   return `${raw.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${raw}`;
 })();
 
+/** An internal reference (the owner's identifier rule for the Vendor, 22 Oct 2026; SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
   if (Array.isArray(value)) return value.flatMap(strings);
@@ -56,9 +61,14 @@ describe('VE-07 Experiment record (VE-v1 `V.record`)', () => {
     expect(MAIN).toContain(phrase);
   });
 
-  it('the head: “Experiment · <id>”, the revision and the last change (`eyebrow`, `meta`)', () => {
-    expect(recordEyebrow('SUB-0081')).toBe('Experiment · SUB-0081');
+  it('the head: “Experiment”, the revision and the last change (`eyebrow`, `meta`)', () => {
+    // The script's eyebrow without `r.id` (state-copy `VE-02.no-reference`).
+    expect(RECORD_EYEBROW).toBe('Experiment');
     expect(MAIN).toContain("eyebrow: 'Experiment · ' + r.id");
+    expect(RECORD_EYEBROW).not.toMatch(REFERENCE);
+    for (const phrase of strings({ RECORD, HISTORY, RETURNING_ROLE })) {
+      expect(phrase).not.toMatch(REFERENCE);
+    }
     expect(revisionMeta(2)).toBe('Revision 2');
     expect(lastChangeMeta('24 Aug 2026')).toBe('Last change 24 Aug 2026');
     expect(MAIN).toContain(

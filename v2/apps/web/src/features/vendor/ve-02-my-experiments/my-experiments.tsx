@@ -24,6 +24,7 @@ import {
   experimentCountWords,
   experimentRowName,
   formatsName,
+  MY_EXPERIMENTS_SEARCH,
   MY_EXPERIMENTS_WORDS,
   STATUS_TABS,
   statusTabName,
@@ -74,7 +75,8 @@ const RECENT_ID = 've-recent';
  *   experiment); the status tabs with counts (All and each status the Vendor has); one tool row —
  *   the search, “Changed in the last 7 days”, the count, “Clear filters” while a filter is applied
  *   (focus returns to the search) and, below 760 px, the sort; the table — Experiment (the name
- *   opens the record; the SUB id · course), Formats, Status (pill, one plain line, “Changes saved,
+ *   opens the record; the course code under it — never the submission's reference, state-copy
+ *   `VE-02.no-reference`), Formats, Status (pill, one plain line, “Changes saved,
  *   not resubmitted” when the product can tell), Last change (sortable), one action (Revise / Edit
  *   draft / the chevron) — three-line rows below 760 px with a labelled last change. No match;
  *   no experiments yet; loading; could not load with Try again.
@@ -248,7 +250,7 @@ export function MyExperiments() {
         title={MY_EXPERIMENTS_WORDS.noMatchTitle}
         action={<Button onClick={clear}>{MY_EXPERIMENTS_WORDS.clearFilters}</Button>}
       >
-        {MY_EXPERIMENTS_WORDS.noMatchLine}
+        {MY_EXPERIMENTS_SEARCH.noMatchLine}
       </ListState>
     );
   } else {
@@ -280,8 +282,8 @@ export function MyExperiments() {
             label={MY_EXPERIMENTS_WORDS.toolsLabel}
             search={{
               id: SEARCH_ID,
-              label: MY_EXPERIMENTS_WORDS.searchLabel,
-              placeholder: MY_EXPERIMENTS_WORDS.searchLabel,
+              label: MY_EXPERIMENTS_SEARCH.label,
+              placeholder: MY_EXPERIMENTS_SEARCH.label,
               value: search,
               onChange: setSearch,
               ref: searchRef,
@@ -328,8 +330,7 @@ function tableRow(
     key: submission.id,
     href: experimentRecordAddress(submission.id),
     name,
-    accessibleName: experimentRowName(name, submission.id, pill.label, lastChange),
-    id: submission.id,
+    accessibleName: experimentRowName(name, pill.label, lastChange),
     course: code ?? undefined,
     formats,
     formatsLabel: formatsName(formats),

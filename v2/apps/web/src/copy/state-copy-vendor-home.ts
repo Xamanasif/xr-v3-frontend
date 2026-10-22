@@ -148,6 +148,26 @@ export const STATE_COPY_VENDOR_HOME = {
     status: 'provisional',
     decisions: ['VD-12', 'OD-B7-09'],
   },
+  'VE-02.search': {
+    screen: 'VE-02',
+    state: 'The search field’s label and placeholder (`label.xr-sr`, `input#ve-q`)',
+    words: 'Search by name or course',
+    rule: 'The field names what a person searches by; the search itself is unchanged (the service still matches a reference typed into it).',
+    basis:
+      'VE-v1 `Main.dc.html` `input#ve-q` (“Search by name, ID or course”) without “ID”: Owner’s identifier rule for the Vendor, 22 Oct 2026: no internal reference (SA-v1 rule; `VE-02.no-reference`)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'VE-02.no-match-line': {
+    screen: 'VE-02',
+    state:
+      'No row matches the search, the tab or the 7-day filter: the line under “No experiments match”',
+    words: 'Try a different name or course, or clear the filters.',
+    basis:
+      'VE-v1 `Main.dc.html` (“Try a different name, ID or course, or clear the filters.”) without “ID”, as the search (`VE-02.search`; Owner’s identifier rule for the Vendor, 22 Oct 2026: no internal reference)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
   'VE-02.read-only-line': {
     screen: 'VE-02',
     state: 'The plain line of a draft whose course is no longer the Vendor’s',
@@ -179,11 +199,22 @@ export const STATE_COPY_VENDOR_HOME = {
   },
   'VE-02.course-code': {
     screen: 'VE-02',
-    state: 'The course code beside the SUB id',
+    state: 'The line under an experiment’s name (`span.vr-meta`)',
     words: null,
-    rule: 'The course’s platform code as the public catalogue’s course card names it (“SUB-0081 · ME ZG523”); a course with no code there is shown by the SUB id alone. The list’s rows carry the course id only.',
+    rule: 'The course’s platform code as the public catalogue’s course card names it (“ME ZG523”); a course with no code there (or no course yet) leaves the line out — nothing stands in for it, and the submission’s reference is never shown (`VE-02.no-reference`). The list’s rows carry the course id only.',
     basis:
-      'VE-v1 `Main.dc.html` `span.vr-meta` (“id · course”); contracts `listMyExperimentsOutput`, `courseCard.platformCode`',
+      'VE-v1 `Main.dc.html` `span.vr-meta` (“id · course”); contracts `listMyExperimentsOutput`, `courseCard.platformCode`; Owner’s identifier rule for the Vendor, 22 Oct 2026: no internal reference (SA-v1 rule)',
+    status: 'provisional',
+    decisions: ['VD-12'],
+  },
+  'VE-02.no-reference': {
+    screen: 'VE-02',
+    state:
+      'Where the export writes a submission’s reference (VE-02 rows, VE-07 / VE-13 head, the editor VE-03 … VE-06, VE-08, VE-09 and its outcome, refusal and read-only states)',
+    words: null,
+    rule: 'No internal reference (SUB-, or any REQ-, ACC-, UPD-, DTR-, SUP- one) in the Vendor workspace’s words, accessible names, placeholders, breadcrumbs or tab titles; each experiment is named by content. VE-02: the line under a name is the course code alone (`VE-02.course-code`); the name’s link is “Forced Convection, Returned, last change 24 Aug 2026. Open the experiment record”; the search says “Search by name or course” and its no-match line “Try a different name or course, or clear the filters.” (the service’s search still matches a reference typed into it). VE-07 / VE-13: the head’s eyebrow is “Experiment”. The editor: the head’s line “Only you can see a draft” / “Revision 1 was returned”; the outline’s kicker (the aside’s name) “Draft” / “Revision 1 returned”; the outcome’s and the refusal’s eyebrow the experiment’s name; the read-only draft’s eyebrow “Experiment”; the crumb of a saved record its name. The references stay in the addresses (`/vendor/experiments/<SUB id>`), keys, query keys, service calls and records.',
+    basis:
+      'VE-v1 `Main.dc.html` `span.vr-meta` (`r.id`), `listView.rows` (`aria`), the `ve-q` placeholder, `recView` (`eyebrow`), `edView` (`o.idLine`, `o.progK`, `o.doneEyebrow`, `o.refEyebrow`, `o.roEyebrow`) write the reference; superseded by the Owner’s identifier rule for the Vendor, 22 Oct 2026: no internal reference (SA-v1 rule; as the Content Manager, `CM-lists.no-reference`)',
     status: 'provisional',
     decisions: ['VD-12'],
   },

@@ -24,7 +24,7 @@ import {
   formatsNameWords,
   lastSavedWords,
   READ_ONLY,
-  readOnlyEyebrow,
+  READ_ONLY_EYEBROW,
   REFUSAL,
   subLineWords,
 } from '@/copy/vendor-editor';
@@ -84,7 +84,7 @@ export function DoneState({
       titleId={TITLE_ID}
       titleRef={titleRef}
       date={date}
-      eyebrow={subLineWords(submission.id, submission.content.name)}
+      eyebrow={subLineWords(submission.content.name)}
       title={resubmitted ? DONE.resubmittedTitle : DONE.submittedTitle}
       text={resubmitted ? DONE.resubmittedText : DONE.submittedText}
       statusTerm={DONE.facts.status}
@@ -179,7 +179,7 @@ export function ReadOnlyView({
         titleFocusTarget
         titleRef={titleRef}
         date={date}
-        eyebrow={readOnlyEyebrow(submission.id)}
+        eyebrow={READ_ONLY_EYEBROW}
         meta={
           <>
             <StatusPill tone="paused" size="lg">
@@ -229,7 +229,7 @@ export function RefusalView({
     <VendorEditorRefusal
       titleId={TITLE_ID}
       titleRef={titleRef}
-      eyebrow={subLineWords(submission.id, submission.content.name)}
+      eyebrow={subLineWords(submission.content.name)}
       title={REFUSAL.titles[kind]}
       text={
         kind === 'already-submitted'

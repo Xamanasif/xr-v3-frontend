@@ -3,8 +3,10 @@
  * the owner-approved V3 Vendor export's (design/v3-refined-b/roles/VE-v1, `Main.dc.html`): each
  * drawn phrase is found verbatim in its markup or script, the composed ones with the script's own
  * pieces (`edView`, `dlgView`, `deliv`); the reference words the export does not compose are the
- * reviewer's (B6-03); the undrawn forms are provisional entries of the state-copy register, each
- * with its decision and no decision id in its words.
+ * reviewer's (B6-03) — except that no line or name carries the submission's reference: where the
+ * script's form writes one, it is left out (the owner's identifier rule for the Vendor, 22 Oct
+ * 2026; state-copy `VE-02.no-reference`); the undrawn forms are provisional entries of the
+ * state-copy register, each with its decision and no decision id in its words.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -47,7 +49,7 @@ import {
   PREVIEW_STEP,
   previewWords,
   READ_ONLY,
-  readOnlyEyebrow,
+  READ_ONLY_EYEBROW,
   referenceWords,
   REFUSAL,
   removeDocumentLabel,
@@ -77,6 +79,9 @@ const B6_03 = (() => {
   const raw = board('B6-03-Review-a-Submission.dc.html');
   return `${raw.replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&')}\n${raw}`;
 })();
+
+/** An internal reference (the owner's identifier rule for the Vendor, 22 Oct 2026; SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
 
 function strings(value: unknown): string[] {
   if (typeof value === 'string') return [value];
@@ -108,9 +113,10 @@ describe('the editor’s drawn words (VE-v1 `Main.dc.html`)', () => {
     expect(overlineWords('create', 1)).toBe('Create experiment · Step 1 of 4');
     expect(overlineWords('revise', 4)).toBe('Revise and resubmit · Step 4 of 4');
     expect(MAIN).toContain("o.over = flowWord + ' · Step ' + ed.step + ' of 4'");
-    expect(idLineWords(null, 'create', 1)).toBe('Not saved yet');
-    expect(idLineWords('SUB-0087', 'edit', 1)).toBe('SUB-0087 · only you can see a draft');
-    expect(idLineWords('SUB-0081', 'revise', 1)).toBe('SUB-0081 · revision 1 was returned');
+    // The script's line without `r.id` (state-copy `VE-02.no-reference`).
+    expect(idLineWords(false, 'create', 1)).toBe('Not saved yet');
+    expect(idLineWords(true, 'edit', 1)).toBe('Only you can see a draft');
+    expect(idLineWords(true, 'revise', 1)).toBe('Revision 1 was returned');
     expect(MAIN).toContain(
       "o.idLine = !r ? 'Not saved yet' : isRev ? r.id + ' · revision ' + r.rev + ' was returned' : r.id + ' · only you can see a draft'",
     );
@@ -122,8 +128,9 @@ describe('the editor’s drawn words (VE-v1 `Main.dc.html`)', () => {
     );
     expect(partsLabel('Formats and delivery')).toBe('Parts of Formats and delivery');
     expect(MAIN).toContain("x.subAria = 'Parts of ' + Component.TITLES[i + 1]");
-    expect(outlineKicker('SUB-0087', 'edit', 1)).toBe('SUB-0087 · draft');
-    expect(outlineKicker('SUB-0081', 'revise', 1)).toBe('SUB-0081 · revision 1 returned');
+    // The script's kicker without `r.id` (state-copy `VE-02.no-reference`).
+    expect(outlineKicker('edit', 1)).toBe('Draft');
+    expect(outlineKicker('revise', 1)).toBe('Revision 1 returned');
     expect(MAIN).toContain(
       "isRev ? r.id + ' · revision ' + r.rev + ' returned' : r.id + ' · draft'",
     );
@@ -221,7 +228,9 @@ describe('the editor’s drawn words (VE-v1 `Main.dc.html`)', () => {
     );
     expect(revisionSentWords(2)).toBe('Your changes are sent as revision 2.');
     expect(MAIN).toContain("'Your changes are sent as revision ' + ((r ? r.rev : 1) + 1) + '.'");
-    expect(subLineWords('SUB-0087', 'Natural Convection')).toBe('SUB-0087 · Natural Convection');
+    // The script's eyebrows without `r.id`: the name (state-copy `VE-02.no-reference`).
+    expect(subLineWords('Natural Convection')).toBe('Natural Convection');
+    expect(subLineWords('  ')).toBe('Untitled experiment');
     expect(MAIN).toContain("o.doneEyebrow = r.id + ' · ' + r.data.name");
     expect(MAIN).toContain("o.refEyebrow = r.id + ' · ' + r.data.name");
     expect(formatsNameWords(['WEB', 'VR'])).toBe('Formats: WEB, VR');
@@ -235,7 +244,8 @@ describe('the editor’s drawn words (VE-v1 `Main.dc.html`)', () => {
   });
 
   it('read-only: the head and the notice (`o.roEyebrow`, `o.roT`, `o.roD`)', () => {
-    expect(readOnlyEyebrow('SUB-0083')).toBe('Experiment · SUB-0083');
+    // The script's eyebrow without `r.id` (state-copy `VE-02.no-reference`).
+    expect(READ_ONLY_EYEBROW).toBe('Experiment');
     expect(MAIN).toContain("o.roEyebrow = 'Experiment · ' + r.id");
     expect(noLongerAssignedTitle('MEL ZG512')).toBe('MEL ZG512 is no longer assigned to you');
     expect(MAIN).toContain("o.roT = r.data.course + ' is no longer assigned to you'");
@@ -342,6 +352,41 @@ describe('the editor’s drawn words (VE-v1 `Main.dc.html`)', () => {
     ])) {
       expect(phrase).not.toMatch(/\b(?:VD|OD|PC|DEV|T)-[A-Z0-9-]+/);
       expect(phrase).not.toMatch(/sample file/i);
+    }
+  });
+
+  it('no line or name carries a reference (state-copy `VE-02.no-reference`)', () => {
+    const words = [
+      ...strings([
+        EDITOR,
+        COURSE_STEP,
+        FORMATS_STEP,
+        PREVIEW_STEP,
+        CHECK_STEP,
+        SUBMIT_DIALOG,
+        LEAVE_DIALOG,
+        DONE,
+        REFUSAL,
+        READ_ONLY,
+        RETURNED,
+      ]),
+      idLineWords(true, 'edit', 1),
+      idLineWords(true, 'revise', 2),
+      outlineKicker('edit', 1),
+      outlineKicker('revise', 2),
+      subLineWords('Natural Convection'),
+      READ_ONLY_EYEBROW,
+      overlineWords('edit', 2),
+      draftSavedWords('27 Aug 2026, 10:40'),
+      changesSavedWords('27 Aug 2026, 10:40'),
+    ];
+    for (const phrase of words) expect(phrase).not.toMatch(REFERENCE);
+    // The export's own forms lead with the reference: these are the product's corrections of them.
+    for (const piece of [
+      "o.doneEyebrow = r.id + ' · ' + r.data.name",
+      "o.roEyebrow = 'Experiment · ' + r.id",
+    ]) {
+      expect(MAIN).toContain(piece);
     }
   });
 });

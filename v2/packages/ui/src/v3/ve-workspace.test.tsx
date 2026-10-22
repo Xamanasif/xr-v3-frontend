@@ -3,7 +3,9 @@
  * `project/Main.dc.html` overview and list views; `v3-vendor.css`): VE-01's studio band with its
  * counts, “Needs your action” with the ivory lead, its further items or the calm block, Recent
  * activity; VE-02's status tabs, list surface, tool row and experiment table. Markup against the
- * export's classes and ARIA, the class contract and the accessibility checks.
+ * export's classes and ARIA, the class contract and the accessibility checks. The product's rows
+ * carry no internal reference (the owner's identifier rule for the Vendor, 22 Oct 2026): the line
+ * under a name is the course alone; the kit still draws an identifier when one is given.
  */
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { useState } from 'react';
@@ -26,6 +28,19 @@ import {
 } from './ve-workspace.js';
 
 const MAIN = veExportText('Main.dc.html');
+
+/** An internal reference (the owner's identifier rule for the Vendor, 22 Oct 2026; SA-v1 rule). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/** No internal reference in the words, the names, the titles or the placeholders drawn. */
+function expectNoReference(container: Element): void {
+  expect(container.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of container.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '').not.toMatch(REFERENCE);
+    }
+  }
+}
 
 /** Each piece of markup is drawn by the export, with its classes and ARIA as they are. */
 function expectDrawn(pieces: readonly string[]): void {
@@ -419,8 +434,8 @@ describe('VE-02 tool row (`div.vr-tools[role=search]`)', () => {
             label="Search your experiments"
             search={{
               id: 've-q',
-              label: 'Search by name, ID or course',
-              placeholder: 'Search by name, ID or course',
+              label: 'Search by name or course',
+              placeholder: 'Search by name or course',
               value: query,
               onChange: setQuery,
             }}
@@ -442,7 +457,8 @@ describe('VE-02 tool row (`div.vr-tools[role=search]`)', () => {
     expect(surface.className).toBe('rk-surface vr-list');
     const tools = screen.getByRole('search', { name: 'Search your experiments' });
     expect(tools.className).toBe('vr-tools');
-    const search = within(tools).getByRole('searchbox', { name: 'Search by name, ID or course' });
+    const search = within(tools).getByRole('searchbox', { name: 'Search by name or course' });
+    expect(search).toHaveAttribute('placeholder', 'Search by name or course');
     expect(search.className).toBe('rk-input');
     expect(search.parentElement!.className).toBe('rk-inputwrap');
     expect(search.closest('.vr-search')!.querySelector('label')!.className).toBe('xr-sr');
@@ -476,8 +492,7 @@ const ROWS: readonly VendorExperimentRow[] = [
     href: '/vendor/experiments/SUB-0081',
     name: 'Forced Convection',
     accessibleName:
-      'Forced Convection, SUB-0081, Returned, last change 24 Aug 2026. Open the experiment record',
-    id: 'SUB-0081',
+      'Forced Convection, Returned, last change 24 Aug 2026. Open the experiment record',
     course: 'ME ZG523',
     formats: ['WEB', 'AR'],
     formatsLabel: 'Formats: WEB, AR',
@@ -496,8 +511,7 @@ const ROWS: readonly VendorExperimentRow[] = [
     href: '/vendor/experiments/SUB-0052',
     name: 'Fin-Tube Bundle',
     accessibleName:
-      'Fin-Tube Bundle, SUB-0052, Published, last change 30 Jul 2026. Open the experiment record',
-    id: 'SUB-0052',
+      'Fin-Tube Bundle, Published, last change 30 Jul 2026. Open the experiment record',
     formats: ['VR', 'WEB'],
     formatsLabel: 'Formats: WEB, VR',
     status: { tone: 'ok', label: 'Published' },
@@ -567,8 +581,12 @@ describe('VE-02 experiment table (`table.vr-table`)', () => {
     const link = within(returned!).getByRole('link', { name: ROWS[0]!.accessibleName });
     expect(link.className).toBe('rk-rowlink vr-name');
     expect(link).toHaveTextContent('Forced Convection');
-    expect(returned!.querySelector('.vr-meta')!.innerHTML).toBe('<span>SUB-0081</span> · ME ZG523');
-    expect(published!.querySelector('.vr-meta')!.innerHTML).toBe('<span>SUB-0052</span>');
+    // The line under the name: the course alone (no identifier given); none without a course.
+    expect(returned!.querySelector('.vr-meta')!.innerHTML).toBe('ME ZG523');
+    expect(published!.querySelector('.vr-meta')).toBeNull();
+    expect(
+      [...published!.querySelector('td.vr-c-exp')!.children].map((child) => child.className),
+    ).toEqual(['rk-rowlink vr-name']);
     // The kit's badges, in WEB/AR/VR/MR order, named in words.
     expect([...published!.querySelectorAll('.xr-fmt')].map((badge) => badge.textContent)).toEqual([
       'WEB',
@@ -595,8 +613,33 @@ describe('VE-02 experiment table (`table.vr-table`)', () => {
     expect(chevron).toHaveAttribute('class', 'vr-chev');
     expect(chevron).toHaveAttribute('aria-hidden', 'true');
     expect(chevron.querySelector('path')).toHaveAttribute('d', V3_ICON_PATHS.chevronRight);
+    expectNoReference(container);
     expectV3ClassesOnly(container);
     await assertNoAxeViolations(container);
+  });
+
+  it('an identifier, when one is given, leads the line under the name (`span.vr-meta`)', () => {
+    const { container } = render(
+      <VendorExperimentTable
+        caption="Your experiments"
+        headers={{
+          experiment: 'Experiment',
+          formats: 'Formats',
+          status: 'Status',
+          lastChange: 'Last change',
+          action: 'Action',
+        }}
+        sort={{ ...SORT, onToggle: () => {} }}
+        lastChangeLabel="Last change"
+        rows={[
+          { ...ROWS[0]!, id: 'EXP-1' },
+          { ...ROWS[1]!, id: 'EXP-2' },
+        ]}
+      />,
+    );
+    const [returned, published] = [...container.querySelectorAll('tbody tr')] as HTMLElement[];
+    expect(returned!.querySelector('.vr-meta')!.innerHTML).toBe('<span>EXP-1</span> · ME ZG523');
+    expect(published!.querySelector('.vr-meta')!.innerHTML).toBe('<span>EXP-2</span>');
   });
 
   it('a press anywhere on a row opens its record, not on its own action', () => {

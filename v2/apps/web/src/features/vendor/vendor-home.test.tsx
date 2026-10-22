@@ -10,7 +10,9 @@
  * Reviewer's return, the Content Manager's send-back and the Vendor's own Save changes through
  * their ports change both screens in the same tab. Ritu Sharma (Meridian) has nothing to do (calm);
  * a Vendor the Super Admin has just registered has no experiment yet (first visit, empty). The
- * undrawn overview loading and failed states, and the list's, read again.
+ * undrawn overview loading and failed states, and the list's, read again. No page names an
+ * experiment by its reference (the owner's identifier rule for the Vendor, 22 Oct 2026; state-copy
+ * `VE-02.no-reference`): every drawn state is checked, and rows are found by their link's address.
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -54,6 +56,22 @@ const REASON =
 const BOARD_NOW = '2026-08-27T04:30:00.000Z';
 
 type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
+
+/** An internal reference no Vendor page shows (the owner's identifier rule, 22 Oct 2026). */
+const REFERENCE = /\b(?:REQ|ACC|UPD|DTR|SUP|SUB)-\d+/;
+
+/** No reference in the words, names, titles or placeholders drawn, nor in the tab's title. */
+function expectNoReferences(): void {
+  expect(document.body.textContent ?? '').not.toMatch(REFERENCE);
+  for (const element of document.body.querySelectorAll('[aria-label], [title], [placeholder]')) {
+    for (const name of ['aria-label', 'title', 'placeholder']) {
+      expect(element.getAttribute(name) ?? '', `${name} of ${element.tagName}`).not.toMatch(
+        REFERENCE,
+      );
+    }
+  }
+  expect(document.title).not.toMatch(REFERENCE);
+}
 
 function ok<T>(answer: { readonly ok: true; readonly value: T } | { readonly ok: false }): T {
   if (!answer.ok) throw new Error(`expected a success, got ${JSON.stringify(answer)}`);
@@ -221,7 +239,7 @@ const list = async () => {
 };
 const tools = () => screen.getByRole('search', { name: 'Search your experiments' });
 const searchBox = () =>
-  within(tools()).getByRole('searchbox', { name: 'Search by name, ID or course' });
+  within(tools()).getByRole('searchbox', { name: 'Search by name or course' });
 const recentBox = () =>
   within(tools()).getByRole('checkbox', { name: 'Changed in the last 7 days' });
 const count = () => within(tools()).getByRole('status');
@@ -234,7 +252,12 @@ const pressedTab = () => tabs().querySelector('[aria-pressed="true"]')?.getAttri
 const table = () => screen.getByRole('table');
 const bodyRows = () => [...table().querySelectorAll('tbody tr')] as HTMLElement[];
 const rowNames = () => bodyRows().map((row) => row.querySelector('a.vr-name')?.textContent);
-const rowIds = () => bodyRows().map((row) => row.querySelector('.vr-meta > span')?.textContent);
+/** Each row's record, read from its name link's address (no row shows the reference). */
+const rowIds = () => bodyRows().map((row) => idOfRow(row));
+const idOfRow = (row: Element) =>
+  /^\/vendor\/experiments\/([^/?]+)$/.exec(
+    row.querySelector('a.vr-name')?.getAttribute('href') ?? '',
+  )?.[1];
 const rowOf = (name: string) =>
   bodyRows().find((row) => row.querySelector('a.vr-name')?.textContent === name)!;
 
@@ -331,6 +354,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
         .map((link) => link.textContent),
     ).toEqual(['Overview', 'My experiments']);
     expect(sidebar.querySelector('[aria-current="page"]')).toHaveAttribute('href', '/vendor');
+    expectNoReferences();
   });
 
   it('after Flow E’s submit: In review counts it and Recent activity opens with it', async () => {
@@ -354,6 +378,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     const region = await attention();
     expect(lead(region)?.querySelector('.rb-lead-t')).toHaveTextContent('Forced Convection');
     expect(itemRows(region)).toHaveLength(1);
+    expectNoReferences();
   });
 
   it('a new draft joins the drafts to finish (changed last first); Finish draft opens its step', async () => {
@@ -383,6 +408,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     for (const row of itemRows(region)) {
       expect(within(row).getByRole('link').className).toBe('rb-btn');
     }
+    expectNoReferences();
   });
 
   it('one world: the Academic Reviewer’s return leads; the older return follows with Revise', async () => {
@@ -421,6 +447,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     expect(activityRows()[0]).toMatch(
       /^Today \d\d:\d\d · Returned with a reason · Conduction Through a Composite Wall$/,
     );
+    expectNoReferences();
   });
 
   it('Save changes on the returned item: the lead says the changes are saved, not resubmitted', async () => {
@@ -436,6 +463,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     );
     // Nothing new in the history: Save changes is not an event.
     expect(activityRows()[0]).toBe('25 Aug 10:00 · Draft saved · Pin Fin Efficiency');
+    expectNoReferences();
   });
 
   it('calm (Ritu Sharma): nothing waiting, the calm block, no gold action', async () => {
@@ -457,6 +485,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
       within(h1().closest('section')!).getByRole('link', { name: 'Create experiment' }),
     ).toBeVisible();
     expect(activity()).toBeVisible();
+    expectNoReferences();
   });
 
   it('first visit: no counts, no panels; the gold Create experiment is in the first-visit surface', async () => {
@@ -479,6 +508,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     expect(screen.queryByRole('region', { name: 'Needs your action' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Recent activity' })).toBeNull();
     expect(h1()).toHaveAccessibleName(/^Overview,\s?Northline Simulation Studio$/);
+    expectNoReferences();
   });
 
   it('undrawn: failed with Try again under the band, then the overview; focus goes to the H1', async () => {
@@ -489,11 +519,13 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     expect(alert).toHaveTextContent(STATE_COPY_VENDOR_HOME['VE-01.failed'].words);
     expect(alert).toHaveTextContent('Nothing has changed. Try again.');
     expect(h1()).toHaveAccessibleName(/Northline Simulation Studio$/);
+    expectNoReferences();
     const retry = within(alert).getByRole('button', { name: 'Try again' });
     retry.focus();
     await userEvent.click(retry);
     await attention();
     await waitFor(() => expect(document.activeElement).toBe(h1()));
+    expectNoReferences();
   });
 
   it('undrawn: loading is announced politely under the studio band', async () => {
@@ -503,6 +535,7 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     expect(status).toHaveAttribute('role', 'status');
     expect(status.closest('[aria-busy="true"]')).not.toBeNull();
     expect(h1()).toBeVisible();
+    expectNoReferences();
     await attention();
   });
 });
@@ -534,7 +567,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     ]);
     expect(pressedTab()).toBe('All, 6 experiments');
     // The tool row: search, the 7-day filter, the count; no Clear filters while nothing applies.
-    expect(searchBox()).toHaveAttribute('placeholder', 'Search by name, ID or course');
+    expect(searchBox()).toHaveAttribute('placeholder', 'Search by name or course');
     expect(recentBox()).not.toBeChecked();
     expect(count()).toHaveTextContent('6 experiments');
     expect(within(tools()).queryByRole('button', { name: 'Clear filters' })).toBeNull();
@@ -555,6 +588,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     const expectRow = (
       name: string,
       expected: {
+        id: string;
         meta: string;
         formats: string[];
         pill: string;
@@ -565,13 +599,14 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       },
     ) => {
       const row = rowOf(name);
-      const rowId = row.querySelector('.vr-meta > span')!.textContent!;
+      const rowId = expected.id;
       expect(
         within(row).getByRole('link', {
-          name: `${name}, ${rowId}, ${expected.pill}, last change ${expected.date}. Open the experiment record`,
+          name: `${name}, ${expected.pill}, last change ${expected.date}. Open the experiment record`,
         }),
       ).toHaveAttribute('href', `/vendor/experiments/${rowId}`);
-      expect(row.querySelector('.vr-meta')).toHaveTextContent(expected.meta);
+      // The line under the name is the course code alone (state-copy `VE-02.course-code`).
+      expect(row.querySelector('.vr-meta')!.innerHTML).toBe(expected.meta);
       expect(texts(row.querySelectorAll('.vr-c-fmt .xr-fmt'))).toEqual(expected.formats);
       const pill = row.querySelector('.vr-c-st .xr-st')!;
       expect(pill).toHaveTextContent(expected.pill);
@@ -589,7 +624,8 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       }
     };
     expectRow('Conduction Through a Composite Wall', {
-      meta: `${id} · ME ZG523`,
+      id: id!,
+      meta: 'ME ZG523',
       formats: ['WEB', 'VR'],
       pill: 'With Academic Reviewer',
       tone: 'xr-st xr-st--info',
@@ -597,7 +633,8 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       date: '2 Oct 2026',
     });
     expectRow('Forced Convection', {
-      meta: 'SUB-0081 · ME ZG523',
+      id: 'SUB-0081',
+      meta: 'ME ZG523',
       formats: ['WEB', 'AR'],
       pill: 'Returned',
       tone: 'xr-st xr-st--err',
@@ -610,7 +647,8 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       },
     });
     expectRow('Pin Fin Efficiency', {
-      meta: 'SUB-0079 · ME ZG523',
+      id: 'SUB-0079',
+      meta: 'ME ZG523',
       formats: ['WEB'],
       pill: 'Draft',
       tone: 'xr-st',
@@ -623,7 +661,8 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       },
     });
     expectRow('Transient Cooling', {
-      meta: 'SUB-0074 · ME ZG523',
+      id: 'SUB-0074',
+      meta: 'ME ZG523',
       formats: ['WEB'],
       pill: 'With Content Manager',
       tone: 'xr-st xr-st--info',
@@ -631,7 +670,8 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       date: '14 Aug 2026',
     });
     expectRow('Fin-Tube Bundle', {
-      meta: 'SUB-0052 · ME ZG523',
+      id: 'SUB-0052',
+      meta: 'ME ZG523',
       formats: ['WEB', 'VR'],
       pill: 'Published',
       tone: 'xr-st xr-st--ok',
@@ -640,7 +680,8 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     });
     // SUB-0083: MEL ZG512 withdrawn from him — read-only, the record only (OD-B5-01).
     expectRow('Surface Roughness in Turning', {
-      meta: 'SUB-0083 · MEL ZG512',
+      id: 'SUB-0083',
+      meta: 'MEL ZG512',
       formats: ['WEB'],
       pill: 'Draft · read-only',
       tone: 'xr-st xr-st--paused',
@@ -649,6 +690,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     });
     expect(section.querySelectorAll('.vr-pending')).toHaveLength(0);
     expect(main().querySelectorAll('.rb-btn--primary')).toHaveLength(1);
+    expectNoReferences();
     expect(
       screen
         .getByRole('navigation', { name: 'Vendor navigation' })
@@ -674,20 +716,25 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     );
     expect(count()).toHaveTextContent('2 of 5 experiments');
     expect(pressedTab()).toBe('Draft, 2 experiments');
+    expectNoReferences();
 
     await userEvent.click(within(tools()).getByRole('button', { name: 'Clear filters' }));
     expect(navigation.replace).toHaveBeenLastCalledWith('/vendor/experiments');
     await waitFor(() => expect(count()).toHaveTextContent('5 experiments'));
     expect(pressedTab()).toBe('All, 5 experiments');
     expect(document.activeElement).toBe(searchBox());
+    expectNoReferences();
   });
 
   it('the search matches the name, the SUB id and the course code; the tab counts follow it', async () => {
     const { runtime } = await tabPlatform(ANIL, 'spine-start');
     showList(runtime);
     await list();
+    // The service's search still matches a reference typed into it; the row does not show it.
     await userEvent.type(searchBox(), 'SUB-0081');
     await waitFor(() => expect(rowNames()).toEqual(['Forced Convection']));
+    expect(rowIds()).toEqual(['SUB-0081']);
+    expectNoReferences();
     expect(count()).toHaveTextContent('1 of 5 experiments');
     await waitFor(() => expect(tabNames()[0]).toBe('All, 1 experiment'));
     expect(tabNames()[1]).toBe('Returned, 1 experiment');
@@ -698,6 +745,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     await userEvent.clear(searchBox());
     await userEvent.type(searchBox(), 'fin');
     await waitFor(() => expect(rowNames()).toEqual(['Pin Fin Efficiency', 'Fin-Tube Bundle']));
+    expectNoReferences();
   });
 
   it('no match: “No experiments match”, its Clear filters brings every row back', async () => {
@@ -707,7 +755,8 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     await userEvent.type(searchBox(), 'Radiation');
     const none = await within(section).findByText('No experiments match');
     const state = none.closest('.rk-state') as HTMLElement;
-    expect(state).toHaveTextContent('Try a different name, ID or course, or clear the filters.');
+    expect(state).toHaveTextContent('Try a different name or course, or clear the filters.');
+    expectNoReferences();
     expect(count()).toHaveTextContent('0 of 5 experiments');
     expect(screen.queryByRole('table')).toBeNull();
     expect(within(section).getAllByRole('button', { name: 'Clear filters' })).toHaveLength(2);
@@ -745,8 +794,10 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       '/vendor/experiments?status=returned&changed=last-7-days',
     );
     await waitFor(() => expect(count()).toHaveTextContent('1 of 6 experiments'));
+    expectNoReferences();
     await userEvent.click(within(tabs()).getByRole('button', { name: 'Published, 0 experiments' }));
     expect(await screen.findByText('No experiments match')).toBeVisible();
+    expectNoReferences();
   });
 
   it('the Overview’s “Changed in the last 7 days” opens the list with the filter ticked', async () => {
@@ -758,6 +809,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     await waitFor(() => expect(count()).toHaveTextContent('2 of 5 experiments'));
     expect(rowIds()).toEqual(['SUB-0079', 'SUB-0081']);
     expect(within(tools()).getByRole('button', { name: 'Clear filters' })).toBeVisible();
+    expectNoReferences();
   });
 
   it('the visible sort: Last change turns the order to oldest first and back', async () => {
@@ -778,6 +830,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       within(tools()).getByRole('button', { name: 'Sort: oldest first. Change order' }),
     );
     expect(rowIds()).toEqual(['SUB-0079', 'SUB-0081', 'SUB-0074', 'SUB-0083', 'SUB-0052']);
+    expectNoReferences();
   });
 
   it('one world: the Content Manager sends SUB-0074 back — Returned, its line, Revise, on top', async () => {
@@ -812,7 +865,9 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       '/vendor/experiments/SUB-0074/revise',
     );
     expect(bodyRows()[0]).toBe(row);
+    expect(idOfRow(row)).toBe('SUB-0074');
     expect(tabNames()[1]).toBe('Returned, 2 experiments');
+    expectNoReferences();
   });
 
   it('Save changes on a returned experiment: its row says “Changes saved, not resubmitted”', async () => {
@@ -827,6 +882,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
       ),
     );
     expect(rowOf('Forced Convection').querySelector('.xr-st')).toHaveTextContent('Returned');
+    expectNoReferences();
   });
 
   it('no experiments yet: the empty state with the gold Create experiment, no tabs, no tools', async () => {
@@ -847,6 +903,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     expect(create[0]!.className).toBe('rb-btn rb-btn--primary rb-btn--lg');
     expect(screen.queryByRole('search')).toBeNull();
     expect(screen.queryByRole('group', { name: 'Show experiments by status' })).toBeNull();
+    expectNoReferences();
   });
 
   it('could not load: Try again reads again; focus goes to the H1', async () => {
@@ -858,11 +915,13 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     expect(alert).toHaveTextContent('Nothing has changed. Try again.');
     expect(screen.getByRole('region', { name: 'Your experiments' })).toContainElement(alert);
     expect(tools()).toBeVisible();
+    expectNoReferences();
     const retry = within(alert).getByRole('button', { name: 'Try again' });
     retry.focus();
     await userEvent.click(retry);
     await waitFor(() => expect(count()).toHaveTextContent('5 experiments'));
     await waitFor(() => expect(document.activeElement).toBe(h1()));
+    expectNoReferences();
   });
 
   it('loading is announced politely over skeleton rows', async () => {
@@ -872,6 +931,7 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     expect(status).toHaveAttribute('role', 'status');
     expect(status.closest('[aria-busy="true"]')).not.toBeNull();
     expect(status.closest('section')).toHaveAccessibleName('Your experiments');
+    expectNoReferences();
     await list();
     await waitFor(() => expect(count()).toHaveTextContent('5 experiments'));
   });
