@@ -16,7 +16,7 @@ import { ACCESS_BANNER } from '@/copy/xs';
 import { WORKSPACE_NAV } from '@/nav/nav-config';
 import { useRailPreference } from '@/nav/rail-preference';
 import type { ScreenKey } from '@/nav/screens';
-import { sidebarModel } from '@/nav/sidebar-model';
+import { type NavCount, sidebarModel } from '@/nav/sidebar-model';
 
 import {
   organisationLine,
@@ -52,7 +52,7 @@ export interface RoleWorkspaceShellProps {
   /** The built screens (default: the manifest). */
   readonly built?: ReadonlySet<ScreenKey>;
   /** Sidebar count figures by destination key (zero or absent: no count). */
-  readonly counts?: Readonly<Partial<Record<string, number>>>;
+  readonly counts?: Readonly<Partial<Record<string, NavCount>>>;
   /** Sign out, injected: the session gate runs the session port's command (WP-0.13). */
   readonly onSignOut: () => void;
   readonly children?: ReactNode;

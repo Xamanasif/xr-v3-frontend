@@ -23,6 +23,15 @@ export const P4_FACULTY_OVERVIEW_LINK_TARGETS: readonly LedgerEntry[] = pageRows
       'The oldest waiting submission from the marking queue (oldest first); Marking (FA-18) until the queue answers.',
     ],
     [
+      'Needs your attention · submissions to confirm',
+      'Confirm marks',
+      'secondary',
+      '/faculty/marking/{attemptId}',
+      'built',
+      'FA-19 “Confirm marks” (a submission without a written question; owner decision of 24 Oct 2026, state-copy `FA-01.confirm-kind`)',
+      'The oldest submission whose automatic marks wait for confirmation, from the marking queue (oldest first); Marking (FA-18) until the queue answers.',
+    ],
+    [
       'Needs your attention · draft questions to review',
       'Review drafts',
       'secondary',

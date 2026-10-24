@@ -16,7 +16,7 @@ import { weekdayDate } from '@/copy/dates';
 import { ACCESS_BANNER, SHELL_HELP, V3_RAIL_COUNT_WORDS } from '@/copy/xs';
 import { type BoardIconKey, WORKSPACE_NAV } from '@/nav/nav-config';
 import type { ScreenKey } from '@/nav/screens';
-import { countLabel, sidebarModel } from '@/nav/sidebar-model';
+import { countLabel, countValue, type NavCount, sidebarModel } from '@/nav/sidebar-model';
 
 import {
   organisationLine,
@@ -117,7 +117,7 @@ export interface V3RoleShellProps {
    */
   readonly deviceEligible?: boolean;
   readonly built?: ReadonlySet<ScreenKey>;
-  readonly counts?: Readonly<Partial<Record<string, number>>>;
+  readonly counts?: Readonly<Partial<Record<string, NavCount>>>;
   /** Today on the sample clock (the session's sign-in instant): the top line's date. */
   readonly today: string | null;
   readonly onSignOut: () => void;
@@ -167,14 +167,16 @@ export function V3RoleShell({
     if (!icon) throw new Error(`No V3 rail icon for ${destination.label}.`);
     // The figure the sidebar model counted, worded as the role export words it where it does.
     const words = V3_RAIL_COUNT_WORDS[`${role}:${destination.href}`];
-    const value = entry ? counts?.[entry.key] : undefined;
+    const count = entry ? counts?.[entry.key] : undefined;
+    const value = countValue(count);
     return {
       label: destination.label,
       href: destination.href,
       icon,
       current: destination.current,
+      // A count with words of its own keeps them (the sidebar model's label).
       count:
-        destination.count && words && value !== undefined
+        destination.count && words && value !== undefined && typeof count !== 'object'
           ? { value, label: countLabel(words, value) }
           : destination.count,
     };

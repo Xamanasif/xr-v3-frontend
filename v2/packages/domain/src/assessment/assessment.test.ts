@@ -530,7 +530,7 @@ describe('attempts (ATT-01 … ATT-06)', () => {
   });
 });
 
-describe('marking (ATT-07 … ATT-10, ATT-17, ATT-21): supplied objective marks; whole-number written marks', () => {
+describe('marking (ATT-07 … ATT-10, ATT-21): supplied objective marks; whole-number written marks', () => {
   const base = { assessment: assessment(), questions: QUESTIONS, now: T.nov7 };
 
   it('DV-2 (Phase-0 interim): objective marks are the supplied values — no answer is compared with a key', () => {
@@ -660,36 +660,316 @@ describe('marking (ATT-07 … ATT-10, ATT-17, ATT-21): supplied objective marks;
       kind: 'waiting-for-marking',
     });
   });
+});
 
-  it('zero or several written questions are not drawn: policy-open', () => {
-    const second = question('Q-0103' as never, { type: 'written', markingGuidance: null }, 5);
-    const several = assessment({
-      versions: [
-        {
-          ...assessment().versions[0]!,
-          questions: [...refs, { questionId: second.id, questionVersion: 1 }],
-        },
-      ],
+/**
+ * The owner decisions of 24 Oct 2026 (assessment P0 fix, audit CB-2): every Ready shape can be
+ * confirmed and released — no written question (the Faculty member confirms the automatic marks;
+ * M22, P4-05) and several written questions (a saved mark for every written answer, then one
+ * confirmation for the attempt; ATT-17, P4-04). Unchanged: the score, the pass rule, rounding,
+ * attempts, the release setting, ATT-07 and ATT-10.
+ */
+describe('assessment shapes (owner decisions 24 Oct 2026): confirmed once per attempt, by the Faculty member', () => {
+  const q103 = question('Q-0103' as never, { type: 'written', markingGuidance: null }, 5);
+  const q104 = question('Q-0104' as never, { type: 'true-false', correct: true }, 2);
+  const BANK = [...QUESTIONS, q103, q104];
+  const IMMEDIATELY = {
+    ...RULES_READY,
+    release: { option: 'immediately-after-marking' as const, releaseDate: null },
+  };
+  const shaped = (questionIds: readonly string[], rules = RULES_READY) => {
+    const questions = questionIds.map((id) => ({
+      questionId: id as never,
+      questionVersion: 1,
+    }));
+    return assessment({
+      rules,
+      questions,
+      versions: [{ ...assessment().versions[0]!, rules, questions }],
     });
+  };
+  const auto = (...marks: (readonly [string, number, number])[]) =>
+    marks.map(([questionId, awarded, outOf]) => ({
+      questionId: questionId as never,
+      awarded,
+      outOf,
+    }));
+  const written = (...marks: (readonly [string, number | null])[]) =>
+    marks.map(([questionId, mark]) => ({
+      questionId: questionId as never,
+      mark,
+      feedback: null,
+      savedAt: mark === null ? null : T.nov7,
+      savedBy: mark === null ? null : who.faculty,
+    }));
+  const withMarks = (
+    automatic: ReturnType<typeof auto>,
+    marks: ReturnType<typeof written> = [],
+  ): Attempt => submitted({ marking: { automatic, written: marks, confirmed: null } });
+  const confirm = (of: ReturnType<typeof shaped>, attempt: Attempt, actor = who.faculty) =>
+    confirmMarks({ attempt, assessment: of, questions: BANK, actor, now: T.nov7 });
+
+  it('choice-only: without every automatic mark it stays open (ATT-07); with them the Faculty member confirms', () => {
+    const choiceOnly = shaped([ids.q101, 'Q-0104'], IMMEDIATELY);
+    expect(refusalOf(confirm(choiceOnly, withMarks([])))).toEqual({
+      kind: 'policy-open',
+      decision: 'ATT-07',
+    });
+    expect(refusalOf(confirm(choiceOnly, withMarks(auto([ids.q101, 6, 6]))))).toEqual({
+      kind: 'policy-open',
+      decision: 'ATT-07',
+    });
+    const complete = withMarks(auto([ids.q101, 6, 6], ['Q-0104', 0, 2]));
+    const confirmed = expectOk(confirm(choiceOnly, complete));
+    expect(confirmed.marking).toEqual({
+      automatic: complete.marking.automatic,
+      written: [],
+      confirmed: { at: T.nov7, by: who.faculty },
+    });
+    // No written answer to mark on this shape; never confirmed by anyone but the Faculty member.
     expect(
       refusalOf(
-        confirmMarks({
-          ...base,
-          assessment: several,
-          questions: [...QUESTIONS, second],
-          attempt: submitted(),
+        saveMark({
+          attempt: complete,
+          assessment: choiceOnly,
+          questions: BANK,
+          questionId: ids.q101,
+          mark: 1,
+          feedback: null,
           actor: who.faculty,
+          now: T.nov7,
         }),
       ),
-    ).toEqual({ kind: 'policy-open', decision: 'ATT-17' });
-    const choiceOnly = assessment({
-      versions: [{ ...assessment().versions[0]!, questions: [refs[0]!] }],
+    ).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'questionId', rule: 'not-a-written-question' }],
+    });
+    expect(refusalOf(confirm(choiceOnly, complete, who.student))).toEqual({
+      kind: 'not-permitted',
+      why: 'wrong-workspace',
     });
     expect(
+      refusalOf(confirm(choiceOnly, complete, system('system:objective-marks') as never)),
+    ).toEqual({ kind: 'not-permitted', why: 'wrong-workspace' });
+    // Released by its own setting (immediately): the automatic marks are the score.
+    expect(
+      resultView({ attempt: confirmed, assessment: choiceOnly, questions: BANK, now: T.nov7 }),
+    ).toEqual({
+      kind: 'released',
+      releasedAt: T.nov7,
+      score: 6,
+      outOf: 8,
+      passMarkMarks: 4,
+      passed: true,
+      attemptsLeft: 1,
+    });
+    // Before confirmation it waits — never released from the automatic marks alone.
+    expect(
+      resultView({ attempt: complete, assessment: choiceOnly, questions: BANK, now: T.nov20 }),
+    ).toEqual({ kind: 'waiting-for-marking' });
+  });
+
+  it('choice-only after the deadline: not released until the setting is met, then released', () => {
+    const choiceOnly = shaped([ids.q101, 'Q-0104']);
+    const confirmed = expectOk(
+      confirm(choiceOnly, withMarks(auto([ids.q101, 0, 6], ['Q-0104', 2, 2]))),
+    );
+    expect(
+      resultView({ attempt: confirmed, assessment: choiceOnly, questions: BANK, now: T.nov7 }),
+    ).toEqual({ kind: 'not-released-yet', releaseRule: 'after-deadline' });
+    expect(
+      resultView({ attempt: confirmed, assessment: choiceOnly, questions: BANK, now: T.nov20 }),
+    ).toEqual({
+      kind: 'released',
+      releasedAt: T.nov14,
+      score: 2,
+      outOf: 8,
+      passMarkMarks: 4,
+      passed: false,
+      attemptsLeft: 1,
+    });
+    // Not passed with an attempt left: Try again starts attempt 2.
+    expect(
+      expectOk(
+        startAttempt({
+          assessment: choiceOnly,
+          gate: openGate,
+          attempts: [confirmed],
+          questions: BANK,
+          actor: who.student,
+          now: T.nov20,
+          ids: counterIds(),
+        }),
+      ).attemptNumber,
+    ).toBe(2);
+  });
+
+  it('one written question (written only, and mixed): save the mark first, then confirm', () => {
+    const one = shaped([ids.q102], IMMEDIATELY);
+    expect(refusalOf(confirm(one, withMarks([])))).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'mark', rule: 'save-first' }],
+    });
+    expect(refusalOf(confirm(one, withMarks([], written([ids.q102, null]))))).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'mark', rule: 'save-first' }],
+    });
+    const confirmed = expectOk(confirm(one, withMarks([], written([ids.q102, 4]))));
+    expect(
+      resultView({ attempt: confirmed, assessment: one, questions: BANK, now: T.nov7 }),
+    ).toMatchObject({ kind: 'released', score: 4, outOf: 10, passMarkMarks: 5, passed: false });
+    const mixed = shaped([ids.q101, ids.q102], IMMEDIATELY);
+    expect(refusalOf(confirm(mixed, withMarks(auto([ids.q101, 6, 6]))))).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'mark', rule: 'save-first' }],
+    });
+    expect(refusalOf(confirm(mixed, withMarks([], written([ids.q102, 7]))))).toEqual({
+      kind: 'policy-open',
+      decision: 'ATT-07',
+    });
+    expect(
+      expectOk(confirm(mixed, withMarks(auto([ids.q101, 6, 6]), written([ids.q102, 7])))).marking
+        .confirmed,
+    ).toEqual({ at: T.nov7, by: who.faculty });
+  });
+
+  it('two written questions: Confirm is refused until every written answer has a saved mark, naming each one missing', () => {
+    const two = shaped([ids.q101, ids.q102, 'Q-0103'], IMMEDIATELY);
+    expect(refusalOf(confirm(two, withMarks(auto([ids.q101, 6, 6]))))).toEqual({
+      kind: 'validation-failed',
+      issues: [
+        { field: 'mark-Q-0102', rule: 'save-first' },
+        { field: 'mark-Q-0103', rule: 'save-first' },
+      ],
+    });
+    // Save one written answer's mark (feedback optional): Confirm still refused, naming the other.
+    const oneSaved = expectOk(
+      saveMark({
+        attempt: withMarks(auto([ids.q101, 6, 6])),
+        assessment: two,
+        questions: BANK,
+        questionId: ids.q102,
+        mark: 7,
+        feedback: '  Good: the resistance in series.  ',
+        actor: who.faculty,
+        now: T.nov7,
+      }),
+    );
+    expect(oneSaved.marking.written).toEqual([
+      {
+        questionId: ids.q102,
+        mark: 7,
+        feedback: 'Good: the resistance in series.',
+        savedAt: T.nov7,
+        savedBy: who.faculty,
+      },
+    ]);
+    expect(refusalOf(confirm(two, oneSaved))).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'mark-Q-0103', rule: 'save-first' }],
+    });
+    // Each mark is checked against its own question's marks (Q-0103 is out of 5).
+    expect(
       refusalOf(
-        confirmMarks({ ...base, assessment: choiceOnly, attempt: submitted(), actor: who.faculty }),
+        saveMark({
+          attempt: oneSaved,
+          assessment: two,
+          questions: BANK,
+          questionId: 'Q-0103' as never,
+          mark: 6,
+          feedback: null,
+          actor: who.faculty,
+          now: T.nov7,
+        }),
       ),
-    ).toEqual({ kind: 'policy-open', decision: 'M22-no-written-questions' });
+    ).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'mark', rule: 'whole-number-0-to-marks' }],
+    });
+    const bothSaved = expectOk(
+      saveMark({
+        attempt: oneSaved,
+        assessment: two,
+        questions: BANK,
+        questionId: 'Q-0103' as never,
+        mark: 2,
+        feedback: null,
+        actor: who.faculty,
+        now: T.nov7,
+      }),
+    );
+    const confirmed = expectOk(confirm(two, bothSaved));
+    expect(confirmed.marking.confirmed).toEqual({ at: T.nov7, by: who.faculty });
+    expect(confirmed.marking.written.map((mark) => [mark.questionId, mark.mark])).toEqual([
+      [ids.q102, 7],
+      ['Q-0103', 2],
+    ]);
+    // ATT-10: confirmed once — read-only afterwards, for every written answer.
+    for (const questionId of [ids.q102, 'Q-0103' as never]) {
+      expect(
+        refusalOf(
+          saveMark({
+            attempt: confirmed,
+            assessment: two,
+            questions: BANK,
+            questionId,
+            mark: 1,
+            feedback: null,
+            actor: who.faculty,
+            now: T.nov20,
+          }),
+        ),
+      ).toEqual({ kind: 'refused', code: 'marks-confirmed' });
+    }
+    expect(refusalOf(confirm(two, confirmed))).toEqual({
+      kind: 'refused',
+      code: 'marks-confirmed',
+    });
+    // The score is the automatic marks plus every written mark; the pass rule is unchanged.
+    expect(
+      resultView({ attempt: confirmed, assessment: two, questions: BANK, now: T.nov7 }),
+    ).toEqual({
+      kind: 'released',
+      releasedAt: T.nov7,
+      score: 15,
+      outOf: 21,
+      passMarkMarks: 10.5,
+      passed: true,
+      attemptsLeft: 1,
+    });
+  });
+
+  it('two written questions without a choice question: no automatic mark is needed; not passed leaves an attempt', () => {
+    const two = shaped([ids.q102, 'Q-0103']);
+    const confirmed = expectOk(confirm(two, withMarks([], written([ids.q102, 3], ['Q-0103', 4]))));
+    expect(
+      resultView({ attempt: confirmed, assessment: two, questions: BANK, now: T.nov7 }),
+    ).toEqual({ kind: 'not-released-yet', releaseRule: 'after-deadline' });
+    expect(
+      resultView({ attempt: confirmed, assessment: two, questions: BANK, now: T.nov20 }),
+    ).toEqual({
+      kind: 'released',
+      releasedAt: T.nov14,
+      score: 7,
+      outOf: 15,
+      passMarkMarks: 7.5,
+      passed: false,
+      attemptsLeft: 1,
+    });
+    const second = { ...confirmed, id: 'ATT-0451' as never, attemptNumber: 2 };
+    expect(
+      refusalOf(
+        startAttempt({
+          assessment: two,
+          gate: openGate,
+          attempts: [confirmed, second],
+          questions: BANK,
+          actor: who.student,
+          now: T.nov20,
+          ids: counterIds(),
+        }),
+      ),
+    ).toEqual({ kind: 'refused', code: 'no-attempts-left' });
   });
 });
 

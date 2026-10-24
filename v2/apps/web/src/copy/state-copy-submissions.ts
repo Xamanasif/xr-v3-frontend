@@ -30,10 +30,10 @@ export const STATE_COPY_SUBMISSIONS = {
     screen: 'FA-12',
     state: 'Where “Mark next” goes (FA-12, and FA-08’s)',
     words: null,
-    rule: 'Mark a submission (FA-19) for the oldest submission of this assessment that waits for marking — the marking queue’s first, oldest first. While the queue is not read yet: on FA-12 the oldest waiting row of the list, on FA-08 the marking queue (FA-18) for this assessment. A submission the queue does not list (no written question to mark: M22 open) is never offered once the queue has answered.',
+    rule: 'Mark a submission (FA-19) for the oldest submission of this assessment that waits for marking — the marking queue’s first, oldest first. While the queue is not read yet: on FA-12 the oldest waiting row of the list, on FA-08 the marking queue (FA-18) for this assessment. A submission the queue does not list is never offered once the queue has answered; since the owner decision of 24 Oct 2026 the queue lists a choice-only submission too (its automatic marks to confirm).',
     basis: 'B4-05 / B4-06 `a[href="B4-09-Marking.dc.html"]`; B4-09 f1 “Marking / Rahul Verma”',
     status: 'provisional',
-    decisions: ['VD-12'],
+    decisions: ['VD-12', 'P4-05'],
   },
   // ---- FA-12 the list -------------------------------------------------------------------------
   'FA-12.rows': {

@@ -98,7 +98,8 @@ function matches(
   if (filters.course !== '' && (experiment?.courseCode ?? '') !== filters.course) return false;
   if (filters.state === 'draft' && row.readiness !== 'draft-not-ready') return false;
   if (filters.state === 'ready' && row.readiness !== 'ready') return false;
-  if (filters.state === 'waiting' && row.waitingForMarking === 0) return false;
+  if (filters.state === 'waiting' && row.waitingForMarking + row.waitingToConfirm === 0)
+    return false;
   return true;
 }
 
@@ -466,8 +467,12 @@ function AssessmentList({
                       ) : (
                         <FaCellSub first>{submissions}</FaCellSub>
                       )}
-                      {own && row.waitingForMarking > 0 ? (
-                        <FaWaitLine>{waitingForMarkingWords(row.waitingForMarking)}</FaWaitLine>
+                      {/* Every own submission waiting: written answers to mark, and choice-only
+                          ones whose automatic marks wait for confirmation (24 Oct 2026). */}
+                      {own && row.waitingForMarking + row.waitingToConfirm > 0 ? (
+                        <FaWaitLine>
+                          {waitingForMarkingWords(row.waitingForMarking + row.waitingToConfirm)}
+                        </FaWaitLine>
                       ) : null}
                     </>
                   ),

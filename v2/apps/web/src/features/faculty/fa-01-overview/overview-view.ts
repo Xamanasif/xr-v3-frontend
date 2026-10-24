@@ -16,6 +16,8 @@ import {
   acrossWords,
   ATTENTION_ITEMS,
   assessmentByWords,
+  CONFIRM_ITEM,
+  confirmNowLabel,
   createdByWords,
   dueWords,
   FACULTY_OVERVIEW_WORDS,
@@ -33,6 +35,8 @@ import {
   assessmentAddress,
   FACULTY_MY_COURSES_ADDRESS,
   facultyStudentsAddress,
+  markingQueueAddress,
+  markSubmissionAddress,
 } from '@/nav/faculty';
 
 import type { TaughtExperiment } from '../fa-04-experiments/taught-experiments';
@@ -60,11 +64,11 @@ import { submittedUnits } from '../shared/progress-model';
 export const NAMES_SHOWN = 3;
 
 export interface PriorityItemView {
-  readonly key: 'written' | 'inactive' | 'access-ended';
+  readonly key: 'written' | 'confirm' | 'inactive' | 'access-ended';
   readonly big: string;
   readonly relative: string;
   readonly calm: boolean;
-  readonly kind: 'written' | 'inactive' | 'access-ended';
+  readonly kind: 'written' | 'confirm' | 'inactive' | 'access-ended';
   readonly kindLabel: string;
   readonly title: string;
   readonly description: string | null;
@@ -100,11 +104,12 @@ function writtenItem(
   const oldestFact = [...facts].sort((a, b) =>
     a.oldest.submittedAt.localeCompare(b.oldest.submittedAt),
   )[0]!;
-  const oldestRow = queue?.[0] ?? null;
+  // The submissions with a written answer (a choice-only one is the confirm item's).
+  const shown = (queue ?? []).filter((row) => row.writtenNumbers.length > 0);
+  const oldestRow = shown[0] ?? null;
   const oldestAt = oldestRow?.submittedAt ?? oldestFact.oldest.submittedAt;
   const days = today === null ? 0 : daysSince(oldestAt, today);
   const words = ATTENTION_ITEMS.written;
-  const shown = queue ?? [];
   return {
     key: 'written',
     big: String(total),
@@ -126,7 +131,10 @@ function writtenItem(
               name: row.student.fullName,
               detail: submittedAtWords(row.submittedAt),
             })),
-            more: total > NAMES_SHOWN ? moreInWords(total - NAMES_SHOWN, 'Marking') : null,
+            more:
+              shown.length > NAMES_SHOWN
+                ? moreInWords(shown.length - NAMES_SHOWN, 'Marking')
+                : null,
           }
         : null,
     action: {
@@ -137,6 +145,63 @@ function writtenItem(
         assessmentName(oldestRow?.assessmentName ?? oldestFact.assessmentName),
       ),
       primary: true,
+    },
+  };
+}
+
+/**
+ * Submissions without a written question whose automatic marks wait for confirmation (owner
+ * decision of 24 Oct 2026; state-copy `FA-01.confirm-kind`). “Confirm marks” opens the oldest of
+ * them (FA-19), Marking until the queue answers; secondary — the band's primary is “Mark now”.
+ */
+function confirmItem(
+  facts: readonly Extract<FacultyAttention, { kind: 'marks-to-confirm' }>[],
+  queue: readonly MarkingQueueRow[] | null,
+  today: string | null,
+): PriorityItemView {
+  const total = facts.reduce((sum, fact) => sum + fact.submissions, 0);
+  const oldestFact = [...facts].sort((a, b) =>
+    a.oldest.submittedAt.localeCompare(b.oldest.submittedAt),
+  )[0]!;
+  const shown = (queue ?? []).filter((row) => row.writtenNumbers.length === 0);
+  const oldestRow = shown[0] ?? null;
+  const oldestAt = oldestRow?.submittedAt ?? oldestFact.oldest.submittedAt;
+  const days = today === null ? 0 : daysSince(oldestAt, today);
+  return {
+    key: 'confirm',
+    big: String(total),
+    relative: oldestWaitingWords(days),
+    calm: false,
+    kind: 'confirm',
+    kindLabel: CONFIRM_ITEM.kind(total),
+    title:
+      facts.length === 1
+        ? assessmentName(oldestFact.assessmentName)
+        : acrossWords(facts.length, 'assessment'),
+    description: CONFIRM_ITEM.description(),
+    list:
+      shown.length > 0
+        ? {
+            label: ATTENTION_ITEMS.written.listLabel,
+            rows: shown.slice(0, NAMES_SHOWN).map((row) => ({
+              key: row.attempt.id,
+              name: row.student.fullName,
+              detail: submittedAtWords(row.submittedAt),
+            })),
+            more:
+              shown.length > NAMES_SHOWN
+                ? moreInWords(shown.length - NAMES_SHOWN, 'Marking')
+                : null,
+          }
+        : null,
+    action: {
+      label: CONFIRM_ITEM.action,
+      href: oldestRow ? markSubmissionAddress(oldestRow.attempt.id) : markingQueueAddress({}),
+      accessibleName: confirmNowLabel(
+        oldestRow?.student.fullName ?? oldestFact.oldest.studentName,
+        assessmentName(oldestRow?.assessmentName ?? oldestFact.assessmentName),
+      ),
+      primary: false,
     },
   };
 }
@@ -232,6 +297,10 @@ export function priorityItems(
     (fact): fact is Extract<FacultyAttention, { kind: 'written-answers-to-mark' }> =>
       fact.kind === 'written-answers-to-mark',
   );
+  const toConfirm = attention.filter(
+    (fact): fact is Extract<FacultyAttention, { kind: 'marks-to-confirm' }> =>
+      fact.kind === 'marks-to-confirm',
+  );
   const inactive = attention.filter(
     (fact): fact is Extract<FacultyAttention, { kind: 'students-inactive' }> =>
       fact.kind === 'students-inactive',
@@ -242,6 +311,7 @@ export function priorityItems(
   );
   return [
     ...(written.length > 0 ? [writtenItem(written, queue, today)] : []),
+    ...(toConfirm.length > 0 ? [confirmItem(toConfirm, queue, today)] : []),
     ...(inactive.length > 0 ? [inactiveItem(inactive, students)] : []),
     ...(ended.length > 0 ? [accessEndedItem(ended)] : []),
   ];
@@ -258,6 +328,14 @@ export function inactiveExperiments(attention: readonly FacultyAttention[]): str
 export function writtenAnswersWaiting(attention: readonly FacultyAttention[]): number {
   return attention.reduce(
     (sum, fact) => sum + (fact.kind === 'written-answers-to-mark' ? fact.answers : 0),
+    0,
+  );
+}
+
+/** The submissions whose automatic marks wait for confirmation across the attention facts. */
+export function submissionsToConfirm(attention: readonly FacultyAttention[]): number {
+  return attention.reduce(
+    (sum, fact) => sum + (fact.kind === 'marks-to-confirm' ? fact.submissions : 0),
     0,
   );
 }

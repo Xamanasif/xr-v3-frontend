@@ -4,6 +4,7 @@ import type { FaProgressRow } from '@xr/ui/v3';
 
 import { deadlineWords } from '@/copy/assessment-words';
 import { assessmentName, faDaysLeftWords, writtenAnswersWaitingWords } from '@/copy/fa-shared';
+import { withConfirmWords } from '@/copy/marking';
 import {
   ASSESSMENT_SUMMARY,
   assessmentNoteWords,
@@ -119,7 +120,11 @@ export function assessmentSummary(
     submissions:
       own && ready && row.reach > 0 ? { submitted: row.submitted, reach: row.reach } : null,
     waiting,
-    waitingLine: waiting > 0 ? writtenAnswersWaitingWords(waiting) : null,
+    // Choice-only submissions waiting for confirmation are named too (24 Oct 2026).
+    waitingLine: withConfirmWords(
+      waiting > 0 ? writtenAnswersWaitingWords(waiting) : null,
+      own ? row.waitingToConfirm : 0,
+    ),
     note: assessmentNoteWords({ colleague, ready, questions: assessment.questions.length }),
     action: ready ? ASSESSMENT_SUMMARY.open : ASSESSMENT_SUMMARY.continue,
     colleague,

@@ -961,11 +961,11 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
   {
     id: 'PC-60',
     subject:
-      'Choice-question marks in a local prototype build: on submit, the `system:objective-marks` stand-in of the sample platform awards each single-choice and true-or-false question its full marks when the answer equals the pinned version’s key and 0 otherwise, through `applyObjectiveMarks` (the domain still has no scoring function). Other builds and the tests keep the DV-2 fixture-supplied marks; a choice-only attempt (M22) and several written questions (ATT-17) stay `policy-open`',
+      'Choice-question marks in a local prototype build: on submit, the `system:objective-marks` stand-in of the sample platform awards each single-choice and true-or-false question its full marks when the answer equals the pinned version’s key and 0 otherwise, through `applyObjectiveMarks` (the domain still has no scoring function). Other builds and the tests keep the DV-2 fixture-supplied marks. Since the owner decisions of 24 Oct 2026 (PC-74) a choice-only attempt is confirmed by the Faculty member on these marks, and several written questions are confirmed once per attempt',
     status: 'owner-approved-interim',
     source:
       'Owner answer, 16 Oct 2026 (Phase 4B): “Answer-key stand-in” for P4-01 / DV-2 / AD-38 — B4-09 “choice questions are marked automatically”; Appendix G P4-01 recommendation. Built in Phase 4B',
-    decisions: ['P4-01', 'ATT-07', 'M22', 'ATT-17'],
+    decisions: ['P4-01', 'ATT-07'],
     trace: [{ kind: 'system-actor', value: 'system:objective-marks' }],
     irreversible: null,
     reversal:
@@ -1174,5 +1174,23 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     irreversible: WHILE_DRAFT,
     reversal:
       'Remove the method and its line on PU-07 once a requester identity (T-01 / R01) gives the requester an account that lists their requests; the status page then needs no browser-held ticket.',
+  },
+  {
+    id: 'PC-74',
+    subject:
+      'Every Ready assessment shape can be marked: `MarkingService.listQueue` also lists a submission without a written question (`writtenNumbers` empty — its automatic marks wait for confirmation); `confirmMarks` refuses an attempt with several written questions until each written answer has a saved mark, one `FA-19.mark.required` field error per question still without one (`marks.<questionId>`); `listAssessmentsOutput.waitingToConfirm` counts the submissions whose automatic marks wait; FA-01’s attention carries `marks-to-confirm` per assessment, and `written-answers-to-mark.answers` counts written answers (a submission with several counts each)',
+    status: 'owner-approved-interim',
+    source:
+      'Owner decisions, 24 Oct 2026 (P0 fix “assessment submission, marking and results”, audit CB-2 / F-02b): choice-only — the Faculty member confirms the automatic marks, the result follows the assessment’s own setting, no automatic confirmation authority (Appendix C M22 [U], P4-05); several written questions — confirm once per attempt after every written answer has a saved mark (ATT-17, P4-04 recommendation). B4-09 draws one written question; the per-question blocks reuse its mark block. No board draws the choice-only row, count or Overview item',
+    decisions: ['P4-04', 'P4-05', 'ATT-07'],
+    trace: [
+      { kind: 'schema-field', schema: 'listQueueOutput', path: '(array).writtenNumbers' },
+      { kind: 'schema-field', schema: 'listAssessmentsOutput', path: '(array).waitingToConfirm' },
+      { kind: 'schema-field', schema: 'facultyAttention', path: '(union)' },
+      { kind: 'message-key', key: 'FA-19.mark.required' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop `waitingToConfirm` and the `marks-to-confirm` fact (FA-06 and FA-01 then count written answers only); the per-question `marks.<questionId>` errors become one `mark` error naming the first question without a mark.',
   },
 ];

@@ -134,6 +134,12 @@ describe('ST-14 Result words (B4-13)', () => {
     expect(plain(waitingLine(SUBMITTED, { option: 'on-date', on: DEADLINE }))).toBe(
       'You submitted on 5 Nov 2026, 18:52. Your faculty marks written answers. Your result appears on 14 Nov 2026, 23:59.',
     );
+    // No written question: the Faculty member confirms the automatic marks (24 Oct 2026).
+    expect(
+      plain(waitingLine(SUBMITTED, { option: 'immediately-after-marking', on: null }, false)),
+    ).toBe(
+      'You submitted on 5 Nov 2026, 18:52. Your faculty confirms the automatic marks. Your result appears when your answers are marked.',
+    );
     expect(plain(notReleasedLine({ option: 'on-date', on: DEADLINE }))).toBe(
       'Your answers have been marked. Results for this assessment are released on 14 Nov 2026, 23:59.',
     );

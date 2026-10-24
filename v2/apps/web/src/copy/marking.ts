@@ -11,6 +11,8 @@
  * What the export does not word is a provisional entry of the state-copy register
  * (`state-copy-marking.ts`).
  */
+import type { MarkingQueueRow } from '@xr/contracts/draft';
+
 import { QUESTION_TYPE_WORDS } from './assessment-words';
 import { stateWords } from './state-copy';
 
@@ -85,6 +87,57 @@ export function waitingCountWords(waiting: number): string {
   return waiting === 1 ? '1 written answer waiting' : `${waiting} written answers waiting`;
 }
 
+/**
+ * Choice-only submissions whose automatic marks wait for confirmation: “1 submission to confirm”,
+ * “2 submissions to confirm” (state-copy `FA-18.confirm-count.*`; owner decision of 24 Oct 2026).
+ */
+export function confirmCountWords(submissions: number): string {
+  return submissions === 1
+    ? stateWords('FA-18.confirm-count.one')
+    : stateWords('FA-18.confirm-count.other').replace('{n}', String(submissions));
+}
+
+/**
+ * A line of written answers waiting (in the page's own words, or none) with the choice-only
+ * submissions waiting for confirmation added: “1 written answer waiting for marking · 1
+ * submission to confirm”; neither: none (state-copy `FA-18.confirm-count.one`).
+ */
+export function withConfirmWords(written: string | null, toConfirm: number): string | null {
+  const parts = [written, toConfirm > 0 ? confirmCountWords(toConfirm) : null].filter(
+    (part): part is string => part !== null,
+  );
+  return parts.length > 0 ? parts.join(' · ') : null;
+}
+
+/**
+ * What waits in the queue's rows, as the counts word it (state-copy `FA-18.confirm-count.one`):
+ * the written answers — each written answer of a submission counts — and the submissions without
+ * a written question, whose automatic marks wait for confirmation (owner decision of 24 Oct 2026).
+ * FA-18's count and the rail's Marking count read the same.
+ */
+export function waitingWork(rows: readonly MarkingQueueRow[]): {
+  readonly writtenAnswers: number;
+  readonly toConfirm: number;
+} {
+  const waiting = rows.filter((row) => row.attempt.marking.confirmed === null);
+  return {
+    writtenAnswers: waiting.reduce((sum, row) => sum + row.writtenNumbers.length, 0),
+    toConfirm: waiting.filter((row) => row.writtenNumbers.length === 0).length,
+  };
+}
+
+/**
+ * The toolbar's count with both kinds of waiting work (state-copy `FA-18.confirm-count.one`): the
+ * written answers waiting in the export's words — each written answer of a submission counts —
+ * and the choice-only submissions waiting for confirmation: “2 written answers waiting · 1
+ * submission to confirm”; written answers only, the export's “2 written answers waiting”.
+ */
+export function queueCountWords(writtenAnswers: number, toConfirm: number): string {
+  if (toConfirm === 0) return waitingCountWords(writtenAnswers);
+  const confirm = confirmCountWords(toConfirm);
+  return writtenAnswers === 0 ? confirm : `${waitingCountWords(writtenAnswers)} · ${confirm}`;
+}
+
 /** Beside the count (`span.fa-oldest`): “Oldest waiting 2 days”, “Oldest submitted today”. */
 export function oldestWaitingWords(days: number): string {
   return days <= 0 ? 'Oldest submitted today' : `Oldest waiting ${plural(days, 'day')}`;
@@ -119,9 +172,11 @@ export function queueAttemptWords(attempt: number, allowed: number | null): stri
 /**
  * The row's second line: “Question 4 · written answer” — the written question's number in the
  * attempt's version. Several written questions: “Questions 4 and 5 · written answers” (the
- * export's `wqLabel`, state-copy `FA-18.several-written`).
+ * export's `wqLabel`, state-copy `FA-18.several-written`). None (choice questions only): “Marked
+ * automatically · confirm the marks” (state-copy `FA-18.choice-only`).
  */
 export function writtenNumbersWords(numbers: readonly number[]): string {
+  if (numbers.length === 0) return stateWords('FA-18.choice-only');
   if (numbers.length === 1) return `Question ${numbers[0]} · written answer`;
   const list = `${numbers.slice(0, -1).join(', ')} and ${numbers[numbers.length - 1]}`;
   return stateWords('FA-18.several-written').replace('{numbers}', list);
@@ -253,9 +308,25 @@ export function markHint(max: number): string {
   return `A whole number from 0 to ${max}.`;
 }
 
-/** “Feedback for Rahul (optional)”. */
-export function feedbackLabel(first: string): string {
-  return `Feedback for ${first} (optional)`;
+/**
+ * “Feedback for Rahul (optional)”; with several written questions, each block's names its question:
+ * “Feedback for Rahul on question 2 (optional)” (state-copy `FA-19.several.feedback-label`).
+ */
+export function feedbackLabel(first: string, question: number | null = null): string {
+  if (question === null) return `Feedback for ${first} (optional)`;
+  return stateWords('FA-19.several.feedback-label')
+    .replace('{first}', first)
+    .replace('{n}', String(question));
+}
+
+/** A block's “Save mark” named with its question: “Save mark for question 2” (`FA-19.several.save-label`). */
+export function saveMarkLabel(question: number): string {
+  return stateWords('FA-19.several.save-label').replace('{n}', String(question));
+}
+
+/** A confirmed feedback row with several written questions: “Feedback on question 2”. */
+export function feedbackKeyWords(question: number): string {
+  return stateWords('FA-19.several.feedback-key').replace('{n}', String(question));
 }
 
 /** The live total (`div.fa-total b`): “— of 16” until the mark is a whole number, then “11 of 16”. */
@@ -270,15 +341,25 @@ function passMarkTail(passMark: number | null): string {
 
 /**
  * Under the live total: “4 marked automatically + the written mark · pass mark 8”, then “4 marked
- * automatically + 7 written · pass mark 8”.
+ * automatically + 7 written · pass mark 8”; with several written questions, “… + the written
+ * marks …” until every typed mark is whole (the export's `liveTotalD`).
  */
 export function liveTotalLine(
   auto: number,
   written: number | null,
   passMark: number | null,
+  several = false,
 ): string {
-  const part = written === null ? 'the written mark' : `${written} written`;
+  const part =
+    written === null ? (several ? 'the written marks' : 'the written mark') : `${written} written`;
   return `${auto} marked automatically + ${part}${passMarkTail(passMark)}`;
+}
+
+/** No written question: “6 marked automatically · pass mark 3” (`FA-19.choice-only.total`). */
+export function choiceOnlyTotalLine(auto: number, passMark: number | null): string {
+  return `${stateWords('FA-19.choice-only.total').replace('{auto}', String(auto))}${passMarkTail(
+    passMark,
+  )}`;
 }
 
 /** “7 Nov 2026, 10:15 · Dr S. Ranganathan” under “Marks confirmed”. */

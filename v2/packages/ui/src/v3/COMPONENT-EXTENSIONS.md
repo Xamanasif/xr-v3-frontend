@@ -536,6 +536,10 @@ Classes the export writes that no sheet defines are not emitted: `fa-u` (a grey 
 - `ListState` `live` (a no-match state that is itself `role=status`: FA-06, FA-12, in place of a
   wrapper) and `titleFocusable` (the title takes focus after "Try again": FA-11's failed preview).
   Off by default.
+- `FaMarksDone` `feedback` also takes a list (`FaMarkFeedbackGiven[]`): one row of the same
+  `dl.fa-sumdl` per written answer of an attempt with several, none for an attempt without a
+  written answer (owner decisions of 24 Oct 2026, the assessment P0 fix). One row, as drawn, by
+  default.
 - Stylesheet: `fa-scoped.css` in layer `xr.v3.fa`, GENERATED from the export's `fa.css` with the
   foundation's selector-only transform, less the borrowed XS surfaces the delivered XS components
   draw (`fa-acctwrap`, `fa-menu*`, `fa-menuscrim`, the bare `fa-msg` page, `fa-pub*`; the

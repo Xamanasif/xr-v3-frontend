@@ -298,7 +298,8 @@ export function AssessmentFrame({
   const readinessWords = READINESS_WORDS[readiness];
   const ready = readiness === 'ready';
   const name = assessmentName(assessment.name);
-  const waiting = view.row?.waitingForMarking ?? 0;
+  // Every own submission waiting: with a written answer, or choice-only waiting for confirmation.
+  const waiting = (view.row?.waitingForMarking ?? 0) + (view.row?.waitingToConfirm ?? 0);
   const submitted = view.row?.submitted ?? 0;
   const questions = assessment.questions.length;
   const creator = otherActor(assessment.createdBy, viewer);

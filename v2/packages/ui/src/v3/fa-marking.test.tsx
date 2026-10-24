@@ -556,6 +556,51 @@ describe('FA-19: the head, the reading sheet and the marks panel are the export�
     await assertNoAxeViolations(container);
   });
 
+  it('several written answers: one feedback row each, in the same summary list; none without a written answer', async () => {
+    const { container } = inRoot(
+      <FaMarksDone
+        id="fa-mk-done"
+        title="Marks confirmed"
+        by="7 Nov 2026, 10:15 · Dr S. Ranganathan"
+        total={<FaDoneTotal total="13 of 17 marks" outcome="Passed · pass mark 8.5" />}
+        given={[
+          { key: 'q2', term: 'Question 2', value: '8 of 10' },
+          { key: 'q3', term: 'Question 3', value: '3 of 5' },
+        ]}
+        feedback={[
+          { key: 'f2', term: 'Feedback on question 2', text: 'Clear profile.', given: true },
+          { key: 'f3', term: 'Feedback on question 3', text: 'No feedback', given: false },
+        ]}
+        actions={<p className="fa-quiet">Nothing else is waiting for marking.</p>}
+      />,
+    );
+    const rows = [...container.querySelectorAll('dl.fa-sumdl > div')].map((row) => [
+      row.querySelector('dt')!.textContent,
+      row.querySelector('dd')!.textContent,
+      row.querySelector('dd')!.className,
+    ]);
+    expect(rows).toEqual([
+      ['Question 2', '8 of 10', ''],
+      ['Question 3', '3 of 5', ''],
+      ['Feedback on question 2', 'Clear profile.', 'is-text'],
+      ['Feedback on question 3', 'No feedback', 'is-quiet'],
+    ]);
+    expectV3ClassesOnly(container);
+    await assertNoAxeViolations(container);
+    const none = inRoot(
+      <FaMarksDone
+        id="fa-mk-done-2"
+        title="Marks confirmed"
+        by="7 Nov 2026, 10:15 · Dr S. Ranganathan"
+        total={<FaDoneTotal total="6 of 6 marks" />}
+        given={[{ key: 'auto', term: 'Marked automatically', value: '6 of 6 marks' }]}
+        feedback={[]}
+        actions={null}
+      />,
+    );
+    expect(none.container.querySelectorAll('dl.fa-sumdl > div')).toHaveLength(1);
+  });
+
   it('a released result is the tick note', () => {
     const { container } = inRoot(
       <FaReleaseNote released>

@@ -130,6 +130,25 @@ Not decided by it and kept open: the full SA-01 overview (Phase 6), the Operatio
 "Needs attention" (Phases 3 and 6), how an assigned Institute Admin first signs in (T-11; the sample
 sign-in accepts the assigned work e-mail, P1-01), OD-B3-09.
 
+## Owner decisions of 24 October 2026 — assessment shapes (P0 fix, audit CB-2)
+
+The P0 fix "assessment submission, marking and results" (audit `XR-V3-E2E-Connections-Audit-2026-10-22`
+CB-2 / F-02b, appendix D B1, B2, F22–F24) rests on two owner decisions answered in chat on 24 Oct 2026. They resolve two open items of the frozen audit — Appendix C M22 [U] "an attempt with no
+written questions" (within P4-05) and ATT-17 / P4-04 — for this product; the frozen audit files
+(`../v46/`, Appendix G included) are unchanged and still read them as open.
+
+| Decision                                  | Owner wording (abridged)                                                                                                                                                                                                                                     | Recorded in                                                                                                                                                                                                                                                                                        |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Choice-only assessments (M22 [U], P4-05)  | Faculty confirms. Marked automatically on submit as today; the attempt appears in Faculty's marking queue with its automatic marks; Faculty presses Confirm marks (DL-1); release follows the assessment's own setting. No automatic confirmation authority. | domain `confirmMarks` (`packages/domain/src/assessment/attempt.ts`); contract register PC-74 (`@xr/contracts/draft` `provisional.ts`), PC-60 updated; method ledger `confirmMarks`; state copy `FA-18.choice-only`, `FA-19.choice-only.*`, `FA-01.confirm-*`, `ST-11/12/13/14` choice-only entries |
+| Several written questions (ATT-17, P4-04) | Confirm once per attempt. Faculty saves a mark (and optional feedback) for every written answer on the one FA-19 page (one block per written question), then confirms once; Confirm is refused until every written answer has a saved mark.                  | domain `confirmMarks` (`save-first` per missing question); `OWNER_DECIDED_OPEN_ROWS` (`policy/rules.ts`) — `marking.confirm-several-written` left `OPEN_CAPABILITIES`; PC-74; state copy `FA-19.several*`, `FA-18.several-written`                                                                 |
+
+Unchanged by them: the score (automatic marks plus every written mark), the pass rule
+(`score × 100 ≥ pass mark × total`), pass-mark rounding (open, M22), attempts allowed and Try again,
+the release rules (P4-06 open), ATT-07 (a choice question without its automatic mark still answers
+`policy-open`), no automatic pass, the permissions (course and institution scope, the co-teaching
+refusal OD-B4-17), and ATT-10 (confirmed marks are read-only). Every shape is still accepted as
+Ready with no warning: no authoring guard is needed.
+
 ## Approved interim choices
 
 These are interim treatments the build follows. Where the underlying product question is open, it **stays open**.

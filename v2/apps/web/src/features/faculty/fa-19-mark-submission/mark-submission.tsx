@@ -29,7 +29,7 @@ import {
   StatusPill,
   Surface,
 } from '@xr/ui/v3';
-import { type ReactNode, useEffect, useRef, useState } from 'react';
+import { Fragment, type ReactNode, useEffect, useRef, useState } from 'react';
 
 import { marksWords } from '@/copy/assessment-words';
 import { dateTime } from '@/copy/dates';
@@ -39,6 +39,7 @@ import { firstName } from '@/copy/institute-people';
 import {
   answerTitle,
   automaticMarksWords,
+  choiceOnlyTotalLine,
   choiceQuestionWords,
   confirmedByLine,
   confirmLaterTitle,
@@ -47,6 +48,7 @@ import {
   confirmTitle,
   confirmTotalLine,
   doneTotalWords,
+  feedbackKeyWords,
   feedbackLabel,
   liveTotalLine,
   liveTotalWords,
@@ -60,6 +62,7 @@ import {
   questionNumberWords,
   type ReleaseTerms,
   resultReleaseLine,
+  saveMarkLabel,
   submissionOverline,
   submittedLine,
   totalMarksWords,
@@ -98,13 +101,15 @@ const SAVED_ID = `${PREFIX}-saved`;
 const AUTO_ID = `${PREFIX}-auto-h`;
 const TITLE_ID = `${PREFIX}-h1`;
 
-/** The calm provisional states where no form is drawn (policy-open). */
-export type Blocked = 'colleague' | 'several' | 'none' | 'choice';
+/**
+ * The calm provisional states where no form is drawn (policy-open): a colleague's assessment
+ * (OD-B4-17), choice questions without their automatic marks (ATT-07). Every Ready shape is
+ * otherwise marked here (owner decisions of 24 Oct 2026: no written question, several).
+ */
+export type Blocked = 'colleague' | 'choice';
 
 /** A policy-open decision as the state it shows (`confirmMarks`, `getAttemptForMarking`). */
 export function blockedOf(decision: string): Blocked {
-  if (decision === 'ATT-17') return 'several';
-  if (decision.startsWith('M22')) return 'none';
   if (decision === 'ATT-07') return 'choice';
   return 'colleague';
 }
@@ -129,7 +134,7 @@ export interface MarkingView {
   readonly outOf: number;
   /** How many questions the attempt's version pins. */
   readonly questions: number;
-  /** What blocks the form before anything is sent, if anything (several, none, choice). */
+  /** What blocks the form before anything is sent: choice questions without their marks. */
   readonly blocked: Blocked | null;
 }
 
@@ -147,14 +152,7 @@ export function markingView(answer: AttemptForMarking): MarkingView {
       marks: entry.marks,
       awarded: automatic.find((mark) => mark.questionId === entry.questionId)?.awarded ?? null,
     }));
-  const blocked: Blocked | null =
-    written.length === 0
-      ? 'none'
-      : written.length > 1
-        ? 'several'
-        : choice.some((entry) => entry.awarded === null)
-          ? 'choice'
-          : null;
+  const blocked: Blocked | null = choice.some((entry) => entry.awarded === null) ? 'choice' : null;
   return {
     written,
     choice,
@@ -194,8 +192,13 @@ function termsOf(answer: AttemptForMarking): ReleaseTerms {
  *   from 0 to 10”) show under the score, which takes focus. Confirm saves what is typed first if it
  *   is not saved yet (state-copy `FA-19.confirm-saves-first`), then the dialog → `confirmMarks`.
  *   No re-marking control (T-20).
- * - **Provisional states** (policy-open: a colleague's assessment, several written questions, no
- *   written question, choice questions without marks) show a calm state and no form.
+ * - **Every Ready shape** (owner decisions of 24 Oct 2026): several written questions — one mark
+ *   block per written answer (score, feedback, Save mark), one total and one Confirm marks for the
+ *   attempt, which saves every typed block first and is refused while any written answer has no
+ *   saved mark (state-copy `FA-19.several`); no written question — the automatic marks, the total
+ *   and Confirm marks, no score field (`FA-19.choice-only.title`).
+ * - **Provisional states** (policy-open: a colleague's assessment, choice questions without their
+ *   automatic marks) show a calm state and no form.
  */
 export function MarkSubmission({ attemptId }: { readonly attemptId: string }) {
   const navigation = useAppNavigation();
@@ -273,10 +276,22 @@ interface Draft {
   readonly feedback: string;
 }
 
+const EMPTY_DRAFT: Draft = { mark: '', feedback: '' };
+
 function savedDraftOf(attempt: Attempt, questionId: string | undefined): Draft | null {
   const saved = attempt.marking.written.find((entry) => entry.questionId === questionId);
   if (!saved || saved.mark === null) return null;
   return { mark: String(saved.mark), feedback: saved.feedback ?? '' };
+}
+
+/** A written question's block ids: the drawn ones with one, by question number with several. */
+function blockIds(number: number, several: boolean) {
+  const suffix = several ? `-q${number}` : '';
+  return {
+    mark: `${MARK_ID}${suffix}`,
+    feedback: `${FEEDBACK_ID}${suffix}`,
+    saved: `${SAVED_ID}${suffix}`,
+  };
 }
 
 function Submission({
@@ -291,12 +306,14 @@ function Submission({
   const today = session.status === 'signed-in' ? session.signedInAt : null;
   const { attempt, student } = answer;
   const view = markingView(answer);
-  const written = view.written[0];
-  const question = answer.questions.find((entry) => entry.id === written?.questionId) ?? null;
+  // One written question (as drawn), several (one block each, confirmed once) or none (the
+  // automatic marks confirmed) — owner decisions of 24 Oct 2026 (state-copy `FA-19.several`,
+  // `FA-19.choice-only.title`).
+  const several = view.written.length > 1;
+  const choiceOnly = view.written.length === 0;
   const first = firstName(student.fullName);
   const terms = termsOf(answer);
   const confirmed = attempt.marking.confirmed;
-  const saved = savedDraftOf(attempt, written?.questionId);
   const name = assessmentName(answer.assessmentName);
 
   const saveCmd = useCommand((ports) => ports.marking.saveMark);
@@ -305,30 +322,42 @@ function Submission({
   const record = useAssessmentRecord(attempt.assessmentId);
   const submissions = useSubmissions(attempt.assessmentId, confirmed !== null);
 
-  const [draft, setDraft] = useState<Draft>(() => saved ?? { mark: '', feedback: '' });
-  const [markError, setMarkError] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<Readonly<Record<string, Draft>>>(() =>
+    Object.fromEntries(
+      view.written.map((entry) => [
+        entry.questionId,
+        savedDraftOf(attempt, entry.questionId) ?? EMPTY_DRAFT,
+      ]),
+    ),
+  );
+  const [markErrors, setMarkErrors] = useState<Readonly<Record<string, string>>>({});
   const [notice, setNotice] = useState<PanelMessage | null>(null);
   const [blocked, setBlocked] = useState<Blocked | null>(null);
   const [dialog, setDialog] = useState(false);
   const [confirmFailed, setConfirmFailed] = useState(false);
   const [preparing, setPreparing] = useState(false);
+  const [savingId, setSavingId] = useState<string | null>(null);
   const [gone, setGone] = useState(false);
-  const [focusMark, setFocusMark] = useState(0);
+  const [focusMark, setFocusMark] = useState<{ readonly questionId: string } | null>(null);
   const pendingDoneFocus = useRef(false);
-  const pendingSavedFocus = useRef(false);
-  const markRef = useRef<HTMLInputElement>(null);
-  const savedRef = useRef<HTMLParagraphElement>(null);
+  const pendingSavedFocus = useRef<string | null>(null);
+  // The latest revision this page wrote (a save answers before the submission is read again).
+  const writtenRev = useRef(attempt.rev);
+  const markRefs = useRef<Record<string, HTMLInputElement | null>>({});
+  const savedRefs = useRef<Record<string, HTMLParagraphElement | null>>({});
   const doneRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (focusMark > 0) markRef.current?.focus();
+    if (focusMark) markRefs.current[focusMark.questionId]?.focus();
   }, [focusMark]);
   // After Save mark, focus moves to its note (the export's `focusLater('fa-mk-saved')`) — once
   // the submission is read again and the note is there.
   useEffect(() => {
-    if (!pendingSavedFocus.current || !savedRef.current) return;
-    pendingSavedFocus.current = false;
-    savedRef.current.focus();
+    const questionId = pendingSavedFocus.current;
+    const note = questionId ? savedRefs.current[questionId] : null;
+    if (!questionId || !note) return;
+    pendingSavedFocus.current = null;
+    note.focus();
   });
   // Once confirmed, focus moves to the read-only panel (the export's `focusLater('fa-mk-done')`) —
   // after the submission is read again, so the panel is there.
@@ -342,24 +371,55 @@ function Submission({
   if (gone) return navigation.notFound();
 
   const shownBlocked = blocked ?? view.blocked;
-  const isSaved =
-    saved !== null &&
-    draft.mark.trim() === saved.mark &&
-    draft.feedback.trim() === saved.feedback.trim();
+  const draftOf = (questionId: string): Draft => drafts[questionId] ?? EMPTY_DRAFT;
+  const isSaved = (questionId: string): boolean => {
+    const saved = savedDraftOf(attempt, questionId);
+    const draft = draftOf(questionId);
+    return (
+      saved !== null &&
+      draft.mark.trim() === saved.mark &&
+      draft.feedback.trim() === saved.feedback.trim()
+    );
+  };
+  const currentRev = () => Math.max(attempt.rev, writtenRev.current);
 
-  const change = (field: keyof Draft, value: string) => {
-    setDraft((current) => ({ ...current, [field]: value }));
-    if (field === 'mark') setMarkError(null);
+  const change = (questionId: string, field: keyof Draft, value: string) => {
+    setDrafts((current) => ({
+      ...current,
+      [questionId]: { ...(current[questionId] ?? EMPTY_DRAFT), [field]: value },
+    }));
+    if (field === 'mark') {
+      setMarkErrors((current) => {
+        if (!(questionId in current)) return current;
+        const next = { ...current };
+        delete next[questionId];
+        return next;
+      });
+    }
     setNotice(null);
   };
 
-  /** A refusal of save or confirm, as the page shows it. */
-  const refused = (error: ServiceError) => {
+  /**
+   * A refusal of save or confirm, as the page shows it. A field error goes under its question's
+   * score: `mark` is the block saved (or the one written question), `marks.<questionId>` the
+   * question the service names (several written questions without a saved mark).
+   */
+  const refused = (error: ServiceError, saving: QuestionId | null) => {
     switch (error.kind) {
       case 'validation-failed': {
-        const errors = formFieldErrors(error, (path) => (path === 'mark' ? 'mark' : null));
-        setMarkError(errors[0]?.message ?? null);
-        setFocusMark((current) => current + 1);
+        const errors = formFieldErrors(error, (path) =>
+          path === 'mark'
+            ? (saving ?? view.written[0]?.questionId ?? null)
+            : path.startsWith('marks.')
+              ? path.slice('marks.'.length)
+              : null,
+        );
+        if (errors.length === 0) return;
+        setMarkErrors((current) => ({
+          ...current,
+          ...Object.fromEntries(errors.map((entry) => [entry.field, entry.message])),
+        }));
+        setFocusMark({ questionId: errors[0]!.field });
         return;
       }
       case 'not-found':
@@ -380,22 +440,29 @@ function Submission({
     }
   };
 
-  /** `saveMark` with what is typed; the saved attempt, or `null` when it was refused or failed. */
-  const saveTyped = async (): Promise<Attempt | null> => {
-    if (!written) return null;
+  /** `saveMark` with what is typed for one question; the saved attempt, or `null`. */
+  const saveTyped = async (questionId: QuestionId, rev: number): Promise<Attempt | null> => {
+    const draft = draftOf(questionId);
+    setSavingId(questionId);
     try {
       const result = await saveCmd.run({
         attemptId: attempt.id,
-        questionId: written.questionId,
+        questionId,
         mark: draft.mark,
         feedback: draft.feedback.trim() === '' ? null : draft.feedback,
-        expectedRev: attempt.rev,
+        expectedRev: rev,
       });
       if (!result.ok) {
-        refused(result.error);
+        refused(result.error, questionId);
         return null;
       }
-      setMarkError(null);
+      writtenRev.current = Math.max(writtenRev.current, result.value.rev);
+      setMarkErrors((current) => {
+        if (!(questionId in current)) return current;
+        const next = { ...current };
+        delete next[questionId];
+        return next;
+      });
       setNotice(null);
       return result.value;
     } catch {
@@ -404,21 +471,30 @@ function Submission({
     }
   };
 
-  const save = async () => {
+  const save = async (questionId: QuestionId) => {
     if (saveCmd.busy || preparing) return;
-    pendingSavedFocus.current = false;
-    const result = await saveTyped();
-    if (result) pendingSavedFocus.current = true;
+    pendingSavedFocus.current = null;
+    const result = await saveTyped(questionId, currentRev());
+    if (result) pendingSavedFocus.current = questionId;
   };
 
-  // The export's `confirm`: the typed mark is checked (saved) before the dialog opens.
+  // The export's `confirm`: every typed mark is checked (saved) before the dialog opens — each
+  // written answer's, in order; the first refused one stops it, its words under its score.
   const confirm = async () => {
     if (saveCmd.busy || preparing || confirmCmd.busy) return;
-    if (!isSaved) {
+    const unsaved = view.written.filter((entry) => !isSaved(entry.questionId));
+    if (unsaved.length > 0) {
       setPreparing(true);
-      const result = await saveTyped();
+      let rev = currentRev();
+      for (const entry of unsaved) {
+        const result = await saveTyped(entry.questionId, rev);
+        if (!result) {
+          setPreparing(false);
+          return;
+        }
+        rev = result.rev;
+      }
       setPreparing(false);
-      if (!result) return;
     }
     setConfirmFailed(false);
     setDialog(true);
@@ -427,11 +503,11 @@ function Submission({
   const doConfirm = () => {
     if (confirmCmd.busy) return;
     setConfirmFailed(false);
-    confirmCmd.run({ attemptId: attempt.id, expectedRev: attempt.rev }).then(
+    confirmCmd.run({ attemptId: attempt.id, expectedRev: currentRev() }).then(
       (result) => {
         setDialog(false);
         if (!result.ok) {
-          refused(result.error);
+          refused(result.error, null);
           return;
         }
         setNotice(null);
@@ -456,21 +532,23 @@ function Submission({
     : null;
   const versions = assessment ? assessment.versions.length : 0;
 
-  const writtenMark = attempt.marking.written.find(
-    (entry) => entry.questionId === written?.questionId,
-  );
   const autoAwarded = view.choice.reduce((sum, entry) => sum + (entry.awarded ?? 0), 0);
   const autoOutOf = view.choice
     .filter((entry) => entry.awarded !== null)
     .reduce((sum, entry) => sum + entry.marks, 0);
   const confirmedBy = confirmed && confirmed.by.kind === 'person' ? confirmed.by.displayName : '';
-  // The confirmed total: the stand-in's choice marks and the confirmed written mark.
+  // The confirmed total: the stand-in's choice marks and every confirmed written mark.
   const confirmedTotal =
     autoAwarded + attempt.marking.written.reduce((sum, entry) => sum + (entry.mark ?? 0), 0);
-  // The live total, while the typed mark is a whole number within the question's marks.
-  const typed = written ? wholeMarkOf(draft.mark, written.marks) : null;
-  const liveTotal = typed === null ? null : autoAwarded + typed;
-  const dialogTotal = autoAwarded + (typed ?? 0);
+  // The live total, while every typed mark is a whole number within its question's marks.
+  const typedMarks = view.written.map((entry) =>
+    wholeMarkOf(draftOf(entry.questionId).mark, entry.marks),
+  );
+  const typedSum = typedMarks.every((mark) => mark !== null)
+    ? typedMarks.reduce<number>((sum, mark) => sum + (mark ?? 0), 0)
+    : null;
+  const liveTotal = typedSum === null ? null : autoAwarded + typedSum;
+  const dialogTotal = autoAwarded + typedMarks.reduce<number>((sum, mark) => sum + (mark ?? 0), 0);
   const passedNow = passMark === null ? null : dialogTotal >= passMark;
   const releasePassed =
     today !== null && answer.release.on !== null && answer.release.option !== null
@@ -557,12 +635,99 @@ function Submission({
     </>
   );
 
+  /** One written answer's score and feedback (`FaMarkSection`), as drawn. */
+  const markSection = (entry: MarkingView['written'][number], lead: ReactNode = null) => {
+    const ids = blockIds(entry.number, several);
+    const draft = draftOf(entry.questionId);
+    return (
+      <FaMarkSection>
+        {lead}
+        <FaScoreField
+          id={ids.mark}
+          label={MARK_SUBMISSION.yourMark}
+          sub={markFieldSub(entry.number, entry.marks)}
+          value={draft.mark}
+          onChange={(event) => change(entry.questionId, 'mark', event.target.value)}
+          outOf={markOutOf(entry.marks)}
+          hint={markHint(entry.marks)}
+          error={markErrors[entry.questionId]}
+          inputRef={(element) => {
+            markRefs.current[entry.questionId] = element;
+          }}
+        />
+        <FaMarkFeedback
+          id={ids.feedback}
+          label={several ? feedbackLabel(first, entry.number) : feedbackLabel(first)}
+          value={draft.feedback}
+          onChange={(event) => change(entry.questionId, 'feedback', event.target.value)}
+        />
+      </FaMarkSection>
+    );
+  };
+
+  /** One written answer's Save mark and its note (`FaMarkSave`). */
+  const markSave = (entry: MarkingView['written'][number]) => {
+    const ids = blockIds(entry.number, several);
+    return (
+      <FaMarkSave
+        button={
+          <Button
+            busy={saveCmd.busy && !preparing && savingId === entry.questionId}
+            busyLabel={stateWords('FA-19.saving')}
+            onClick={() => void save(entry.questionId)}
+            {...(several ? { 'aria-label': saveMarkLabel(entry.number) } : {})}
+          >
+            {MARK_SUBMISSION.save}
+          </Button>
+        }
+        saved={isSaved(entry.questionId) ? MARK_SUBMISSION.saved : undefined}
+        savedId={ids.saved}
+        savedRef={(element) => {
+          savedRefs.current[entry.questionId] = element;
+        }}
+        note={MARK_SUBMISSION.saveNote}
+      />
+    );
+  };
+
+  const confirmButton = (
+    <FaMarkConfirm
+      button={
+        <Button
+          variant="primary"
+          size="lg"
+          busy={preparing}
+          busyLabel={stateWords('FA-19.saving')}
+          onClick={() => void confirm()}
+        >
+          {MARK_SUBMISSION.confirm}
+        </Button>
+      }
+      note={MARK_SUBMISSION.cantChange}
+    />
+  );
+
+  const liveTotalBlock = (
+    <FaLiveTotal
+      label={MARK_SUBMISSION.total}
+      total={liveTotalWords(choiceOnly ? autoAwarded : liveTotal, view.outOf)}
+      line={
+        choiceOnly
+          ? choiceOnlyTotalLine(autoAwarded, passMark)
+          : liveTotalLine(autoAwarded, typedSum, passMark, several)
+      }
+    />
+  );
+
   let panelBody: ReactNode;
   if (confirmed) {
     const outcome = passOutcomeWords(
       passMark === null ? null : confirmedTotal >= passMark,
       passMark,
     );
+    const feedbackOf = (questionId: string) =>
+      attempt.marking.written.find((item) => item.questionId === questionId)?.feedback?.trim() ??
+      '';
     panelBody = (
       <FaMarksDone
         id={DONE_ID}
@@ -575,19 +740,40 @@ function Submission({
         title={MARK_SUBMISSION.confirmed}
         by={confirmedByLine(dateTime(confirmed.at), confirmedBy)}
         total={<FaDoneTotal total={doneTotalWords(confirmedTotal, view.outOf)} outcome={outcome} />}
-        given={view.written.map((entry) => {
-          const mark = attempt.marking.written.find((item) => item.questionId === entry.questionId);
-          return {
-            key: entry.questionId,
-            term: questionNumberWords(entry.number),
-            value: markOfWords(typeof mark?.mark === 'number' ? mark.mark : 0, entry.marks),
-          };
-        })}
-        feedback={{
-          term: MARK_SUBMISSION.feedbackKey,
-          text: writtenMark?.feedback?.trim() || MARK_SUBMISSION.noFeedback,
-          given: Boolean(writtenMark?.feedback?.trim()),
-        }}
+        given={
+          choiceOnly
+            ? [
+                {
+                  key: 'automatic',
+                  term: MARK_SUBMISSION.automatic,
+                  value: automaticMarksWords(autoAwarded, autoOutOf),
+                },
+              ]
+            : view.written.map((entry) => {
+                const mark = attempt.marking.written.find(
+                  (item) => item.questionId === entry.questionId,
+                );
+                return {
+                  key: entry.questionId,
+                  term: questionNumberWords(entry.number),
+                  value: markOfWords(typeof mark?.mark === 'number' ? mark.mark : 0, entry.marks),
+                };
+              })
+        }
+        feedback={
+          several || choiceOnly
+            ? view.written.map((entry) => ({
+                key: `feedback-${entry.questionId}`,
+                term: feedbackKeyWords(entry.number),
+                text: feedbackOf(entry.questionId) || MARK_SUBMISSION.noFeedback,
+                given: feedbackOf(entry.questionId) !== '',
+              }))
+            : {
+                term: MARK_SUBMISSION.feedbackKey,
+                text: feedbackOf(view.written[0]!.questionId) || MARK_SUBMISSION.noFeedback,
+                given: feedbackOf(view.written[0]!.questionId) !== '',
+              }
+        }
         release={
           <FaReleaseNote released={released}>
             {resultReleaseLine(first, terms, released, dateTime(confirmed.at))}
@@ -613,81 +799,60 @@ function Submission({
         }
       />
     );
-  } else if (shownBlocked !== null || !written || !question) {
+  } else if (shownBlocked !== null) {
     panelBody = (
       <FaMarkSection>
-        <CalmNotice blocked={shownBlocked ?? 'none'} count={view.written.length} />
+        <CalmNotice blocked={shownBlocked} />
       </FaMarkSection>
     );
-  } else {
+  } else if (choiceOnly) {
+    // No written question: the automatic marks, the total and Confirm marks (owner decision).
     panelBody = (
       <>
         <FaMarkSection>
           {notice ? <PanelNotice notice={notice} /> : null}
-          <FaScoreField
-            id={MARK_ID}
-            label={MARK_SUBMISSION.yourMark}
-            sub={markFieldSub(written.number, written.marks)}
-            value={draft.mark}
-            onChange={(event) => change('mark', event.target.value)}
-            outOf={markOutOf(written.marks)}
-            hint={markHint(written.marks)}
-            error={markError ?? undefined}
-            inputRef={markRef}
-          />
-          <FaMarkFeedback
-            id={FEEDBACK_ID}
-            label={feedbackLabel(first)}
-            value={draft.feedback}
-            onChange={(event) => change('feedback', event.target.value)}
-          />
+          <Notice tone="info" role="status" title={stateWords('FA-19.choice-only.title')}>
+            {stateWords('FA-19.choice-only.line')}
+          </Notice>
         </FaMarkSection>
-        <FaLiveTotal
-          label={MARK_SUBMISSION.total}
-          total={liveTotalWords(liveTotal, view.outOf)}
-          line={liveTotalLine(autoAwarded, typed, passMark)}
-        />
-        <FaMarkSave
-          button={
-            <Button
-              busy={saveCmd.busy && !preparing}
-              busyLabel={stateWords('FA-19.saving')}
-              onClick={() => void save()}
-            >
-              {MARK_SUBMISSION.save}
-            </Button>
-          }
-          saved={isSaved ? MARK_SUBMISSION.saved : undefined}
-          savedId={SAVED_ID}
-          savedRef={savedRef}
-          note={MARK_SUBMISSION.saveNote}
-        />
-        <FaMarkConfirm
-          button={
-            <Button
-              variant="primary"
-              size="lg"
-              busy={preparing}
-              busyLabel={stateWords('FA-19.saving')}
-              onClick={() => void confirm()}
-            >
-              {MARK_SUBMISSION.confirm}
-            </Button>
-          }
-          note={MARK_SUBMISSION.cantChange}
-        />
+        {liveTotalBlock}
+        {confirmButton}
+      </>
+    );
+  } else if (several) {
+    // One block per written answer (score, feedback, Save mark), then the total and one Confirm.
+    panelBody = (
+      <>
+        {view.written.map((entry, index) => (
+          <Fragment key={entry.questionId}>
+            {markSection(entry, index === 0 && notice ? <PanelNotice notice={notice} /> : null)}
+            {markSave(entry)}
+          </Fragment>
+        ))}
+        {liveTotalBlock}
+        {confirmButton}
+      </>
+    );
+  } else {
+    const written = view.written[0]!;
+    panelBody = (
+      <>
+        {markSection(written, notice ? <PanelNotice notice={notice} /> : null)}
+        {liveTotalBlock}
+        {markSave(written)}
+        {confirmButton}
       </>
     );
   }
 
-  const nowLines: ReactNode[] = written
-    ? [
-        confirmMarkLine(written.number, Number(draft.mark.trim()), written.marks),
-        confirmTotalLine(first, dialogTotal, view.outOf, passedNow, passMark),
-        MARK_SUBMISSION.readOnlyAfter,
-        ...(plan.now ? [plan.text] : []),
-      ]
-    : [];
+  const nowLines: ReactNode[] = [
+    ...view.written.map((entry) =>
+      confirmMarkLine(entry.number, Number(draftOf(entry.questionId).mark.trim()), entry.marks),
+    ),
+    confirmTotalLine(first, dialogTotal, view.outOf, passedNow, passMark),
+    MARK_SUBMISSION.readOnlyAfter,
+    ...(plan.now ? [plan.text] : []),
+  ];
 
   return (
     <>
@@ -708,40 +873,38 @@ function Submission({
           </FaMarksPanel>
         }
       />
-      {written ? (
-        <ConfirmDialog
-          open={dialog}
-          idPrefix={`${PREFIX}-c`}
-          title={confirmTitle(student.fullName)}
-          description={name}
-          groups={[
-            { kind: 'now', title: MARK_SUBMISSION.confirmNow, items: nowLines },
-            ...(plan.now
-              ? []
-              : [{ kind: 'later' as const, title: confirmLaterTitle(first), items: [plan.text] }]),
-          ]}
-          cancelLabel={MARK_SUBMISSION.cancel}
-          confirmLabel={MARK_SUBMISSION.confirm}
-          busy={confirmCmd.busy}
-          busyLabel={MARK_SUBMISSION.confirming}
-          holdWhileBusy
-          onConfirm={doConfirm}
-          onCancel={() => {
-            setDialog(false);
-            setConfirmFailed(false);
-          }}
-          returnFocusFallback={doneRef}
-        >
-          {confirmFailed ? (
-            <Notice
-              tone="warn"
-              role="alert"
-              icon="alertCircle"
-              title={stateWords('FA-19.unavailable.confirm')}
-            />
-          ) : null}
-        </ConfirmDialog>
-      ) : null}
+      <ConfirmDialog
+        open={dialog}
+        idPrefix={`${PREFIX}-c`}
+        title={confirmTitle(student.fullName)}
+        description={name}
+        groups={[
+          { kind: 'now', title: MARK_SUBMISSION.confirmNow, items: nowLines },
+          ...(plan.now
+            ? []
+            : [{ kind: 'later' as const, title: confirmLaterTitle(first), items: [plan.text] }]),
+        ]}
+        cancelLabel={MARK_SUBMISSION.cancel}
+        confirmLabel={MARK_SUBMISSION.confirm}
+        busy={confirmCmd.busy}
+        busyLabel={MARK_SUBMISSION.confirming}
+        holdWhileBusy
+        onConfirm={doConfirm}
+        onCancel={() => {
+          setDialog(false);
+          setConfirmFailed(false);
+        }}
+        returnFocusFallback={doneRef}
+      >
+        {confirmFailed ? (
+          <Notice
+            tone="warn"
+            role="alert"
+            icon="alertCircle"
+            title={stateWords('FA-19.unavailable.confirm')}
+          />
+        ) : null}
+      </ConfirmDialog>
     </>
   );
 }
@@ -771,17 +934,15 @@ function PanelNotice({ notice }: { readonly notice: PanelMessage }) {
 
 const CALM_WORDS = {
   colleague: ['FA-19.policy-open.colleague.title', 'FA-19.policy-open.colleague.line'],
-  several: ['FA-19.policy-open.several.title', 'FA-19.policy-open.several.line'],
-  none: ['FA-19.policy-open.none.title', 'FA-19.policy-open.none.line'],
   choice: ['FA-19.policy-open.choice.title', 'FA-19.policy-open.choice.line'],
 } as const;
 
 /** A calm provisional state in the marks panel (policy-open): no form. */
-function CalmNotice({ blocked, count }: { readonly blocked: Blocked; readonly count: number }) {
+function CalmNotice({ blocked }: { readonly blocked: Blocked }) {
   const [title, line] = CALM_WORDS[blocked];
   return (
     <Notice tone="info" role="status" title={stateWords(title)}>
-      {stateWords(line).replace('{n}', String(count))}
+      {stateWords(line)}
     </Notice>
   );
 }

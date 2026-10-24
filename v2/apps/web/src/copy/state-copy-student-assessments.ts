@@ -46,6 +46,17 @@ export const STATE_COPY_STUDENT_ASSESSMENTS = {
     status: 'provisional',
     decisions: ['VD-12', 'PC-54'],
   },
+  'ST-11.choice-only': {
+    screen: 'ST-11',
+    state:
+      'A submitted attempt with no written question (choice questions only), waiting for marking',
+    words: 'Your faculty confirms the automatic marks',
+    rule: 'In place of “your faculty marks written answers”: “Submitted 5 Nov 2026, 18:52 · your faculty confirms the automatic marks” (the row and the hub’s Assessment tab), by the latest attempt’s own version. Owner decision, 24 Oct 2026: the Faculty member confirms a choice-only submission; the result follows the assessment’s own setting.',
+    basis:
+      'B4-11 f2 “Submitted … · your faculty marks written answers” (an assessment with a written answer); owner decision of 24 Oct 2026 (Appendix C M22 [U])',
+    status: 'provisional',
+    decisions: ['VD-12', 'P4-05'],
+  },
   'ST-11.release-on-date': {
     screen: 'ST-11',
     state: 'Result not released yet, for an assessment released on a date',

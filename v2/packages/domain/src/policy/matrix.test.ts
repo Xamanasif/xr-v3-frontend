@@ -4,7 +4,9 @@
  *  - ALLOW → a policy rule: each acting role, in the required state and scope, gets `may()` true
  *    and the action in `availableActions`; every role not on an ALLOW row of the action is refused;
  *  - DENY → refusal and absence (no rule, no exported command);
- *  - OPEN (15) → never offered, refused with `policy-open`;
+ *  - OPEN (15) → never offered, refused with `policy-open` — except a row an owner decision has
+ *    since resolved (`OWNER_DECIDED_OPEN_ROWS`: ATT-17, 24 Oct 2026), whose case proves the decided
+ *    behaviour through the rule that now serves it;
  *  - SYSTEM (11) → reachable only through system writers, never through a user command;
  *  - READ → visibility (`canRead`) and the read-model derivations.
  * Every test name carries the row's id, kind and status (and the stakeholder-conflict flag), so an
@@ -75,6 +77,7 @@ import { addDraftToBank } from '../assessment/question-bank.js';
 import {
   applyObjectiveMarks,
   assessmentForStudent,
+  confirmMarks,
   resultReleaseAt,
   resultView,
   saveMark,
@@ -156,9 +159,14 @@ import {
 } from '../submission/model.js';
 import type { PolicyContext } from './context.js';
 import { roleOf } from './context.js';
-import { ALL_RULES, availableActions, may } from './may.js';
+import { ALL_RULES, availableActions, isOpenCapability, may } from './may.js';
 import { canRead, courseCodeFor, type ReadTarget } from './read.js';
-import { type ActionId, OPEN_CAPABILITIES, type OpenCapability } from './rules.js';
+import {
+  type ActionId,
+  OPEN_CAPABILITIES,
+  type OpenCapability,
+  OWNER_DECIDED_OPEN_ROWS,
+} from './rules.js';
 import type { Subject, SubjectOf } from './subjects.js';
 
 // ── The matrix ──────────────────────────────────────────────────────────────────────────────────
@@ -2751,7 +2759,10 @@ const OPEN_CASES: Readonly<Record<string, () => void>> = {
     // A question belongs to the bank page's experiment; no picker is offered.
     expect(ACTION_IDS.filter((id) => /choose-experiment|pick-experiment/.test(id))).toEqual([]);
   },
+  // Owner decision of 24 Oct 2026 (P4-04; `OWNER_DECIDED_OPEN_ROWS`): no longer OPEN. Faculty
+  // saves a mark for every written answer, then confirms the attempt once — `marking.confirm`.
   'ATT-17': () => {
+    expect(isOpenCapability('marking.confirm-several-written')).toBe(false);
     const second = question(unsafeBrand('Q-0103'), { type: 'written', markingGuidance: null }, 5);
     const several = assessment({
       versions: [
@@ -2761,13 +2772,46 @@ const OPEN_CASES: Readonly<Record<string, () => void>> = {
         },
       ],
     });
-    refusedFor(
-      'faculty',
-      'marking.confirm',
-      S.attempt(SUBMITTED_WITH_MARK(), undefined, {}, several, [...QUESTIONS, second]),
-      { kind: 'policy-open', decision: 'ATT-17' },
-      T.nov7,
-    );
+    const questions = [...QUESTIONS, second];
+    const confirm = (attempt: Attempt) =>
+      confirmMarks({ attempt, assessment: several, questions, actor: who.faculty, now: T.nov7 });
+    // One of the two written answers marked: still on offer (a missing mark is form input), and
+    // the command names the written question without a saved mark.
+    const one = SUBMITTED_WITH_MARK();
+    expect(
+      may(
+        ctx('faculty', T.nov7),
+        'marking.confirm',
+        S.attempt(one, undefined, {}, several, questions),
+      ),
+    ).toMatchObject({ allowed: true, rows: ['ATT-09'] });
+    expect(refusalOf(confirm(one))).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'mark-Q-0103', rule: 'save-first' }],
+    });
+    // Both marked: confirmed once for the attempt, by the Faculty member.
+    const both = SUBMITTED({
+      marking: {
+        ...one.marking,
+        written: [
+          ...one.marking.written,
+          { questionId: second.id, mark: 4, feedback: null, savedAt: T.nov7, savedBy: who.faculty },
+        ],
+      },
+    });
+    const subject = S.attempt(both, undefined, {}, several, questions);
+    expect(may(ctx('faculty', T.nov7), 'marking.confirm', subject)).toMatchObject({
+      allowed: true,
+      rows: ['ATT-09'],
+    });
+    expect(availableActions(ctx('faculty', T.nov7), subject)).toContain('marking.confirm');
+    expect(expectOk(confirm(both)).marking.confirmed).toEqual({ at: T.nov7, by: who.faculty });
+    for (const role of ALL_ROLES.filter((candidate) => candidate !== 'faculty')) {
+      expect(may(ctx(role, T.nov7), 'marking.confirm', subject), role).toEqual({
+        allowed: false,
+        refusal: WRONG,
+      });
+    }
   },
   'DTR-09': () => {
     const none = institution({ instituteAdmin: null });
@@ -3193,13 +3237,26 @@ describe('coverage 347/347: every row has exactly one case of its kind', () => {
     expect(EXPORTS.length).toBeGreaterThan(200);
   });
 
-  it('the 15 OPEN rows are the OPEN capabilities, and no rule shares their names', () => {
+  it('the 15 OPEN rows are the OPEN capabilities and the owner-decided rows, and no rule shares their names', () => {
+    const decided = Object.keys(OWNER_DECIDED_OPEN_ROWS);
+    expect(idsOf('OPEN')).toHaveLength(15);
+    expect(decided).toEqual(['ATT-17']);
+    expect(decided.every((id) => ROW.get(id)?.kind === 'OPEN')).toBe(true);
     expect(
       Object.values(OPEN_CAPABILITIES)
         .map((entry) => entry.row)
         .sort(),
-    ).toEqual(idsOf('OPEN').sort());
+    ).toEqual(
+      idsOf('OPEN')
+        .filter((id) => !decided.includes(id))
+        .sort(),
+    );
     expect(Object.keys(OPEN_CAPABILITIES).filter((name) => ACTION_IDS.includes(name))).toEqual([]);
+    // A decided row is served by a rule, never by a leftover OPEN capability.
+    for (const entry of Object.values(OWNER_DECIDED_OPEN_ROWS)) {
+      expect(ACTION_IDS).toContain(entry.servedBy);
+      expect(entry.decided).toBe('2026-10-24');
+    }
   });
 });
 
@@ -3239,9 +3296,13 @@ describe('READ → visibility and read models', () => {
   for (const id of idsOf('READ')) it(title(ROW.get(id)!), () => READ_CASES[id]!());
 });
 
-describe('OPEN → never offered; refused with policy-open', () => {
+describe('OPEN → never offered; refused with policy-open (an owner-decided row: the decided rule)', () => {
   for (const id of idsOf('OPEN')) {
     it(title(ROW.get(id)!), () => {
+      if (Object.hasOwn(OWNER_DECIDED_OPEN_ROWS, id)) {
+        OPEN_CASES[id]!();
+        return;
+      }
       const [capability, entry] = Object.entries(OPEN_CAPABILITIES).find(
         ([, value]) => value.row === id,
       )!;

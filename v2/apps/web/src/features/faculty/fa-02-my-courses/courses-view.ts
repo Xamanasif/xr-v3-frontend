@@ -3,6 +3,7 @@ import type { TeachingCourseRow } from '@xr/contracts/draft';
 import { deadlineWords } from '@/copy/assessment-words';
 import { assessmentName } from '@/copy/fa-shared';
 import { writtenWaitingWords } from '@/copy/faculty-experiment';
+import { withConfirmWords } from '@/copy/marking';
 import {
   accessEndedLine,
   assessmentDueLine,
@@ -74,7 +75,11 @@ function ledgerRow(entry: TaughtExperiment, me: string | null): LedgerRowView {
               : deadlineWords(assessment.assessment.rules.deadline),
             colleague,
           ),
-    waiting: waiting > 0 ? writtenWaitingWords(waiting) : null,
+    // Choice-only submissions waiting for confirmation are named too (24 Oct 2026).
+    waiting: withConfirmWords(
+      waiting > 0 ? writtenWaitingWords(waiting) : null,
+      assessment !== null && colleague === null ? assessment.waitingToConfirm : 0,
+    ),
   };
 }
 

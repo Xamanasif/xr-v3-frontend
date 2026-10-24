@@ -15,6 +15,10 @@ import type { ProductPorts } from '@xr/contracts/draft';
 import type { Role } from '@xr/domain';
 import { useMemo } from 'react';
 
+import { confirmCountWords, waitingWork } from '@/copy/marking';
+import { WORKSPACE_NAV } from '@/nav/nav-config';
+import { countLabel, type NavCount } from '@/nav/sidebar-model';
+
 import { defineQuery, useXrQuery } from './use-xr-query';
 
 export const requestsUnderReview = defineQuery({
@@ -36,7 +40,11 @@ export function useRequestsUnderReview() {
 
 /**
  * Phase 4B: the Faculty member's Marking count — "2 written answers to mark" (B4-09 f0, B4-06 f7
- * sidebars) — the rows FA-18's queue answers as waiting, so the figure and the queue agree.
+ * sidebars) — from the rows FA-18's queue answers as waiting, so the figure and the queue agree:
+ * the written answers waiting (each written answer of a submission counts) and, since the owner
+ * decision of 24 Oct 2026, the submissions without a written question whose automatic marks wait
+ * for confirmation — then the words say so ("2 written answers to mark · 1 submission to
+ * confirm", state-copy `FA-18.confirm-count.one`).
  */
 export const writtenAnswersToMark = defineQuery({
   family: 'nav-counts',
@@ -64,15 +72,37 @@ export const readyToPublishCount = defineQuery({
   read: (ports: ProductPorts) => ports.production.listReadyToPublish(),
 });
 
+const MARKING_COUNT_WORDS = WORKSPACE_NAV.faculty.destinations.find(
+  (destination) => destination.key === 'marking',
+)?.countWords;
+
+/**
+ * The Faculty member's Marking figure: written answers only keep board 06's words (the figure
+ * alone); with submissions to confirm, the figure is the sum and its words name both.
+ */
+export function markingCount(writtenAnswers: number, toConfirm: number): NavCount {
+  if (toConfirm === 0) return writtenAnswers;
+  const confirm = confirmCountWords(toConfirm);
+  return {
+    value: writtenAnswers + toConfirm,
+    label:
+      writtenAnswers === 0 || !MARKING_COUNT_WORDS
+        ? confirm
+        : `${countLabel(MARKING_COUNT_WORDS, writtenAnswers)} · ${confirm}`,
+  };
+}
+
 /** Count figures by destination key (zero or absent: no count is drawn). */
-export function useNavCounts(role: Role): Readonly<Partial<Record<string, number>>> {
+export function useNavCounts(role: Role): Readonly<Partial<Record<string, NavCount>>> {
   const requests = useXrQuery(requestsUnderReview, null, { enabled: role === 'super_admin' });
   const marking = useXrQuery(writtenAnswersToMark, null, { enabled: role === 'faculty' });
   const queue = useXrQuery(waitingForReview, null, { enabled: role === 'academic_reviewer' });
   const ready = useXrQuery(readyToPublishCount, null, { enabled: role === 'content_manager' });
   const underReview =
     role === 'super_admin' && requests.data?.ok ? requests.data.value.length : undefined;
-  const toMark = role === 'faculty' && marking.data?.ok ? marking.data.value.length : undefined;
+  const work = role === 'faculty' && marking.data?.ok ? waitingWork(marking.data.value) : null;
+  const writtenAnswers = work?.writtenAnswers;
+  const toConfirm = work?.toConfirm;
   const toReview =
     role === 'academic_reviewer' && queue.data?.ok ? queue.data.value.length : undefined;
   const toPublish =
@@ -80,10 +110,12 @@ export function useNavCounts(role: Role): Readonly<Partial<Record<string, number
   return useMemo(
     () => ({
       ...(underReview === undefined ? {} : { requests: underReview }),
-      ...(toMark === undefined ? {} : { marking: toMark }),
+      ...(writtenAnswers === undefined || toConfirm === undefined
+        ? {}
+        : { marking: markingCount(writtenAnswers, toConfirm) }),
       ...(toReview === undefined ? {} : { 'review-queue': toReview }),
       ...(toPublish === undefined ? {} : { 'ready-to-publish': toPublish }),
     }),
-    [underReview, toMark, toReview, toPublish],
+    [underReview, writtenAnswers, toConfirm, toReview, toPublish],
   );
 }

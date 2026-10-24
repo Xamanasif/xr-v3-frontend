@@ -144,6 +144,14 @@ export function rowWhen(row: MyAssessmentRow, today: string | null): RowWhen {
   }
 }
 
+/**
+ * The latest attempt's own version has a written question (none: its automatic marks wait for
+ * the Faculty member's confirmation — `ST-11.choice-only`). Unknown: as drawn.
+ */
+function hasWritten(row: MyAssessmentRow): boolean {
+  return row.latest ? row.latest.pinned.questionTypes.written > 0 : true;
+}
+
 /** ST-11's line after the status (`alistVM` `sub`). */
 export function rowLine(row: MyAssessmentRow): string {
   switch (row.result.kind) {
@@ -152,7 +160,7 @@ export function rowLine(row: MyAssessmentRow): string {
     case 'in-progress':
       return ST_ROW_LINES.inProgress;
     case 'waiting-for-marking':
-      return ST_ROW_LINES.waiting(row.latest?.submittedAt ?? null);
+      return ST_ROW_LINES.waiting(row.latest?.submittedAt ?? null, hasWritten(row));
     case 'not-released-yet':
       return markedReleaseLine(releaseOf(row));
     case 'released':
@@ -168,7 +176,7 @@ export function hubStateLine(row: MyAssessmentRow): string | null {
     case 'in-progress':
       return ST_HUB_ASSESSMENT_V3.inProgress;
     case 'waiting-for-marking':
-      return submittedLine(row.latest?.submittedAt ?? null);
+      return submittedLine(row.latest?.submittedAt ?? null, hasWritten(row));
     case 'not-released-yet':
       return markedReleaseLine(releaseOf(row));
     case 'released':

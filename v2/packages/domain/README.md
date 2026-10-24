@@ -111,6 +111,14 @@ Completed only from a completion record.
   Without every choice question's supplied mark, Confirm marks answers `policy-open` (ATT-07) and a
   result shows no figure — no score is made from a missing mark.
 
+- **Assessment shapes — owner decisions of 24 Oct 2026 (the assessment P0 fix, audit CB-2;
+  `../../docs/decisions/README.md`).** `confirmMarks` is the Faculty member's, once per attempt, for
+  every Ready shape. No written question (Appendix C M22 [U], P4-05): the Faculty member confirms
+  the automatic marks — no system actor confirms. Several written questions (ATT-17, P4-04): every
+  written answer needs its saved mark first (`save-first`, one issue per question still without a
+  mark, `mark-<questionId>`), then one confirmation. ATT-17 left `OPEN_CAPABILITIES`
+  (`OWNER_DECIDED_OPEN_ROWS`); the frozen matrix still reads OPEN. ATT-07 is unchanged.
+
 ## Open decisions answered `policy-open`
 
 T-01 (cold visit to a request status), T-03 (deciding after "Information requested"), T-07
@@ -118,8 +126,7 @@ T-01 (cold visit to a request status), T-03 (deciding after "Information request
 OD-B2-01 (overlap; group-grant withdrawal, SACC-08), OD-B2-02 (members added after a group grant),
 GRP-05 (members removed after it), SACC-11, SACC-14 (earlier work after withdrawal or the end),
 PER-07, CC-06, OD-B4-17 (co-teaching, ASMT-17; a colleague's question, Q-10), ATT-07 (automatic
-marking), ATT-17 and "no written question" (M22), OD-B3-01
-(several authorised devices), ROLE-11, SUB-15, SUP-04, SUP-07, SES-09, and a format "not available
+marking), OD-B3-01 (several authorised devices), ROLE-11, SUB-15, SUP-04, SUP-07, SES-09, and a format "not available
 right now" (drawn without a cause). The other OPEN capabilities answer with their register ids
 (R06, ND-04, Q-11, OD-B3-05, OD-B7-09).
 

@@ -362,6 +362,14 @@ export const DOMAIN_ISSUE_MAP: { readonly [M in MethodId]?: readonly IssueMappin
   ],
   'MarkingService.confirmMarks': [
     { field: 'mark', rule: 'save-first', to: to('mark', 'FA-19.mark.required') },
+    // Several written questions (owner decision 24 Oct 2026, ATT-17 / P4-04): each written answer
+    // still without a saved mark, by its question (`marks.<questionId>`, "Enter a mark for
+    // question <n>" — the adapter supplies the number).
+    {
+      field: /^mark-(.+)$/,
+      rule: 'save-first',
+      to: (match) => ({ field: `marks.${match![1]}`, key: 'FA-19.mark.required' }),
+    },
   ],
   'ProductionService.saveDraft': vendorDraft,
   'ProductionService.saveRevision': vendorDraft,

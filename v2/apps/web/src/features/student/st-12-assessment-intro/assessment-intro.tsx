@@ -529,7 +529,11 @@ function keyFacts(intro: IntroAnswer, attempt: StudentAttemptFacts | null): StIn
       key: 'release',
       term: INTRO_PAGE.release,
       value: releaseValueWords(facts.release) ?? missing,
-      detail: facts.questionTypes.written > 0 ? INTRO_PAGE.writtenMarked : undefined,
+      // Without a written question the Faculty member confirms the automatic marks (24 Oct 2026).
+      detail:
+        facts.questionTypes.written > 0
+          ? INTRO_PAGE.writtenMarked
+          : stateWords('ST-12.choice-only'),
     },
     ...(setBy.kind === 'person'
       ? [{ key: 'set-by', term: INTRO_V3.setBy, value: setBy.displayName }]

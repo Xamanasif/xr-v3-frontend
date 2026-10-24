@@ -16,7 +16,19 @@ export interface SidebarModelOptions {
    * (board 06 sample numbers are not product data). Zero or absent draws no count (board 05
    * `hasCount`).
    */
-  readonly counts?: Readonly<Partial<Record<string, number>>>;
+  readonly counts?: Readonly<Partial<Record<string, NavCount>>>;
+}
+
+/**
+ * A destination's count: the figure (worded by the destination's `countWords`), or the figure with
+ * words of its own when what it counts differs from those words (the Faculty member's Marking with
+ * submissions to confirm, owner decision of 24 Oct 2026).
+ */
+export type NavCount = number | { readonly value: number; readonly label: string };
+
+/** The figure of a count. */
+export function countValue(count: NavCount | undefined): number | undefined {
+  return typeof count === 'object' ? count.value : count;
 }
 
 export interface SidebarModel {
@@ -42,7 +54,8 @@ export function sidebarModel(role: Role, options: SidebarModelOptions): SidebarM
     destinations: config.destinations
       .filter((destination) => built.has(destination.screen))
       .map((destination) => {
-        const value = options.counts?.[destination.key];
+        const count = options.counts?.[destination.key];
+        const value = countValue(count);
         return {
           label: destination.label,
           href: destination.href,
@@ -50,7 +63,13 @@ export function sidebarModel(role: Role, options: SidebarModelOptions): SidebarM
           current: current === destination.key,
           count:
             destination.countWords && value !== undefined && value > 0
-              ? { value, label: countLabel(destination.countWords, value) }
+              ? {
+                  value,
+                  label:
+                    typeof count === 'object'
+                      ? count.label
+                      : countLabel(destination.countWords, value),
+                }
               : undefined,
         };
       }),

@@ -264,7 +264,13 @@ export const listAssessmentsOutput = z.array(
     readiness: assessmentReadiness,
     submitted: z.number().int().min(0),
     reach: z.number().int().min(0),
+    /** Submissions with a written answer whose marks are not confirmed (the own assessments'). */
     waitingForMarking: z.number().int().min(0),
+    /**
+     * PC-74: submissions without a written question whose automatic marks wait for the Faculty
+     * member's confirmation (owner decision 24 Oct 2026, M22 / P4-05; 0 on a colleague's).
+     */
+    waitingToConfirm: z.number().int().min(0),
   }),
 );
 export const createOptionsOutput = z.array(
@@ -842,7 +848,10 @@ export const listQueueOutput = z.array(
     student: studentPerson,
     assessmentName: z.string(),
     submittedAt: isoInstant,
-    /** PC-58: the experiment and the written questions' numbers in the attempt's version. */
+    /**
+     * PC-58: the experiment and the written questions' numbers in the attempt's version — empty
+     * for an attempt without a written question (its automatic marks wait for confirmation).
+     */
     experimentName: z.string(),
     writtenNumbers: z.array(z.number().int().min(1)),
   }),
@@ -875,7 +884,11 @@ type MarkingErrors =
   | Unavailable;
 
 export interface MarkingService {
-  /** Oldest first. */
+  /**
+   * Oldest first: every submitted attempt of the Faculty member's own assessments — with written
+   * answers to mark (`writtenNumbers`), or with none, waiting for the automatic marks to be
+   * confirmed (`writtenNumbers` empty; owner decision of 24 Oct 2026, M22 / P4-05).
+   */
   listQueue(
     filter: In<typeof listQueueInput>,
   ): Answer<Out<typeof listQueueOutput>, NotSignedIn | NotPermitted | Unavailable>;
@@ -888,7 +901,12 @@ export interface MarkingService {
   >;
   /** "Mark saved — not confirmed yet"; the Student sees nothing. Policy-open: OD-B4-17. */
   saveMark(input: In<typeof saveMarkInput>): Answer<Attempt, ValidationFailed | MarkingErrors>;
-  /** Policy-open: ATT-07 (objective marks not supplied), ATT-17, M22 (no written question), OD-B4-17. */
+  /**
+   * Once per attempt (owner decisions of 24 Oct 2026): every written answer needs its saved mark
+   * first — one written question: `mark`; several: `marks.<questionId>` for each one without a
+   * mark (ATT-17, P4-04); an attempt without a written question is confirmed on its automatic
+   * marks (M22, P4-05). Policy-open: ATT-07 (objective marks not supplied), OD-B4-17.
+   */
   confirmMarks(
     input: In<typeof confirmMarksInput>,
   ): Answer<Attempt, ValidationFailed | MarkingErrors>;
@@ -961,8 +979,23 @@ export const facultyAttention = z.discriminatedUnion('kind', [
     kind: z.literal('written-answers-to-mark'),
     assessmentId,
     assessmentName: z.string(),
-    /** Submitted attempts with a written answer whose marks are not confirmed. */
+    /**
+     * The written answers whose marks are not confirmed — a submission with several written
+     * questions counts each one (owner decision 24 Oct 2026, ATT-17 / P4-04; PC-74).
+     */
     answers: z.number().int().min(1),
+    /** The oldest waiting submission (the queue is oldest first). */
+    oldest: z.object({ studentName: z.string().min(1), submittedAt: isoInstant }),
+  }),
+  /**
+   * PC-74: submissions without a written question whose automatic marks wait for the Faculty
+   * member's confirmation (owner decision 24 Oct 2026, M22 / P4-05), per own assessment.
+   */
+  z.object({
+    kind: z.literal('marks-to-confirm'),
+    assessmentId,
+    assessmentName: z.string(),
+    submissions: z.number().int().min(1),
     /** The oldest waiting submission (the queue is oldest first). */
     oldest: z.object({ studentName: z.string().min(1), submittedAt: isoInstant }),
   }),

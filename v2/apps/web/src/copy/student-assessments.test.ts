@@ -89,6 +89,12 @@ describe('ST-11 Assessments (B4-11 f0 … f6)', () => {
       'Submitted 5 Nov 2026, 18:52 · your faculty marks written answers',
     );
     expect(B4_11).toContain(`'Submitted ' + D.submitted + ' · your faculty marks written answers'`);
+    // No written question (owner decision 24 Oct 2026): the register's words, never “written”.
+    expect(plain(submittedLine(SUBMITTED, false))).toBe(
+      'Submitted 5 Nov 2026, 18:52 · your faculty confirms the automatic marks',
+    );
+    expect(submittedLine(null, false)).toBe('Your faculty confirms the automatic marks');
+    expect(submittedLine(null)).toBe('Your faculty marks written answers');
     expect(plain(releaseTermsLine({ option: 'after-deadline', on: DEADLINE }))).toBe(
       'Released after the deadline: 14 Nov 2026, 23:59',
     );

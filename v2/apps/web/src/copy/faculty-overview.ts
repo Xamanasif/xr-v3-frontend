@@ -104,6 +104,23 @@ export function markNowLabel(student: string, assessment: string): string {
   return `${ATTENTION_ITEMS.written.action}: ${student}, ${assessment}`;
 }
 
+/**
+ * The item of submissions without a written question, whose automatic marks wait for the Faculty
+ * member's confirmation (owner decision of 24 Oct 2026; state-copy `FA-01.confirm-kind`): its kind,
+ * its line and its action — FA-19's own “Confirm marks”.
+ */
+export const CONFIRM_ITEM = {
+  kind: (count: number) =>
+    stateWords(count === 1 ? 'FA-01.confirm-kind' : 'FA-01.confirm-kind-many'),
+  description: () => stateWords('FA-01.confirm-description'),
+  action: 'Confirm marks',
+} as const;
+
+/** "Confirm marks: Rahul Verma, Fin-Tube Bundle — quick check" (as `markNowLabel` composes it). */
+export function confirmNowLabel(student: string, assessment: string): string {
+  return `${CONFIRM_ITEM.action}: ${student}, ${assessment}`;
+}
+
 /** "Last active 19 Oct" / "No activity since access, 12 Oct" — an inactive Student's line. */
 export function lastActiveWords(lastActive: string | null, accessGiven: string | null): string {
   if (lastActive !== null) return `Last active ${lastActive}`;

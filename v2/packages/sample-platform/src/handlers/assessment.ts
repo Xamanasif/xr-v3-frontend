@@ -276,6 +276,11 @@ export function assessmentPort(call: Call): AssessmentService {
             waitingForMarking: isColleagueAssessment(assessment, person.personId)
               ? 0
               : waitingForMarking(op, assessment).length,
+            // Submissions without a written question whose automatic marks wait for THIS Faculty
+            // member's confirmation (owner decision 24 Oct 2026, M22 / P4-05; PC-74).
+            waitingToConfirm: isColleagueAssessment(assessment, person.personId)
+              ? 0
+              : waitingToConfirm(op, assessment).length,
           }));
       }),
 
@@ -1137,8 +1142,11 @@ function writtenOf(op: Op, assessment: Assessment, attempt: Attempt) {
 
 export function markingPort(call: Call): MarkingService {
   return {
-    // FA-18 (B4-09 f0, f4, f5; Phase 4B): written answers in the Faculty member's own assessments,
-    // oldest first — a co-teaching colleague's are not this queue's (ASMT-17, OD-B4-17).
+    // FA-18 (B4-09 f0, f4, f5; Phase 4B): the submissions of the Faculty member's own assessments,
+    // oldest first — a co-teaching colleague's are not this queue's (ASMT-17, OD-B4-17). Each
+    // carries its written questions' numbers; an attempt without a written question is listed too,
+    // its automatic marks waiting for the Faculty member's confirmation (owner decision of 24 Oct
+    // 2026, M22 / P4-05; `writtenNumbers` empty).
     listQueue: (filter) =>
       read(call, 'MarkingService.listQueue', (op) => {
         const person = facultyOf(op.person());
@@ -1155,7 +1163,6 @@ export function markingPort(call: Call): MarkingService {
             const written = writtenOf(op, assessment, attempt).filter(
               (entry) => entry.version.body.type === 'written',
             );
-            if (written.length === 0) return [];
             const confirmed = attempt.marking.confirmed !== null;
             if (accepted.state === 'waiting' && confirmed) return [];
             if (accepted.state === 'marked' && !confirmed) return [];
@@ -1178,9 +1185,10 @@ export function markingPort(call: Call): MarkingService {
           );
       }),
 
-    // FA-19 (B4-09 f1 … f3, f7, f8; Phase 4B): the submitted attempt, its written questions as its
-    // version pins them (with their marking guidance — Faculty only), the choice questions' marks
-    // and the pinned release terms. A co-teaching colleague's assessment is policy-open (ASMT-17).
+    // FA-19 (B4-09 f1 … f3, f7, f8; Phase 4B): the submitted attempt, every written question as its
+    // version pins it (with its marking guidance — Faculty only; none, one or several), the choice
+    // questions' automatic marks (on the attempt) and the pinned release terms. A co-teaching
+    // colleague's assessment is policy-open (ASMT-17).
     getAttemptForMarking: (attemptId) =>
       read(call, 'MarkingService.getAttemptForMarking', (op) => {
         const person = facultyOf(op.person());
@@ -1266,7 +1274,7 @@ export function markingPort(call: Call): MarkingService {
         op.allow(person, 'marking.confirm', attemptSubject(op, assessment, attempt, null));
         const accepted = op.parse(confirmMarksInput, input);
         op.rev(attempt, accepted.expectedRev);
-        const written = writtenOf(op, assessment, attempt).find(
+        const written = writtenOf(op, assessment, attempt).filter(
           (entry) => entry.version.body.type === 'written',
         );
         const next = op.decide(
@@ -1278,7 +1286,14 @@ export function markingPort(call: Call): MarkingService {
             now: op.now,
           }),
           input,
-          () => ({ question: String(written?.number ?? 1) }),
+          // "Enter a mark for question <n>": the one written question, or (several) the question
+          // the issue names (`mark-<questionId>`).
+          (issue) => {
+            const named = issue.field.startsWith('mark-')
+              ? written.find((entry) => `mark-${entry.questionId}` === issue.field)
+              : written[0];
+            return { question: String(named?.number ?? 1) };
+          },
         );
         op.tx.put('attempts', next.id, next);
         return { value: next, decision: 'confirmMarks', actor: person.ref };
@@ -1515,8 +1530,26 @@ export function teachingPort(call: Call): TeachingService {
               kind: 'written-answers-to-mark',
               assessmentId: assessment.id,
               assessmentName: assessment.name,
-              answers: waiting.length,
+              // The written answers themselves: a submission with several counts each one.
+              answers: waiting.reduce(
+                (sum, attempt) => sum + writtenQuestionsOf(op, assessment, attempt),
+                0,
+              ),
               oldest: { studentName: student.fullName, submittedAt: oldest.submittedAt },
+            });
+          }
+          // Submissions without a written question: their automatic marks wait for the Faculty
+          // member's confirmation (owner decision 24 Oct 2026, M22 / P4-05; PC-74).
+          const toConfirm = waitingToConfirm(op, assessment);
+          const first = toConfirm[0];
+          const firstStudent = first ? op.records.people[first.studentId] : undefined;
+          if (first?.submittedAt && firstStudent) {
+            attention.push({
+              kind: 'marks-to-confirm',
+              assessmentId: assessment.id,
+              assessmentName: assessment.name,
+              submissions: toConfirm.length,
+              oldest: { studentName: firstStudent.fullName, submittedAt: first.submittedAt },
             });
           }
         }
@@ -1927,13 +1960,17 @@ function submittedStudents(op: Op, assessment: Assessment): number {
   ).size;
 }
 
-/** Submitted attempts with a written answer whose marks are not confirmed — oldest first. */
-function waitingForMarking(op: Op, assessment: Assessment): Attempt[] {
+/** How many written questions an attempt's version pins. */
+function writtenQuestionsOf(op: Op, assessment: Assessment, attempt: Attempt): number {
+  return writtenOf(op, assessment, attempt).filter((entry) => entry.version.body.type === 'written')
+    .length;
+}
+
+/** Submitted attempts whose marks are not confirmed, of one shape — oldest first. */
+function unconfirmed(op: Op, assessment: Assessment, written: boolean): Attempt[] {
   return attemptsOf(op, assessment.id)
     .filter((attempt) => attempt.state === 'submitted' && attempt.marking.confirmed === null)
-    .filter((attempt) =>
-      writtenOf(op, assessment, attempt).some((entry) => entry.version.body.type === 'written'),
-    )
+    .filter((attempt) => writtenQuestionsOf(op, assessment, attempt) > 0 === written)
     .sort((a, b) =>
       (a.submittedAt ?? '') === (b.submittedAt ?? '')
         ? 0
@@ -1941,6 +1978,19 @@ function waitingForMarking(op: Op, assessment: Assessment): Attempt[] {
           ? -1
           : 1,
     );
+}
+
+/** Submitted attempts with a written answer whose marks are not confirmed — oldest first. */
+function waitingForMarking(op: Op, assessment: Assessment): Attempt[] {
+  return unconfirmed(op, assessment, true);
+}
+
+/**
+ * Submitted attempts without a written question whose automatic marks are not confirmed yet —
+ * oldest first (owner decision 24 Oct 2026: the Faculty member confirms them; M22, P4-05).
+ */
+function waitingToConfirm(op: Op, assessment: Assessment): Attempt[] {
+  return unconfirmed(op, assessment, false);
 }
 
 /**

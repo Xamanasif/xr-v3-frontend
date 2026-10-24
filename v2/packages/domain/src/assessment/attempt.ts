@@ -5,8 +5,10 @@
  * - Choice-question marks are supplied by fixtures through the system stand-in only — this package
  *   has no scoring function and never compares an answer with a key (DV-2; ATT-07).
  * - Written answers are marked by Faculty (whole numbers 0 … the question's marks; ATT-08, ATT-21);
- *   confirmed marks are read-only (ATT-10). Several written questions per attempt: whether marks are
- *   confirmed per answer or per attempt is open (ATT-17 OPEN).
+ *   confirmed marks are read-only (ATT-10). An attempt's marks are confirmed once, by the Faculty
+ *   member, whatever its shape (owner decisions of 24 Oct 2026: no written question — the
+ *   automatic marks are confirmed (M22 [U], P4-05); several written questions — every written
+ *   answer's mark is saved first, then the attempt is confirmed once (ATT-17, P4-04)).
  * - The result is released by the assessment's own setting, derived from the clock — no stored
  *   flag, no Faculty release control (ATT-13 SYSTEM, ATT-14 DENY). Before release the Student sees
  *   no figure (ATT-15).
@@ -356,9 +358,20 @@ export function saveMark(input: {
 }
 
 /**
- * Confirm marks (ATT-09; DL-1 "Confirmed marks can’t be changed."). Drawn for an attempt with one
- * written question; several written questions (ATT-17 OPEN) and none (Appendix C M22 [U]) are not
- * drawn and return `policy-open`.
+ * Confirm marks (ATT-09; DL-1 "Confirmed marks can’t be changed."): once per attempt, by the Faculty
+ * member — never by a system actor. Every written answer needs its saved mark first: with one
+ * written question the refusal is `save-first` on `mark` (as drawn, B4-09); with several, one
+ * `save-first` issue names each written question still without a mark (`mark-<questionId>`, in
+ * the version's order). Every choice question needs its automatic mark (ATT-07 stays open: without
+ * one, `policy-open`). An attempt without a written question is confirmed on its automatic marks
+ * alone.
+ *
+ * Owner decisions of 24 Oct 2026 (the assessment P0 fix, audit CB-2; recorded in
+ * `docs/decisions/README.md`): an attempt with no written question — the Faculty member confirms
+ * the automatic marks (Appendix C M22 [U] "no written questions", P4-05); several written questions
+ * — confirm once per attempt after every written answer has a saved mark (ATT-17, P4-04). Neither
+ * is `policy-open` any more. Unchanged: the score, the pass rule, rounding (open), attempts,
+ * release, ATT-07, ATT-10.
  */
 export function confirmMarks(input: {
   readonly attempt: Attempt;
@@ -367,18 +380,28 @@ export function confirmMarks(input: {
   readonly actor: PersonActorRef;
   readonly now: IsoInstant;
 }): Decision<Attempt> {
+  // The Faculty member confirms; no system actor and no other role has this authority.
+  if (input.actor.kind !== 'person' || input.actor.role !== 'faculty')
+    return notPermitted('wrong-workspace');
   if (!can(input.attempt, 'submitted', 'confirmMarks')) return invalidState(input.attempt.state);
   if (input.attempt.marking.confirmed) return refused('marks-confirmed');
   const snapshot = assessmentVersion(input.assessment, input.attempt.assessmentVersion);
   const written = (snapshot ? pinnedQuestions(snapshot, input.questions) : []).filter(
     (entry) => entry.version.body.type === 'written',
   );
-  if (written.length === 0) return policyOpen('M22-no-written-questions');
-  if (written.length > 1) return policyOpen('ATT-17');
-  const saved = input.attempt.marking.written.find(
-    (mark) => mark.questionId === written[0]!.questionId,
+  const unsaved = written.filter(
+    (entry) =>
+      !input.attempt.marking.written.some(
+        (mark) => mark.questionId === entry.questionId && mark.mark !== null,
+      ),
   );
-  if (!saved || saved.mark === null) return invalidInput({ field: 'mark', rule: 'save-first' });
+  if (unsaved.length > 0) {
+    return written.length === 1
+      ? invalidInput({ field: 'mark', rule: 'save-first' })
+      : invalidInput(
+          ...unsaved.map((entry) => ({ field: `mark-${entry.questionId}`, rule: 'save-first' })),
+        );
+  }
   // Choice-question marks are supplied (seeded) only; without them no result can be confirmed —
   // automated marking is undecided (ATT-07; DV-2).
   if (!objectiveMarksComplete(input.attempt, snapshot, input.questions))

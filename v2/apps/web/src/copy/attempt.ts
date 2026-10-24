@@ -285,8 +285,8 @@ export function unansweredWords(numbers: readonly number[]): string {
 
 /**
  * f4 "Submitted 5 Nov 2026, 18:52. Your faculty marks written answers. Your result appears after
- * the deadline: 14 Nov 2026, 23:59." — the written-answer sentence only when the attempt has one
- * (`ST-13.submitted-no-written`).
+ * the deadline: 14 Nov 2026, 23:59." — without a written question, "Your faculty confirms the
+ * automatic marks." (`ST-13.submitted-no-written`; owner decision of 24 Oct 2026).
  */
 export function submittedLine(
   submittedAt: string,
@@ -295,7 +295,7 @@ export function submittedLine(
 ): string {
   return [
     `Submitted ${stDateTime(submittedAt)}.`,
-    hasWritten ? ATTEMPT_PAGE.writtenMarked : null,
+    hasWritten ? ATTEMPT_PAGE.writtenMarked : stateWords('ST-13.submitted-no-written'),
     release ? resultAppearsWords(release, true) : null,
   ]
     .filter((part): part is string => part !== null)

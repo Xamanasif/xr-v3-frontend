@@ -41,6 +41,7 @@ import {
 } from '@/copy/assessment-record';
 import { deadlineWords, questionsAndMarks } from '@/copy/assessment-words';
 import { dateTime } from '@/copy/dates';
+import { withConfirmWords } from '@/copy/marking';
 import { stateWords } from '@/copy/state-copy';
 import { SUMMARY_ACTIONS } from '@/copy/submissions';
 import { assessmentAddress, markingQueueAddress, markSubmissionAddress } from '@/nav/faculty';
@@ -145,7 +146,11 @@ function SummaryBody({ view }: { readonly view: AssessmentFrameView }) {
   const creator = otherActor(assessment.createdBy, viewer);
   const own = creator === null;
   const submitted = row?.submitted ?? 0;
-  const waiting = row?.waitingForMarking ?? 0;
+  // The submissions waiting: with a written answer, and choice-only ones whose automatic marks
+  // wait for confirmation (owner decision of 24 Oct 2026).
+  const writtenWaiting = row?.waitingForMarking ?? 0;
+  const toConfirm = row?.waitingToConfirm ?? 0;
+  const waiting = writtenWaiting + toConfirm;
   const queue = useMarkingQueue(assessment.id, 'waiting', waiting > 0);
   const waitingRows = queue.data?.ok ? queue.data.value : [];
   // FA-19 for the oldest submission waiting; until the queue is read, the queue of this assessment.
@@ -298,7 +303,12 @@ function SummaryBody({ view }: { readonly view: AssessmentFrameView }) {
         <FaPanel title={SUMMARY_WORDS.submissionsTitle} titleId={SUBMISSIONS_ID} note={panelNote}>
           {waiting > 0 ? (
             <>
-              <PendingHint>{writtenWaitingWords(waiting)}</PendingHint>
+              <PendingHint>
+                {withConfirmWords(
+                  writtenWaiting > 0 ? writtenWaitingWords(writtenWaiting) : null,
+                  toConfirm,
+                )}
+              </PendingHint>
               {waitingRows.length > 0 ? (
                 <FaRecordWaitList
                   label={SUMMARY_WORDS.waitListLabel}

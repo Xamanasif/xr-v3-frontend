@@ -55,6 +55,7 @@ import {
   isNewTeacher,
   NAMES_SHOWN,
   priorityItems,
+  submissionsToConfirm,
   submittedAtWords,
   writtenAnswersWaiting,
 } from './fa-01-overview/overview-view';
@@ -688,13 +689,32 @@ const written = (
   answers,
   oldest: { studentName: student, submittedAt: submittedAt as never },
 });
-const queueRow = (id: string, student: string, submittedAt: string): MarkingQueueRow =>
+const queueRow = (
+  id: string,
+  student: string,
+  submittedAt: string,
+  writtenNumbers: readonly number[] = [4],
+  assessmentName = 'Heat Exchanger — post-lab',
+): MarkingQueueRow =>
   ({
     attempt: { id, assessmentId: 'A' },
     student: { fullName: student },
-    assessmentName: 'Heat Exchanger — post-lab',
+    assessmentName,
     submittedAt,
+    writtenNumbers,
   }) as never;
+const toConfirm = (
+  assessment: string,
+  submissions: number,
+  submittedAt: string,
+  student = 'Rahul Verma',
+): FacultyAttention => ({
+  kind: 'marks-to-confirm',
+  assessmentId: `A-${assessment}` as AssessmentId,
+  assessmentName: assessment,
+  submissions,
+  oldest: { studentName: student, submittedAt: submittedAt as never },
+});
 
 describe('FA-01 — the band, Coming up and the new teacher (pure)', () => {
   const today = '2026-11-07T04:30:00.000Z';
@@ -709,6 +729,7 @@ describe('FA-01 — the band, Coming up and the new teacher (pure)', () => {
       queueRow('A2', 'Priya Natarajan', '2026-11-06T14:40:00.000Z'),
       queueRow('A3', 'Imran Shaikh', '2026-11-06T15:00:00.000Z'),
       queueRow('A4', 'Divya Menon', '2026-11-06T16:00:00.000Z'),
+      queueRow('A5', 'Karthik Rao', '2026-11-06T17:00:00.000Z'),
     ];
     const [item] = priorityItems(facts, queue, new Map(), today);
     expect(item).toMatchObject({
@@ -735,6 +756,72 @@ describe('FA-01 — the band, Coming up and the new teacher (pure)', () => {
     expect(writtenAnswersWaiting(facts)).toBe(5);
     // Without the queue (not answered, or failed): the facts alone, no names.
     expect(priorityItems(facts, null, new Map(), today)[0]!.list).toBeNull();
+  });
+
+  it('submissions to confirm (owner decision 24 Oct 2026): their own item after the written answers, never in Mark now’s', () => {
+    const facts = [
+      written('Heat Exchanger — post-lab', 2, '2026-11-05T13:22:00.000Z'),
+      toConfirm('Fin-Tube Bundle — quick check', 1, '2026-11-06T14:40:00.000Z', 'Priya Natarajan'),
+    ];
+    const queue = [
+      queueRow('A1', 'Rahul Verma', '2026-11-05T13:22:00.000Z', [4, 5]),
+      queueRow(
+        'A2',
+        'Priya Natarajan',
+        '2026-11-06T14:40:00.000Z',
+        [],
+        'Fin-Tube Bundle — quick check',
+      ),
+    ];
+    const [writtenItem, confirmItem] = priorityItems(facts, queue, new Map(), today);
+    // The written item counts written answers (a submission with two counts both) and names
+    // only the submissions with a written answer.
+    expect(writtenItem).toMatchObject({
+      key: 'written',
+      big: '2',
+      kindLabel: 'Written answers to mark',
+      title: 'Heat Exchanger — post-lab',
+      action: { label: 'Mark now', href: null, primary: true },
+    });
+    expect(writtenItem!.list!.rows.map((row) => row.name)).toEqual(['Rahul Verma']);
+    expect(writtenItem!.list!.more).toBeNull();
+    expect(confirmItem).toMatchObject({
+      key: 'confirm',
+      kind: 'confirm',
+      big: '1',
+      relative: 'Oldest waiting 1 day',
+      calm: false,
+      kindLabel: 'Submission to confirm',
+      title: 'Fin-Tube Bundle — quick check',
+      description: 'No written answer to mark. Check the automatic marks, then confirm them.',
+      action: {
+        label: 'Confirm marks',
+        href: '/faculty/marking/A2',
+        primary: false,
+        accessibleName: 'Confirm marks: Priya Natarajan, Fin-Tube Bundle — quick check',
+      },
+    });
+    expect(confirmItem!.list).toEqual({
+      label: 'Waiting for marking, oldest first',
+      rows: [{ key: 'A2', name: 'Priya Natarajan', detail: '6 Nov, 20:10' }],
+      more: null,
+    });
+    // Several: “Submissions to confirm”, across assessments; without the queue, Marking.
+    const many = priorityItems(
+      [toConfirm('One', 2, today), toConfirm('Two', 1, today)],
+      null,
+      new Map(),
+      today,
+    )[0]!;
+    expect(many).toMatchObject({
+      big: '3',
+      kindLabel: 'Submissions to confirm',
+      title: 'Across 2 assessments',
+      list: null,
+      action: { href: '/faculty/marking' },
+    });
+    expect(submissionsToConfirm([...facts, toConfirm('Two', 2, today)])).toBe(3);
+    expect(writtenAnswersWaiting(facts)).toBe(2);
   });
 
   it('inactive Students: one item over several experiments, longest inactive first, three names', () => {
@@ -960,6 +1047,7 @@ describe('FA-01 — words, ledger and register', () => {
     const mine = LINK_TARGET_LEDGER.filter((entry) => entry.screen === 'FA-01');
     expect(mine.map((entry) => `${entry.action} · ${entry.outcome}`)).toEqual([
       'Mark now · built',
+      'Confirm marks · built',
       'Review drafts · not-rendered',
       'View students · built',
       'My courses · built',

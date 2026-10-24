@@ -565,9 +565,9 @@ export const MARKING_LEDGER = portLedger<MarkingService>()({
     screens: ['FA-19'],
     errors: ['validation-failed', ...MARKING],
     refusals: ['marks-confirmed'],
-    open: ['ATT-07', 'ATT-17', 'M22-no-written-questions', 'OD-B4-17'],
+    open: ['ATT-07', 'OD-B4-17'],
     policy: ['marking.confirm'],
-    note: 'Objective marks are supplied values only (DV-2); without them, confirm answers `policy-open` ATT-07.',
+    note: 'Objective marks are supplied values only (DV-2); without them, confirm answers `policy-open` ATT-07. Owner decisions of 24 Oct 2026: an attempt without a written question is confirmed on its automatic marks (M22, P4-05), several written questions once every written answer has a saved mark (ATT-17, P4-04) — neither is open any more.',
   }),
 });
 

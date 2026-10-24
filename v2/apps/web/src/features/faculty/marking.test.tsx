@@ -12,7 +12,7 @@
  */
 import { act, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { ServiceError } from '@xr/contracts/draft';
+import { fieldError, type ServiceError, validationFailed } from '@xr/contracts/draft';
 import type { AssessmentId, AttemptId, ExperimentId, IsoInstant, PersonId } from '@xr/domain';
 import { asPersonId, faults, standinsOf, worldOf } from '@xr/sample-platform/testing';
 import type { ReactNode } from 'react';
@@ -921,10 +921,10 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
     });
   }
 
+  // The decisions still open (ATT-07, OD-B4-17). Several written questions and none were decided
+  // by the owner on 24 Oct 2026: they are marked here (the describe "every Ready shape" below).
   it.each([
     ['ATT-07', 'These marks can’t be confirmed yet'],
-    ['ATT-17', 'Several written answers can’t be marked here yet'],
-    ['M22-no-written-questions', 'There’s no written answer to mark'],
     ['OD-B4-17', 'This submission isn’t available to you yet'],
   ])(
     'confirm answered policy-open %s: a calm state in the panel, no form',
@@ -1031,15 +1031,28 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
     expect(view(base).blocked).toBeNull();
     expect(view(base).outOf).toBe(12);
     expect(view(base).questions).toBe(2);
+    // Owner decisions of 24 Oct 2026: several written questions and none are marked here.
+    const several = view({
+      ...base,
+      numbering: [...base.numbering, { ...base.numbering[1], questionId: 'Q-3', number: 3 }],
+    });
+    expect(several.blocked).toBeNull();
+    expect(several.written.map((entry) => entry.number)).toEqual([2, 3]);
+    const choiceOnly = view({ ...base, numbering: [base.numbering[0]] });
+    expect(choiceOnly.blocked).toBeNull();
+    expect(choiceOnly.written).toEqual([]);
+    // Without every automatic mark (ATT-07), whatever the shape: the calm state.
+    const unmarked = { attempt: { marking: { automatic: [] } } };
+    expect(view({ ...base, ...unmarked }).blocked).toBe('choice');
     expect(
-      view({ ...base, numbering: [...base.numbering, { ...base.numbering[1], questionId: 'Q-3' }] })
-        .blocked,
-    ).toBe('several');
-    expect(view({ ...base, numbering: [base.numbering[0]] }).blocked).toBe('none');
-    expect(view({ ...base, attempt: { marking: { automatic: [] } } }).blocked).toBe('choice');
+      view({
+        ...base,
+        numbering: [...base.numbering, { ...base.numbering[1], questionId: 'Q-3', number: 3 }],
+        ...unmarked,
+      }).blocked,
+    ).toBe('choice');
+    expect(view({ ...base, numbering: [base.numbering[0]], ...unmarked }).blocked).toBe('choice');
     expect(blockedOf('ATT-07')).toBe('choice');
-    expect(blockedOf('ATT-17')).toBe('several');
-    expect(blockedOf('M22-no-written-questions')).toBe('none');
     expect(blockedOf('OD-B4-17')).toBe('colleague');
   });
 
@@ -1059,5 +1072,289 @@ describe('FA-19 — refusals, policy-open, not found, loading and failed', () =>
     expect(wholeMarkOf('12', 10)).toBeNull();
     expect(wholeMarkOf('7.5', 10)).toBeNull();
     expect(wholeMarkOf('', 10)).toBeNull();
+  });
+});
+
+// ---- Every Ready shape (owner decisions of 24 Oct 2026, the assessment P0 fix) ------------------
+
+const QUICK_CHECK = 'Shell-and-Tube — quick check';
+const SECOND_WRITTEN = 'Which reading in the simulation showed the fouling most clearly, and why?';
+
+/**
+ * A Ready assessment of its own shape, released immediately after marking: Dr Ranganathan creates
+ * it of the walk's questions (and, for two written questions, a second written one he adds to the
+ * bank, out of 5); Rahul answers (Q1 A, Q2 B, Q3 true: 4 of 6 by the key; written as given) and
+ * submits at the walk's time.
+ */
+async function shaped(kind: 'choice-only' | 'two-written') {
+  const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
+  const faculty = asPersonId(sample, RANGANATHAN);
+  const second =
+    kind === 'two-written'
+      ? ok(
+          await faculty.questionBank.addQuestion({
+            experimentId: SHELL as ExperimentId,
+            type: 'written',
+            text: SECOND_WRITTEN,
+            options: {},
+            correct: null,
+            marks: '5',
+            explanation: null,
+            markingGuidance: null,
+          }),
+        ).id
+      : null;
+  const questions =
+    kind === 'choice-only'
+      ? ['Q-0101', 'Q-0102', 'Q-0104']
+      : ['Q-0101', 'Q-0102', 'Q-0104', 'Q-0106', second!];
+  const created = ok(
+    await faculty.assessments.createAssessment({
+      mode: 'create',
+      experimentId: SHELL as ExperimentId,
+      name: QUICK_CHECK,
+      introduction: null,
+      rules: {
+        passMarkPercent: '50',
+        attemptsAllowed: '2',
+        deadline: '2026-11-14T23:59:00+05:30',
+        releaseOption: 'immediately-after-marking',
+        releaseDate: null,
+      },
+      questions: questions as never,
+    }),
+  );
+  moveClock(sample, RAHUL_SUBMITS);
+  const ports = asPersonId(sample, RAHUL);
+  let attempt = ok(await ports.assessments.startAttempt(created.id));
+  const answers: (readonly [string, unknown])[] = [
+    ['Q-0101', { type: 'multiple-choice', choice: 'A' }],
+    ['Q-0102', { type: 'multiple-choice', choice: 'B' }],
+    ['Q-0104', { type: 'true-false', value: true }],
+  ];
+  if (second) {
+    answers.push(['Q-0106', { type: 'written', text: RAHUL_WRITTEN }]);
+    answers.push([second, { type: 'written', text: 'The cold outlet, because it moved most.' }]);
+  }
+  for (const [questionId, answer] of answers) {
+    attempt = ok(
+      await ports.assessments.saveAnswer({
+        attemptId: attempt.id,
+        questionId: questionId as never,
+        answer: answer as never,
+        expectedRev: attempt.rev,
+      }),
+    );
+  }
+  ok(await ports.assessments.submitAttempt({ attemptId: attempt.id, expectedRev: attempt.rev }));
+  moveClock(sample, MARKING_TIME);
+  return { runtime, sample, rahul: attempt.id as string, second };
+}
+
+const markFields = () => screen.getAllByRole('textbox', { name: /^Your mark/ });
+
+describe('FA-18 / FA-19 — every Ready shape (owner decisions of 24 Oct 2026)', () => {
+  it('choice-only: queued as “Marked automatically · confirm the marks”, counted as a submission to confirm', async () => {
+    const { runtime } = await shaped('choice-only');
+    showQueue(runtime);
+    await queueHeading();
+    await waitFor(() => expect(count()).toBe('1 submission to confirm'));
+    expect(await rows()).toEqual([
+      [
+        'Rahul Verma Attempt 1 of 2',
+        `Assessment ${QUICK_CHECK} Marked automatically · confirm the marks`,
+        'Submitted 5 Nov 2026, 18:52 Today',
+        'Status Waiting for marking',
+        'Mark',
+      ],
+    ]);
+    // The rail's Marking count says what it counts.
+    await waitFor(() => expect(sidebarCurrent()).toHaveTextContent('1, 1 submission to confirm'));
+    expect(screen.getByRole('link', { name: 'Mark next' })).toHaveAttribute(
+      'href',
+      expect.stringMatching(/^\/faculty\/marking\/ATT-\d{4}$/),
+    );
+    expectNoReferences();
+  });
+
+  it('choice-only: the automatic marks, the total and Confirm marks — no score field; confirmed and released', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample, rahul } = await shaped('choice-only');
+    showMark(runtime, rahul);
+    await markHeading();
+    const automatic = screen.getByRole('region', { name: 'Marked automatically' });
+    expect(automatic.querySelector('.fa-autos-h b')).toHaveTextContent('4 of 6 marks');
+    expect(screen.queryByRole('region', { name: /Written answer/ })).toBeNull();
+    expect(within(panel()).queryByRole('textbox')).toBeNull();
+    expect(within(panel()).queryByRole('button', { name: 'Save mark' })).toBeNull();
+    expect(words(within(panel()).getByRole('status'))).toBe(
+      'There’s no written answer to mark The choice questions are marked automatically. Check their marks, then confirm them.',
+    );
+    await waitFor(() =>
+      expect(words(panel().querySelector('.fa-total'))).toBe(
+        'Total 4 of 6 4 marked automatically · pass mark 3',
+      ),
+    );
+    // Confirm opens the dialog at once: nothing to save.
+    await user.click(within(panel()).getByRole('button', { name: 'Confirm marks' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Confirm marks for Rahul Verma?' });
+    expect(dialog).toHaveAccessibleDescription(QUICK_CHECK);
+    expect([...dialog.querySelectorAll('.rk-dlg-group li')].map((item) => text(item))).toEqual([
+      'Rahul’s total becomes 4 of 6 marks — passed (pass mark 3).',
+      'The marks become read-only. They can’t be changed after you confirm.',
+      'Rahul sees the result as soon as you confirm, as set for this assessment.',
+    ]);
+    await user.click(within(dialog).getByRole('button', { name: 'Confirm marks' }));
+    const done = await waitFor(() => {
+      const element = document.getElementById('ms-mdone');
+      expect(element).not.toBeNull();
+      return element!;
+    });
+    expect(done.querySelector('.rk-notice-t')).toHaveTextContent('Marks confirmed');
+    expect(done.querySelector('.fa-done-total b')).toHaveTextContent('4 of 6 marks');
+    expect([...done.querySelectorAll('dl.fa-sumdl > div')].map((row) => words(row))).toEqual([
+      'Marked automatically 4 of 6 marks',
+    ]);
+    await waitFor(() =>
+      expect(done).toHaveTextContent(
+        'Result released to Rahul when the marks were confirmed, 7 Nov 2026, 10:15.',
+      ),
+    );
+    // Confirmed by the Faculty member; Rahul's result is released by the assessment's setting.
+    const view = ok(
+      await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId),
+    );
+    expect(view.attempt.marking.confirmed?.by).toMatchObject({ displayName: 'Dr S. Ranganathan' });
+    const result = ok(await asPersonId(sample, RAHUL).assessments.getResult(rahul as AttemptId));
+    expect(result.result).toMatchObject({ kind: 'released', score: 4, outOf: 6, passed: true });
+    expectNoReferences();
+  });
+
+  it('two written questions: one block each; Confirm is refused until both are saved, then confirmed once', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample, rahul } = await shaped('two-written');
+    showQueue(runtime);
+    await queueHeading();
+    await waitFor(() => expect(count()).toBe('2 written answers waiting'));
+    expect((await rows())[0]![1]).toBe(
+      `Assessment ${QUICK_CHECK} Questions 4 and 5 · written answers`,
+    );
+
+    showMark(runtime, rahul);
+    await markHeading();
+    expect(
+      screen.getByRole('region', { name: 'Question 5 of 5 · Written answer' }),
+    ).toHaveTextContent(SECOND_WRITTEN);
+    const [first, second] = markFields();
+    expect(first).toHaveAccessibleName('Your mark Question 4 · written answer, out of 10');
+    expect(second).toHaveAccessibleName('Your mark Question 5 · written answer, out of 5');
+    expect(first).toHaveAttribute('id', 'ms-mk-q4');
+    expect(second).toHaveAttribute('id', 'ms-mk-q5');
+    expect(
+      screen.getByRole('textbox', { name: 'Feedback for Rahul on question 4 (optional)' }),
+    ).toBeVisible();
+    expect(
+      screen.getByRole('textbox', { name: 'Feedback for Rahul on question 5 (optional)' }),
+    ).toBeVisible();
+    expect(within(panel()).getAllByRole('button', { name: /^Save mark/ })).toHaveLength(2);
+    expect(within(panel()).getAllByRole('button', { name: 'Confirm marks' })).toHaveLength(1);
+    expect(words(panel().querySelector('.fa-total'))).toBe(
+      'Total — of 21 4 marked automatically + the written marks · pass mark 10.5',
+    );
+
+    // Save the first block only.
+    await user.type(first!, '7');
+    await user.type(
+      screen.getByRole('textbox', { name: 'Feedback for Rahul on question 4 (optional)' }),
+      'Good use of your readings.',
+    );
+    await user.click(screen.getByRole('button', { name: 'Save mark for question 4' }));
+    const savedNote = await waitFor(() => {
+      const element = document.getElementById('ms-saved-q4');
+      expect(element).toHaveTextContent('Mark saved — not confirmed yet');
+      return element!;
+    });
+    await waitFor(() => expect(savedNote).toHaveFocus());
+    expect(document.getElementById('ms-saved-q5')).toBeNull();
+
+    // Confirm with the second empty: its words under its score, which takes focus; no dialog.
+    await user.click(within(panel()).getByRole('button', { name: 'Confirm marks' }));
+    expect(await screen.findByText('Enter a mark for question 5')).toBeVisible();
+    expect(screen.queryByRole('dialog')).toBeNull();
+    await waitFor(() => expect(markFields()[1]).toHaveFocus());
+    expect(markFields()[1]).toHaveAttribute('aria-invalid', 'true');
+    expect(markFields()[0]).not.toHaveAttribute('aria-invalid');
+    let view = ok(
+      await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId),
+    );
+    expect(view.attempt.marking.confirmed).toBeNull();
+
+    // Type the second: Confirm saves it first, then the dialog lists both marks.
+    await user.type(markFields()[1]!, '3');
+    expect(words(panel().querySelector('.fa-total'))).toBe(
+      'Total 14 of 21 4 marked automatically + 10 written · pass mark 10.5',
+    );
+    await user.click(within(panel()).getByRole('button', { name: 'Confirm marks' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Confirm marks for Rahul Verma?' });
+    expect([...dialog.querySelectorAll('.rk-dlg-group li')].map((item) => text(item))).toEqual([
+      'Question 4 is marked 7 of 10.',
+      'Question 5 is marked 3 of 5.',
+      'Rahul’s total becomes 14 of 21 marks — passed (pass mark 10.5).',
+      'The marks become read-only. They can’t be changed after you confirm.',
+      'Rahul sees the result as soon as you confirm, as set for this assessment.',
+    ]);
+    view = ok(
+      await asPersonId(sample, RANGANATHAN).marking.getAttemptForMarking(rahul as AttemptId),
+    );
+    expect(view.attempt.marking.written.map((mark) => mark.mark)).toEqual([7, 3]);
+    await user.click(within(dialog).getByRole('button', { name: 'Confirm marks' }));
+    const done = await waitFor(() => {
+      const element = document.getElementById('ms-mdone');
+      expect(element).not.toBeNull();
+      return element!;
+    });
+    expect(done.querySelector('.fa-done-total b')).toHaveTextContent('14 of 21 marks');
+    expect([...done.querySelectorAll('dl.fa-sumdl > div')].map((row) => words(row))).toEqual([
+      'Question 4 7 of 10',
+      'Question 5 3 of 5',
+      'Feedback on question 4 Good use of your readings.',
+      'Feedback on question 5 No feedback',
+    ]);
+    expect(within(panel()).queryByRole('textbox')).toBeNull();
+    const result = ok(await asPersonId(sample, RAHUL).assessments.getResult(rahul as AttemptId));
+    expect(result.result).toMatchObject({ kind: 'released', score: 14, outOf: 21, passed: true });
+    expectNoReferences();
+  });
+
+  it('two written questions: a confirm the service refuses for a missing mark names that question’s block', async () => {
+    const user = userEvent.setup();
+    const { runtime, rahul, second } = await shaped('two-written');
+    const real = runtime.withCommandId.bind(runtime);
+    vi.spyOn(runtime, 'withCommandId').mockImplementation((commandId) => {
+      const ports = real(commandId);
+      return {
+        ...ports,
+        marking: {
+          ...ports.marking,
+          confirmMarks: async () => ({
+            ok: false as const,
+            error: validationFailed(
+              [fieldError(`marks.${second}`, 'FA-19.mark.required', { question: '5' })],
+              null,
+            ),
+          }),
+        },
+      } as typeof ports;
+    });
+    showMark(runtime, rahul);
+    await markHeading();
+    await user.type(markFields()[0]!, '7');
+    await user.type(markFields()[1]!, '3');
+    await user.click(within(panel()).getByRole('button', { name: 'Confirm marks' }));
+    await user.click(
+      within(await screen.findByRole('dialog')).getByRole('button', { name: 'Confirm marks' }),
+    );
+    expect(await screen.findByText('Enter a mark for question 5')).toBeVisible();
+    await waitFor(() => expect(markFields()[1]).toHaveFocus());
   });
 });

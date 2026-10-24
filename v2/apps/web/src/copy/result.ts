@@ -135,12 +135,15 @@ function appearsWords(release: PinnedRelease): string {
 export function waitingLine(
   submittedAt: string | null,
   release: PinnedRelease,
-  /** The attempt's version has a written question (Phase 4B review: none, no "faculty marks"). */
+  /**
+   * The attempt's version has a written question; none: "Your faculty confirms the automatic
+   * marks." (`ST-14.waiting-choice-only`; owner decision of 24 Oct 2026).
+   */
   hasWritten = true,
 ): string {
   return [
     submittedAt === null ? null : `You submitted on ${stDateTime(submittedAt)}.`,
-    hasWritten ? RESULT_PAGE.facultyMarks : null,
+    hasWritten ? RESULT_PAGE.facultyMarks : stateWords('ST-14.waiting-choice-only'),
     appearsWords(release),
   ]
     .filter((part): part is string => part !== null)

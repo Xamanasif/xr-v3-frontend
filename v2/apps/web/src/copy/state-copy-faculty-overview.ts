@@ -89,11 +89,38 @@ export const STATE_COPY_FACULTY_OVERVIEW = {
     screen: 'FA-01',
     state: 'Which items the priority band draws, and in which order',
     words: null,
-    rule: 'One item per kind of work, sized to the items (one, two or three): written answers to mark (every own written answer waiting, “Across <n> assessments” over several, the three oldest named with their submission time, “and <n> more in Marking”), Students inactive for 14 days or more (longest inactive first, three named with their last activity, “and <n> more in Students”; View students opens Students for the first experiment named), then a course whose access ended. “Marking first · oldest first in each” with more than one item.',
+    rule: 'One item per kind of work, sized to the items: written answers to mark (every own written answer waiting — a submission with several counts each —, “Across <n> assessments” over several, the three oldest submissions with a written answer named with their submission time, “and <n> more in Marking”), submissions to confirm (`FA-01.confirm-kind`), Students inactive for 14 days or more (longest inactive first, three named with their last activity, “and <n> more in Students”; View students opens Students for the first experiment named), then a course whose access ended. “Marking first · oldest first in each” with more than one item.',
     basis:
       'FA-v1 Main.dc.html FA-01 `vmOverview`; contract `facultyAttention` (per assessment / per experiment facts, PC-51); `listQueue` (oldest first), `listStudents` (last activity, OD-B4-10)',
     status: 'provisional',
     decisions: ['VD-12', 'PC-51'],
+  },
+  'FA-01.confirm-kind': {
+    screen: 'FA-01',
+    state:
+      'Submissions without a written question whose automatic marks wait for confirmation (one)',
+    words: 'Submission to confirm',
+    rule: 'Owner decision, 24 Oct 2026: the Faculty member confirms a choice-only submission. An item of the band after the written answers: the number of submissions, “Oldest waiting <n> days”, this kind with the pen, the assessment (or “Across <n> assessments”), `FA-01.confirm-description`, the three oldest named with their submission time (“Waiting for marking, oldest first”, “and <n> more in Marking”) and “Confirm marks” — named “Confirm marks: <student>, <assessment>” — which opens the oldest of them (FA-19; Marking until the queue answers). A secondary action: the band’s one primary stays “Mark now”.',
+    basis:
+      'FA-v1 Main.dc.html FA-01 `vmOverview` (written answers only); FA-19 “Confirm marks”; owner decision of 24 Oct 2026 (Appendix C M22 [U] no written questions); contract `facultyAttention` `marks-to-confirm` (PC-74)',
+    status: 'provisional',
+    decisions: ['VD-12', 'P4-05'],
+  },
+  'FA-01.confirm-kind-many': {
+    screen: 'FA-01',
+    state: 'The same, several submissions',
+    words: 'Submissions to confirm',
+    basis: 'As `FA-01.confirm-kind`',
+    status: 'provisional',
+    decisions: ['VD-12', 'P4-05'],
+  },
+  'FA-01.confirm-description': {
+    screen: 'FA-01',
+    state: 'The submissions-to-confirm item’s line',
+    words: 'No written answer to mark. Check the automatic marks, then confirm them.',
+    basis: 'FA-v1 `vmOverview` written item “Choice questions are marked automatically.”',
+    status: 'provisional',
+    decisions: ['VD-12', 'P4-05'],
   },
   'FA-01.coming-up': {
     screen: 'FA-01',

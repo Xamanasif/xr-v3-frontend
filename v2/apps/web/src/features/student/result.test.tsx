@@ -342,6 +342,51 @@ describe('ST-14 — before release, no figure (B4-13 f1, f2, f4)', () => {
     expectNoReference();
   });
 
+  it('choice-only (owner decision 24 Oct 2026): waiting for the Faculty member to confirm the automatic marks, then released', async () => {
+    const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
+    const created = ok(
+      await asPersonId(sample, RANGANATHAN).assessments.createAssessment({
+        mode: 'create',
+        experimentId: SHELL,
+        name: NAME,
+        introduction: null,
+        rules: {
+          passMarkPercent: '50',
+          attemptsAllowed: '2',
+          deadline: '2026-11-14T23:59:00+05:30',
+          releaseOption: 'immediately-after-marking',
+          releaseDate: null,
+        },
+        questions: ['Q-0101', 'Q-0102', 'Q-0104'],
+      } as never),
+    );
+    const attemptId = await submitAs(sample, RAHUL, created.id, RIGHT.slice(0, 3));
+    showResult(runtime, created.id);
+    await h1('Submitted — waiting for marking');
+    const card = screen.getByRole('region', { name: 'Submitted — waiting for marking' });
+    expect(card.querySelector('.sv-refuse-d')).toHaveTextContent(
+      'You submitted on 27 Oct 2026, 10:00. Your faculty confirms the automatic marks. Your result appears when your answers are marked.',
+    );
+    expect(card).not.toHaveTextContent('written answers');
+    expect(main()).not.toHaveTextContent(/of 6 marks|Passed|Correct answer|Explanation/);
+    // Dr Ranganathan confirms the automatic marks: released at once, as set — 4 of 6, passed.
+    const marking = asPersonId(sample, RANGANATHAN).marking;
+    const view = ok(await marking.getAttemptForMarking(attemptId as AttemptId));
+    const confirmed = await marking.confirmMarks({
+      attemptId: attemptId as AttemptId,
+      expectedRev: view.attempt.rev,
+    });
+    ok(confirmed);
+    await act(async () => {
+      if (confirmed.ok) await runtime.invalidate(confirmed.changed);
+    });
+    await h1('You passed');
+    expect(main()).toHaveTextContent('4of 6 marksPassed');
+    expect(main()).toHaveTextContent('Pass mark50% · 3 of 6 marks');
+    expect(cards()).toHaveLength(3);
+    expectNoReference();
+  });
+
   it('the deadline passed but marking is not finished: still waiting, never a partial score (f4)', async () => {
     const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
     const id = await createPostLab(sample);

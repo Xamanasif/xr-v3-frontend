@@ -79,8 +79,18 @@ export function answersSavedLine(deadline: string | null): string {
   return deadline === null ? 'Answers saved' : `Answers saved · due ${stDateTime(deadline)}`;
 }
 
-/** f2: "Submitted 5 Nov 2026, 18:52 · your faculty marks written answers". */
-export function submittedLine(submittedAt: string | null): string {
+/**
+ * f2: "Submitted 5 Nov 2026, 18:52 · your faculty marks written answers"; an attempt with no
+ * written question: "… · your faculty confirms the automatic marks" (state-copy
+ * `ST-11.choice-only`; owner decision of 24 Oct 2026).
+ */
+export function submittedLine(submittedAt: string | null, hasWritten = true): string {
+  if (!hasWritten) {
+    const words = stateWords('ST-11.choice-only');
+    return submittedAt === null
+      ? words
+      : `Submitted ${stDateTime(submittedAt)} · ${words.charAt(0).toLowerCase()}${words.slice(1)}`;
+  }
   return submittedAt === null
     ? 'Your faculty marks written answers'
     : `Submitted ${stDateTime(submittedAt)} · your faculty marks written answers`;
@@ -232,8 +242,9 @@ export const ST_ROW_LINES = {
   toDo: (questionCount: number, totalMarks: number) =>
     `${questionsAndMarks(questionCount, totalMarks)} · no time limit`,
   inProgress: 'Your answers are saved · no time limit',
-  /** "Submitted 5 Nov 2026, 18:52 · your faculty marks written answers". */
-  waiting: (submittedAt: string | null) => submittedLine(submittedAt),
+  /** "Submitted 5 Nov 2026, 18:52 · your faculty marks written answers" (`ST-11.choice-only`). */
+  waiting: (submittedAt: string | null, hasWritten = true) =>
+    submittedLine(submittedAt, hasWritten),
   released: 'Your result and answers are ready',
 } as const;
 

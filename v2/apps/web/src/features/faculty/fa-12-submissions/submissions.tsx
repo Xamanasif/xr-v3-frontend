@@ -242,10 +242,10 @@ function SubmissionsBody({ view }: { readonly view: AssessmentFrameView }) {
   const rows = list.data.value;
   const waiting = rows.filter((row) => !isMarked(row));
   const shown = rows.filter((row) => shows(filter, row));
-  // FA-19 for the oldest written answer waiting: the queue's first (oldest first) that the list
-  // shows waiting; while the queue loads, the list's own oldest. Once the queue has answered, a
-  // submission it does not list (no written question to mark, M22) is never offered
-  // (`FA-12.mark-next-target`; Phase 4B review).
+  // FA-19 for the oldest submission waiting: the queue's first (oldest first) that the list shows
+  // waiting; while the queue loads, the list's own oldest. Once the queue has answered, a
+  // submission it does not list is never offered (`FA-12.mark-next-target`; Phase 4B review). Since
+  // the owner decision of 24 Oct 2026 the queue lists choice-only submissions too (to confirm).
   const waitingIds = new Set<string>(waiting.map((row) => row.attempt.id));
   const queued = queue.data?.ok
     ? (queue.data.value.find((entry) => waitingIds.has(entry.attempt.id))?.attempt.id ?? null)

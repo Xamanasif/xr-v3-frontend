@@ -162,7 +162,11 @@ describe('ST-13 the attempt (B4-12 f0 … f6)', () => {
       'Shell-and-Tube Heat Exchanger · Attempt 1',
     );
     expect(attemptMetaLine(1, 2, null)).toBe('1 question · 2 marks · no time limit');
-    expect(plain(submittedLine(SUBMITTED, false, null))).toBe('Submitted 5 Nov 2026, 18:52.');
+    // No written question: the Faculty member confirms the automatic marks (24 Oct 2026).
+    expect(plain(submittedLine(SUBMITTED, false, null))).toBe(
+      'Submitted 5 Nov 2026, 18:52. Your faculty confirms the automatic marks.',
+    );
+    expect(plain(submittedLine(SUBMITTED, false, null))).not.toContain('written answers');
     expect(attemptDocumentTitle('Heat Exchanger — post-lab', false)).toBe(
       'Heat Exchanger — post-lab',
     );

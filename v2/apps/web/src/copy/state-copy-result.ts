@@ -241,6 +241,15 @@ export const STATE_COPY_RESULT = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'ST-14.waiting-choice-only': {
+    screen: 'ST-14',
+    state: 'Waiting for marking, for an attempt with no written question (choice questions only)',
+    words: 'Your faculty confirms the automatic marks.',
+    rule: 'In place of “Your faculty marks written answers.”: “You submitted on 5 Nov 2026, 18:52. Your faculty confirms the automatic marks. Your result appears …”. Owner decision, 24 Oct 2026: the Faculty member confirms a choice-only submission; no figure before then.',
+    basis: 'B4-13 f1 “Your faculty marks written answers.”; owner decision of 24 Oct 2026',
+    status: 'provisional',
+    decisions: ['VD-12', 'P4-05'],
+  },
   'ST-14.waiting-after-deadline': {
     screen: 'ST-14',
     state: 'f4: the deadline has passed but the written answer is not marked',

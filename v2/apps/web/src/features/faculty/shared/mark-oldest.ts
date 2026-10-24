@@ -21,12 +21,21 @@ export interface OldestWaiting {
  * answers, when it fails, or when nothing waits, the action opens Marking (FA-18) — for that
  * assessment when one is named — exactly as FA-08's "Mark next" already does.
  *
- * `waiting` is the count the page already holds (0 reads nothing).
+ * `waiting` is the count the page already holds (0 reads nothing). `writtenOnly`: the oldest
+ * submission with a written answer (FA-01's "Mark now"; a submission without one is confirmed
+ * from its own item — owner decision of 24 Oct 2026).
  */
-export function useOldestWaiting(assessmentId: string | null, waiting: number): OldestWaiting {
+export function useOldestWaiting(
+  assessmentId: string | null,
+  waiting: number,
+  writtenOnly = false,
+): OldestWaiting {
   const queue = useMarkingQueue(assessmentId, 'waiting', waiting > 0);
   const answer = queue.data;
-  const attemptId = answer?.ok ? (answer.value[0]?.attempt.id ?? null) : null;
+  const attemptId = answer?.ok
+    ? (answer.value.find((row) => !writtenOnly || row.writtenNumbers.length > 0)?.attempt.id ??
+      null)
+    : null;
   return {
     address:
       attemptId === null

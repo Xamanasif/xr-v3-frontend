@@ -73,6 +73,7 @@ import {
   noDeadlineWords,
   type PriorityItemView,
   priorityItems,
+  submissionsToConfirm,
   teachingCourseViews,
   writtenAnswersWaiting,
 } from './overview-view';
@@ -80,7 +81,12 @@ import {
 const TITLE_ID = 'fa-h1';
 const NO_COURSES_ID = 'fa-ov-none';
 
-const KIND_ICON = { written: 'pen', inactive: 'people', 'access-ended': 'lock' } as const;
+const KIND_ICON = {
+  written: 'pen',
+  confirm: 'pen',
+  inactive: 'people',
+  'access-ended': 'lock',
+} as const;
 
 /**
  * FA-01 Overview — the V3 Refined B design (the owner-approved export design/v3-refined-b/roles/
@@ -122,9 +128,14 @@ export function FacultyOverview() {
   const answer = overview.data?.ok ? overview.data.value : null;
   const courseRows = courses.data?.ok ? courses.data.value : null;
 
-  // The people behind the counts: the marking queue (oldest first) and the inactive Students.
-  const waiting = answer ? writtenAnswersWaiting(answer.attention) : 0;
-  const oldest = useOldestWaiting(null, waiting);
+  // The people behind the counts: the marking queue (oldest first) and the inactive Students —
+  // the written answers and the submissions whose automatic marks wait for confirmation.
+  const waiting = answer
+    ? writtenAnswersWaiting(answer.attention) + submissionsToConfirm(answer.attention)
+    : 0;
+  // "Mark now": the oldest submission with a written answer (a choice-only one is confirmed from
+  // its own item).
+  const oldest = useOldestWaiting(null, waiting, true);
   const queue = useMarkingQueue(null, 'waiting', waiting > 0);
   const queueRows = queue.data?.ok ? queue.data.value : null;
   const inactive = answer ? inactiveExperiments(answer.attention) : [];

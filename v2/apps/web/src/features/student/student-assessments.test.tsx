@@ -376,6 +376,75 @@ describe('ST-11 Assessments (ST-v1 `is.alist`)', () => {
     expect(main()).not.toHaveTextContent(/11|of 16|Passed|Not passed/);
   });
 
+  it('choice-only (owner decision 24 Oct 2026): “your faculty confirms the automatic marks”, then released once confirmed', async () => {
+    const { runtime, sample } = await tabPlatform(RAHUL, 'after-flow-c');
+    const id = ok(
+      await asPersonId(sample, RANGANATHAN).assessments.createAssessment({
+        mode: 'create',
+        experimentId: unsafeBrand(SHELL),
+        name: NAME,
+        introduction: null,
+        rules: {
+          passMarkPercent: '50',
+          attemptsAllowed: '2',
+          deadline: '2026-11-14T23:59:00+05:30',
+          releaseOption: 'immediately-after-marking',
+          releaseDate: null,
+        },
+        questions: ['Q-0101', 'Q-0102', 'Q-0104'].map((entry) => unsafeBrand<QuestionId>(entry)),
+      }),
+    ).id;
+    let attempt = await started(sample, id);
+    const rahul = asPersonId(sample, RAHUL).assessments;
+    for (const [questionId, answer] of [
+      ['Q-0101', { type: 'multiple-choice', choice: 'A' }],
+      ['Q-0102', { type: 'multiple-choice', choice: 'B' }],
+      ['Q-0104', { type: 'true-false', value: true }],
+    ] as const) {
+      attempt = ok(
+        await rahul.saveAnswer({
+          attemptId: attempt.id,
+          questionId: unsafeBrand(questionId),
+          answer,
+          expectedRev: attempt.rev,
+        }),
+      );
+    }
+    setSampleNow(sample, ist('2026-11-05 18:52'));
+    ok(await rahul.submitAttempt({ attemptId: attempt.id, expectedRev: attempt.rev }));
+    inStudent(runtime, LIST, <StudentAssessments />, '?tab=submitted');
+    await waitFor(() => expect(rows('Submitted')).toHaveLength(1));
+    const [waiting] = plain(rows('Submitted'));
+    expect(waiting![4]).toBe('Waiting for marking');
+    expect(waiting![5]).toBe(
+      'Submitted 5 Nov 2026, 18:52 · your faculty confirms the automatic marks',
+    );
+    expect(main()).not.toHaveTextContent('written answers');
+    expect(main()).not.toHaveTextContent(/of 6 marks|Passed|score/i);
+    // Dr Ranganathan confirms the automatic marks: released at once, as set.
+    setSampleNow(sample, ist('2026-11-07 10:15'));
+    const marking = asPersonId(sample, RANGANATHAN).marking;
+    const view = ok(await marking.getAttemptForMarking(attempt.id));
+    await act(async () => {
+      const done = await marking.confirmMarks({
+        attemptId: attempt.id,
+        expectedRev: view.attempt.rev,
+      });
+      ok(done);
+      if (done.ok) await runtime.invalidate(done.changed);
+    });
+    await waitFor(() =>
+      expect(tabs()).toEqual([
+        ['To do0, 0', false],
+        ['Submitted0, 0', true],
+        ['Results1, 1', false],
+      ]),
+    );
+    const result = ok(await rahul.getResult(attempt.id));
+    expect(result.result).toMatchObject({ kind: 'released', score: 4, outOf: 6, passed: true });
+    expectNoReference(main());
+  });
+
   it('result ready (after Flow D): the Results tab, "Released", "See result"', async () => {
     const { runtime } = await tabPlatform(RAHUL, 'after-flow-d');
     inStudent(runtime, LIST, <StudentAssessments />, '?tab=results');

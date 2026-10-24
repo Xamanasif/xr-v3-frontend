@@ -528,6 +528,26 @@ export interface FaMarkGiven {
   readonly value: ReactNode;
 }
 
+/** A feedback row of the confirmed panel: “Feedback”, the feedback or “No feedback” (quiet). */
+export interface FaMarkFeedbackGiven {
+  readonly key?: string;
+  readonly term: ReactNode;
+  readonly text: ReactNode;
+  readonly given: boolean;
+}
+
+function feedbackRows(
+  feedback: FaMarkFeedbackGiven | readonly FaMarkFeedbackGiven[],
+): readonly FaMarkFeedbackGiven[] {
+  return isFeedbackList(feedback) ? feedback : [feedback];
+}
+
+function isFeedbackList(
+  feedback: FaMarkFeedbackGiven | readonly FaMarkFeedbackGiven[],
+): feedback is readonly FaMarkFeedbackGiven[] {
+  return Array.isArray(feedback);
+}
+
 export interface FaMarksDoneProps {
   /** The panel's focus target after confirming (`tabIndex={-1}`). */
   readonly id: string;
@@ -541,12 +561,11 @@ export interface FaMarksDoneProps {
   /** The confirmed total (`FaDoneTotal`). */
   readonly total: ReactNode;
   readonly given: readonly FaMarkGiven[];
-  /** “Feedback”, the feedback or “No feedback” (quiet). */
-  readonly feedback: {
-    readonly term: ReactNode;
-    readonly text: ReactNode;
-    readonly given: boolean;
-  };
+  /**
+   * “Feedback”, the feedback or “No feedback” (quiet) — one row, or one per written answer of an
+   * attempt with several (none for an attempt without a written answer).
+   */
+  readonly feedback: FaMarkFeedbackGiven | readonly FaMarkFeedbackGiven[];
   /** The release line (`FaReleaseNote`). */
   readonly release?: ReactNode;
   /** `div.fa-done-acts`: Next submission (or the quiet line), See submissions. */
@@ -585,10 +604,12 @@ export function FaMarksDone({
             <dd>{entry.value}</dd>
           </div>
         ))}
-        <div>
-          <dt>{feedback.term}</dt>
-          <dd className={feedback.given ? 'is-text' : 'is-quiet'}>{feedback.text}</dd>
-        </div>
+        {feedbackRows(feedback).map((entry, index) => (
+          <div key={entry.key ?? `feedback-${index}`}>
+            <dt>{entry.term}</dt>
+            <dd className={entry.given ? 'is-text' : 'is-quiet'}>{entry.text}</dd>
+          </div>
+        ))}
       </dl>
       {release}
       <div className="fa-done-acts">{actions}</div>

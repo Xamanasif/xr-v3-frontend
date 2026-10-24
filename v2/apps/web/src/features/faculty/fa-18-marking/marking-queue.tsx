@@ -35,9 +35,10 @@ import {
   MARKING_QUEUE,
   oldestWaitingWords,
   queueAttemptWords,
+  queueCountWords,
   rowActionLabel,
   submittedAgoWords,
-  waitingCountWords,
+  waitingWork,
   writtenNumbersWords,
 } from '@/copy/marking';
 import { stateWords } from '@/copy/state-copy';
@@ -159,7 +160,9 @@ function isWaiting(row: MarkingQueueRow): boolean {
  *   answers” with the count, the oldest wait and one gold “Mark next”; the Assessment filter and
  *   Waiting / Marked / All with counts; the table oldest first — Student (name, “Attempt 1 of 2”:
  *   the attempts allowed from the assessment list the page reads; “Attempt 1” until it answers),
- *   Assessment (name, “Question 4 · written answer”), Submitted (when, how long ago while it
+ *   Assessment (name, “Question 4 · written answer”; a submission without a written question,
+ *   “Marked automatically · confirm the marks” — owner decision of 24 Oct 2026, state-copy
+ *   `FA-18.choice-only`; the count adds “1 submission to confirm”), Submitted (when, how long ago while it
  *   waits), Status (“Mark saved — not confirmed yet”, “Confirmed …”) and Mark / View marks —
  *   compact rows below 760 px. Empty: “Nothing is waiting for you”; no match: “Nothing matches these
  *   filters” with “Show all written answers”. No attempt or assessment is named by its id.
@@ -244,6 +247,7 @@ export function MarkingQueue() {
   }
 
   const next = waitingRows ? nextToMark(waitingRows, filters.assessmentId) : null;
+  const work = waitingRows ? waitingWork(waitingRows) : null;
   const oldest = waitingRows?.[0] ?? null;
   const options = assessmentOptions({
     assessments: listed,
@@ -450,9 +454,9 @@ export function MarkingQueue() {
               ) : null
             }
           >
-            {waitingRows !== null && !failed ? (
+            {work !== null && !failed ? (
               <FaQueueCount
-                count={waitingCountWords(waitingRows.length)}
+                count={queueCountWords(work.writtenAnswers, work.toConfirm)}
                 oldest={
                   oldest && today
                     ? oldestWaitingWords(calendarDaysSince(oldest.submittedAt, today))

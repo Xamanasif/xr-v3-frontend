@@ -2072,8 +2072,11 @@ function markingScope(
 }
 
 /**
- * The 15 OPEN rows: capabilities that are undecided — never offered, refused with `policy-open`
- * naming the decision (P4; Appendix F §5.1). None of them has a rule above.
+ * The OPEN rows: capabilities that are undecided — never offered, refused with `policy-open`
+ * naming the decision (P4; Appendix F §5.1). None of them has a rule above. The matrix draws 15;
+ * ATT-17 (several written questions) left this list on the owner's decision of 24 Oct 2026 —
+ * confirm once per attempt after every written answer has a saved mark (P4-04): it is served by
+ * `marking.confirm` (ATT-09) and `confirmMarks` (`OWNER_DECIDED_OPEN_ROWS`).
  */
 export const OPEN_CAPABILITIES = {
   'request.narrow-multi-experiment': { row: 'REQ-19', decision: 'REQ-19' },
@@ -2085,7 +2088,6 @@ export const OPEN_CAPABILITIES = {
   'platform-course-code.save-limited-scope': { row: 'CC-06', decision: 'CC-06' },
   'assessment.co-teaching-edit': { row: 'ASMT-17', decision: 'OD-B4-17' },
   'question.choose-experiment': { row: 'Q-11', decision: 'Q-11' },
-  'marking.confirm-several-written': { row: 'ATT-17', decision: 'ATT-17' },
   'device-transfer.resolve-without-institute-admin': { row: 'DTR-09', decision: 'OD-B3-05' },
   'submission.override-other-target': { row: 'SUB-35', decision: 'OD-B7-09' },
   'vendor.non-course-scope': { row: 'ROLE-11', decision: 'ROLE-11' },
@@ -2094,3 +2096,28 @@ export const OPEN_CAPABILITIES = {
 } as const;
 
 export type OpenCapability = keyof typeof OPEN_CAPABILITIES;
+
+/**
+ * Matrix rows of kind OPEN that an owner decision has since resolved (the frozen matrix,
+ * `docs/v46/permission-matrix.json`, still reads OPEN): the row, the decision and its date, and the
+ * rule that now serves it. They are no OPEN capability any more.
+ */
+export const OWNER_DECIDED_OPEN_ROWS = {
+  'ATT-17': {
+    decision: 'P4-04',
+    decided: '2026-10-24',
+    ruling:
+      'Several written questions: Faculty saves a mark for every written answer, then confirms the attempt once',
+    servedBy: 'marking.confirm',
+  },
+} as const satisfies Readonly<
+  Record<
+    string,
+    {
+      readonly decision: string;
+      readonly decided: string;
+      readonly ruling: string;
+      readonly servedBy: string;
+    }
+  >
+>;
