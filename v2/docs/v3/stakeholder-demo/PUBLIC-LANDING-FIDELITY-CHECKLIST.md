@@ -101,3 +101,9 @@
 - DEFECT 1 (skip link lands the hero under the sticky header): **fixed** — `.pl1-main` takes `scroll-margin-top: var(--headerH)`, as the section anchors do; a new e2e test (“the skip link lands the hero below the sticky header”) passes at 1440 and 375.
 - DEFECT 2 (other public pages log “… preloaded but not used” for the landing stylesheet when Next prefetches `/`): **recorded, not changed** — console-only, no visual or functional effect; removing it would mean editing the accepted v46 public shell's links to `/` (`prefetch={false}`), which needs the owner's say.
 - Observation “request button style”: the owner's “secondary-button style” was implemented as the frozen navy button (the closing band's), the only frozen button that reads on the white section; listed for the owner's review.
+
+## Owner acceptance (24 Oct 2026)
+
+ACCEPTED by the owner after browser review on http://localhost:3362/ — appearance and
+interactions of commit `b98814d` (recovery bundle `XR-frontend-v3-b98814d-landing-v1.bundle`,
+SHA-256 `dba4a656…2693`). The rest of the frontend is not frozen.

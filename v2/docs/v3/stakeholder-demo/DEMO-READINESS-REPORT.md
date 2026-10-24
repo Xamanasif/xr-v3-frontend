@@ -117,3 +117,12 @@ The owner authorised the V1 landing integration (prompt 13) and decided D-3, D-4
 approved premium landing is now integrated at `/` (see `PUBLIC-LANDING-FIDELITY-CHECKLIST.md`) and
 awaits the owner's acceptance on its review build, http://localhost:3362/. The demo build on
 3360/3361 is unchanged until the landing is accepted.
+
+## H. Owner acceptance of the Public Landing (24 Oct 2026)
+
+The owner reviewed the integrated landing on its review build (http://localhost:3362/) and
+accepted its appearance and interactions: **commit `b98814d` is owner-accepted** (recovery bundle
+`~/Downloads/XR-frontend-v3-b98814d-landing-v1.bundle`, SHA-256 `dba4a656…2693`, verified and
+restore-tested). The complete frontend is **not** frozen: stakeholder approval of the whole
+platform is still pending, and the confirmed end-to-end functional issues are handled in a
+separate, controlled correction phase.

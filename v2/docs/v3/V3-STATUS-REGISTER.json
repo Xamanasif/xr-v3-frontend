@@ -36,16 +36,16 @@
       "type": "page",
       "designed": true,
       "v46ProposedRoute": "/",
-      "landingFidelity": "INTEGRATED — prompt 13 authorised by the owner on 22 Oct 2026; source design/v1-landing (SHA-256 3dbe9412…4d07c); owner acceptance pending",
+      "landingFidelity": "INTEGRATED — prompt 13 authorised by the owner on 22 Oct 2026; source design/v1-landing (SHA-256 3dbe9412…4d07c); ACCEPTED by the owner on 24 Oct 2026 after browser review of commit b98814d (appearance and interactions)",
       "currentImplementation": {
         "status": "V1 approved landing (21 · FROZEN Premium Direction B2), implemented",
         "paths": ["apps/web/src/features/public/pu-01-landing", "apps/web/src/app/(landing)"]
       },
       "designSupplied": "locked-original-landing (V1)",
-      "ownerApproved": "locked by the owner (the approved original V1 landing; not part of the V3 redesign); fidelity integration authorised 22 Oct 2026; implementation acceptance pending the owner's browser review",
+      "ownerApproved": "locked by the owner (the approved original V1 landing; not part of the V3 redesign); fidelity integration authorised 22 Oct 2026; implementation ACCEPTED by the owner on 24 Oct 2026 after browser review of commit b98814d (appearance and interactions)",
       "implementationComplete": "not migrated to V3 (locked V1 landing, by design); the approved V1 landing restored at `/` — three-scene hero, Featured, Explore accordion, story, Formats, Academic quality, the six access steps; owner decisions: Sign in link, “XR Learning Platform”, one request button, no durations",
       "browserChecked": "frozen file rendered beside the product at 1440, 1024, 768 and 375 (each hero scene, paused, story steps, explorer areas, format preview, reduced motion); motion timings over a full hero cycle; browser suites (apps/web/e2e)",
-      "openIssue": "Owner acceptance of the fidelity result pending. Below 374 px the header shows the logo tile without the brand text (Sign in added by the owner's decision does not leave room; the frozen file draws no width below 375)."
+      "openIssue": "Below 374 px the header shows the logo tile without the brand text (Sign in added by the owner's decision does not leave room; the frozen file draws no width below 375)."
     },
     {
       "id": "PU-02",
@@ -270,13 +270,13 @@
       "type": "state",
       "designed": true,
       "v46ProposedRoute": "/ (#for-institutions section)",
-      "landingFidelity": "INTEGRATED — prompt 13 authorised by the owner on 22 Oct 2026; source design/v1-landing (SHA-256 3dbe9412…4d07c); owner acceptance pending",
+      "landingFidelity": "INTEGRATED — prompt 13 authorised by the owner on 22 Oct 2026; source design/v1-landing (SHA-256 3dbe9412…4d07c); ACCEPTED by the owner on 24 Oct 2026 after browser review of commit b98814d (appearance and interactions)",
       "currentImplementation": {
         "status": "V1 approved landing (21 · FROZEN Premium Direction B2), implemented",
         "paths": ["apps/web/src/features/public/pu-01-landing", "apps/web/src/app/(landing)"]
       },
       "designSupplied": "locked-original-landing (V1)",
-      "ownerApproved": "locked by the owner (the approved original V1 landing; not part of the V3 redesign); fidelity integration authorised 22 Oct 2026; implementation acceptance pending the owner's browser review",
+      "ownerApproved": "locked by the owner (the approved original V1 landing; not part of the V3 redesign); fidelity integration authorised 22 Oct 2026; implementation ACCEPTED by the owner on 24 Oct 2026 after browser review of commit b98814d (appearance and interactions)",
       "implementationComplete": "not migrated to V3 (locked V1 landing, by design); the approved V1 landing restored at `/` — three-scene hero, Featured, Explore accordion, story, Formats, Academic quality, the six access steps; owner decisions: Sign in link, “XR Learning Platform”, one request button, no durations",
       "browserChecked": "frozen file rendered beside the product at 1440, 1024, 768 and 375 (each hero scene, paused, story steps, explorer areas, format preview, reduced motion); motion timings over a full hero cycle; browser suites (apps/web/e2e)",
       "openIssue": "The six frozen steps plus the owner's one “Request institutional access” button."

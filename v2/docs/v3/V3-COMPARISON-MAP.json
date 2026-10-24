@@ -3866,7 +3866,7 @@
       "reference": {
         "archive": "21 · FROZEN · Premium Direction B2 - BITS Immersive Experience.dc.html (File-35 handoff FROZEN_SOURCE, version v1790241320737635)",
         "archiveSha256": "3dbe9412df26e8479379e10f5f76cc1d87923f773a7be3e226f6c30b75a4d07c",
-        "revision": "V1 approved landing (owner authorisation of the fidelity integration, 22 Oct 2026)",
+        "revision": "V1 approved landing (owner authorisation of the fidelity integration, 22 Oct 2026; implementation accepted by the owner on 24 Oct 2026, commit b98814d)",
         "renders": "rendered from the frozen file with its design runtime at each width and state, side by side with the product (evidence outside the repository)",
         "file": "design/v1-landing/21 · FROZEN · Premium Direction B2 - BITS Immersive Experience.dc.html",
         "compared": []
