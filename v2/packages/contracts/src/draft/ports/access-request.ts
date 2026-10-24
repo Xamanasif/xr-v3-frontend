@@ -12,6 +12,12 @@
  * that session, so no port takes or returns the ticket (V-17). Only that session, or the signed-in
  * Institute Admin of the requesting institution (REQ-28; B3-08), reads or pays; anyone else is
  * answered as for any request it may not open.
+ *
+ * Owner decision, 24 Oct 2026 (ADR-0009 amendment): in a local prototype build the requester's own
+ * ticket is kept in this browser, so PU-07 "You have a request in progress" leads back to a request
+ * still in progress — `listRequestsInProgress`, which answers only the requests whose ticket this
+ * browser session holds for the user session asking (a method added to Appendix C's §3.4,
+ * `CONTRACT_ADDITIONS`).
  */
 import {
   type AccessPlan,
@@ -268,9 +274,21 @@ export const decisionOutcome = z.object({
 export const submitInstituteRequestOutput = z.object({ reference: requestId });
 export const listRequestRowsOutput = z.array(requestRow);
 
+/**
+ * PU-07 "You have a request in progress" (owner decision, 24 Oct 2026; ADR-0009 amendment): a
+ * request still in progress whose ticket this browser session holds — named by its institution,
+ * with its address (`/requests/[requestId]`, which opens nothing by itself). Nothing else of it.
+ */
+export const requestInProgressRow = z.object({
+  routeId: requestRouteId,
+  institutionName: z.string().min(1),
+});
+export const listRequestsInProgressOutput = z.array(requestInProgressRow);
+
 export type PublicRequestInput = In<typeof publicRequestInput>;
 export type RequestRow = Out<typeof requestRow>;
 export type RequesterRequestView = Out<typeof requesterRequestView>;
+export type RequestInProgressRow = Out<typeof requestInProgressRow>;
 export type DecisionPage = Out<typeof decisionPage>;
 /** `requestForDecision`: the request record without the requester's ticket (PC-34). */
 export type RequestForDecision = Omit<AccessRequest, 'statusToken'>;
@@ -324,6 +342,15 @@ export interface AccessRequestService {
     RequesterRequestView,
     NotPermitted | NotFound | InvalidState | StaleVersion | Unavailable
   >;
+  /**
+   * PU-07 "You have a request in progress" (owner decision, 24 Oct 2026; ADR-0009 amendment): the
+   * requests still in progress — Submitted or Under review, Information requested, Approved with
+   * payment required, Payment not confirmed or failed — whose ticket this browser session holds for
+   * the user session asking (REQ-04), newest first. Nothing else is listed: no lookup by reference
+   * or institution, no request of anyone else, not the Institute Admin's (IA-17 lists those). Never
+   * `not-signed-in`: a visitor needs no account (T-01).
+   */
+  listRequestsInProgress(): Answer<readonly RequestInProgressRow[], Unavailable>;
   // Institute Admin
   listInstitutionRequests(): Answer<
     readonly RequestRow[],

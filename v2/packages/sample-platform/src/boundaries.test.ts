@@ -111,15 +111,22 @@ describe('determinism and persistence (no clock, no random source, no browser st
     });
   }
 
-  it('keeps the memory driver (ADR-0004 option A) and the TE-6 browser snapshot, nothing else', () => {
+  it('keeps the memory driver (ADR-0004 option A) and the TE-6 browser snapshot, nothing else — the requester’s tickets kept beside it are the snapshot’s (ADR-0009 amendment)', () => {
     const memory = readFileSync(join(SRC, 'persistence', 'memory.ts'), 'utf8');
     expect(memory).toMatch(/kind: 'memory'/);
     const snapshot = readFileSync(join(SRC, 'persistence', 'snapshot.ts'), 'utf8');
     expect(snapshot).toMatch(/kind: 'browser-snapshot'/);
     expect(files(join(SRC, 'persistence')).map(rel).sort()).toEqual([
+      'persistence/kept-tickets.ts',
       'persistence/memory.ts',
       'persistence/snapshot.ts',
+      'persistence/withheld.ts',
     ]);
+    // Only the snapshot driver opens the kept tickets (on the storage it was given); a browser
+    // session reaches only the keeper it is handed.
+    expect(
+      SOURCE.filter((file) => /\bkeptTickets\(|\bdropForeignTickets\(/.test(code(file))).map(rel),
+    ).toEqual(['persistence/kept-tickets.ts', 'persistence/snapshot.ts']);
   });
 });
 

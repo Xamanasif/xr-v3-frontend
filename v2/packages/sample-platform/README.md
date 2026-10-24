@@ -25,7 +25,8 @@ src/
 ├─ clock/         fixed / anchored / manual clocks; the platform clock only tests can move
 ├─ store/         in-tab mutex, commit (worldVersion + 1), change bus {worldVersion, changed}
 ├─ persistence/   memory driver (ADR-0004 option A)
-├─ session/       browser session: selection basket and request tickets (sessionStorage or memory)
+├─ session/       browser session: selection basket and request tickets (sessionStorage or memory;
+│                 the visitor's tickets also kept beside the TE-6 snapshot, ADR-0009 amendment)
 ├─ pipeline/      the eight-step pipeline, actor resolution, ledger guards, invariants
 ├─ handlers/      one module per port family (the 139 WP-0.11 methods)
 ├─ platform/      core, port builder, createSamplePlatform
@@ -100,7 +101,12 @@ walkthrough.** Only the selection basket and the request tickets use `sessionSto
 memory fallback) — board-drawn browser-session behaviour, not world persistence. Since Package 1C a
 ticket names the world that issued it (a random name per page load: a reload's new world, which
 mints the same tokens again, drops it) and the user session that sent the request (`visitor` or
-one sign-in): a person who signs in to the tab holds none of the visitor's tickets (ADR-0009).
+one sign-in): a person who signs in to the tab holds none of the visitor's tickets (ADR-0009). In a
+local prototype build with the TE-6 snapshot, the signed-out visitor's own tickets are also kept
+beside the save (`persistence/kept-tickets.ts`, `xr.request-tickets.kept`), bound to its lineage and
+to the one request each was issued for; a restored world gets their tokens back
+(`withKeptTokens`), so the requester's status page opens again in this browser (owner decision,
+24 Oct 2026; ADR-0009 amendment).
 
 ## The sample world
 

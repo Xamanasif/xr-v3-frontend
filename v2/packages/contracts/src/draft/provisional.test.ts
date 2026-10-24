@@ -83,9 +83,9 @@ function traceHolds(trace: Trace): boolean {
 }
 
 describe('the provisional register', () => {
-  it('numbers its items PC-01 … PC-72 in order', () => {
+  it('numbers its items PC-01 … PC-73 in order', () => {
     expect(PROVISIONAL_REGISTER.map((item) => item.id)).toEqual(
-      Array.from({ length: 72 }, (_, index) => `PC-${String(index + 1).padStart(2, '0')}`),
+      Array.from({ length: 73 }, (_, index) => `PC-${String(index + 1).padStart(2, '0')}`),
     );
   });
 
@@ -189,6 +189,7 @@ describe('the provisional register', () => {
       'PC-70',
       'PC-71',
       'PC-72',
+      'PC-73',
     ]);
   });
 });

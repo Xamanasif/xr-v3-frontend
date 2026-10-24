@@ -188,6 +188,17 @@ test.describe('PU-08 Request institutional access and PU-09 Request sent (B1-07)
     await expect(
       page.getByRole('heading', { level: 2, name: 'Your selection is empty' }),
     ).toBeVisible();
+    // The request just sent is in progress: Your selection leads back to it (owner decision,
+    // 24 Oct 2026; ADR-0009 amendment) — named by its institution, at its address.
+    const inProgress = page.locator('main').getByRole('note');
+    await expect(inProgress).toHaveText(
+      `You have a request in progress for ${RECORD.institution}. Check request status`,
+    );
+    await expect(inProgress.getByRole('link', { name: 'Check request status' })).toHaveAttribute(
+      'href',
+      address!,
+    );
+    await checkState(page, 'Your selection');
     await page.goForward();
     await page.waitForURL('**/request-access/sent');
 

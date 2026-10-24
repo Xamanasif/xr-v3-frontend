@@ -21,6 +21,11 @@ import {
 
 /** TE-6: the browser storage key of the local prototype build's world snapshot. */
 export { SNAPSHOT_KEY as SAMPLE_WORLD_STORAGE_KEY } from '@xr/sample-platform';
+/**
+ * The key of the visitor's request tickets kept beside the snapshot (owner decision, 24 Oct 2026;
+ * ADR-0009 amendment).
+ */
+export { KEPT_TICKETS_KEY as KEPT_REQUEST_TICKETS_KEY } from '@xr/sample-platform';
 
 /** What the rest of the app reaches of an adapter: the 22 ports and the command identities. */
 export interface PlatformAdapter {
@@ -37,7 +42,8 @@ export interface PlatformCapabilities {
    * `memory-per-tab` (ADR-0004 option A): one world in this tab's memory, shared by every person
    * signed in here; a reload starts again from the seed. `browser-snapshot` (TE-6, owner
    * authorisation of Phase 7, 17 Oct 2026, a local prototype build only): the world is kept in this
-   * browser and shared by its tabs; a reload keeps it, signed out; "Reset demo data" starts again.
+   * browser and shared by its tabs; a reload keeps it, signed out — with the visitor's own request
+   * tickets kept beside it (ADR-0009 amendment, 24 Oct 2026); "Reset demo data" starts again.
    */
   readonly persistence: 'memory-per-tab' | 'browser-snapshot';
 }

@@ -116,6 +116,32 @@ export const PHASE_SCHEDULE_EXCEPTIONS: readonly PhaseScheduleException[] = [
 ];
 
 /**
+ * Methods added to the Appendix C §3 surface after Phase 0, each by an owner decision. Appendix C is
+ * frozen audit evidence and is never edited: `ledger.test.ts` checks that the ledger lists exactly
+ * Appendix C's methods, in its order, apart from these — and that nothing else was added.
+ */
+export interface ContractAddition {
+  readonly method: MethodId;
+  readonly decision: string;
+  readonly record: string;
+}
+
+export const CONTRACT_ADDITIONS: readonly ContractAddition[] = [
+  {
+    method: 'AccessRequestService.listRequestsInProgress',
+    decision:
+      'Owner decision, 24 Oct 2026 (P0 fix "external payment request recovery", audit CB-1 / F-01): in a local prototype build the requester’s own ticket is kept in this browser; a small line on PU-07 Your selection — “You have a request in progress” with “Check request status” — leads back to a request still in progress whose ticket this browser holds. No other request is listed to a visitor.',
+    record:
+      'docs/decisions/ADR-0009-request-status-access.md, “Amendment — browser-local ticket persistence in the local prototype build, owner decision 24 Oct 2026”',
+  },
+];
+
+/** The methods `CONTRACT_ADDITIONS` names. */
+export const ADDED_METHODS: readonly MethodId[] = CONTRACT_ADDITIONS.map(
+  (addition) => addition.method,
+);
+
+/**
  * Later-phase methods an owner-authorised Phase-1 package has built ahead of the rest of their
  * phase. Their ledger row keeps its phase (`mock`), so the Appendix F §4.1 schedule and its counts
  * stay as they are; an adapter that implements them says so (contract subject `delivered`), and
@@ -143,6 +169,13 @@ export const PACKAGE_DELIVERIES: readonly PackageDelivery[] = [
     authorisation:
       'Owner authorisation of Package 1B (14 Oct 2026, §5): "Implement only the three newly required Phase-1 mock-service methods: listAreas, getArea, getCourse" — PU-01…PU-06 and PU-14 on the browser-only sample world (TE-8). InstitutionService.listInstitutions (P1, SA-06) stays deferred (Package 1D).',
   })),
+  {
+    method: 'AccessRequestService.listRequestsInProgress',
+    phase: 'P1',
+    package: 'P0 fix: external payment request recovery (CB-1)',
+    authorisation:
+      'Owner decision, 24 Oct 2026 (ADR-0009 amendment; `CONTRACT_ADDITIONS`): PU-07 Your selection shows “You have a request in progress” with “Check request status” when this browser holds a ticket for a request still in progress — listRequestsInProgress, the requests whose ticket this browser session holds for the user session asking, and nothing else.',
+  },
   {
     method: 'InstitutionService.listInstitutions',
     phase: 'P1',

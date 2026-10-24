@@ -34,7 +34,7 @@ export const SURFACE_CASES: readonly ContractCase[] = PORT_NAMES.map((port) => (
   id: `surface:${port}`,
   title: `${port} offers every ledger method`,
   group: 'surface' as const,
-  evidence: 'Appendix C §3; ADR-0008 decision 1 (22 ports, 183 methods)',
+  evidence: 'Appendix C §3; ADR-0008 decision 1 (22 ports, 183 methods); `CONTRACT_ADDITIONS`',
   requires: { fixture: { kind: 'spine-start' as const }, methods: [] as MethodId[] },
   run: async (context) => {
     const rows = rowsOf(port);

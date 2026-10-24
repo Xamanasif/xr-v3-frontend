@@ -31,12 +31,14 @@ import {
   paymentLead,
   removeLabel,
   removedWords,
+  requestInProgressWords,
   requesterHistory,
   selectionBarWords,
   selectionLinkName,
   statusHead,
   updatedWords,
 } from './request-access';
+import { STATE_COPY } from './state-copy';
 
 /** A board's text with tags removed (entities read), then its raw markup (attributes, script). */
 function words(file: string): string {
@@ -109,6 +111,19 @@ describe('PU-07 Your selection is B1-06’s', () => {
 
   it('never a cart, a checkout or a price', () => {
     for (const text of strings(SELECTION)) expect(text).not.toMatch(NEVER);
+  });
+
+  it('the request in progress line is the owner’s words, named by the institution (state-copy `PU-07.request-in-progress`)', () => {
+    expect(STATE_COPY['PU-07.request-in-progress']).toMatchObject({
+      words: 'You have a request in progress',
+      status: 'owner-approved',
+    });
+    expect(requestInProgressWords('Godavari Institute of Technology')).toBe(
+      'You have a request in progress for Godavari Institute of Technology.',
+    );
+    expect(requestInProgressWords('Godavari Institute of Technology')).not.toMatch(NEVER);
+    // Its link is PU-09's own "Check request status" (B1-07).
+    expect(B1_07).toContain(REQUEST_SENT.checkStatus);
   });
 });
 

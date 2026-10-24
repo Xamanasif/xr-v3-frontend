@@ -93,6 +93,15 @@ export function selectionBarWords(experiments: number, formats: number): string 
   return `${experimentCount(experiments)} · ${formatCount(formats)}`;
 }
 
+/**
+ * PU-07's line for a request this browser holds the ticket of, still in progress (owner decision,
+ * 24 Oct 2026; state-copy `PU-07.request-in-progress`): "You have a request in progress for
+ * Godavari Institute of Technology." — named by its institution only.
+ */
+export function requestInProgressWords(institutionName: string): string {
+  return `${stateWords('PU-07.request-in-progress')} for ${institutionName}.`;
+}
+
 // ---- PU-08 Request institutional access (B1-07) ----
 
 export const REQUEST_FORM = {

@@ -326,7 +326,8 @@ describe('the conformance proxy', () => {
   it('wraps every ledger method, and only those', () => {
     const wrapped = conformingPorts({} as ProductPorts, () => ({}), { calls: [] });
     expect(Object.keys(wrapped)).toHaveLength(22);
-    expect(ledgerRows()).toHaveLength(183);
+    // Appendix C's 183 and the one owner-decided addition (`CONTRACT_ADDITIONS`).
+    expect(ledgerRows()).toHaveLength(184);
   });
 });
 

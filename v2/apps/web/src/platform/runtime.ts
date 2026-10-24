@@ -6,7 +6,8 @@
  * Strict Mode's double effects and client-side navigation all reach the same instances, and the
  * boot runs once however often it is asked for. A reload or a full navigation starts a new page:
  * signed out, with the world from the seed (AD-07 option A) — or, in a local prototype build, the
- * world this browser kept (TE-6, owner authorisation of Phase 7, 17 Oct 2026). On the server
+ * world this browser kept (TE-6, owner authorisation of Phase 7, 17 Oct 2026) and the visitor's own
+ * request tickets kept beside it (owner decision, 24 Oct 2026; ADR-0009 amendment). On the server
  * nothing is composed: the world exists only in the browser, and each server render gets its own
  * empty QueryClient.
  */
@@ -22,6 +23,7 @@ import { invalidateChanged } from '@/queries/invalidation';
 import {
   type ComposedPlatform,
   composePlatform,
+  KEPT_REQUEST_TICKETS_KEY,
   type PlatformCapabilities,
   queryDefaultsFor,
   SAMPLE_WORLD_STORAGE_KEY,
@@ -42,7 +44,8 @@ export interface PlatformRuntime {
   invalidate(changed: readonly RecordRef[]): Promise<void>;
   /**
    * TE-6 "Reset demo data" (a local prototype build with the browser snapshot; else `null`): the
-   * saved world, this tab's selection and request tickets are removed once no command is running;
+   * saved world, the request tickets kept beside it, this tab's selection and request tickets are
+   * removed once no command is running;
    * the caller then loads a page, which starts the clean world, signed out. Other tabs start again.
    */
   readonly resetSampleWorld: (() => Promise<void>) | null;
@@ -149,7 +152,8 @@ function webActivityHref(launch: string): string {
 /**
  * TE-6: the tabs of one browser share the saved world. Another tab's save is adopted (every answer
  * may have changed: the session and the queries are read again); a reset in another tab, or a
- * snapshot removed, starts this page again — from the clean world, signed out.
+ * snapshot removed, starts this page again — from the clean world, signed out. A request ticket
+ * another tab of this browser kept for the visitor is taken up the same way (ADR-0009 amendment).
  */
 function connectSnapshot(composed: ComposedPlatform, runtime: PlatformRuntime): void {
   const snapshot = composed.sample.snapshot;
@@ -161,7 +165,13 @@ function connectSnapshot(composed: ComposedPlatform, runtime: PlatformRuntime): 
   });
   snapshot.onForeign(() => window.location.reload());
   window.addEventListener('storage', (event) => {
-    if (event.key === SAMPLE_WORLD_STORAGE_KEY || event.key === null) snapshot.sync();
+    if (
+      event.key === SAMPLE_WORLD_STORAGE_KEY ||
+      event.key === KEPT_REQUEST_TICKETS_KEY ||
+      event.key === null
+    ) {
+      snapshot.sync();
+    }
   });
   // A save another tab made while this page was starting, before it listened: adopted now.
   snapshot.sync();
@@ -200,7 +210,9 @@ function newPublicSessionKey(): string {
 /**
  * The name of this page load's world (ADR-0009): every load builds a new world from the seed
  * (ADR-0004 option A), so the request tickets kept in `sessionStorage` from an earlier load have
- * expired — named apart, they are never honoured here.
+ * expired — named apart, they are never honoured here. In a local prototype build the visitor's own
+ * tickets are kept beside the saved world instead, bound to its lineage, not to this name
+ * (ADR-0009 amendment).
  */
 function newWorldInstance(): string {
   return `world-${randomHex(8)}`;

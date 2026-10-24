@@ -100,8 +100,10 @@ export interface SamplePlatformOptions {
   /**
    * TE-6 (owner authorisation of Phase 7, 17 Oct 2026): the web composition root in a local
    * prototype build keeps the world as a versioned browser snapshot (`persistence/snapshot.ts`),
-   * shared by the browser's tabs; sessions, receipts and request tickets are never saved. Ignored
-   * with a given `world` (test-hook builds and tests start from their fixtures).
+   * shared by the browser's tabs; sessions, receipts and request status tokens are never saved in
+   * it. The signed-out visitor's own request tickets are kept beside it, bound to its lineage (owner
+   * decision, 24 Oct 2026; ADR-0009 amendment). Ignored with a given `world` (test-hook builds and
+   * tests start from their fixtures).
    */
   readonly snapshot?: SnapshotOptions | null;
 }
@@ -118,8 +120,9 @@ export interface SampleSnapshotControls {
   /** The world was reset in another tab: this page load must start again. */
   onForeign(listener: () => void): () => void;
   /**
-   * Reset: removes the save once no command is running, and this tab's selection and request
-   * tickets; nothing is saved again by this page load (the composition root then reloads it).
+   * Reset: removes the save once no command is running, the request tickets this browser keeps
+   * beside it, and this tab's selection and request tickets; nothing is saved again by this page
+   * load (the composition root then reloads it).
    */
   clear(): Promise<void>;
 }
@@ -241,8 +244,14 @@ export function assemblePlatform(
     webRuntime: options.webRuntime ?? null,
     launches: new Map(),
   };
+  // The tab's own browser session holds the tickets this browser keeps for its visitor (TE-6).
   const context = new SessionContext(
-    new BrowserSession(nonces.next('browser'), browserStorage, instance),
+    new BrowserSession(
+      nonces.next('browser'),
+      browserStorage,
+      instance,
+      opened ? opened.driver.tickets : null,
+    ),
   );
   const platform: SamplePlatform = {
     ports: buildPorts(core, context, null),

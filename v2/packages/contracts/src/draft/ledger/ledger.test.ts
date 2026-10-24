@@ -1,8 +1,9 @@
 /**
  * The method ledger against its sources (Appendix F WP-0.10 acceptance; ADR-0008 decision 1):
- * the 22 ports and 183 methods of Appendix C §3, the six stand-in ports of §3.18, the Phase-0
- * implementation set of Appendix F §4.1, the build phase of every calling screen (B8-06), and the
- * error rules every entry follows. The entry ↔ signature checks run at compile time (`entry.ts`).
+ * the 22 ports and 183 methods of Appendix C §3 with the owner-decided additions
+ * (`CONTRACT_ADDITIONS`), the six stand-in ports of §3.18, the Phase-0 implementation set of
+ * Appendix F §4.1, the build phase of every calling screen (B8-06), and the error rules every entry
+ * follows. The entry ↔ signature checks run at compile time (`entry.ts`).
  */
 import { POLICY_RULES } from '@xr/domain';
 import { describe, expect, it } from 'vitest';
@@ -13,6 +14,8 @@ import { ids as idSchemas } from '../kernel/primitives.js';
 import { PORT_KEYS, PORT_NAMES } from '../ports/index.js';
 import { STANDIN_LEDGER } from '../standins/index.js';
 import {
+  ADDED_METHODS,
+  CONTRACT_ADDITIONS,
   type LedgerRow,
   METHOD_LEDGER,
   NOT_DESIGNED_SCREENS,
@@ -28,6 +31,10 @@ const rows = ledgerRows();
 const ID: unknown = idSchemas.in.request;
 const appendixC = appendixCInterfaces();
 const ids = (list: readonly LedgerRow[]) => list.map((row) => row.id);
+const added = (id: string) => (ADDED_METHODS as readonly string[]).includes(id);
+/** A port's ledger methods that Appendix C lists (the recorded additions left out). */
+const appendixMethodsOf = (port: keyof typeof METHOD_LEDGER) =>
+  Object.keys(METHOD_LEDGER[port]).filter((method) => !added(`${port}.${method}`));
 
 /** The Appendix F §4.1 table: each port's Phase-0 mock methods (before the recorded exceptions). */
 function phaseZeroMethods(): ReadonlyMap<string, ReadonlySet<string>> {
@@ -39,7 +46,8 @@ function phaseZeroMethods(): ReadonlyMap<string, ReadonlySet<string>> {
     const port = cells[2];
     if (!port || !/^[A-Z]\w+Service$/.test(port)) continue;
     const said = cells[4]!;
-    const all = Object.keys(METHOD_LEDGER[port as keyof typeof METHOD_LEDGER]);
+    // Appendix F §4.1 counts Appendix C's methods: an owner-decided addition is not one of them.
+    const all = appendixMethodsOf(port as keyof typeof METHOD_LEDGER);
     const named = (part: string) => [...part.matchAll(/`(\w+)`/g)].map((match) => match[1]!);
     if (said.startsWith('all except')) {
       const except = named(said);
@@ -103,19 +111,44 @@ function carriesId(schema: z.ZodType): boolean {
   }
 }
 
-describe('the 22 product ports and 183 methods of Appendix C §3', () => {
-  it('counts 22 ports and 183 methods', () => {
+describe('the 22 product ports and 183 methods of Appendix C §3, and the recorded additions', () => {
+  it('counts 22 ports, Appendix C’s 183 methods and one addition', () => {
     expect(PORT_NAMES).toHaveLength(22);
-    expect(rows).toHaveLength(183);
-    expect(new Set(ids(rows)).size).toBe(183);
+    expect(rows.filter((row) => !added(row.id))).toHaveLength(183);
+    expect(rows).toHaveLength(184);
+    expect(new Set(ids(rows)).size).toBe(184);
   });
 
-  it('lists every port’s methods as Appendix C does, in its order', () => {
+  it('lists every port’s methods as Appendix C does, in its order, apart from the recorded additions', () => {
     const documented = [...appendixC.keys()].filter((name) => name.endsWith('Service'));
     expect(documented).toEqual([...PORT_NAMES]);
     for (const port of PORT_NAMES) {
-      expect(Object.keys(METHOD_LEDGER[port]), port).toEqual(appendixC.get(port));
+      expect(appendixMethodsOf(port), port).toEqual(appendixC.get(port));
     }
+  });
+
+  it('records the one owner-decided addition (24 Oct 2026, ADR-0009 amendment) and nothing else', () => {
+    expect(CONTRACT_ADDITIONS.map((addition) => addition.method)).toEqual([
+      'AccessRequestService.listRequestsInProgress',
+    ]);
+    for (const addition of CONTRACT_ADDITIONS) {
+      const [port, method] = addition.method.split('.') as [keyof typeof METHOD_LEDGER, string];
+      expect(Object.keys(METHOD_LEDGER[port]), addition.method).toContain(method);
+      expect(appendixC.get(port), `${addition.method} is in Appendix C`).not.toContain(method);
+      expect(addition.decision.length, addition.method).toBeGreaterThan(10);
+      expect(addition.record, addition.method).toMatch(/^docs\/decisions\/ADR-\d{4}-/);
+    }
+    // A visitor-facing read only: no input, no session, nothing but the held tickets (the note).
+    const row = rows.find(
+      (candidate) => candidate.id === 'AccessRequestService.listRequestsInProgress',
+    )!;
+    expect(row).toMatchObject({
+      kind: 'read',
+      input: null,
+      screens: ['PU-07'],
+      errors: ['unavailable'],
+    });
+    expect(row.policy).toEqual(['read:request']);
   });
 
   it('gives each port its own key in ProductPorts', () => {
@@ -181,9 +214,9 @@ describe('implementation phases (Appendix F §4.1; ADR-0008 decision 1)', () => 
     }
   });
 
-  it('splits 139 Phase-0 methods from 44 that land with their screens', () => {
+  it('splits 139 Phase-0 methods from 44 that land with their screens, and the P1 addition', () => {
     expect(rows.filter((row) => row.mock === 'WP-0.11')).toHaveLength(139);
-    const later = rows.filter((row) => row.mock !== 'WP-0.11');
+    const later = rows.filter((row) => row.mock !== 'WP-0.11' && !added(row.id));
     expect(later).toHaveLength(44);
     expect(
       Object.fromEntries(
@@ -193,6 +226,8 @@ describe('implementation phases (Appendix F §4.1; ADR-0008 decision 1)', () => 
         ]),
       ),
     ).toEqual({ P1: 4, P2: 9, P3: 1, P4: 14, P5: 7, P6: 9 });
+    // The addition lands with its screen (PU-07, Phase 1).
+    expect(rows.filter((row) => added(row.id)).map((row) => row.mock)).toEqual(['P1']);
   });
 
   it('implements every command in Phase 0 except CSV import, assisted drafting and CSV export', () => {
@@ -255,6 +290,8 @@ describe('the error rules of every entry (ADR-0008 decisions 2–3; provisional 
     // O-05 (Package 1C; ADR-0009): the requester pays without an account, by the ticket its
     // browser session holds, so the method never answers not-signed-in.
     'AccessRequestService.startPayment',
+    // ADR-0009 amendment (24 Oct 2026): PU-07's line, for the tickets this browser holds.
+    'AccessRequestService.listRequestsInProgress',
   ];
 
   it('answers not-signed-in from every method that needs a session — all but the public surface', () => {

@@ -399,7 +399,7 @@ describe('fault injection and later-phase methods', () => {
     expect((await ia.studentAccess.listGrants({ showWithdrawn: false })).ok).toBe(true);
   });
 
-  it('builds the 139 WP-0.11 methods and every later one — the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones, the Phase-3 one, the 6 Phase-4A ones, the 8 Phase-4B ones, the 7 Phase-5 ones and the 9 Phase-6 ones', async () => {
+  it('builds the 139 WP-0.11 methods and every later one — the 3 Package-1B ones, the Package-1D one, the 4 Package-2A ones, the 5 Package-2B ones, the Phase-3 one, the 6 Phase-4A ones, the 8 Phase-4B ones, the 7 Phase-5 ones, the 9 Phase-6 ones and the owner-decided PU-07 addition', async () => {
     const platform = await platformAfterB();
     const ports = platform.ports as unknown as Record<
       string,
@@ -408,7 +408,8 @@ describe('fault injection and later-phase methods', () => {
     const rows = ledgerRows();
     const later = rows.filter((row) => row.mock !== 'WP-0.11');
     expect(rows.length - later.length).toBe(139);
-    expect(later).toHaveLength(44);
+    // 44 of Appendix C, and the one addition of 24 Oct 2026 (ADR-0009 amendment).
+    expect(later).toHaveLength(45);
     const delivered = later.filter((row) =>
       (DELIVERED_METHODS as readonly string[]).includes(row.id),
     );
@@ -416,6 +417,7 @@ describe('fault injection and later-phase methods', () => {
       'CatalogueService.listAreas',
       'CatalogueService.getArea',
       'CatalogueService.getCourse',
+      'AccessRequestService.listRequestsInProgress',
       'InstitutionService.listInstitutions',
       'InstitutionService.getMyOverview',
       'PeopleService.listStudents',
@@ -459,7 +461,7 @@ describe('fault injection and later-phase methods', () => {
       'OperationsService.getSuperAdminOverview',
     ]);
     for (const row of delivered) {
-      // Delivered by Packages 1B, 1D, 2A, 2B and Phases 3 … 6: answered (a Result), never rejected.
+      // Delivered by Packages 1B, 1D, 2A, 2B, Phases 3 … 6 and the CB-1 fix: answered, never rejected.
       await expect(ports[row.portKey]![row.method]!(undefined), row.id).resolves.toHaveProperty(
         'ok',
       );

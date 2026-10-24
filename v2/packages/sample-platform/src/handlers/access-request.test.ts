@@ -17,6 +17,7 @@ import {
 import { describe, expect, it } from 'vitest';
 
 import { createSamplePlatform, seed } from '../index.js';
+import { sanitised } from '../persistence/snapshot.js';
 import type { SessionStorageLike } from '../session/browser-session.js';
 import {
   asPerson,
@@ -50,11 +51,11 @@ function memoryStorage(initial: Record<string, string> = {}): SessionStorageLike
 }
 
 /** The drawn request (B1-07 f4), from a visitor's own selection. */
-async function send(ports: ProductPorts) {
+async function send(ports: ProductPorts, institutionName = 'Godavari Institute of Technology') {
   ok(ports.selection.add({ experimentId: SHELL, formats: ['web', 'vr'] }));
   return ok(
     await ports.accessRequests.submitPublicRequest({
-      institutionName: 'Godavari Institute of Technology',
+      institutionName,
       contactPerson: 'Meera Iyer',
       email: 'meera.iyer@godavari.edu.in',
       phone: null,
@@ -270,6 +271,117 @@ describe('the ticket stays with the browser session that sent the request (B1-07
     expect(() => createSamplePlatform({ world: seed(), browserStorage: memoryStorage() })).toThrow(
       /world instance/,
     );
+  });
+
+  it('a withheld placeholder in the visitor’s storage is never a ticket — not even in a restored world, where every request carries one', async () => {
+    // A world as a snapshot keeps it (TE-6): every status token is the withheld placeholder.
+    const restored = sanitised(seed());
+    const seeded = Object.values(restored.records.requests)[0]!;
+    expect(seeded.statusToken).toBe(`withheld:${seeded.id}`);
+    const storage = memoryStorage({
+      'xr.request-tickets.v2': JSON.stringify([
+        { world: 'world-w', token: `withheld:${seeded.id}`, holder: 'visitor' },
+      ]),
+    });
+    const tab = createSamplePlatform({
+      world: restored,
+      browserStorage: storage,
+      worldInstance: 'world-w',
+    });
+    expect(await tab.ports.accessRequests.getRequestStatus(seeded.routeId)).toEqual({
+      ok: false,
+      error: { kind: 'not-found' },
+    });
+    expect(ok(await tab.ports.accessRequests.listRequestsInProgress())).toEqual([]);
+  });
+});
+
+describe('PU-07 “You have a request in progress” (owner decision 24 Oct 2026; ADR-0009 amendment)', () => {
+  it('lists the requests in progress this browser session holds a ticket for, for the user session asking', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const tab = platform.ports;
+    // The seeded requests in progress (REQ-0037 waits for its payment) are nobody's here.
+    expect(ok(await tab.accessRequests.listRequestsInProgress())).toEqual([]);
+    const sent = await send(tab);
+    const line = { routeId: sent.routeId, institutionName: 'Godavari Institute of Technology' };
+    expect(ok(await tab.accessRequests.listRequestsInProgress())).toEqual([line]);
+    expect(ok(await visitorPorts(platform).accessRequests.listRequestsInProgress())).toEqual([]);
+
+    // A person signed in to the tab lists only what that sign-in sent; the Institute Admin's own
+    // role adds nothing here (IA-17 lists the institution's requests).
+    ok(
+      await tab.session.signIn({
+        method: 'email',
+        email: 'kavya.nair@wilp.example',
+        password: 'sample-password',
+      }),
+    );
+    expect(ok(await tab.accessRequests.listRequestsInProgress())).toEqual([]);
+    const own = await send(tab, 'Krishna Valley College of Engineering');
+    expect(ok(await tab.accessRequests.listRequestsInProgress())).toEqual([
+      { routeId: own.routeId, institutionName: 'Krishna Valley College of Engineering' },
+    ]);
+    ok(await tab.session.signOut());
+    expect(ok(await tab.accessRequests.listRequestsInProgress())).toEqual([line]);
+    const srinivas = asPersonId(platform, 'per-p-srinivas');
+    expect(ok(await srinivas.accessRequests.listRequestsInProgress())).toEqual([]);
+  });
+
+  it('lists the newest first', async () => {
+    let real = Date.UTC(2026, 9, 24, 9, 0);
+    const platform = createSamplePlatform({ world: seed(), realNow: () => real });
+    const first = await send(platform.ports);
+    real += 60_000;
+    const second = await send(platform.ports, 'Krishna Valley College of Engineering');
+    expect(
+      ok(await platform.ports.accessRequests.listRequestsInProgress()).map((row) => row.routeId),
+    ).toEqual([second.routeId, first.routeId]);
+  });
+
+  it('keeps it while it waits — information requested, payment required, not confirmed, failed — and drops it once access is active', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const tab = platform.ports;
+    const sent = await send(tab);
+    // The sample clock stands still here, so both requests arrive at once: compared unordered.
+    const listed = async () =>
+      ok(await tab.accessRequests.listRequestsInProgress())
+        .map((row) => row.routeId)
+        .sort();
+    const admin = asPerson(platform, 'Arjun Mehta');
+    const page = ok(await admin.accessRequests.getRequestForDecision(sent.reference));
+    ok(
+      await admin.accessRequests.requestMoreInformation({
+        id: sent.reference,
+        reason: 'Please confirm how many students will use VR in the first term.',
+        expectedRev: page.request.rev,
+      }),
+    );
+    expect(requestOf(platform, sent.reference).status).toBe('information-requested');
+    expect(await listed()).toEqual([sent.routeId]);
+
+    // A second request, approved and paid: it leaves the list; the first stays.
+    const second = await send(tab, 'Krishna Valley College of Engineering');
+    const toPay = await approveExternal(platform, second.reference);
+    expect(await listed()).toEqual([sent.routeId, second.routeId]);
+    planPayment(platform, 'failed');
+    ok(
+      await tab.accessRequests.startPayment({
+        request: second.routeId,
+        expectedRev: toPay.request.rev,
+      }),
+    );
+    expect(requestOf(platform, second.reference).status).toBe('payment-failed');
+    expect(await listed()).toEqual([sent.routeId, second.routeId]);
+    const again = ok(await tab.accessRequests.getRequestStatus(second.routeId));
+    ok(await tab.accessRequests.startPayment({ request: second.routeId, expectedRev: again.rev }));
+    expect(requestOf(platform, second.reference).status).toBe('payment-not-confirmed');
+    expect(await listed()).toEqual([sent.routeId, second.routeId]);
+    standinsOf(platform).paymentOutcome.report({
+      requestId: second.reference,
+      outcome: 'confirmed',
+    });
+    expect(requestOf(platform, second.reference).status).toBe('access-active');
+    expect(await listed()).toEqual([sent.routeId]);
   });
 });
 

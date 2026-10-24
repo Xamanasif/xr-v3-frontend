@@ -543,8 +543,80 @@ const reviewStart: ContractCase = {
   },
 };
 
+const inProgress: ContractCase = {
+  id: 'request-access:in-progress',
+  title:
+    'PU-07 lists the requests in progress whose ticket this browser session holds — named by institution, at their address — and nothing for anyone else or once access is active',
+  group: 'access',
+  evidence:
+    'Owner decision 24 Oct 2026 (ADR-0009 amendment; `CONTRACT_ADDITIONS`): PU-07 “You have a request in progress” · “Check request status”; owner DV-5 / O-05; matrix REQ-04, REQ-05; TE-4',
+  requires: {
+    fixture: { kind: 'spine-start' },
+    methods: [
+      ...SEND,
+      ...DECIDE,
+      'AccessRequestService.listRequestsInProgress',
+      'AccessRequestService.startPayment',
+    ],
+  },
+  run: async (context) => {
+    deepEqual(
+      valueOf(await context.publicPorts.accessRequests.listRequestsInProgress(), 'PU-07 first'),
+      [],
+      'a visitor holding no ticket is shown no request — the seeded requests in progress are not theirs',
+    );
+    const { visitor, sent } = await send(context);
+    const listed = valueOf(await visitor.accessRequests.listRequestsInProgress(), 'PU-07');
+    deepEqual(
+      listed,
+      [{ routeId: sent.routeId, institutionName: SAMPLE.request.institutionName }],
+      'the request just sent, named by its institution, at its address — nothing else of it',
+    );
+    deepEqual(
+      valueOf(await context.newVisitor().accessRequests.listRequestsInProgress(), 'elsewhere'),
+      [],
+      'REQ-05: another browser holds no ticket and is shown nothing',
+    );
+    for (const person of ['Arjun Mehta', 'Kavya Nair'] as const) {
+      deepEqual(
+        valueOf(await context.as(person).accessRequests.listRequestsInProgress(), person),
+        [],
+        `${person}, signed in, holds none of a visitor’s tickets — no role lists requests here`,
+      );
+    }
+
+    await approve(context, sent.reference, 'external');
+    deepEqual(
+      valueOf(await visitor.accessRequests.listRequestsInProgress(), 'PU-07 after approval'),
+      listed,
+      'Approved — payment required is still in progress',
+    );
+    const toPay = valueOf(await visitor.accessRequests.getRequestStatus(sent.routeId), 'PU-10');
+    valueOf(
+      await visitor.accessRequests.startPayment({ request: sent.routeId, expectedRev: toPay.rev }),
+      'Continue to payment',
+    );
+    deepEqual(
+      valueOf(await visitor.accessRequests.listRequestsInProgress(), 'PU-07 while it waits'),
+      listed,
+      'Payment not confirmed is still in progress',
+    );
+    const paid = context.standins.paymentOutcome.report({
+      requestId: sent.reference,
+      outcome: 'confirmed',
+    });
+    check(paid.ok, 'the provider stand-in confirms the payment (TE-4)');
+    deepEqual(
+      valueOf(await visitor.accessRequests.listRequestsInProgress(), 'PU-07 once active'),
+      [],
+      'Access active: the request is no longer in progress',
+    );
+  },
+};
+
 export const REQUEST_ACCESS_CASES: readonly ContractCase[] = [
   sessionGate,
+  inProgress,
   instituteAdmin,
   instituteAdminPays,
   duplicatesAndStale,

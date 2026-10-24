@@ -1,6 +1,7 @@
 import { type BrowserContext, expect, type Page, test } from '@playwright/test';
 
 import { expectNoAxeViolations, expectNoInvisibleFocusTargets, reachAndClick } from '../support';
+import { statusHead } from '../package-1c/flow';
 import { checkState, smallTargets } from '../support/screen-checks';
 import {
   ACCOUNT,
@@ -18,10 +19,12 @@ import {
  * Phase 7 — the local prototype build's authorised capabilities on the PRODUCT build (owner
  * authorisation, 17 Oct 2026), at 1440, 1024, 768 and 375 where the width matters:
  *
- * - TE-6, browser persistence: a reload keeps the world and signs the tab out; a request's ticket
- *   is not kept (the status page opens nothing after a reload); the tabs of one browser share the
- *   world, each with its own session; a damaged save is rejected for a clean start; "Reset demo
- *   data" asks once, then starts every tab of the browser from the beginning, signed out.
+ * - TE-6, browser persistence: a reload keeps the world and signs the tab out; the requester's own
+ *   ticket is kept in this browser beside the saved world, never inside it (owner decision, 24 Oct
+ *   2026; ADR-0009 amendment: the status page opens again after a reload — the whole recovery is
+ *   `request-recovery.spec.ts`); the tabs of one browser share the world, each with its own
+ *   session; a damaged save is rejected for a clean start; "Reset demo data" asks once, then starts
+ *   every tab of the browser from the beginning, signed out.
  * - TE-3, the sample WEB activity: opened without the experiment page that launched it, it is not
  *   connected and records nothing; its page meets the screen checks at every width.
  *
@@ -30,6 +33,7 @@ import {
  */
 
 const SNAPSHOT_KEY = 'xr.sample-world';
+const KEPT_TICKETS_KEY = 'xr.request-tickets.kept';
 
 /** Sign-in from a page that shows the signed-out card; resolves on the person's home. */
 async function as(page: Page, email: string, home: string): Promise<void> {
@@ -64,14 +68,14 @@ async function sentRequest(page: Page): Promise<string> {
 const requestLinks = (page: Page, reference: string) =>
   page.locator(`main a[href="/admin/requests/${reference}"]`);
 
-async function keptValue(page: Page): Promise<string | null> {
-  return page.evaluate((key) => window.localStorage.getItem(key), SNAPSHOT_KEY);
+async function keptValue(page: Page, key = SNAPSHOT_KEY): Promise<string | null> {
+  return page.evaluate((name) => window.localStorage.getItem(name), key);
 }
 
 test.describe('TE-6 — the sample world kept in this browser', () => {
   test.skip(({ viewport }) => viewport?.width !== 1440, 'Width-independent: one width proves it.');
 
-  test('a reload keeps the world and signs the tab out; the request ticket is not kept', async ({
+  test('a reload keeps the world and signs the tab out; the request ticket is kept in this browser, beside the saved world', async ({
     page,
   }) => {
     const address = await sentRequest(page);
@@ -79,10 +83,30 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     const kept = await keptValue(page);
     expect(kept).toMatch(/^xr-sample-world\|1\|/);
     expect(kept).toContain('REQ-0042');
+    // The ticket is kept beside the save, bound to its lineage and to the one request — never in
+    // the save itself, and never in the address (ADR-0009 amendment, 24 Oct 2026).
+    const ticket = JSON.parse((await keptValue(page, KEPT_TICKETS_KEY))!) as {
+      lineage: string;
+      tickets: { request: string; routeId: string; token: string }[];
+    };
+    expect(ticket.lineage).toBe(kept!.split('|')[3]);
+    expect(ticket.tickets).toHaveLength(1);
+    expect(ticket.tickets[0]).toMatchObject({
+      request: 'REQ-0042',
+      routeId: address.replace('/requests/', ''),
+    });
+    const token = ticket.tickets[0]!.token;
+    expect(token).toMatch(/\S/);
+    expect(kept).not.toContain(token);
+    expect(address).not.toContain(token);
 
-    // The status page after a reload: the ticket belonged to that page load only (ADR-0009).
+    // The status page after a reload: the same request, for this browser's visitor.
     await page.reload();
-    await expect(h1(page)).toHaveText('We can’t find that page');
+    await expect(h1(page)).toHaveText('Request REQ-0042');
+    await expect(statusHead(page)).toContainText('Submitted');
+    expect(page.url()).not.toContain(token);
+    // The save is still free of the token after the reload (nothing is written on the way in).
+    expect(await keptValue(page)).not.toContain(token);
     // The world is the same: the Super Admin finds REQ-0042 waiting.
     await page.goto('/sign-in');
     await as(page, EMAIL.arjun, '/admin');
@@ -130,16 +154,19 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     await expect(requestLinks(page, 'REQ-0042')).toHaveCount(0);
     await expect(requestLinks(page, 'REQ-0043')).toHaveCount(0);
     await expect(main(page)).not.toContainText('Godavari Institute of Technology');
-    // The clean world was saved in its place.
+    // The clean world was saved in its place; the ticket kept for the rejected world is gone.
     const kept = await keptValue(page);
     expect(kept).toMatch(/^xr-sample-world\|1\|/);
     expect(kept).not.toContain('REQ-0043');
+    expect(await keptValue(page, KEPT_TICKETS_KEY)).toBeNull();
   });
 
   test('“Reset demo data” asks once, then starts every tab again from the beginning', async ({
     context,
     page,
   }) => {
+    // Three tabs and two full loads: about 26 s alone, past the default budget under parallel load.
+    test.slow();
     await sentRequest(page);
     const other = await context.newPage();
     await other.goto('/sign-in');
@@ -166,10 +193,11 @@ test.describe('TE-6 — the sample world kept in this browser', () => {
     await reachAndClick(reset, dialog.getByRole('button', { name: 'Reset demo data' }));
     await reset.waitForURL('**/prototype/reset?done=1');
     await expect(reset.getByText('Back to the starting state')).toBeVisible();
-    // A new lineage, at the starting world version.
+    // A new lineage, at the starting world version; the requester's kept ticket is gone with it.
     const [lineageAfter, versionAfter] = head(await keptValue(reset));
     expect(lineageAfter).not.toBe(lineageBefore);
     expect(versionAfter).toBe('0');
+    expect(await keptValue(reset, KEPT_TICKETS_KEY)).toBeNull();
 
     // The other tabs start again: signed out, on the clean world.
     await other.bringToFront();

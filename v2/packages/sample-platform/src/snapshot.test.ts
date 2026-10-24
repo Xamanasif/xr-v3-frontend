@@ -1,9 +1,11 @@
 /**
  * TE-6 (owner authorisation of Phase 7, 17 Oct 2026; a local prototype build only): the world kept
  * as one versioned browser snapshot. A reload restores the progress; a damaged, foreign or older
- * save is rejected for a clean start; no password, session, command receipt or request ticket is
- * ever saved; the tabs of one browser share the world (a newer save is adopted before a command),
- * each keeping its own session; a reset removes the save and the other tabs start again.
+ * save is rejected for a clean start; no password, session, command receipt or request status
+ * token is ever saved in it (the requester's own ticket is kept beside it — ADR-0009 amendment,
+ * `kept-tickets.test.ts`); the tabs of one browser share the world (a newer save is adopted before
+ * a command), each keeping its own session; a reset removes the save and the other tabs start
+ * again.
  */
 import type { ProductPorts } from '@xr/contracts/draft';
 import { type AccessRequest, type ExperimentId, unsafeBrand } from '@xr/domain';
@@ -11,6 +13,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   createSamplePlatform,
+  KEPT_TICKETS_KEY,
   type SamplePlatform,
   type SamplePlatformOptions,
   seed,
@@ -107,7 +110,7 @@ describe('TE-6 — a reload restores the world', () => {
     );
   });
 
-  it('saves no password, session, receipt or request ticket', async () => {
+  it('saves no password, session, receipt or request status token in the snapshot', async () => {
     const local = storage();
     const tab = load(local);
     const sent = await send(tab.ports);
@@ -137,13 +140,43 @@ describe('TE-6 — a reload restores the world', () => {
     expect(saved).toContain(withheldToken(sent.reference));
     expect(saved).not.toMatch(/ses-\d{6}/);
     expect(saved).not.toContain(commandId + '":{');
+    // The visitor's own ticket is kept beside the snapshot, never inside it (ADR-0009 amendment):
+    // that value names the lineage and the one request, and nothing of a session or a password.
+    const kept = local.items.get(KEPT_TICKETS_KEY)!;
+    expect(JSON.parse(kept)).toEqual({
+      format: 1,
+      lineage: saved.split('|')[3],
+      tickets: [
+        {
+          request: sent.reference,
+          routeId: sent.routeId,
+          createdAt: worldOf(tab).records.requests[sent.reference]!.createdAt,
+          token,
+        },
+      ],
+    });
+    expect(kept).not.toContain('a-password-typed-here');
+    expect(kept).not.toMatch(/ses-\d{6}|sign-in:/);
     const restored = load(local);
     expect(worldOf(restored).processedCommandIds).toEqual({});
-    // The restored world opens no request status page: the ticket was never saved.
+    // The snapshot alone opens no request status page: without the kept ticket — another browser
+    // session of the restored world, or the same save in a browser that holds no ticket — nothing.
     expect(await visitorPorts(restored).accessRequests.getRequestStatus(sent.routeId)).toEqual({
       ok: false,
       error: { kind: 'not-found' },
     });
+    const elsewhere = storage();
+    elsewhere.items.set(SNAPSHOT_KEY, saved);
+    const otherBrowser = load(elsewhere);
+    expect(otherBrowser.snapshot?.opened).toBe('restored');
+    expect(await otherBrowser.ports.accessRequests.getRequestStatus(sent.routeId)).toEqual({
+      ok: false,
+      error: { kind: 'not-found' },
+    });
+    // This browser's visitor, holding the kept ticket, reads it again.
+    expect(ok(await restored.ports.accessRequests.getRequestStatus(sent.routeId)).reference).toBe(
+      sent.reference,
+    );
   });
 });
 

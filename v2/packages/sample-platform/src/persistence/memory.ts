@@ -18,7 +18,9 @@ export interface PersistenceDriver {
   exclusive?<T>(work: () => T): Promise<T>;
   /**
    * A newer world of this lineage another tab saved, merged with what only this tab holds — to
-   * adopt before a command runs; `foreign` when the world was reset elsewhere; `null` when current.
+   * adopt before a command runs — or this world with the token of a ticket another tab of this
+   * browser kept since (ADR-0009 amendment); `foreign` when the world was reset elsewhere; `null`
+   * when current.
    */
   fresher?(current: World): World | 'foreign' | null;
 }

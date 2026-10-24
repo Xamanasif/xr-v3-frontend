@@ -2,25 +2,29 @@
 
 import type { CatalogueEntry } from '@xr/contracts/draft';
 import { inDisplayOrder, type SelectionItem, type Technology } from '@xr/domain';
-import { Button, Icon, Link } from '@xr/ui';
+import { Button, Icon, Link, Notice } from '@xr/ui';
 import { useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
 import { courseLine } from '@/copy/public';
 import { CATALOGUE } from '@/copy/public';
 import {
+  REQUEST_SENT,
   SELECTION,
   formatOption,
   formatsLegend,
   removeLabel,
   removedWords,
+  requestInProgressWords,
   selectionBarWords,
 } from '@/copy/request-access';
 import { formatList } from '@/copy/requests';
 import { stateWords } from '@/copy/state-copy';
 import { DocumentTitle } from '@/features/shared/document-title';
+import { useRequestsInProgress } from '@/queries/public-request';
 import { useSelection } from '@/queries/selection';
 
+import { statusAddress } from '../pu-10-request-status/request-status';
 import { PublicMain, usePublicRoot } from '../shell/public-frame';
 import { ArtMedia } from '../shared/art';
 import { FailedBlock } from '../shared/blocks';
@@ -34,10 +38,16 @@ import { RequestStepper, useCatalogueNames } from '../shared/request-flow';
  * was. Never a cart, a checkout or a price (B1-06 "Words"); nothing is requested until the request
  * is sent. Below 1024 px the summary becomes the bottom bar (`div.xp-bottombar`, after the footer).
  * The selection port decides every change; the page renders its answers.
+ *
+ * Owner decision, 24 Oct 2026 (ADR-0009 amendment; state-copy `PU-07.request-in-progress`): when
+ * this browser holds the ticket of a request still in progress, a quiet note names it by its
+ * institution — "You have a request in progress for …" — with "Check request status" to its status
+ * page. The service answers which (`listRequestsInProgress`); the page renders them.
  */
 export function SelectionPage() {
   const { selection, ready, setFormats, remove, undoRemove } = useSelection();
   const names = useCatalogueNames();
+  const inProgress = useRequestsInProgress().data;
   const root = usePublicRoot();
   // The removal this visit can undo (B1-06 `undo`: the notice belongs to the page, the item to the port).
   const [removed, setRemoved] = useState<{ readonly id: string; readonly title: string } | null>(
@@ -117,6 +127,16 @@ export function SelectionPage() {
             <h1 className="xp-h1">{SELECTION.title}</h1>
             <p className="xp-lead">{SELECTION.lead}</p>
           </div>
+          {inProgress?.ok && inProgress.value.length > 0 ? (
+            <div className="mb-5 flex flex-col gap-3">
+              {inProgress.value.map((request) => (
+                <Notice key={request.routeId} tone="quiet" role="note">
+                  {requestInProgressWords(request.institutionName)}{' '}
+                  <Link href={statusAddress(request.routeId)}>{REQUEST_SENT.checkStatus}</Link>
+                </Notice>
+              ))}
+            </div>
+          ) : null}
           {undoable ? (
             <div className="mb-5">
               <div className="xr-notice xr-notice--quiet" role="status" tabIndex={-1} ref={notice}>

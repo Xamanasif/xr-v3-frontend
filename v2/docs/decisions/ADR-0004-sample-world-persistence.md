@@ -58,14 +58,18 @@ production persistence requirement stays open.
   runtime injects the storage and Web Locks.
 - **Nothing sensitive is kept**: no password, credential or session (sessions stay in each tab's
   memory, ADR-0003); command receipts are left out; each access request's status token is withheld,
-  and the visitor's request tickets stay in `sessionStorage` bound to the page load (ADR-0009), so a
-  reload never re-opens a status page.
+  and the visitor's request tickets stay in `sessionStorage` bound to the page load (ADR-0009), so
+  the snapshot alone never re-opens a status page. Since 24 Oct 2026 (owner decision; ADR-0009
+  amendment) the signed-out visitor's own tickets are also kept beside the snapshot, bound to its
+  lineage (`xr.request-tickets.kept`), so the requester's status page opens again in this browser
+  after a reload — and in no other browser.
 - **Tabs**: the tabs of one browser share the world, each with its own session. Commands hold the
   cross-tab lock and adopt a newer save of the same lineage first; the `storage` event adopts it in
   the other tabs (their queries read again). A save of another lineage (a reset) or a removed save
   makes the other tabs load again.
 - **Reset**: `/prototype/reset` ("Reset demo data", the owner's words; a recorded `demo-wording`
-  scan exception) asks once, removes the save and this tab's selection and tickets, and loads again.
+  scan exception) asks once, removes the save, the tickets kept beside it and this tab's selection
+  and tickets, and loads again.
 - **Clock**: the sample clock still runs from the world's anchor and `seededAtReal`, which a restored
   world keeps — so a day away moves the sample "today" on by a day; a reset starts it again.
 - **Where**: the composition root turns it on for a local prototype build (`development`

@@ -106,8 +106,9 @@ export const statusHead = (page: Page) => page.locator('.xp-statushead');
 /**
  * Opens an address in this tab through the app router, as a link would — keeping the document and
  * its sample world (ADR-0004 option A: an address typed into the bar starts a fresh world). The
- * requester keeps their request's address themselves: no product page lists it (R01 open: no
- * reference lookup, account or link is designed).
+ * requester keeps their request's address themselves: no product page lists it but PU-09's link and,
+ * in the browser that holds its ticket, PU-07's line (ADR-0009 amendment) — R01 stays open: no
+ * reference lookup, account or link is designed.
  */
 export async function openInTab(page: Page, address: string): Promise<void> {
   await page.evaluate((href) => {

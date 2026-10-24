@@ -10,17 +10,30 @@
  *   or saved by another build is rejected; the caller then starts a clean world.
  * - **Nothing sensitive**: the world holds no password, credential or session (sessions live in
  *   each tab's memory, ADR-0003). Before saving, the command receipts (which name sessions and may
- *   carry a command's answer) are left out, and every access request's status token is withheld —
- *   a tab keeps the tokens it minted in memory only, and the visitor's request tickets stay in the
- *   tab's `sessionStorage`, bound to that page load (ADR-0009). A restored or adopted world can
- *   therefore never re-open a request status page.
+ *   carry a command's answer) are left out, and every access request's status token is withheld
+ *   (ADR-0009): the snapshot alone never re-opens a request status page.
+ * - **The requester's own ticket, beside the snapshot** (owner decision, 24 Oct 2026; ADR-0009
+ *   amendment): the signed-out visitor's ticket of a request sent in this browser is kept in its own
+ *   value, bound to this lineage (`kept-tickets.ts`). A restored or adopted world gets that token
+ *   back on exactly the request it was issued for (`withKeptTokens`), so the requester's status
+ *   page opens again in this browser — and for nobody else, in no other browser.
  * - **One world, many tabs**: a tab adopts a newer save of its lineage (`adopt`); a different
  *   lineage means the world was reset elsewhere.
  */
 import type { AccessRequest } from '@xr/domain';
 
 import { TABLE_NAMES, WORLD_SCHEMA, WORLD_VERSION, type World } from '../world/types.js';
+import {
+  dropForeignTickets,
+  type KeptTicket,
+  keptTickets,
+  KEPT_TICKETS_KEY,
+  type TicketKeeper,
+} from './kept-tickets.js';
 import type { PersistenceDriver } from './memory.js';
+import { isWithheldToken, withheldToken } from './withheld.js';
+
+export { KEPT_TICKETS_KEY, withheldToken };
 
 /** The part of the Web Storage API the snapshot needs (the browser's `localStorage`). */
 export interface SnapshotStorage {
@@ -62,11 +75,6 @@ export function checksum(text: string, seed = 0): string {
 /** The build's fingerprint: its starting world. A save from a build with another seed is rejected. */
 export function compatibilityOf(start: World): string {
   return checksum(JSON.stringify(start));
-}
-
-/** The status token kept in a snapshot in place of the real one (never a usable ticket). */
-export function withheldToken(requestId: string): string {
-  return `withheld:${requestId}`;
 }
 
 /** What a snapshot keeps of a world: no command receipts, no request status tokens. */
@@ -200,6 +208,32 @@ export function adoptedWorld(stored: World, current: World): World {
   };
 }
 
+/**
+ * A restored or adopted world with the tokens of the tickets this browser keeps for its visitor
+ * put back (owner decision, 24 Oct 2026; ADR-0009 amendment). Each token goes back on exactly the
+ * request its ticket was issued for — the same reference, address and creation, as `adoptedWorld`
+ * matches a tab's own request — and only where the world holds the withheld placeholder, so a
+ * token this tab already holds is never replaced. A token goes to one request at most and never to
+ * a request whose token another one already has; a withheld placeholder is never put back. The
+ * same world is answered when nothing changes.
+ */
+export function withKeptTokens(world: World, tickets: readonly KeptTicket[]): World {
+  if (tickets.length === 0) return world;
+  const held = world.records.requests;
+  const taken = new Set<string>(Object.values(held).map((request) => request.statusToken));
+  let requests: Record<string, AccessRequest> | null = null;
+  for (const ticket of tickets) {
+    if (!Object.hasOwn(held, ticket.request)) continue;
+    const request = held[ticket.request]!;
+    const issued = request.routeId === ticket.routeId && request.createdAt === ticket.createdAt;
+    if (!issued || request.statusToken !== withheldToken(request.id)) continue;
+    if (isWithheldToken(ticket.token) || taken.has(ticket.token)) continue;
+    taken.add(ticket.token);
+    requests = { ...(requests ?? held), [request.id]: { ...request, statusToken: ticket.token } };
+  }
+  return requests ? { ...world, records: { ...world.records, requests } } : world;
+}
+
 export interface SnapshotOptions {
   /** The browser's `localStorage` (injected: this package reads no browser API). */
   readonly storage: SnapshotStorage;
@@ -215,13 +249,20 @@ export interface SnapshotDriver extends PersistenceDriver {
   /** How this page load started: from a save, afresh, or afresh after rejecting a save. */
   readonly opened: 'restored' | 'fresh' | 'rejected';
   readonly rejectedBecause: string | null;
-  /** Removes the save (Reset); nothing is saved again by this page load. */
+  /**
+   * The visitor's request tickets kept beside the save, for this lineage (owner decision, 24 Oct
+   * 2026; ADR-0009 amendment): the browser session reads and keeps them here.
+   */
+  readonly tickets: TicketKeeper;
+  /** Removes the save and the kept tickets (Reset); nothing is saved again by this page load. */
   clear(): void;
 }
 
 /**
- * Opens the snapshot for a page load: the stored world when it is readable and of this build, else
- * `start` (a rejected save is removed). The world given back is the one the store starts from.
+ * Opens the snapshot for a page load: the stored world when it is readable and of this build — with
+ * the tokens of the tickets this browser keeps for its visitor put back (`withKeptTokens`) — else
+ * `start` (a rejected save is removed, and so are tickets kept in another lineage). The world given
+ * back is the one the store starts from.
  */
 export function openSnapshot(
   options: SnapshotOptions,
@@ -244,9 +285,15 @@ export function openSnapshot(
   }
   const lineage = stored.status === 'found' ? stored.head.lineage : options.lineage;
   let closed = false;
-  // A restored world is already what is stored: it is not written back on the way in, so a page
-  // load never overwrites a save (or a reset) another tab made after it read.
-  let lastSaved: World | null = stored.status === 'found' ? stored.world : null;
+  const tickets = keptTickets(storage, lineage, () => closed);
+  // A clean start is a new lineage: tickets kept for the world it replaces open nothing any more.
+  if (stored.status !== 'found') dropForeignTickets(storage, lineage);
+  const restored =
+    stored.status === 'found' ? withKeptTokens(stored.world, tickets.tickets()) : null;
+  // A restored world is already what is stored (the kept tokens are withheld again on every save):
+  // it is not written back on the way in, so a page load never overwrites a save (or a reset)
+  // another tab made after it read.
+  let lastSaved: World | null = restored;
   // Whether this browser holds this page load's world: a save that never happened (a full quota, a
   // storage that refuses writes) is not mistaken for a reset made in another tab.
   let persisted = stored.status === 'found';
@@ -257,6 +304,7 @@ export function openSnapshot(
     opened:
       stored.status === 'found' ? 'restored' : stored.status === 'rejected' ? 'rejected' : 'fresh',
     rejectedBecause: stored.status === 'rejected' ? stored.reason : null,
+    tickets,
     load: () => lastSaved,
     save(world) {
       if (closed || world === lastSaved) return;
@@ -280,10 +328,14 @@ export function openSnapshot(
       const head = headOf(text);
       if (!head) return persisted ? 'foreign' : null;
       if (head.lineage !== lineage) return 'foreign';
-      if (head.worldVersion <= current.worldVersion) return null;
+      if (head.worldVersion <= current.worldVersion) {
+        // No newer world — but another tab of this browser may have kept a ticket since.
+        const ticketed = withKeptTokens(current, tickets.tickets());
+        return ticketed === current ? null : ticketed;
+      }
       const read = decodeSnapshot(text, compatibility);
       if (read.status !== 'found') return 'foreign';
-      lastSaved = adoptedWorld(read.world, current);
+      lastSaved = withKeptTokens(adoptedWorld(read.world, current), tickets.tickets());
       return lastSaved;
     },
     clear() {
@@ -293,7 +345,8 @@ export function openSnapshot(
       } catch {
         // Storage refuses: nothing was kept.
       }
+      tickets.forget();
     },
   };
-  return { driver, world: stored.status === 'found' ? stored.world : start };
+  return { driver, world: restored ?? start };
 }

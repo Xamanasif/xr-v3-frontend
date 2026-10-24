@@ -11,7 +11,9 @@
  * PU-10 / PU-12 (DV-5 / O-05; ADR-0009): a request's public pages are found by its opaque address
  * (`routeId`), and shown only to the browser session holding its ticket (REQ-04) or to the
  * signed-in Institute Admin of the requesting institution (REQ-28). The ticket never crosses a
- * port: the session holds it, and this adapter reads it from there.
+ * port: the session holds it, and this adapter reads it from there. In a local prototype build the
+ * visitor's own ticket is also kept in this browser (owner decision, 24 Oct 2026; ADR-0009
+ * amendment), and PU-07 lists the requests in progress it holds tickets for — nothing else.
  */
 import {
   type AccessRequestService,
@@ -206,6 +208,19 @@ function mayOpen(op: Op, request: AccessRequest): boolean {
   return op.canSee(op.visitor(), target);
 }
 
+/**
+ * The requester's statuses "still in progress" (owner decision, 24 Oct 2026): Submitted and Under
+ * review (`under-review`), Information requested, Approved — payment required, Payment not
+ * confirmed, Payment failed. Access active is where a request ends.
+ */
+const IN_PROGRESS: ReadonlySet<AccessRequest['status']> = new Set([
+  'under-review',
+  'information-requested',
+  'approved-payment-required',
+  'payment-not-confirmed',
+  'payment-failed',
+]);
+
 /** Two receipts' changed records, each once. */
 function joined(first: readonly RecordRef[], second: readonly RecordRef[]): readonly RecordRef[] {
   const seen = new Set(first.map((ref) => `${ref.kind}:${ref.id}`));
@@ -253,8 +268,9 @@ export function accessRequestPort(call: Call): AccessRequestService {
           after: () => {
             // "Your selection was sent with this request, so it is empty again." (B1-07)
             browser.selection = EMPTY_SELECTION;
-            // The ticket is this user session's: the signed-out visitor's, or this sign-in's.
-            browser.holdTicket(request.statusToken, ticketHolder(op.liveSession()));
+            // The ticket is this user session's: the signed-out visitor's (kept in this browser in a
+            // local prototype build, ADR-0009 amendment), or this sign-in's.
+            browser.holdTicket(request, ticketHolder(op.liveSession()));
           },
         };
       }),
@@ -324,6 +340,23 @@ export function accessRequestPort(call: Call): AccessRequestService {
         ? { ...answer, changed: joined(answer.changed, reported) }
         : answer;
     },
+
+    // PU-07 "You have a request in progress" (owner decision, 24 Oct 2026; ADR-0009 amendment).
+    listRequestsInProgress: () =>
+      read(call, 'AccessRequestService.listRequestsInProgress', (op) => {
+        // Only what the status page's read policy shows this browser session's visitor — the
+        // requests whose ticket it holds for the user session asking (REQ-04). Nothing is looked
+        // up by reference or institution; a signed-in person's own role grants nothing here.
+        const visitor = op.visitor();
+        return values(op.records.requests)
+          .filter((request) => IN_PROGRESS.has(request.status))
+          .filter((request) => op.canSee(visitor, { kind: 'request', request }))
+          .sort(newestFirst)
+          .map((request) => ({
+            routeId: request.routeId,
+            institutionName: request.institutionName,
+          }));
+      }),
 
     // ── Institute Admin (IA-17) ────────────────────────────────────────────────────────────
     listInstitutionRequests: () =>

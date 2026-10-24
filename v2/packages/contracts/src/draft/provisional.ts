@@ -1159,4 +1159,20 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     irreversible: WHILE_DRAFT,
     reversal: 'Drop `format`; a page then labels every package row by the field alone.',
   },
+  {
+    id: 'PC-73',
+    subject:
+      '`AccessRequestService.listRequestsInProgress` (added to Appendix C §3.4, `CONTRACT_ADDITIONS`): PU-07’s “You have a request in progress” — the requests still in progress whose ticket this browser session holds for the user session asking, each as its address and institution name only',
+    status: 'owner-approved-interim',
+    source:
+      'Owner decision, 24 Oct 2026 (P0 fix “external payment request recovery”, audit CB-1 / F-01; ADR-0009 amendment): the requester’s own ticket is kept in this browser in the local prototype build; a small line on PU-07 — “You have a request in progress” with “Check request status” to that request’s status page — leads back to it while it is in progress; “no new service method that lists requests to visitors beyond the tickets this browser holds”. No board draws the line',
+    decisions: ['DV-5', 'O-05', 'T-01', 'R01'],
+    trace: [
+      { kind: 'schema-field', schema: 'requestInProgressRow', path: 'routeId' },
+      { kind: 'schema-field', schema: 'requestInProgressRow', path: 'institutionName' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Remove the method and its line on PU-07 once a requester identity (T-01 / R01) gives the requester an account that lists their requests; the status page then needs no browser-held ticket.',
+  },
 ];

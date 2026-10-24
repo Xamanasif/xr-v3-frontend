@@ -13,6 +13,10 @@
  *   the signed-in Institute Admin of the requesting institution; anyone else is answered exactly as
  *   an address that names no request, `not-found`, which the pages show as the public not-found
  *   page without reading any detail. The ticket is never an input: the session holds it (ADR-0009).
+ *   In a local prototype build the visitor's own ticket is kept in this browser (owner decision,
+ *   24 Oct 2026; ADR-0009 amendment): a reload or a later visit of this browser opens it again.
+ * - `requestsInProgress` — PU-07's "You have a request in progress": the requests still in progress
+ *   this browser session holds a ticket for, and nothing else.
  * - Sending and paying are commands: `useCommand(ports => ports.accessRequests.submitPublicRequest)`
  *   and `useCommand(ports => ports.accessRequests.startPayment)`; their receipts refresh these
  *   reads (and, after a TE-4 payment, every read of the institution and its plan).
@@ -43,6 +47,23 @@ export const requestStatus = defineQuery({
 
 export function useRequestStatus(routeId: string) {
   return useXrQuery(requestStatus, routeId);
+}
+
+/**
+ * PU-07 "You have a request in progress" (owner decision, 24 Oct 2026; ADR-0009 amendment): the
+ * requests still in progress whose ticket this browser session holds for the session asking — the
+ * adapter decides which, exactly as for the status page; the page names each by its institution
+ * and links to its address. Nobody else's request is ever listed.
+ */
+export const requestsInProgress = defineQuery({
+  family: 'REQ',
+  view: 'requests-in-progress',
+  deps: ['REQ'],
+  read: (ports: ProductPorts) => ports.accessRequests.listRequestsInProgress(),
+});
+
+export function useRequestsInProgress() {
+  return useXrQuery(requestsInProgress, null);
 }
 
 /**

@@ -14,7 +14,7 @@ import type { ReactNode } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { clearRequestFlow, rememberSent } from '@/queries/request-flow';
-import { SAMPLE_PASSWORD, testPlatform } from '@/test-support/platform';
+import { SAMPLE_PASSWORD, signInAs, testPlatform } from '@/test-support/platform';
 import { renderInTab, testNavigation } from '@/test-support/workspace';
 
 import { forgetLastAddress } from '../shared/workspace-frame/route-focus';
@@ -208,6 +208,101 @@ describe('PU-07 Your selection (B1-06)', () => {
     );
     await user.click(screen.getByRole('checkbox', { name: 'AR · Augmented reality' }));
     expect(screen.queryByRole('button', { name: 'Undo' })).toBeNull();
+  });
+});
+
+describe('PU-07 “You have a request in progress” (owner decision 24 Oct 2026; ADR-0009 amendment)', () => {
+  /** A browser's `localStorage` for the local prototype build's world and kept tickets (TE-6). */
+  function browserStorage() {
+    const items = new Map<string, string>();
+    return {
+      items,
+      getItem: (key: string) => items.get(key) ?? null,
+      setItem: (key: string, value: string) => void items.set(key, value),
+      removeItem: (key: string) => void items.delete(key),
+    };
+  }
+
+  /** The line's read has answered for this page (an absent line is then an answer, not a wait). */
+  async function inProgressRead(platform: Platform) {
+    await waitFor(() => {
+      const read = platform.runtime.queryClient
+        .getQueryCache()
+        .findAll({ queryKey: ['xr'] })
+        .find((query) => query.queryKey[3] === 'requests-in-progress');
+      expect(read?.state.status).toBe('success');
+    });
+  }
+
+  it('after a reload of the local prototype build: the request named by its institution, and the way to its status page', async () => {
+    const local = browserStorage();
+    const first = await testPlatform({ kept: { storage: local, lineage: 'lineage-first' } });
+    const sent = await send(first);
+    await approveExternal(first, sent.reference);
+
+    // The reload: a new page load on this browser's storage, signed out.
+    const reloaded = await testPlatform({ kept: { storage: local, lineage: 'lineage-next' } });
+    expect(reloaded.runtime.capabilities.persistence).toBe('browser-snapshot');
+    show(reloaded, <SelectionPage />, '/selection');
+    const note = await screen.findByRole('note');
+    expect(note).toHaveClass('xr-notice', 'xr-notice--quiet');
+    expect(note).toHaveTextContent(
+      'You have a request in progress for Godavari Institute of Technology. Check request status',
+    );
+    expect(within(note).getByRole('link', { name: 'Check request status' })).toHaveAttribute(
+      'href',
+      `/requests/${sent.routeId}`,
+    );
+    // Named by its institution only: no reference, address or ticket in the words.
+    expect(note.querySelector('span')?.firstChild?.textContent).not.toMatch(/REQ-|rq-|tok-/);
+    // The page it leads to opens for this tab: the same request, payment still to make.
+    expect(await statusOf(reloaded, sent.routeId)).toMatchObject({
+      reference: sent.reference,
+      status: 'approved-payment-required',
+      nextStep: 'continue-to-payment',
+    });
+    // The empty selection is shown as before, under the line.
+    expect(
+      screen.getByRole('heading', { level: 2, name: 'Your selection is empty' }),
+    ).toBeVisible();
+  });
+
+  it('shows nothing in another browser, for a person signed in, or once access is active', async () => {
+    const local = browserStorage();
+    const first = await testPlatform({ kept: { storage: local, lineage: 'lineage-one' } });
+    const sent = await send(first);
+
+    // Another browser with a copy of the saved world, but no ticket: nothing.
+    const other = browserStorage();
+    other.items.set('xr.sample-world', local.items.get('xr.sample-world')!);
+    const elsewhere = await testPlatform({ kept: { storage: other, lineage: 'lineage-two' } });
+    const view = show(elsewhere, <SelectionPage />, '/selection');
+    await inProgressRead(elsewhere);
+    expect(screen.queryByRole('note')).toBeNull();
+    view.unmount();
+
+    // A person signed in to this browser holds none of the visitor's tickets.
+    const signedIn = await testPlatform({ kept: { storage: local, lineage: 'lineage-three' } });
+    await signInAs(signedIn.runtime, 'kavya.nair@wilp.example');
+    const theirs = show(signedIn, <SelectionPage />, '/selection');
+    await inProgressRead(signedIn);
+    expect(screen.queryByRole('note')).toBeNull();
+    theirs.unmount();
+
+    // Approved on the Internal route: access is active, the request is no longer in progress.
+    const { admin, rev } = await decide(first, sent.reference);
+    ok(
+      await admin.accessRequests.approveRequest({
+        id: sent.reference,
+        route: 'internal',
+        expectedRev: rev,
+      }),
+    );
+    const later = await testPlatform({ kept: { storage: local, lineage: 'lineage-four' } });
+    expect((await statusOf(later, sent.routeId)).status).toBe('access-active');
+    show(later, <SelectionPage />, '/selection');
+    await inProgressRead(later);
+    expect(screen.queryByRole('note')).toBeNull();
   });
 });
 

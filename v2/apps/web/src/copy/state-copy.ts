@@ -804,6 +804,17 @@ const PHASE_1_AND_EARLIER = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'PU-07.request-in-progress': {
+    screen: 'PU-07',
+    state:
+      'Your selection, in a browser that holds the ticket of a request still in progress (Submitted, Under review, Information requested, Approved — payment required, Payment not confirmed, Payment failed)',
+    words: 'You have a request in progress',
+    rule: 'A quiet note above the selection, one per request, newest first: “You have a request in progress for <institution>.” with the link “Check request status” (PU-09’s words) to that request’s status page. The request is named by its institution only — no reference, address or ticket in the words. The service lists only the requests whose ticket this browser holds for the visitor; nothing once access is active, for a person signed in, or in another browser.',
+    basis:
+      'Owner decision 24 Oct 2026 (P0 fix “external payment request recovery”; audit CB-1 / F-01; ADR-0009 amendment): the line and its link; the v46 quiet notice (B1-06 `div.xr-notice--quiet`, B1-08 PU-12 note) and B1-07’s “Check request status”',
+    status: 'owner-approved',
+    decisions: ['O-05', 'F-01'],
+  },
   'PU-08.edit-label': {
     screen: 'PU-08',
     state: 'The names of the review step’s Edit buttons',
@@ -893,13 +904,24 @@ const PHASE_1_AND_EARLIER = {
   'PU-10.not-found': {
     screen: 'PU-10',
     state:
-      'An address that names no request, or a request this browser session did not send and the signed-in person may not open (another browser, a cold visit, another role or institution)',
+      'An address that names no request, or a request whose ticket this browser session does not hold and the signed-in person may not open (another browser or device, a cold visit to a request not sent here, another role or institution)',
     words: null,
     rule: 'The public not-found page (PU-15, public variant): nothing of the request is read or shown, and the page cannot tell an unknown address from one it may not open. Also for the payment step.',
     basis:
       'B1-08 “Who can open this page”; owner decision DV-5 / O-05 (14 Oct 2026): “Unauthorized access must return the approved not-found treatment without exposing request details”; Appendix A §3.7 guard row',
     status: 'provisional',
     decisions: ['T-01', 'R01', 'O-05'],
+  },
+  'PU-10.same-browser': {
+    screen: 'PU-10',
+    state:
+      'The requester comes back to the status page in a local prototype build: a reload, navigating away and back, the tab closed and the site opened again in the same browser',
+    words: null,
+    rule: 'The same request opens again, with its next step (Continue to payment, Check again, Try payment again): the requester’s own ticket is kept in this browser beside the saved world, bound to that world, and Your selection says “You have a request in progress”. Only this browser: another browser or device — or this one after a reset, or after a save the build cannot read — shows the public not-found page (`PU-10.not-found`); coming back from anywhere needs a requester identity that is not built (production needs real accounts, T-01 / R01). A request sent while signed in stays with that sign-in, which ends with the page. No words are added to the page.',
+    basis:
+      'Owner decision 24 Oct 2026 (P0 fix “external payment request recovery”; audit CB-1 / F-01; ADR-0009 amendment): “recovery reaches the same browser”; “Another browser or device cannot recover (production needs real accounts)”',
+    status: 'owner-approved',
+    decisions: ['O-05', 'F-01', 'T-01', 'R01'],
   },
   'PU-10.times': {
     screen: 'PU-10',

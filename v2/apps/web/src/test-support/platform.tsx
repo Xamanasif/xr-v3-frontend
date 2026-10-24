@@ -6,7 +6,9 @@
  */
 import type { ReactNode } from 'react';
 
-import { composePlatform, type SampleWorld } from '@/platform/composition';
+import { type ComposeOptions, composePlatform, type SampleWorld } from '@/platform/composition';
+
+type SnapshotStorage = NonNullable<ComposeOptions['worldStorage']>;
 import { PlatformRuntimeProvider } from '@/platform/platform-provider';
 import { assembleRuntime, createQueryClient, type PlatformRuntime } from '@/platform/runtime';
 
@@ -20,10 +22,20 @@ export const SAMPLE_PEOPLE = {
 /** Any non-empty password signs a known sample e-mail in (AD-03 interim). */
 export const SAMPLE_PASSWORD = 'any-sample-password';
 
-export async function testPlatform(options: { readonly world?: SampleWorld } = {}) {
+export async function testPlatform(
+  options: {
+    readonly world?: SampleWorld;
+    /**
+     * TE-6: a page load of the local prototype build on this browser storage (its world snapshot
+     * and the visitor's request tickets kept beside it); a new lineage name for each fresh start.
+     */
+    readonly kept?: { readonly storage: SnapshotStorage; readonly lineage: string };
+  } = {},
+) {
   const composed = composePlatform({
     dataSource: 'sample',
     ...(options.world ? { world: options.world } : {}),
+    ...(options.kept ? { worldStorage: options.kept.storage, lineage: options.kept.lineage } : {}),
   });
   const runtime = assembleRuntime({
     composed,

@@ -43,8 +43,10 @@ Phase 7 (owner authorisation, 17 Oct 2026; a local prototype build only): TE-6 k
 versioned `localStorage` snapshot shared by the browser's tabs (`@xr/sample-platform`
 `persistence/snapshot.ts`; the runtime injects the storage and Web Locks and adopts another tab's
 save on the `storage` event), so a reload or a full navigation keeps the world — signed out, with
-no session, receipt or request ticket saved. `/prototype/reset` ("Reset demo data") starts every tab
-again. TE-3's sample WEB activity (`/prototype/web-activity`) reports to the tab that launched it
+no session or receipt saved and every request status token withheld. The signed-out visitor's own
+request tickets are kept beside the save, bound to its lineage (owner decision, 24 Oct 2026; ADR-0009
+amendment): the requester's status page opens again in this browser, and Your selection says "You
+have a request in progress". `/prototype/reset` ("Reset demo data") starts every tab again. TE-3's sample WEB activity (`/prototype/web-activity`) reports to the tab that launched it
 over a `BroadcastChannel` (`sample-web-relay.ts`). A test-hook build keeps neither.
 
 ## Test hooks (CI/Playwright builds only)

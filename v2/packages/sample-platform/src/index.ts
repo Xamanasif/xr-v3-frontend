@@ -14,6 +14,7 @@ export {
   type SampleSnapshotControls,
 } from './platform/create.js';
 export {
+  KEPT_TICKETS_KEY,
   SNAPSHOT_KEY,
   type SnapshotOptions,
   type SnapshotStorage,
