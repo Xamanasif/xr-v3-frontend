@@ -90,3 +90,22 @@ browser checks above, not by parity.
   and the browser spec, not by a contract case.
 - A held one-experiment scope cannot be created through the UI any more; it is proved by service
   and component tests on a world saved before the change.
+
+## 9. Owner acceptance (27 Oct 2026)
+
+After the final post-fix verification of `156fb46` (`pnpm verify` on the committed code; evidence
+`~/Downloads/XR-V3-Vendor-Correction-A-Verification-2026-10-27/`), the owner decided: **Correction A
+accepted** — commit `156fb46` is the verified Vendor ownership and submission-permission correction,
+with these recorded baseline exceptions:
+
+- browser: 3,508 tests passed at 1440 / 1024 / 768 / 375, zero failures; the existing intentional
+  skips (specimens 396, web 272: single-width and conditional tests) stay as documented;
+- workspace: 11,708 unit tests passed; repository: 46 / 46 checks;
+- visual parity: the five known Public artwork differences (B1-03 f0, B1-03 f2, B1-05 f0 preview and
+  whole frame, B1-05 f6) remain, unchanged and documented;
+- the four new UI states keep their design sign-off evidence (`sign-off-states/`: the Vendor
+  no-course state, “What can they submit to?” in Register a Vendor, the Vendor scope choices and
+  lines on SA-17, the inert one-experiment line).
+
+Correction A is not reopened. Correction B (PD-5, Engineering area → Course) was authorised the same
+day; it builds on `156fb46` with its own commit.
