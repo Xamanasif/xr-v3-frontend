@@ -10,9 +10,9 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { PlatformRoleHolder } from '@xr/domain';
-import { asPersonId, faults, fixtureWorld } from '@xr/sample-platform/testing';
+import { asPersonId, faults, fixtureWorld, worldOf } from '@xr/sample-platform/testing';
 import type { ReactNode } from 'react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, onTestFinished, vi } from 'vitest';
 
 import { expandTarget } from '@/nav/link-targets';
 import { P6_PLATFORM_ROLES_LINK_TARGETS } from '@/nav/link-targets-p6/platform-roles';
@@ -419,6 +419,13 @@ describe('SA-16 Register a <role> (SA-v1 `SA.DLG.register`)', () => {
     await heading('Platform roles');
     await user.click(await screen.findByRole('button', { name: 'Register a Vendor' }));
     const dialog = await screen.findByRole('dialog', { name: 'Register a Vendor' });
+    // What they can submit to (owner decision PD-3): “Any course” is chosen when it opens.
+    const start = within(dialog).getByRole('group', { name: 'What can they submit to?' });
+    expect(within(start).getByRole('radio', { name: 'Any course' })).toBeChecked();
+    expect(within(start).getByRole('radio', { name: 'Any course' })).toHaveAccessibleDescription(
+      'They can submit experiments to every course, including courses added later. They see only their own experiments.',
+    );
+    await user.click(within(start).getByRole('radio', { name: 'Assign courses next' }));
     await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), '  Neha Kapoor ');
     await user.type(
       within(dialog).getByRole('textbox', { name: 'Work e-mail' }),
@@ -446,6 +453,48 @@ describe('SA-16 Register a <role> (SA-v1 `SA.DLG.register`)', () => {
       scopes: [],
     });
     forgetArrival(holderId);
+  });
+
+  it('a Vendor registered with “Any course” starts with All experiments, written with the registration (PD-3)', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    const navigation = showRoles(runtime);
+    await heading('Platform roles');
+    await user.click(await screen.findByRole('button', { name: 'Register a Vendor' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Register a Vendor' });
+    await user.type(within(dialog).getByRole('textbox', { name: 'Name' }), 'Sana Rao');
+    await user.type(
+      within(dialog).getByRole('textbox', { name: 'Work e-mail' }),
+      'sana.rao@northline.example',
+    );
+    await user.type(
+      within(dialog).getByRole('textbox', { name: 'Organisation' }),
+      'Northline Simulation Studio',
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Register' }));
+    await waitFor(() => expect(navigation.navigate).toHaveBeenCalledTimes(1));
+    const holderId = navigation.navigate.mock.calls[0]![0].replace(`${ROLES}/`, '');
+    expect(arrivalFor(holderId)).toEqual({
+      title: 'Sana Rao is registered as Vendor.',
+      line: 'They can submit to any course. Nothing was sent to them.',
+    });
+    const holder = await holderOf(sample, holderId);
+    expect(holder.holder.scopes.map((scope) => scope.target)).toEqual([{ kind: 'all' }]);
+    expect(holder.holder.history.map((entry) => entry.event)).toEqual([
+      'registered',
+      'scope-assigned',
+    ]);
+    forgetArrival(holderId);
+  });
+
+  it('Reviewers and Content Managers are registered as drawn: no starting scope is asked', async () => {
+    const user = userEvent.setup();
+    const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    showRoles(runtime, '?tab=reviewers');
+    await heading('Platform roles');
+    await user.click(await screen.findByRole('button', { name: 'Register a Reviewer' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Register a Reviewer' });
+    expect(within(dialog).queryByRole('radio')).toBeNull();
   });
 
   it('failed for now: the dialog stays open with what was typed and says nothing was lost', async () => {
@@ -714,7 +763,58 @@ describe('SA-17 Assign scope (the panel)', () => {
     );
   });
 
-  it('a Vendor given All experiments: shown as held, its meaning for a Vendor open (ROLE-11)', async () => {
+  it('for a Vendor the panel offers All experiments (any course) and A course — never One experiment (PD-4)', async () => {
+    const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    showHolder(runtime, ANIL);
+    await heading('Anil Shetty');
+    expect(within(panel()).getAllByRole('radio')).toHaveLength(2);
+    expect(within(panel()).getByRole('radio', { name: 'A course' })).toBeVisible();
+    expect(within(panel()).queryByRole('radio', { name: 'One experiment' })).toBeNull();
+    expect(
+      within(panel()).getByRole('radio', { name: 'All experiments' }),
+    ).toHaveAccessibleDescription(
+      'Any course, now and later. They see only their own experiments.',
+    );
+  });
+
+  it('a one-experiment scope a Vendor already holds gives nothing: listed, withdrawable, never restored (PD-4)', async () => {
+    const user = userEvent.setup();
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
+    // As an earlier build saved it, before PD-4: a Vendor holding one experiment.
+    // The fixture's records are shared with later tests: put Anil back afterwards.
+    const records = worldOf(sample).records as { holders: Record<string, PlatformRoleHolder> };
+    const anil = records.holders[ANIL]!;
+    onTestFinished(() => {
+      records.holders[ANIL] = anil;
+    });
+    records.holders[ANIL] = {
+      ...anil,
+      scopes: [
+        {
+          id: 'scope-old-experiment' as never,
+          target: { kind: 'experiment', experimentId: 'synchronous-generator' as never },
+          assignedAt: anil.registeredAt,
+          assignedBy: anil.registeredBy,
+          withdrawal: null,
+          supersededAt: null,
+        },
+      ],
+    };
+    showHolder(runtime, ANIL);
+    await heading('Anil Shetty');
+    expect(effect()).toBe(
+      'Can’t create or submit experiments yet. Nothing is in scope. One experiment gives a Vendor nothing — withdraw it.',
+    );
+    expect(text(main().querySelector('.rk-head .rk-meta'))).toMatch(/^No scope /);
+    expect(scopeRows('Can act on')).toHaveLength(1);
+    await user.click(within(region('Can act on')).getByRole('button', { name: /Withdraw/ }));
+    await user.type(within(region('Can act on')).getByRole('textbox'), 'Not used by a Vendor');
+    await user.click(within(region('Can act on')).getByRole('button', { name: 'Withdraw scope' }));
+    await waitFor(() => expect(scopeRows('Withdrawn')).toHaveLength(1));
+    expect(within(region('Withdrawn')).queryByRole('button', { name: /Restore/ })).toBeNull();
+  });
+
+  it('a Vendor given All experiments: any course, now and later (PD-2)', async () => {
     const user = userEvent.setup();
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, ANIL);
@@ -730,9 +830,7 @@ describe('SA-17 Assign scope (the panel)', () => {
         'All experiments Assigned 23 Oct 2026',
       ]),
     );
-    expect(effect()).toBe(
-      'Can create experiments and submit them for: ME ZG523. What “All experiments” or one experiment lets a Vendor do isn’t decided yet.',
-    );
+    expect(effect()).toBe('Can create experiments and submit them for any course, now and later.');
   });
 
   it('failed for now: the panel keeps the choice and says nothing was changed', async () => {

@@ -129,26 +129,35 @@ export function withdrawnScopes(view: HolderView): readonly ScopeView[] {
     .map((entry) => entry.scope);
 }
 
+/** A one-experiment scope gives a Vendor nothing (owner decision PD-4): recorded, withdrawable,
+ *  never restored, and never counted as a scope. */
+export function grantsNothing(view: HolderView, scope: ScopeView): boolean {
+  return view.holder.role === 'vendor' && scope.scope.target.kind === 'experiment';
+}
+
+/** The active scopes that give the holder something (“Has scope”). */
+export function effectiveScopes(view: HolderView): readonly ScopeView[] {
+  return activeScopes(view).filter((scope) => !grantsNothing(view, scope));
+}
+
 /**
- * The “Can act on” line (the export's `EFF`). A Vendor's scope that is not a course is shown as held,
- * never as a right: what it lets a Vendor do is open (ROLE-11; state-copy `SA-17.vendor-open`).
+ * The “Can act on” line (the export's `EFF`). For a Vendor, “All experiments” is any course, now
+ * and later (PD-2; state-copy `SA-17.vendor-any-course`); a one-experiment scope still held is
+ * named as giving nothing (PD-4; `SA-17.vendor-experiment-inert`).
  */
 export function effectWords(view: HolderView): string {
-  const active = activeScopes(view);
   const role = view.holder.role;
-  if (role !== 'vendor')
-    return effectLine(
-      role,
-      active.map((scope) => namingOf(scope).short),
-    );
-  const courses = active.filter((scope) => scope.scope.target.kind === 'course');
-  const open = active.length > courses.length ? stateWords('SA-17.vendor-open') : null;
-  if (courses.length === 0) return open ?? effectLine(role, []);
-  const line = effectLine(
-    role,
-    courses.map((scope) => namingOf(scope).short),
-  );
-  return open ? `${line} ${open}` : line;
+  const effective = effectiveScopes(view);
+  const line =
+    role === 'vendor' && effective.some((scope) => scope.scope.target.kind === 'all')
+      ? stateWords('SA-17.vendor-any-course')
+      : effectLine(
+          role,
+          effective.map((scope) => namingOf(scope).short),
+        );
+  return activeScopes(view).length > effective.length
+    ? `${line} ${stateWords('SA-17.vendor-experiment-inert')}`
+    : line;
 }
 
 /** Who did it, by name (“Arjun Mehta”). */
@@ -232,7 +241,7 @@ export function rowFacts(view: HolderView): {
   readonly withdrawn: number;
 } {
   return {
-    inScope: activeScopes(view).map(namingOf),
+    inScope: effectiveScopes(view).map(namingOf),
     withdrawn: view.scopes.filter((scope) => scope.status === 'withdrawn').length,
   };
 }

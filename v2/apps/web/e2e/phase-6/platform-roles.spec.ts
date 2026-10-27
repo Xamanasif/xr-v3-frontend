@@ -273,6 +273,13 @@ test.describe('SA-16 Platform roles', () => {
     await expect(email).toHaveAttribute('aria-invalid', 'true');
     await checkState(page, 'Platform roles');
 
+    // What they can submit to (owner decision PD-3, 27 Oct 2026): "Any course" is chosen when the
+    // dialog opens; this Vendor is registered with "Assign courses next" — no scope, as drawn.
+    const start = dialog.getByRole('group', { name: 'What can they submit to?' });
+    await expect(start.getByRole('radio', { name: 'Any course' })).toBeChecked();
+    await press(page, start.locator('label').filter({ hasText: 'Assign courses next' }));
+    await expect(start.getByRole('radio', { name: 'Assign courses next' })).toBeChecked();
+
     // Registered: the new holder opens on SA-17 with the flash; focus on the name.
     await name.fill('');
     await name.pressSequentially('Neha Kapoor');

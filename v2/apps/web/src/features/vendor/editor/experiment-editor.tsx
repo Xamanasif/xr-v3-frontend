@@ -68,7 +68,7 @@ import {
   reviseAddress,
 } from '@/nav/vendor';
 import { usePublicCourse } from '@/queries/catalogue';
-import { useExperimentEditor, useVendorRecord } from '@/queries/production';
+import { noCourseAssigned, useExperimentEditor, useVendorRecord } from '@/queries/production';
 import { checkDraftSave, checkEditorStep, checkWholeExperiment } from '@/queries/production-editor';
 import { useSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
@@ -566,7 +566,12 @@ export function ExperimentEditor({
   const readFailed =
     editorRead.isError ||
     (editorAnswer !== undefined && !editorAnswer.ok && editorAnswer.error.kind === 'unavailable');
+  // Create experiment with no course assigned (owner decision PD-3): a calm explanation, never
+  // "We can't find that page". Any other refusal — another Vendor's record, a colleague's of the
+  // same studio included (PD-1) — is not found.
+  const noCourse = submissionId === null && noCourseAssigned(editorAnswer);
   if (
+    !noCourse &&
     editorAnswer !== undefined &&
     !editorAnswer.ok &&
     (editorAnswer.error.kind === 'not-found' || editorAnswer.error.kind === 'not-permitted')
@@ -608,7 +613,34 @@ export function ExperimentEditor({
     );
   }
 
-  // Any other refusal (policy-open ROLE-11 / SUB-15): a calm notice, never an endless skeleton.
+  if (noCourse) {
+    // The page keeps its heading (“Create experiment”); the calm state says why nothing can start.
+    return (
+      <>
+        <PageHead
+          breadcrumbs={crumbs(EDITOR.modeWords.create)}
+          date={date}
+          title={EDITOR.modeWords.create}
+          titleId={TITLE_ID}
+          titleFocusTarget
+          titleRef={titleRef}
+        />
+        <Surface>
+          <ListState
+            kind="none"
+            roomy
+            titleAs="h2"
+            icon="myExperiments"
+            title={stateWords('VE-01.no-course.title')}
+          >
+            {stateWords('VE-01.no-course.line')}
+          </ListState>
+        </Surface>
+      </>
+    );
+  }
+
+  // Any other refusal (signed out meanwhile): a calm notice, never an endless skeleton.
   if (
     editorAnswer !== undefined &&
     !editorAnswer.ok &&
@@ -616,7 +648,7 @@ export function ExperimentEditor({
   ) {
     return frame(
       EDITOR.modeWords[shownMode],
-      <Notice tone="info" title={stateWords('VE-03.policy-open')} />,
+      <Notice tone="info" title={stateWords('VE-03.refused')} />,
     );
   }
 

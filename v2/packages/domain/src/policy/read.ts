@@ -48,11 +48,7 @@ export type ReadTarget =
       readonly assessment: Assessment;
     }
   | { readonly kind: 'device-transfer'; readonly transfer: DeviceTransfer }
-  | {
-      readonly kind: 'submission';
-      readonly submission: Submission;
-      readonly sameOrganisation?: boolean;
-    }
+  | { readonly kind: 'submission'; readonly submission: Submission }
   | { readonly kind: 'update'; readonly update: CorrectionUpdate; readonly experiment: Experiment }
   | { readonly kind: 'published-experiment'; readonly experiment: Experiment | null }
   | { readonly kind: 'support-report'; readonly report: SupportReport }
@@ -216,7 +212,9 @@ export function canRead(context: PolicyContext, target: ReadTarget): ReadVerdict
       const submission = target.submission;
       if (role === 'vendor') {
         if (actor.holder && submission.vendorHolderId === actor.holder.id) return SEE; // SUB-14
-        return target.sameOrganisation ? open('SUB-15') : notOwn;
+        // SUB-15 / ROLE-08 (owner decision PD-1, 27 Oct 2026): ownership is the person who
+        // created it — a colleague of the same studio meets the same answer as anyone else.
+        return notOwn;
       }
       if (submission.status.state === 'draft') return wrong; // SUB-16: drafts are the Vendor's only
       if (role === 'super_admin') return SEE; // SUB-37

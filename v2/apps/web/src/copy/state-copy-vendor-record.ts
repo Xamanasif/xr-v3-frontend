@@ -32,7 +32,7 @@ export const STATE_COPY_VENDOR_RECORD = {
   'VE-07.not-found.title': {
     screen: 'VE-07',
     state:
-      'An address naming no experiment the Vendor may open (unknown id, or another vendor’s record: not found / not permitted)',
+      'An address naming no experiment the Vendor may open (unknown id, or another vendor’s record — a colleague of the same studio included, owner decision PD-1: not found / not permitted)',
     words: 'We can’t find that experiment',
     rule: 'A calm state in a sheet under the breadcrumb and the heading “Experiment record”: the information mark, this title and `VE-07.not-found.line`. Whether the record exists is not said.',
     basis:
@@ -49,25 +49,6 @@ export const STATE_COPY_VENDOR_RECORD = {
       'Board 04 Not-found formula (what happened · what you can do); B5-02 “Every experiment you created”',
     status: 'provisional',
     decisions: ['VD-12'],
-  },
-  'VE-07.policy-open.title': {
-    screen: 'VE-07',
-    state: 'A colleague’s record of the same organisation (the service answers policy-open SUB-15)',
-    words: 'This experiment was created by a colleague',
-    rule: 'The calm state of `VE-07.not-found.title` with this title and `VE-07.policy-open.line`; nothing of the record is shown.',
-    basis:
-      'Matrix SUB-15 UNRESOLVED (may a Vendor read a colleague’s submission?); board 04 calm-state formula. No board draws it',
-    status: 'provisional',
-    decisions: ['VD-12', 'SUB-15'],
-  },
-  'VE-07.policy-open.line': {
-    screen: 'VE-07',
-    state: 'The colleague state’s line',
-    words:
-      'Opening a colleague’s experiment isn’t settled yet. Your own experiments are in My experiments.',
-    basis: 'Matrix SUB-15 UNRESOLVED; board 04 calm-state formula',
-    status: 'provisional',
-    decisions: ['VD-12', 'SUB-15'],
   },
   'VE-07.course-words': {
     screen: 'VE-07',

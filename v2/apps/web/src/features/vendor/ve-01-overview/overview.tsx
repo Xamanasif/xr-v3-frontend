@@ -30,7 +30,12 @@ import {
   vendorOverviewPlacement,
   VENDOR_OVERVIEW_TITLE,
 } from '@/nav/vendor';
-import { useExperimentEditor, useMyExperiments, useVendorOverview } from '@/queries/production';
+import {
+  noCourseAssigned,
+  useExperimentEditor,
+  useMyExperiments,
+  useVendorOverview,
+} from '@/queries/production';
 import { useCurrentSession, useSession } from '@/queries/session';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
@@ -62,6 +67,8 @@ const FIRST_ID = 've-first-t';
  *   Recent activity (the five newest entries, each opening its record) with “Changed in the last 7
  *   days” and “See all your experiments”; the first visit's “Create your first experiment”. On
  *   phones the attention panel comes before the counts (the export's container rules).
+ * - No course assigned (owner decision PD-3; state-copy `VE-01.no-course.*`): no Create
+ *   experiment anywhere on the page; the first visit explains it instead of offering it.
  * - Undrawn: loading and failed with Try again (state-copy `VE-01.loading`, `VE-01.failed`).
  *   Nothing here changes a record: every action opens the page where the work is done.
  */
@@ -99,6 +106,8 @@ export function VendorOverview() {
     : [];
   const ready = !loading && !failed && answer !== null && rows !== null;
   const hasAny = ready && answer.hasExperiments;
+  // No course assigned (PD-3): nothing to create — no Create experiment, a calm explanation.
+  const noCourse = noCourseAssigned(editor.data);
 
   const band = (
     <VendorStudioBand
@@ -107,9 +116,15 @@ export function VendorOverview() {
       titleId={TITLE_ID}
       titleRef={titleRef}
       date={now ? weekdayDate(now) : undefined}
-      status={ready && courses.length > 0 ? courseLine(courses) : undefined}
+      status={
+        ready && courses.length > 0
+          ? courseLine(courses)
+          : hasAny && noCourse
+            ? stateWords('VE-01.no-course.status')
+            : undefined
+      }
       action={
-        ready && !answer.hasExperiments
+        (ready && !answer.hasExperiments) || noCourse
           ? undefined
           : { href: newExperimentAddress(), label: CREATE_EXPERIMENT }
       }
@@ -141,6 +156,26 @@ export function VendorOverview() {
         {band}
         <Surface>
           <LoadingRows message={stateWords('VE-01.loading')} cells={[2, 1]} />
+        </Surface>
+      </VendorOverviewColumn>
+    );
+  }
+
+  if (!answer.hasExperiments && noCourse) {
+    return (
+      <VendorOverviewColumn>
+        {band}
+        <Surface labelledBy={FIRST_ID}>
+          <ListState
+            kind="none"
+            roomy
+            titleAs="h2"
+            titleId={FIRST_ID}
+            icon="myExperiments"
+            title={stateWords('VE-01.no-course.title')}
+          >
+            {stateWords('VE-01.no-course.line')}
+          </ListState>
         </Surface>
       </VendorOverviewColumn>
     );

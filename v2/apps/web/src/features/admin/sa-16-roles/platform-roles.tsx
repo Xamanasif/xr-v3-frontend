@@ -5,6 +5,7 @@ import {
   Button,
   ButtonLink,
   CellLines,
+  ChoiceGroup,
   ConfirmDialog,
   CourseCode,
   Field,
@@ -69,14 +70,19 @@ interface RegisterForm {
   readonly name: string;
   readonly workEmail: string;
   readonly organisation: string;
+  /** A Vendor's starting scope (owner decision PD-3): “Any course”, chosen when the dialog opens. */
+  readonly start: VendorStart;
   readonly errors: RegisterErrors;
   readonly unavailable: boolean;
 }
+
+type VendorStart = 'any-course' | 'later';
 
 const FIELD_IDS = {
   name: 'roles-register-name',
   workEmail: 'roles-register-work-email',
   organisation: 'roles-register-organisation',
+  start: 'roles-register-start',
 } as const;
 
 /**
@@ -96,6 +102,9 @@ const FIELD_IDS = {
  *   Has scope / No scope; the whole row opens SA-17) and the foot note in the surface.
  * - **Address**: the tab is the address; `?tab=vendors` and an unknown tab are replaced by the
  *   bare address (state-copy `SA-16.tab-address`).
+ * - **Register a Vendor** also asks what they can submit to (owner decision PD-3, state-copy
+ *   `SA-16.vendor-start`): “Any course”, chosen when the dialog opens, registers them with the All
+ *   experiments scope in the same write; “Assign courses next” leaves them with no scope.
  * - **Register a <role>** (`SA.DLG.register`): name, work e-mail and organisation, all required and
  *   checked at once with the contract's rules; nothing is sent (T-11). The service refuses an
  *   e-mail already registered or used by another sample identity with SA-16's words (PC-49).
@@ -152,6 +161,7 @@ export function PlatformRoles() {
       name: '',
       workEmail: '',
       organisation: '',
+      start: 'any-course',
       errors: {},
       unavailable: false,
     });
@@ -178,6 +188,7 @@ export function PlatformRoles() {
       name: form.name,
       workEmail: form.workEmail,
       organisation: form.organisation,
+      ...(form.role === 'vendor' ? { anyCourse: form.start === 'any-course' } : {}),
     };
     const errors = checkRegister(draft);
     if (errors) {
@@ -190,7 +201,15 @@ export function PlatformRoles() {
         if (answer.ok) {
           const holder = answer.value;
           const address = holderAddress(holder.id);
-          noteArrival(holder.id, registeredFlash(holder.name, holder.role));
+          const anyCourse = holder.role === 'vendor' && holder.scopes.length > 0;
+          noteArrival(
+            holder.id,
+            registeredFlash(
+              holder.name,
+              holder.role,
+              anyCourse ? stateWords('SA-16.register-any-course') : undefined,
+            ),
+          );
           noteRouteFocus(address, HOLDER_TITLE_ID);
           setForm(null);
           navigation.navigate(address);
@@ -334,6 +353,29 @@ export function PlatformRoles() {
             onChange={(event) => edit('organisation', event.target.value)}
           />
         </Field>
+        {form?.role === 'vendor' ? (
+          <ChoiceGroup<VendorStart>
+            id={FIELD_IDS.start}
+            name={FIELD_IDS.start}
+            legend={stateWords('SA-16.vendor-start')}
+            value={form.start}
+            onChange={(start) =>
+              setForm((current) => (current ? { ...current, start, unavailable: false } : current))
+            }
+            options={[
+              {
+                value: 'any-course',
+                title: stateWords('SA-16.vendor-start.any'),
+                description: stateWords('SA-16.vendor-start.any-line'),
+              },
+              {
+                value: 'later',
+                title: stateWords('SA-16.vendor-start.later'),
+                description: stateWords('SA-16.vendor-start.later-line'),
+              },
+            ]}
+          />
+        ) : null}
         {form?.unavailable ? (
           <Notice
             tone="warn"

@@ -223,6 +223,7 @@ See §4. ⇒ State: seed world, clock 2 Oct 2026, 10:00. (shot `001`)
    - **Name** `Priya Raman`
    - **Work e-mail** `priya.raman@structura.example`
    - **Organisation** `Structura Virtual Labs`
+   - **What can they submit to?** → **Assign courses next** (this walk gives Priya one course next; "Any course" is the dialog's default).
    - Press **Register**.
 4. → Expect the holder page `/admin/roles/role-0001`: "**Priya Raman is registered as Vendor.** Assign what they can act on. Nothing was sent to them." and "No scope — can't act on anything yet".
 5. Panel **Assign scope** → **A course** → **Course** `CE ZG514 · Structural Analysis` → **Assign scope**.
@@ -230,8 +231,8 @@ See §4. ⇒ State: seed world, clock 2 Oct 2026, 10:00. (shot `001`)
 
 Notes:
 
-- ⚠ **Always choose "A course" for a Vendor.** "All experiments" or "One experiment" leaves the Vendor's overview unable to load (ROLE-11, still open in this build).
-- _Organisation_ is a text field on each person; there is no separate organisation record. A second person of the same Vendor is registered with the **identical** organisation text.
+- A Vendor's scope (owner decisions of 27 Oct 2026): **All experiments** ("Any course" when registering) lets them submit to every course, now and later; **A course** restricts them to that course; **One experiment** is not offered for a Vendor. With no scope the Vendor sees "No course is assigned to you yet" and no Create experiment.
+- _Organisation_ is a text field on each person; there is no separate organisation record. A second person of the same Vendor is registered with the **identical** organisation text — each still sees and opens only the experiments they created themselves.
 
 ### Step 5 · New Academic Reviewer and review scope (Super Admin, 1.5 min)
 
@@ -627,7 +628,7 @@ The sample clock runs in real time from 2 Oct, so these results stay unreleased 
 | --- | --------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | 1   | **Super Admin**                                                                                                                   | A seeded identity. Platform roles register only Vendors, Reviewers and Content Managers.                 | `arjun.mehta@wilp.example`                                           |
 | 2   | A course code saved by a **course-scoped** CM                                                                                     | CC-06, still open: "These codes can't be saved yet"                                                      | Kavya, or a new CM with **All experiments** scope                    |
-| 3   | A Vendor with "All experiments" or "One experiment" scope                                                                         | ROLE-11, still open. The Vendor's overview and Create experiment fail.                                   | Always choose **A course**                                           |
+| 3   | A Vendor with "One experiment" scope                                                                                              | Not offered to a Vendor (owner decision PD-4, 27 Oct 2026)                                               | **A course** or **All experiments** (any course)                     |
 | 4   | A Vendor **organisation** record                                                                                                  | It is a text field on each person                                                                        | Type the same organisation text for every person                     |
 | 5   | An **institution**, directly                                                                                                      | Created only by approving a request                                                                      | Steps 10–11                                                          |
 | 6   | A second request from an existing institution, or adding a later-published experiment to a plan                                   | It creates a duplicate institution, and plans cannot be amended (P1 items A and B)                       | Put every experiment in the **first** request                        |

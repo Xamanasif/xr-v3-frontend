@@ -131,11 +131,12 @@ export interface FlashWords {
   readonly line?: string;
 }
 
-/** The flash the new holder's page opens with (`SA.setFlash` after Register). */
-export function registeredFlash(name: string, role: PlatformRole): FlashWords {
+/** The flash the new holder's page opens with (`SA.setFlash` after Register); a Vendor who
+ *  starts with Any course has its own line (state-copy `SA-16.register-any-course`). */
+export function registeredFlash(name: string, role: PlatformRole, line?: string): FlashWords {
   return {
     title: `${name} is registered as ${ROLE_WORDS[role]}.`,
-    line: 'Assign what they can act on. Nothing was sent to them.',
+    line: line ?? 'Assign what they can act on. Nothing was sent to them.',
   };
 }
 

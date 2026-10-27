@@ -92,6 +92,24 @@ export function useExperimentEditor(
   return useXrQuery(experimentEditor, { id, step }, { enabled });
 }
 
+/**
+ * No course is assigned to the Vendor — none yet, or every one withdrawn (owner decision PD-3):
+ * the editor's read for a new experiment answers not permitted · out of scope.
+ */
+export function noCourseAssigned(
+  answer:
+    | { readonly ok: true }
+    | { readonly ok: false; readonly error: { readonly kind: string; readonly why?: string } }
+    | undefined,
+): boolean {
+  return (
+    answer !== undefined &&
+    !answer.ok &&
+    answer.error.kind === 'not-permitted' &&
+    answer.error.why === 'out-of-scope'
+  );
+}
+
 export const vendorRecord = defineQuery({
   family: 'SUB',
   view: 'vendor-record',

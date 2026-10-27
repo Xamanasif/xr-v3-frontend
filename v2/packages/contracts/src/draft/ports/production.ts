@@ -54,7 +54,6 @@ import type {
   NotFound,
   NotPermitted,
   NotSignedIn,
-  PolicyOpen,
   Refused,
   StaleVersion,
   Unavailable,
@@ -610,10 +609,11 @@ export const contentRecordOutput = z.object({
   ),
 });
 
-type VendorErrors = NotSignedIn | NotPermitted | PolicyOpen | Unavailable;
+type VendorErrors = NotSignedIn | NotPermitted | Unavailable;
 
 export interface ProductionService {
-  // Vendor — policy-open: ROLE-11 (what a non-course scope means for a Vendor), SUB-15 (a colleague's record).
+  // Vendor — only their own records (SUB-14; a colleague's is not-own, PD-1); "All experiments" =
+  // any existing course, no scope = none (ROLE-11 decided, PD-2 / PD-3).
   getVendorOverview(): Answer<Out<typeof vendorOverviewOutput>, VendorErrors>;
   listMyExperiments(
     filter: In<typeof listMyExperimentsInput>,

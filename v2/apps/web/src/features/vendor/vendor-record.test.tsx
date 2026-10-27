@@ -983,7 +983,7 @@ describe('VE-13 Submission and version history (`?tab=history`)', () => {
   });
 });
 
-describe('VE-07 — not found, not permitted, policy-open, loading and failed (undrawn)', () => {
+describe('VE-07 — not found, not permitted, loading and failed (undrawn)', () => {
   it.each([
     ['an unknown id', 'SUB-9999'],
     ['another vendor’s record (Meridian’s SUB-0086)', 'SUB-0086'],
@@ -1007,23 +1007,21 @@ describe('VE-07 — not found, not permitted, policy-open, loading and failed (u
     expectNoReferences();
   });
 
-  it('a colleague’s record (policy-open SUB-15): a calm state', async () => {
+  it('a colleague’s record of the same studio (PD-1): the same “We can’t find that experiment”', async () => {
     const { runtime } = await tabPlatform(ANIL, 'spine-start');
     vi.spyOn(runtime.ports.production, 'getRecord').mockResolvedValue({
       ok: false,
-      error: { kind: 'policy-open', decision: 'SUB-15' },
+      error: { kind: 'not-permitted', why: 'not-own-record' },
     } as never);
     show(runtime, 'SUB-0099');
     await title('Experiment record');
     const calm = (
-      await screen.findByRole('heading', {
-        level: 2,
-        name: 'This experiment was created by a colleague',
-      })
+      await screen.findByRole('heading', { level: 2, name: 'We can’t find that experiment' })
     ).closest('.rk-state');
     expect(calm).toHaveTextContent(
-      'Opening a colleague’s experiment isn’t settled yet. Your own experiments are in My experiments.',
+      'It isn’t one of your experiments, or the address is wrong. Your experiments are in My experiments.',
     );
+    expect(main()).not.toHaveTextContent('colleague');
     expectNoReferences();
   });
 

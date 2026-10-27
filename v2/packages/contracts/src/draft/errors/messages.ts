@@ -703,6 +703,12 @@ export const UNDRAWN_RULES = {
       'Only Vendors, Academic Reviewers and Content Managers are registered in Platform roles (B7-08 tabs).',
     source: 'domain registerHolder (WP-0.9)',
   },
+  'SA-17.target.not-for-vendor': {
+    screen: 'SA-17',
+    reason:
+      'A one-experiment scope is never given to a Vendor (owner decision PD-4, 27 Oct 2026); SA-17 does not offer it for a Vendor, so no words are drawn.',
+    source: 'domain assignScope (Vendor ownership correction A)',
+  },
   'CM-09.courseId.unknown-course': {
     screen: 'CM-09',
     reason: 'A code for a course that does not exist; not reachable from B6-10.',

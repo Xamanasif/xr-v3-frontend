@@ -891,7 +891,7 @@ describe('no input names the caller or claims a permission (Appendix C rule 1; W
     expect(findings).toEqual([]);
   });
 
-  it('lists the booleans an input may carry: four view filters and a true-or-false answer', () => {
+  it('lists the booleans an input may carry: four view filters, a true-or-false answer and a starting scope', () => {
     const booleans = ledgerRows().flatMap((row) =>
       row.input === null
         ? []
@@ -907,6 +907,9 @@ describe('no input names the caller or claims a permission (Appendix C rule 1; W
       'StudentAccessService.listGrants: showWithdrawn',
       'AssessmentService.saveAnswer: value',
       'QuestionBankService.listQuestions: includeDeleted',
+      // PC-75 (owner decision PD-3, 27 Oct 2026): a Vendor may start with "Any course" — the scope
+      // the Super Admin would assign next, written with the registration; no claim about the caller.
+      'PlatformRoleService.registerHolder: anyCourse',
     ]);
   });
 });

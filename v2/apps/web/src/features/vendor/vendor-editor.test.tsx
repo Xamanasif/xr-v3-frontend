@@ -19,7 +19,7 @@
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { CourseId, ReturnReference, SubmissionId } from '@xr/domain';
-import { asPersonId, faults, worldOf } from '@xr/sample-platform/testing';
+import { asPersonId, beginSession, faults, worldOf } from '@xr/sample-platform/testing';
 import { type ReactNode, type RefObject, useEffect, useMemo, useState } from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 
@@ -1285,6 +1285,31 @@ describe('VE-08 Revise and resubmit', () => {
 });
 
 describe('the editor’s other states', () => {
+  it('no course assigned (PD-3): Create experiment keeps its heading and explains, no form and no “not found”', async () => {
+    const { runtime, sample } = await tabPlatform(null, 'spine-start');
+    const holder = await asPersonId(sample, ARJUN).platformRoles.registerHolder({
+      role: 'vendor',
+      name: 'Kiran Rao',
+      workEmail: 'kiran.rao@northline.example',
+      organisation: 'Northline Simulation Studio',
+      anyCourse: false,
+    });
+    if (!holder.ok) throw new Error('registered');
+    beginSession(sample, holder.value.personId);
+    await runtime.session.refresh();
+    show(runtime, '/vendor/experiments/new');
+    expect(
+      await screen.findByRole('heading', { level: 2, name: 'No course is assigned to you yet' }),
+    ).toBeVisible();
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('Create experiment');
+    expect(main()).toHaveTextContent(
+      'The platform team assigns the courses you can submit experiments to. Once a course is assigned, you can create experiments here.',
+    );
+    expect(screen.queryByRole('combobox')).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Save draft' })).toBeNull();
+    expect(screen.queryByText('We can’t find that page')).toBeNull();
+  });
+
   it(
     'a record with others is refused with the export’s words and the two ways on (SUB-0074, with the Content Manager)',
     async () => {

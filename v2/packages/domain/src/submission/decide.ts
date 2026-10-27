@@ -15,13 +15,18 @@ import {
 } from '../kernel/decision.js';
 import { type HistoryEntry, historyEntry } from '../kernel/history.js';
 import type { IdSource } from '../kernel/id-source.js';
-import type { CourseId, ExperimentId } from '../kernel/ids.js';
+import type { ExperimentId } from '../kernel/ids.js';
 import { isDrawnTransition } from '../kernel/machine.js';
 import { newMeta, nextMeta } from '../kernel/record.js';
 import type { IsoInstant } from '../kernel/time.js';
 import type { Audience } from '../roles.js';
 import type { Experiment, FormatDelivery, LearningOutcome } from '../catalogue/model.js';
-import { type PlatformRoleHolder, scopeCovers } from '../platform-roles/platform-roles.js';
+import {
+  grantCovers,
+  type PlatformRoleHolder,
+  scopeCovers,
+  type VendorCourseGrant,
+} from '../platform-roles/platform-roles.js';
 import {
   type FormatDeliveryDraft,
   type PublicationCheckItem,
@@ -167,12 +172,12 @@ export function isStuck(submission: Submission, holders: readonly PlatformRoleHo
  *  SUB-11; OD-B5-01 — the effect on a submission already in review is open). */
 export function courseNoLongerAssigned(
   submission: Submission,
-  assignedCourses: readonly CourseId[],
+  assignedCourses: VendorCourseGrant,
 ): boolean {
   return (
     submission.status.state === 'draft' &&
     submission.content.courseId !== null &&
-    !assignedCourses.includes(submission.content.courseId)
+    !grantCovers(assignedCourses, submission.content.courseId)
   );
 }
 
@@ -188,14 +193,14 @@ interface VendorWrite {
   readonly actor: PersonActorRef;
   /** The Vendor's holder record (creator and scope). */
   readonly vendor: PlatformRoleHolder;
-  /** The Vendor's assigned courses (B5-03; CRS-08). */
-  readonly assignedCourses: readonly CourseId[];
+  /** The courses the Vendor may submit under (B5-03; CRS-08; ROLE-11 decided, PD-2). */
+  readonly assignedCourses: VendorCourseGrant;
   readonly now: IsoInstant;
   readonly ids: IdSource;
 }
 
-function courseIssue(content: SubmissionContent, assigned: readonly CourseId[]) {
-  return content.courseId !== null && !assigned.includes(content.courseId)
+function courseIssue(content: SubmissionContent, assigned: VendorCourseGrant) {
+  return content.courseId !== null && !grantCovers(assigned, content.courseId)
     ? [{ field: 'courseId', rule: 'course-not-assigned' }]
     : [];
 }

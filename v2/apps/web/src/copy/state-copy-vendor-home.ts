@@ -30,6 +30,36 @@ export const STATE_COPY_VENDOR_HOME = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'VE-01.no-course.title': {
+    screen: 'VE-01',
+    state:
+      'No course is assigned to the Vendor — none yet, or every one withdrawn (owner decision PD-3); the editor’s read for a new experiment answers not permitted · out of scope',
+    words: 'No course is assigned to you yet',
+    rule: 'Without experiments: in place of “Create your first experiment”, the same calm block with this title and `VE-01.no-course.line`, no Create experiment. With experiments: the studio band has no Create experiment and says `VE-01.no-course.status`; the rest of the overview stays. VE-02 (the empty state; no Create experiment in the head) and Create experiment (`/vendor/experiments/new`, a calm state under the breadcrumbs instead of “We can’t find that page”) use the same words.',
+    basis:
+      'VE-v1 `Main.dc.html` draws no such state; owner decision PD-3, 27 Oct 2026 (“an appropriate explanatory state, not a broken Create experiment link”); board 04 calm-state formula',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-3'],
+  },
+  'VE-01.no-course.line': {
+    screen: 'VE-01',
+    state: 'The no-course state’s line',
+    words:
+      'The platform team assigns the courses you can submit experiments to. Once a course is assigned, you can create experiments here.',
+    basis:
+      'VE-v1 `Main.dc.html` draws no such state; board 04 calm-state formula (what happened · what happens next); owner decision PD-3',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-3'],
+  },
+  'VE-01.no-course.status': {
+    screen: 'VE-01',
+    state: 'The studio band’s line when a Vendor with experiments has no course now',
+    words: 'No course is assigned to you now. Your experiments stay here to read.',
+    basis:
+      'VE-v1 `Main.dc.html` `overView.courseLine` place; owner decision PD-3; OD-B5-01 (read-only drafts)',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-3', 'OD-B5-01'],
+  },
   'VE-01.counts': {
     screen: 'VE-01',
     state: 'What the studio band’s four counts count',

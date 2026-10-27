@@ -39,7 +39,12 @@ import {
   newExperimentAddress,
 } from '@/nav/vendor';
 import { usePublicStructure } from '@/queries/catalogue';
-import { type MyExperimentsStatus, useMyExperiments } from '@/queries/production';
+import {
+  type MyExperimentsStatus,
+  noCourseAssigned,
+  useExperimentEditor,
+  useMyExperiments,
+} from '@/queries/production';
 import { useSession } from '@/queries/session';
 
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
@@ -79,7 +84,9 @@ const RECENT_ID = 've-recent';
  *   `VE-02.no-reference`), Formats, Status (pill, one plain line, “Changes saved,
  *   not resubmitted” when the product can tell), Last change (sortable), one action (Revise / Edit
  *   draft / the chevron) — three-line rows below 760 px with a labelled last change. No match;
- *   no experiments yet; loading; could not load with Try again.
+ *   no experiments yet; loading; could not load with Try again. No course assigned (owner
+ *   decision PD-3; the editor's read for a new experiment): no Create experiment, and the empty
+ *   state says why (state-copy `VE-01.no-course.*`).
  * - The tab and the 7-day filter live in the address (replaced, no history entry); an address from
  *   outside (Back, the Overview's “Changed in the last 7 days”) is read again. The search and the
  *   sort stay on the page. Nothing here changes a record: every action opens the page where the
@@ -108,6 +115,10 @@ export function MyExperiments() {
   const searched = useMyExperiments({ status: null, search });
   const list = useMyExperiments({ status, search });
   const structure = usePublicStructure();
+  // No course assigned (PD-3): no Create experiment; the empty state explains it.
+  const editor = useExperimentEditor(null);
+  const noCourse = noCourseAssigned(editor.data);
+  const editorSettled = editor.data !== undefined || editor.isError;
 
   const failedRead = (read: typeof list) =>
     read.isError || (read.data !== undefined && !read.data.ok);
@@ -116,7 +127,9 @@ export function MyExperiments() {
   const matching = searched.data?.ok ? searched.data.value : null;
   const rows = list.data?.ok ? list.data.value : null;
   const codesSettled = structure.data !== undefined || structure.isError;
-  const loading = !failed && (all === null || matching === null || rows === null || !codesSettled);
+  const loading =
+    !failed &&
+    (all === null || matching === null || rows === null || !codesSettled || !editorSettled);
 
   const titleRef = useRef<HTMLHeadingElement>(null);
   const retried = useRetryFocus(!loading && !failed, titleRef);
@@ -196,7 +209,7 @@ export function MyExperiments() {
       date={now ? weekdayDate(now) : undefined}
       lead={MY_EXPERIMENTS_WORDS.lead}
       actions={
-        empty ? undefined : (
+        empty || noCourse ? undefined : (
           <ButtonLink href={newExperimentAddress()} variant="primary" size="lg" icon="add">
             {CREATE_EXPERIMENT}
           </ButtonLink>
@@ -214,7 +227,19 @@ export function MyExperiments() {
   });
 
   let body: ReactNode;
-  if (empty) {
+  if (empty && noCourse) {
+    body = (
+      <ListState
+        kind="none"
+        roomy
+        titleAs="h2"
+        icon="myExperiments"
+        title={stateWords('VE-01.no-course.title')}
+      >
+        {stateWords('VE-01.no-course.line')}
+      </ListState>
+    );
+  } else if (empty) {
     body = (
       <ListState
         kind="none"

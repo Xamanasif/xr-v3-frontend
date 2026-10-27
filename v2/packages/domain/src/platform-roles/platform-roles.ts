@@ -7,14 +7,7 @@
  * the queues simply read the scopes as they are.
  */
 import type { ActorRef, PersonActorRef, Role } from '../roles.js';
-import {
-  type Decision,
-  invalidInput,
-  invalidState,
-  isBlank,
-  ok,
-  policyOpen,
-} from '../kernel/decision.js';
+import { type Decision, invalidInput, invalidState, isBlank, ok } from '../kernel/decision.js';
 import { type HistoryEntry, historyEntry } from '../kernel/history.js';
 import type { IdSource } from '../kernel/id-source.js';
 import type { CourseId, ExperimentId, PersonId, RoleHolderId, ScopeId } from '../kernel/ids.js';
@@ -103,15 +96,43 @@ export function scopeCovers(
 }
 
 /**
- * The Vendor's course list (B5-03 "Only the courses assigned to … are listed"). What an "All
- * experiments" or "one experiment" scope means for a Vendor is not drawn (ROLE-11 OPEN).
+ * The courses a Vendor may submit new experiments under (B5-03 "Only the courses assigned to … are
+ * listed"; ROLE-11, owner decision PD-2 of 27 Oct 2026). For a Vendor only, an active "All
+ * experiments" scope means any existing course, now and later; course scopes list their courses;
+ * a one-experiment scope gives a Vendor nothing (PD-4). No active scope — none assigned, or every
+ * one withdrawn — gives nothing, never everything (PD-3). The grant decides submission only: it
+ * never reaches another Vendor's records (ownership is the creator, SUB-14). `scopeCovers` stays
+ * the Academic Reviewer / Content Manager rule.
  */
-export function vendorCourses(holder: PlatformRoleHolder): Decision<readonly CourseId[]> {
+export type VendorCourseGrant =
+  | { readonly kind: 'any-course' }
+  | { readonly kind: 'listed'; readonly courseIds: readonly CourseId[] };
+
+export function vendorCourseGrant(holder: PlatformRoleHolder): VendorCourseGrant {
   const scopes = activeScopes(holder);
-  if (scopes.some((scope) => scope.target.kind !== 'course')) return policyOpen('ROLE-11');
-  return ok(
-    scopes.flatMap((scope) => (scope.target.kind === 'course' ? [scope.target.courseId] : [])),
-  );
+  if (scopes.some((scope) => scope.target.kind === 'all')) return { kind: 'any-course' };
+  return {
+    kind: 'listed',
+    courseIds: scopes.flatMap((scope) =>
+      scope.target.kind === 'course' ? [scope.target.courseId] : [],
+    ),
+  };
+}
+
+/** Does the grant give this course? */
+export function grantCovers(grant: VendorCourseGrant, courseId: CourseId): boolean {
+  return grant.kind === 'any-course' || grant.courseIds.includes(courseId);
+}
+
+/** Does the grant give no course at all ("No course is assigned to you yet")? */
+export function grantIsEmpty(grant: VendorCourseGrant): boolean {
+  return grant.kind === 'listed' && grant.courseIds.length === 0;
+}
+
+/** A one-experiment scope is never given to a Vendor (PD-4): one already held stays recorded and
+ *  can be withdrawn, but grants nothing. */
+function experimentScopeForVendor(holder: PlatformRoleHolder, target: ScopeTarget): boolean {
+  return holder.role === 'vendor' && target.kind === 'experiment';
 }
 
 interface SaWrite {
@@ -203,6 +224,9 @@ function withScopeEvent(
 export function assignScope(
   input: SaWrite & { readonly holder: PlatformRoleHolder; readonly target: ScopeTarget },
 ): Decision<PlatformRoleHolder> {
+  if (experimentScopeForVendor(input.holder, input.target)) {
+    return invalidInput({ field: 'target', rule: 'not-for-vendor' });
+  }
   if (activeScopes(input.holder).some((scope) => sameTarget(scope.target, input.target))) {
     return invalidInput({ field: 'target', rule: 'already-in-scope' });
   }
@@ -268,6 +292,7 @@ export function restoreScope(
   const scope = input.holder.scopes.find((candidate) => candidate.id === input.scopeId);
   if (!scope || scope.withdrawal === null || scope.supersededAt !== null)
     return invalidState('not-withdrawn');
+  if (experimentScopeForVendor(input.holder, scope.target)) return invalidState('not-for-vendor');
   if (activeScopes(input.holder).some((active) => sameTarget(active.target, scope.target))) {
     return invalidState('already-in-scope');
   }

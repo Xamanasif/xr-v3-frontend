@@ -39,7 +39,6 @@ import {
   type ContentManagerDecision,
   type CorrectionUpdate,
   type Course,
-  type CourseId,
   courseNoLongerAssigned,
   type EditorStep,
   type Experiment,
@@ -73,7 +72,8 @@ import {
   submitForReview,
   type Technology,
   type UpdateReviewDecision,
-  vendorCourses,
+  vendorCourseGrant,
+  type VendorCourseGrant,
 } from '@xr/domain';
 
 import { experimentSlug } from '../ids/id-source.js';
@@ -105,21 +105,24 @@ function vendorOf(person: ResolvedPerson): PlatformRoleHolder {
   return person.holder;
 }
 
-/** The Vendor's assigned courses (B5-03; ROLE-11 is open for a non-course scope). */
-function assignedCourses(holder: PlatformRoleHolder): readonly CourseId[] {
-  const courses = vendorCourses(holder);
-  if (!courses.ok) refuse(courses.refusal as never);
-  return courses.value;
+/**
+ * The courses the Vendor may submit under (B5-03; ROLE-11 decided, PD-2): "All experiments" is
+ * every course that exists now, so a course that does not exist is never one of them (the domain
+ * then answers `course-not-assigned`); no active scope is no course (PD-3).
+ */
+function assignedCourses(
+  op: Op,
+  holder: PlatformRoleHolder,
+): Extract<VendorCourseGrant, { readonly kind: 'listed' }> {
+  const grant = vendorCourseGrant(holder);
+  return grant.kind === 'any-course'
+    ? { kind: 'listed', courseIds: values(op.records.courses).map((course) => course.id) }
+    : grant;
 }
 
-/** May this person see the submission? A Vendor reading a colleague's record meets SUB-15. */
+/** May this person see the submission? Only its creator among Vendors (SUB-14; SUB-15, PD-1). */
 function seeSubmission(op: Op, person: ResolvedPerson, submission: Submission): void {
-  op.see(person, {
-    kind: 'submission',
-    submission,
-    sameOrganisation:
-      person.organisation !== null && person.organisation === submission.vendorOrganisation,
-  });
+  op.see(person, { kind: 'submission', submission });
 }
 
 /** Names the name check compares with: the catalogue and the Vendor's other experiments (B5-03). */
@@ -138,7 +141,7 @@ function vendorWrite(op: Op, person: ResolvedPerson) {
   return {
     actor: person.ref,
     vendor,
-    assignedCourses: assignedCourses(vendor),
+    assignedCourses: assignedCourses(op, vendor),
     now: op.now,
     ids: op.ids,
   };
@@ -257,7 +260,7 @@ function lastReturn(
   return null;
 }
 
-function guardsOf(op: Op, submission: Submission, assigned: readonly CourseId[]) {
+function guardsOf(op: Op, submission: Submission, assigned: VendorCourseGrant) {
   return {
     courseNoLongerAssigned: courseNoLongerAssigned(submission, assigned),
     stuck: isStuck(submission, holdersOf(op)),
@@ -448,18 +451,11 @@ function withVisibleUpdate(op: Op, person: ResolvedPerson, experiment: Experimen
 
 // ---- Phase 5 reads (VE-01, VE-02, the editor, RV-01, CM-01, CM-04) ----
 
-/** The Vendor's own records — "Every experiment you created" (B5-02); a colleague's is SUB-15. */
+/** The Vendor's own records — "Every experiment you created" (B5-02); never a colleague's (PD-1). */
 function myExperiments(op: Op, person: ResolvedPerson, holder: PlatformRoleHolder): Submission[] {
   return values(op.records.submissions)
     .filter((submission) => submission.vendorHolderId === holder.id)
-    .filter((submission) =>
-      op.canSee(person, {
-        kind: 'submission',
-        submission,
-        sameOrganisation:
-          person.organisation !== null && person.organisation === submission.vendorOrganisation,
-      }),
-    );
+    .filter((submission) => op.canSee(person, { kind: 'submission', submission }));
 }
 
 type VendorStatus =
@@ -665,7 +661,7 @@ export function productionPort(call: Call): ProductionService {
       read(call, 'ProductionService.getVendorOverview', (op) => {
         const person = op.person();
         const vendor = vendorOf(person);
-        const assigned = assignedCourses(vendor);
+        const assigned = assignedCourses(op, vendor);
         const mine = myExperiments(op, person, vendor);
         const counts = {
           draft: 0,
@@ -722,7 +718,7 @@ export function productionPort(call: Call): ProductionService {
       read(call, 'ProductionService.listMyExperiments', (op) => {
         const person = op.person();
         const vendor = vendorOf(person);
-        const assigned = assignedCourses(vendor);
+        const assigned = assignedCourses(op, vendor);
         const accepted = op.parse(listMyExperimentsInput, filter);
         const search = accepted.search?.trim().toLocaleLowerCase('en') ?? '';
         return myExperiments(op, person, vendor)
@@ -747,7 +743,7 @@ export function productionPort(call: Call): ProductionService {
       read(call, 'ProductionService.getEditor', (op) => {
         const person = op.person();
         const vendor = vendorOf(person);
-        const assigned = assignedCourses(vendor);
+        const assigned = assignedCourses(op, vendor);
         const existing = editorSubmission(op, person, field(input, 'id'));
         op.parse(getEditorInput, input);
         const subject = submissionSubject(op, existing);
@@ -760,7 +756,7 @@ export function productionPort(call: Call): ProductionService {
             op.canDo(person, 'submission.save-draft', subject)) ||
           (existing.status.state === 'returned' &&
             op.canDo(person, 'submission.save-revision', subject));
-        const courses = assigned
+        const courses = assigned.courseIds
           .map((courseId) => op.records.courses[courseId])
           .filter((course): course is Course => course !== undefined)
           .map((course) => courseCardOf(op.records, course));
@@ -1097,7 +1093,7 @@ export function productionPort(call: Call): ProductionService {
         seeSubmission(op, person, submission);
         return {
           submission,
-          guards: guardsOf(op, submission, assignedCourses(vendorOf(person))),
+          guards: guardsOf(op, submission, assignedCourses(op, vendorOf(person))),
           lastReturn: lastReturn(submission),
         };
       }),

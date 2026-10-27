@@ -211,12 +211,15 @@ export const listHoldersInput = z.object({
   search: z.string().optional(),
 });
 
-/** SA-16 (B7-08 `doReg`). An e-mail already registered is the domain's answer. */
+/** SA-16 (B7-08 `doReg`). An e-mail already registered is the domain's answer. `anyCourse` (a
+ *  Vendor only; PC-75, owner decision PD-3): start with the "All experiments" scope — any course —
+ *  assigned in the same write; absent or false, they start with no scope. */
 export const registerHolderInput = z.object({
   role: platformRole,
   name: requiredTrimmed(key('SA-16.name.required')),
   workEmail: emailAsDrawn(key('SA-16.workEmail.required'), key('SA-16.workEmail.format')),
   organisation: requiredTrimmed(key('SA-16.organisation.required')),
+  anyCourse: z.boolean({ error: key('contract.invalid-input') }).optional(),
 });
 
 /** SA-17 (B7-08 `doScope`): what they act on, then the course or the experiment. */

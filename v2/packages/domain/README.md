@@ -71,8 +71,9 @@ the tests run every command from every state against it.
   (`validation-failed` does not withdraw an offer).
 - Scope is read from records, never taken on trust: a Student's open gate is computed by the policy
   from the access records in the subject (`AccessFacts`) — the WEB format gate for Launch and
-  Continue WEB (RUN-06) — and a Vendor's courses come from their own active scopes (`vendorCourses`;
-  a non-course scope answers `policy-open` ROLE-11). Faculty act only in their own institution, on
+  Continue WEB (RUN-06) — and a Vendor's courses come from their own active scopes
+  (`vendorCourseGrant`; owner decisions of 27 Oct 2026: "All experiments" = any existing course,
+  a one-experiment scope gives a Vendor nothing, no active scope = nothing). Faculty act only in their own institution, on
   experiments they teach; a question someone else added is open (Q-10, OD-B4-17), and a draft is
   its requester's own (Q-05).
 - `OPEN_CAPABILITIES` — the 15 OPEN rows: never in `availableActions`; `may` answers `policy-open`.
@@ -126,7 +127,7 @@ T-01 (cold visit to a request status), T-03 (deciding after "Information request
 OD-B2-01 (overlap; group-grant withdrawal, SACC-08), OD-B2-02 (members added after a group grant),
 GRP-05 (members removed after it), SACC-11, SACC-14 (earlier work after withdrawal or the end),
 PER-07, CC-06, OD-B4-17 (co-teaching, ASMT-17; a colleague's question, Q-10), ATT-07 (automatic
-marking), OD-B3-01 (several authorised devices), ROLE-11, SUB-15, SUP-04, SUP-07, SES-09, and a format "not available
+marking), OD-B3-01 (several authorised devices), SUP-04, SUP-07, SES-09, and a format "not available
 right now" (drawn without a cause). The other OPEN capabilities answer with their register ids
 (R06, ND-04, Q-11, OD-B3-05, OD-B7-09).
 

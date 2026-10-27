@@ -18,16 +18,15 @@ export const STATE_COPY_VENDOR_EDITOR = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
-  'VE-03.policy-open': {
+  'VE-03.refused': {
     screen: 'VE-03',
     state:
-      'An editor read the service answers policy-open: the Vendor’s scope is not a course list (ROLE-11) or the record is a colleague’s (SUB-15)',
-    words: 'This experiment isn’t available to you yet',
-    rule: 'A calm notice under the breadcrumbs, nothing of the record and no form: the rule is not settled. My experiments stays one click away.',
-    basis:
-      'Matrix ROLE-11 and SUB-15 UNRESOLVED; board 04 calm-state formula. B5-03 … B5-07 draw no such state (independent review, Phase 5)',
+      'An editor read refused for a reason none of the other states covers (signed out meanwhile)',
+    words: 'This experiment isn’t available to you',
+    rule: 'A calm notice under the breadcrumbs, nothing of the record and no form. My experiments stays one click away. Another Vendor’s record — a colleague of the same studio included — is “We can’t find that page” (owner decision PD-1); a Vendor with no course is `VE-01.no-course.*`.',
+    basis: 'Board 04 calm-state formula. B5-03 … B5-07 draw no such state',
     status: 'provisional',
-    decisions: ['VD-12', 'ROLE-11', 'SUB-15'],
+    decisions: ['VD-12'],
   },
   'VE-03.failed': {
     screen: 'VE-03',

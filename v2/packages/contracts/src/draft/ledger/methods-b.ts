@@ -628,8 +628,8 @@ export const TEACHING_LEDGER = portLedger<TeachingService>()({
   }),
 });
 
-const VENDOR = ['not-signed-in', 'not-permitted', 'policy-open', 'unavailable'] as const;
-const VENDOR_OPEN = ['ROLE-11', 'SUB-15'] as const;
+// ROLE-11 and SUB-15 are decided (PD-1, PD-2; 27 Oct 2026): no Vendor method answers policy-open.
+const VENDOR = ['not-signed-in', 'not-permitted', 'unavailable'] as const;
 const REVIEW_WRITE = [
   'validation-failed',
   'not-signed-in',
@@ -647,9 +647,7 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     output: vendorOverviewOutput,
     mock: 'P5',
     screens: ['VE-01'],
-    // The Vendor's courses: a scope that is not a course is ROLE-11 (Phase 5, as listMyExperiments).
     errors: VENDOR,
-    open: VENDOR_OPEN,
     policy: ['read:submission'],
   }),
   listMyExperiments: entry({
@@ -659,7 +657,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     mock: 'P5',
     screens: ['VE-02'],
     errors: VENDOR,
-    open: VENDOR_OPEN,
     policy: ['read:submission'],
   }),
   getEditor: entry({
@@ -669,7 +666,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     mock: 'P5',
     screens: ['VE-03', 'VE-04', 'VE-05', 'VE-06'],
     errors: [...VENDOR, 'not-found'],
-    open: VENDOR_OPEN,
     policy: ['submission.start', 'submission.save-draft'],
   }),
   saveDraft: entry({
@@ -687,7 +683,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
       ...VENDOR,
     ],
     refusals: ['course-not-assigned'],
-    open: VENDOR_OPEN,
     policy: ['submission.start', 'submission.save-draft', 'submission.edit-attachments'],
     form: 'VE-03',
   }),
@@ -699,7 +694,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     screens: ['VE-03', 'VE-04', 'VE-05'],
     errors: ['validation-failed', 'refused', 'not-found', 'invalid-state', ...VENDOR],
     refusals: ['course-not-assigned'],
-    open: VENDOR_OPEN,
     policy: ['submission.start', 'submission.save-draft', 'submission.save-revision'],
     form: 'VE-03',
     note: 'Validation only. The check follows the record: `submission.start` before the first save, `submission.save-draft` for a draft, `submission.save-revision` for a returned submission; any other state answers `invalid-state`. A duplicate name is the field error `VE-03.name.taken`, not Appendix C’s `conflict: duplicate` (the name check compares names, never content — BC11).',
@@ -719,7 +713,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
       ...VENDOR,
     ],
     refusals: ['submit-checklist-incomplete', 'course-not-assigned'],
-    open: VENDOR_OPEN,
     policy: ['submission.submit-for-review'],
     form: 'VE-03',
   }),
@@ -730,7 +723,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     mock: 'WP-0.11',
     screens: ['VE-07', 'VE-13'],
     errors: [...VENDOR, 'not-found'],
-    open: VENDOR_OPEN,
     policy: ['read:submission'],
   }),
   saveRevision: entry({
@@ -740,7 +732,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
     mock: 'WP-0.11',
     screens: ['VE-08'],
     errors: ['validation-failed', 'invalid-state', 'stale-version', 'not-found', ...VENDOR],
-    open: VENDOR_OPEN,
     policy: ['submission.save-revision'],
     form: 'VE-03',
   }),
@@ -759,7 +750,6 @@ export const PRODUCTION_LEDGER = portLedger<ProductionService>()({
       ...VENDOR,
     ],
     refusals: ['submit-checklist-incomplete'],
-    open: VENDOR_OPEN,
     policy: ['submission.resubmit'],
     form: 'VE-03',
   }),

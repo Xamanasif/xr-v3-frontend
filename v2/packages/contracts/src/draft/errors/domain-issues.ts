@@ -467,6 +467,11 @@ export const DOMAIN_ISSUE_MAP: { readonly [M in MethodId]?: readonly IssueMappin
       rule: 'already-in-scope',
       to: to('target', 'SA-17.target.already-in-scope'),
     },
+    {
+      field: 'target',
+      rule: 'not-for-vendor',
+      to: to('target', 'SA-17.target.not-for-vendor'),
+    },
   ],
   'PlatformRoleService.withdrawScope': [reason('SA-17.reason.required')],
   'OperationsService.requestDeviceTransfer': [

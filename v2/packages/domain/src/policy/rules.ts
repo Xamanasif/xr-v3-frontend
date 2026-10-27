@@ -81,11 +81,13 @@ import {
 } from '../people/decide.js';
 import {
   activeScopes,
+  grantIsEmpty,
   registerHolder,
   type PlatformRoleHolder,
   restoreScope,
   scopeCovers,
-  vendorCourses,
+  type VendorCourseGrant,
+  vendorCourseGrant,
   withdrawScope,
 } from '../platform-roles/platform-roles.js';
 import {
@@ -1813,21 +1815,21 @@ const EMPTY_CONTENT = {
 
 /**
  * The Vendor's courses come from their own active scopes (CRS-08; SUB-01 "course must be one of the
- * Vendor's assigned courses"). A scope that is not a course is not drawn for a Vendor (ROLE-11 OPEN);
- * a Vendor with no active scope can act on nothing.
+ * Vendor's assigned courses"): an "All experiments" scope gives any course (ROLE-11, owner decision
+ * PD-2 of 27 Oct 2026), a one-experiment scope nothing (PD-4); a Vendor with no active scope can
+ * act on nothing (PD-3).
  */
-function vendorCoursesOf(actor: PersonActor | PublicActor): Decision<readonly CourseId[]> {
+function vendorCoursesOf(actor: PersonActor | PublicActor): Decision<VendorCourseGrant> {
   const holder = person(actor).holder;
   if (!holder) return { ok: false, refusal: outOfScope };
-  const courses = vendorCourses(holder);
-  if (!courses.ok) return courses;
-  return courses.value.length > 0 ? courses : { ok: false, refusal: outOfScope };
+  const grant = vendorCourseGrant(holder);
+  return grantIsEmpty(grant) ? { ok: false, refusal: outOfScope } : { ok: true, value: grant };
 }
 
 interface VendorWriteContext {
   readonly actor: PersonActorRef;
   readonly vendor: PlatformRoleHolder;
-  readonly assignedCourses: readonly CourseId[];
+  readonly assignedCourses: VendorCourseGrant;
   readonly now: IsoInstant;
   readonly ids: IdSource;
 }
@@ -2076,7 +2078,9 @@ function markingScope(
  * naming the decision (P4; Appendix F §5.1). None of them has a rule above. The matrix draws 15;
  * ATT-17 (several written questions) left this list on the owner's decision of 24 Oct 2026 —
  * confirm once per attempt after every written answer has a saved mark (P4-04): it is served by
- * `marking.confirm` (ATT-09) and `confirmMarks` (`OWNER_DECIDED_OPEN_ROWS`).
+ * `marking.confirm` (ATT-09) and `confirmMarks`. ROLE-11 (a Vendor's non-course scope) left it on
+ * the owner's decision of 27 Oct 2026 (PD-2, PD-4): served by `submission.start` and the Vendor
+ * course grant (`OWNER_DECIDED_OPEN_ROWS`).
  */
 export const OPEN_CAPABILITIES = {
   'request.narrow-multi-experiment': { row: 'REQ-19', decision: 'REQ-19' },
@@ -2090,7 +2094,6 @@ export const OPEN_CAPABILITIES = {
   'question.choose-experiment': { row: 'Q-11', decision: 'Q-11' },
   'device-transfer.resolve-without-institute-admin': { row: 'DTR-09', decision: 'OD-B3-05' },
   'submission.override-other-target': { row: 'SUB-35', decision: 'OD-B7-09' },
-  'vendor.non-course-scope': { row: 'ROLE-11', decision: 'ROLE-11' },
   'support.reopen-own': { row: 'SUP-04', decision: 'SUP-04' },
   'session.sign-in-inactive-faculty': { row: 'SES-09', decision: 'SES-09' },
 } as const;
@@ -2109,6 +2112,13 @@ export const OWNER_DECIDED_OPEN_ROWS = {
     ruling:
       'Several written questions: Faculty saves a mark for every written answer, then confirms the attempt once',
     servedBy: 'marking.confirm',
+  },
+  'ROLE-11': {
+    decision: 'PD-2',
+    decided: '2026-10-27',
+    ruling:
+      'For a Vendor only, an active “All experiments” scope means any existing course, now and later; a one-experiment scope gives a Vendor nothing and is no longer assigned to Vendors (PD-4)',
+    servedBy: 'submission.start',
   },
 } as const satisfies Readonly<
   Record<

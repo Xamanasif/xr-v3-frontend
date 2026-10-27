@@ -5,8 +5,8 @@
  *    and the action in `availableActions`; every role not on an ALLOW row of the action is refused;
  *  - DENY → refusal and absence (no rule, no exported command);
  *  - OPEN (15) → never offered, refused with `policy-open` — except a row an owner decision has
- *    since resolved (`OWNER_DECIDED_OPEN_ROWS`: ATT-17, 24 Oct 2026), whose case proves the decided
- *    behaviour through the rule that now serves it;
+ *    since resolved (`OWNER_DECIDED_OPEN_ROWS`: ATT-17, 24 Oct 2026; ROLE-11, 27 Oct 2026), whose
+ *    case proves the decided behaviour through the rule that now serves it;
  *  - SYSTEM (11) → reachable only through system writers, never through a user command;
  *  - READ → visibility (`canRead`) and the read-model derivations.
  * Every test name carries the row's id, kind and status (and the stakeholder-conflict flag), so an
@@ -117,7 +117,11 @@ import {
   unmarkedAfterRemoval,
 } from '../people/decide.js';
 import type { Person } from '../people/model.js';
-import { registerHolder, vendorCourses, withdrawScope } from '../platform-roles/platform-roles.js';
+import {
+  registerHolder,
+  vendorCourseGrant,
+  withdrawScope,
+} from '../platform-roles/platform-roles.js';
 import type { PlatformRoleHolder } from '../platform-roles/platform-roles.js';
 import {
   accessEndingRows,
@@ -2446,11 +2450,19 @@ const READ_CASES: Readonly<Record<string, () => void>> = {
     expect(visible('vendor', { kind: 'submission', submission: submission(STATUS.returned) })).toBe(
       true,
     ),
+  // Owner decision PD-1 of 27 Oct 2026: ownership is per person — a colleague of the same studio
+  // meets the same answer as any other Vendor (the record is not theirs; nothing is disclosed).
   'SUB-15': () => {
-    const colleague = submission(STATUS.draft, { vendorHolderId: unsafeBrand('holder-colleague') });
-    expect(
-      canRead(ctx('vendor'), { kind: 'submission', submission: colleague, sameOrganisation: true }),
-    ).toEqual({ visible: false, refusal: { kind: 'policy-open', decision: 'SUB-15' } });
+    for (const state of [STATUS.draft, STATUS.returned, STATUS.withReviewer, STATUS.published]) {
+      const colleague = submission(state, {
+        vendorHolderId: unsafeBrand('holder-colleague'),
+        vendorOrganisation: 'Northline Simulation Studio',
+      });
+      expect(canRead(ctx('vendor'), { kind: 'submission', submission: colleague })).toEqual({
+        visible: false,
+        refusal: { kind: 'not-permitted', why: 'not-own-record' },
+      });
+    }
   },
   'SUB-39': () =>
     expect(
@@ -2597,15 +2609,15 @@ const READ_CASES: Readonly<Record<string, () => void>> = {
       ).map((entry) => entry.id),
     ).toEqual([ids.area]),
   'ROLE-08': () => {
-    // Held on the person (the holder record, B7-08); colleagues' work stays open (SUB-15).
+    // Held on the person (the holder record, B7-08; owner decision PD-1 of 27 Oct 2026): the scope
+    // is the person's, and a colleague's record is not theirs (SUB-15).
     expect(holder('vendor').scopes[0]!.target).toEqual({ kind: 'course', courseId: ids.course });
     expect(
       canRead(ctx('vendor'), {
         kind: 'submission',
         submission: submission(STATUS.draft, { vendorHolderId: unsafeBrand('holder-colleague') }),
-        sameOrganisation: true,
-      }).visible,
-    ).toBe(false);
+      }),
+    ).toEqual({ visible: false, refusal: { kind: 'not-permitted', why: 'not-own-record' } });
   },
   'ROLE-10': () => {
     const limited = {
@@ -2635,7 +2647,10 @@ const READ_CASES: Readonly<Record<string, () => void>> = {
     expect(visible('academic_reviewer', { kind: 'scope-line', holder: holder('vendor') })).toBe(
       false,
     );
-    expect(expectOk(vendorCourses(holder('vendor')))).toEqual([ids.course]);
+    expect(vendorCourseGrant(holder('vendor'))).toEqual({
+      kind: 'listed',
+      courseIds: [ids.course],
+    });
   },
   'SUP-02': () => {
     for (const role of PEOPLE) {
@@ -2840,34 +2855,40 @@ const OPEN_CASES: Readonly<Record<string, () => void>> = {
       S.submission(submission(STATUS.withCm), []),
       { kind: 'invalid-state', current: 'with-content-manager' },
     ),
+  // Owner decision of 27 Oct 2026 (PD-2, PD-4; `OWNER_DECIDED_OPEN_ROWS`): no longer OPEN. For a
+  // Vendor, "All experiments" = any existing course; a one-experiment scope gives nothing.
   'ROLE-11': () => {
-    expect(refusalOf(vendorCourses(holder('vendor', [{ kind: 'all' }])))).toEqual({
-      kind: 'policy-open',
-      decision: 'ROLE-11',
-    });
-    // Through the policy: a Vendor whose scope is not a course is offered nothing.
+    expect(isOpenCapability('vendor.non-course-scope')).toBe(false);
+    expect(vendorCourseGrant(holder('vendor', [{ kind: 'all' }]))).toEqual({ kind: 'any-course' });
     const allScope = { holder: holder('vendor', [{ kind: 'all' }]) };
-    for (const action of ['submission.start', 'submission.save-draft'] as const) {
-      refusedFor(
-        'vendor',
-        action,
-        S.submission(null),
-        { kind: 'policy-open', decision: 'ROLE-11' },
-        T.oct14,
-        allScope,
-      );
-    }
-    const oneExperiment = {
-      holder: holder('vendor', [{ kind: 'experiment', experimentId: ids.shell }]),
-    };
+    expect(
+      may(ctx('vendor', T.oct14, allScope), 'submission.start', S.submission(null)),
+    ).toMatchObject({ allowed: true, rows: ['SUB-01'] });
+    // A draft under a course no course scope names: allowed under "All experiments".
+    const elsewhere = submission(STATUS.draft, { content: content({ courseId: ids.course2 }) });
+    expect(
+      may(ctx('vendor', T.oct14, allScope), 'submission.save-draft', S.submission(elsewhere)),
+    ).toMatchObject({ allowed: true });
+    // … but never another Vendor's record.
     refusedFor(
       'vendor',
-      'submission.start',
-      S.submission(null),
-      { kind: 'policy-open', decision: 'ROLE-11' },
+      'submission.save-draft',
+      S.submission(submission(STATUS.draft, { vendorHolderId: unsafeBrand('holder-colleague') })),
+      { kind: 'not-permitted', why: 'not-own-record' },
       T.oct14,
-      oneExperiment,
+      allScope,
     );
+    // A one-experiment scope, no scope, or a withdrawn scope: nothing to start — out of scope.
+    for (const targets of [[{ kind: 'experiment', experimentId: ids.shell }], []] as const) {
+      refusedFor(
+        'vendor',
+        'submission.start',
+        S.submission(null),
+        { kind: 'not-permitted', why: 'out-of-scope' },
+        T.oct14,
+        { holder: holder('vendor', targets) },
+      );
+    }
   },
   'SUP-04': () => {
     deniedTo(
@@ -3240,7 +3261,7 @@ describe('coverage 347/347: every row has exactly one case of its kind', () => {
   it('the 15 OPEN rows are the OPEN capabilities and the owner-decided rows, and no rule shares their names', () => {
     const decided = Object.keys(OWNER_DECIDED_OPEN_ROWS);
     expect(idsOf('OPEN')).toHaveLength(15);
-    expect(decided).toEqual(['ATT-17']);
+    expect(decided).toEqual(['ATT-17', 'ROLE-11']);
     expect(decided.every((id) => ROW.get(id)?.kind === 'OPEN')).toBe(true);
     expect(
       Object.values(OPEN_CAPABILITIES)
@@ -3255,7 +3276,7 @@ describe('coverage 347/347: every row has exactly one case of its kind', () => {
     // A decided row is served by a rule, never by a leftover OPEN capability.
     for (const entry of Object.values(OWNER_DECIDED_OPEN_ROWS)) {
       expect(ACTION_IDS).toContain(entry.servedBy);
-      expect(entry.decided).toBe('2026-10-24');
+      expect(['2026-10-24', '2026-10-27']).toContain(entry.decided);
     }
   });
 });

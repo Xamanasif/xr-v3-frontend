@@ -80,7 +80,7 @@ const outcomes = [{ id: 'lo-9' as never, text: 'Explain conduction.' }];
 const vendorWrite = () => ({
   actor: who.vendor,
   vendor: holder('vendor'),
-  assignedCourses: [ids.course],
+  assignedCourses: { kind: 'listed', courseIds: [ids.course] } as const,
   now: T.oct14,
   ids: counterIds(),
 });
@@ -278,17 +278,38 @@ describe('the Vendor editor (SUB-02 … SUB-11)', () => {
 
   it('a draft whose course is no longer assigned is read-only (SUB-11)', () => {
     const draft = submission({ state: 'draft' });
-    expect(courseNoLongerAssigned(draft, [ids.course2])).toBe(true);
+    expect(courseNoLongerAssigned(draft, { kind: 'listed', courseIds: [ids.course2] })).toBe(true);
+    expect(courseNoLongerAssigned(draft, { kind: 'any-course' })).toBe(false);
     expect(
       refusalOf(
         saveDraft({
           ...vendorWrite(),
-          assignedCourses: [ids.course2],
+          assignedCourses: { kind: 'listed', courseIds: [ids.course2] },
           submission: draft,
           content: content(),
         }),
       ),
     ).toEqual({ kind: 'refused', code: 'course-not-assigned' });
+  });
+
+  it('an any-course grant accepts any course; a listed grant only its courses (ROLE-11, PD-2)', () => {
+    const elsewhere = content({ courseId: ids.course2 });
+    expect(
+      expectOk(
+        saveDraft({
+          ...vendorWrite(),
+          assignedCourses: { kind: 'any-course' },
+          submission: null,
+          content: elsewhere,
+        }),
+      ).content.courseId,
+    ).toBe(ids.course2);
+    expect(
+      refusalOf(saveDraft({ ...vendorWrite(), submission: null, content: elsewhere })),
+    ).toEqual({
+      kind: 'validation-failed',
+      issues: [{ field: 'courseId', rule: 'course-not-assigned' }],
+    });
   });
 
   it('resubmit reads "Submitted" (revision n+1) until the workflow routes it back to the reviewer (M-3)', () => {

@@ -49,6 +49,8 @@ export interface RegisterDraft {
   readonly name: string;
   readonly workEmail: string;
   readonly organisation: string;
+  /** A Vendor starts with “Any course” (owner decision PD-3; PC-75). */
+  readonly anyCourse?: boolean;
 }
 
 /** The dialog’s three drawn errors, in words. */

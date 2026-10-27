@@ -565,6 +565,9 @@ test.describe('VE-01 Overview → VE-02 My experiments', () => {
         name: 'Kiran Rao',
         workEmail: 'kiran.rao@northline.example',
         organisation: 'Northline Simulation Studio',
+        // "Any course", as Register a Vendor chooses by default (owner decision PD-3): a Vendor
+        // registered with no course sees `VE-01.no-course.*` instead (phase-7 vendor-ownership).
+        anyCourse: true,
       },
     );
     const mark = await markDocument(page);

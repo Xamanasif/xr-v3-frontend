@@ -173,7 +173,8 @@ async function anilSavesChanges(runtime: PlatformRuntime) {
 }
 
 /** A Vendor the Super Admin registers now (SA-16): no experiment yet. */
-async function newVendor(): Promise<{ runtime: PlatformRuntime; sample: Sample }> {
+/** A Vendor registered just now — with “Any course” (the dialog's default, PD-3) unless not. */
+async function newVendor(anyCourse = true): Promise<{ runtime: PlatformRuntime; sample: Sample }> {
   const { runtime, sample } = await tabPlatform(null, 'spine-start');
   const holder = ok(
     await asPersonId(sample, ARJUN).platformRoles.registerHolder({
@@ -181,6 +182,7 @@ async function newVendor(): Promise<{ runtime: PlatformRuntime; sample: Sample }
       name: 'Kiran Rao',
       workEmail: 'kiran.rao@northline.example',
       organisation: NORTHLINE,
+      anyCourse,
     }),
   );
   beginSession(sample, holder.personId);
@@ -508,6 +510,24 @@ describe('VE-01 Overview — Anil Shetty (the export’s portfolio)', () => {
     expect(screen.queryByRole('region', { name: 'Needs your action' })).toBeNull();
     expect(screen.queryByRole('region', { name: 'Recent activity' })).toBeNull();
     expect(h1()).toHaveAccessibleName(/^Overview,\s?Northline Simulation Studio$/);
+    expectNoReferences();
+  });
+
+  it('no course assigned (PD-3): the calm state instead of Create experiment — nothing to click', async () => {
+    const { runtime } = await newVendor(false);
+    showOverview(runtime);
+    const calm = await screen.findByRole('heading', {
+      level: 2,
+      name: 'No course is assigned to you yet',
+    });
+    expect(
+      screen.getByRole('region', { name: 'No course is assigned to you yet' }),
+    ).toContainElement(calm);
+    expect(main()).toHaveTextContent(
+      'The platform team assigns the courses you can submit experiments to. Once a course is assigned, you can create experiments here.',
+    );
+    expect(screen.queryByRole('link', { name: 'Create experiment' })).toBeNull();
+    expect(main().querySelectorAll('a')).toHaveLength(0);
     expectNoReferences();
   });
 
@@ -903,6 +923,18 @@ describe('VE-02 My experiments — Anil Shetty (the export’s list)', () => {
     expect(create[0]!.className).toBe('rb-btn rb-btn--primary rb-btn--lg');
     expect(screen.queryByRole('search')).toBeNull();
     expect(screen.queryByRole('group', { name: 'Show experiments by status' })).toBeNull();
+    expectNoReferences();
+  });
+
+  it('no course assigned (PD-3): the calm empty state, no Create experiment anywhere', async () => {
+    const { runtime } = await newVendor(false);
+    showList(runtime);
+    const title = await screen.findByRole('heading', {
+      level: 2,
+      name: 'No course is assigned to you yet',
+    });
+    expect(screen.getByRole('region', { name: 'Your experiments' })).toContainElement(title);
+    expect(screen.queryByRole('link', { name: 'Create experiment' })).toBeNull();
     expectNoReferences();
   });
 

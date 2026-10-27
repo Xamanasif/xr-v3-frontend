@@ -119,8 +119,8 @@ function tabOf(search: string): { readonly tab: RecordTab; readonly normalise: b
  *   format, preview and documents, the Academic Reviewer’s learning outcomes) and the history
  *   (newest first, the private-changes note) — with “Where it stands” (formats, revision, dates)
  *   beside both. Nothing else is the Vendor’s to do (state-copy `VE-07.no-other-actions`).
- * - Not found, another vendor’s record (not permitted) and a colleague’s (policy-open SUB-15) show
- *   calm states; a failed read offers “Try again”.
+ * - Not found and another vendor’s record — a colleague of the same studio included (not
+ *   permitted; owner decision PD-1) — show the same calm state; a failed read offers “Try again”.
  */
 export function ExperimentRecord({ submissionId }: { readonly submissionId: string }) {
   const navigation = useAppNavigation();
@@ -159,16 +159,15 @@ export function ExperimentRecord({ submissionId }: { readonly submissionId: stri
     );
   }
   if (read.data && !read.data.ok) {
-    const kind = read.data.error.kind === 'policy-open' ? 'policy-open' : 'not-found';
     return (
       <BarePage>
         <ListState
           kind="none"
           icon="infoNote"
           titleAs="h2"
-          title={stateWords(`VE-07.${kind}.title`)}
+          title={stateWords('VE-07.not-found.title')}
         >
-          {stateWords(`VE-07.${kind}.line`)}
+          {stateWords('VE-07.not-found.line')}
         </ListState>
       </BarePage>
     );

@@ -589,9 +589,24 @@ export function platformRolePort(call: Call): PlatformRoleService {
             order: ['role', 'name', 'workEmail', 'organisation'],
           },
         );
-        // "They start with no scope — you assign it next. Nothing is sent from here." (T-11)
-        op.tx.put('holders', holder.id, holder);
-        return { value: holder, decision: 'registerHolder', actor: person.ref };
+        // "They start with no scope — you assign it next. Nothing is sent from here." (T-11) A Vendor
+        // may start with "Any course" — the "All experiments" scope, assigned in the same write,
+        // so the history reads registered → scope assigned (owner decision PD-3, 27 Oct 2026).
+        const registered =
+          accepted.role === 'vendor' && accepted.anyCourse === true
+            ? op.decide(
+                assignScope({
+                  holder,
+                  target: { kind: 'all' },
+                  actor: person.ref,
+                  now: op.now,
+                  ids: op.ids,
+                }),
+                input,
+              )
+            : holder;
+        op.tx.put('holders', registered.id, registered);
+        return { value: registered, decision: 'registerHolder', actor: person.ref };
       }),
 
     assignScope: (input) =>

@@ -82,7 +82,9 @@ import { SaRecordGuard } from '../shared/sa-record-guard';
 import { arrivalFor, forgetArrival, HOLDER_TITLE_ID } from './arrival';
 import {
   activeScopes,
+  effectiveScopes,
   effectWords,
+  grantsNothing,
   historyLines,
   type ScopeNaming,
   scopeNamings,
@@ -95,6 +97,11 @@ interface Choices {
   readonly lookup: TargetLookup;
   readonly courses: readonly SelectOption[];
   readonly experiments: readonly SelectOption[];
+}
+
+/** The kinds Assign scope offers: never “One experiment” for a Vendor (owner decision PD-4). */
+function scopeKindsFor(role: PlatformRole): readonly ScopeKind[] {
+  return role === 'vendor' ? ['all', 'course'] : ['all', 'course', 'experiment'];
 }
 
 /** The SA-16 tab a role is listed on. */
@@ -127,8 +134,10 @@ function tabOf(role: PlatformRole): RoleTab {
  *   the holder moved on writes nothing: the form or dialog closes, the holder is read again and
  *   the refusal notice at the top of the panel takes focus (state-copy `SA-17.stale.*`).
  * - Opened straight after Register (SA-16): the registration flash, focus on the name.
- * - Nothing is sent from here; how a holder first signs in is open (T-11). What a non-course
- *   scope means for a Vendor is open (ROLE-11): the scope is shown as held, never as a right.
+ * - Nothing is sent from here; how a holder first signs in is open (T-11). For a Vendor (owner
+ *   decisions of 27 Oct 2026): “All experiments” is any course, now and later (PD-2); the panel
+ *   offers it and “A course” only — never “One experiment” (PD-4); a one-experiment scope still
+ *   held gives nothing: listed and withdrawable, not counted as a scope, never restored.
  */
 export function RoleHolder({ holderId }: { readonly holderId: string }) {
   const read = useRoleHolder(holderId);
@@ -460,7 +469,7 @@ function HolderContent({
   ];
 
   const history = historyLines(holder, named);
-  const hasScope = active.length > 0;
+  const hasScope = effectiveScopes(view).length > 0;
 
   const scopeLine = (scope: ScopeView, detail: string) => {
     const words = naming(scope);
@@ -506,7 +515,9 @@ function HolderContent({
       ) : null}
       {hasScope ? null : (
         <Notice tone="warn" icon="userQuestion" title={HOLDER_PAGE.noScopeTitle}>
-          {HOLDER_PAGE.noScopeLine}
+          {holder.role === 'vendor'
+            ? stateWords('SA-17.vendor-no-scope-line')
+            : HOLDER_PAGE.noScopeLine}
         </Notice>
       )}
       <DetailLayout
@@ -516,7 +527,7 @@ function HolderContent({
           <>
             <SurfaceSection title={HOLDER_PAGE.canActOn} titleId={IDS.canActOn}>
               <RecordLine>{effectWords(view)}</RecordLine>
-              {hasScope ? (
+              {active.length > 0 ? (
                 <ScopeList>
                   {active.map((scope) => {
                     const words = naming(scope);
@@ -598,13 +609,15 @@ function HolderContent({
                           withdrawnWords(dayMonthYear(withdrawal.at), withdrawal.reason),
                         )}
                         action={
-                          <Button
-                            id={IDS.restore(scope.scope.id)}
-                            aria-label={restoreLabel(naming(scope).full)}
-                            onClick={() => startRestore(scope)}
-                          >
-                            {HOLDER_PAGE.restore}
-                          </Button>
+                          grantsNothing(view, scope) ? null : (
+                            <Button
+                              id={IDS.restore(scope.scope.id)}
+                              aria-label={restoreLabel(naming(scope).full)}
+                              onClick={() => startRestore(scope)}
+                            >
+                              {HOLDER_PAGE.restore}
+                            </Button>
+                          )
                         }
                       />
                     );
@@ -664,10 +677,13 @@ function HolderContent({
               error={kindError}
               value={assignForm.kind}
               onChange={choose}
-              options={(['all', 'course', 'experiment'] as const).map((kind) => ({
+              options={scopeKindsFor(holder.role).map((kind) => ({
                 value: kind,
                 title: ASSIGN_PANEL.choices[kind].title,
-                description: ASSIGN_PANEL.choices[kind].sub,
+                description:
+                  holder.role === 'vendor' && kind === 'all'
+                    ? stateWords('SA-17.vendor-choices')
+                    : ASSIGN_PANEL.choices[kind].sub,
               }))}
             />
             {assignForm.kind === 'course' ? (

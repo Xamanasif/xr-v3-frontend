@@ -1122,6 +1122,7 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     status: 'provisional-engineering',
     source:
       'B7-08 f0, f1, f3, f7, f8 (“ME ZG523, MEL ZG512, CHE ZG513 · 1 scope withdrawn”; “Nothing — no scope yet”; “All experiments”). Appendix C gave the list a pre-rendered `canActOn` (PC-13) and `getHolder` the bare holder. Built in Phase 6',
+    // ROLE-11 is decided (PD-2, 27 Oct 2026); the facts are unchanged.
     decisions: ['ROLE-11'],
     trace: [
       { kind: 'schema-field', schema: 'scopeView', path: 'courseCode' },
@@ -1192,5 +1193,18 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     irreversible: WHILE_DRAFT,
     reversal:
       'Drop `waitingToConfirm` and the `marks-to-confirm` fact (FA-06 and FA-01 then count written answers only); the per-question `marks.<questionId>` errors become one `mark` error naming the first question without a mark.',
+  },
+  {
+    id: 'PC-75',
+    subject:
+      'SA-16 “Register a Vendor” can start the Vendor with “Any course”: `registerHolderInput.anyCourse` (Vendors only) assigns the “All experiments” scope in the same write — history “registered”, then “scope assigned”; absent or false, they start with no scope as before. Vendor methods no longer answer `policy-open` (ROLE-11 and SUB-15 decided)',
+    status: 'owner-approved-interim',
+    source:
+      'Owner decisions, 27 Oct 2026 (Vendor ownership audit, correction A): PD-1 ownership per person (SUB-15 → not your record); PD-2 for a Vendor “All experiments” = any existing course, now and later; PD-3 option C — the registration offers “Any course”, selected by default, visible and changeable before confirming; an empty or withdrawn scope is never unrestricted; PD-4 a one-experiment scope is never given to a Vendor. B7-08 draws the dialog with name, work e-mail and organisation only',
+    decisions: ['ROLE-11', 'SUB-15', 'ROLE-08'],
+    trace: [{ kind: 'schema-field', schema: 'registerHolderInput', path: 'anyCourse' }],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop `anyCourse`; the Super Admin then assigns “All experiments” on SA-17 after registering, as before.',
   },
 ];
