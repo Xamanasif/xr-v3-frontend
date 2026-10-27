@@ -103,3 +103,8 @@ checks above.
   course no longer granted or not found: the draft keeps its course and opens read-only.
 - A Vendor with Any course can submit to a course no Academic Reviewer covers (“Stuck” on SA-12,
   existing behaviour, unchanged).
+
+## 9. Owner acceptance (27 Oct 2026)
+
+Accepted at `ae9d218` together with its closure follow-up; the decision and its recorded exceptions
+are in `CORRECTION-B-CLOSURE.md` §5.

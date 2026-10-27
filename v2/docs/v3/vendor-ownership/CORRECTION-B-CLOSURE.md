@@ -93,3 +93,21 @@ above: 5 / 5.
 
 Targeted before the gate: the editor component and copy tests 212 / 212; service tests 353 / 353;
 contracts 788 / 788; web typecheck and lint clean.
+
+## 5. Owner acceptance (27 Oct 2026)
+
+After the closure review, the owner decided: **Correction B accepted** at `ae9d218` — the Engineering
+area → Course classification (`25e9738`) with this closure (course hint by permission, unavailable
+courses confirmed), with these recorded exceptions:
+
+- visual parity: the five known Public artwork differences (B1-03 f0, B1-03 f2, B1-05 f0 preview and
+  whole frame, B1-05 f6) remain, unchanged and documented;
+- the existing intentional skips (specimens 396, web 272: single-width and conditional tests) stay as
+  documented;
+- non-blocking follow-ups, not changed: the read-only notice's “was withdrawn from <studio>”
+  wording; the stale-course line's “while you were editing” when the course was withdrawn before the
+  page was opened; an Any-course Vendor can submit to a course no Academic Reviewer covers (“Stuck”
+  on SA-12, existing behaviour).
+
+Correction B is not reopened. Next: manual hands-on QA of the corrected frontend (all seven
+authenticated roles) on an isolated server and a clean browser origin.
