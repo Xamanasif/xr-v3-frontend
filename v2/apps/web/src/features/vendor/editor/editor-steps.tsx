@@ -37,7 +37,6 @@ import {
   changeSectionLabel,
   CHECK_STEP,
   COURSE_STEP,
-  courseHint,
   courseWords,
   EDITOR,
   formatKind,
@@ -110,7 +109,8 @@ export interface CourseStepProps extends StepFields {
   readonly courses: readonly EditorCourse[];
   /** The areas holding one of them, in the academic structure's order. */
   readonly areas: readonly AreaRef[];
-  readonly organisation: string;
+  /** Any course (PC-77): every existing course is on offer; else the courses assigned to them. */
+  readonly anyCourse: boolean;
   /** A chosen course that is no longer one of the Vendor's: its code and name. */
   readonly withdrawn: { readonly code: string | null; readonly name: string } | null;
 }
@@ -125,7 +125,7 @@ export function CourseStep({
   draft,
   courses,
   areas,
-  organisation,
+  anyCourse,
   withdrawn,
   errorOf,
   onChange,
@@ -172,7 +172,9 @@ export function CourseStep({
             id={fieldId('courseId')}
             label={COURSE_STEP.courseLabel}
             width={3}
-            hint={courseHint(organisation)}
+            hint={stateWords(
+              anyCourse ? 'VE-03.course-hint.any-course' : 'VE-03.course-hint.assigned',
+            )}
             staleHint={
               withdrawn && !chosen ? withdrawnCourseHint(withdrawn.code, withdrawn.name) : undefined
             }

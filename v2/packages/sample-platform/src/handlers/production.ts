@@ -772,6 +772,8 @@ export function productionPort(call: Call): ProductionService {
           areas: areas
             .filter((area) => courses.some((course) => course.areaId === area.id))
             .map((area) => ({ id: area.id, name: area.name })),
+          // Which course hint step 1 shows (PC-77): the grant as it is, never widened here.
+          anyCourse: vendorCourseGrant(vendor).kind === 'any-course',
           readOnly: !editable || (existing !== null && courseNoLongerAssigned(existing, assigned)),
         };
       }),

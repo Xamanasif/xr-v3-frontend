@@ -62,7 +62,9 @@ backend, no seed change, no snapshot-format change, no merge, push or deployment
   version 2.
 - SA-v1 names the scope “All experiments” for every role: for a Vendor it is now “Any course”, with
   the new explanatory line.
-- The drawn course hint “Only the courses assigned to <studio> are listed.” is kept as drawn.
+- The drawn course hint “Only the courses assigned to <studio> are listed.” was kept as drawn here;
+  the closure follow-up replaces it by a hint that follows the Vendor's permission
+  (`CORRECTION-B-CLOSURE.md`).
 
 ## 5. Existing records and saved worlds
 
@@ -95,7 +97,8 @@ checks above.
 
 ## 8. Known limitations
 
-- The course hint keeps the drawn studio wording for every Vendor, including one with Any course.
+- The course hint keeps the drawn studio wording for every Vendor, including one with Any course —
+  closed by the follow-up recorded in `CORRECTION-B-CLOSURE.md`.
 - A course cannot be deleted in this product (only renamed or moved), so “removed” is covered as a
   course no longer granted or not found: the draft keeps its course and opens read-only.
 - A Vendor with Any course can submit to a course no Academic Reviewer covers (“Stuck” on SA-12,

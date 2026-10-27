@@ -163,9 +163,10 @@ const OUTLINE_KICKER_ID = `${ID_PREFIX}-prog-k`;
  * Check and submit for a new experiment (`/vendor/experiments/new?step=`), VE-09 for a saved draft
  * (`/[id]/edit?step=`) and VE-08 for a returned one (`/[id]/revise?step=`).
  *
- * - **Read**: `ProductionService.getEditor` — the record (or none yet), only the courses assigned
- *   to the Vendor's organisation and whether it opens read-only (a draft whose course is no longer
- *   assigned, OD-B5-01; any record that is not a draft or returned: the export's refusal). Revise
+ * - **Read**: `ProductionService.getEditor` — the record (or none yet), the courses on offer (every
+ *   existing one with Any course, else those assigned to the Vendor; PC-77 says which) and whether
+ *   it opens read-only (a draft whose course is no longer assigned, OD-B5-01; any record that is
+ *   not a draft or returned: the export's refusal). Revise
  *   mode also reads the record's last return (`getRecord`): the returned reason above the editor,
  *   which takes focus first, whose references open the step and field and tag it (OD-B5-10).
  * - **Four steps** in the address (`?step=`; a saved draft opens where it was last saved,
@@ -199,8 +200,6 @@ export function ExperimentEditor({
   useShellPage(editorPlacement(mode, step, MY_EXPERIMENTS_TITLE));
   const sessionKey = useSessionKey();
   const session = useSession();
-  const sessionOrganisation =
-    session.status === 'signed-in' ? (session.session.organisation ?? '') : '';
   // Today on the sample clock (the session's sign-in instant): the head's date on phones.
   const date = useTodayLine();
   const record = submissionId ?? 'new';
@@ -708,7 +707,6 @@ export function ExperimentEditor({
   // ---- the editor ----
   const shownErrors = errors && errors.step === step ? errors.items : [];
   const errorOf = (field: EditorField) => shownErrors.find((item) => item.field === field)?.message;
-  const organisation = submission?.vendorOrganisation ?? sessionOrganisation;
   const referred = facts ? referencedFields(facts.references, draft) : new Set<EditorField>();
   const shownFields = new Set(shownErrors.map((item) => item.field));
   const liveCourse = liveErrorFields('course', content);
@@ -847,7 +845,7 @@ export function ExperimentEditor({
             draft={draft}
             courses={courses}
             areas={editor.areas}
-            organisation={organisation}
+            anyCourse={editor.anyCourse}
             withdrawn={withdrawn}
             errorOf={errorOf}
             onChange={onChange}

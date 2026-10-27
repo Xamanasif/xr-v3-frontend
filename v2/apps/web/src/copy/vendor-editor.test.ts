@@ -21,7 +21,6 @@ import {
   changesSavedWords,
   CHECK_STEP,
   COURSE_STEP,
-  courseHint,
   courseWords,
   DONE,
   draftSavedWords,
@@ -157,7 +156,15 @@ describe('the editor’s drawn words (VE-v1 `Main.dc.html`)', () => {
   });
 
   it('steps 1–3: the course, the formats, the blocks and the documents', () => {
-    expect(MAIN).toContain(courseHint('Northline Simulation Studio'));
+    // The drawn hint names the studio for every Vendor; the product's hint follows the Vendor's
+    // permission instead (state-copy `VE-03.course-hint.*`, PC-77; owner closure review of B).
+    expect(MAIN).toContain('Only the courses assigned to Northline Simulation Studio are listed.');
+    expect(STATE_COPY_VENDOR_EDITOR['VE-03.course-hint.any-course'].words).toBe(
+      'Choose an existing course in the selected Engineering area.',
+    );
+    expect(STATE_COPY_VENDOR_EDITOR['VE-03.course-hint.assigned'].words).toBe(
+      'Only the courses the platform team assigned to you are listed.',
+    );
     expect(courseWords('ME ZG523', 'Thermodynamics & Heat Transfer')).toBe(
       'ME ZG523 · Thermodynamics & Heat Transfer',
     );

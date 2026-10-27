@@ -277,8 +277,9 @@ describe('VE-03 Course and description', () => {
         'Choose a course',
         'ME ZG523 · Thermodynamics & Heat Transfer',
       ]);
+      // Course-restricted (Anil holds ME ZG523): the hint says the courses are assigned to him.
       expect(course).toHaveAccessibleDescription(
-        'Only the courses assigned to Northline Simulation Studio are listed.',
+        'Only the courses the platform team assigned to you are listed.',
       );
       expect(main().querySelector('p.vr-foot')).toHaveTextContent(
         'Prototype field set — the catalogue fields, and who maps an experiment to a course, are still open. Learning outcomes are added by the Academic Reviewer.',
@@ -611,6 +612,10 @@ describe('VE-03 step 1 · Engineering area, then Course (PD-5, correction B)', (
     ]);
     expect(field('Engineering area')).toHaveValue('');
     expect(options('Course')).toEqual(['Choose an Engineering area first']);
+    // Two course scopes, no Any course: the restriction in words (PC-77).
+    expect(field('Course')).toHaveAccessibleDescription(
+      'Only the courses the platform team assigned to you are listed.',
+    );
     await user.selectOptions(field('Engineering area'), ELEC);
     expect(options('Course')).toEqual(['Choose a course', 'EEE ZC341 · Electrical Machines']);
     await user.selectOptions(field('Course'), 'electrical-machines');
@@ -686,6 +691,103 @@ describe('VE-03 step 1 · Engineering area, then Course (PD-5, correction B)', (
       'MEL ZG512 · Manufacturing Processes',
       'Fluid Mechanics',
     ]);
+    // Any course: no list assigned to the studio is implied (PC-77; owner closure review of B).
+    expect(field('Course')).toHaveAccessibleDescription(
+      'Choose an existing course in the selected Engineering area.',
+    );
+  });
+
+  it('a returned experiment whose course is no longer granted: Revise names it, keeps it, never reassigns it', async () => {
+    const { runtime, sample } = await tabPlatform(ANIL, 'spine-start');
+    const admin = asPersonId(sample, ARJUN);
+    const holderOf = () => worldOf(sample).records.holders['role-anil-shetty' as never]!;
+    // Anil is given EEE ZC341 and loses ME ZG523, the course of his returned SUB-0081.
+    ok(
+      await admin.platformRoles.assignScope({
+        holderId: holderOf().id,
+        target: { kind: 'course', courseId: 'electrical-machines' as CourseId },
+        expectedRev: holderOf().rev,
+      }),
+    );
+    const thermo = holderOf().scopes.find(
+      (each) =>
+        each.target.kind === 'course' &&
+        each.target.courseId === THERMO &&
+        each.withdrawal === null &&
+        each.supersededAt === null,
+    )!;
+    ok(
+      await admin.platformRoles.withdrawScope({
+        holderId: holderOf().id,
+        scopeId: thermo.id,
+        reason: 'Moved in-house.',
+        expectedRev: holderOf().rev,
+      }),
+    );
+    const user = userEvent.setup();
+    show(runtime, `${LIST}/SUB-0081/revise`);
+    await title('Course and description');
+    // Only the area that holds a course he may choose; the old course is named, not chosen.
+    expect(options('Engineering area')).toEqual(['Electrical & Electronics']);
+    expect(options('Course')).toEqual(['Choose a course', 'EEE ZC341 · Electrical Machines']);
+    expect(field('Course')).toHaveValue('');
+    await waitFor(() =>
+      expect(document.querySelector('#Ve-course-h .ve-hint-stale')).toHaveTextContent(
+        'You chose ME ZG523 · Thermodynamics & Heat Transfer, which was withdrawn from your courses while you were editing.',
+      ),
+    );
+    // Save changes is refused with the service's words; nothing is written.
+    const before = worldOf(sample).records.submissions['SUB-0081' as SubmissionId]!;
+    await user.click(button('Save changes'));
+    await waitFor(() =>
+      expect(fieldError('Ve-course')).toBe(
+        'ME ZG523 is no longer one of your assigned courses. Choose one of your courses.',
+      ),
+    );
+    const after = worldOf(sample).records.submissions['SUB-0081' as SubmissionId]!;
+    expect(after.content.courseId).toBe(THERMO);
+    expect(after.rev).toBe(before.rev);
+  });
+
+  it('a draft whose course is no longer granted opens read-only and keeps its course', async () => {
+    const { runtime, sample } = await tabPlatform(RITU, 'spine-start');
+    const draft = await rituDraft(sample);
+    const admin = asPersonId(sample, ARJUN);
+    const holderOf = () => worldOf(sample).records.holders['role-ritu-sharma' as never]!;
+    const process = holderOf().scopes.find(
+      (each) =>
+        each.target.kind === 'course' &&
+        each.target.courseId === 'process-instrumentation-control' &&
+        each.supersededAt === null,
+    )!;
+    ok(
+      await admin.platformRoles.withdrawScope({
+        holderId: holderOf().id,
+        scopeId: process.id,
+        reason: 'Moved in-house.',
+        expectedRev: holderOf().rev,
+      }),
+    );
+    show(runtime, `${LIST}/${draft.id}/edit`);
+    await title('Packed Column Absorption');
+    expect(text(main().querySelector('.rk-notice--warn .rk-notice-t'))).toBe(
+      'CHE ZG513 is no longer assigned to you',
+    );
+    expect(screen.queryByRole('combobox', { name: 'Course' })).toBeNull();
+    // The port refuses a save; the record keeps its course.
+    const saved = await asPersonId(sample, RITU).production.saveDraft({
+      id: draft.id,
+      content: draft.content as never,
+      step: 'course',
+      expectedRev: worldOf(sample).records.submissions[draft.id]!.rev,
+    });
+    expect(saved).toMatchObject({
+      ok: false,
+      error: { kind: 'refused', code: 'course-not-assigned' },
+    });
+    expect(worldOf(sample).records.submissions[draft.id]!.content.courseId).toBe(
+      'process-instrumentation-control',
+    );
   });
 });
 

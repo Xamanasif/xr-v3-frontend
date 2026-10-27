@@ -228,6 +228,10 @@ test.describe('VE-03 … VE-06 · Flow E: Anil creates and submits SUB-0077', ()
       'Choose a course',
       'ME ZG523 · Thermodynamics & Heat Transfer',
     ]);
+    // Course-restricted (Anil holds ME ZG523): the hint states the restriction (PC-77).
+    await expect(page.getByRole('combobox', { name: 'Course' })).toHaveAccessibleDescription(
+      'Only the courses the platform team assigned to you are listed.',
+    );
     await expect(currentSidebarItem(page)).toHaveAttribute('href', LIST);
     // The aside outline on wide layouts, the top stepper on narrow ones — never both.
     const aside = page.locator('aside.ve-edaside');

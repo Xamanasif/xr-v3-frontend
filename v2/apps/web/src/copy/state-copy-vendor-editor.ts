@@ -45,6 +45,28 @@ export const STATE_COPY_VENDOR_EDITOR = {
     status: 'provisional',
     decisions: ['VD-12', 'PD-5'],
   },
+  'VE-03.course-hint.any-course': {
+    screen: 'VE-03',
+    state:
+      'The Course hint for a Vendor who may submit to any existing course (Any course, owner closure review of correction B, 27 Oct 2026)',
+    words: 'Choose an existing course in the selected Engineering area.',
+    rule: 'Under Course while the Vendor holds an active Any course scope (`editorOutput.anyCourse`, PC-77). Nothing implies a list assigned to the studio: every existing course is on offer, by area. A course-restricted Vendor reads `VE-03.course-hint.assigned`.',
+    basis:
+      'Owner closure review of correction B (suggested words); VE-v1 `Main.dc.html` draws “Only the courses assigned to <studio> are listed.” (B5-03) for every Vendor; contract PC-77',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-2', 'PD-5'],
+  },
+  'VE-03.course-hint.assigned': {
+    screen: 'VE-03',
+    state:
+      'The Course hint for a course-restricted Vendor (one or more course scopes, no Any course)',
+    words: 'Only the courses the platform team assigned to you are listed.',
+    rule: 'Under Course while the Vendor holds course scopes only (`editorOutput.anyCourse` false, PC-77). The scope is held by the person, not the studio (ROLE-08), and the platform team assigns it — as the no-course state says (`VE-01.no-course.*`).',
+    basis:
+      'VE-v1 `Main.dc.html` hint “Only the courses assigned to <studio> are listed.” (B5-03), the studio replaced by the person who holds the scope; contract PC-77',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-2', 'PD-5'],
+  },
   'VE-03.refused': {
     screen: 'VE-03',
     state:

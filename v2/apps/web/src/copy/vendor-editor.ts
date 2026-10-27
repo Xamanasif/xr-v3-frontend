@@ -177,11 +177,6 @@ export const COURSE_STEP = {
   note: 'Prototype field set — the catalogue fields, and who maps an experiment to a course, are still open. Learning outcomes are added by the Academic Reviewer.',
 } as const;
 
-/** “Only the courses assigned to Northline Simulation Studio are listed.” */
-export function courseHint(organisation: string): string {
-  return `Only the courses assigned to ${organisation} are listed.`;
-}
-
 /** A course option and every “Course” value: “ME ZG523 · Thermodynamics & Heat Transfer”. */
 export function courseWords(code: string | null, name: string): string {
   return code ? `${code} · ${name}` : name;

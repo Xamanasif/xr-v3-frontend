@@ -324,6 +324,8 @@ describe('PD-5: the Engineering area, then the course (correction B)', () => {
       }),
     );
     expect(editorOutput.safeParse(editor).success).toBe(true);
+    // The course hint says “any existing course” (PC-77).
+    expect(editor.anyCourse).toBe(true);
     expect(editor.areas.map((area) => area.id)).toEqual([MECH, ELEC, CHEM]);
     expect(editor.assignedCourses.map((course) => [course.areaId, course.platformCode])).toEqual([
       [MECH, 'ME ZG523'],
@@ -340,6 +342,8 @@ describe('PD-5: the Engineering area, then the course (correction B)', () => {
     const anil = ok(
       await asPerson(platform, ANIL).production.getEditor({ id: null, step: 'course' }),
     );
+    // Course scopes only: the hint states the restriction (PC-77).
+    expect(anil.anyCourse).toBe(false);
     expect(anil.areas).toEqual([{ id: MECH, name: 'Mechanical & Manufacturing' }]);
     expect(anil.assignedCourses.map((course) => [course.areaId, course.platformCode])).toEqual([
       [MECH, 'ME ZG523'],
@@ -347,6 +351,7 @@ describe('PD-5: the Engineering area, then the course (correction B)', () => {
     const ritu = ok(
       await asPerson(platform, 'Ritu Sharma').production.getEditor({ id: null, step: 'course' }),
     );
+    expect(ritu.anyCourse).toBe(false);
     expect(ritu.areas.map((area) => area.id)).toEqual([ELEC, CHEM]);
     expect(ritu.assignedCourses.map((course) => course.platformCode)).toEqual([
       'EEE ZC341',

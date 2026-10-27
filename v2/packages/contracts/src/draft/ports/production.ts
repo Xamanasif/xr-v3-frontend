@@ -440,6 +440,12 @@ export const editorOutput = z.object({
    * platform's academic structure; the Vendor never creates or changes an area or a course.
    */
   areas: z.array(areaRef),
+  /**
+   * Whether the Vendor may submit to any existing course (an active “All experiments” scope,
+   * PD-2) rather than to the courses assigned to them — the course hint says which (PC-77). Read
+   * only: it changes neither the scope nor what is offered.
+   */
+  anyCourse: z.boolean(),
   readOnly: z.boolean(),
 });
 export const continueStepOutput = z.object({ next: editorStep });

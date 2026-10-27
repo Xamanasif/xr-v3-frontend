@@ -143,6 +143,10 @@ test('Create experiment step 1: Engineering area, then Course; a draft reopens w
   const course = cora.getByRole('combobox', { name: 'Course' });
   await expect(area).toHaveValue('');
   await expect(course.locator('option')).toHaveText(['Choose an Engineering area first']);
+  // Any course: no list assigned to the studio is implied (PC-77).
+  await expect(course).toHaveAccessibleDescription(
+    'Choose an existing course in the selected Engineering area.',
+  );
   await checkState(cora, 'Course and description');
   // An area: its courses only. Another area: the course is cleared.
   await area.selectOption(ELECTRICAL);

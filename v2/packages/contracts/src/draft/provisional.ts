@@ -1223,4 +1223,17 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Drop `areas` and `areaId`; step 1 then shows the one Course select of VE-v1 (the record is unchanged either way).',
   },
+  {
+    id: 'PC-77',
+    subject:
+      'Create experiment step 1’s course hint follows the Vendor’s permission: `editorOutput.anyCourse` says whether the Vendor may submit to any existing course (an active “All experiments” scope) or only to the courses assigned to them',
+    status: 'owner-approved-interim',
+    source:
+      'Owner closure review of correction B, 27 Oct 2026: the drawn hint “Only the courses assigned to <studio> are listed.” must not imply a studio-level list for a Vendor with Any course, and must state a course restriction accurately. Scope semantics, ownership and the Reviewer / Content Manager words unchanged',
+    decisions: ['ROLE-11', 'CRS-08'],
+    trace: [{ kind: 'schema-field', schema: 'editorOutput', path: 'anyCourse' }],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop `anyCourse`; step 1 then shows one course hint for every Vendor (the record and the scopes are unchanged either way).',
+  },
 ];
