@@ -20,6 +20,7 @@ import { HTTPS_LINK_AS_DRAWN, requiredTrimmed } from '@xr/validation';
 import { z } from 'zod';
 
 import {
+  areaId,
   expectedRev,
   ids,
   isoInstant,
@@ -59,7 +60,7 @@ import type {
   Unavailable,
   ValidationFailed,
 } from '../errors/service-error.js';
-import { courseCard, publicExperimentPage } from './catalogue.js';
+import { areaRef, courseCard, publicExperimentPage } from './catalogue.js';
 import type { Answer, In, Out } from './common.js';
 import { key } from './fields.js';
 
@@ -426,9 +427,19 @@ export const vendorOverviewOutput = z.object({
   hasExperiments: z.boolean(),
 });
 export const listMyExperimentsOutput = z.array(z.object({ submission, guards: submissionGuards }));
+/** A course the Vendor may choose, with the Engineering area it belongs to now (PC-76). */
+export const editorCourse = courseCard.extend({ areaId });
+export type EditorCourse = Out<typeof editorCourse>;
 export const editorOutput = z.object({
   submission: submission.nullable(),
-  assignedCourses: z.array(courseCard),
+  /** In the structure's order: by area, then the area's own order (PC-76). */
+  assignedCourses: z.array(editorCourse),
+  /**
+   * The Engineering areas of the courses on offer, in the structure's order — an area with no
+   * course the Vendor may choose is not listed (PC-76; owner decision PD-5). Read from the
+   * platform's academic structure; the Vendor never creates or changes an area or a course.
+   */
+  areas: z.array(areaRef),
   readOnly: z.boolean(),
 });
 export const continueStepOutput = z.object({ next: editorStep });

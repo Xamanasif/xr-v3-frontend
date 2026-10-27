@@ -763,17 +763,15 @@ describe('SA-17 Assign scope (the panel)', () => {
     );
   });
 
-  it('for a Vendor the panel offers All experiments (any course) and A course — never One experiment (PD-4)', async () => {
+  it('for a Vendor the panel offers Any course (the All experiments scope) and A course — never One experiment (PD-4)', async () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, ANIL);
     await heading('Anil Shetty');
     expect(within(panel()).getAllByRole('radio')).toHaveLength(2);
     expect(within(panel()).getByRole('radio', { name: 'A course' })).toBeVisible();
     expect(within(panel()).queryByRole('radio', { name: 'One experiment' })).toBeNull();
-    expect(
-      within(panel()).getByRole('radio', { name: 'All experiments' }),
-    ).toHaveAccessibleDescription(
-      'Any course, now and later. They see only their own experiments.',
+    expect(within(panel()).getByRole('radio', { name: 'Any course' })).toHaveAccessibleDescription(
+      'Permission to submit to any existing course, now and later — not access to every experiment. They see only their own experiments.',
     );
   });
 
@@ -819,15 +817,15 @@ describe('SA-17 Assign scope (the panel)', () => {
     const { runtime } = await tabPlatform(SUPER_ADMIN, 'after-flow-e');
     showHolder(runtime, ANIL);
     await heading('Anil Shetty');
-    await user.click(within(panel()).getByRole('radio', { name: 'All experiments' }));
+    await user.click(within(panel()).getByRole('radio', { name: 'Any course' }));
     await user.click(assignButton());
     await waitFor(() =>
-      expect(flash()).toBe('Scope assigned: All experiments. It now appears in their workspace.'),
+      expect(flash()).toBe('Scope assigned: Any course. It now appears in their workspace.'),
     );
     await waitFor(() =>
       expect(scopeRows('Can act on')).toEqual([
         'ME ZG523 Thermodynamics & Heat Transfer Assigned 4 Jul 2026',
-        'All experiments Assigned 23 Oct 2026',
+        'Any course Assigned 23 Oct 2026',
       ]),
     );
     expect(effect()).toBe('Can create experiments and submit them for any course, now and later.');

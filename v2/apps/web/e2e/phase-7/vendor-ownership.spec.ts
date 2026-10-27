@@ -28,6 +28,8 @@ test.use({ navigationTimeout: 30_000, actionTimeout: 20_000 });
 
 const NORTHLINE = 'Northline Simulation Studio';
 const PROCESS = 'process-instrumentation-control';
+const CHEMICAL = 'chemical-process';
+const ELECTRICAL = 'electrical-electronics';
 const NO_COURSE = 'No course is assigned to you yet';
 const NO_COURSE_LINE =
   'The platform team assigns the courses you can submit experiments to. Once a course is assigned, you can create experiments here.';
@@ -76,8 +78,15 @@ async function registerVendor(
 }
 
 /** The editor's Create experiment: the name and the course, then Save draft; the draft's id. */
-async function saveDraft(page: Page, name: string, courseId: string): Promise<string> {
+async function saveDraft(
+  page: Page,
+  name: string,
+  courseId: string,
+  areaId: string,
+): Promise<string> {
   await page.getByLabel('Experiment name', { exact: true }).fill(name);
+  // Engineering area first (PD-5): Course then lists that area's courses.
+  await page.getByRole('combobox', { name: 'Engineering area' }).selectOption(areaId);
   await page.getByRole('combobox', { name: 'Course' }).selectOption(courseId);
   await reachAndClick(page, main(page).getByRole('button', { name: 'Save draft', exact: true }));
   await page.waitForURL(/\/vendor\/experiments\/SUB-\d+\/edit$/);
@@ -121,6 +130,45 @@ test('no course assigned: Overview, My experiments and Create experiment explain
   await context.close();
 });
 
+test('Create experiment step 1: Engineering area, then Course; a draft reopens with its area (PD-5)', async ({
+  browser,
+}, testInfo) => {
+  const context = await browser.newContext();
+  const admin = await tab(context);
+  await registerVendor(admin, VENDORS.cora, 'Any course');
+  const viewport = testInfo.project.use.viewport!;
+  const cora = await tab(context, viewport.width, viewport.height);
+  await openAs(cora, VENDORS.cora.email, '/vendor/experiments/new');
+  const area = cora.getByRole('combobox', { name: 'Engineering area' });
+  const course = cora.getByRole('combobox', { name: 'Course' });
+  await expect(area).toHaveValue('');
+  await expect(course.locator('option')).toHaveText(['Choose an Engineering area first']);
+  await checkState(cora, 'Course and description');
+  // An area: its courses only. Another area: the course is cleared.
+  await area.selectOption(ELECTRICAL);
+  await expect(course.locator('option')).toHaveText([
+    'Choose a course',
+    'EEE ZC341 · Electrical Machines',
+    'EEE ZG512 · Power Electronics',
+  ]);
+  await course.selectOption('electrical-machines');
+  await area.selectOption(CHEMICAL);
+  await expect(course).toHaveValue('');
+  await expect(course.locator('option')).toHaveText([
+    'Choose a course',
+    'CHE ZG513 · Process Instrumentation & Control',
+  ]);
+  await checkState(cora, 'Course and description');
+  // Saved, then opened again from its own address: the area comes from the saved course.
+  const draft = await saveDraft(cora, 'Packed Column Absorption', PROCESS, CHEMICAL);
+  const again = await tab(context, viewport.width, viewport.height);
+  await openAs(again, VENDORS.cora.email, `/vendor/experiments/${draft}/edit`);
+  await expect(again.getByRole('combobox', { name: 'Engineering area' })).toHaveValue(CHEMICAL);
+  await expect(again.getByRole('combobox', { name: 'Course' })).toHaveValue(PROCESS);
+  await checkState(again, 'Course and description');
+  await context.close();
+});
+
 test.describe('ownership across Vendors (1440: width-independent)', () => {
   test.skip(({ viewport }) => viewport?.width !== 1440, 'Width-independent: one width proves it.');
 
@@ -139,8 +187,17 @@ test.describe('ownership across Vendors (1440: width-independent)', () => {
     const cora = await tab(context);
     await openAs(cora, VENDORS.cora.email, '/vendor/experiments/new');
     const course = cora.getByRole('combobox', { name: 'Course' });
-    await expect(course.locator('option')).toHaveCount(7);
-    const draft = await saveDraft(cora, 'Packed Column Absorption', PROCESS);
+    // Every area is offered (Any course); Course waits for one.
+    await expect(
+      cora.getByRole('combobox', { name: 'Engineering area' }).locator('option'),
+    ).toHaveText([
+      'Choose an Engineering area',
+      'Mechanical & Manufacturing',
+      'Electrical & Electronics',
+      'Chemical & Process',
+    ]);
+    await expect(course.locator('option')).toHaveText(['Choose an Engineering area first']);
+    const draft = await saveDraft(cora, 'Packed Column Absorption', PROCESS, CHEMICAL);
 
     // Cora opens Anil's records by typed address: not found, nothing about a colleague.
     for (const address of [
@@ -203,7 +260,7 @@ test.describe('ownership across Vendors (1440: width-independent)', () => {
     const panel = admin.getByRole('complementary', { name: 'Assign scope' });
     await expect(panel.getByRole('radio')).toHaveCount(2);
     await expect(panel.getByRole('radio', { name: 'One experiment' })).toHaveCount(0);
-    await reachAndClick(admin, panel.locator('label').filter({ hasText: 'All experiments' }));
+    await reachAndClick(admin, panel.locator('label').filter({ hasText: 'Any course' }));
     await reachAndClick(admin, panel.getByRole('button', { name: 'Assign scope' }));
     await expect(main(admin)).toContainText(
       'Can create experiments and submit them for any course, now and later.',
@@ -216,11 +273,13 @@ test.describe('ownership across Vendors (1440: width-independent)', () => {
     await expect(main(anil)).not.toContainText('colleague');
     const editor = await tab(context);
     await openAs(editor, EMAIL.anil, '/vendor/experiments/new');
-    await expect(editor.getByRole('combobox', { name: 'Course' }).locator('option')).toHaveCount(7);
-    const draft = await saveDraft(editor, 'Packed Column Absorption', PROCESS);
+    await expect(
+      editor.getByRole('combobox', { name: 'Engineering area' }).locator('option'),
+    ).toHaveCount(4);
+    const draft = await saveDraft(editor, 'Packed Column Absorption', PROCESS, CHEMICAL);
 
     // Withdraw every scope: nothing new; the draft opens read-only, its words still readable.
-    for (const name of ['All experiments', 'ME ZG523 · Thermodynamics & Heat Transfer']) {
+    for (const name of ['Any course', 'ME ZG523 · Thermodynamics & Heat Transfer']) {
       await reachAndClick(admin, admin.getByRole('button', { name: `Withdraw scope ${name}` }));
       await admin.getByRole('region', { name: 'Can act on' }).getByRole('textbox').fill('Paused');
       await reachAndClick(

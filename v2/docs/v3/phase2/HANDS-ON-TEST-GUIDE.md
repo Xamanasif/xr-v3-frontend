@@ -231,7 +231,7 @@ See §4. ⇒ State: seed world, clock 2 Oct 2026, 10:00. (shot `001`)
 
 Notes:
 
-- A Vendor's scope (owner decisions of 27 Oct 2026): **All experiments** ("Any course" when registering) lets them submit to every course, now and later; **A course** restricts them to that course; **One experiment** is not offered for a Vendor. With no scope the Vendor sees "No course is assigned to you yet" and no Create experiment.
+- A Vendor's scope (owner decisions of 27 Oct 2026): **Any course** (the All experiments scope, as SA-16 and SA-17 call it for a Vendor) lets them submit to every course, now and later; **A course** restricts them to that course; **One experiment** is not offered for a Vendor. With no scope the Vendor sees "No course is assigned to you yet" and no Create experiment.
 - _Organisation_ is a text field on each person; there is no separate organisation record. A second person of the same Vendor is registered with the **identical** organisation text — each still sees and opens only the experiments they created themselves.
 
 ### Step 5 · New Academic Reviewer and review scope (Super Admin, 1.5 min)
@@ -255,6 +255,7 @@ Notes:
 
 1. [S] Sign in `priya.raman@structura.example` → `/vendor` → **Create experiment**.
 2. Step 1 **Course and description**:
+   - **Engineering area** `Civil & Structural` (chosen already: the only area Priya's course is in)
    - **Course** `CE ZG514 · Structural Analysis` (the only option)
    - **Version** `1.0`
    - **Experiment name** `Simply Supported Beam Deflection`

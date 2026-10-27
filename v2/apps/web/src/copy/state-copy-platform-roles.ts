@@ -232,11 +232,23 @@ export const STATE_COPY_PLATFORM_ROLES = {
     status: 'provisional',
     decisions: ['VD-12', 'PD-4'],
   },
+  'SA-17.vendor-any-course-name': {
+    screen: 'SA-17',
+    state:
+      'A Vendor’s “All experiments” scope in words — the panel’s choice, the scope lists, SA-16’s row and the flashes (owner terminology correction, 27 Oct 2026)',
+    words: 'Any course',
+    rule: 'For a Vendor only, the All experiments scope is called “Any course” everywhere the Super Admin reads it. The stored kind (`all`), the business rule and the Academic Reviewer and Content Manager words (“All experiments”) are unchanged.',
+    basis:
+      'Owner instruction with correction B (prefer “Any course” for a Vendor’s submission eligibility); SA-v1 `V.holder` draws “All experiments” for every role',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-2'],
+  },
   'SA-17.vendor-choices': {
     screen: 'SA-17',
     state: 'What Assign scope offers for a Vendor (owner decisions PD-2, PD-4)',
-    words: 'Any course, now and later. They see only their own experiments.',
-    rule: 'For a Vendor the panel offers “All experiments” — with these words as its line — and “A course”; “One experiment” is not offered (the service refuses it for a Vendor). Reviewers and Content Managers keep the three kinds as drawn.',
+    words:
+      'Permission to submit to any existing course, now and later — not access to every experiment. They see only their own experiments.',
+    rule: 'For a Vendor the panel offers “Any course” (`SA-17.vendor-any-course-name`, the All experiments scope) — with these words as its line — and “A course”; “One experiment” is not offered (the service refuses it for a Vendor). Reviewers and Content Managers keep the three kinds as drawn.',
     basis: 'Owner decisions PD-2, PD-4, 27 Oct 2026; SA-v1 `V.holder` choices',
     status: 'provisional',
     decisions: ['VD-12', 'PD-2', 'PD-4'],

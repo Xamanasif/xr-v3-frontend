@@ -1,6 +1,6 @@
 'use client';
 
-import type { CourseCard } from '@xr/contracts/draft';
+import type { AreaRef, EditorCourse } from '@xr/contracts/draft';
 import type { LearningOutcome, Technology } from '@xr/domain';
 import { FORMAT_META, inDisplayOrder } from '@xr/domain';
 import {
@@ -29,8 +29,9 @@ import {
   VendorLearningOutcomes,
   VendorSection,
 } from '@xr/ui/v3';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 
+import { stateWords } from '@/copy/state-copy';
 import {
   attachFileLabel,
   changeSectionLabel,
@@ -81,6 +82,9 @@ interface StepFields {
   readonly referred: ReadonlySet<EditorField>;
 }
 
+/** Step 1's Engineering area select (not a content field: the record keeps the course). */
+export const AREA_ID = `${ID_PREFIX}-area`;
+
 /** The ids of the sections and blocks the outline moves focus to. */
 export const SECTION_IDS = {
   courseAndName: `${ID_PREFIX}-s1-a-h`,
@@ -102,23 +106,46 @@ function tagFor(referred: ReadonlySet<EditorField>, field: EditorField): ReactNo
 // ---- Step 1 · Course and description (VE-03) ----------------------------------------------------
 
 export interface CourseStepProps extends StepFields {
-  readonly courses: readonly CourseCard[];
+  /** The courses the Vendor may choose, each with its Engineering area (PC-76). */
+  readonly courses: readonly EditorCourse[];
+  /** The areas holding one of them, in the academic structure's order. */
+  readonly areas: readonly AreaRef[];
   readonly organisation: string;
   /** A chosen course that is no longer one of the Vendor's: its code and name. */
   readonly withdrawn: { readonly code: string | null; readonly name: string } | null;
 }
 
-/** Two sections on the field grid: Course and name (course, version, name); Catalogue text. */
+/**
+ * Two sections on the field grid: Course and name (Engineering area, course, name, version);
+ * Catalogue text. The area is chosen first (owner decision PD-5; state-copy `VE-03.area`): it is
+ * the area of the chosen course when there is one, else the Vendor's choice, else the only area on
+ * offer — never saved, the record keeps the course.
+ */
 export function CourseStep({
   draft,
   courses,
+  areas,
   organisation,
   withdrawn,
   errorOf,
   onChange,
   referred,
 }: CourseStepProps) {
-  const chosen = courses.some((course) => course.id === draft.courseId) ? draft.courseId : '';
+  const course = courses.find((candidate) => candidate.id === draft.courseId) ?? null;
+  const chosen = course?.id ?? '';
+  const [picked, setPicked] = useState<string | null>(null);
+  const area =
+    course?.areaId ??
+    (picked !== null && areas.some((candidate) => candidate.id === picked) ? picked : null) ??
+    (areas.length === 1 ? areas[0]!.id : null);
+  const inArea = courses.filter((candidate) => candidate.areaId === area);
+  const chooseArea = (value: string) => {
+    setPicked(value || null);
+    // A course of another area is cleared: the course must belong to the area on show.
+    if (course && course.areaId !== value) {
+      onChange('courseId', (current) => ({ ...current, courseId: null }));
+    }
+  };
   const text = (field: 'name' | 'summary' | 'description' | 'version', value: string) =>
     onChange(field, (current) => ({ ...current, [field]: value }));
   return (
@@ -129,10 +156,22 @@ export function CourseStep({
         titleFocusTarget
       >
         <VendorEditorGrid>
+          <VendorEditorField id={AREA_ID} label={stateWords('VE-03.area')} width={3}>
+            <VendorEditorSelect
+              value={area ?? ''}
+              onChange={(event) => chooseArea(event.target.value)}
+              options={[
+                ...(areas.length === 1
+                  ? []
+                  : [{ label: stateWords('VE-03.area.choose'), value: '' }]),
+                ...areas.map((candidate) => ({ label: candidate.name, value: candidate.id })),
+              ]}
+            />
+          </VendorEditorField>
           <VendorEditorField
             id={fieldId('courseId')}
             label={COURSE_STEP.courseLabel}
-            width={4}
+            width={3}
             hint={courseHint(organisation)}
             staleHint={
               withdrawn && !chosen ? withdrawnCourseHint(withdrawn.code, withdrawn.name) : undefined
@@ -146,13 +185,30 @@ export function CourseStep({
                 const value = event.target.value;
                 onChange('courseId', (current) => ({ ...current, courseId: value || null }));
               }}
-              options={[
-                { label: COURSE_STEP.chooseCourse, value: '' },
-                ...courses.map((course) => ({
-                  label: courseWords(course.platformCode, course.name),
-                  value: course.id,
-                })),
-              ]}
+              options={
+                area === null
+                  ? [{ label: stateWords('VE-03.area.first'), value: '' }]
+                  : [
+                      { label: COURSE_STEP.chooseCourse, value: '' },
+                      ...inArea.map((candidate) => ({
+                        label: courseWords(candidate.platformCode, candidate.name),
+                        value: candidate.id,
+                      })),
+                    ]
+              }
+            />
+          </VendorEditorField>
+          <VendorEditorField
+            id={fieldId('name')}
+            label={COURSE_STEP.nameLabel}
+            width={4}
+            hint={COURSE_STEP.nameHint}
+            referred={tagFor(referred, 'name')}
+            error={errorOf('name')}
+          >
+            <VendorEditorInput
+              value={draft.name}
+              onChange={(event) => text('name', event.target.value)}
             />
           </VendorEditorField>
           <VendorEditorField
@@ -166,18 +222,6 @@ export function CourseStep({
             <VendorEditorInput
               value={draft.version}
               onChange={(event) => text('version', event.target.value)}
-            />
-          </VendorEditorField>
-          <VendorEditorField
-            id={fieldId('name')}
-            label={COURSE_STEP.nameLabel}
-            hint={COURSE_STEP.nameHint}
-            referred={tagFor(referred, 'name')}
-            error={errorOf('name')}
-          >
-            <VendorEditorInput
-              value={draft.name}
-              onChange={(event) => text('name', event.target.value)}
             />
           </VendorEditorField>
         </VendorEditorGrid>

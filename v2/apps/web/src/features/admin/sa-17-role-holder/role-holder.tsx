@@ -421,7 +421,7 @@ function HolderContent({
     if (draft.kind === 'experiment') {
       return choices.lookup.experiments.get(draft.experimentId) ?? draft.experimentId;
     }
-    return ALL_EXPERIMENTS;
+    return holder.role === 'vendor' ? stateWords('SA-17.vendor-any-course-name') : ALL_EXPERIMENTS;
   };
 
   const confirmAssign = () => {
@@ -679,7 +679,10 @@ function HolderContent({
               onChange={choose}
               options={scopeKindsFor(holder.role).map((kind) => ({
                 value: kind,
-                title: ASSIGN_PANEL.choices[kind].title,
+                title:
+                  holder.role === 'vendor' && kind === 'all'
+                    ? stateWords('SA-17.vendor-any-course-name')
+                    : ASSIGN_PANEL.choices[kind].title,
                 description:
                   holder.role === 'vendor' && kind === 'all'
                     ? stateWords('SA-17.vendor-choices')

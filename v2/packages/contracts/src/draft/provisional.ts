@@ -1207,4 +1207,20 @@ export const PROVISIONAL_REGISTER: readonly ProvisionalItem[] = [
     reversal:
       'Drop `anyCourse`; the Super Admin then assigns “All experiments” on SA-17 after registering, as before.',
   },
+  {
+    id: 'PC-76',
+    subject:
+      'Create experiment step 1 chooses the Engineering area, then the course: `editorOutput.areas` lists the areas holding a course the Vendor may choose (in the academic structure’s order), and each offered course carries the `areaId` it belongs to now; the record keeps the course only — the area is derived from it',
+    status: 'owner-approved-interim',
+    source:
+      'Owner decision PD-5, 27 Oct 2026 (Vendor ownership audit, correction B): two dependent selectors, Engineering area then Course, from the shared platform structure; an explicit area choice when several are eligible; no duplicate area field on the record. VE-v1 draws one Course select only',
+    decisions: ['ROLE-11', 'CRS-08'],
+    trace: [
+      { kind: 'schema-field', schema: 'editorOutput', path: 'areas' },
+      { kind: 'schema-field', schema: 'editorCourse', path: 'areaId' },
+    ],
+    irreversible: WHILE_DRAFT,
+    reversal:
+      'Drop `areas` and `areaId`; step 1 then shows the one Course select of VE-v1 (the record is unchanged either way).',
+  },
 ];

@@ -308,3 +308,135 @@ describe('PD-4: a one-experiment scope is never given to a Vendor', () => {
     expect(ok(await vendor.production.listMyExperiments({}))).toHaveLength(5);
   });
 });
+
+describe('PD-5: the Engineering area, then the course (correction B)', () => {
+  const MECH = 'mechanical-manufacturing';
+  const ELEC = 'electrical-electronics';
+  const CHEM = 'chemical-process';
+
+  it('Any course: every area with its courses, in the structure’s order, each course with its area', async () => {
+    const platform = createSamplePlatform();
+    const holder = await register(platform, 'Nina', 'Delta Studio', true);
+    const editor = ok(
+      await asPersonId(platform, holder.personId).production.getEditor({
+        id: null,
+        step: 'course',
+      }),
+    );
+    expect(editorOutput.safeParse(editor).success).toBe(true);
+    expect(editor.areas.map((area) => area.id)).toEqual([MECH, ELEC, CHEM]);
+    expect(editor.assignedCourses.map((course) => [course.areaId, course.platformCode])).toEqual([
+      [MECH, 'ME ZG523'],
+      [MECH, 'MEL ZG512'],
+      [MECH, null],
+      [ELEC, 'EEE ZC341'],
+      [ELEC, 'EEE ZG512'],
+      [CHEM, 'CHE ZG513'],
+    ]);
+  });
+
+  it('course-restricted: only the areas and courses the scopes cover (one area for Anil, two for Ritu)', async () => {
+    const platform = createSamplePlatform();
+    const anil = ok(
+      await asPerson(platform, ANIL).production.getEditor({ id: null, step: 'course' }),
+    );
+    expect(anil.areas).toEqual([{ id: MECH, name: 'Mechanical & Manufacturing' }]);
+    expect(anil.assignedCourses.map((course) => [course.areaId, course.platformCode])).toEqual([
+      [MECH, 'ME ZG523'],
+    ]);
+    const ritu = ok(
+      await asPerson(platform, 'Ritu Sharma').production.getEditor({ id: null, step: 'course' }),
+    );
+    expect(ritu.areas.map((area) => area.id)).toEqual([ELEC, CHEM]);
+    expect(ritu.assignedCourses.map((course) => course.platformCode)).toEqual([
+      'EEE ZC341',
+      'CHE ZG513',
+    ]);
+  });
+
+  it('a moved course follows its new area; a draft under it keeps its course and is read with the new area', async () => {
+    const platform = createSamplePlatform();
+    const holder = await register(platform, 'Ira', 'Delta Studio', true);
+    const vendor = asPersonId(platform, holder.personId);
+    const che = courseId(platform, 'CHE ZG513');
+    const draft = ok(
+      await vendor.production.saveDraft({
+        id: null,
+        content: content(platform, che, 'Packed Column Absorption') as never,
+        step: 'course',
+        expectedRev: null,
+      }),
+    );
+    ok(
+      await asPerson(platform, SA).academicStructure.moveCourse({
+        courseId: che,
+        toAreaId: MECH as never,
+        expectedRev: worldOf(platform).records.courses[che]!.rev,
+      }),
+    );
+    const editor = ok(await vendor.production.getEditor({ id: draft.id, step: 'course' }));
+    expect(editor.submission!.content.courseId).toBe(che);
+    expect(editor.assignedCourses.find((course) => course.id === che)!.areaId).toBe(MECH);
+    expect(editor.areas.map((area) => area.id)).toEqual([MECH, ELEC]);
+    expect(editor.readOnly).toBe(false);
+    // The record keeps the course only: no area field is written.
+    expect(Object.keys(worldOf(platform).records.submissions[draft.id]!.content)).not.toContain(
+      'areaId',
+    );
+  });
+
+  it('a submission classified under another area reaches the reviewer covering that course, then the Content Manager', async () => {
+    const platform = createSamplePlatform();
+    const holder = await register(platform, 'Nina', 'Delta Studio', true);
+    const vendor = asPersonId(platform, holder.personId);
+    const che = courseId(platform, 'CHE ZG513');
+    const sent = ok(
+      await vendor.production.submitForReview({
+        id: null,
+        content: {
+          courseId: che,
+          name: 'Packed Column Absorption',
+          summary: 'Absorption of a gas into a liquid in a packed column.',
+          description: 'Learners vary the liquid flow and read the outlet concentration.',
+          version: '1.0',
+          formats: ['web'],
+          delivery: {
+            web: {
+              format: 'web',
+              webLink: 'https://labs.delta.example/packed-column',
+              browserAndComputer: 'A current browser on a laptop or desktop.',
+              notes: null,
+            },
+          },
+          preview: { label: null, link: null },
+          documents: [],
+        } as never,
+        expectedRev: null,
+      }),
+    );
+    expect(sent.content.courseId).toBe(che);
+    expect(sent.vendorHolderId).toBe(holder.id);
+    // Prof. A. Menon covers CHE ZG513: it is in his queue.
+    const reviewer = asPerson(platform, 'Prof. A. Menon');
+    expect(
+      ok(await reviewer.production.getReviewQueue({})).some((item) => item.ref.id === sent.id),
+    ).toBe(true);
+    const approved = ok(
+      await reviewer.production.approveSubmission({
+        id: sent.id,
+        outcomes: ['Explain how liquid flow changes absorption.'],
+        expectedRev: sent.rev,
+      }),
+    );
+    expect(approved.status.state).toBe('with-content-manager');
+    const ready = ok(await asPerson(platform, 'Kavya Nair').production.listReadyToPublish());
+    expect(ready.find((row) => row.submission.id === sent.id)?.submission.content.courseId).toBe(
+      che,
+    );
+    // Still the creator's alone among Vendors.
+    expect(errorOf(await asPerson(platform, ANIL).production.getRecord(sent.id))).toEqual({
+      kind: 'not-permitted',
+      why: 'not-own-record',
+    });
+  });
+});

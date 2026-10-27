@@ -18,6 +18,33 @@ export const STATE_COPY_VENDOR_EDITOR = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'VE-03.area': {
+    screen: 'VE-03',
+    state: 'Step 1’s Engineering area, chosen before the course (owner decision PD-5, 27 Oct 2026)',
+    words: 'Engineering area',
+    rule: 'Before Course on the field grid, from the platform’s academic structure: the areas that hold a course the Vendor may choose, in the structure’s order — an area with none is not offered. One such area is chosen already; with several the Vendor chooses one (“Choose an Engineering area”), and Course lists only that area’s courses. Changing the area clears a course of another area. A saved draft or a returned experiment opens with the area of its course as it is now (a moved course follows its area). The area is not saved: the record keeps the course.',
+    basis:
+      'Owner decision PD-5; VE-v1 `Main.dc.html` draws one Course select (B5-03); contract PC-76',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-5'],
+  },
+  'VE-03.area.choose': {
+    screen: 'VE-03',
+    state: 'The Engineering area select’s first option',
+    words: 'Choose an Engineering area',
+    basis: 'The Course select’s “Choose a course” formula (VE-v1)',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-5'],
+  },
+  'VE-03.area.first': {
+    screen: 'VE-03',
+    state: 'The Course select while no Engineering area is chosen',
+    words: 'Choose an Engineering area first',
+    rule: 'The Course select’s only option until an area is chosen; Continue then answers “Choose a course” as before.',
+    basis: 'The Course select’s “Choose a course” formula (VE-v1)',
+    status: 'provisional',
+    decisions: ['VD-12', 'PD-5'],
+  },
   'VE-03.refused': {
     screen: 'VE-03',
     state:

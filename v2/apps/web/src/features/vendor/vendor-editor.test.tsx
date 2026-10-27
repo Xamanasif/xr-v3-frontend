@@ -258,10 +258,18 @@ describe('VE-03 Course and description', () => {
       ).toEqual(['Ve-s1-a-h', 'Ve-s1-b-h']);
       expect(screen.getByRole('group', { name: 'Course and name' })).toBeInTheDocument();
       expect(screen.getByRole('group', { name: 'Catalogue text' })).toBeInTheDocument();
-      // The field grid: course 4 columns, version 2, the rest the full width.
-      expect(field('Course').closest('.rk-field')).toHaveClass('vr-w4');
+      // The field grid (PD-5): Engineering area and course 3 columns each, then the name 4 and the
+      // version 2, the rest the full width.
+      expect(field('Engineering area').closest('.rk-field')).toHaveClass('vr-w3');
+      expect(field('Course').closest('.rk-field')).toHaveClass('vr-w3');
+      expect(field('Experiment name').closest('.rk-field')).toHaveClass('vr-w4');
       expect(field('Version').closest('.rk-field')).toHaveClass('vr-w2');
-      expect(field('Experiment name').closest('.rk-field')!.className).toBe('rk-field');
+      // One area on offer (Anil's ME ZG523): chosen already, no “Choose an Engineering area”.
+      const area = screen.getByRole('combobox', { name: 'Engineering area' });
+      expect([...area.querySelectorAll('option')].map((option) => option.textContent)).toEqual([
+        'Mechanical & Manufacturing',
+      ]);
+      expect(area).toHaveValue('mechanical-manufacturing');
       expect(field('Summary')).toHaveClass('rk-textarea', 'vr-ta2');
       expect(field('Description')).toHaveClass('rk-textarea', 'vr-ta4');
       const course = screen.getByRole('combobox', { name: 'Course' });
@@ -563,6 +571,123 @@ describe('VE-03 Course and description', () => {
 });
 
 // ---- VE-04 Formats and delivery ----------------------------------------------------------------
+
+describe('VE-03 step 1 · Engineering area, then Course (PD-5, correction B)', () => {
+  const RITU = 'per-ritu-sharma';
+  const ELEC = 'electrical-electronics';
+  const CHEM = 'chemical-process';
+  const MECH = 'mechanical-manufacturing';
+  const options = (name: string) =>
+    [...screen.getByRole('combobox', { name }).querySelectorAll('option')].map(
+      (option) => option.textContent,
+    );
+
+  /** A draft of Ritu's under CHE ZG513, saved through the port (set-up only). */
+  async function rituDraft(sample: Parameters<typeof asPersonId>[0]) {
+    const seed = worldOf(sample).records.submissions['SUB-0070' as SubmissionId]!;
+    const saved = await asPersonId(sample, RITU).production.saveDraft({
+      id: null,
+      content: {
+        ...seed.content,
+        courseId: 'process-instrumentation-control' as CourseId,
+        name: 'Packed Column Absorption',
+      } as never,
+      step: 'course',
+      expectedRev: null,
+    });
+    if (!saved.ok) throw new Error('saved');
+    return saved.value;
+  }
+
+  it('two areas on offer: an explicit area choice; Course follows the area; another area clears it', async () => {
+    const { runtime } = await tabPlatform(RITU, 'spine-start');
+    const user = userEvent.setup();
+    show(runtime, NEW);
+    await title('Course and description');
+    expect(options('Engineering area')).toEqual([
+      'Choose an Engineering area',
+      'Electrical & Electronics',
+      'Chemical & Process',
+    ]);
+    expect(field('Engineering area')).toHaveValue('');
+    expect(options('Course')).toEqual(['Choose an Engineering area first']);
+    await user.selectOptions(field('Engineering area'), ELEC);
+    expect(options('Course')).toEqual(['Choose a course', 'EEE ZC341 · Electrical Machines']);
+    await user.selectOptions(field('Course'), 'electrical-machines');
+    expect(field('Course')).toHaveValue('electrical-machines');
+    // Another area: the course of the first is cleared.
+    await user.selectOptions(field('Engineering area'), CHEM);
+    expect(field('Course')).toHaveValue('');
+    expect(options('Course')).toEqual([
+      'Choose a course',
+      'CHE ZG513 · Process Instrumentation & Control',
+    ]);
+    // No course: Continue answers “Choose a course”, as before.
+    await user.click(button('Continue'));
+    expect(await screen.findByText('Choose a course', { selector: '.rk-ferr' })).toBeVisible();
+  });
+
+  it('a saved draft reopens with the area of its course', async () => {
+    const { runtime, sample } = await tabPlatform(RITU, 'spine-start');
+    const draft = await rituDraft(sample);
+    show(runtime, `${LIST}/${draft.id}/edit`);
+    await title('Course and description');
+    expect(field('Engineering area')).toHaveValue(CHEM);
+    expect(field('Course')).toHaveValue('process-instrumentation-control');
+    // The record keeps the course only.
+    expect(Object.keys(worldOf(sample).records.submissions[draft.id]!.content)).not.toContain(
+      'areaId',
+    );
+  });
+
+  it('a moved course: the draft reopens under the course’s new area, its course kept', async () => {
+    const { runtime, sample } = await tabPlatform(RITU, 'spine-start');
+    const draft = await rituDraft(sample);
+    const course = worldOf(sample).records.courses['process-instrumentation-control' as CourseId]!;
+    const moved = await asPersonId(sample, ARJUN).academicStructure.moveCourse({
+      courseId: course.id,
+      toAreaId: MECH as never,
+      expectedRev: course.rev,
+    });
+    expect(moved.ok).toBe(true);
+    show(runtime, `${LIST}/${draft.id}/edit`);
+    await title('Course and description');
+    expect(options('Engineering area')).toEqual([
+      'Choose an Engineering area',
+      'Mechanical & Manufacturing',
+      'Electrical & Electronics',
+    ]);
+    expect(field('Engineering area')).toHaveValue(MECH);
+    expect(field('Course')).toHaveValue('process-instrumentation-control');
+  });
+
+  it('a returned experiment opens Revise with the area of its course (Anil with Any course)', async () => {
+    const { runtime, sample } = await tabPlatform(ANIL, 'spine-start');
+    const anil = worldOf(sample).records.holders['role-anil-shetty' as never]!;
+    const assigned = await asPersonId(sample, ARJUN).platformRoles.assignScope({
+      holderId: anil.id,
+      target: { kind: 'all' },
+      expectedRev: anil.rev,
+    });
+    expect(assigned.ok).toBe(true);
+    show(runtime, `${LIST}/SUB-0081/revise`);
+    await title('Course and description');
+    expect(options('Engineering area')).toEqual([
+      'Choose an Engineering area',
+      'Mechanical & Manufacturing',
+      'Electrical & Electronics',
+      'Chemical & Process',
+    ]);
+    expect(field('Engineering area')).toHaveValue(MECH);
+    expect(field('Course')).toHaveValue(THERMO);
+    expect(options('Course')).toEqual([
+      'Choose a course',
+      'ME ZG523 · Thermodynamics & Heat Transfer',
+      'MEL ZG512 · Manufacturing Processes',
+      'Fluid Mechanics',
+    ]);
+  });
+});
 
 describe('VE-04 Formats and delivery', () => {
   it(

@@ -846,6 +846,7 @@ export function ExperimentEditor({
           <CourseStep
             draft={draft}
             courses={courses}
+            areas={editor.areas}
             organisation={organisation}
             withdrawn={withdrawn}
             errorOf={errorOf}

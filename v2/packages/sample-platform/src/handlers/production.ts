@@ -756,13 +756,22 @@ export function productionPort(call: Call): ProductionService {
             op.canDo(person, 'submission.save-draft', subject)) ||
           (existing.status.state === 'returned' &&
             op.canDo(person, 'submission.save-revision', subject));
-        const courses = assigned.courseIds
-          .map((courseId) => op.records.courses[courseId])
-          .filter((course): course is Course => course !== undefined)
-          .map((course) => courseCardOf(op.records, course));
+        // The courses on offer, each with the area it belongs to now (a moved course follows its
+        // area), in the academic structure's order; the areas are those holding one of them
+        // (PC-76; PD-5). Read from the structure only: the Vendor changes neither.
+        const offered = new Set(assigned.courseIds);
+        const areas = values(op.records.areas);
+        const courses = areas.flatMap((area) =>
+          values(op.records.courses)
+            .filter((course) => course.areaId === area.id && offered.has(course.id))
+            .map((course) => ({ ...courseCardOf(op.records, course), areaId: area.id })),
+        );
         return {
           submission: existing,
           assignedCourses: courses,
+          areas: areas
+            .filter((area) => courses.some((course) => course.areaId === area.id))
+            .map((area) => ({ id: area.id, name: area.name })),
           readOnly: !editable || (existing !== null && courseNoLongerAssigned(existing, assigned)),
         };
       }),

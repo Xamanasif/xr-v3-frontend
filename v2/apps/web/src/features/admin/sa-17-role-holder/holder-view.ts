@@ -4,7 +4,13 @@
  * course code and name; PC-70) to what the screens list. They decide nothing — every rule is the
  * service's; they only name, order and pair what it answered.
  */
-import type { ActorRef, PlatformRoleHolder, RoleScope, ScopeTarget } from '@xr/domain';
+import type {
+  ActorRef,
+  PlatformRole,
+  PlatformRoleHolder,
+  RoleScope,
+  ScopeTarget,
+} from '@xr/domain';
 
 import { dayMonthYear } from '@/copy/dates';
 import {
@@ -63,12 +69,18 @@ const ALL: ScopeNaming = {
   title: ALL_EXPERIMENTS,
 };
 
-/** A current scope as the service names it. */
-export function namingOf(view: ScopeView): ScopeNaming {
+/** “Any course”: a Vendor's All experiments scope in words (state-copy `SA-17.vendor-any-course-name`). */
+function anyCourse(): ScopeNaming {
+  const words = stateWords('SA-17.vendor-any-course-name');
+  return { short: words, full: words, code: null, title: words };
+}
+
+/** A current scope as the service names it — for a Vendor, All experiments is “Any course”. */
+export function namingOf(view: ScopeView, role?: PlatformRole): ScopeNaming {
   const target = view.scope.target;
   if (target.kind === 'course') return courseNaming(view.courseCode, view.name, target.courseId);
   if (target.kind === 'experiment') return experimentNaming(view.name, target.experimentId);
-  return ALL;
+  return role === 'vendor' ? anyCourse() : ALL;
 }
 
 function sameTarget(a: ScopeTarget, b: ScopeTarget): boolean {
@@ -87,12 +99,13 @@ export function scopeNamings(
   lookup: TargetLookup = NO_LOOKUP,
 ): ReadonlyMap<string, ScopeNaming> {
   const named = new Map<string, ScopeNaming>();
-  for (const scope of view.scopes) named.set(scope.scope.id, namingOf(scope));
+  const role = view.holder.role;
+  for (const scope of view.scopes) named.set(scope.scope.id, namingOf(scope, role));
   for (const scope of view.holder.scopes) {
     if (named.has(scope.id)) continue;
     const twin = view.scopes.find((current) => sameTarget(current.scope.target, scope.target));
     if (twin) {
-      named.set(scope.id, namingOf(twin));
+      named.set(scope.id, namingOf(twin, role));
       continue;
     }
     const target = scope.target;
@@ -107,7 +120,7 @@ export function scopeNamings(
         scope.id,
         experimentNaming(lookup.experiments.get(target.experimentId) ?? null, target.experimentId),
       );
-    } else named.set(scope.id, ALL);
+    } else named.set(scope.id, role === 'vendor' ? anyCourse() : ALL);
   }
   return named;
 }
@@ -153,7 +166,7 @@ export function effectWords(view: HolderView): string {
       ? stateWords('SA-17.vendor-any-course')
       : effectLine(
           role,
-          effective.map((scope) => namingOf(scope).short),
+          effective.map((scope) => namingOf(scope, role).short),
         );
   return activeScopes(view).length > effective.length
     ? `${line} ${stateWords('SA-17.vendor-experiment-inert')}`
@@ -241,7 +254,7 @@ export function rowFacts(view: HolderView): {
   readonly withdrawn: number;
 } {
   return {
-    inScope: effectiveScopes(view).map(namingOf),
+    inScope: effectiveScopes(view).map((scope) => namingOf(scope, view.holder.role)),
     withdrawn: view.scopes.filter((scope) => scope.status === 'withdrawn').length,
   };
 }
