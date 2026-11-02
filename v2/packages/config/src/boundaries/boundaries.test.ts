@@ -11,7 +11,7 @@ import { existsSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 
 import { ESLint } from 'eslint';
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 
 import {
   ALLOWED_WORKSPACE_DEPENDENCIES,
@@ -173,6 +173,10 @@ describe('ESLint rule xr/resolved-boundaries', () => {
       text: message.message,
     }));
   }
+
+  // The first lint loads ESLint and the TypeScript parser (about 7 s on a cold CI runner), more
+  // than one case's 5 s budget; pay that cost once here so every case measures only its own lint.
+  beforeAll(() => lint('@xr/domain', 'packages/domain/src/warm-up.ts', ''), 60_000);
 
   // The installed Nest implementation, as pnpm lays it out: the API's node_modules link
   // and the real path inside pnpm's store. Both must classify as @nestjs/common.
