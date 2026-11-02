@@ -249,13 +249,13 @@ function cardFacts(view: FormatProgressView): string[] {
   } else {
     const last = activity?.lastSessionReportedAt ?? activity?.firstOpenedAt ?? null;
     if (view.status === 'in-progress' && last) facts.push(ST_FACT_WORDS.lastSession(last));
-    if (view.status === 'not-started') facts.push(ST_FACT_WORDS.noSession);
+    if (view.status === 'not-started') facts.push(ST_FACT_WORDS.noSession(view.format));
   }
   if (view.status === 'completed' && completion) {
     facts.push(
       completion.reportedFrom === 'simulation'
         ? ST_FACT_WORDS.reportedBySimulation(completion.completedAt)
-        : ST_FACT_WORDS.reportedFromHeadset(completion.completedAt),
+        : ST_FACT_WORDS.reportedFromHeadset(completion.completedAt, view.format),
     );
     facts.push(
       typeof view.feedback === 'object'

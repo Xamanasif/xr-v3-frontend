@@ -38,6 +38,7 @@ import {
   statusHead,
   updatedWords,
 } from './request-access';
+import { informationLine } from './institute-requests';
 import { STATE_COPY } from './state-copy';
 
 /** A board's text with tags removed (entities read), then its raw markup (attributes, script). */
@@ -164,12 +165,17 @@ describe('PU-08 Request institutional access and PU-09 Request sent are B1-07’
 });
 
 describe('PU-10 Request status, PU-13 Access active and PU-12 Payment are B1-08’s', () => {
-  it.each([...strings(REQUEST_STATUS), ...strings(PAYMENT), ...strings(NEXT_ACTION)])(
-    '%s',
-    (text) => {
-      expect(B1_08).toContain(text);
-    },
-  );
+  it.each([
+    ...strings(REQUEST_STATUS).filter((text) => text !== REQUEST_STATUS.replyOutside),
+    ...strings(PAYMENT),
+    ...strings(NEXT_ACTION),
+  ])('%s', (text) => {
+    expect(B1_08).toContain(text);
+  });
+
+  it('P1 register E: “Information requested” says how to reply, in IA-17’s approved words', () => {
+    expect(informationLine('x', null)).toBe(`“x”. ${REQUEST_STATUS.replyOutside}`);
+  });
 
   it('the composed lines follow the board', () => {
     expect(paymentLead('Godavari Institute of Technology')).toBe(

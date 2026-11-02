@@ -109,7 +109,7 @@ describe('the per-format progress (`progExp`, `runWord`)', () => {
     expect(ST_PROGRESS_WORDS.inProgress).toBe('In progress');
     expect(ST_PROGRESS_WORDS.notStarted).toBe('Not started');
 
-    for (const fixed of [ST_FACT_WORDS.webNotOpened, ST_FACT_WORDS.noSession]) {
+    for (const fixed of [ST_FACT_WORDS.webNotOpened, ST_FACT_WORDS.noSession('vr')]) {
       expect(SCRIPT).toContain(`facts.push('${fixed}')`);
     }
     for (const prefix of [
@@ -130,6 +130,10 @@ describe('the per-format progress (`progExp`, `runWord`)', () => {
     expect(plain(ST_FACT_WORDS.firstSession(at))).toBe('First session reported 14 Oct 2026, 15:30');
     expect(plain(ST_FACT_WORDS.lastSession(at))).toBe('Last session reported 14 Oct 2026, 15:30');
     expect(ST_FACT_WORDS.reportedFromHeadset(at)).toBe('Reported from the headset at 15:30');
+    // UX-02: AR runs in the phone app, not on a headset; VR and MR keep the export's words.
+    expect(ST_FACT_WORDS.noSession('ar')).toBe('No AR app activity reported yet');
+    expect(ST_FACT_WORDS.noSession('mr')).toBe('No headset session reported yet');
+    expect(ST_FACT_WORDS.reportedFromHeadset(at, 'ar')).toBe('Reported from the AR app at 15:30');
     expect(plain(ST_FACT_WORDS.feedbackSent(at))).toBe('Feedback sent 14 Oct 2026');
   });
 

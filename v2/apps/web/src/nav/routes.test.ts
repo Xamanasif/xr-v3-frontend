@@ -31,7 +31,9 @@ const SRC = join(import.meta.dirname, '..');
 function filesUnder(directory: string): string[] {
   return readdirSync(directory).flatMap((entry) => {
     const path = join(directory, entry);
-    return statSync(path).isDirectory() ? filesUnder(path) : [relative(APP, path)];
+    return statSync(path).isDirectory()
+      ? filesUnder(path)
+      : [relative(APP, path).split('\\').join('/')];
   });
 }
 

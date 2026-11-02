@@ -268,7 +268,7 @@ describe('IA-06 — the students are the port’s answer (B2-06 f0)', () => {
     await user.click(screen.getByRole('button', { name: 'All 12' }));
 
     const search = screen.getByRole('searchbox', { name: 'Search students' });
-    expect(search).toHaveAttribute('placeholder', 'Search name, student ID or e-mail');
+    expect(search).toHaveAttribute('placeholder', 'Name, ID or e-mail');
     await user.type(search, 'git-2026-0418');
     await waitFor(() => expect(main()).toHaveTextContent('Showing 1 of 12'));
     expect(rowsOf().map((row) => row.querySelector('a')!.textContent)).toEqual(['Rahul Verma']);

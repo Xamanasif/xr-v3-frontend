@@ -118,7 +118,9 @@ const DRAWN = [
     (phrase) =>
       phrase !== BY_CONTENT.viewPlan &&
       phrase !== BY_CONTENT.planUnchanged &&
-      phrase !== REQUEST_DETAIL.stand.paymentNotNeeded,
+      phrase !== REQUEST_DETAIL.stand.paymentNotNeeded &&
+      // P1 register B: the export's “BITS has activated this request.” read as a plan change.
+      phrase !== REQUEST_DETAIL.activeByBits,
   ),
   ...strings(REQUEST_HISTORY).filter((phrase) => phrase !== BY_CONTENT.planCreated),
   ...strings(DEVICE_REQUESTS),

@@ -1297,7 +1297,7 @@ describe('VE-08 Revise and resubmit', () => {
       expect(button('Save changes')).toBeInTheDocument();
       expect(text(outline().querySelector('.ve-prog-k'))).toBe('Revision 1 returned');
       expect(text(outline().querySelector('.ve-prog-meta'))).toBe(
-        'No changes saved yet Others see revision 1 as submitted until you resubmit.',
+        'No changes saved yet Saved changes stay private. Others still see revision 1 as submitted until you resubmit.',
       );
       // The reason sits above the editor.
       expect(

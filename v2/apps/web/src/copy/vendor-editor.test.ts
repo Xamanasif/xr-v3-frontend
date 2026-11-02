@@ -141,7 +141,9 @@ describe('the editor’s drawn words (VE-v1 `Main.dc.html`)', () => {
     expect(MAIN).toContain(
       "'Changes saved · ' + r.pendingAt.split(', ')[1] + ' today · not resubmitted'",
     );
-    expect(reviseVisibility(1)).toBe('Others see revision 1 as submitted until you resubmit.');
+    expect(reviseVisibility(1)).toBe(
+      'Saved changes stay private. Others still see revision 1 as submitted until you resubmit.',
+    );
     expect(MAIN).toContain("'Others see revision ' + r.rev + ' as submitted until you resubmit.'");
     expect(stillNeededWords(2)).toBe('2 still needed');
     expect(MAIN).toContain("missing + ' still needed'");

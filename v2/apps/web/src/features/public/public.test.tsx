@@ -48,7 +48,8 @@ describe('the public shell (B1-01 header, menu sheet, footer)', () => {
         .getAllByRole('link')
         .map((link) => [link.textContent, link.getAttribute('href')]),
     ).toEqual([
-      ['BITS Pilani / WILP logo — placeholderXR Learning Platform', '/'],
+      // The logo box holds the official lockup (K-02): its words are the image's name, not text.
+      ['XR Learning Platform', '/'],
       ['Browse experiments', '/experiments'],
       ['Areas', '/areas'],
       ['For institutions', '/#for-institutions'],

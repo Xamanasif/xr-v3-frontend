@@ -122,6 +122,23 @@ export class StagedIds implements IdSource {
       this.#state = { ...this.#state, reserved: { ...this.#state.reserved, [kind]: rest } };
       return id as MintedIds[K];
     }
+    return this.#fromCounter(kind);
+  }
+
+  /**
+   * The same source, except that `kind` is minted from its counter while its reservations wait —
+   * for a record the reservation was not made for (P1 register F-1: the walk's `godavari` belongs
+   * to Godavari Institute of Technology, not to whichever institution is approved first).
+   */
+  bypassingReservations(kind: MintedKind): IdSource {
+    return {
+      next: <K extends MintedKind>(wanted: K): MintedIds[K] =>
+        wanted === kind ? this.#fromCounter(wanted) : this.next(wanted),
+    };
+  }
+
+  /** The next free id above the kind's counter. */
+  #fromCounter<K extends MintedKind>(kind: K): MintedIds[K] {
     let value = this.#state.counters[kind] ?? (isDrawn(kind) ? DRAWN_FLOORS[kind] : 0);
     let id: string;
     do {

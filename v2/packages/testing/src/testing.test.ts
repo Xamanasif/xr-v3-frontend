@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { DEFAULT_E2E_PORTS, createPlaywrightConfig, e2ePorts, localOrigin } from './playwright.js';
-import { createVitestConfig } from './vitest.js';
+import { createVitestConfig, workerCount } from './vitest.js';
 
 describe('createVitestConfig', () => {
   it('applies the requested environment and keeps workspace defaults', () => {
@@ -87,5 +87,16 @@ describe('e2ePorts', () => {
     expect(() => e2ePorts({ XR_E2E_WEB_PORT: 'abc' })).toThrow('XR_E2E_WEB_PORT');
     expect(() => e2ePorts({ XR_E2E_WEB_PORT: '80' })).toThrow('1024 to 65535');
     expect(() => e2ePorts({ XR_E2E_SPECIMENS_PORT: '3000' })).toThrow('must differ');
+  });
+});
+
+describe('workerCount (UX-22)', () => {
+  it('one worker per 2 GB, at most one per CPU less one, at least one', () => {
+    const GB = 2 ** 30;
+    expect(workerCount(8 * GB, 12)).toBe(4);
+    expect(workerCount(32 * GB, 12)).toBe(11);
+    expect(workerCount(64 * GB, 8)).toBe(7);
+    expect(workerCount(1 * GB, 4)).toBe(1);
+    expect(workerCount(16 * GB, 1)).toBe(1);
   });
 });

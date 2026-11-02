@@ -111,8 +111,13 @@ describe('PU-02, PU-03 and PU-05 are B1-03’s', () => {
 });
 
 describe('PU-04 is B1-04’s', () => {
-  it.each(strings(CATALOGUE))('%s', (text) => {
+  it.each(strings(CATALOGUE).filter((text) => text !== CATALOGUE.sortDefault))('%s', (text) => {
     expect(B1_04).toContain(text);
+  });
+
+  it('UX-14: the default order is named for what it is (B1-04 draws “Default order”)', () => {
+    expect(B1_04).toContain('Default order');
+    expect(CATALOGUE.sortDefault).toBe('Catalogue order');
   });
 
   it('counts, chips and buttons follow B1-04’s script', () => {

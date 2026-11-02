@@ -637,7 +637,7 @@ describe('patch.css (V3P-nn)', () => {
     expect([...product].sort()).toEqual([...V3_PRODUCT_CLASS_ALLOW_LIST].sort());
   });
 
-  it('numbers its patches V3P-01 … V3P-18 in order; V3P-06 and V3P-07 are retired, not reused', () => {
+  it('numbers its patches V3P-01 … V3P-19 in order; V3P-06 and V3P-07 are retired, not reused', () => {
     expect([...patch.matchAll(/V3P-(\d\d) ·/g)].map((match) => match[1])).toEqual([
       '01',
       '02',
@@ -657,6 +657,7 @@ describe('patch.css (V3P-nn)', () => {
       '16',
       '17',
       '18',
+      '19',
     ]);
     for (const retired of ['06', '07']) {
       expect(patch).toMatch(new RegExp(`V3P-${retired} · retired`));
@@ -1516,11 +1517,12 @@ describe('patch.css (V3P-nn)', () => {
       },
     ];
     expectRestorations(CASCADE, stDerived);
-    // V3P-18 holds the rules above and no other.
+    // V3P-18 holds the rules above and no other (up to V3P-19, the logo slot).
     const start = patch.indexOf('V3P-18 ·');
     expect(start).toBeGreaterThan(0);
+    const end = patch.lastIndexOf('/*', patch.indexOf('V3P-19 ·'));
     expect(
-      rulesOf(patch.slice(patch.indexOf('*/', start) + 2))
+      rulesOf(patch.slice(patch.indexOf('*/', start) + 2, end))
         .flatMap((rule) => splitTopLevel(rule.prelude, ','))
         .map((part) => part.trim().replace(/\s+/g, ' '))
         .sort(),

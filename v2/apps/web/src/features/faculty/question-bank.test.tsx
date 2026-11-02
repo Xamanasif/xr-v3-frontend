@@ -770,103 +770,111 @@ describe('FA-15 — add a question', () => {
     expectNoReference();
   });
 
-  it('adds a question of each type; each is in the bank list on the same platform', async () => {
-    const user = userEvent.setup();
-    const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
-    const added: string[] = [];
-    const ADDED = new RegExp(`^/faculty/question-bank\\?experimentId=${SHELL}&added=(Q-\\d{4})$`);
+  it(
+    'adds a question of each type; each is in the bank list on the same platform',
+    { timeout: 20_000 },
+    async () => {
+      // UX-22: a long typed journey; about 6–7 s on a slower Windows laptop. Its limit is stated here
+      // rather than raised for every test.
+      const user = userEvent.setup();
+      const { runtime, sample } = await tabPlatform(RANGANATHAN, 'after-flow-c');
+      const added: string[] = [];
+      const ADDED = new RegExp(`^/faculty/question-bank\\?experimentId=${SHELL}&added=(Q-\\d{4})$`);
 
-    async function save(navigation: ReturnType<typeof showNew>['navigation']) {
-      await user.click(screen.getByRole('button', { name: 'Save question' }));
-      await waitFor(() => expect(navigation.navigate).toHaveBeenCalledTimes(1));
-      const match = ADDED.exec(navigation.navigate.mock.calls[0]![0]);
-      expect(match).not.toBeNull();
-      added.push(match![1]!);
-    }
+      async function save(navigation: ReturnType<typeof showNew>['navigation']) {
+        await user.click(screen.getByRole('button', { name: 'Save question' }));
+        await waitFor(() => expect(navigation.navigate).toHaveBeenCalledTimes(1));
+        const match = ADDED.exec(navigation.navigate.mock.calls[0]![0]);
+        expect(match).not.toBeNull();
+        added.push(match![1]!);
+      }
 
-    const mc = showNew(runtime);
-    await form('Add a question');
-    await fill(user, {
-      type: 'Multiple choice',
-      text: 'Which arrangement can bring the cold outlet above the hot outlet?',
-      options: ['Counter flow', 'Parallel flow'],
-      correct: 'Option A is the correct answer',
-      marks: '2',
-      explanation: 'Only counter flow lets the cold stream leave hotter than the hot outlet.',
-    });
-    await save(mc.navigation);
-    mc.view.unmount();
+      const mc = showNew(runtime);
+      await form('Add a question');
+      await fill(user, {
+        type: 'Multiple choice',
+        text: 'Which arrangement can bring the cold outlet above the hot outlet?',
+        options: ['Counter flow', 'Parallel flow'],
+        correct: 'Option A is the correct answer',
+        marks: '2',
+        explanation: 'Only counter flow lets the cold stream leave hotter than the hot outlet.',
+      });
+      await save(mc.navigation);
+      mc.view.unmount();
 
-    const tf = showNew(runtime);
-    await form('Add a question');
-    await fill(user, {
-      type: 'True or false',
-      text: 'Counter flow always needs a larger area than parallel flow for the same duty.',
-      correct: 'False',
-      marks: '2',
-    });
-    await save(tf.navigation);
-    tf.view.unmount();
+      const tf = showNew(runtime);
+      await form('Add a question');
+      await fill(user, {
+        type: 'True or false',
+        text: 'Counter flow always needs a larger area than parallel flow for the same duty.',
+        correct: 'False',
+        marks: '2',
+      });
+      await save(tf.navigation);
+      tf.view.unmount();
 
-    const written = showNew(runtime);
-    await form('Add a question');
-    await fill(user, {
-      type: 'Written answer',
-      text: 'Explain how fouling changes the exchanger’s performance.',
-      guidance: 'Look for: U falls; the heat duty falls.',
-      marks: '10',
-    });
-    await save(written.navigation);
-    written.view.unmount();
+      const written = showNew(runtime);
+      await form('Add a question');
+      await fill(user, {
+        type: 'Written answer',
+        text: 'Explain how fouling changes the exchanger’s performance.',
+        guidance: 'Look for: U falls; the heat duty falls.',
+        marks: '10',
+      });
+      await save(written.navigation);
+      written.view.unmount();
 
-    // The one world: the three questions as typed (single correct answer; free-text guidance).
-    const [mcId, tfId, writtenId] = added as [string, string, string];
-    const bank = await bankOf(sample);
-    const byId = (id: string) => bank.find((row) => row.question.id === id)!.question;
-    expect(byId(mcId)).toMatchObject({
-      marks: 2,
-      body: {
-        type: 'multiple-choice',
-        options: { A: 'Counter flow', B: 'Parallel flow' },
-        correct: 'A',
-      },
-      explanation: 'Only counter flow lets the cold stream leave hotter than the hot outlet.',
-    });
-    expect(byId(tfId)).toMatchObject({ body: { type: 'true-false', correct: false } });
-    expect(byId(writtenId)).toMatchObject({
-      marks: 10,
-      explanation: null,
-      body: { type: 'written', markingGuidance: 'Look for: U falls; the heat duty falls.' },
-    });
+      // The one world: the three questions as typed (single correct answer; free-text guidance).
+      const [mcId, tfId, writtenId] = added as [string, string, string];
+      const bank = await bankOf(sample);
+      const byId = (id: string) => bank.find((row) => row.question.id === id)!.question;
+      expect(byId(mcId)).toMatchObject({
+        marks: 2,
+        body: {
+          type: 'multiple-choice',
+          options: { A: 'Counter flow', B: 'Parallel flow' },
+          correct: 'A',
+        },
+        explanation: 'Only counter flow lets the cold stream leave hotter than the hot outlet.',
+      });
+      expect(byId(tfId)).toMatchObject({ body: { type: 'true-false', correct: false } });
+      expect(byId(writtenId)).toMatchObject({
+        marks: 10,
+        explanation: null,
+        body: { type: 'written', markingGuidance: 'Look for: U falls; the heat duty falls.' },
+      });
 
-    // Back on the bank (as FA-15 sends it there): the message, with focus, and the three new rows.
-    const { navigation } = showBank(runtime, `?experimentId=${SHELL}&added=${writtenId}`);
-    expect(await ids(sample)).toEqual([
-      'Q-0101',
-      'Q-0102',
-      'Q-0103',
-      'Q-0104',
-      'Q-0105',
-      'Q-0106',
-      mcId,
-      tfId,
-      writtenId,
-    ]);
-    const message = await waitFor(() => document.getElementById('qb-msg')!);
-    expect(message.querySelector('.rk-notice-t')).toHaveTextContent('Saved to your question bank.');
-    expect(message.querySelector('.rk-notice-d')).toHaveTextContent(
-      'It isn’t in any assessment yet.',
-    );
-    await waitFor(() => expect(message).toHaveFocus());
-    expect(navigation.replace).toHaveBeenCalledWith(BANK_ADDRESS);
-    const facts = await rows();
-    expect(facts.slice(6).map((row) => [row.type, row.marks, row.used])).toEqual([
-      ['Multiple choice', '2 marks', 'Not yet'],
-      ['True or false', '2 marks', 'Not yet'],
-      ['Written answer', '10 marks', 'Not yet'],
-    ]);
-    expectNoReference();
-  });
+      // Back on the bank (as FA-15 sends it there): the message, with focus, and the three new rows.
+      const { navigation } = showBank(runtime, `?experimentId=${SHELL}&added=${writtenId}`);
+      expect(await ids(sample)).toEqual([
+        'Q-0101',
+        'Q-0102',
+        'Q-0103',
+        'Q-0104',
+        'Q-0105',
+        'Q-0106',
+        mcId,
+        tfId,
+        writtenId,
+      ]);
+      const message = await waitFor(() => document.getElementById('qb-msg')!);
+      expect(message.querySelector('.rk-notice-t')).toHaveTextContent(
+        'Saved to your question bank.',
+      );
+      expect(message.querySelector('.rk-notice-d')).toHaveTextContent(
+        'It isn’t in any assessment yet.',
+      );
+      await waitFor(() => expect(message).toHaveFocus());
+      expect(navigation.replace).toHaveBeenCalledWith(BANK_ADDRESS);
+      const facts = await rows();
+      expect(facts.slice(6).map((row) => [row.type, row.marks, row.used])).toEqual([
+        ['Multiple choice', '2 marks', 'Not yet'],
+        ['True or false', '2 marks', 'Not yet'],
+        ['Written answer', '10 marks', 'Not yet'],
+      ]);
+      expectNoReference();
+    },
+  );
 
   it('an `added` that is not a question of this bank says nothing', async () => {
     const { runtime } = await tabPlatform(RANGANATHAN, 'after-flow-c');

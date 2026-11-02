@@ -150,7 +150,8 @@ export const CATALOGUE = {
   searchLabel: 'Search experiments',
   searchPlaceholder: 'Experiment, course or code',
   sortLabel: 'Sort by',
-  sortDefault: 'Default order',
+  // UX-14: the service's default is the catalogue's own listing order (no relevance or recency).
+  sortDefault: 'Catalogue order',
   sortTitle: 'Title A–Z',
   sortCode: 'Course code',
   clearAllFilters: 'Clear all filters',

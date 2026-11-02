@@ -807,3 +807,60 @@ describe('SA-03 — decided and unknown requests', () => {
     );
   });
 });
+
+describe('SA-03 — a new request whose institution already has a record (P1 register A, interim)', () => {
+  it('names the existing record and says approving makes a second one; nothing is linked', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    const visitor = visitorPorts(sample);
+    const added = visitor.selection.add({
+      experimentId: 'shell-and-tube-heat-exchanger' as never,
+      formats: ['web'],
+    });
+    if (!added.ok) throw new Error(added.error.kind);
+    const sent = await visitor.accessRequests.submitPublicRequest({
+      institutionName: `  bits pilani — hyderabad   campus `,
+      contactPerson: 'P. Srinivas',
+      email: 'srinivas@hyderabad.bits-pilani.example',
+      phone: null,
+      licencesRequested: '40',
+      message: null,
+      term: { kind: 'yearly' },
+    });
+    if (!sent.ok) throw new Error(sent.error.kind);
+    const version = sample.worldVersion();
+    openDecision(runtime, sent.value.reference);
+    const existing = (await screen.findByRole('heading', { name: 'Existing access' })).closest(
+      'section',
+    ) as HTMLElement;
+    await within(existing).findByText('An institution with this name already has a record');
+    expect(existing).toHaveTextContent('Approving this request creates a second, separate record');
+    expect(within(existing).getByRole('link', { name: `View ${HYDERABAD}` })).toHaveAttribute(
+      'href',
+      '/admin/institutions/bitshyd',
+    );
+    expect(sample.worldVersion()).toBe(version);
+  });
+
+  it('a request from a new name shows no warning', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    const visitor = visitorPorts(sample);
+    const added = visitor.selection.add({
+      experimentId: 'shell-and-tube-heat-exchanger' as never,
+      formats: ['web'],
+    });
+    if (!added.ok) throw new Error(added.error.kind);
+    const sent = await visitor.accessRequests.submitPublicRequest({
+      institutionName: 'Godavari Institute of Technology',
+      contactPerson: 'Meera Iyer',
+      email: 'meera.iyer@godavari.edu.in',
+      phone: null,
+      licencesRequested: '120',
+      message: null,
+      term: { kind: 'yearly' },
+    });
+    if (!sent.ok) throw new Error(sent.error.kind);
+    openDecision(runtime, sent.value.reference);
+    await panel();
+    expect(screen.queryByText('An institution with this name already has a record')).toBeNull();
+  });
+});

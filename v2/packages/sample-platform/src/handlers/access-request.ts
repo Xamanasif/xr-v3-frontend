@@ -36,6 +36,7 @@ import {
   approveSmallerScope,
   type ApprovalOutcome,
   EMPTY_SELECTION,
+  type IdSource,
   type Institution,
   institutionStatus,
   inDisplayOrder,
@@ -189,6 +190,22 @@ function decisionPage(op: Op, request: AccessRequest): DecisionPage {
 
 function institutionOf(records: WorldRecords, request: AccessRequest): Institution | null {
   return request.institutionId ? (records.institutions[request.institutionId] ?? null) : null;
+}
+
+/** The institution the walk reserves `godavari` for (`WALK_RESERVATIONS`, Journey E). */
+const GODAVARI_NAME = 'godavari institute of technology';
+
+/**
+ * The ids an approval mints from. The walk reserves `godavari` for Godavari Institute of
+ * Technology; another new institution approved first takes the next free id instead (P1 register
+ * F-1: it took `godavari`, and with it the pre-authorised GIT-VR-03 headset).
+ */
+function approvalIds(op: Op, request: AccessRequest, institution: Institution | null): IdSource {
+  const waiting = op.ids.state.reserved.institution?.[0];
+  const name = request.institutionName.trim().replace(/\s+/g, ' ').toLowerCase();
+  return institution === null && waiting === 'godavari' && name !== GODAVARI_NAME
+    ? op.ids.bypassingReservations('institution')
+    : op.ids;
 }
 
 /** The request a public address names (`/requests/[requestId]`, O-05) — never by reference or ticket. */
@@ -495,7 +512,7 @@ export function accessRequestPort(call: Call): AccessRequestService {
             route: accepted.route,
             actor: person.ref,
             now: op.now,
-            ids: op.ids,
+            ids: approvalIds(op, request, institution),
           }),
           input,
         );
@@ -529,7 +546,7 @@ export function accessRequestPort(call: Call): AccessRequestService {
             reason: accepted.reason,
             actor: person.ref,
             now: op.now,
-            ids: op.ids,
+            ids: approvalIds(op, request, institution),
           }),
           input,
         );

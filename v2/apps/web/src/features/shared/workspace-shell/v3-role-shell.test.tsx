@@ -71,7 +71,11 @@ describe('the Super Admin workspace in the V3 shell (SA-v1)', () => {
     expect(container.firstElementChild).toHaveClass('xr', 'rb');
     expect(container.querySelector('aside.xr-side')).toBeNull();
     expect(rail).toHaveClass('rb-rail');
-    expect(within(rail).getByText('Official WILP logo')).toHaveClass('rb-logo');
+    expect(
+      within(rail)
+        .getByRole('img', { name: 'BITS Pilani Work Integrated Learning Programmes' })
+        .closest('.rb-logo'),
+    ).toHaveClass('rb-logo--official');
     expect(container.querySelector('a')).toHaveAttribute('href', '#main');
     expect(container.querySelector('main#main')).toHaveClass('rb-page');
   });

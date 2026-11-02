@@ -40,7 +40,9 @@ export const STUDENTS_V3 = {
   sectionTitle: 'Students',
   filterLabel: 'Filter students',
   searchLabel: 'Search students',
-  searchPlaceholder: 'Search name, student ID or e-mail',
+  // UX-20: the export's "Search name, student ID or e-mail" is clipped at 375 px; the accessible
+  // name stays "Search students".
+  searchPlaceholder: 'Name, ID or e-mail',
   segmentsLabel: 'Show students by status',
   all: 'All',
   caption: 'Students at your institution',

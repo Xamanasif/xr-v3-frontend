@@ -291,7 +291,12 @@ export const REQUEST_DETAIL = {
   paymentLine: 'Nothing changes until the payment is confirmed.',
   openPayment: 'Open the payment page',
   activeTitle: 'Access active',
-  activeByBits: 'BITS has activated this request.',
+  /**
+   * An approved renewal or more-licences request writes no plan (`planEffect` policy-open,
+   * OD-B3-09). B3-08 drew “BITS has activated this request.”, which reads as if the plan changed;
+   * P1 register item B: say what SA-03 says for the same approval.
+   */
+  activeByBits: 'BITS approved this request. The current plan isn’t changed by it.',
   viewPlan: 'View your access plan',
   stand: {
     title: 'Where it stands',

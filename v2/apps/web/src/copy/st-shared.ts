@@ -113,10 +113,17 @@ export const ST_FACT_WORDS = {
   firstOpened: (at: string) => `First opened ${stDateTime(at)}`,
   lastSaved: (at: string) => `Last saved ${stDateTime(at)}`,
   reportedBySimulation: (at: string) => `Reported by the simulation at ${timeOf(at)}`,
-  noSession: 'No headset session reported yet',
+  /** AR runs in the phone app, VR and MR on a headset (UX-02): the words follow the device. */
+  noSession: (format: string) =>
+    format.toLowerCase() === 'ar'
+      ? 'No AR app activity reported yet'
+      : 'No headset session reported yet',
   firstSession: (at: string) => `First session reported ${stDateTime(at)}`,
   lastSession: (at: string) => `Last session reported ${stDateTime(at)}`,
-  reportedFromHeadset: (at: string) => `Reported from the headset at ${timeOf(at)}`,
+  reportedFromHeadset: (at: string, format = 'vr') =>
+    format.toLowerCase() === 'ar'
+      ? `Reported from the AR app at ${timeOf(at)}`
+      : `Reported from the headset at ${timeOf(at)}`,
   feedbackSent: (at: string) => `Feedback sent ${stDay(at)}`,
 } as const;
 

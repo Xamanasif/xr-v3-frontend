@@ -80,6 +80,16 @@ const STUDENT: readonly NavDestination[] = [
   { label: 'Progress', href: '#progress', icon: 'progress' },
 ];
 
+/**
+ * The one intended difference from the boards (K-02): the logo box holds the official lockup where
+ * they draw the placeholder words. Mapped back so the rest of the markup is still compared exactly.
+ */
+const asDrawnLogo = (html: string) =>
+  html.replace(
+    /<(div|span) class="(xr-logo-ph|xp-logo) xr-logo--official([^"]*)"><img[^>]*><\/(?:div|span)>/g,
+    '<$1 class="$2$3">BITS Pilani / WILP logo — placeholder</$1>',
+  );
+
 /** B1-10's sidebar as drawn, with the canvas inline style on the logo box. */
 const B1_10_SIDEBAR = `<aside class="xr-side" aria-label="Super Admin workspace"><div class="xr-side-head"><div class="xr-side-top"><div class="xr-logo-ph" style="flex: 1 1 auto">BITS Pilani / WILP logo — placeholder</div></div><span class="xr-product">XR Learning Platform</span></div>
 <div class="xr-ws"><span class="xr-ws-label">Super Admin</span></div>
@@ -134,7 +144,7 @@ describe('Sidebar markup contract', () => {
   it('a standalone sidebar renders exactly as B1-10 draws it (the canvas inline style left out)', () => {
     expectBoardDraws(REQUESTS, B1_10_SIDEBAR);
     const { container } = render(<SuperAdminSidebar />);
-    expect(normaliseMarkup(container.innerHTML)).toBe(
+    expect(normaliseMarkup(asDrawnLogo(container.innerHTML))).toBe(
       normaliseMarkup(withoutInlineStyles(B1_10_SIDEBAR)),
     );
   });
@@ -144,7 +154,7 @@ describe('Sidebar markup contract', () => {
       '<div class="xr-side-head"> <div class="xr-side-top"> <div class="xr-logo-ph" style="flex: 1 1 auto">BITS Pilani / WILP logo — placeholder</div> <button type="button" class="xr-side-btn xr-drawer-close" aria-label="Close menu" ref="{{ closeRef }}" onClick="{{ closeDrawer }}"><svg class="xr-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"></path></svg></button> </div> <span class="xr-product">XR Learning Platform</span> </div>';
     expectBoardDraws(SHELL, drawn);
     const { container } = render(<InShell />);
-    expect(normaliseMarkup(container.querySelector('.xr-side-head')!.outerHTML)).toBe(
+    expect(normaliseMarkup(asDrawnLogo(container.querySelector('.xr-side-head')!.outerHTML))).toBe(
       normaliseMarkup(drawn.replace(/ (?:style|ref|onClick)="[^"]*"/g, '')),
     );
   });
@@ -189,7 +199,7 @@ describe('Sidebar markup contract', () => {
       'NAV.',
       'DIV.xr-side-foot',
     ]);
-    expect(aside.querySelector('.xr-side-head')!.outerHTML).toBe(
+    expect(asDrawnLogo(aside.querySelector('.xr-side-head')!.outerHTML)).toBe(
       '<div class="xr-side-head"><div class="xr-logo-ph">BITS Pilani / WILP logo — placeholder</div></div>',
     );
     expect(aside.querySelector('nav')).toHaveAttribute('aria-label', 'Institute Admin navigation');

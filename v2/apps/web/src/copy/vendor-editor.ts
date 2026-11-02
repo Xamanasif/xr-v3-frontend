@@ -134,9 +134,13 @@ export function todayAt(time: string): string {
   return `${time} today`;
 }
 
-/** Revise mode's visibility line: “Others see revision 1 as submitted until you resubmit.” */
+/**
+ * Revise mode's visibility line. VE-v1 draws “Others see revision 1 as submitted until you
+ * resubmit.”; UX-04 (the UI/UX audit) found that it does not say a save stays private, beside
+ * separate Save changes and Resubmit actions, so the line names both halves.
+ */
 export function reviseVisibility(revision: number): string {
-  return `Others see revision ${revision} as submitted until you resubmit.`;
+  return `Saved changes stay private. Others still see revision ${revision} as submitted until you resubmit.`;
 }
 
 /** A part's or a block's live status (`secSt`): “Complete”, “2 still needed”, “1 to fix”. */

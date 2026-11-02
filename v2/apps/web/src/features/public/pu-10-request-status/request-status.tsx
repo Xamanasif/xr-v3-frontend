@@ -150,6 +150,9 @@ function StatusHeadPanel({
           {`“${view.whatBitsAsked}”`}
         </div>
       ) : null}
+      {view.status === 'information-requested' ? (
+        <p className="xr-body text-ink-2">{REQUEST_STATUS.replyOutside}</p>
+      ) : null}
       {view.status === 'approved-payment-required' && view.whyItChanged !== null ? (
         <div className="xp-reason">
           <span className="xp-reason-label">{REQUEST_STATUS.whyItChanged}</span>

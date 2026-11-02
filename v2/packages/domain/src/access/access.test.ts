@@ -135,6 +135,18 @@ describe('Give students access (SACC-01, SACC-02; B2-05)', () => {
       ),
     ).toEqual({ kind: 'not-permitted', why: 'out-of-scope' });
   });
+
+  it('a group cannot be given the same experiment twice (SACC-06 for groups; P1 register F-2)', () => {
+    const members = [student()];
+    const target = { kind: 'group' as const, group: group([{ id: ids.rahul }]), members };
+    const groupGrant = grant({ target: { kind: 'group', groupId: ids.grp12 } });
+    expect(refusalOf(give({ target, grants: [groupGrant] }))).toEqual({
+      kind: 'refused',
+      code: 'already-given',
+    });
+    // A withdrawn group grant does not block a new one.
+    expectOk(give({ target, grants: [{ ...groupGrant, state: 'withdrawn' }] }));
+  });
 });
 
 describe('Withdraw an individual grant (SACC-07; SACC-08 group OPEN; SACC-11 after the end OPEN)', () => {

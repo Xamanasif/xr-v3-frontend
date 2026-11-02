@@ -716,7 +716,7 @@ const PHASE_1_AND_EARLIER = {
     screen: 'PU-04',
     state: 'The catalogue’s address carries its view',
     words: null,
-    rule: '`/experiments?area=&course=&format=&q=&sort=&view=` — repeated keys for several values; the defaults (no filter, Default order, All experiments) carry no key. Unknown area, course or format values are dropped and “We adjusted this link” shows once; an unknown order or view falls back to its default. Filters, search and order replace the address (no new history entry).',
+    rule: '`/experiments?area=&course=&format=&q=&sort=&view=` — repeated keys for several values; the defaults (no filter, Catalogue order, All experiments) carry no key. Unknown area, course or format values are dropped and “We adjusted this link” shows once; an unknown order or view falls back to its default. Filters, search and order replace the address (no new history entry).',
     basis:
       'Appendix A PU-04 (query PROPOSED); B1-04 “Arriving with a filter”, “This link was adjusted”',
     status: 'provisional',

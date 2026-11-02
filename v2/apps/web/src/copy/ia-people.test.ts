@@ -55,7 +55,8 @@ function strings(value: unknown): string[] {
 
 const DRAWN = [
   ...strings(PEOPLE_V3),
-  ...strings(STUDENTS_V3),
+  // UX-20: the search hint is shortened from the export's (tested below).
+  ...strings(STUDENTS_V3).filter((phrase) => phrase !== STUDENTS_V3.searchPlaceholder),
   ...strings(FACULTY_V3),
   ...strings(GROUPS_V3),
   ...strings(FACULTY_COURSES_V3),
@@ -67,6 +68,12 @@ const DRAWN = [
 describe('the People screens’ V3 words are the export’s', () => {
   it.each(DRAWN)('“%s”', (phrase) => {
     expect(WORDS).toContain(phrase);
+  });
+
+  it('UX-20: the export’s search hint, shortened so it fits at 375 px; the name stays the export’s', () => {
+    expect(WORDS).toContain('Search name, student ID or e-mail');
+    expect(STUDENTS_V3.searchPlaceholder).toBe('Name, ID or e-mail');
+    expect(WORDS).toContain(STUDENTS_V3.searchLabel);
   });
 
   it('no phrase names a record by its internal reference', () => {

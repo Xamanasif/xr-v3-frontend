@@ -65,6 +65,8 @@ import {
   REQUEST_TYPE_WORDS,
   ROUTE_CHOICE,
   routeWords,
+  SAME_NAME,
+  sameInstitutionName,
   SMALLER_SCOPE,
   TERM_OPTIONS,
   termWords,
@@ -74,6 +76,7 @@ import { stateWords } from '@/copy/state-copy';
 import { institutionAddress } from '@/nav/institutions';
 import { decisionPlacement, REQUESTS_ADDRESS } from '@/nav/requests';
 import { useRequestForDecision } from '@/queries/access-requests';
+import { useInstitutionTab } from '@/queries/institutions';
 import { usePublishedCatalogue } from '@/queries/catalogue';
 import { useSession } from '@/queries/session';
 import { useCommand } from '@/queries/use-command';
@@ -341,6 +344,13 @@ function DecisionDetails({
   const { request } = page;
   const decided = request.status !== 'under-review';
   const institutionId = request.institutionId ?? page.existingAccess?.institutionId ?? null;
+  const institutions = useInstitutionTab('all');
+  const sameName =
+    !decided && page.whereItStands.institutionRecord === 'not-created' && institutions.data?.ok
+      ? institutions.data.value.filter((row) =>
+          sameInstitutionName(row.name, request.institutionName),
+        )
+      : [];
   return (
     <>
       <FactStrip
@@ -421,6 +431,19 @@ function DecisionDetails({
         <RecordLine>
           {existingAccessWords(page, (experimentId) => nameOf(experimentId).name)}
         </RecordLine>
+        {sameName.length > 0 ? (
+          <Notice
+            tone="warn"
+            title={SAME_NAME.title}
+            actions={sameName.map((row) => (
+              <ButtonLink key={row.id} href={institutionAddress(row.id)}>
+                {SAME_NAME.view(row.name)}
+              </ButtonLink>
+            ))}
+          >
+            {SAME_NAME.line(request.institutionName)}
+          </Notice>
+        ) : null}
       </SurfaceSection>
       {request.message ? (
         <SurfaceSection title={DECISION_PAGE.message} titleId="dc-msg">

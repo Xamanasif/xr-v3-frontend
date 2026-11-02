@@ -18,6 +18,7 @@
 import {
   createContext,
   useContext,
+  type FocusEvent,
   type InputHTMLAttributes,
   type MouseEvent,
   type ReactNode,
@@ -123,6 +124,35 @@ export interface VendorEditorLayoutProps {
   readonly children: ReactNode;
 }
 
+/** Space kept between a focused field and the sticky actions row, or the top of the window. */
+const FOCUS_CLEARANCE = 16;
+/** The top of the window a field's top is never scrolled above (the shell's top line at 375 px). */
+const TOP_CLEARANCE = 72;
+
+/**
+ * UX-01: focus is never left under the sticky actions row (`div.vr-actions`, two rows below 620 px).
+ * The browser scrolls a focused field only until some of it is in view, so a tall field reached by
+ * Tab could sit wholly or partly behind the row (measured at 375 × 812 on VE-08 revise: Description
+ * at y = 696 with the row at 691). After the browser's own scroll, the page moves just enough to
+ * clear the row, never so far that the field's top leaves the window. Focus inside the row itself
+ * or in a dialog is left alone.
+ */
+function keepFocusClearOfActions(event: FocusEvent<HTMLElement>) {
+  const field = event.target;
+  const bar = event.currentTarget.querySelector<HTMLElement>('.vr-actions');
+  if (!bar || bar.contains(field) || field.closest('dialog')) return;
+  window.requestAnimationFrame(() => {
+    if (document.activeElement !== field) return;
+    const box = field.getBoundingClientRect();
+    const barTop = bar.getBoundingClientRect().top;
+    const overlap = box.bottom + FOCUS_CLEARANCE - barTop;
+    if (overlap <= 0) return;
+    const room = box.top - TOP_CLEARANCE;
+    const by = Math.min(overlap, Math.max(room, 0));
+    if (by > 0) window.scrollBy({ top: by });
+  });
+}
+
 function StepNumber({ step }: { readonly step: VendorEditorStep }) {
   return <span className="ve-step-n">{step.done ? <Glyph name="check" /> : step.number}</span>;
 }
@@ -162,7 +192,11 @@ export function VendorEditorLayout({
       </nav>
       <div className="rk-detail">
         <div className="rk-mainsheet">
-          <section className="rk-surface ve-form vr-form" aria-labelledby={formLabelledBy}>
+          <section
+            className="rk-surface ve-form vr-form"
+            aria-labelledby={formLabelledBy}
+            onFocus={keepFocusClearOfActions}
+          >
             {children}
           </section>
         </div>

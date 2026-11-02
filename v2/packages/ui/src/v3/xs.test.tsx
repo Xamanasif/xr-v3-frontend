@@ -128,7 +128,10 @@ describe('the sign-in card (XS-01, XS-03, XS-04)', () => {
     expect(
       root.querySelector('main.xs-entry-main > div.xs-card > div.xs-card-head'),
     ).not.toBeNull();
-    expect(root.querySelector('.xs-card-head .rb-logo')?.textContent).toBe('Official WILP logo');
+    expect(root.querySelector('.xs-card-head .rb-logo img')).toHaveAttribute(
+      'alt',
+      'BITS Pilani Work Integrated Learning Programmes',
+    );
     expect(screen.getByRole('heading', { level: 1 }).className).toBe('rb-h1 xs-fit');
     expect(screen.getByRole('alert').className).toBe('rk-errsum');
     // The field error sits between the label and the control, as the export draws it.

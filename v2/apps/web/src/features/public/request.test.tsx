@@ -620,9 +620,9 @@ describe('PU-10 Request status and PU-13 Access active (B1-08)', () => {
     await act(() => platform.runtime.invalidate([{ kind: 'REQ', id: asked.request.id }]));
     await waitFor(() => expect(statusHead()).toHaveTextContent('Information requested'));
     expect(statusHead()).toHaveTextContent(
-      'BITS needs more informationYour request stays open while BITS waits for this information.What BITS asked“Please confirm the cohort size for this term.”',
+      'BITS needs more informationYour request stays open while BITS waits for this information.What BITS asked“Please confirm the cohort size for this term.”Reply outside the platform; there is no reply form here.',
     );
-    // No reply field (T-03).
+    // No reply field (T-03), and the requester is told so (P1 register E, audit F-08).
     expect(document.querySelector('main textarea, main input')).toBeNull();
   });
 

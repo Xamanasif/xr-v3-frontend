@@ -751,3 +751,18 @@ describe('Package 1E — repeated and stale commands write nothing (P1-21; dedup
     },
   );
 });
+
+describe('the walk’s reserved institution id (P1 register F-1)', () => {
+  it('another new institution approved first does not take `godavari`; Godavari still does', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const konkan = await send(visitorPorts(platform), 'Konkan College of Engineering');
+    await approveExternal(platform, konkan.reference);
+    const konkanId = requestOf(platform, konkan.reference).institutionId;
+    expect(konkanId).not.toBeNull();
+    expect(konkanId).not.toBe('godavari');
+
+    const godavari = await send(visitorPorts(platform));
+    await approveExternal(platform, godavari.reference);
+    expect(requestOf(platform, godavari.reference).institutionId).toBe('godavari');
+  });
+});

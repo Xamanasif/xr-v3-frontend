@@ -645,7 +645,9 @@ describe('CM-08 Updates — the correction tracker', () => {
 
 // ---- CM-08 the correction: the draft --------------------------------------------------------------
 
-describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
+// UX-22: every CM-08 test types long correction text; 5–12 s each on a busy 8 GB Windows laptop.
+// The limit is stated for this group rather than raised for the whole suite.
+describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', { timeout: 20_000 }, () => {
   it('the band, the sheet and the panel: pre-filled with the live version, nothing changed yet', async () => {
     const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
     await openDraft(sample);
@@ -960,65 +962,71 @@ describe('CM-08 the correction draft (CM-06, CM-07 arrivals)', () => {
     );
   });
 
-  it('Send for academic review (its dialog): saves what is typed, sends it — read-only, In academic review', async () => {
-    const user = userEvent.setup();
-    const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
-    await openDraft(sample);
-    showUpdate(runtime, 'UPD-0005');
-    await heading('Update to Distillation Column');
-    await user.type(field('Reason for the change (required to send)'), WHY);
-    await user.clear(field('Description'));
-    await user.type(field('Description'), NEW_DESCRIPTION);
-    await user.type(field('New version label (required to send)'), '1.3');
-    await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
-    const dialog = await screen.findByRole('dialog', {
-      name: 'Send the update to Distillation Column for academic review?',
-    });
-    expect(dialog).toHaveClass('rk-dialog');
-    expectNoReferences();
-    await waitFor(() => expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus());
-    expect(text(dialog.querySelector('.rk-dlg-head p'))).toBe(
-      'It goes to the Academic Reviewer, then to the Super Admin, who decides when to release it.',
-    );
-    expect(text(dialog.querySelector('.rk-dlg-now'))).toBe(
-      'What happens now The Academic Reviewer can review it. It becomes read-only for you while it is reviewed. Version 1.2 stays live — nothing changes for the public or for students.',
-    );
-    expect(text(dialog.querySelector('.rk-dlg-later'))).toBe(
-      'Only after later events If it is approved, the Super Admin decides whether to release it or put it on hold. Releasing changes it for everyone who can already open it. It gives no one new access.',
-    );
-    await user.click(within(dialog).getByRole('button', { name: 'Send for academic review' }));
-    await waitFor(() => expect(chip()).toBe('In academic review'));
-    await waitFor(() => expect(stateNotice()).toHaveFocus());
-    expect(text(stateNotice())).toMatch(
-      /^In academic review With the Academic Reviewer since \d+ \w+ 2026\. Read-only while it is reviewed\. The live version 1\.2 is unchanged\.$/,
-    );
-    expect(within(main()).queryAllByRole('textbox')).toHaveLength(0);
-    const why = screen.getByRole('region', { name: 'What changes and why' });
-    expect(text(why.querySelector('.rk-sec-h'))).toBe('What changes and why Version 1.3');
-    expect(text(why.querySelector('blockquote.rk-quote'))).toBe(WHY);
-    expect(historyWhat()).toEqual([
-      'Sent for academic review',
-      'Correction started from Edit catalogue details',
-    ]);
-    expect(facts()[3]).toMatch(/^Sent: \d+ \w+ 2026$/);
-    // Withdraw is still offered while it is reviewed, with the published experiment.
-    expect(
-      within(panel())
-        .getAllByRole('button')
-        .map((button) => text(button)),
-    ).toEqual(['Withdraw update']);
-    expect(
-      within(panel()).getByRole('link', { name: 'Open the published experiment' }),
-    ).toHaveAttribute('href', '/content-manager/published/distillation-column');
-    const update = await updateOf(sample);
-    expect([update.state, update.whatChangesAndWhy, update.versionLabel]).toEqual([
-      'in-academic-review',
-      WHY,
-      '1.3',
-    ]);
-    expectNoReferences();
-    expect((await liveOf(sample)).label).toBe('1.2');
-  });
+  it(
+    'Send for academic review (its dialog): saves what is typed, sends it — read-only, In academic review',
+    { timeout: 20_000 },
+    async () => {
+      // UX-22: a long typed journey; about 6–7 s on a slower Windows laptop. Its limit is stated here
+      // rather than raised for every test.
+      const user = userEvent.setup();
+      const { runtime, sample } = await tabPlatform(KAVYA, 'spine-start');
+      await openDraft(sample);
+      showUpdate(runtime, 'UPD-0005');
+      await heading('Update to Distillation Column');
+      await user.type(field('Reason for the change (required to send)'), WHY);
+      await user.clear(field('Description'));
+      await user.type(field('Description'), NEW_DESCRIPTION);
+      await user.type(field('New version label (required to send)'), '1.3');
+      await user.click(within(panel()).getByRole('button', { name: 'Send for academic review' }));
+      const dialog = await screen.findByRole('dialog', {
+        name: 'Send the update to Distillation Column for academic review?',
+      });
+      expect(dialog).toHaveClass('rk-dialog');
+      expectNoReferences();
+      await waitFor(() => expect(within(dialog).getByRole('heading', { level: 2 })).toHaveFocus());
+      expect(text(dialog.querySelector('.rk-dlg-head p'))).toBe(
+        'It goes to the Academic Reviewer, then to the Super Admin, who decides when to release it.',
+      );
+      expect(text(dialog.querySelector('.rk-dlg-now'))).toBe(
+        'What happens now The Academic Reviewer can review it. It becomes read-only for you while it is reviewed. Version 1.2 stays live — nothing changes for the public or for students.',
+      );
+      expect(text(dialog.querySelector('.rk-dlg-later'))).toBe(
+        'Only after later events If it is approved, the Super Admin decides whether to release it or put it on hold. Releasing changes it for everyone who can already open it. It gives no one new access.',
+      );
+      await user.click(within(dialog).getByRole('button', { name: 'Send for academic review' }));
+      await waitFor(() => expect(chip()).toBe('In academic review'));
+      await waitFor(() => expect(stateNotice()).toHaveFocus());
+      expect(text(stateNotice())).toMatch(
+        /^In academic review With the Academic Reviewer since \d+ \w+ 2026\. Read-only while it is reviewed\. The live version 1\.2 is unchanged\.$/,
+      );
+      expect(within(main()).queryAllByRole('textbox')).toHaveLength(0);
+      const why = screen.getByRole('region', { name: 'What changes and why' });
+      expect(text(why.querySelector('.rk-sec-h'))).toBe('What changes and why Version 1.3');
+      expect(text(why.querySelector('blockquote.rk-quote'))).toBe(WHY);
+      expect(historyWhat()).toEqual([
+        'Sent for academic review',
+        'Correction started from Edit catalogue details',
+      ]);
+      expect(facts()[3]).toMatch(/^Sent: \d+ \w+ 2026$/);
+      // Withdraw is still offered while it is reviewed, with the published experiment.
+      expect(
+        within(panel())
+          .getAllByRole('button')
+          .map((button) => text(button)),
+      ).toEqual(['Withdraw update']);
+      expect(
+        within(panel()).getByRole('link', { name: 'Open the published experiment' }),
+      ).toHaveAttribute('href', '/content-manager/published/distillation-column');
+      const update = await updateOf(sample);
+      expect([update.state, update.whatChangesAndWhy, update.versionLabel]).toEqual([
+        'in-academic-review',
+        WHY,
+        '1.3',
+      ]);
+      expectNoReferences();
+      expect((await liveOf(sample)).label).toBe('1.2');
+    },
+  );
 
   it('the send dialog while it runs: Sending…, Cancel and Esc wait; closing changes nothing before it', async () => {
     const user = userEvent.setup();

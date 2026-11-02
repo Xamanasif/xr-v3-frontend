@@ -89,6 +89,18 @@ export function giveAccess(input: GiveAccessInput): Decision<GiveAccessOutcome> 
     if (members.size === 0) return refused('group-empty');
     if (recipients.some((student) => !members.has(student.id)))
       return invalidState('members-changed');
+    // As for one student (SACC-06): the same group cannot hold the same experiment twice. A second
+    // active group grant also made every late member look settled (P1 register F-2, audit N-05).
+    const groupId = input.target.group.id;
+    const groupHasIt = (experimentId: ExperimentId) =>
+      input.grants.some(
+        (grant) =>
+          grant.state === 'active' &&
+          grant.experimentId === experimentId &&
+          grant.target.kind === 'group' &&
+          grant.target.groupId === groupId,
+      );
+    if (input.experimentIds.some(groupHasIt)) return refused('already-given');
   }
   if (recipients.some((student) => student.institutionId !== input.institution.id)) {
     return notPermitted('out-of-scope');

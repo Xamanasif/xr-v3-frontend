@@ -2,6 +2,7 @@
 
 import { useRef, type KeyboardEvent, type MouseEvent, type ReactNode } from 'react';
 
+import { OfficialLogoImage, OFFICIAL_LOGO } from '../foundation/logo-placeholder.js';
 import { useDrawer } from '../overlays/drawer.js';
 import { useLinkComponent } from '../link.js';
 import { Icon, type V3IconName } from './icons.js';
@@ -10,10 +11,19 @@ import { Icon, type V3IconName } from './icons.js';
 export const PRODUCT_NAME = 'XR Learning Platform';
 
 /**
- * The reserved logo slot's words, as the Refined B boards draw them. The official WILP image is
- * pending (owner decision 10): the slot is kept and no crest is drawn.
+ * The logo slot's accessible name. The Refined B boards reserve the slot with the words
+ * “Official WILP logo” (owner decision 10); the slot now holds the official lockup (K-02).
  */
-export const V3_LOGO_SLOT_TEXT = 'Official WILP logo';
+export const V3_LOGO_SLOT_TEXT = OFFICIAL_LOGO.alt;
+
+/** The rail and sign-in logo slot (`div.rb-logo`) holding the official lockup on its tile. */
+export function V3Logo() {
+  return (
+    <div className="rb-logo rb-logo--official">
+      <OfficialLogoImage />
+    </div>
+  );
+}
 
 /** The thin rule between the page and the date in the top line (`span.rb-top-sep`; IA-01). */
 export function TopLineSeparator() {
@@ -106,7 +116,7 @@ function Brand({
 }) {
   return (
     <div className="rb-brand">
-      <div className="rb-logo">{V3_LOGO_SLOT_TEXT}</div>
+      <V3Logo />
       {product ? <p className="rb-product">{PRODUCT_NAME}</p> : null}
       <p className="rb-ws">
         <span className="rb-ws-role">{workspace}</span>

@@ -53,7 +53,9 @@ export function MessagePage({
       <span className={disc} aria-hidden="true">
         <Glyph name={icon} />
       </span>
-      <h1 ref={titleRef} className="rb-h1 xs-fit" id={titleId} tabIndex={-1}>
+      {/* xs-nofocus (K-13): focus moves here on arrival for screen readers; the heading is not
+          interactive, so it draws no ring (as `main.rb-page` and the account panel). */}
+      <h1 ref={titleRef} className="rb-h1 xs-fit xs-nofocus" id={titleId} tabIndex={-1}>
         {title}
       </h1>
       <p className="xs-msg-d">{children}</p>

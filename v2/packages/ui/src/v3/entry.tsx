@@ -5,7 +5,7 @@ import type { FormEventHandler, ReactNode, Ref } from 'react';
 import { useLinkComponent } from '../link.js';
 import { useFieldControl, type TextInputProps } from './fields.js';
 import { Glyph } from './icons.js';
-import { PRODUCT_NAME, V3_LOGO_SLOT_TEXT } from './shell.js';
+import { PRODUCT_NAME, V3Logo } from './shell.js';
 
 /**
  * The Entry & shared sign-in page (XS-01 Sign in, XS-03 Signed out / session ended, XS-04 Forgot
@@ -58,7 +58,7 @@ export function EntryCard({ children, foot }: EntryCardProps) {
     <div className="xs-card">
       <div className="xs-card-head">
         <div className="xs-logo-box">
-          <div className="rb-logo">{V3_LOGO_SLOT_TEXT}</div>
+          <V3Logo />
         </div>
         <p className="rb-product">{PRODUCT_NAME}</p>
       </div>

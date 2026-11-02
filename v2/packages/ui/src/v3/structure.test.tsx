@@ -87,11 +87,17 @@ function SuperAdminShell({ children }: { readonly children?: React.ReactNode }) 
 describe('V3 workspace shell (rb.css)', () => {
   it('the rail is SA-01’s, element for element: reserved logo slot, destinations, count, Help', () => {
     const { container } = render(<SuperAdminShell />);
-    expectRenderedAsV3Element(
-      container.querySelector('aside.rb-rail')!,
-      'SA01.dc.html',
-      'aside.rb-rail',
+    // The one intended difference (K-02, V3P-19): the slot holds the official lockup where the
+    // export reserves it with words. Mapped back so the rest is still compared element for element.
+    const rail = container.querySelector('aside.rb-rail')!.cloneNode(true) as HTMLElement;
+    const logo = rail.querySelector('.rb-logo.rb-logo--official')!;
+    expect(logo.querySelector('img')).toHaveAttribute(
+      'alt',
+      'BITS Pilani Work Integrated Learning Programmes',
     );
+    logo.className = 'rb-logo';
+    logo.textContent = 'Official WILP logo';
+    expectRenderedAsV3Element(rail, 'SA01.dc.html', 'aside.rb-rail');
   });
 
   it('is the V3 root, with the XS skip link first (XS-P1) and one main region', () => {

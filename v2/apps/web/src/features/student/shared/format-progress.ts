@@ -157,7 +157,7 @@ export function formatFactsOf(view: FormatProgressView, hold: string | null = nu
       facts.push(ST_FACT_WORDS.lastSaved(activity.lastSavedAt));
     }
   } else {
-    if (view.status === 'not-started') facts.push(ST_FACT_WORDS.noSession);
+    if (view.status === 'not-started') facts.push(ST_FACT_WORDS.noSession(view.format));
     if (first) facts.push(ST_FACT_WORDS.firstSession(first));
     const last = activity?.lastSessionReportedAt ?? null;
     if (view.status === 'in-progress' && last && last !== first) {
@@ -168,7 +168,7 @@ export function formatFactsOf(view: FormatProgressView, hold: string | null = nu
     facts.push(
       completion.reportedFrom === 'simulation'
         ? ST_FACT_WORDS.reportedBySimulation(completion.completedAt)
-        : ST_FACT_WORDS.reportedFromHeadset(completion.completedAt),
+        : ST_FACT_WORDS.reportedFromHeadset(completion.completedAt, view.format),
     );
   }
   if (view.status === 'completed' && typeof view.feedback === 'object') {

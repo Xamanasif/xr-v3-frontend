@@ -39,7 +39,7 @@ const code = (text: string) =>
     .replace(/'(?:[^'\\\n]|\\.)*'|`(?:[^`\\]|\\.)*`/g, "''");
 const FILES = sourceFiles(SRC).map((path) => {
   const raw = readFileSync(path, 'utf8');
-  return { path: relative(SRC, path), raw, text: code(raw) };
+  return { path: relative(SRC, path).replaceAll('\\', '/'), raw, text: code(raw) };
 });
 const imports = (text: string) =>
   [...text.matchAll(/^\s*(?:import|export)\b[^'"]*?from\s+'([^']+)'/gm)].map((match) => match[1]!);

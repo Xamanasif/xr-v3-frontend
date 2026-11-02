@@ -478,6 +478,24 @@ export function renewalApprovedLine(endsOn: string | null): string {
 
 // ---- Existing access ----
 
+/**
+ * P1 register item A (interim, no business rule): a new institution's request whose name matches
+ * an institution that already has a record. Nothing links or merges them (the matching rule is
+ * open, T-01 / SEL-05); the Super Admin is told before approving that a second record would be made.
+ */
+export const SAME_NAME = {
+  title: 'An institution with this name already has a record',
+  line: (institution: string) =>
+    `Approving this request creates a second, separate record for ${institution}. It is not linked to the existing record, its plan or its people. Check with the requester before you approve.`,
+  view: (name: string) => `View ${name}`,
+} as const;
+
+/** Two institution names are the same when they differ only in case and spacing. */
+export function sameInstitutionName(a: string, b: string): boolean {
+  const norm = (text: string) => text.trim().replace(/\s+/g, ' ').toLocaleLowerCase('en');
+  return norm(a) === norm(b);
+}
+
 /** A new institution: "None. There is no institution record for … yet." (and, before a decision, what approving does). */
 export function noInstitutionYet(institution: string, underReview: boolean): string {
   const none = `None. There is no institution record for ${institution} yet.`;

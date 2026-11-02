@@ -116,7 +116,7 @@ export function headStatus(
     line =
       progress.completion.reportedFrom === 'simulation'
         ? ST_FACT_WORDS.reportedBySimulation(progress.completion.completedAt)
-        : ST_FACT_WORDS.reportedFromHeadset(progress.completion.completedAt);
+        : ST_FACT_WORDS.reportedFromHeadset(progress.completion.completedAt, format);
   } else if (progress.status === 'in-progress' && meta.kind !== 'none') {
     line =
       format === 'web'

@@ -256,7 +256,9 @@ export function requestStands(
         },
         {
           term: stand.plan,
-          value: created ? planActiveSinceWords(created.activatedAt) : stand.planActive,
+          // No plan names this request as its source (a renewal or more licences): the plan is
+          // not changed by it (P1 register item B; SA-03's words).
+          value: created ? planActiveSinceWords(created.activatedAt) : stand.planUnchanged,
         },
       ];
     }

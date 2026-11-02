@@ -1,50 +1,45 @@
 /**
- * LogoPlaceholder — markup contract and accessibility (Appendix E §3.1 LogoPlaceholder, §4.5;
- * BC12). Sources: board 06 "The seven sidebars · full width (≥ 1280 px)" (the sidebar box, drawn
- * statically), board 05 "GL-01 Workspace Shell" and board 07 (the same box in every shell); the
- * public placement `span.xp-logo`, board B1-01 "Landing · 1440 · default" (Phase-1 Package 1B).
- * The committed branding PNG is never used (VD-03).
+ * LogoPlaceholder — markup contract and accessibility (Appendix E §3.1 LogoPlaceholder, §4.5).
+ * Sources: board 06 "The seven sidebars · full width (≥ 1280 px)" (the sidebar box), board 05
+ * "GL-01 Workspace Shell" and board 07 (the same box in every shell); the public placement
+ * `span.xp-logo`, board B1-01 "Landing · 1440 · default". The boards draw the box with the words
+ * "BITS Pilani / WILP logo — placeholder" until the approved lockup is supplied; the owner's lockup
+ * is the one the accepted V1 landing shows, so the box now holds it (K-02).
  */
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
-
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import {
   assertNoAxeViolations,
   expectBoardDraws,
-  expectRenderedAsDrawn,
   expectStylesheetClassesOnly,
 } from '../testing/index.js';
-import { LOGO_PLACEHOLDER_TEXT, LogoPlaceholder } from './logo-placeholder.js';
+import { LOGO_PLACEHOLDER_TEXT, LogoPlaceholder, OFFICIAL_LOGO } from './logo-placeholder.js';
+
+const IMAGE =
+  '<img class="xr-logo-img" alt="BITS Pilani Work Integrated Learning Programmes" width="632" height="316" src="/brand/bits-wilp-lockup.png">';
 
 describe('LogoPlaceholder markup contract', () => {
-  it('renders exactly the sidebar box board 06 draws', () => {
-    const { container } = render(<LogoPlaceholder />);
-    expectRenderedAsDrawn(
-      container.firstElementChild!,
+  it('the sidebar box board 06 draws, holding the official lockup', () => {
+    expectBoardDraws(
       { board: '06', frame: 'The seven sidebars · full width (≥ 1280 px)' },
       '<div class="xr-logo-ph">BITS Pilani / WILP logo — placeholder</div>',
     );
+    const { container } = render(<LogoPlaceholder />);
+    expect(container.innerHTML).toBe(`<div class="xr-logo-ph xr-logo--official">${IMAGE}</div>`);
   });
 
-  it('renders the public box B1-01 draws in the header and the footer (Phase 1, G-8)', () => {
-    const { container } = render(<LogoPlaceholder placement="public" />);
-    expectRenderedAsDrawn(
-      container.firstElementChild!,
-      { board: 'B1-01', frame: 'Landing · 1440 · default' },
-      '<span class="xp-logo">BITS Pilani / WILP logo — placeholder</span>',
-    );
+  it('the public box B1-01 draws in the header and the footer, holding the official lockup', () => {
     expectBoardDraws(
       { board: 'B1-01', frame: 'Landing · 1440 · default' },
       '<div class="xp-foot-brand"><span class="xp-logo">BITS Pilani / WILP logo — placeholder</span><span>XR Learning Platform</span></div>',
     );
+    const { container } = render(<LogoPlaceholder placement="public" />);
+    expect(container.innerHTML).toBe(`<span class="xp-logo xr-logo--official">${IMAGE}</span>`);
     expectStylesheetClassesOnly(container.firstElementChild!);
   });
 
-  it('the text is exactly the BC12 wording, as boards 05 and 07 draw it too', () => {
-    expect(LOGO_PLACEHOLDER_TEXT).toBe('BITS Pilani / WILP logo — placeholder');
+  it('boards 05 and 07 draw the same box in every shell; it holds the same lockup', () => {
     expectBoardDraws(
       { board: '05', frame: 'GL-01 Workspace Shell' },
       '<div class="xr-logo-ph" style="flex: 1 1 auto">BITS Pilani / WILP logo — placeholder</div>',
@@ -53,20 +48,22 @@ describe('LogoPlaceholder markup contract', () => {
       { board: '07', frame: 'State 2 · My reports · open / reopened / resolved · Institute Admin' },
       '<div class="xr-side-head"><div class="xr-logo-ph">BITS Pilani / WILP logo — placeholder</div><span class="xr-product">XR Learning Platform</span></div>',
     );
-    render(<LogoPlaceholder />);
-    expect(screen.getByText(LOGO_PLACEHOLDER_TEXT)).toBeInTheDocument();
-  });
-
-  it('is text, not an image: the branding PNG is never imported (VD-03)', () => {
     const { container } = render(<LogoPlaceholder />);
-    expect(container.querySelector('img, svg, picture')).toBeNull();
-    const source = readFileSync(join(import.meta.dirname, 'logo-placeholder.tsx'), 'utf8');
-    expect(source).not.toMatch(/\.png|branding\//);
+    expect(container.innerHTML).toBe(`<div class="xr-logo-ph xr-logo--official">${IMAGE}</div>`);
   });
 
-  it('keeps a composition class after `xr-logo-ph`', () => {
+  it('the lockup is the landing’s file and is named for screen readers', () => {
+    expect(OFFICIAL_LOGO.src).toBe('/brand/bits-wilp-lockup.png');
+    expect(LOGO_PLACEHOLDER_TEXT).toBe(OFFICIAL_LOGO.alt);
+    render(<LogoPlaceholder />);
+    expect(
+      screen.getByRole('img', { name: 'BITS Pilani Work Integrated Learning Programmes' }),
+    ).toBeInTheDocument();
+  });
+
+  it('keeps a composition class after its own', () => {
     const { container } = render(<LogoPlaceholder className="xw-full" />);
-    expect(container.firstElementChild!.className).toBe('xr-logo-ph xw-full');
+    expect(container.firstElementChild!.className).toBe('xr-logo-ph xr-logo--official xw-full');
   });
 
   it('emits only stylesheet classes', () => {

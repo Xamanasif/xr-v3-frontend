@@ -852,3 +852,25 @@ dialog.rk-dialog:where(.xr *):not(:where([data-xr-v46], [data-xr-v46] *))::backd
 :where(.xr) .sv-card:focus-visible:not(:where([data-xr-v46], [data-xr-v46] *)) {
   border-radius: 6px;
 }
+
+/*
+ * V3P-19 · The logo slot holds the official BITS Pilani WILP lockup (K-02, P1 brand). The boards
+ * reserve `div.rb-logo` (rail, drawer head, sign-in card) as a 52 px dashed box reading “Official
+ * WILP logo” until the image is supplied (owner decision 10). The owner's lockup is the one the
+ * accepted V1 landing shows (`/brand/bits-wilp-lockup.png`, 2 : 1, dark artwork on white), so the
+ * slot keeps its height and corners and becomes the landing's white tile; the image is contained,
+ * never cropped or stretched.
+ */
+:where(.xr) .rb-logo.rb-logo--official:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  padding: 6px 12px;
+  border: 0;
+  background: #ffffff;
+}
+
+:where(.xr) .rb-logo--official .xr-logo-img:not(:where([data-xr-v46], [data-xr-v46] *)) {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: 100%;
+  object-fit: contain;
+}

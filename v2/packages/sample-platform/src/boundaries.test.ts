@@ -20,7 +20,7 @@ function files(directory: string): string[] {
 }
 
 const SOURCE = files(SRC).filter((file) => file.endsWith('.ts') && !file.endsWith('.test.ts'));
-const rel = (file: string) => relative(SRC, file);
+const rel = (file: string) => relative(SRC, file).split('\\').join('/');
 
 /** Source text without comments: the scans read code, not the documentation about it. */
 function code(file: string): string {

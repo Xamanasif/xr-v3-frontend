@@ -226,6 +226,11 @@ export const REQUEST_STATUS = {
   changed: 'Changed',
   history: 'History',
   whatBitsAsked: 'What BITS asked',
+  /**
+   * P1 register item E (audit F-08): the requester was told BITS needs information but not how to
+   * give it. IA-17's approved line for the same state (`informationLine`), word for word.
+   */
+  replyOutside: 'Reply outside the platform; there is no reply form here.',
   whyItChanged: 'Why it changed',
   accessPlan: 'Access plan ',
   signInHint: 'Institution administrators sign in to give students access.',

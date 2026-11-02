@@ -40,7 +40,9 @@ function expectedCopies(sums: string): Map<string, string> {
 function filesUnder(root: string, directory = root): string[] {
   return readdirSync(directory).flatMap((entry) => {
     const path = join(directory, entry);
-    return statSync(path).isDirectory() ? filesUnder(root, path) : [relative(root, path)];
+    return statSync(path).isDirectory()
+      ? filesUnder(root, path)
+      : [relative(root, path).split('\\').join('/')];
   });
 }
 
