@@ -1,11 +1,10 @@
-// Phase 0 foundation schema — NOT the platform data model.
+// Platform data model — built slice by slice (docs/MIGRATION_STRATEGY.md §3, Phase 3).
 //
-// Domain modelling (tenants, requests, access, entitlement, content, learning,
-// assessment, telemetry) is a later phase: docs/MIGRATION_STRATEGY.md §3, Phase 3.
-// Nothing here is translated from the prototype's localStorage collections.
-//
-// The single table below exists only to prove client generation, migrations and
-// the API's database health check. Remove it when the first domain migration lands.
+// D1 · Catalogue (backend B1, ADR-0013): engineering areas, courses, published experiments and
+// the catalogue view of their versions — what the public catalogue reads (Appendix D §5.3). No
+// access, entitlement, activity or completion lives here (BC9). Nothing is translated from the
+// prototype's localStorage collections; ids are the domain's own (`mechanical`, `me-zg523`,
+// `composite-wall-conduction`). Prisma 7.10 by ADR-0011.
 
 generator client {
   provider               = "prisma-client"
@@ -20,11 +19,143 @@ datasource db {
   provider = "postgresql"
 }
 
-/// Foundation probe — proves generation, migration and connectivity. Not a domain record.
-model FoundationProbe {
-  id        String   @id @default(uuid(7))
-  label     String   @db.VarChar(200)
-  createdAt DateTime @default(now()) @map("created_at")
+/// Technology formats, canonical identifiers (`@xr/domain` TECHNOLOGIES). Display order is the
+/// application's (WEB · AR · VR · MR), never the database's.
+enum Technology {
+  web
+  vr
+  mr
+  ar
 
-  @@map("foundation_probe")
+  @@map("technology")
+}
+
+/// M06 Engineering area — a catalogue grouping of courses (no Programme, no Module layer; BC2).
+model EngineeringArea {
+  id          String   @id
+  /// Unique among areas ('Mechanical & Manufacturing'); compared trimmed, case-insensitively by
+  /// the domain writer (`sameName`), stored as written.
+  name        String   @unique @db.VarChar(200)
+  description String?
+  /// Concept artwork key from the asset set; null → initials (no upload, D3).
+  artworkKey  String?  @map("artwork_key") @db.VarChar(200)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  courses Course[]
+
+  @@map("engineering_area")
+}
+
+/// M07 Course, with its platform course code (single writer: the Content Manager, M-2).
+model Course {
+  id           String   @id
+  areaId       String   @map("area_id")
+  name         String   @unique @db.VarChar(200)
+  description  String?
+  /// 'ME ZG523'; null when blank (T-17). Uniqueness among non-blank codes is the domain writer's.
+  platformCode String?  @map("platform_code") @db.VarChar(40)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  area        EngineeringArea @relation(fields: [areaId], references: [id], onDelete: Restrict)
+  experiments Experiment[]
+
+  @@index([areaId])
+  @@map("course")
+}
+
+/// M09 Experiment. A row exists only once published (an unpublished one is a Submission, M10);
+/// the public catalogue reads its live version only (B7-11).
+model Experiment {
+  id            String   @id
+  courseId      String   @map("course_id")
+  /// Concept artwork key for the row, cards and hero; null → the drawn fallback (PC-31).
+  artworkKey    String?  @map("artwork_key") @db.VarChar(200)
+  /// The version every surface reads — always one of this experiment's own versions (composite
+  /// reference); null only while a publication is being written.
+  liveVersionId String?  @unique @map("live_version_id") @db.Uuid
+  publishedAt   DateTime @map("published_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  course           Course              @relation(fields: [courseId], references: [id], onDelete: Restrict)
+  liveVersion      ExperimentVersion?  @relation("LiveVersion", fields: [liveVersionId, id], references: [id, experimentId], onDelete: Restrict)
+  versions         ExperimentVersion[] @relation("Versions")
+  learningOutcomes LearningOutcome[]
+  featured         FeaturedExperiment?
+
+  @@unique([liveVersionId, id])
+  @@index([courseId])
+  @@map("experiment")
+}
+
+/// One version of an experiment's catalogue view (1.0 at first publication; later releases).
+/// Every version is kept (B7-11); which one is live is `Experiment.liveVersionId`.
+model ExperimentVersion {
+  id           String    @id @default(uuid(7)) @db.Uuid
+  experimentId String    @map("experiment_id")
+  label        String    @db.VarChar(20)
+  liveFrom     DateTime  @map("live_from")
+  liveUntil    DateTime? @map("live_until")
+  name         String    @db.VarChar(200)
+  summary      String
+  description  String
+  previewLabel String?   @map("preview_label") @db.VarChar(200)
+  previewLink  String?   @map("preview_link")
+
+  experiment Experiment                @relation("Versions", fields: [experimentId], references: [id], onDelete: Cascade)
+  liveOf     Experiment?               @relation("LiveVersion")
+  formats    ExperimentVersionFormat[]
+
+  @@unique([experimentId, label])
+  /// Target of the live-version reference: the live version is always one of its own versions.
+  @@unique([id, experimentId])
+  @@map("experiment_version")
+}
+
+/// A published format of one version (LD-2) and its delivery. WEB is a hosted link; AR / VR / MR
+/// are packages (STK31-37). The column set per kind is enforced by a CHECK in the migration.
+model ExperimentVersionFormat {
+  versionId          String     @map("version_id") @db.Uuid
+  format             Technology
+  /// WEB only.
+  webLink            String?    @map("web_link")
+  browserAndComputer String?    @map("browser_and_computer")
+  /// AR / VR / MR only.
+  packageLabel       String?    @map("package_label")
+  packageReference   String?    @map("package_reference")
+  packageFileName    String?    @map("package_file_name")
+  deviceNeeded       String?    @map("device_needed")
+  installNotes       String?    @map("install_notes")
+  notes              String?
+
+  version ExperimentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+
+  @@id([versionId, format])
+  @@map("experiment_version_format")
+}
+
+/// One ordered experiment-level set for every format, written by the Academic Reviewer (LD-3).
+model LearningOutcome {
+  id           String @id
+  experimentId String @map("experiment_id")
+  position     Int
+  text         String
+
+  experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  @@unique([experimentId, position])
+  @@map("learning_outcome")
+}
+
+/// The landing's featured experiments (B1-01), in order. P1-22 interim: a seeded list — curated
+/// vs derived is OPEN (PC-32).
+model FeaturedExperiment {
+  experimentId String @id @map("experiment_id")
+  position     Int    @unique
+
+  experiment Experiment @relation(fields: [experimentId], references: [id], onDelete: Cascade)
+
+  @@map("featured_experiment")
 }
