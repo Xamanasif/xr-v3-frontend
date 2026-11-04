@@ -17,7 +17,9 @@ services:
       POSTGRES_PASSWORD: xr_dev_password
       POSTGRES_DB: xr_platform
     ports:
-      - '5432:5432'
+      # Host port defaults to 5432; set XR_POSTGRES_PORT in .env when 5432 is taken
+      # (and use the same port in DATABASE_URL).
+      - '${XR_POSTGRES_PORT:-5432}:5432'
     volumes:
       - xr-v2-postgres-data:/var/lib/postgresql/data
     healthcheck:
