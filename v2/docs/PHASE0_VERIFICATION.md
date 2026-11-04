@@ -133,3 +133,78 @@ Appending `import { probeDatabase } from '../../database/dist/index.js'` to `pac
 ## 11 · Not started, by design
 
 No business module, no authentication, no product screen, no domain schema, no seed data, no CI, no deployment work (recorded as D-01…D-05). See `MIGRATION_STRATEGY.md` for what comes next and `FUNCTIONAL_PARITY_MATRIX.md` for the 36 scenario groups that remain at _Not started_ (one partially at _Domain_).
+
+## 12 · Backend B0 day 1 — live database, 4 November 2026 (appended; §1–§11 above are unchanged)
+
+|                   |                                                                                                                                                                                  |
+| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Date**          | 4 November 2026                                                                                                                                                                  |
+| **Branch / base** | `backend/b0-groundwork` from `8ca8166` (`v3/final-frontend`); commits `570f443` (foundation fixes), `4c03ce9` (ADR-0011, ADR-0012) and this record                               |
+| **Machine**       | Windows 11 Home (10.0.26200), Git Bash. Node.js **v24.22.1**, pnpm **12.3.4**, Docker Desktop (Engine 29.8.0, Compose v5.5.1), PostgreSQL **17** from `docker-compose.yml`       |
+| **Corrects**      | §8 row 1 and §2 "Database-backed task": the live-database checks that could not run on 10 Sep 2026 have now run. The §2 totals are from Phase 0; the current totals are in §12.3 |
+
+### 12.1 · Foundation fixes needed to run the database layer
+
+| Problem found                                                                                                                                                        | Fix (commit `570f443`)                                                                                                                                                           |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm test:db` reported `1 passed \| 1 skipped`: the real probe was skipped although `v2/.env` set `DATABASE_URL` — Turbo (strict env) and Vitest do not load `.env` | `packages/database/vitest.db.config.ts` loads `v2/.env` with `process.loadEnvFile`, as `prisma.config.ts` already does; values already in the shell (CI) still win (checked)     |
+| Host port 5432 was taken by a native PostgreSQL on this machine, so the compose service could not publish it                                                         | `docker-compose.yml` publishes `${XR_POSTGRES_PORT:-5432}:5432` (default unchanged); `.env.example` documents `XR_POSTGRES_PORT`. This machine's `.env` (git-ignored) uses 55432 |
+
+### 12.2 · Live database results (all from `v2/`)
+
+| Step                  | Command                                                                        | Key output                                                                                                                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Environment           | `cp .env.example .env` (no `.env` existed)                                     | API boot line: `loaded …\xr-v3\v2\.env`                                                                                                                                                                                            |
+| Install               | `pnpm install`                                                                 | `Already up to date` (12 workspace projects)                                                                                                                                                                                       |
+| PostgreSQL            | `docker compose up -d postgres`                                                | `xr-v2-postgres Up … (healthy) 0.0.0.0:55432->5432/tcp`                                                                                                                                                                            |
+| Migration             | `pnpm --filter @xr/database prisma:migrate:dev`                                | `Applying migration 20260910000000_foundation_probe` … `Your database is now in sync with your schema.` No new migration generated; the schema is still `FoundationProbe` only                                                     |
+| Status                | `pnpm --filter @xr/database prisma:migrate:status`                             | `Database schema is up to date!`                                                                                                                                                                                                   |
+| Database-backed test  | `pnpm test:db`                                                                 | before the fix `Tests 1 passed \| 1 skipped (2)`; after: `✓ src/client.db.test.ts (1 test) 149ms` · `Tests 1 passed (1)` · `Tasks: 9 successful, 9 total`                                                                          |
+| API, database up      | `pnpm --filter @xr/api start`; `curl -s "http://localhost:4000/api/v1/health"` | `"status":"ok"` … `"checks":{"database":{"status":"ok","latencyMs":117}}`                                                                                                                                                          |
+| API, skip             | `curl -s "http://localhost:4000/api/v1/health?database=skip"`                  | `"checks":{"database":{"status":"skipped","detail":"skipped by request"}}`                                                                                                                                                         |
+| API, database stopped | `docker compose stop postgres`; the same `curl`                                | `"status":"degraded"` … `"database":{"status":"unavailable","detail":"Database connection failed"}` in **333 ms** (bounded pool; no internal detail leaked); after `docker compose start postgres`: `"status":"ok","latencyMs":25` |
+
+`pnpm dev` could not be used for the API on this machine: `scripts/dev.mjs` exits 1 without output on Windows (§12.4), so the compiled API was run after `pnpm turbo run build --filter=@xr/api` (7/7 tasks).
+
+### 12.3 · Frontend baseline — current per-package totals
+
+`pnpm verify` stops on Windows before any check runs (`spawn EINVAL`, §12.4). Its steps were therefore run with the commands it uses: the real `scripts/verify.mjs` through a local, uncommitted `child_process.spawn` shim (cross-spawn parsing) for steps 1–2, then steps 3 and 5 directly.
+
+| Step                        | Command                                                      | Result                                                                                                                                                                                                   |
+| --------------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1 · format                  | `prettier --check .` (verify)                                | PASS — clean                                                                                                                                                                                             |
+| 2 · repository              | `pnpm --filter @xr/config run test:scans` (verify)           | **FAIL 45 / 46** — V3 46/46, handoff 178/178, audit evidence 36/36, v46 copies 27/27 all OK; `board-capture vendored inputs … exactly the checksummed files` fails on `\` vs `/` path separators (§12.4) |
+| 3 · build                   | `pnpm exec turbo run build build:test-hooks --force`         | PASS — `Tasks: 12 successful, 12 total`                                                                                                                                                                  |
+| 3 · typecheck / lint / test | `pnpm exec turbo run typecheck lint test --force --continue` | `Tasks: 39 successful, 40 total` (every typecheck and lint task passes); `Failed: @xr/web#test`; 10m14s                                                                                                  |
+| 5 · browser                 | `pnpm exec turbo run test:e2e --continue`                    | **NOT RUN** — Playwright Chromium is not installed: `browserType.launch: Executable doesn't exist at …\ms-playwright\chromium_headless_shell-1243\…` (every test fails at launch; the run was stopped)   |
+| 4, 6 · bundle, parity       | —                                                            | not run (verify stopped at step 2; parity needs the browser)                                                                                                                                             |
+
+Unit totals (step 3), against `docs/v3/V3-FINAL-BROWSER-REVIEW-REPORT.md` (11,602):
+
+| Package         | 4 Nov 2026                           | Report     |
+| --------------- | ------------------------------------ | ---------- |
+| web             | 7,826 passed · **6 failed** (7,832)  | 7,754      |
+| ui              | 1,506                                | 1,504      |
+| domain          | 795                                  | 787        |
+| contracts       | 788                                  | 781        |
+| config          | 379                                  | 379        |
+| sample-platform | 354                                  | 320        |
+| api             | 38                                   | —          |
+| validation      | 20                                   | —          |
+| testing         | 15                                   | —          |
+| database        | 5                                    | —          |
+| **Total**       | **11,726 passed, 6 failed (11,732)** | **11,602** |
+
+The 130 extra tests come from commits after the report (`f66d754`, `8ca8166`). The six `@xr/web` failures are `cm-correction.test.tsx` (CM-05: "Start a correction lands with nothing named", "an update already open elsewhere …") and `assessments.test.tsx` (FA-06: "days left while Ready and open …", "search and the filters narrow the list …"; FA-07: "rules start empty …", "the created assessment is in FA-06 as Ready …"). Five are `Test timed out in 5000ms` and one is a `findAll` miss at 4.4 s, all under full-workspace parallel load. Run alone (`npx vitest run` on the two files in `apps/web`): **187 / 187 passed**. They are classified as load-sensitive timeouts on this machine, not defects; no UI code was changed. Browser totals (report: 3,414) are not available until Chromium is installed.
+
+Frozen designs (`sha256sum -c SHA256SUMS.txt` inside each folder): `design/handoff-v46` **178 OK**, `design/v3-refined-b` **46 OK**, 0 failed.
+
+### 12.4 · Open after day 1
+
+| Item                                                                                                                                                     | Check that resolves it                                                                                                                                 |
+| -------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Playwright Chromium missing on this machine                                                                                                              | `pnpm --filter @xr/testing exec playwright install chromium`, then `pnpm exec turbo run test:e2e` — 3,414 passed expected                              |
+| `scripts/verify.mjs`, `scripts/dev.mjs`, `scripts/graph-dev.mjs` spawn `pnpm.cmd` / `.bin/*` shims without a shell — `EINVAL` / silent exit 1 on Windows | a cross-platform spawn in those scripts; then `pnpm verify` and `pnpm dev` start on Windows                                                            |
+| `repository.scan.test.ts` compares `path.relative` output with `/`-separated checksum lists                                                              | normalise separators in the walk; `pnpm --filter @xr/config run test:scans` 46/46 on Windows                                                           |
+| Six `@xr/web` tests exceed 5 s under full load on this machine                                                                                           | `pnpm exec turbo run test --filter=@xr/web --force` green on this machine (or on CI, D-05), after the owner chooses per-test timeouts or fewer workers |
+| E-22, E-23                                                                                                                                               | owner decision on ADR-0011 and ADR-0012                                                                                                                |
