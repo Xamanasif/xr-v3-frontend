@@ -33,6 +33,7 @@ import {
   type PublicCatalogueEntry,
   publishedFormats,
   removeFromSelection,
+  searchPublicCatalogue,
   setSelectionFormats,
   undoRemove,
 } from '@xr/domain';
@@ -42,11 +43,6 @@ import { read, refuse, sessionScoped } from '../pipeline/runner.js';
 import { values } from '../world/records.js';
 import type { WorldRecords } from '../world/types.js';
 import { areaCardOf, catalogueEntryOf, courseCardOf, publicPageOf } from './views.js';
-
-function matches(text: string | undefined, ...fields: readonly (string | null)[]): boolean {
-  const wanted = text?.trim().toLowerCase() ?? '';
-  return wanted === '' || fields.some((field) => field?.toLowerCase().includes(wanted));
-}
 
 /** The published catalogue, in the world's (default) order. */
 function catalogueOf(records: WorldRecords): readonly PublicCatalogueEntry[] {
@@ -108,36 +104,11 @@ export function cataloguePort(call: Call): CatalogueService {
       read(call, 'CatalogueService.searchCatalogue', (op) => {
         const accepted = op.parse(catalogueQuery, query);
         const records = op.records;
-        // P1-22 interim (PC-32): the landing's featured experiments are a seeded list.
-        const featured = op.seeded.featuredExperiments;
-        const entries = catalogueOf(records)
-          .filter((entry) => !accepted.featured || featured.includes(entry.experimentId))
-          .filter((entry) => !accepted.areaId || entry.areaId === accepted.areaId)
-          .filter((entry) => !accepted.format || entry.formats.includes(accepted.format))
-          .filter((entry) =>
-            matches(
-              accepted.text,
-              entry.name,
-              entry.summary,
-              entry.platformCode,
-              records.courses[entry.courseId]?.name ?? null,
-            ),
-          )
-          .map((entry) => catalogueEntryOf(records, records.experiments[entry.experimentId]!));
-        if (accepted.sort === 'title-a-z') {
-          entries.sort((a, b) => a.name.localeCompare(b.name, 'en'));
-        } else if (accepted.sort === 'course-code') {
-          // B1-04's live order: the course code, then the title within one course (Package 1B).
-          entries.sort(
-            (a, b) =>
-              (a.platformCode ?? '￿').localeCompare(b.platformCode ?? '￿', 'en') ||
-              a.name.localeCompare(b.name, 'en'),
-          );
-        } else if (accepted.featured) {
-          entries.sort(
-            (a, b) => featured.indexOf(a.experimentId) - featured.indexOf(b.experimentId),
-          );
-        }
+        const entries = searchPublicCatalogue(catalogueOf(records), accepted, {
+          courseName: (courseId) => records.courses[courseId]?.name ?? null,
+          // P1-22 interim (PC-32): the landing's featured experiments are a seeded list.
+          featured: op.seeded.featuredExperiments as readonly ExperimentId[],
+        }).map((entry) => catalogueEntryOf(records, records.experiments[entry.experimentId]!));
         return { total: entries.length, entries };
       }),
 

@@ -27,10 +27,10 @@ import type { Institution } from '../institution/model.js';
 import type {
   Course,
   EngineeringArea,
-  Experiment,
   InstitutionCodeStatus,
   InstitutionCourseCode,
   PlatformCourseCode,
+  PublishedExperimentFacts,
 } from './model.js';
 import { publishedFormats } from './model.js';
 
@@ -341,8 +341,8 @@ export interface PublicCatalogueEntry {
  * (CRS-09). An unknown or unpublished experiment is simply absent (EXP-02: not found).
  */
 export function publicCatalogue(
-  experiments: readonly Experiment[],
-  courses: readonly Course[],
+  experiments: readonly PublishedExperimentFacts[],
+  courses: readonly Pick<Course, 'id' | 'areaId' | 'platformCode'>[],
 ): readonly PublicCatalogueEntry[] {
   const byId = new Map(courses.map((course) => [course.id, course]));
   return experiments.flatMap((experiment) => {
@@ -363,10 +363,76 @@ export function publicCatalogue(
 }
 
 /** The areas the public explorer lists: those with a published experiment (CRS-09, OD-B7-13). */
-export function publicAreas(
-  areas: readonly EngineeringArea[],
+export function publicAreas<A extends Pick<EngineeringArea, 'id'>>(
+  areas: readonly A[],
   catalogue: readonly PublicCatalogueEntry[],
-): readonly EngineeringArea[] {
+): readonly A[] {
   const withContent = new Set(catalogue.map((entry) => entry.areaId));
   return areas.filter((area) => withContent.has(area.id));
+}
+
+/** The B1-04 orders. No default order is assumed: the caller names one (PU-04). */
+export const CATALOGUE_SORTS = ['default', 'title-a-z', 'course-code'] as const;
+export type CatalogueSort = (typeof CATALOGUE_SORTS)[number];
+
+/** A catalogue search (PU-01 featured, PU-04 filters), already validated by the caller. */
+export interface CatalogueSearch {
+  readonly text?: string | undefined;
+  readonly areaId?: AreaId | undefined;
+  readonly format?: Technology | undefined;
+  /** Only the landing's featured experiments (B1-01), in their seeded order under `default`. */
+  readonly featured?: boolean | undefined;
+  readonly sort: CatalogueSort;
+}
+
+export interface CatalogueSearchFacts {
+  /** The course name an entry is also found by (PU-04 search covers the course). */
+  readonly courseName: (courseId: CourseId) => string | null;
+  /** P1-22 interim (PC-32): the featured experiments are a seeded list, curated vs derived OPEN. */
+  readonly featured: readonly ExperimentId[];
+}
+
+/** Text matches when blank, or when any field contains it (trimmed, case-insensitive). */
+function matchesText(text: string | undefined, ...fields: readonly (string | null)[]): boolean {
+  const wanted = text?.trim().toLowerCase() ?? '';
+  return wanted === '' || fields.some((field) => field?.toLowerCase().includes(wanted));
+}
+
+/**
+ * PU-01 / PU-04: filter the public catalogue and put it in the named order. `default` keeps the
+ * catalogue's own order (the featured order when `featured`); `title-a-z` sorts by name;
+ * `course-code` by platform course code (blank codes last), then by name within a course.
+ */
+export function searchPublicCatalogue(
+  catalogue: readonly PublicCatalogueEntry[],
+  search: CatalogueSearch,
+  facts: CatalogueSearchFacts,
+): readonly PublicCatalogueEntry[] {
+  const entries = catalogue
+    .filter((entry) => !search.featured || facts.featured.includes(entry.experimentId))
+    .filter((entry) => !search.areaId || entry.areaId === search.areaId)
+    .filter((entry) => !search.format || entry.formats.includes(search.format))
+    .filter((entry) =>
+      matchesText(
+        search.text,
+        entry.name,
+        entry.summary,
+        entry.platformCode,
+        facts.courseName(entry.courseId),
+      ),
+    );
+  if (search.sort === 'title-a-z') {
+    entries.sort((a, b) => a.name.localeCompare(b.name, 'en'));
+  } else if (search.sort === 'course-code') {
+    entries.sort(
+      (a, b) =>
+        (a.platformCode ?? '￿').localeCompare(b.platformCode ?? '￿', 'en') ||
+        a.name.localeCompare(b.name, 'en'),
+    );
+  } else if (search.featured) {
+    entries.sort(
+      (a, b) => facts.featured.indexOf(a.experimentId) - facts.featured.indexOf(b.experimentId),
+    );
+  }
+  return entries;
 }

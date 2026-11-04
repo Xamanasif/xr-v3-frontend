@@ -178,7 +178,23 @@ export interface Experiment extends RecordMeta {
   readonly openUpdateId: UpdateId | null;
 }
 
+/**
+ * What the public catalogue reads of a published experiment: its identity and the catalogue view
+ * of its live version. An `Experiment` is one; so is a read-model row that holds only these facts
+ * (the API's catalogue repository), so no reader has to invent the fields it does not hold.
+ */
+export interface PublishedExperimentFacts {
+  readonly id: ExperimentId;
+  readonly courseId: CourseId;
+  readonly live: {
+    readonly catalogue: Pick<CatalogueDetails, 'name' | 'summary'>;
+    readonly formats: readonly Pick<PublishedFormat, 'format'>[];
+  };
+}
+
 /** The published formats of the live version, in display order (WEB · AR · VR · MR). */
-export function publishedFormats(experiment: Experiment): readonly Technology[] {
+export function publishedFormats(experiment: {
+  readonly live: { readonly formats: readonly Pick<PublishedFormat, 'format'>[] };
+}): readonly Technology[] {
   return inDisplayOrder(experiment.live.formats.map((entry) => entry.format));
 }

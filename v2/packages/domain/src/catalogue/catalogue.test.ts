@@ -30,6 +30,7 @@ import {
   publicCatalogue,
   renameStructure,
   savePlatformCourseCodes,
+  searchPublicCatalogue,
   setInstitutionCourseCode,
 } from './decide.js';
 
@@ -207,5 +208,69 @@ describe('the public catalogue (EXP-01, EXP-02, EXP-11; CRS-09)', () => {
       ),
     ).toEqual([ids.area]);
     expect(publicCatalogue([wallA], [])).toEqual([]);
+  });
+});
+
+describe('the catalogue search (PU-01 featured, PU-04 filters and orders; B1-04)', () => {
+  const entryOf = (
+    id: typeof ids.wallA,
+    name: string,
+    formats: Parameters<typeof experiment>[1],
+    courseId = ids.course,
+  ) => {
+    const live = experiment({}, formats).live;
+    return experiment({
+      id,
+      courseId,
+      live: { ...live, catalogue: { name, summary: `About ${name}`, description: name } },
+    });
+  };
+  const shell = entryOf(ids.shell, 'Shell-and-Tube Heat Exchanger', ['web', 'vr']);
+  const wallA = entryOf(ids.wallA, 'Composite Wall Conduction', ['vr', 'web']);
+  const wallB = entryOf(ids.wallB, 'Conduction Through a Composite Wall', ['ar'], ids.course2);
+  const courses = [
+    course(),
+    course({ id: ids.course2, areaId: ids.area2, name: 'Circuits', platformCode: null }),
+  ];
+  const catalogue = publicCatalogue([shell, wallA, wallB], courses);
+  const facts = {
+    courseName: (id: string) => courses.find((entry) => entry.id === id)?.name ?? null,
+    featured: [ids.wallB, ids.shell],
+  };
+  const idsOf = (search: Parameters<typeof searchPublicCatalogue>[1]) =>
+    searchPublicCatalogue(catalogue, search, facts).map((entry) => entry.experimentId);
+
+  it('default keeps the catalogue order; nothing is filtered without a filter', () => {
+    expect(idsOf({ sort: 'default' })).toEqual([ids.shell, ids.wallA, ids.wallB]);
+  });
+
+  it('featured keeps the seeded list only, in its seeded order under default', () => {
+    expect(idsOf({ featured: true, sort: 'default' })).toEqual([ids.wallB, ids.shell]);
+    expect(idsOf({ featured: true, sort: 'title-a-z' })).toEqual([ids.wallB, ids.shell]);
+  });
+
+  it('filters by area and by published format', () => {
+    expect(idsOf({ areaId: ids.area2, sort: 'default' })).toEqual([ids.wallB]);
+    expect(idsOf({ format: 'vr', sort: 'default' })).toEqual([ids.shell, ids.wallA]);
+    expect(idsOf({ format: 'mr', sort: 'default' })).toEqual([]);
+  });
+
+  it('text matches name, summary, platform code and course name — trimmed, any case', () => {
+    expect(idsOf({ text: '  composite ', sort: 'default' })).toEqual([ids.wallA, ids.wallB]);
+    expect(idsOf({ text: 'about shell', sort: 'default' })).toEqual([ids.shell]);
+    expect(idsOf({ text: 'me zg523', sort: 'default' })).toEqual([ids.shell, ids.wallA]);
+    expect(idsOf({ text: 'CIRCUITS', sort: 'default' })).toEqual([ids.wallB]);
+    expect(idsOf({ text: '   ', sort: 'default' })).toEqual([ids.shell, ids.wallA, ids.wallB]);
+  });
+
+  it('title A–Z sorts by name; course code sorts by code (blank last), then by name', () => {
+    expect(idsOf({ sort: 'title-a-z' })).toEqual([ids.wallA, ids.wallB, ids.shell]);
+    expect(idsOf({ sort: 'course-code' })).toEqual([ids.wallA, ids.shell, ids.wallB]);
+  });
+
+  it('never reorders or changes the catalogue it is given', () => {
+    const before = catalogue.map((entry) => entry.experimentId);
+    searchPublicCatalogue(catalogue, { sort: 'title-a-z' }, facts);
+    expect(catalogue.map((entry) => entry.experimentId)).toEqual(before);
   });
 });
