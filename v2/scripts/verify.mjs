@@ -46,9 +46,10 @@ import {
 } from '../tools/board-capture/src/deviations.mjs';
 import { EXPECTED_REFERENCES } from '../tools/board-capture/src/inventory.mjs';
 import { summariseRun } from '../tools/board-capture/src/report.mjs';
+import { pnpmCommand } from './spawn-tool.mjs';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const pnpm = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
+const pnpm = 'pnpm';
 
 /** Suites the plan names that later work packages create or that wait for their screen; reported, never claimed. */
 // Phase 7 (17 Oct 2026): the 36 full-UI flow tests run on the product build (apps/web/e2e/flows);
@@ -93,8 +94,11 @@ const BUNDLE_SENTINELS = [
 ];
 
 function run(command, args, env = {}) {
+  // pnpm is a `.cmd` shim on Windows; `pnpmCommand` launches it portably (scripts/spawn-tool.mjs).
+  const launch = command === pnpm ? pnpmCommand(args) : { command, args, options: {} };
   return new Promise((resolvePromise) => {
-    const child = spawn(command, args, {
+    const child = spawn(launch.command, launch.args, {
+      ...launch.options,
       cwd: root,
       stdio: ['ignore', 'pipe', 'pipe'],
       env: { ...process.env, ...env },
@@ -107,6 +111,11 @@ function run(command, args, env = {}) {
       });
     forward(child.stdout, process.stdout);
     forward(child.stderr, process.stderr);
+    // A launch that fails (missing binary) is a failed step, not a hung or crashed gate.
+    child.on('error', (error) => {
+      process.stderr.write(`  could not start ${launch.command}: ${error.message}\n`);
+      resolvePromise({ code: 1, output });
+    });
     child.on('close', (code) => resolvePromise({ code: code ?? 1, output }));
   });
 }

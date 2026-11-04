@@ -12,17 +12,13 @@
 //   - cleans up every child on SIGINT / SIGTERM.
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+
+import { nodeBin } from './spawn-tool.mjs';
 
 /** Parse a `tsc --watch` summary line: "Found N errors. Watching for file changes." */
 export function parseTscSummary(line) {
   const match = /Found (\d+) errors?\. Watching for file changes/.exec(line);
   return match ? { errors: Number(match[1]) } : null;
-}
-
-export function localBin(packageDir, name) {
-  const candidate = join(packageDir, 'node_modules', '.bin', name);
-  return existsSync(candidate) ? candidate : name;
 }
 
 /**
@@ -89,11 +85,20 @@ export function runGraphDev({
     restartTimer = setTimeout(() => void startServer(reason), 300);
   }
 
-  const compiler = spawn(
-    localBin(workspaceRoot, 'tsc'),
-    ['-b', '--watch', '--preserveWatchOutput', '--pretty', 'false', solution],
-    { cwd: workspaceRoot, stdio: ['ignore', 'pipe', 'inherit'] },
-  );
+  // TypeScript's and Next's own JavaScript bins, run with this Node (scripts/spawn-tool.mjs): no
+  // `.bin` shim, so the same on Windows, and paths with spaces stay intact.
+  const tsc = nodeBin(workspaceRoot, 'typescript', 'tsc', [
+    '-b',
+    '--watch',
+    '--preserveWatchOutput',
+    '--pretty',
+    'false',
+    solution,
+  ]);
+  const compiler = spawn(tsc.command, tsc.args, {
+    cwd: workspaceRoot,
+    stdio: ['ignore', 'pipe', 'inherit'],
+  });
   let pending = '';
   compiler.stdout.on('data', (chunk) => {
     process.stdout.write(chunk);
@@ -124,10 +129,8 @@ export function runGraphDev({
   });
 
   if (web) {
-    webServer = spawn(localBin(web.root, 'next'), ['dev', '-p', String(web.port)], {
-      stdio: 'inherit',
-      cwd: web.root,
-    });
+    const next = nodeBin(web.root, 'next', 'next', ['dev', '-p', String(web.port)]);
+    webServer = spawn(next.command, next.args, { stdio: 'inherit', cwd: web.root });
     webServer.on('exit', (code, signal) => {
       if (stopping) return;
       log(`next dev exited (${signal ?? code})`);

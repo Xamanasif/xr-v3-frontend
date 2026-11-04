@@ -451,7 +451,8 @@ describe('board-capture vendored inputs (WP-0.15, uncached)', () => {
       readdirSync(directory, { withFileTypes: true }).flatMap((entry) =>
         entry.isDirectory()
           ? walk(join(directory, entry.name))
-          : [relative(vendor, join(directory, entry.name))],
+          : // The checksum list uses `/`; `relative` gives `\` on Windows.
+            [relative(vendor, join(directory, entry.name)).split('\\').join('/')],
       );
     expect(walk(vendor).sort()).toEqual([...listed, 'SHA256SUMS.txt'].sort());
   });
