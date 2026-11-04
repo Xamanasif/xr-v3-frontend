@@ -11,6 +11,7 @@ The validated behaviour lives in the gold-standard prototype at `../ui-ux/18-uni
 | [`docs/FUNCTIONAL_PARITY_MATRIX.md`](docs/FUNCTIONAL_PARITY_MATRIX.md) | The 36 scenario groups V2 must reproduce, with their sources and evidence. Nothing is verified yet                                                                  |
 | [`docs/OPEN_DECISIONS.md`](docs/OPEN_DECISIONS.md)                     | Product decisions still owned by the stakeholder / PM, engineering decisions, the Prisma 8 and ESLint gates, deployment prerequisites                               |
 | [`docs/PHASE0_VERIFICATION.md`](docs/PHASE0_VERIFICATION.md)           | What was verified for the corrected foundation, with the exact commands and results                                                                                 |
+| [`docs/BACKEND_PLAN.md`](docs/BACKEND_PLAN.md)                         | The backend plan: phases B0–B11, the per-slice definition of done, the decisions each phase waits for                                                               |
 
 ## Layout
 
