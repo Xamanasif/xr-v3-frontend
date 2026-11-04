@@ -2,7 +2,7 @@
 
 |                     |                                                                                                                                                         |
 | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Status**          | **Proposed — awaiting owner**                                                                                                                           |
+| **Status**          | **Accepted** — owner, 4 Nov 2026 (closes E-22)                                                                                                          |
 | **Date**            | 4 Nov 2026                                                                                                                                              |
 | **Branch**          | `backend/b0-groundwork` (backend phase B0, groundwork), from `8ca8166`                                                                                  |
 | **Closes**          | `../OPEN_DECISIONS.md` E-22 once accepted                                                                                                               |
@@ -80,7 +80,7 @@ Prisma 8 as a planned, separate migration, not a precondition.
   CI commands changed. Its size grows with the schema; the re-open trigger bounds the wait.
 - The bounded-pool guarantees (ARCHITECTURE.md §5 health, PHASE0_VERIFICATION.md §12) stay as
   they are proven today; the Prisma 8 spike must show the same bounds before any switch.
-- `OPEN_DECISIONS.md` E-22 is marked "ADR proposed — awaiting owner"; it closes on acceptance.
+- `OPEN_DECISIONS.md` E-22 is closed by this ADR (accepted by the owner on 4 Nov 2026).
 
 ## How to verify
 

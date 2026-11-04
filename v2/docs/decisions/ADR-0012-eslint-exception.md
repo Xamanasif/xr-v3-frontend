@@ -2,7 +2,7 @@
 
 |                     |                                                                                                                               |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **Status**          | **Proposed — awaiting owner**                                                                                                 |
+| **Status**          | **Accepted** — owner, 4 Nov 2026 (exception renewed; expiry 31 Jan 2027)                                                      |
 | **Date**            | 4 Nov 2026                                                                                                                    |
 | **Branch**          | `backend/b0-groundwork` (backend phase B0, groundwork), from `8ca8166`                                                        |
 | **Closes**          | `../OPEN_DECISIONS.md` E-23 (this review) once accepted; the exception itself stays open with the new bound                   |
@@ -68,7 +68,7 @@ What changed since Phase 0 is the cost of waiting: ESLint 9 is now formally unsu
 
 - Backend work proceeds on the current, green lint gate. No lint rule changes.
 - The repository knowingly runs a deprecated development tool until the expiry; it is never shipped
-  to users. Recorded in `OPEN_DECISIONS.md` E-23 ("ADR proposed — awaiting owner").
+  to users. Recorded in `OPEN_DECISIONS.md` E-23 (renewed by the owner, 4 Nov 2026).
 - The upgrade has a date and a plan; it is not left to whenever Next.js catches up.
 - Custom rules (`xr/resolved-boundaries`, fences, class-name rules) must be checked for ESLint-10
   API use in the upgrade package — `packages/config/src/boundaries/boundaries.test.ts` runs them
