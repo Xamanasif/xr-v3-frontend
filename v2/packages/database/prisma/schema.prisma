@@ -32,15 +32,18 @@ enum Technology {
 
 /// M06 Engineering area — a catalogue grouping of courses (no Programme, no Module layer; BC2).
 model EngineeringArea {
-  id          String   @id
+  id             String   @id
   /// Unique among areas ('Mechanical & Manufacturing'); compared trimmed, case-insensitively by
   /// the domain writer (`sameName`), stored as written.
-  name        String   @unique @db.VarChar(200)
-  description String?
+  name           String   @unique @db.VarChar(200)
+  description    String?
   /// Concept artwork key from the asset set; null → initials (no upload, D3).
-  artworkKey  String?  @map("artwork_key") @db.VarChar(200)
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  artworkKey     String?  @map("artwork_key") @db.VarChar(200)
+  /// The catalogue's own order (`default` sort, area and course lists). Seeded from the sample
+  /// world's recorded order; who curates it is not decided (ADR-0013).
+  catalogueOrder Int      @unique @map("catalogue_order")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   courses Course[]
 
@@ -49,14 +52,17 @@ model EngineeringArea {
 
 /// M07 Course, with its platform course code (single writer: the Content Manager, M-2).
 model Course {
-  id           String   @id
-  areaId       String   @map("area_id")
-  name         String   @unique @db.VarChar(200)
-  description  String?
+  id             String   @id
+  areaId         String   @map("area_id")
+  name           String   @unique @db.VarChar(200)
+  description    String?
   /// 'ME ZG523'; null when blank (T-17). Uniqueness among non-blank codes is the domain writer's.
-  platformCode String?  @map("platform_code") @db.VarChar(40)
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  platformCode   String?  @map("platform_code") @db.VarChar(40)
+  /// The catalogue's own order (`default` sort, area and course lists). Seeded from the sample
+  /// world's recorded order; who curates it is not decided (ADR-0013).
+  catalogueOrder Int      @unique @map("catalogue_order")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   area        EngineeringArea @relation(fields: [areaId], references: [id], onDelete: Restrict)
   experiments Experiment[]
@@ -68,16 +74,19 @@ model Course {
 /// M09 Experiment. A row exists only once published (an unpublished one is a Submission, M10);
 /// the public catalogue reads its live version only (B7-11).
 model Experiment {
-  id            String   @id
-  courseId      String   @map("course_id")
+  id             String   @id
+  courseId       String   @map("course_id")
   /// Concept artwork key for the row, cards and hero; null → the drawn fallback (PC-31).
-  artworkKey    String?  @map("artwork_key") @db.VarChar(200)
+  artworkKey     String?  @map("artwork_key") @db.VarChar(200)
   /// The version every surface reads — always one of this experiment's own versions (composite
   /// reference); null only while a publication is being written.
-  liveVersionId String?  @unique @map("live_version_id") @db.Uuid
-  publishedAt   DateTime @map("published_at")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  liveVersionId  String?  @unique @map("live_version_id") @db.Uuid
+  publishedAt    DateTime @map("published_at")
+  /// The catalogue's own order (`default` sort, area and course lists). Seeded from the sample
+  /// world's recorded order; who curates it is not decided (ADR-0013).
+  catalogueOrder Int      @unique @map("catalogue_order")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
 
   course           Course              @relation(fields: [courseId], references: [id], onDelete: Restrict)
   liveVersion      ExperimentVersion?  @relation("LiveVersion", fields: [liveVersionId, id], references: [id, experimentId], onDelete: Restrict)

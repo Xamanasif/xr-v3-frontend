@@ -1,0 +1,807 @@
+{
+  "source": "@xr/sample-platform seed 'spine-start' (development fixture only; STK31-23)",
+  "areas": [
+    {
+      "id": "mechanical-manufacturing",
+      "name": "Mechanical & Manufacturing",
+      "description": "Heat transfer, thermodynamics and manufacturing processes.",
+      "artworkKey": "thermal"
+    },
+    {
+      "id": "electrical-electronics",
+      "name": "Electrical & Electronics",
+      "description": "Electrical machines, transformers and power electronics.",
+      "artworkKey": "motor"
+    },
+    {
+      "id": "chemical-process",
+      "name": "Chemical & Process",
+      "description": "Distillation, process control and flow measurement.",
+      "artworkKey": "process"
+    }
+  ],
+  "courses": [
+    {
+      "id": "thermodynamics-heat-transfer",
+      "areaId": "mechanical-manufacturing",
+      "name": "Thermodynamics & Heat Transfer",
+      "description": "Laboratory experiments covering conduction, convection and exchanger performance. Learners take their own instrument readings under realistic operating conditions.",
+      "platformCode": "ME ZG523"
+    },
+    {
+      "id": "manufacturing-processes",
+      "areaId": "mechanical-manufacturing",
+      "name": "Manufacturing Processes",
+      "description": "Machining and casting experiments that relate process settings to the parts they produce.",
+      "platformCode": "MEL ZG512"
+    },
+    {
+      "id": "electrical-machines",
+      "areaId": "electrical-electronics",
+      "name": "Electrical Machines",
+      "description": "Motor, generator and transformer experiments built around readings learners take themselves.",
+      "platformCode": "EEE ZC341"
+    },
+    {
+      "id": "power-electronics",
+      "areaId": "electrical-electronics",
+      "name": "Power Electronics",
+      "description": "Converter experiments that connect switching behaviour to measured waveforms.",
+      "platformCode": "EEE ZG512"
+    },
+    {
+      "id": "process-instrumentation-control",
+      "areaId": "chemical-process",
+      "name": "Process Instrumentation & Control",
+      "description": "Column, loop and metering experiments under realistic process lag and uncertainty.",
+      "platformCode": "CHE ZG513"
+    },
+    {
+      "id": "fluid-mechanics",
+      "areaId": "mechanical-manufacturing",
+      "name": "Fluid Mechanics",
+      "description": "Flow measurement and pipe-flow experiments (course added; no experiments yet).",
+      "platformCode": null
+    }
+  ],
+  "experiments": [
+    {
+      "id": "shell-and-tube-heat-exchanger",
+      "courseId": "thermodynamics-heat-transfer",
+      "artworkKey": "thermal-crop",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Shell-and-Tube Heat Exchanger",
+          "summary": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+          "description": "Vary flow rates and inlet temperatures across a two-pass exchanger, then derive the effectiveness–NTU relationship from your own readings.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/shell-and-tube-heat-exchanger",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "ar",
+              "delivery": {
+                "format": "ar",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported phone or tablet",
+                "installNotes": "",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported VR headset",
+                "installNotes": "Open the Shell-and-Tube Heat Exchanger app on the headset.",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0001",
+          "text": "Determine log mean temperature difference from measured inlet and outlet conditions"
+        },
+        {
+          "id": "lo-0002",
+          "text": "Compare countercurrent and cocurrent arrangements at matched duty"
+        }
+      ]
+    },
+    {
+      "id": "fin-tube-bundle",
+      "courseId": "thermodynamics-heat-transfer",
+      "artworkKey": "bundle",
+      "publishedAt": "2026-07-30T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-07-30T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Fin-Tube Bundle",
+          "summary": "Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.",
+          "description": "Introduce progressive fouling on the tube side and measure its effect on the overall heat transfer coefficient.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.northline.example/fin-tube-bundle",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported VR headset",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0003",
+          "text": "Quantify the effect of fouling on the overall heat transfer coefficient"
+        },
+        {
+          "id": "lo-0004",
+          "text": "Distinguish degradation from measurement drift"
+        }
+      ]
+    },
+    {
+      "id": "composite-wall-conduction",
+      "courseId": "thermodynamics-heat-transfer",
+      "artworkKey": "materials",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Composite Wall Conduction",
+          "summary": "Build a layered wall, measure the temperature profile and separate the contribution of each material.",
+          "description": "Build a layered wall, measure the temperature profile and separate the contribution of each material.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/composite-wall-conduction",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "ar",
+              "delivery": {
+                "format": "ar",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported phone or tablet",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0005",
+          "text": "Measure a steady-state temperature profile across layers"
+        },
+        {
+          "id": "lo-0006",
+          "text": "Separate the thermal resistance of each material"
+        }
+      ]
+    },
+    {
+      "id": "cnc-turning-centre",
+      "courseId": "manufacturing-processes",
+      "artworkKey": "machining",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "CNC Turning Centre",
+          "summary": "Work through workholding, tool registration and offset entry, then cut a test part and inspect it against tolerance.",
+          "description": "Work through workholding, tool registration and offset entry, then cut a test part and inspect it against tolerance.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/cnc-turning-centre",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "ar",
+              "delivery": {
+                "format": "ar",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported phone or tablet",
+                "installNotes": "",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported VR headset",
+                "installNotes": "",
+                "notes": null
+              }
+            },
+            {
+              "format": "mr",
+              "delivery": {
+                "format": "mr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported MR headset",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0007",
+          "text": "Register tool offsets against a known datum"
+        },
+        {
+          "id": "lo-0008",
+          "text": "Inspect a cut part against a dimensional tolerance"
+        }
+      ]
+    },
+    {
+      "id": "investment-casting",
+      "courseId": "manufacturing-processes",
+      "artworkKey": "casting",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Investment Casting",
+          "summary": "Sequence the shell build, dewax and burnout steps, and judge the effect of each on surface finish.",
+          "description": "Sequence the shell build, dewax and burnout steps, and judge the effect of each on surface finish.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/investment-casting",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0009",
+          "text": "Sequence shell build, dewax and burnout correctly"
+        },
+        {
+          "id": "lo-0010",
+          "text": "Relate each step to the resulting surface finish"
+        }
+      ]
+    },
+    {
+      "id": "induction-motor-loading",
+      "courseId": "electrical-machines",
+      "artworkKey": "motor-crop",
+      "publishedAt": "2026-06-09T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-09T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Induction Motor Loading",
+          "summary": "Load the machine through its full range and plot torque, slip and efficiency from instrument readings you take yourself.",
+          "description": "Load the machine through its full range and plot torque, slip and efficiency from instrument readings you take yourself.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/induction-motor-loading",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported VR headset",
+                "installNotes": "",
+                "notes": null
+              }
+            },
+            {
+              "format": "mr",
+              "delivery": {
+                "format": "mr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported MR headset",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0011",
+          "text": "Plot torque, slip and efficiency from your own readings"
+        },
+        {
+          "id": "lo-0012",
+          "text": "Identify the operating point of maximum efficiency"
+        }
+      ]
+    },
+    {
+      "id": "synchronous-generator",
+      "courseId": "electrical-machines",
+      "artworkKey": "syncgen",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Synchronous Generator",
+          "summary": "Synchronise to an infinite bus, then adjust excitation and prime-mover torque to see how real and reactive power divide.",
+          "description": "Synchronise to an infinite bus, then adjust excitation and prime-mover torque to see how real and reactive power divide.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/synchronous-generator",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported VR headset",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0013",
+          "text": "Synchronise a generator to an infinite bus safely"
+        },
+        {
+          "id": "lo-0014",
+          "text": "Separate the effect of excitation from prime-mover torque"
+        }
+      ]
+    },
+    {
+      "id": "transformer-tests",
+      "courseId": "electrical-machines",
+      "artworkKey": "coil",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Transformer Tests",
+          "summary": "Run open and short circuit tests, separate core and copper losses and build the equivalent circuit from your measurements.",
+          "description": "Run open and short circuit tests, separate core and copper losses and build the equivalent circuit from your measurements.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/transformer-tests",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0015",
+          "text": "Separate core losses from copper losses"
+        },
+        {
+          "id": "lo-0016",
+          "text": "Build an equivalent circuit from measured data"
+        }
+      ]
+    },
+    {
+      "id": "buck-converter-ripple",
+      "courseId": "power-electronics",
+      "artworkKey": "switching",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.0",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Buck Converter Ripple",
+          "summary": "Sweep duty cycle and load, observe inductor current ripple and compare against the continuous-conduction prediction.",
+          "description": "Sweep duty cycle and load, observe inductor current ripple and compare against the continuous-conduction prediction.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/buck-converter-ripple",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "ar",
+              "delivery": {
+                "format": "ar",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported phone or tablet",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0017",
+          "text": "Relate duty cycle to output voltage"
+        },
+        {
+          "id": "lo-0018",
+          "text": "Identify the boundary of continuous conduction"
+        }
+      ]
+    },
+    {
+      "id": "distillation-column",
+      "courseId": "process-instrumentation-control",
+      "artworkKey": "process-crop",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.2",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": "2026-06-19T04:30:00.000Z",
+          "name": "Distillation Column",
+          "summary": "Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.",
+          "description": "Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. Lowering the reflux ratio raises the overhead purity, at the cost of more reboiler heat.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.meridian.example/distillation-column",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "Distillation Column — VR build 1.2",
+                "packageReference": "MVL-DC-VR-1.2",
+                "packageFileName": null,
+                "deviceNeeded": "Standalone VR headset and about 2 × 2 m of clear floor",
+                "installNotes": "Install the build named above and open “Column Lab”.",
+                "notes": null
+              }
+            }
+          ]
+        },
+        {
+          "label": "1.1",
+          "liveFrom": "2026-06-19T04:30:00.000Z",
+          "liveUntil": "2026-07-03T04:30:00.000Z",
+          "name": "Distillation Column",
+          "summary": "Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.",
+          "description": "Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. Lowering the reflux ratio raises the overhead purity, at the cost of more reboiler heat.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.meridian.example/distillation-column",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "Distillation Column — VR build 1.2",
+                "packageReference": "MVL-DC-VR-1.2",
+                "packageFileName": null,
+                "deviceNeeded": "Standalone VR headset and about 2 × 2 m of clear floor",
+                "installNotes": "Install the build named above and open “Column Lab”.",
+                "notes": null
+              }
+            }
+          ]
+        },
+        {
+          "label": "1.2",
+          "liveFrom": "2026-07-03T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Distillation Column",
+          "summary": "Bring a binary column from cold start to steady state, tuning reflux ratio against overhead purity under realistic lag.",
+          "description": "Learners start a binary column from cold and bring it to steady state. They then change the reflux ratio and watch the overhead purity respond with realistic lag. Lowering the reflux ratio raises the overhead purity, at the cost of more reboiler heat.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.meridian.example/distillation-column",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "Distillation Column — VR build 1.2",
+                "packageReference": "MVL-DC-VR-1.2",
+                "packageFileName": null,
+                "deviceNeeded": "Standalone VR headset and about 2 × 2 m of clear floor",
+                "installNotes": "Install the build named above and open “Column Lab”.",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0019",
+          "text": "Bring a column to steady state from cold start"
+        },
+        {
+          "id": "lo-0020",
+          "text": "Tune reflux ratio against an overhead purity target"
+        }
+      ]
+    },
+    {
+      "id": "boiler-drum-level",
+      "courseId": "process-instrumentation-control",
+      "artworkKey": "drum",
+      "publishedAt": "2026-06-18T04:30:00.000Z",
+      "liveVersion": "2.0",
+      "versions": [
+        {
+          "label": "2.0",
+          "liveFrom": "2026-06-18T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Boiler Drum Level",
+          "summary": "Tune a cascade loop against shrink and swell, then test it with a step change in steam demand.",
+          "description": "Tune a cascade loop against shrink and swell, then test it with a step change in steam demand.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/boiler-drum-level",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "vr",
+              "delivery": {
+                "format": "vr",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported VR headset",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0021",
+          "text": "Tune a cascade loop against shrink and swell"
+        },
+        {
+          "id": "lo-0022",
+          "text": "Test loop performance with a step disturbance"
+        }
+      ]
+    },
+    {
+      "id": "orifice-plate-metering",
+      "courseId": "process-instrumentation-control",
+      "artworkKey": "orifice",
+      "publishedAt": "2026-06-02T04:30:00.000Z",
+      "liveVersion": "1.1",
+      "versions": [
+        {
+          "label": "1.0",
+          "liveFrom": "2026-06-02T04:30:00.000Z",
+          "liveUntil": "2026-08-05T04:30:00.000Z",
+          "name": "Orifice Plate Metering",
+          "summary": "Calibrate against a reference meter and propagate instrument uncertainty into the reported flow.",
+          "description": "Calibrate against a reference meter and propagate instrument uncertainty into the reported flow.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/orifice-plate-metering",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "ar",
+              "delivery": {
+                "format": "ar",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported phone or tablet",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        },
+        {
+          "label": "1.1",
+          "liveFrom": "2026-08-05T04:30:00.000Z",
+          "liveUntil": null,
+          "name": "Orifice Plate Metering",
+          "summary": "Calibrate against a reference meter and propagate instrument uncertainty into the reported flow.",
+          "description": "Calibrate against a reference meter and propagate instrument uncertainty into the reported flow.",
+          "preview": null,
+          "formats": [
+            {
+              "format": "web",
+              "delivery": {
+                "format": "web",
+                "webLink": "https://labs.example/orifice-plate-metering",
+                "browserAndComputer": "Laptop or desktop with a current web browser",
+                "notes": null
+              }
+            },
+            {
+              "format": "ar",
+              "delivery": {
+                "format": "ar",
+                "packageLabel": "",
+                "packageReference": null,
+                "packageFileName": null,
+                "deviceNeeded": "Supported phone or tablet",
+                "installNotes": "",
+                "notes": null
+              }
+            }
+          ]
+        }
+      ],
+      "learningOutcomes": [
+        {
+          "id": "lo-0023",
+          "text": "Calibrate against a reference meter"
+        },
+        {
+          "id": "lo-0024",
+          "text": "Propagate instrument uncertainty into a reported flow"
+        }
+      ]
+    }
+  ],
+  "featured": [
+    "cnc-turning-centre",
+    "shell-and-tube-heat-exchanger",
+    "induction-motor-loading",
+    "distillation-column"
+  ]
+}

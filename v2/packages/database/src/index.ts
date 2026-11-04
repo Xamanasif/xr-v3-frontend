@@ -4,7 +4,14 @@ import type { PoolConfig } from 'pg';
 import { PrismaClient } from './generated/prisma/client.js';
 
 export { PrismaClient } from './generated/prisma/client.js';
-export type { Prisma } from './generated/prisma/client.js';
+export type { Prisma, Technology } from './generated/prisma/client.js';
+export {
+  type CatalogueSeed,
+  type CatalogueSeedResult,
+  type SeedDelivery,
+  type SeedVersion,
+  seedCatalogue,
+} from './catalogue-seed.js';
 
 /** Bounds every database operation the foundation performs. All values in milliseconds. */
 export const DATABASE_DEFAULTS = {
