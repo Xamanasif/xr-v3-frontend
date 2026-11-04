@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: ['v3/**']
+    branches: ['v3/**', 'backend/**']
   pull_request:
   workflow_dispatch:
 
@@ -12,9 +12,11 @@ concurrency:
 
 jobs:
   verify:
-    name: Format, build, typecheck, lint and test
+    # The local gate, unchanged (scripts/verify.mjs): format, uncached repository checks, build,
+    # typecheck, lint, unit tests, bundle scan, the browser suites at four widths and visual parity.
+    name: pnpm verify
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     defaults:
       run:
         working-directory: v2
@@ -31,17 +33,68 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Format
-        run: pnpm format:check
+      - name: Install the Playwright browser (one version, 1.63.0, for every suite)
+        run: pnpm --filter @xr/testing exec playwright install --with-deps chromium
 
-      - name: Build
-        run: pnpm build
+      - name: Verify
+        run: pnpm verify
 
-      - name: Typecheck
-        run: pnpm typecheck
+  database:
+    # The database layer on a clean PostgreSQL (D-05): committed migrations apply, the
+    # database-backed suites pass, and the API answers exactly what the typed mock answers.
+    name: Database, migrations and catalogue parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: v2
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: xr
+          POSTGRES_PASSWORD: xr_ci_password
+          POSTGRES_DB: xr_platform
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U xr -d xr_platform"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      APP_ENV: development
+      DATABASE_URL: postgresql://xr:xr_ci_password@localhost:5432/xr_platform
+    steps:
+      - uses: actions/checkout@v5
 
-      - name: Lint
-        run: pnpm lint
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 24
 
-      - name: Unit and component tests
-        run: pnpm test
+      - name: Enable pnpm
+        run: corepack enable && corepack prepare pnpm@12.3.4 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Apply the committed migrations to an empty database
+        run: pnpm --filter @xr/database prisma:migrate:deploy
+
+      - name: Database-backed tests
+        run: pnpm test:db
+
+      - name: Build the API and the sample platform
+        run: pnpm exec turbo run build --filter=@xr/api --filter=@xr/sample-platform
+
+      - name: Seed the development catalogue
+        run: pnpm --filter @xr/database db:seed
+
+      - name: Catalogue parity (API against the typed mock, ADR-0013)
+        run: |
+          pnpm --filter @xr/api start > api.log 2>&1 &
+          for attempt in $(seq 1 60); do
+            curl -sf "http://localhost:4000/api/v1/health?database=skip" > /dev/null && break
+            sleep 1
+          done
+          node scripts/catalogue-parity.mjs http://localhost:4000 || { cat api.log; exit 1; }
