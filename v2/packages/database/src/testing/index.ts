@@ -10,7 +10,15 @@ import { readdirSync, readFileSync } from 'node:fs';
 
 import pg from 'pg';
 
+import type { CatalogueSeed } from '../catalogue-seed.js';
+
 const MIGRATIONS = new URL('../../prisma/migrations/', import.meta.url);
+const CATALOGUE_SEED = new URL('../../prisma/seed/catalogue.json', import.meta.url);
+
+/** The committed development catalogue seed (the sample world's catalogue; ADR-0013). */
+export function developmentCatalogueSeed(): CatalogueSeed {
+  return JSON.parse(readFileSync(CATALOGUE_SEED, 'utf8')) as CatalogueSeed;
+}
 
 export interface MigratedSchema {
   /** The schema name, for `createPrismaClient({ connectionString, schema })`. */

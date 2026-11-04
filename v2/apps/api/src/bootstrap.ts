@@ -32,10 +32,18 @@ export async function createApp(options: CreateAppOptions = {}): Promise<NestFas
   const env = parseEnv(apiEnvSchema, options.env ?? process.env);
   const adapter = new FastifyAdapter({
     logger: options.requestLogging ? { level: env.LOG_LEVEL } : false,
+    // Above the 200-character bound of every published path parameter (`@xr/validation`
+    // `identifier`): the contract answers a long id (400), not the router (Fastify's default 100
+    // would answer 414 for ids the published document allows).
+    maxParamLength: 256,
   });
 
   const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule.register({ env: options.env, additionalModules: options.additionalModules }),
+    AppModule.register({
+      env: options.env,
+      additionalModules: options.additionalModules,
+      catalogueRepository: options.catalogueRepository,
+    }),
     adapter,
   );
 

@@ -58,6 +58,20 @@ describe('toProblem — 5xx never leaks internals', () => {
     expect(problem.detail).toBe('No route for GET /api/v1/health');
     expect(JSON.stringify(problem)).not.toContain('token=');
   });
+
+  it('a handler’s 404 for a missing record keeps its detail; the route is not called missing', () => {
+    const problem = toProblem(
+      new NotFoundException('The experiment is not in the public catalogue.'),
+      { id: 'req-3', method: 'GET', url: '/api/v1/catalogue/experiments/unknown?token=sekret' },
+    );
+    expect(problem).toMatchObject({
+      status: 404,
+      title: 'Not Found',
+      detail: 'The experiment is not in the public catalogue.',
+      instance: '/api/v1/catalogue/experiments/unknown',
+    });
+    expect(JSON.stringify(problem)).not.toContain('token=');
+  });
 });
 
 describe('toProblem — ordinary 4xx behaviour is preserved', () => {

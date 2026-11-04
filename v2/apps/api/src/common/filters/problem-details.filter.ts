@@ -82,8 +82,13 @@ export function toProblem(exception: unknown, request: RequestIdentity = {}): Pr
         ...identity,
       };
     }
+    // The router's own 404 ("Cannot GET /path?query") is rewritten without the query string; a
+    // handler's 404 for a missing record (the catalogue's "not in the public catalogue") keeps
+    // its client-facing detail.
+    const routeMissing =
+      status === HttpStatus.NOT_FOUND && /^Cannot [A-Z]+ /.test(exception.message);
     const detail =
-      status === HttpStatus.NOT_FOUND && request.method !== undefined && instance !== undefined
+      routeMissing && request.method !== undefined && instance !== undefined
         ? `No route for ${request.method} ${instance}`
         : clientDetail(exception.getResponse());
     return {
