@@ -229,6 +229,24 @@ The two web failures run on the typed mock, not the API, and pass alone. They ar
 the §12.4 load-sensitive timeouts on this machine, not as defects; they are not counted as green.
 The earlier full run on this branch (before the promotion) passed 7,847 / 7,847.
 
-Still open at the end of B2: owner acknowledgement of ADR-0014; the P-28 parity-row decision; CI
-has not yet run (nothing is pushed); the browser suites (`test:e2e`) have not been run on this
-machine.
+**B2 closed, 5 November 2026.** Owner: ADR-0014 accepted; P-28 moved to `API` (gap: "request
+context" until B4).
+
+Browser suites (first run on this machine, Chromium 1243):
+
+| Run                                                                                      | Result                                                                                                                                                |
+| ---------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@xr/specimens` `test:e2e`, full                                                         | 1,214 passed · 18 failed · 396 skipped (1.4 h). No file under `apps/specimens`, `packages/ui` or `packages/testing` changed since `v3/final-frontend` |
+| `@xr/web` `test:e2e`, full (stopped at ~312 / 2,476: too slow under load to be decisive) | 18 failures so far, 16 of them at the 30 s timeout or longer                                                                                          |
+| The failed `@xr/web` specs rerun alone (1440 × 900, 2 workers)                           | **70 passed · 1 failed · 1 skipped**: the timeouts were load                                                                                          |
+| The one remaining failure, on `backend/b1-catalogue` (a clean worktree, fresh build)     | **fails identically** — inherited, not caused by B2                                                                                                   |
+
+Inherited frontend failures (not backend work; listed for the frontend owner):
+
+- `landing.spec.ts:112` PU-01 frozen geometry: Featured section 868 px, expected 866 px (fails on B1 too).
+- `@xr/specimens` LogoPlaceholder (4 widths) and the V3 shell's logo slot: they expect the
+  placeholder text, but the official logo (`xr-logo--official`) replaced it.
+- `@xr/specimens` role shells and two V3 specimens at 375 / 768 px: 30 s timeouts in the focus walk.
+
+Still open, outside B2: CI has not run (nothing is pushed); the complete `@xr/web` browser suite
+needs an unloaded run (CI is the reference run).
