@@ -13,7 +13,7 @@
 | ---------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **B0 · Groundwork**          | `backend/b0-groundwork` | Database layer live for the first time (migrate, `test:db`, health `ok` / `unavailable`); Prisma 7.10 kept (ADR-0011, accepted); ESLint 9 renewed (ADR-0012, accepted); verification record §12 |
 | **B1 · D1 Catalogue (read)** | `backend/b1-catalogue`  | Catalogue tables and constraints, development seed from the sample world, five public routes, 75/75 parity with the mock, ADR-0013                                                              |
-| **B2 · Platform plumbing**   | `backend/b2-plumbing`   | Engineering work done (5 Nov 2026); exit pending owner acknowledgement of ADR-0014 and the P-28 bookkeeping. See below                                                                          |
+| **B2 · Platform plumbing**   | `backend/b2-plumbing`   | **Done** (5 Nov 2026): ADR-0014 accepted by the owner; P-28 moved to `API`. See below                                                                                                           |
 
 B2, as delivered: Windows-safe `dev` / `verify`; CI with PostgreSQL (migrations, `test:db`,
 parity, the contract suite over HTTP); the web's HTTP adapter (`platform/http/`, ADR-0014); the
@@ -80,18 +80,18 @@ today (G-2).
 
 ## 5 · Decisions needed, and when
 
-| When           | Decision                                                                           | Why it blocks                                   |
-| -------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
-| Before B2 ends | Mixed composition of the web (one port on `api`, others on `sample`)               | Re-pointing the public pages one port at a time |
-| Before B2 ends | P-28 parity row: does D1 move it to `API` (it also covers "request context")?      | Parity bookkeeping                              |
-| Before B3      | A-01, E-01, E-02, E-04, E-06, E-18 — or the development-issuer proposal above      | Every write, every tenant-scoped read           |
-| Before B4      | A-17 / E-10 payment provider (or keep TE-4's stand-in in the API)                  | External requests' payment step                 |
-| Before B5      | E-17 derived read models; E-21 import library; D7 / T-06 licence rule              | Entitlement and allocation                      |
-| Before B6      | A-06 / T-12 completing event; A-16 telemetry retention; E-07 / A-02 object storage | Completion and resources                        |
-| Before B8      | A-08, A-09 later-version governance                                                | Corrections and later versions                  |
-| Before B9      | Catalogue order and featured-list curation (ADR-0013, PC-32); A-10 retirement      | Structure writes                                |
-| Before B10     | A-05 / E-09 notifications; A-15 support SLA                                        | Reminders and support                           |
-| Deployment     | A-02 / E-08 hosting, region and data residency                                     | Any deployed environment                        |
+| When          | Decision                                                                           | Why it blocks                                   |
+| ------------- | ---------------------------------------------------------------------------------- | ----------------------------------------------- |
+| Decided 5 Nov | Mixed composition of the web: one source per build (ADR-0014, accepted)            | Re-pointing the public pages one port at a time |
+| Decided 5 Nov | P-28 moved to `API`; "request context" noted as a gap until B4                     | Parity bookkeeping                              |
+| Before B3     | A-01, E-01, E-02, E-04, E-06, E-18 — or the development-issuer proposal above      | Every write, every tenant-scoped read           |
+| Before B4     | A-17 / E-10 payment provider (or keep TE-4's stand-in in the API)                  | External requests' payment step                 |
+| Before B5     | E-17 derived read models; E-21 import library; D7 / T-06 licence rule              | Entitlement and allocation                      |
+| Before B6     | A-06 / T-12 completing event; A-16 telemetry retention; E-07 / A-02 object storage | Completion and resources                        |
+| Before B8     | A-08, A-09 later-version governance                                                | Corrections and later versions                  |
+| Before B9     | Catalogue order and featured-list curation (ADR-0013, PC-32); A-10 retirement      | Structure writes                                |
+| Before B10    | A-05 / E-09 notifications; A-15 support SLA                                        | Reminders and support                           |
+| Deployment    | A-02 / E-08 hosting, region and data residency                                     | Any deployed environment                        |
 
 ## 6 · Risks and how they are handled
 
@@ -107,10 +107,9 @@ today (G-2).
 
 ## 7 · Next three steps
 
-1. **Owner decisions closing B2:** acknowledge (or change) ADR-0014 — how a partly re-pointed web
-   is composed — and decide whether parity row P-28 moves to `API`.
-2. **Review and merge** `backend/b0-groundwork`, `backend/b1-catalogue` and `backend/b2-plumbing`
-   (the owner's call; nothing is pushed), so CI runs for the first time. Chromium is installed on
-   this machine; the full browser suites (`pnpm exec turbo run test:e2e`) have still not been run.
+1. **Review and merge** `backend/b0-groundwork`, `backend/b1-catalogue` and `backend/b2-plumbing`
+   (the owner's call; nothing is pushed), so CI runs for the first time.
+2. **Fix the inherited browser failures** in `@xr/specimens` (stale logo-placeholder checks since
+   the official logo; 375 px role-shell timeouts): frontend work, not backend; verification §13.
 3. **Start B3**: take the identity decisions (A-01, E-01, E-02) or approve the development-issuer
    seam.

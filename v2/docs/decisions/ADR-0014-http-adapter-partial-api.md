@@ -1,12 +1,12 @@
 # ADR-0014 — The HTTP adapter while the API serves only part of the platform
 
-|                     |                                                                                                                                          |
-| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
-| **Status**          | Proposed — owner decision requested (`docs/BACKEND_PLAN.md`, "Before B2 ends")                                                           |
-| **Date**            | 5 Nov 2026                                                                                                                               |
-| **Branch**          | `backend/b2-plumbing`                                                                                                                    |
-| **Owner basis**     | None yet. The plan lists "how the web app runs with one service on the API and the rest on the mock" as an owner decision before B2 ends |
-| **Leaves in place** | Product builds on `sample` (TE-2, TE-8); the sample adapter and its test hooks (ADR-0007) unchanged; no identity (A-01 / E-01 open)      |
+|                     |                                                                                                                                     |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **Status**          | Accepted — owner, 5 Nov 2026 ("accept as written")                                                                                  |
+| **Date**            | 5 Nov 2026                                                                                                                          |
+| **Branch**          | `backend/b2-plumbing`                                                                                                               |
+| **Owner basis**     | Owner, 5 Nov 2026: option 3 accepted as written, closing the B2 decision "how a partly re-pointed web is composed"                  |
+| **Leaves in place** | Product builds on `sample` (TE-2, TE-8); the sample adapter and its test hooks (ADR-0007) unchanged; no identity (A-01 / E-01 open) |
 
 ## Context
 
@@ -24,9 +24,9 @@ Three ways to put a half-switched web app together:
 2. **Wait for the cutover (B11)** before any web build uses the API. Rejected: the contract tests
    and the public pages would never meet the API until the end, which is the drift risk the plan
    names first.
-3. **One source per build; ports the API does not serve answer `unavailable`.** Proposed here.
+3. **One source per build; ports the API does not serve answer `unavailable`.** Chosen (owner, 5 Nov 2026).
 
-## Decision (proposed)
+## Decision
 
 1. **One data source per build.** `NEXT_PUBLIC_XR_DATA_SOURCE=api` composes the HTTP adapter
    (`apps/web/src/platform/http/`) and nothing else; `composePlatform` returns `sample: null`, and
