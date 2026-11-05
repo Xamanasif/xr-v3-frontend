@@ -751,3 +751,76 @@ describe('Package 1E — repeated and stale commands write nothing (P1-21; dedup
     },
   );
 });
+
+const REQ_0038 = unsafeBrand<RequestId>('REQ-0038');
+
+describe('DP-09 interim safeguard: a repeat public request never creates a second institution (P1 register §A, A.1–A.6)', () => {
+  it('names the existing institution on SA-03 and holds both approvals; nothing is written', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    // A.1: a visitor names the seeded, onboarded institution (internal, ACC-0098) in another form.
+    const sent = await send(visitorPorts(platform), '  bits pilani - hyderabad   campus ');
+    const admin = asPerson(platform, 'Arjun Mehta');
+    const page = ok(await admin.accessRequests.getRequestForDecision(sent.reference));
+    expect(page.sameNameInstitutions).toEqual([
+      { institutionId: 'bitshyd', name: 'BITS Pilani — Hyderabad Campus', kind: 'internal' },
+    ]);
+    expect(page.existingAccess).toBeNull();
+    const institutionsBefore = Object.keys(worldOf(platform).records.institutions).sort();
+    const versionBefore = worldOf(platform).worldVersion;
+
+    // A.3–A.5: neither approval goes ahead, on either route.
+    for (const route of ['internal', 'external'] as const) {
+      expect(
+        await admin.accessRequests.approveRequest({
+          id: sent.reference,
+          route,
+          expectedRev: page.request.rev,
+        }),
+      ).toEqual({ ok: false, error: { kind: 'policy-open', decision: 'SEL-05' } });
+    }
+    expect(
+      await admin.accessRequests.approveSmallerScope({
+        id: sent.reference,
+        route: 'external',
+        items: [{ experimentId: SHELL, formats: ['web'] }],
+        licences: '100',
+        term: 'yearly',
+        reason: 'Licences: 120 → 100',
+        expectedRev: page.request.rev,
+      }),
+    ).toEqual({ ok: false, error: { kind: 'policy-open', decision: 'SEL-05' } });
+
+    // A.5–A.6: one record stays; the request still waits; the reserved id is not taken.
+    expect(Object.keys(worldOf(platform).records.institutions).sort()).toEqual(institutionsBefore);
+    expect(worldOf(platform).worldVersion).toBe(versionBefore);
+    expect(requestOf(platform, sent.reference).status).toBe('under-review');
+    expect(requestOf(platform, sent.reference).institutionId).toBeNull();
+    const godavari = await send(visitorPorts(platform));
+    const approved = await approveExternal(platform, godavari.reference);
+    expect(approved.institution?.id).toBe('godavari');
+  });
+
+  it('keeps the existing institution’s own renewal and an unrelated new institution moving', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    await send(visitorPorts(platform), 'BITS Pilani — Hyderabad Campus');
+    const admin = asPerson(platform, 'Arjun Mehta');
+    // REQ-0038 renews ACC-0098 of the same institution: it already has its institution.
+    const renewal = ok(await admin.accessRequests.getRequestForDecision(REQ_0038));
+    expect(renewal.sameNameInstitutions).toEqual([]);
+    const renewed = ok(
+      await admin.accessRequests.approveRequest({
+        id: REQ_0038,
+        route: null,
+        expectedRev: renewal.request.rev,
+      }),
+    );
+    expect(renewed.request.status).toBe('access-active');
+    // A request naming no existing institution is approved as before.
+    const other = await send(visitorPorts(platform), 'Krishna Engineering College');
+    const page = ok(await admin.accessRequests.getRequestForDecision(other.reference));
+    expect(page.sameNameInstitutions).toEqual([]);
+    expect((await approveExternal(platform, other.reference)).request.status).toBe(
+      'approved-payment-required',
+    );
+  });
+});

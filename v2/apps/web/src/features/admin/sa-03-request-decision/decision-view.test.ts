@@ -8,7 +8,8 @@ import type { DecisionPage } from '@xr/contracts/draft';
 import { DRAWN_MESSAGES } from '@xr/contracts/draft';
 import { describe, expect, it } from 'vitest';
 
-import { DECISION_ERRORS } from '@/copy/requests';
+import { DECISION_ERRORS, SAME_NAME_BLOCK } from '@/copy/requests';
+import { stateWords } from '@/copy/state-copy';
 import { SUPER_ADMIN, tabPlatform } from '@/test-support/workspace';
 
 import {
@@ -26,6 +27,7 @@ import {
   needsRoute,
   nextLine,
   panelErrorsOf,
+  holdsForSameName,
   panelKindOf,
   pendingHint,
   planEffectOf,
@@ -80,6 +82,48 @@ describe('the panel B1-11 draws for each seeded request', () => {
     for (const id of ['REQ-0036', 'REQ-0037', 'REQ-0039', 'REQ-0041']) {
       expect(panelKindOf(seeded[id]!), id).toBe('decided');
     }
+  });
+});
+
+describe('DP-09 interim safeguard: an institution of the same name already exists', () => {
+  const SAME = {
+    institutionId: 'bitshyd',
+    name: 'BITS Pilani — Hyderabad Campus',
+    kind: 'internal',
+  } as unknown as DecisionPage['sameNameInstitutions'][number];
+  const LINE =
+    'BITS Pilani — Hyderabad Campus is already on the platform (Internal). This request can’t be decided until requests can be matched to an existing institution.';
+
+  it('a new institution’s request with a namesake waits: no open panel; Existing access names it', async () => {
+    const seeded = await pages();
+    const fresh = newInstitutionRequest(seeded['REQ-0038']!);
+    const held: DecisionPage = { ...fresh, sameNameInstitutions: [SAME] };
+    expect(holdsForSameName(held)).toBe(true);
+    expect(panelKindOf(held)).toBe('same-name');
+    expect(existingAccessWords(held, name)).toBe(LINE);
+    // Without a namesake: the drawn new-institution panel and words, as before.
+    expect(panelKindOf(fresh)).toBe('open');
+    expect(existingAccessWords(fresh, name)).toMatch(/^None\. There is no institution record/);
+  });
+
+  it('a request that already has its institution is never held; a decided request shows its decided panel', async () => {
+    const seeded = await pages();
+    const renewal: DecisionPage = { ...seeded['REQ-0038']!, sameNameInstitutions: [SAME] };
+    expect(holdsForSameName(renewal)).toBe(false);
+    expect(panelKindOf(renewal)).toBe('open');
+    const decided: DecisionPage = {
+      ...newInstitutionRequest(seeded['REQ-0038']!),
+      request: {
+        ...newInstitutionRequest(seeded['REQ-0038']!).request,
+        status: 'information-requested',
+      },
+      sameNameInstitutions: [SAME],
+    };
+    expect(panelKindOf(decided)).toBe('decided');
+  });
+
+  it('the title is the state-copy register’s (SA-03.same-name)', () => {
+    expect(stateWords('SA-03.same-name')).toBe(SAME_NAME_BLOCK.title);
   });
 });
 

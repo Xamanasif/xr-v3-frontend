@@ -94,6 +94,7 @@ function run(
         request: base,
         institution: null,
         route: 'external',
+        sameNameInstitutions: [],
         actor: who.superAdmin,
         now,
         ids,
@@ -105,6 +106,7 @@ function run(
         request: base,
         institution: null,
         route: 'internal',
+        sameNameInstitutions: [],
         items: [
           {
             experimentId: ids === null ? base.items[0]!.experimentId : base.items[0]!.experimentId,
@@ -186,6 +188,7 @@ describe('the request machine (acceptance 2): every drawn transition allowed, ev
           request: request({ status: 'information-requested' }),
           institution: null,
           route: 'external',
+          sameNameInstitutions: [],
           actor: who.superAdmin,
           now: T.oct14,
           ids: freshIds(),
@@ -232,6 +235,7 @@ describe('AD-14 / P1-04 (owner decision, supersedes the Appendix F WP-0.9 (8) in
         request: request(),
         institution: null,
         route: 'external',
+        sameNameInstitutions: [],
         actor: who.superAdmin,
         now: T.oct14,
         ids: freshIds(),
@@ -256,6 +260,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
         request: request(),
         institution: null,
         route: 'external',
+        sameNameInstitutions: [],
         actor: who.superAdmin,
         now: T.oct8,
         ids: freshIds(),
@@ -276,6 +281,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
         request: request(),
         institution: null,
         route: 'external',
+        sameNameInstitutions: [],
         actor: who.superAdmin,
         now: T.oct8,
         ids,
@@ -345,6 +351,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
         request: request(),
         institution: null,
         route: 'internal',
+        sameNameInstitutions: [],
         actor: who.superAdmin,
         now: T.oct8,
         ids: freshIds(),
@@ -378,6 +385,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
         request: renewal,
         institution: institution({ kind: 'internal' }),
         route: null,
+        sameNameInstitutions: [],
         actor: who.superAdmin,
         now: T.oct14,
         ids: freshIds(),
@@ -418,6 +426,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
         request: fromPaused,
         institution: paused,
         route: null,
+        sameNameInstitutions: [],
         actor: who.superAdmin,
         now: T.oct14,
         ids: freshIds(),
@@ -439,6 +448,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
           request: fromPaused,
           institution: institution(),
           route: 'internal',
+          sameNameInstitutions: [],
           actor: who.superAdmin,
           now: T.oct14,
           ids: freshIds(),
@@ -451,6 +461,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
           request: request(),
           institution: null,
           route: null,
+          sameNameInstitutions: [],
           actor: who.superAdmin,
           now: T.oct14,
           ids: freshIds(),
@@ -460,10 +471,114 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
   });
 });
 
+describe('DP-09 interim safeguard: an approval never creates a second record of an existing institution', () => {
+  const namesake = [ids.konark];
+
+  it('Approve request waits (policy-open SEL-05) when an institution of the same name exists, on either route, and writes nothing', () => {
+    for (const route of ['external', 'internal'] as const) {
+      expect(
+        refusalOf(
+          approveRequest({
+            request: request(),
+            institution: null,
+            route,
+            sameNameInstitutions: namesake,
+            actor: who.superAdmin,
+            now: T.oct14,
+            ids: freshIds(),
+          }),
+        ),
+      ).toEqual({ kind: 'policy-open', decision: 'SEL-05' });
+    }
+  });
+
+  it('Approve a smaller scope waits the same way', () => {
+    expect(
+      refusalOf(
+        approveSmallerScope({
+          request: request(),
+          institution: null,
+          route: 'external',
+          sameNameInstitutions: namesake,
+          items: [{ experimentId: ids.shell, formats: ['web'] }],
+          licences: 100,
+          term: { kind: 'yearly' },
+          reason: 'Licences: 120 → 100',
+          actor: who.superAdmin,
+          now: T.oct14,
+          ids: freshIds(),
+        }),
+      ),
+    ).toEqual({ kind: 'policy-open', decision: 'SEL-05' });
+  });
+
+  it('a request that already has its institution (renewal, more licences, a linked request) is never held', () => {
+    const own = institution();
+    const outcome = expectOk(
+      approveRequest({
+        request: request({ institutionId: own.id }),
+        institution: own,
+        route: null,
+        sameNameInstitutions: namesake,
+        actor: who.superAdmin,
+        now: T.oct14,
+        ids: freshIds(),
+      }),
+    );
+    expect(outcome.request.status).toBe('approved-payment-required');
+    expect(outcome.institution.id).toBe(own.id);
+  });
+
+  it('a pause still answers first, and Request more information is unaffected', () => {
+    const paused = institution({
+      pause: { since: T.oct9, by: who.superAdmin, reason: 'Fee query' },
+    });
+    expect(
+      refusalOf(
+        approveRequest({
+          request: request({ institutionId: paused.id }),
+          institution: paused,
+          route: null,
+          sameNameInstitutions: namesake,
+          actor: who.superAdmin,
+          now: T.oct14,
+          ids: freshIds(),
+        }),
+      ),
+    ).toEqual({ kind: 'refused', code: 'institution-paused' });
+    expectOk(
+      requestMoreInformation({
+        request: request(),
+        institution: null,
+        reason: 'Is this the Hyderabad campus that already has access?',
+        actor: who.superAdmin,
+        now: T.oct14,
+        ids: freshIds(),
+      }),
+    );
+  });
+
+  it('with no institution of that name the approval goes ahead as before', () => {
+    const outcome = expectOk(
+      approveRequest({
+        request: request(),
+        institution: null,
+        route: 'external',
+        sameNameInstitutions: [],
+        actor: who.superAdmin,
+        now: T.oct14,
+        ids: freshIds(),
+      }),
+    );
+    expect(outcome.request.status).toBe('approved-payment-required');
+  });
+});
+
 describe('Approve a smaller scope (REQ-15; REQ-16 renewal; REQ-19 multi-experiment narrowing OPEN)', () => {
   const base = {
     institution: null,
     route: 'external' as const,
+    sameNameInstitutions: [],
     actor: who.superAdmin,
     now: T.oct14,
   };

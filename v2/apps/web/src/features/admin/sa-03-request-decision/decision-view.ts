@@ -24,6 +24,7 @@ import {
   licencesRequestedWords,
   NEXT_LINES,
   noInstitutionYet,
+  sameNameLine,
   PAUSED_SUFFIX,
   PENDING_HINTS,
   planUnchangedLine,
@@ -35,8 +36,12 @@ import {
 export type DecisionChoice = 'approve' | 'smaller' | 'info';
 export type ApprovedTerm = 'monthly' | 'quarterly' | 'yearly';
 
-/** Which of B1-11's panels the request is in (`open`, `blocked`, `done`). */
-export type PanelKind = 'open' | 'blocked' | 'decided';
+/**
+ * Which of B1-11's panels the request is in (`open`, `blocked`, `done`), and `same-name`: the DP-09
+ * interim safeguard (owner, 5 Nov 2026) — an institution of the same name exists, so approving
+ * would create a second record and the decision waits.
+ */
+export type PanelKind = 'open' | 'blocked' | 'same-name' | 'decided';
 
 /**
  * B1-11: a request under review is decided in the open panel — unless its institution is paused
@@ -45,7 +50,21 @@ export type PanelKind = 'open' | 'blocked' | 'decided';
  */
 export function panelKindOf(page: DecisionPage): PanelKind {
   if (page.request.status !== 'under-review') return 'decided';
-  return page.existingAccess?.paused ? 'blocked' : 'open';
+  if (page.existingAccess?.paused) return 'blocked';
+  return holdsForSameName(page) ? 'same-name' : 'open';
+}
+
+/**
+ * DP-09: the request has no institution yet and one of the same name exists — approving would
+ * create a second record of it (the commands answer `policy-open` SEL-05).
+ */
+export function holdsForSameName(page: DecisionPage): boolean {
+  return page.existingAccess === null && page.sameNameInstitutions.length > 0;
+}
+
+/** "<name> is already on the platform (<route>). This request can’t be decided …", per institution. */
+export function sameNameLines(page: DecisionPage): readonly string[] {
+  return page.sameNameInstitutions.map((existing) => sameNameLine(existing.name, existing.kind));
 }
 
 /** The decision the Super Admin is composing (B1-11 `dcInit`). `null` = as requested. */
@@ -371,6 +390,8 @@ export function existingAccessWords(
 ): string {
   const { request, existingAccess } = page;
   if (!existingAccess || page.whereItStands.institutionRecord === 'not-created') {
+    // DP-09: "None. There is no institution record … yet." would be untrue.
+    if (holdsForSameName(page)) return sameNameLines(page).join(' ');
     return noInstitutionYet(request.institutionName, request.status === 'under-review');
   }
   if (createdByThisApproval(page) && request.decision) {

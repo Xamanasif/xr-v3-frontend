@@ -57,7 +57,7 @@ import { command, type Op, read } from '../pipeline/runner.js';
 import { ticketHolder } from '../session/browser-session.js';
 import { forDecision } from './decision-view.js';
 import { reportPayment } from './payment-provider.js';
-import { plansOf } from '../world/queries.js';
+import { plansOf, sameNameInstitutionsOf } from '../world/queries.js';
 import { values } from '../world/records.js';
 import type { WorldRecords } from '../world/types.js';
 
@@ -170,6 +170,12 @@ function decisionPage(op: Op, request: AccessRequest): DecisionPage {
       ? { institutionId: institution.id, plans, paused: institution.pause !== null }
       : null,
     routeCommitted: institution?.kind ?? null,
+    // DP-09: an institution of the same name already exists, so approving would duplicate it.
+    sameNameInstitutions: sameNameInstitutionsOf(records, request).map((existing) => ({
+      institutionId: existing.id,
+      name: existing.name,
+      kind: existing.kind,
+    })),
     whereItStands: {
       institutionRecord: institution ? 'created' : 'not-created',
       request: request.status,
@@ -493,6 +499,7 @@ export function accessRequestPort(call: Call): AccessRequestService {
             request,
             institution,
             route: accepted.route,
+            sameNameInstitutions: sameNameInstitutionsOf(op.records, request).map(({ id }) => id),
             actor: person.ref,
             now: op.now,
             ids: op.ids,
@@ -523,6 +530,7 @@ export function accessRequestPort(call: Call): AccessRequestService {
             request,
             institution,
             route: accepted.route,
+            sameNameInstitutions: sameNameInstitutionsOf(op.records, request).map(({ id }) => id),
             items: accepted.items,
             licences: accepted.licences,
             term: { kind: accepted.term },

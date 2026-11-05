@@ -237,6 +237,8 @@ export const POLICY_RULES = [
     },
   }),
   // ── Super Admin decisions on requests (M03; INST-01, ACC-01) ────────────────────────────────
+  // The DP-09 same-name hold is the approval command's own (its caller lists the institutions of
+  // the same name); these rules answer who may decide, so their dry runs pass none.
   rule({
     action: 'request.set-route',
     rows: ['REQ-12'],
@@ -250,6 +252,7 @@ export const POLICY_RULES = [
           request: subject.request,
           institution: null,
           route: 'external',
+          sameNameInstitutions: [],
           actor: person(actor).ref,
           now,
           ids: DRY_RUN_IDS,
@@ -269,6 +272,7 @@ export const POLICY_RULES = [
           request: subject.request,
           institution: subject.institution,
           route: subject.institution?.kind ?? 'external',
+          sameNameInstitutions: [],
           actor: person(actor).ref,
           now,
           ids: DRY_RUN_IDS,
@@ -287,6 +291,7 @@ export const POLICY_RULES = [
           request: subject.request,
           institution: subject.institution,
           route: subject.institution?.kind ?? 'external',
+          sameNameInstitutions: [],
           items: subject.request.items,
           licences: subject.request.licencesRequested,
           term: { kind: 'monthly' },

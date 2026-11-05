@@ -242,6 +242,15 @@ export const decisionPage = z.object({
     .nullable(),
   /** Set at the first approval; later requests show it read-only (REQ-24). */
   routeCommitted: institutionKind.nullable(),
+  /**
+   * DP-09 interim safeguard (owner, 5 Nov 2026): the existing institutions whose name is the same
+   * as the request's while the request has no institution yet. Approving would create a second
+   * record of one of them, so `approveRequest` / `approveSmallerScope` answer `policy-open` SEL-05
+   * until a request can be matched to an existing institution (Q-A1). Empty otherwise.
+   */
+  sameNameInstitutions: z.array(
+    z.object({ institutionId, name: z.string().min(1), kind: institutionKind }),
+  ),
   whereItStands: z.object({
     institutionRecord: z.enum(['not-created', 'created']),
     request: requestStatus,

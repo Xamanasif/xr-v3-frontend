@@ -614,12 +614,111 @@ const inProgress: ContractCase = {
   },
 };
 
+/**
+ * DP-09 interim safeguard (owner, 5 Nov 2026; audit P0-5; P1 register §A): a public request names
+ * its institution in free text, so a repeat request from an onboarded institution would make its
+ * approval create a second record. SA-03 names the existing institution and both approvals wait
+ * (`policy-open` SEL-05) until requests can be matched to an existing institution; nothing merges.
+ */
+const sameNameHeld: ContractCase = {
+  id: 'request-access:same-name-held',
+  title:
+    'A public request naming an existing institution is held on SA-03 and never creates a second record (DP-09)',
+  group: 'access',
+  evidence:
+    'Owner decision DP-09 (5 Nov 2026, interim safeguard); audit P0-5; P1 register §A (A.1–A.6); INST-01 "first request from a new institution"; SEL-05 unresolved',
+  requires: {
+    fixture: { kind: 'spine-start' },
+    methods: [
+      ...SEND,
+      ...DECIDE,
+      'AccessRequestService.approveSmallerScope',
+      'InstitutionService.listInstitutions',
+    ],
+  },
+  run: async (context) => {
+    const admin = context.as('Arjun Mehta');
+    const before = valueOf(
+      await admin.institutions.listInstitutions({ tab: 'all' }),
+      'SA-06 before',
+    );
+    const existing = before[0];
+    check(existing !== undefined, 'the starting world has an institution to name');
+    const visitor = context.publicPorts;
+    const shell = await experimentNamed(visitor, SAMPLE.experiments.shellAndTube);
+    valueOf(
+      visitor.selection.add({ experimentId: shell.experimentId, formats: ['web'] }),
+      'add to the selection',
+    );
+    // The same name, typed with other letter case and spacing.
+    const typed = `  ${existing!.name.toUpperCase().replace(/ /g, '  ')} `;
+    const sent = valueOf(
+      await visitor.accessRequests.submitPublicRequest({
+        ...SAMPLE.request,
+        institutionName: typed,
+        phone: null,
+        message: null,
+        term: { kind: 'yearly' },
+      }),
+      'send a request naming an existing institution',
+    );
+    const page = valueOf(await admin.accessRequests.getRequestForDecision(sent.reference), 'SA-03');
+    deepEqual(
+      page.sameNameInstitutions,
+      [{ institutionId: existing!.id, name: existing!.name, kind: existing!.kind }],
+      'SA-03 names the existing institution',
+    );
+    check(page.existingAccess === null, 'the request itself has no institution yet');
+    for (const route of ['internal', 'external'] as const) {
+      const held = errorOf(
+        await admin.accessRequests.approveRequest({
+          id: sent.reference,
+          route,
+          expectedRev: page.request.rev,
+        }),
+        'policy-open',
+        `Approve request (${route}) waits`,
+      );
+      check(held.decision === 'SEL-05', 'the hold names SEL-05');
+    }
+    const narrowed = errorOf(
+      await admin.accessRequests.approveSmallerScope({
+        id: sent.reference,
+        route: 'external',
+        items: [{ experimentId: shell.experimentId, formats: ['web'] }],
+        licences: '100',
+        term: 'yearly',
+        reason: SAMPLE.changeReason,
+        expectedRev: page.request.rev,
+      }),
+      'policy-open',
+      'Approve a smaller scope waits',
+    );
+    check(narrowed.decision === 'SEL-05', 'the hold names SEL-05');
+    const after = valueOf(await admin.institutions.listInstitutions({ tab: 'all' }), 'SA-06 after');
+    deepEqual(
+      after.map((row) => row.id).sort(),
+      before.map((row) => row.id).sort(),
+      'no institution record was created',
+    );
+    const still = valueOf(
+      await admin.accessRequests.getRequestForDecision(sent.reference),
+      'SA-03 after',
+    );
+    check(
+      still.request.status === 'under-review' && still.request.rev === page.request.rev,
+      'the request is unchanged and still waits for a decision',
+    );
+  },
+};
+
 export const REQUEST_ACCESS_CASES: readonly ContractCase[] = [
   sessionGate,
   inProgress,
   instituteAdmin,
   instituteAdminPays,
   duplicatesAndStale,
+  sameNameHeld,
   internalRoute,
   paymentFailedAndRetried,
   approvedWithChanges,

@@ -357,6 +357,26 @@ export const PAUSED_BLOCK = {
   viewInstitution: 'View institution',
 } as const;
 
+/**
+ * DP-09 interim safeguard (owner decision and provisional wording, 5 Nov 2026; state-copy
+ * `SA-03.same-name`): the request names an institution that already exists, so approving it would
+ * create a second record; the decision waits until requests can be matched to an existing
+ * institution.
+ */
+export const SAME_NAME_BLOCK = {
+  title: 'An institution with this name already exists',
+} as const;
+
+/** One existing institution of the same name, with its route. */
+export function sameNameLine(name: string, kind: InstitutionKind): string {
+  return `${name} is already on the platform (${routeWords(kind)}). This request can’t be decided until requests can be matched to an existing institution.`;
+}
+
+/** The link to that institution's page (SA-07). */
+export function openInstitutionWords(name: string): string {
+  return `Open ${name}`;
+}
+
 /** The confirmation's question (`SA.DLG.approveReq`). */
 export function confirmTitle(smaller: boolean, renewal: boolean, institution: string): string {
   if (smaller) return `Approve a smaller scope for ${institution}?`;

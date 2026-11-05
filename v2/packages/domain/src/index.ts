@@ -24,6 +24,7 @@ export * from './kernel/id-source.js';
 export * from './institution/model.js';
 export * from './institution/term.js';
 export * from './institution/decide.js';
+export * from './institution/names.js';
 export * from './catalogue/model.js';
 export * from './catalogue/decide.js';
 export * from './request/model.js';

@@ -747,6 +747,7 @@ const COMMANDS: readonly Command[] = [
       request: waiting,
       institution: null,
       route: 'internal',
+      sameNameInstitutions: [],
       actor: who.superAdmin,
       now: sim.now,
       ids: sim.mint,

@@ -16,6 +16,7 @@ import {
   type FacultyCourseMapping,
   type Group,
   type Institution,
+  institutionsNamed,
   type IsoInstant,
   OPEN_UPDATE_STATES,
   type OverlapGrantPolicy,
@@ -34,6 +35,19 @@ import type { SeededFacts, WorldRecords } from './types.js';
 
 export function institutionById(records: WorldRecords, id: string): Institution | undefined {
   return records.institutions[id];
+}
+
+/**
+ * SA-03 and the approval commands (DP-09 interim safeguard): the existing institutions whose name is
+ * the same as a request's, while the request has no institution yet — approving it would create
+ * one. Empty for a request that already has its institution (renewal, more licences).
+ */
+export function sameNameInstitutionsOf(
+  records: WorldRecords,
+  request: { readonly institutionId: string | null; readonly institutionName: string },
+): readonly Institution[] {
+  if (request.institutionId !== null) return [];
+  return institutionsNamed(request.institutionName, values(records.institutions));
 }
 
 export function plansOf(records: WorldRecords, institutionId: string): AccessPlan[] {

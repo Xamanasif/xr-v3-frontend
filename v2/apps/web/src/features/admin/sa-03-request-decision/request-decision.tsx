@@ -59,12 +59,14 @@ import {
   formatCellsLabel,
   FOUR_EVENTS,
   licencesRequestedWords,
+  openInstitutionWords,
   PAUSED_BLOCK,
   REASON_FIELD,
   receivedWords,
   REQUEST_TYPE_WORDS,
   ROUTE_CHOICE,
   routeWords,
+  SAME_NAME_BLOCK,
   SMALLER_SCOPE,
   TERM_OPTIONS,
   termWords,
@@ -105,6 +107,7 @@ import {
   type PanelErrors,
   pendingHint,
   requestedFormatsOf,
+  sameNameLines,
   standRows,
   termValue,
 } from './decision-view';
@@ -140,6 +143,10 @@ const PANEL_HEADING_ID = 'dc-panel-h';
  *   focus moves to its heading. There is no Decline and no Mark paid.
  * - **Paused institution**: "This institution is paused" with no decision controls, and its "View
  *   institution" link.
+ * - **An institution of the same name exists** (DP-09 interim safeguard, owner, 5 Nov 2026):
+ *   approving would create a second record, so no decision control is offered — the warning names
+ *   each existing institution with its route and an "Open <name>" link to its page (state-copy
+ *   `SA-03.same-name`). The commands hold the same way (`policy-open` SEL-05).
  */
 export function RequestDecision({ requestId }: { readonly requestId: string }) {
   const read = useRequestForDecision(requestId);
@@ -279,6 +286,22 @@ function DecisionContent({
                 }}
                 onFocusLost={focusHeading}
               />
+            ) : kind === 'same-name' ? (
+              <Notice
+                tone="warn"
+                role="status"
+                title={SAME_NAME_BLOCK.title}
+                actions={page.sameNameInstitutions.map((existing) => (
+                  <ButtonLink
+                    key={existing.institutionId}
+                    href={institutionAddress(existing.institutionId)}
+                  >
+                    {openInstitutionWords(existing.name)}
+                  </ButtonLink>
+                ))}
+              >
+                {sameNameLines(page).join(' ')}
+              </Notice>
             ) : kind === 'blocked' ? (
               <Notice
                 tone="paused"

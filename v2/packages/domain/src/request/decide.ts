@@ -20,7 +20,7 @@ import {
 } from '../kernel/decision.js';
 import { historyEntry, type HistoryEntry } from '../kernel/history.js';
 import type { IdSource } from '../kernel/id-source.js';
-import type { AccessPlanId, ExperimentId } from '../kernel/ids.js';
+import type { AccessPlanId, ExperimentId, InstitutionId } from '../kernel/ids.js';
 import { isDrawnTransition } from '../kernel/machine.js';
 import { provided } from '../kernel/provided.js';
 import { newMeta, nextMeta, ref } from '../kernel/record.js';
@@ -410,6 +410,26 @@ export interface ApprovalOutcome {
 export interface ApproveInput extends DecideBase {
   /** "Choose internal or external": required when the institution is new (REQ-12). */
   readonly route: InstitutionKind | null;
+  /**
+   * The existing institutions whose name is the same as the request's (`institutionIdsNamed`,
+   * DP-09). Read only when the request has no institution yet — when approving would create one.
+   */
+  readonly sameNameInstitutions: readonly InstitutionId[];
+}
+
+/**
+ * DP-09 interim safeguard (owner, 5 Nov 2026; audit P0-5; P1 register §A): approving a request
+ * whose institution does not exist yet creates its record (INST-01), so when an institution of
+ * the same name already exists the approval would create a second record of it. Until a request
+ * can be matched to an existing institution (Q-A1; SEL-05 unresolved) the decision waits: nothing
+ * is written and nothing merges. A request that already has its institution (a renewal, more
+ * licences) is never held here.
+ */
+function wouldDuplicate(input: ApproveInput): Decision<null> {
+  if (input.institution === null && input.sameNameInstitutions.length > 0) {
+    return policyOpen('SEL-05');
+  }
+  return ok(null);
 }
 
 function resolveRoute(input: ApproveInput): Decision<InstitutionKind> {
@@ -547,6 +567,8 @@ function approve(
 export function approveRequest(input: ApproveInput): Decision<ApprovalOutcome> {
   const open = decidable(input);
   if (!open.ok) return open;
+  const single = wouldDuplicate(input);
+  if (!single.ok) return single;
   const route = resolveRoute(input);
   if (!route.ok) return route;
   return approve(
@@ -584,6 +606,8 @@ function sameItems(a: readonly RequestedItem[], b: readonly RequestedItem[]): bo
 export function approveSmallerScope(input: SmallerScopeInput): Decision<ApprovalOutcome> {
   const open = decidable(input);
   if (!open.ok) return open;
+  const single = wouldDuplicate(input);
+  if (!single.ok) return single;
   if (input.request.type === 'renewal') return refused('renewal-scope-not-adjustable');
   const requested = new Map(input.request.items.map((item) => [item.experimentId, item.formats]));
   if (input.request.items.length > 1 && !sameItems(input.items, input.request.items)) {

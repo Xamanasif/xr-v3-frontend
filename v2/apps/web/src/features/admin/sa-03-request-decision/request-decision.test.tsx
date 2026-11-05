@@ -442,6 +442,55 @@ describe('SA-03 — REQ-0040, more licences (B1-11 f5, f6, f8, f12)', () => {
   });
 });
 
+describe('SA-03 — DP-09 interim safeguard: an institution of the same name already exists', () => {
+  it('a repeat request from an onboarded institution: the warning, its link, no decision controls; the service holds too', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    const visitor = visitorPorts(sample);
+    const added = visitor.selection.add({
+      experimentId: 'shell-and-tube-heat-exchanger' as never,
+      formats: ['web'],
+    });
+    if (!added.ok) throw new Error(added.error.kind);
+    const sent = await visitor.accessRequests.submitPublicRequest({
+      institutionName: 'bits pilani – hyderabad campus',
+      contactPerson: 'A. Menon',
+      email: 'a.menon@hyderabad.bits-pilani.ac.in',
+      phone: null,
+      licencesRequested: '40',
+      message: null,
+      term: { kind: 'yearly' },
+    });
+    if (!sent.ok) throw new Error(sent.error.kind);
+    openDecision(runtime, sent.value.reference);
+    const decision = await panel();
+    await waitFor(() =>
+      expect(decision).toHaveTextContent('An institution with this name already exists'),
+    );
+    const line = `${HYDERABAD} is already on the platform (Internal). This request can’t be decided until requests can be matched to an existing institution.`;
+    expect(decision).toHaveTextContent(line);
+    expect(within(decision).queryAllByRole('radio')).toHaveLength(0);
+    expect(within(decision).queryAllByRole('button')).toHaveLength(0);
+    expect(
+      within(decision)
+        .getAllByRole('link')
+        .map((link) => [link.textContent, link.getAttribute('href')]),
+    ).toEqual([[`Open ${HYDERABAD}`, '/admin/institutions/bitshyd']]);
+    // "None. There is no institution record … yet." would be untrue.
+    const existing = screen.getByRole('region', { name: 'Existing access' });
+    expect(existing).toHaveTextContent(line);
+    expect(existing).not.toHaveTextContent('There is no institution record');
+    // The service holds the decision too (the domain owns it): nothing is written.
+    const page = await decisionOf(runtime, sent.value.reference);
+    const answer = await runtime.ports.accessRequests.approveRequest({
+      id: page.request.id,
+      route: 'internal',
+      expectedRev: page.request.rev,
+    });
+    expect(answer.ok ? null : answer.error).toEqual({ kind: 'policy-open', decision: 'SEL-05' });
+    expect((await decisionOf(runtime, sent.value.reference)).request.status).toBe('under-review');
+  });
+});
+
 describe('SA-03 — a decision keeps the revision it began with (P1-21; Package 1E)', () => {
   type Sample = Awaited<ReturnType<typeof tabPlatform>>['sample'];
 

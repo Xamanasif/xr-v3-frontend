@@ -500,6 +500,17 @@ const PHASE_1_AND_EARLIER = {
     decisions: ['VD-12'],
   },
 
+  'SA-03.same-name': {
+    screen: 'SA-03',
+    state:
+      'A public request whose institution name is the same as an existing institution’s (letter case, spaces and dashes aside) while it has no institution yet: approving would create a second record',
+    words: 'An institution with this name already exists',
+    rule: 'In place of the decision controls, a warning with these words, then for each existing institution “<name> is already on the platform (Internal | External). This request can’t be decided until requests can be matched to an existing institution.” and a link “Open <name>” to its SA-07 page. “Existing access” shows the same sentence in place of “None. There is no institution record … yet.”. No Approve, smaller scope or Request more information is offered; both approvals answer policy-open SEL-05 and write nothing.',
+    basis:
+      'Owner decision DP-09 (interim duplicate-institution safeguard) and owner-approved provisional wording, 5 Nov 2026; audit P0-5; P1 register §A',
+    status: 'provisional',
+    decisions: ['DP-09', 'SEL-05', 'Q-A1'],
+  },
   'SA-03.existing-no-plan': {
     screen: 'SA-03',
     state: '“Existing access” for an institution with a record but no access plan yet',
