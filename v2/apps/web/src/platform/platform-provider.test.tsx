@@ -142,7 +142,7 @@ describe('PlatformProvider — one platform per tab', () => {
     expect(tab.getBootState()).toEqual({ status: 'ready', runtime });
   });
 
-  it('a data source without an adapter fails the page; the sample world is never used instead', async () => {
+  it('the api data source boots on the HTTP adapter, signed out; the sample world is never created', async () => {
     vi.resetModules();
     vi.doMock('@/lib/env', () => ({
       publicEnv: {
@@ -151,16 +151,16 @@ describe('PlatformProvider — one platform per tab', () => {
         NEXT_PUBLIC_XR_DATA_SOURCE: 'api',
       },
     }));
-    const { PlatformProvider } = await import('./platform-provider');
     const { bootPlatform } = await import('./runtime');
-    const { DataSourceUnavailableError } = await import('./composition');
-    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
-    expect(() => render(<PlatformProvider>never shown</PlatformProvider>)).toThrow(
-      DataSourceUnavailableError,
-    );
-    await expect(bootPlatform()).rejects.toThrow(DataSourceUnavailableError);
+    const runtime = await bootPlatform();
+    expect(runtime.capabilities).toEqual({ dataSource: 'api', persistence: 'server' });
+    expect(runtime.resetSampleWorld).toBeNull();
+    expect(await runtime.ports.session.getSession()).toEqual({
+      ok: true,
+      value: null,
+      changed: [],
+    });
     expect(created.count).toBe(0);
-    consoleError.mockRestore();
   });
 
   it('on the server nothing is composed and every render gets its own empty QueryClient', async () => {

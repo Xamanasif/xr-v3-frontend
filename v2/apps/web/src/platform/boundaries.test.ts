@@ -117,7 +117,21 @@ describe('apps/web import boundaries', () => {
           .filter(({ specifier, typeOnly }) => specifier === '@xr/domain' && !typeOnly)
           .flatMap(({ names }) => names.map((name) => `${file}: ${name}`)),
       );
-    expect(values).toEqual(['src/queries/keys.ts: RECORD_KINDS']);
+    expect(values).toEqual([
+      // ADR-0014: the HTTP adapter casts the API's validated strings to their domain brands.
+      'src/platform/http/index.ts: unsafeBrand',
+      // ADR-0014: the visitor's selection is a browser-session port with no server (B1-06), so in
+      // an api build its adapter runs the same domain decisions and policy the mock runs — this
+      // file only, these functions only.
+      'src/platform/http/selection.ts: addToSelection',
+      'src/platform/http/selection.ts: EMPTY_SELECTION',
+      'src/platform/http/selection.ts: may',
+      'src/platform/http/selection.ts: removeFromSelection',
+      'src/platform/http/selection.ts: setSelectionFormats',
+      'src/platform/http/selection.ts: undoRemove',
+      'src/platform/http/selection.ts: unsafeBrand',
+      'src/queries/keys.ts: RECORD_KINDS',
+    ]);
   });
 
   it('no product file names the test-hook flag or the seam globals outside the bridge', () => {

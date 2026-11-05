@@ -78,7 +78,7 @@ export function assembleRuntime(options: {
     ...ports,
     session: session.port(ports.session),
   });
-  const snapshot = composed.sample.snapshot;
+  const snapshot = composed.sample?.snapshot ?? null;
   return {
     ports: synced(composed.adapter.ports),
     withCommandId: (commandId) => synced(composed.adapter.withCommandId(commandId)),
@@ -156,7 +156,7 @@ function webActivityHref(launch: string): string {
  * another tab of this browser kept for the visitor is taken up the same way (ADR-0009 amendment).
  */
 function connectSnapshot(composed: ComposedPlatform, runtime: PlatformRuntime): void {
-  const snapshot = composed.sample.snapshot;
+  const snapshot = composed.sample?.snapshot;
   if (!snapshot) return;
   snapshot.onAdopted(() => {
     // A reset landing in between makes this read refuse; the page then loads again anyway.
@@ -179,7 +179,7 @@ function connectSnapshot(composed: ComposedPlatform, runtime: PlatformRuntime): 
 
 /** TE-3: this tab answers the sample WEB activities it launched (`sample-web-relay.ts`). */
 function connectSampleWebActivity(composed: ComposedPlatform, runtime: PlatformRuntime): void {
-  const web = composed.sample.sampleWebRuntime;
+  const web = composed.sample?.sampleWebRuntime;
   if (!web || typeof BroadcastChannel === 'undefined') return;
   relaySampleWebActivity({
     runtime: web,
@@ -222,6 +222,7 @@ async function start(): Promise<PlatformRuntime> {
   const prepared = testHooks ? await testHooks.prepare() : null;
   const composed = composePlatform({
     dataSource: publicEnv.NEXT_PUBLIC_XR_DATA_SOURCE,
+    apiBaseUrl: publicEnv.NEXT_PUBLIC_API_BASE_URL,
     appEnvironment: publicEnv.NEXT_PUBLIC_APP_ENV,
     realNow: () => Date.now(),
     browserStorage: browserSessionStorage(),

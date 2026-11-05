@@ -10,7 +10,7 @@ import { Component, type ReactNode } from 'react';
 import { type Mock, vi } from 'vitest';
 
 import { type AppNavigation, NavigationProvider } from '@/nav/navigation';
-import { composePlatform } from '@/platform/composition';
+import { composePlatform, type SamplePlatformHandle, sampleOf } from '@/platform/composition';
 import { PlatformRuntimeProvider } from '@/platform/platform-provider';
 import { assembleRuntime, createQueryClient, type PlatformRuntime } from '@/platform/runtime';
 
@@ -41,7 +41,7 @@ export async function tabPlatform(
   fixture: FixtureName = 'after-flow-d',
 ): Promise<{
   readonly runtime: PlatformRuntime;
-  readonly sample: ReturnType<typeof composePlatform>['sample'];
+  readonly sample: SamplePlatformHandle;
 }> {
   const composed = composePlatform({ dataSource: 'sample', world: await fixtureWorld(fixture) });
   const runtime = assembleRuntime({
@@ -49,9 +49,9 @@ export async function tabPlatform(
     queryClient: createQueryClient('sample'),
     publicSessionKey: 'public:bs-test',
   });
-  if (personId) beginSession(composed.sample, personId);
+  if (personId) beginSession(sampleOf(composed), personId);
   await runtime.session.refresh();
-  return { runtime, sample: composed.sample };
+  return { runtime, sample: sampleOf(composed) };
 }
 
 /**
@@ -63,7 +63,7 @@ export async function worldPlatform(
   world: Awaited<ReturnType<typeof fixtureWorld>>,
 ): Promise<{
   readonly runtime: PlatformRuntime;
-  readonly sample: ReturnType<typeof composePlatform>['sample'];
+  readonly sample: SamplePlatformHandle;
 }> {
   const composed = composePlatform({ dataSource: 'sample', world });
   const runtime = assembleRuntime({
@@ -71,9 +71,9 @@ export async function worldPlatform(
     queryClient: createQueryClient('sample'),
     publicSessionKey: 'public:bs-test',
   });
-  if (personId) beginSession(composed.sample, personId);
+  if (personId) beginSession(sampleOf(composed), personId);
   await runtime.session.refresh();
-  return { runtime, sample: composed.sample };
+  return { runtime, sample: sampleOf(composed) };
 }
 
 /** What `notFound()` throws in these renders (Next.js throws its own; the boundary catches it). */

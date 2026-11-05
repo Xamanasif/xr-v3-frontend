@@ -11,12 +11,18 @@ const flags = parseEnv(webBuildFlagsSchema, {
   NEXT_PUBLIC_XR_TEST_HOOKS: process.env.NEXT_PUBLIC_XR_TEST_HOOKS,
 });
 
-// No silent fallback (ADR-0002 §5): `api` is a valid data source, but its HTTP adapter
-// (Appendix F §3.2 `platform/http/`) is not built, so no build is made for it.
+// The `api` data source (ADR-0014): the HTTP adapter serves the catalogue and answers
+// `unavailable` for every port the API does not serve yet — never the sample world in their
+// place (ADR-0002 §5). Until the API serves every port, it builds only as a development build.
+// Product builds stay on `sample`. (`api` with the test hooks is refused by the flag schema
+// above: the hooks drive the sample world only, ADR-0007.)
 if (flags.NEXT_PUBLIC_XR_DATA_SOURCE === 'api') {
-  throw new Error(
-    'NEXT_PUBLIC_XR_DATA_SOURCE=api: the HTTP adapter is not built yet (Appendix F §3.2). Build with NEXT_PUBLIC_XR_DATA_SOURCE=sample or unset.',
-  );
+  const appEnvironment = process.env.NEXT_PUBLIC_APP_ENV || 'development';
+  if (appEnvironment !== 'development') {
+    throw new Error(
+      `NEXT_PUBLIC_XR_DATA_SOURCE=api with NEXT_PUBLIC_APP_ENV=${appEnvironment}: the API serves the catalogue only so far (docs/BACKEND_PLAN.md), so an api build is a development build. Product builds stay on sample.`,
+    );
+  }
 }
 
 /**

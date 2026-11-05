@@ -19,6 +19,8 @@ import {
   type World,
 } from '@xr/sample-platform';
 
+import { createHttpPlatform } from './http';
+
 /** TE-6: the browser storage key of the local prototype build's world snapshot. */
 export { SNAPSHOT_KEY as SAMPLE_WORLD_STORAGE_KEY } from '@xr/sample-platform';
 /**
@@ -44,8 +46,9 @@ export interface PlatformCapabilities {
    * authorisation of Phase 7, 17 Oct 2026, a local prototype build only): the world is kept in this
    * browser and shared by its tabs; a reload keeps it, signed out — with the visitor's own request
    * tickets kept beside it (ADR-0009 amendment, 24 Oct 2026); "Reset demo data" starts again.
+   * `server` (the `api` data source, ADR-0014): the platform's records live in the API's database.
    */
-  readonly persistence: 'memory-per-tab' | 'browser-snapshot';
+  readonly persistence: 'memory-per-tab' | 'browser-snapshot' | 'server';
 }
 
 /** The sample world a platform starts from (test-hook builds and tests pass a fixture). */
@@ -55,6 +58,8 @@ export type SamplePlatformHandle = SamplePlatform;
 
 export interface ComposeOptions {
   readonly dataSource: DataSource;
+  /** The API origin for the `api` data source (`NEXT_PUBLIC_API_BASE_URL`). */
+  readonly apiBaseUrl?: string;
   /**
    * The build's environment (`NEXT_PUBLIC_APP_ENV`; `development` when unset — a local build).
    * Only a local prototype build lets the TE-4 sample payment stand-in confirm a payment.
@@ -88,20 +93,27 @@ export interface ComposeOptions {
 export interface ComposedPlatform {
   readonly adapter: PlatformAdapter;
   readonly capabilities: PlatformCapabilities;
+  /** The sample adapter — `null` for the `api` data source, which has no sample world at all. */
+  readonly sample: SamplePlatformHandle | null;
+}
+
+/** The sample handle of a platform composed on the `sample` data source (tests, the test hooks). */
+export function sampleOf(composed: ComposedPlatform): SamplePlatformHandle {
+  if (!composed.sample) {
+    throw new Error(`The ${composed.capabilities.dataSource} data source has no sample world.`);
+  }
+  return composed.sample;
+}
+
+/** Composed on the `sample` data source: the sample handle is always there. */
+export interface SampleComposedPlatform extends ComposedPlatform {
   readonly sample: SamplePlatformHandle;
 }
 
-/** A configured data source whose adapter does not exist. Never answered by another adapter. */
-export class DataSourceUnavailableError extends Error {
-  override readonly name = 'DataSourceUnavailableError';
-
-  constructor(readonly dataSource: DataSource) {
-    super(
-      `NEXT_PUBLIC_XR_DATA_SOURCE=${dataSource}: no adapter is built for this data source yet (the HTTP adapter is Appendix F §3.2 platform/http/). The sample world is not used in its place.`,
-    );
-  }
-}
-
+export function composePlatform(
+  options: ComposeOptions & { readonly dataSource: 'sample' },
+): SampleComposedPlatform;
+export function composePlatform(options: ComposeOptions): ComposedPlatform;
 export function composePlatform(options: ComposeOptions): ComposedPlatform {
   switch (options.dataSource) {
     case 'sample': {
@@ -174,7 +186,17 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
       };
     }
     case 'api':
-      throw new DataSourceUnavailableError('api');
+      // ADR-0014: the HTTP adapter. Never the sample world in its place — the ports the API does
+      // not serve yet answer `unavailable`.
+      return {
+        adapter: createHttpPlatform({
+          baseUrl: options.apiBaseUrl ?? 'http://localhost:4000',
+          browserStorage: options.browserStorage ?? null,
+          ...(options.realNow ? { now: options.realNow } : {}),
+        }),
+        capabilities: { dataSource: 'api', persistence: 'server' },
+        sample: null,
+      };
     default: {
       const unknown: never = options.dataSource;
       throw new Error(`Unknown data source ${String(unknown)}.`);
@@ -183,14 +205,30 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
 }
 
 /**
- * Query-cache defaults of a data source (Appendix F §4.6; Appendix D §1.5). The sample world
- * changes only through commands, and every command receipt invalidates exactly the queries that
- * depend on what it changed — so answers never go stale on a timer, the window regaining focus
- * or the network coming back. Nothing here talks to a network, so queries and commands never
- * wait for one; a failure shows at once as the drawn "failed, try again" state (no retries).
+ * Query-cache defaults of a data source (Appendix F §4.6; Appendix D §1.5).
+ *
+ * `sample`: the sample world changes only through commands, and every command receipt invalidates
+ * exactly the queries that depend on what it changed — so answers never go stale on a timer, the
+ * window regaining focus or the network coming back. Nothing here talks to a network, so queries
+ * and commands never wait for one; a failure shows at once as the drawn "failed, try again" state.
+ *
+ * `api` (ADR-0014): other people change the platform too (a publication changes the catalogue for
+ * everyone, B7-11), so an answer is fresh for a minute and read again when the network returns.
+ * Still no retries and no waiting for the network: a failure shows at once as the drawn state.
  */
 export function queryDefaultsFor(dataSource: DataSource): DefaultOptions {
-  if (dataSource !== 'sample') throw new DataSourceUnavailableError(dataSource);
+  if (dataSource === 'api') {
+    return {
+      queries: {
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
+        retry: false,
+        networkMode: 'always',
+      },
+      mutations: { retry: false, networkMode: 'always' },
+    };
+  }
   return {
     queries: {
       staleTime: Infinity,

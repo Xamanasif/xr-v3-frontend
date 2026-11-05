@@ -15,6 +15,7 @@ async function loadConfig(env: Record<string, string | undefined>): Promise<Next
   vi.resetModules();
   vi.stubEnv('NEXT_PUBLIC_XR_TEST_HOOKS', env.NEXT_PUBLIC_XR_TEST_HOOKS ?? '');
   vi.stubEnv('NEXT_PUBLIC_XR_DATA_SOURCE', env.NEXT_PUBLIC_XR_DATA_SOURCE ?? '');
+  vi.stubEnv('NEXT_PUBLIC_APP_ENV', env.NEXT_PUBLIC_APP_ENV ?? '');
   return (await import('../../next.config')).default;
 }
 
@@ -51,9 +52,25 @@ describe('next.config.ts', () => {
     );
   });
 
-  it('refuses to build for api (no adapter) instead of falling back to the sample world', async () => {
-    await expect(loadConfig({ NEXT_PUBLIC_XR_DATA_SOURCE: 'api' })).rejects.toThrow(
-      /NEXT_PUBLIC_XR_DATA_SOURCE=api: the HTTP adapter is not built yet/,
+  it('builds for api as a development build, with the empty test-hook stub (ADR-0014)', async () => {
+    const config = await loadConfig({ NEXT_PUBLIC_XR_DATA_SOURCE: 'api' });
+    expect(aliasOf(config)).toBe('./src/platform/test-hooks.ts');
+    expect(config.distDir).toBeUndefined();
+  });
+
+  it('refuses an api build outside development: product builds stay on sample', async () => {
+    for (const environment of ['staging', 'production']) {
+      await expect(
+        loadConfig({ NEXT_PUBLIC_XR_DATA_SOURCE: 'api', NEXT_PUBLIC_APP_ENV: environment }),
+      ).rejects.toThrow(/an api build is a development build/);
+    }
+  });
+
+  it('refuses an api build with the test hooks (the flag schema): they drive the sample world only', async () => {
+    await expect(
+      loadConfig({ NEXT_PUBLIC_XR_DATA_SOURCE: 'api', NEXT_PUBLIC_XR_TEST_HOOKS: '1' }),
+    ).rejects.toThrow(
+      /the test hooks drive the sample world; they need NEXT_PUBLIC_XR_DATA_SOURCE=sample/,
     );
   });
 });

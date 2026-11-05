@@ -54,6 +54,7 @@ import {
   worldOf,
 } from '@xr/sample-platform/testing';
 
+import { sampleOf } from './composition';
 import type { PlatformRuntime } from './runtime';
 import type { PreparedBoot, TestHooks } from './test-hook-contract';
 
@@ -402,10 +403,10 @@ export const testHooks: TestHooks = {
   attach({ composed, runtime, prepared }) {
     // One world per tab: a second attach would be a second world.
     if (booted) throw new TestHookError('The bridge is already attached to this tab’s world.');
-    if (prepared?.personId) beginSession(composed.sample, prepared.personId);
+    if (prepared?.personId) beginSession(sampleOf(composed), prepared.personId);
     attached += 1;
     booted = {
-      sample: composed.sample,
+      sample: sampleOf(composed),
       runtime,
       fixture: prepared?.fixture ?? null,
       instance: newInstanceId(),

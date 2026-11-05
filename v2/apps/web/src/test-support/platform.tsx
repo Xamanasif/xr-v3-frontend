@@ -6,7 +6,12 @@
  */
 import type { ReactNode } from 'react';
 
-import { type ComposeOptions, composePlatform, type SampleWorld } from '@/platform/composition';
+import {
+  type ComposeOptions,
+  composePlatform,
+  sampleOf,
+  type SampleWorld,
+} from '@/platform/composition';
 
 type SnapshotStorage = NonNullable<ComposeOptions['worldStorage']>;
 import { PlatformRuntimeProvider } from '@/platform/platform-provider';
@@ -43,7 +48,7 @@ export async function testPlatform(
     publicSessionKey: 'public:bs-test',
   });
   await runtime.session.refresh();
-  return { composed, runtime, sample: composed.sample };
+  return { composed, runtime, sample: sampleOf(composed) };
 }
 
 export function platformWrapper(runtime: PlatformRuntime) {

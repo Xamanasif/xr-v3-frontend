@@ -1,6 +1,6 @@
 /**
  * The composition root (Appendix F §3.2; ADR-0002 §5): `sample` composes the committed
- * `@xr/sample-platform` adapter; `api` is refused — never answered by the sample world.
+ * `@xr/sample-platform` adapter; `api` composes the HTTP adapter (ADR-0014) — never the sample world.
  */
 import { seed } from '@xr/sample-platform';
 import { afterEach, describe, expect, it, vi } from 'vitest';
@@ -18,8 +18,7 @@ vi.mock('@xr/sample-platform', async (importOriginal) => {
   };
 });
 
-const { composePlatform, DataSourceUnavailableError, queryDefaultsFor } =
-  await import('./composition');
+const { composePlatform, queryDefaultsFor, sampleOf } = await import('./composition');
 
 afterEach(() => {
   created.count = 0;
@@ -79,11 +78,12 @@ describe('composePlatform', () => {
     expect(Object.keys(adapter.withCommandId(first))).toHaveLength(22);
   });
 
-  it('api: refused loudly, and the sample world is not used in its place', () => {
-    expect(() => composePlatform({ dataSource: 'api' })).toThrow(DataSourceUnavailableError);
-    expect(() => composePlatform({ dataSource: 'api' })).toThrow(
-      /NEXT_PUBLIC_XR_DATA_SOURCE=api: no adapter is built .* not used in its place/,
-    );
+  it('api: the HTTP adapter, all 22 ports, and the sample world is never created', () => {
+    const composed = composePlatform({ dataSource: 'api', apiBaseUrl: 'http://api.test' });
+    expect(composed.capabilities).toEqual({ dataSource: 'api', persistence: 'server' });
+    expect(composed.sample).toBeNull();
+    expect(() => sampleOf(composed)).toThrow(/api data source has no sample world/);
+    expect(Object.keys(composed.adapter.ports)).toHaveLength(22);
     expect(created.count).toBe(0);
   });
 
@@ -109,7 +109,16 @@ describe('queryDefaultsFor', () => {
     });
   });
 
-  it('api: refused (no adapter, so no defaults are invented for it)', () => {
-    expect(() => queryDefaultsFor('api')).toThrow(DataSourceUnavailableError);
+  it('api: fresh for a minute, read again on reconnect; still no retries and no network wait', () => {
+    expect(queryDefaultsFor('api')).toEqual({
+      queries: {
+        staleTime: 60_000,
+        refetchOnWindowFocus: false,
+        refetchOnReconnect: true,
+        retry: false,
+        networkMode: 'always',
+      },
+      mutations: { retry: false, networkMode: 'always' },
+    });
   });
 });
