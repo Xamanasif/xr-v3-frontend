@@ -69,6 +69,8 @@ Ownership groups: DOM · SP · CT · WEB-admin · WEB-institute · WEB-faculty �
 
 **Fix now or decision?** The interim needs only the owner's acknowledgement of a new open item and one warning text. The link command needs a PM/stakeholder decision.
 
+> **Status (5 Nov 2026):** the owner approved the interim guard as DP-09 (B2B prototype decision pack) and B2B milestone I1 implements it, awaiting owner review: names are compared after normalising letter case, whitespace and equivalent dashes (no fuzzy match, no merge); `approveRequest` / `approveSmallerScope` answer `policy-open` **SEL-05** (a domain refusal, because `OPEN_CAPABILITIES` must equal the frozen matrix's OPEN rows); SA-03 shows the warning with an "Open <name>" link and no decision controls; the A.1–A.6 reproduction is a regression test. Q-A1 … Q-A4 stay open.
+
 - **Q-A1. How is a public request matched to an existing institution?**
   - (a) The Super Admin links it manually on SA-03. The page suggests matches by normalised name and contact-email domain, and the SA confirms "same institution" or "different institution". **Recommended**: no automatic guess, no identity dependency, and the domain already supports the linked case.
   - (b) Automatic match on exact normalised name. Risky with campuses, renamed or similarly named institutions.
@@ -315,6 +317,8 @@ A new **format** of an in-plan experiment shows only as "Published, not in your 
    - Approval does not re-check that the requested formats are still published (`:478-540`; G-11).
    - PU-13 offers "Sign in" to a requester who has no account (`pu-10-request-status/request-status.tsx:186-193`; G-9/N-03).
    - The SA-02 status filter has no "Payment failed" option (`features/admin/sa-02-requests/requests.tsx:50-56`; the SA label is undrawn [U]).
+
+   > **Status (5 Nov 2026):** B2B milestone I1 (owner-approved scope, awaiting review) adds the SA-02 "Payment failed" option (C1) and refuses an "Until a fixed date" end date that is not later than today, with the owner-approved provisional words "Choose a date after today." (C2). The format re-check (G-11) and PU-13's "Sign in" line remain.
 
 ## G. Audit validation
 
