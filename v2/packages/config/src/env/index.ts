@@ -1,10 +1,16 @@
 /**
  * Environment configuration schemas for the V2 platform.
  *
- * Three environment concepts exist — development, staging, production — and every
+ * Four environment concepts exist — development, prototype, staging, production — and every
  * process reads its configuration ONCE at boot through one of these schemas. A
  * malformed environment fails fast with a named list of problems; nothing in V2
- * reads `process.env` ad hoc, and there are no prototype flags.
+ * reads `process.env` ad hoc.
+ *
+ * `prototype` (owner decision DP-16, 5 Nov 2026; B2B milestone I2) is the isolated prototype
+ * profile: the sample stand-ins a local `development` build runs (TE-3, TE-4 by the payer's choice,
+ * TE-6, P3-03, P4-01, P5-01) in a build that is never staging or production. `staging` and
+ * `production` never run them (`runsSampleStandIns`). A prototype build is served only behind
+ * access protection the operator confirms (`./build.ts`); it is never deployed by default.
  *
  * Recorded exception TE-7 (ADR-0007 §2; OPEN_DECISIONS Part E): two public build flags. The
  * data source (`NEXT_PUBLIC_XR_DATA_SOURCE`) is data supplied at boot and lives in the web
@@ -14,9 +20,21 @@
  */
 import { z } from 'zod';
 
-export const APP_ENVIRONMENTS = ['development', 'staging', 'production'] as const;
+export const APP_ENVIRONMENTS = ['development', 'prototype', 'staging', 'production'] as const;
 export type AppEnvironment = (typeof APP_ENVIRONMENTS)[number];
 export const appEnvironmentSchema = z.enum(APP_ENVIRONMENTS);
+
+/**
+ * The environments whose sample builds run the sample stand-ins (support pages, browser-kept world,
+ * Reset, the simulated payment provider): a local developer build and the isolated prototype
+ * profile. Never staging or production.
+ */
+export const SAMPLE_STANDIN_ENVIRONMENTS = ['development', 'prototype'] as const;
+
+/** Whether a sample build of this environment runs the sample stand-ins (DP-16). */
+export function runsSampleStandIns(environment: AppEnvironment | undefined): boolean {
+  return (SAMPLE_STANDIN_ENVIRONMENTS as readonly string[]).includes(environment ?? 'development');
+}
 
 export const LOG_LEVELS = ['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent'] as const;
 export type LogLevel = (typeof LOG_LEVELS)[number];

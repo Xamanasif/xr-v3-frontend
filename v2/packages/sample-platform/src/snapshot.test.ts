@@ -209,6 +209,22 @@ describe('TE-6 — an unreadable or foreign save is rejected for a clean start',
     expect(worldOf(other).seeded.authorisedDevices).toBeUndefined();
   });
 
+  it('DP-18: rejects a save of another build profile (a local build’s save never opens in the prototype profile)', () => {
+    const local = storage();
+    const development = load(local);
+    expect(development.snapshot?.opened).toBe('fresh');
+    const prototype = load(local, {
+      snapshot: { storage: local, lineage: 'lineage-prototype', variant: 'prototype' },
+    });
+    expect(prototype.snapshot?.opened).toBe('rejected');
+    expect(prototype.snapshot?.rejectedBecause).toBe('another build');
+    expect(
+      load(local, { snapshot: { storage: local, lineage: 'lineage-p2', variant: 'prototype' } })
+        .snapshot?.opened,
+    ).toBe('restored');
+    expect(load(local).snapshot?.opened).toBe('rejected');
+  });
+
   it('is never used with a given world (test-hook builds and tests start from fixtures)', () => {
     const local = storage();
     const given = seed();

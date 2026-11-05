@@ -28,28 +28,76 @@ afterEach(() => {
 describe('composePlatform', () => {
   it('TE-4: only a local prototype build (development) lets the sample stand-in confirm a payment', async () => {
     const { internalsOf } = await import('@xr/sample-platform/testing');
-    const modeOf = (appEnvironment?: 'development' | 'staging' | 'production') =>
+    const modeOf = (appEnvironment?: 'development' | 'prototype' | 'staging' | 'production') =>
       internalsOf(
         composePlatform({ dataSource: 'sample', ...(appEnvironment ? { appEnvironment } : {}) })
           .sample,
       ).core.payments.mode;
     expect(modeOf()).toBe('confirm-on-start');
     expect(modeOf('development')).toBe('confirm-on-start');
+    // DP-05: in the prototype profile the payer chooses on the simulated provider page.
+    expect(modeOf('prototype')).toBe('provider-reports');
     expect(modeOf('staging')).toBe('provider-reports');
     expect(modeOf('production')).toBe('provider-reports');
   });
 
   it('P4-01 (PC-60): only a local prototype build marks choice questions by the pinned key', async () => {
     const { internalsOf } = await import('@xr/sample-platform/testing');
-    const modeOf = (appEnvironment?: 'development' | 'staging' | 'production') =>
+    const modeOf = (appEnvironment?: 'development' | 'prototype' | 'staging' | 'production') =>
       internalsOf(
         composePlatform({ dataSource: 'sample', ...(appEnvironment ? { appEnvironment } : {}) })
           .sample,
       ).core.objectiveMarks;
     expect(modeOf()).toBe('answer-key-on-submit');
     expect(modeOf('development')).toBe('answer-key-on-submit');
+    expect(modeOf('prototype')).toBe('answer-key-on-submit');
     expect(modeOf('staging')).toBe('supplied-only');
     expect(modeOf('production')).toBe('supplied-only');
+  });
+
+  it('DP-16 / DP-18: the prototype profile runs the stand-ins and keeps its own browser save; staging and production run none', async () => {
+    const { internalsOf } = await import('@xr/sample-platform/testing');
+    const memory = () => {
+      const items = new Map<string, string>();
+      return {
+        items,
+        getItem: (key: string) => items.get(key) ?? null,
+        setItem: (key: string, value: string) => void items.set(key, value),
+        removeItem: (key: string) => void items.delete(key),
+      };
+    };
+    const compose = (
+      appEnvironment: 'development' | 'prototype' | 'staging' | 'production',
+      worldStorage: ReturnType<typeof memory>,
+    ) =>
+      composePlatform({
+        dataSource: 'sample',
+        appEnvironment,
+        worldStorage,
+        lineage: `lineage-${appEnvironment}`,
+        webActivityHref: (launch) => `/prototype/web-activity?launch=${launch}`,
+      });
+    for (const appEnvironment of ['staging', 'production'] as const) {
+      const composed = compose(appEnvironment, memory());
+      const core = internalsOf(composed.sample).core;
+      expect(composed.sample.persistence, appEnvironment).toBe('memory');
+      expect(composed.sample.snapshot, appEnvironment).toBeNull();
+      expect(composed.sample.sampleWebRuntime, appEnvironment).toBeNull();
+      expect(core.resubmissionRouting, appEnvironment).toBe('seam-only');
+    }
+    const shared = memory();
+    const local = compose('development', shared);
+    expect(local.sample.persistence).toBe('browser-snapshot');
+    const prototype = compose('prototype', shared);
+    expect(prototype.sample.persistence).toBe('browser-snapshot');
+    expect(prototype.sample.sampleWebRuntime).not.toBeNull();
+    expect(internalsOf(prototype.sample).core.resubmissionRouting).toBe(
+      'drawn-default-on-resubmit',
+    );
+    // The local build's save is not this profile's: the prototype starts clean (and saves its own).
+    expect(prototype.sample.snapshot?.opened).toBe('rejected');
+    expect(prototype.sample.snapshot?.rejectedBecause).toBe('another build');
+    expect(compose('prototype', shared).sample.snapshot?.opened).toBe('restored');
   });
 
   it('sample: the committed sample adapter, its 22 ports and the memory-per-tab capability', async () => {

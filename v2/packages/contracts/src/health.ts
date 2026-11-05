@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 import { wireSchema } from './openapi.js';
 
-export const ENVIRONMENTS = ['development', 'staging', 'production'] as const;
+export const ENVIRONMENTS = ['development', 'prototype', 'staging', 'production'] as const;
 
 /** Query of `GET /api/v1/health`. `skip` turns the call into a cheap liveness poll. */
 export const HEALTH_DATABASE_MODES = ['probe', 'skip'] as const;

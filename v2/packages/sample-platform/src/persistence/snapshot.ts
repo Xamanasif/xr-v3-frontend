@@ -72,9 +72,14 @@ export function checksum(text: string, seed = 0): string {
   return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
 
-/** The build's fingerprint: its starting world. A save from a build with another seed is rejected. */
-export function compatibilityOf(start: World): string {
-  return checksum(JSON.stringify(start));
+/**
+ * The build's fingerprint: its starting world, and its profile when it is not a local development
+ * build (`variant`, e.g. `prototype`). A save from a build with another seed — or another profile —
+ * is rejected and the browser starts clean, so a prototype build never opens a local build's save.
+ */
+export function compatibilityOf(start: World, variant?: string): string {
+  const world = checksum(JSON.stringify(start));
+  return variant ? `${world}~${checksum(variant)}` : world;
 }
 
 /** What a snapshot keeps of a world: no command receipts, no request status tokens. */
@@ -241,6 +246,11 @@ export interface SnapshotOptions {
   readonly lineage: string;
   /** Serialises writers across tabs (the browser's Web Locks); in-tab order only when omitted. */
   readonly lock?: <T>(work: () => T) => Promise<T>;
+  /**
+   * The build profile, when it is not a local development build (`prototype`): part of the
+   * compatibility fingerprint, so saves of different profiles never open each other.
+   */
+  readonly variant?: string;
 }
 
 export interface SnapshotDriver extends PersistenceDriver {
@@ -269,7 +279,7 @@ export function openSnapshot(
   start: World,
 ): { readonly driver: SnapshotDriver; readonly world: World } {
   const { storage } = options;
-  const compatibility = compatibilityOf(start);
+  const compatibility = compatibilityOf(start, options.variant);
   let stored: SnapshotRead;
   try {
     stored = decodeSnapshot(storage.getItem(SNAPSHOT_KEY), compatibility);

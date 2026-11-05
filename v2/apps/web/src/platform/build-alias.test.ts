@@ -15,6 +15,8 @@ async function loadConfig(env: Record<string, string | undefined>): Promise<Next
   vi.resetModules();
   vi.stubEnv('NEXT_PUBLIC_XR_TEST_HOOKS', env.NEXT_PUBLIC_XR_TEST_HOOKS ?? '');
   vi.stubEnv('NEXT_PUBLIC_XR_DATA_SOURCE', env.NEXT_PUBLIC_XR_DATA_SOURCE ?? '');
+  vi.stubEnv('NEXT_PUBLIC_APP_ENV', env.NEXT_PUBLIC_APP_ENV ?? '');
+  vi.stubEnv('XR_SAMPLE_ACCESS_PROTECTED', env.XR_SAMPLE_ACCESS_PROTECTED ?? '');
   return (await import('../../next.config')).default;
 }
 
@@ -55,5 +57,40 @@ describe('next.config.ts', () => {
     await expect(loadConfig({ NEXT_PUBLIC_XR_DATA_SOURCE: 'api' })).rejects.toThrow(
       /NEXT_PUBLIC_XR_DATA_SOURCE=api: the HTTP adapter is not built yet/,
     );
+  });
+
+  it('a local development build sends no robots header', async () => {
+    const config = await loadConfig({});
+    expect(config.headers).toBeUndefined();
+  });
+
+  it.each(['prototype', 'staging', 'production'])(
+    'refuses to build or start a %s sample build without confirmed access protection (TE-8)',
+    async (environment) => {
+      await expect(loadConfig({ NEXT_PUBLIC_APP_ENV: environment })).rejects.toThrow(
+        /XR_SAMPLE_ACCESS_PROTECTED/,
+      );
+    },
+  );
+
+  it('a protected prototype build is never indexed and never carries the test hooks', async () => {
+    const config = await loadConfig({
+      NEXT_PUBLIC_APP_ENV: 'prototype',
+      XR_SAMPLE_ACCESS_PROTECTED: '1',
+    });
+    expect(aliasOf(config)).toBe('./src/platform/test-hooks.ts');
+    expect(await config.headers?.()).toEqual([
+      {
+        source: '/:path*',
+        headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' }],
+      },
+    ]);
+    await expect(
+      loadConfig({
+        NEXT_PUBLIC_APP_ENV: 'prototype',
+        XR_SAMPLE_ACCESS_PROTECTED: '1',
+        NEXT_PUBLIC_XR_TEST_HOOKS: '1',
+      }),
+    ).rejects.toThrow(/test hooks are for local CI\/Playwright builds only/);
   });
 });

@@ -8,7 +8,7 @@
  * through `@xr/sample-platform`); the app passes inputs and renders answers.
  */
 import type { DefaultOptions } from '@tanstack/react-query';
-import type { AppEnvironment, DataSource } from '@xr/config/env';
+import { type AppEnvironment, type DataSource, runsSampleStandIns } from '@xr/config/env';
 import type { ProductPorts } from '@xr/contracts/draft';
 import {
   createSamplePlatform,
@@ -57,7 +57,9 @@ export interface ComposeOptions {
   readonly dataSource: DataSource;
   /**
    * The build's environment (`NEXT_PUBLIC_APP_ENV`; `development` when unset — a local build).
-   * Only a local prototype build lets the TE-4 sample payment stand-in confirm a payment.
+   * `development` and the isolated `prototype` profile run the sample stand-ins; staging and
+   * production never do. A local build's TE-4 stand-in confirms each payment as it starts; in the
+   * prototype profile the payer chooses the outcome on the simulated provider page (DP-05).
    */
   readonly appEnvironment?: AppEnvironment;
   /** The real clock; the sample clock then runs from the world's anchor. Omitted: fixed at the anchor. */
@@ -105,7 +107,9 @@ export class DataSourceUnavailableError extends Error {
 export function composePlatform(options: ComposeOptions): ComposedPlatform {
   switch (options.dataSource) {
     case 'sample': {
-      const local = (options.appEnvironment ?? 'development') === 'development';
+      // DP-16: a local development build and the isolated prototype profile run the stand-ins.
+      const local = runsSampleStandIns(options.appEnvironment);
+      const environment = options.appEnvironment ?? 'development';
       const sample = createSamplePlatform({
         ...(options.world ? { world: options.world } : {}),
         ...(options.realNow ? { realNow: options.realNow } : {}),
@@ -115,28 +119,21 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
         // sample payment provider stand-in answers "Continue to payment"; any other build leaves a
         // started payment unconfirmed (no provider reports). No provider, amount or method exists;
         // "not confirmed" and "failed" come only from fixtures and CI test hooks.
-        paymentStandIn:
-          (options.appEnvironment ?? 'development') === 'development'
-            ? 'confirm-on-start'
-            : 'provider-reports',
+        // DP-05 (owner, 5 Nov 2026): in the prototype profile nothing answers on its own — the payer
+        // chooses the outcome on the simulated provider page (`paymentProviderPage`).
+        paymentStandIn: environment === 'development' ? 'confirm-on-start' : 'provider-reports',
         // P4-01 (owner answer, Phase 4B, 16 Oct 2026; PC-60): in a local prototype build the
         // sample `system:objective-marks` stand-in marks each submitted attempt's single-choice
         // and true-or-false questions by the pinned version's key, so Faculty can confirm marks.
         // Any other build keeps the DV-2 interim (marks only from fixtures): Confirm marks then
         // answers "policy-open" ATT-07 for an attempt with choice questions.
-        objectiveMarks:
-          (options.appEnvironment ?? 'development') === 'development'
-            ? 'answer-key-on-submit'
-            : 'supplied-only',
+        objectiveMarks: local ? 'answer-key-on-submit' : 'supplied-only',
         // P5-01 / M-3 (owner answer, Phase 5, 16 Oct 2026; PC-66): in a local prototype build the
         // sample `system:workflow-routing` stand-in routes each resubmission right after the
         // Vendor resubmits, by the only drawn route — back to the Academic Reviewer as revision n.
         // The Vendor still reads "Submitted"; nothing skips the reviewer. Any other build keeps the
         // M-3 interim: a resubmission waits until the test-only seam routes it.
-        resubmissionRouting:
-          (options.appEnvironment ?? 'development') === 'development'
-            ? 'drawn-default-on-resubmit'
-            : 'seam-only',
+        resubmissionRouting: local ? 'drawn-default-on-resubmit' : 'seam-only',
         // P3-03 (owner authorisation of Phase 7, 17 Oct 2026): a local prototype build starts with
         // one pre-authorised sample device (GIT-VR-03, Rahul Verma's institution e-mail), so the
         // drawn device-transfer chain can start through the product. No registration, provisioning
@@ -156,6 +153,8 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
                 storage: options.worldStorage,
                 lineage: options.lineage,
                 ...(options.lock ? { lock: options.lock } : {}),
+                // DP-18: a prototype build's save never opens a local build's (or the reverse).
+                ...(environment === 'development' ? {} : { variant: environment }),
               }
             : null,
       });

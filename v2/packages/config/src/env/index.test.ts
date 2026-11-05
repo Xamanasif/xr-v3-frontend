@@ -1,11 +1,13 @@
 import { describe, expect, it } from 'vitest';
 
-import { webBuildFlagsSchema } from './build.js';
+import { webBuildFlagsSchema, webResponseHeaders } from './build.js';
 import {
+  APP_ENVIRONMENTS,
   DATA_SOURCES,
   EnvironmentValidationError,
   apiEnvSchema,
   parseEnv,
+  runsSampleStandIns,
   webPublicEnvSchema,
 } from './index.js';
 
@@ -147,5 +149,78 @@ describe('webBuildFlagsSchema (read by apps/web/next.config.ts only)', () => {
     expect(() => parseEnv(webBuildFlagsSchema, { NEXT_PUBLIC_XR_DATA_SOURCE: 'mock' })).toThrow(
       /^Invalid environment configuration:\n {2}- NEXT_PUBLIC_XR_DATA_SOURCE:/,
     );
+  });
+});
+
+describe('the isolated prototype profile (DP-16; B2B milestone I2)', () => {
+  it('is a fourth environment concept, accepted by the API and web schemas', () => {
+    expect(APP_ENVIRONMENTS).toEqual(['development', 'prototype', 'staging', 'production']);
+    expect(parseEnv(apiEnvSchema, { APP_ENV: 'prototype' }).APP_ENV).toBe('prototype');
+    expect(
+      parseEnv(webPublicEnvSchema, { NEXT_PUBLIC_APP_ENV: 'prototype' }).NEXT_PUBLIC_APP_ENV,
+    ).toBe('prototype');
+  });
+
+  it('runs the sample stand-ins in development and prototype only — never staging or production', () => {
+    expect(runsSampleStandIns(undefined)).toBe(true);
+    expect(runsSampleStandIns('development')).toBe(true);
+    expect(runsSampleStandIns('prototype')).toBe(true);
+    expect(runsSampleStandIns('staging')).toBe(false);
+    expect(runsSampleStandIns('production')).toBe(false);
+  });
+
+  it.each(['prototype', 'staging', 'production'])(
+    'a %s sample build fails unless the operator confirms access protection (TE-8)',
+    (environment) => {
+      expect(() => parseEnv(webBuildFlagsSchema, { NEXT_PUBLIC_APP_ENV: environment })).toThrow(
+        /XR_SAMPLE_ACCESS_PROTECTED: a \w+ build of the sample world accepts any password/,
+      );
+      const flags = parseEnv(webBuildFlagsSchema, {
+        NEXT_PUBLIC_APP_ENV: environment,
+        XR_SAMPLE_ACCESS_PROTECTED: '1',
+      });
+      expect(flags.NEXT_PUBLIC_APP_ENV).toBe(environment);
+      expect(flags.XR_SAMPLE_ACCESS_PROTECTED).toBe(true);
+    },
+  );
+
+  it('a local development build needs no confirmation', () => {
+    expect(parseEnv(webBuildFlagsSchema, {}).XR_SAMPLE_ACCESS_PROTECTED).toBe(false);
+  });
+
+  it.each(['0', 'true', 'yes'])(
+    'refuses XR_SAMPLE_ACCESS_PROTECTED=%j instead of reading it as "off"',
+    (value) => {
+      expect(() =>
+        parseEnv(webBuildFlagsSchema, {
+          NEXT_PUBLIC_APP_ENV: 'prototype',
+          XR_SAMPLE_ACCESS_PROTECTED: value,
+        }),
+      ).toThrow(/XR_SAMPLE_ACCESS_PROTECTED: must be 1/);
+    },
+  );
+
+  it.each(['prototype', 'staging', 'production'])(
+    'never carries the test hooks in a %s build (ADR-0007 §2)',
+    (environment) => {
+      expect(() =>
+        parseEnv(webBuildFlagsSchema, {
+          NEXT_PUBLIC_APP_ENV: environment,
+          NEXT_PUBLIC_XR_TEST_HOOKS: '1',
+          XR_SAMPLE_ACCESS_PROTECTED: '1',
+        }),
+      ).toThrow(
+        /NEXT_PUBLIC_XR_TEST_HOOKS: the test hooks are for local CI\/Playwright builds only/,
+      );
+    },
+  );
+
+  it('asks search engines not to index anything but a local development build', () => {
+    expect(webResponseHeaders({ NEXT_PUBLIC_APP_ENV: 'development' })).toEqual([]);
+    for (const environment of ['prototype', 'staging', 'production'] as const) {
+      expect(webResponseHeaders({ NEXT_PUBLIC_APP_ENV: environment })).toEqual([
+        { key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' },
+      ]);
+    }
   });
 });

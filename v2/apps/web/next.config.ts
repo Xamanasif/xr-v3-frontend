@@ -1,15 +1,25 @@
 import { parseEnv } from '@xr/config/env';
-import { webBuildFlagsSchema } from '@xr/config/env/build';
+import { webBuildFlagsSchema, webResponseHeaders } from '@xr/config/env/build';
 import type { NextConfig } from 'next';
 
 /**
- * The build flags (TE-7; ADR-0007 §2), validated once. This is the one literal read of the
- * test-hook flag (Appendix F §3.8): nothing that ships to the browser reads it.
+ * The build flags (TE-7; ADR-0007 §2), validated once, at `next build` and again at `next start`.
+ * This is the one literal read of the test-hook flag (Appendix F §3.8): nothing that ships to the
+ * browser reads it. It also refuses (B2B milestone I2; TE-8, DP-16, DP-17):
+ * - the test hooks in any build but a local development build;
+ * - a prototype, staging or production build of the sample world (whose sample accounts open with
+ *   any password) unless the operator confirms access protection with
+ *   `XR_SAMPLE_ACCESS_PROTECTED=1` — a server-only variable, never inlined into the browser.
  */
 const flags = parseEnv(webBuildFlagsSchema, {
+  NEXT_PUBLIC_APP_ENV: process.env.NEXT_PUBLIC_APP_ENV,
   NEXT_PUBLIC_XR_DATA_SOURCE: process.env.NEXT_PUBLIC_XR_DATA_SOURCE,
   NEXT_PUBLIC_XR_TEST_HOOKS: process.env.NEXT_PUBLIC_XR_TEST_HOOKS,
+  XR_SAMPLE_ACCESS_PROTECTED: process.env.XR_SAMPLE_ACCESS_PROTECTED,
 });
+
+/** No search engine indexes or follows a build other than a local development build. */
+const RESPONSE_HEADERS = webResponseHeaders(flags);
 
 // No silent fallback (ADR-0002 §5): `api` is a valid data source, but its HTTP adapter
 // (Appendix F §3.2 `platform/http/`) is not built, so no build is made for it.
@@ -59,6 +69,11 @@ const nextConfig: NextConfig = {
   turbopack: {
     resolveAlias: { [TEST_HOOKS_MODULE]: testHooksTarget },
   },
+  ...(RESPONSE_HEADERS.length > 0
+    ? {
+        headers: () => Promise.resolve([{ source: '/:path*', headers: [...RESPONSE_HEADERS] }]),
+      }
+    : {}),
   /**
    * Appendix A §3.7 row 20 (Phase 0): `/<base>/help/reports` is an intermediate path created by
    * the XS-07 sub-routes — My reports lives on `/<base>/help`. Row 21 (Phase 1, Package 1A, with
