@@ -208,3 +208,27 @@ Frozen designs (`sha256sum -c SHA256SUMS.txt` inside each folder): `design/hando
 | `repository.scan.test.ts` compares `path.relative` output with `/`-separated checksum lists                                                              | normalise separators in the walk; `pnpm --filter @xr/config run test:scans` 46/46 on Windows                                                           |
 | Six `@xr/web` tests exceed 5 s under full load on this machine                                                                                           | `pnpm exec turbo run test --filter=@xr/web --force` green on this machine (or on CI, D-05), after the owner chooses per-test timeouts or fewer workers |
 | E-22, E-23                                                                                                                                               | owner decision on ADR-0011 and ADR-0012                                                                                                                |
+
+## 13 · Backend B2 — platform plumbing, 5 November 2026 (appended; §1–§12 above are unchanged)
+
+Branch `backend/b2-plumbing`. Decision record: ADR-0014 (Proposed — owner acknowledgement requested).
+
+| Check                                                                                      | Result                                                                                                                                         |
+| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Contracts, API, sample-platform, database: typecheck, test, lint (after the DTO promotion) | 18 / 18 tasks green                                                                                                                            |
+| API `test:db` (throw-away schema)                                                          | 5 passed                                                                                                                                       |
+| `node scripts/catalogue-parity.mjs http://localhost:4000` (rebuilt API)                    | 75 comparisons, 0 differences                                                                                                                  |
+| Contract suite over HTTP (`test:contract-api`)                                             | 44 passed, 41 not run, 0 failed — `catalogue:structure` and `catalogue:featured` are the substantive cases (ADR-0014)                          |
+| Published OpenAPI document                                                                 | lists `CatalogueAreaList`, `CatalogueAreaPage`, `CatalogueCoursePage`, `CatalogueSearchQuery`, `CatalogueSearchResult`, `PublicExperimentPage` |
+| `api` development build (`.next-api`) in Chromium                                          | PU-01…PU-06 render the seeded catalogue from the API, no failed state; PU-15 from the API's 404 (ad-hoc check)                                 |
+| Web typecheck and lint                                                                     | clean                                                                                                                                          |
+| Web unit suite, full load                                                                  | 7,845 passed · **2 failed** (7,847): `request.test.tsx` PU-08, one at 5,060 ms (timeout), one at 2,010 ms                                      |
+| `request.test.tsx` alone                                                                   | **23 / 23 passed**                                                                                                                             |
+
+The two web failures run on the typed mock, not the API, and pass alone. They are classified with
+the §12.4 load-sensitive timeouts on this machine, not as defects; they are not counted as green.
+The earlier full run on this branch (before the promotion) passed 7,847 / 7,847.
+
+Still open at the end of B2: owner acknowledgement of ADR-0014; the P-28 parity-row decision; CI
+has not yet run (nothing is pushed); the browser suites (`test:e2e`) have not been run on this
+machine.

@@ -17,7 +17,6 @@ import {
   type InstitutionCourseCode,
   type LearningOutcome,
   type LearningResource,
-  type PreviewLink,
   type PublishedFormat,
   type StructureEvent,
 } from '@xr/domain';
@@ -41,6 +40,7 @@ import {
   updateId,
 } from '../kernel/primitives.js';
 import { typedAs, vocabulary } from '../kernel/typed.js';
+import { previewLink } from '../../catalogue.js';
 
 export const STRUCTURE_EVENTS = vocabulary<StructureEvent>()([
   'area-added',
@@ -126,9 +126,8 @@ export const publishedFormat = typedAs<PublishedFormat>()(
   z.object({ format: technology, delivery: formatDelivery }),
 );
 
-export const previewLink = typedAs<PreviewLink>()(
-  z.object({ label: z.string().nullable(), link: z.string().min(1) }),
-);
+/** Defined with the catalogue's wire contract (`src/catalogue.ts`, ADR-0014 §8). */
+export { previewLink };
 
 /** Sample file names only — nothing is uploaded (OD-B5-11). */
 export const documentRef = typedAs<DocumentRef>()(z.object({ fileName: z.string().min(1) }));

@@ -3,6 +3,7 @@ node_modules/
 dist/
 .next/
 .next-test-hooks/
+.next-api/
 .turbo/
 *.tsbuildinfo
 

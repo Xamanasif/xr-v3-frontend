@@ -61,7 +61,12 @@ const nextConfig: NextConfig = {
   agentRules: false,
   // The test build has its own output folder, so it can never be mistaken for (or overwrite)
   // the product build in `.next`.
-  ...(flags.NEXT_PUBLIC_XR_TEST_HOOKS ? { distDir: '.next-test-hooks' } : {}),
+  // So has a development build on the API (ADR-0014): one folder per data source.
+  ...(flags.NEXT_PUBLIC_XR_TEST_HOOKS
+    ? { distDir: '.next-test-hooks' }
+    : flags.NEXT_PUBLIC_XR_DATA_SOURCE === 'api'
+      ? { distDir: '.next-api' }
+      : {}),
   turbopack: {
     resolveAlias: { [TEST_HOOKS_MODULE]: testHooksTarget },
   },

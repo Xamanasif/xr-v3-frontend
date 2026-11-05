@@ -13,8 +13,16 @@
 | ---------------------------- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **B0 · Groundwork**          | `backend/b0-groundwork` | Database layer live for the first time (migrate, `test:db`, health `ok` / `unavailable`); Prisma 7.10 kept (ADR-0011, accepted); ESLint 9 renewed (ADR-0012, accepted); verification record §12 |
 | **B1 · D1 Catalogue (read)** | `backend/b1-catalogue`  | Catalogue tables and constraints, development seed from the sample world, five public routes, 75/75 parity with the mock, ADR-0013                                                              |
+| **B2 · Platform plumbing**   | `backend/b2-plumbing`   | Engineering work done (5 Nov 2026); exit pending owner acknowledgement of ADR-0014 and the P-28 bookkeeping. See below                                                                          |
 
-The web still runs entirely on the typed mock (TE-2). No branch is pushed or merged.
+B2, as delivered: Windows-safe `dev` / `verify`; CI with PostgreSQL (migrations, `test:db`,
+parity, the contract suite over HTTP); the web's HTTP adapter (`platform/http/`, ADR-0014); the
+contract suite's HTTP subject (catalogue cases green over HTTP: 44 passed, 41 not run, 0 failed);
+the catalogue DTOs promoted to the root entry and `WIRE_CONTRACTS` (ADR-0014 §8); PU-01…PU-06 and
+PU-15 checked in a browser on a development `api` build against the API.
+
+Product builds still run entirely on the typed mock (TE-2); an `api` build is development-only. No
+branch is pushed or merged.
 
 ## 2 · Where we are going
 
@@ -99,8 +107,10 @@ today (G-2).
 
 ## 7 · Next three steps
 
-1. **Review and merge** `backend/b0-groundwork` and `backend/b1-catalogue` (the owner's call; nothing is pushed).
-2. **Install the Playwright browser** on this machine and run the browser suites once:
-   `pnpm --filter @xr/testing exec playwright install chromium`, then `pnpm exec turbo run test:e2e`.
-3. **Start B2** with CI and the contract suite's HTTP subject; in parallel, take the identity
-   decisions (A-01, E-01, E-02) or approve the development-issuer seam for B3.
+1. **Owner decisions closing B2:** acknowledge (or change) ADR-0014 — how a partly re-pointed web
+   is composed — and decide whether parity row P-28 moves to `API`.
+2. **Review and merge** `backend/b0-groundwork`, `backend/b1-catalogue` and `backend/b2-plumbing`
+   (the owner's call; nothing is pushed), so CI runs for the first time. Chromium is installed on
+   this machine; the full browser suites (`pnpm exec turbo run test:e2e`) have still not been run.
+3. **Start B3**: take the identity decisions (A-01, E-01, E-02) or approve the development-issuer
+   seam.

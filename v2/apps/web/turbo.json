@@ -6,7 +6,7 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "env": ["NEXT_PUBLIC_*", "NEXT_PUBLIC_XR_DATA_SOURCE", "NEXT_PUBLIC_XR_TEST_HOOKS"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "outputs": [".next/**", "!.next/cache/**", ".next-api/**", "!.next-api/cache/**"]
     },
     "build:test-hooks": {
       "dependsOn": ["^build", "build"],

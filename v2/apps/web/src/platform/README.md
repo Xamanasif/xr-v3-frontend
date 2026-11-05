@@ -4,16 +4,17 @@ How the web app reaches its data (Appendix F §3.2, §4.6, §7.2; Appendix D §1
 ADR-0002, ADR-0003, ADR-0004, ADR-0007). Screens never import this folder: they read through
 `@/queries/*` (import fences, Appendix F §3.8).
 
-| Module                  | What it holds                                                                                                                                                                                                       |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `composition.ts`        | Selects the adapter from `NEXT_PUBLIC_XR_DATA_SOURCE` (`sample`; `api` is refused — no HTTP adapter yet, and never answered by the sample world) and the query defaults. The only importer of `@xr/sample-platform` |
-| `runtime.ts`            | The tab's platform: one world, one QueryClient, one session store, booted once per page (module state, so re-renders, Strict Mode, remounts and client-side navigation reuse it). Nothing exists on the server      |
-| `session-store.ts`      | The tab's session in memory (person id, nonce, sign-in time), `useSyncExternalStore`-shaped. Every identity change clears the whole query cache, then publishes the new session key. No storage, no expiry          |
-| `platform-provider.tsx` | `PlatformProvider` (boots and supplies the runtime and the QueryClient), `usePlatform`, `useSession`                                                                                                                |
-| `link.tsx`              | `next/link` injected into the `@xr/ui` `LinkProvider`                                                                                                                                                               |
-| `test-hooks.ts`         | The empty stub every product build compiles in place of the bridge                                                                                                                                                  |
-| `test-hook-bridge.ts`   | The CI-only bridge (boot descriptor, `actAs`, `inspect`); the only importer of `@xr/sample-platform/testing`                                                                                                        |
-| `test-hook-contract.ts` | The types the stub and the bridge share                                                                                                                                                                             |
+| Module                  | What it holds                                                                                                                                                                                                                           |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `composition.ts`        | Selects the adapter from `NEXT_PUBLIC_XR_DATA_SOURCE` (`sample`, or `api` — the HTTP adapter, development builds only, never answered by the sample world; ADR-0014) and the query defaults. The only importer of `@xr/sample-platform` |
+| `http/`                 | The HTTP adapter (ADR-0014): the catalogue from the API, the selection in this tab, nobody signed in, every other port `unavailable`. `contract.api.test.ts` runs the contract suite through it against a running API                   |
+| `runtime.ts`            | The tab's platform: one world, one QueryClient, one session store, booted once per page (module state, so re-renders, Strict Mode, remounts and client-side navigation reuse it). Nothing exists on the server                          |
+| `session-store.ts`      | The tab's session in memory (person id, nonce, sign-in time), `useSyncExternalStore`-shaped. Every identity change clears the whole query cache, then publishes the new session key. No storage, no expiry                              |
+| `platform-provider.tsx` | `PlatformProvider` (boots and supplies the runtime and the QueryClient), `usePlatform`, `useSession`                                                                                                                                    |
+| `link.tsx`              | `next/link` injected into the `@xr/ui` `LinkProvider`                                                                                                                                                                                   |
+| `test-hooks.ts`         | The empty stub every product build compiles in place of the bridge                                                                                                                                                                      |
+| `test-hook-bridge.ts`   | The CI-only bridge (boot descriptor, `actAs`, `inspect`); the only importer of `@xr/sample-platform/testing`                                                                                                                            |
+| `test-hook-contract.ts` | The types the stub and the bridge share                                                                                                                                                                                                 |
 
 ## Query layer (`src/queries/`)
 

@@ -6,6 +6,14 @@
  */
 import type { z } from 'zod';
 
+import {
+  catalogueSearchQuery,
+  getAreaOutput,
+  getCourseOutput,
+  listAreasOutput,
+  publicExperimentPage,
+  searchCatalogueOutput,
+} from './catalogue.js';
 import { healthQuerySchema, healthResponseSchema } from './health.js';
 import { problemDetailsSchema } from './problem.js';
 import { runtimeEventBatchSchema, runtimeEventInputSchema } from './runtime-events.js';
@@ -55,5 +63,49 @@ export const WIRE_CONTRACTS: readonly WireContract[] = [
     schema: runtimeEventBatchSchema,
     status: 'draft',
     description: 'A batch of runtime utilisation events for a future ingestion endpoint.',
+  },
+  // The public catalogue (D1, ADR-0013; promoted by ADR-0014 §8): the CatalogueService port's own
+  // output schemas, served by GET /api/v1/catalogue/….
+  {
+    name: 'CatalogueAreaList',
+    io: 'output',
+    schema: listAreasOutput,
+    status: 'published',
+    description: 'Response of GET /api/v1/catalogue/areas: the areas with published experiments.',
+  },
+  {
+    name: 'CatalogueAreaPage',
+    io: 'output',
+    schema: getAreaOutput,
+    status: 'published',
+    description: 'Response of GET /api/v1/catalogue/areas/{areaId}.',
+  },
+  {
+    name: 'CatalogueCoursePage',
+    io: 'output',
+    schema: getCourseOutput,
+    status: 'published',
+    description: 'Response of GET /api/v1/catalogue/courses/{courseId}.',
+  },
+  {
+    name: 'CatalogueSearchQuery',
+    io: 'input',
+    schema: catalogueSearchQuery,
+    status: 'published',
+    description: 'Query of GET /api/v1/catalogue/experiments.',
+  },
+  {
+    name: 'CatalogueSearchResult',
+    io: 'output',
+    schema: searchCatalogueOutput,
+    status: 'published',
+    description: 'Response of GET /api/v1/catalogue/experiments.',
+  },
+  {
+    name: 'PublicExperimentPage',
+    io: 'output',
+    schema: publicExperimentPage,
+    status: 'published',
+    description: 'Response of GET /api/v1/catalogue/experiments/{experimentId}.',
   },
 ];

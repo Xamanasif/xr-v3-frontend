@@ -1,4 +1,5 @@
 export * from './api.js';
+export * from './catalogue.js';
 export * from './health.js';
 export * from './problem.js';
 export * from './runtime-events.js';

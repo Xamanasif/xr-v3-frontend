@@ -115,21 +115,42 @@ describe('import boundaries', () => {
     ]);
   });
 
-  it('leaves WIRE_CONTRACTS as committed: five schemas, none of them a draft port schema', () => {
+  it('publishes a port schema in WIRE_CONTRACTS only for a promoted port (the catalogue, ADR-0014 §8)', () => {
     expect(WIRE_CONTRACTS.map((contract) => contract.name)).toEqual([
       'HealthQuery',
       'HealthResponse',
       'ProblemDetails',
       'RuntimeEventInput',
       'RuntimeEventBatch',
+      'CatalogueAreaList',
+      'CatalogueAreaPage',
+      'CatalogueCoursePage',
+      'CatalogueSearchQuery',
+      'CatalogueSearchResult',
+      'PublicExperimentPage',
     ]);
-    const draftSchemas = new Set<unknown>(Object.values(draft));
+    // ADR-0008's removal trigger has fired for these ports only: the API serves them.
+    const PROMOTED_PORTS = new Set(['catalogue']);
+    const portSchemas = new Map<unknown, string>();
     for (const row of ledgerRows()) {
-      draftSchemas.add(row.input);
-      draftSchemas.add(row.output);
+      portSchemas.set(row.input, row.portKey);
+      portSchemas.set(row.output, row.portKey);
     }
-    for (const contract of WIRE_CONTRACTS)
-      expect(draftSchemas.has(contract.schema), contract.name).toBe(false);
+    for (const contract of WIRE_CONTRACTS) {
+      const port = portSchemas.get(contract.schema);
+      if (port !== undefined) expect(PROMOTED_PORTS.has(port), contract.name).toBe(true);
+    }
+    // Every other draft export stays off the wire.
+    const promoted = new Set<unknown>(
+      ledgerRows()
+        .filter((row) => PROMOTED_PORTS.has(row.portKey))
+        .flatMap((row) => [row.input, row.output]),
+    );
+    for (const value of Object.values(draft)) {
+      if (promoted.has(value)) continue;
+      for (const contract of WIRE_CONTRACTS)
+        expect(contract.schema === value, contract.name).toBe(false);
+    }
   });
 
   it('carries the bundle markers that verify looks for', () => {

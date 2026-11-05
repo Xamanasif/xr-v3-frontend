@@ -58,6 +58,19 @@ Three ways to put a half-switched web app together:
    rules. It has no identity (`as` is a fresh visitor until B3), no stand-ins or seams, and an empty
    snapshot: that reads change nothing is checked by the API's own database tests instead. CI runs
    it after the catalogue parity script, against the same API.
+8. **The catalogue DTOs are promoted to the root entry** (ADR-0013 follow-up; ADR-0008's removal
+   trigger has fired for this port). They are defined once in `@xr/contracts` `src/catalogue.ts`
+   (with the wire-only path parameters and search query, formerly in the API) and listed in
+   `WIRE_CONTRACTS` as published (`CatalogueAreaList`, `CatalogueAreaPage`, `CatalogueCoursePage`,
+   `CatalogueSearchQuery`, `CatalogueSearchResult`, `PublicExperimentPage`). The draft port
+   re-exports the same schema objects, so the mock, the API and the web share one definition. The
+   kernel they need (`typed.ts`, `primitives.ts`) moved from `src/draft/kernel/` to `src/kernel/`,
+   with re-export shims left at the old paths, so the root entry still reaches no `draft/` file.
+   The guard "WIRE_CONTRACTS holds no draft port schema" became "only a promoted port's" (the
+   catalogue). The web keeps importing from `./draft`: the root entry carries the OpenAPI helpers,
+   which the browser bundle does not need.
+9. **An `api` build has its own output folder**, `.next-api`, like `.next-test-hooks`, so it can
+   never overwrite or be mistaken for the product build in `.next`.
 
 ## Consequences
 
@@ -82,5 +95,15 @@ Three ways to put a half-switched web app together:
   the 44 carefully: `catalogue:structure` and `catalogue:featured` are the B2 exit evidence; the 22
   `surface:*` cases check that the adapter offers every ledger method; the 20 `session:*` cases
   pass without calling anything, because they skip every method the adapter does not claim.
+- Public pages on the API, in a build: `NEXT_PUBLIC_XR_DATA_SOURCE=api NEXT_PUBLIC_APP_ENV=development
+pnpm --filter @xr/web build` (→ `.next-api`), served with `next start` beside the API. 5 Nov 2026,
+  in Chromium: PU-01 `/`, PU-02 `/areas`, PU-03 `/areas/chemical-process`, PU-04 `/experiments`,
+  PU-05 `/courses/fluid-mechanics`, PU-06 `/experiments/distillation-column` each rendered the
+  seeded catalogue from `GET /api/v1/catalogue/…` with no failed state; PU-15 (an unknown
+  experiment) showed "We can’t find that experiment" from the API's 404. An ad-hoc check, not yet a
+  committed browser suite.
+- After the promotion: contracts, API, sample-platform and database typecheck, test and lint
+  green; API `test:db` 5 passed; the published OpenAPI document lists the six catalogue components;
+  `catalogue-parity.mjs` still "75 comparisons, 0 differences".
 - Build refusal: `NEXT_PUBLIC_XR_DATA_SOURCE=api NEXT_PUBLIC_APP_ENV=production pnpm --filter
 @xr/web build` fails with the message from `next.config.ts`.

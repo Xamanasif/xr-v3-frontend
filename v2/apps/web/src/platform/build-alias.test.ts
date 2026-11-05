@@ -52,10 +52,10 @@ describe('next.config.ts', () => {
     );
   });
 
-  it('builds for api as a development build, with the empty test-hook stub (ADR-0014)', async () => {
+  it('builds for api as a development build, with the empty test-hook stub, in its own .next-api (ADR-0014)', async () => {
     const config = await loadConfig({ NEXT_PUBLIC_XR_DATA_SOURCE: 'api' });
     expect(aliasOf(config)).toBe('./src/platform/test-hooks.ts');
-    expect(config.distDir).toBeUndefined();
+    expect(config.distDir).toBe('.next-api');
   });
 
   it('refuses an api build outside development: product builds stay on sample', async () => {
