@@ -9,7 +9,7 @@
 import { screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { ReactNode } from 'react';
-import { faults } from '@xr/sample-platform/testing';
+import { asPersonId, faults, planPayment, visitorPorts } from '@xr/sample-platform/testing';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import type { PlatformRuntime } from '@/platform/runtime';
@@ -275,11 +275,60 @@ describe('SA-02 — search, filters and chips', () => {
       'Information requested',
       'Approved — payment required',
       'Payment not confirmed',
+      'Payment failed',
       'Access active',
     ]);
     expect(document.body.textContent).not.toMatch(/Declin/);
     await user.selectOptions(type, 'Renewal');
     await waitFor(async () => expect(references(await rowsShown())).toEqual(['REQ-0038']));
+  });
+});
+
+describe('SA-02 — the “Payment failed” filter (B2B milestone I1, C1)', () => {
+  it('lists only the requests whose payment failed', async () => {
+    const { runtime, sample } = await tabPlatform(SUPER_ADMIN, 'spine-start');
+    // A visitor's request, approved as external, whose payment the provider stand-in fails.
+    const visitor = visitorPorts(sample);
+    const added = visitor.selection.add({
+      experimentId: 'shell-and-tube-heat-exchanger' as never,
+      formats: ['web'],
+    });
+    if (!added.ok) throw new Error(added.error.kind);
+    const sent = await visitor.accessRequests.submitPublicRequest({
+      institutionName: 'Krishna Engineering College',
+      contactPerson: 'R. Rao',
+      email: 'r.rao@krishna.edu.in',
+      phone: null,
+      licencesRequested: '30',
+      message: null,
+      term: { kind: 'yearly' },
+    });
+    if (!sent.ok) throw new Error(sent.error.kind);
+    const arjun = asPersonId(sample, SUPER_ADMIN);
+    const page = await arjun.accessRequests.getRequestForDecision(sent.value.reference);
+    if (!page.ok) throw new Error(page.error.kind);
+    const approved = await arjun.accessRequests.approveRequest({
+      id: sent.value.reference,
+      route: 'external',
+      expectedRev: page.value.request.rev,
+    });
+    if (!approved.ok) throw new Error(approved.error.kind);
+    const status = await visitor.accessRequests.getRequestStatus(sent.value.routeId);
+    if (!status.ok) throw new Error(status.error.kind);
+    planPayment(sample, 'failed');
+    const started = await visitor.accessRequests.startPayment({
+      request: sent.value.routeId,
+      expectedRev: status.value.rev,
+    });
+    if (!started.ok) throw new Error(started.error.kind);
+
+    inAdmin(runtime, <Requests />);
+    await rowsShown();
+    const user = userEvent.setup();
+    await user.selectOptions(screen.getByLabelText('Status'), 'Payment failed');
+    await waitFor(async () =>
+      expect(references(await rowsShown())).toEqual([sent.value.reference]),
+    );
   });
 });
 

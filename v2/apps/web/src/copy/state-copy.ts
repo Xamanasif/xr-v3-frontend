@@ -490,6 +490,16 @@ const PHASE_1_AND_EARLIER = {
     status: 'provisional',
     decisions: ['VD-12'],
   },
+  'SA-02.status-payment-failed': {
+    screen: 'SA-02',
+    state: 'The Status filter’s “Payment failed” option',
+    words: null,
+    rule: 'Listed after “Payment not confirmed”, with the status’s own words (“Payment failed”, the B1-08 status the list already shows); choosing it lists the requests whose payment failed.',
+    basis:
+      'The SA-v1 export’s filter has no such option, while its list shows the status (P1 register §F-5); owner approval of B2B milestone I1 (C1), 5 Nov 2026',
+    status: 'provisional',
+    decisions: ['VD-12', 'P1-06'],
+  },
   'SA-02.nav-count-singular': {
     screen: 'SA-02',
     state: 'The Super Admin rail count with one request under review (screen readers)',

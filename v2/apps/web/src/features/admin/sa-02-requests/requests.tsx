@@ -46,12 +46,17 @@ import { useSession } from '@/queries/session';
 import { useShellPage } from '../../shared/workspace-frame/shell-page';
 import { RequestStatusPill, requestStatusWords } from '../shared/request-status';
 
-/** The Status filter, in order (no Declined, T-02). */
+/**
+ * The Status filter, in order (no Declined, T-02). "Payment failed" is a status the list already
+ * shows; its filter option is the owner-approved correctness fix of B2B milestone I1 (state-copy
+ * `SA-02.status-payment-failed`).
+ */
 const STATUS_OPTIONS: readonly RequestStatus[] = [
   'under-review',
   'information-requested',
   'approved-payment-required',
   'payment-not-confirmed',
+  'payment-failed',
   'access-active',
 ];
 const TYPE_OPTIONS: readonly RequestType[] = ['new-access', 'additional-licences', 'renewal'];
