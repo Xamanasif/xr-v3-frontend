@@ -50,6 +50,16 @@ These are not design choices to be made by drawing; each needs an owner answer b
 | U-7 | The seeded walk records no failed payment. The failed outcome reuses the seeded provider-report time (15:05) under PD-B2B-5; the owner may prefer a different seeded event                                                                                     | A5 failed board |
 | U-8 | Reconcile the role-workspace identifier rule with the approved IA-v1 screens that show REQ- and ACC- references (PD-B2B-6)                                                                                                                                     | A8, A9          |
 
+**Owner direction of 5 Nov 2026** (`B2B-PROTOTYPE-DECISION-PACK.md`; interim rules for prototype planning only):
+
+- U-1: every attempt is listed (DP-07, approved interim rule). Whether a retry reuses the quotation stays open with DP-02.
+- U-2: a pending payment stays pending until a tester resolves it from `/prototype`, and Reset restores the browser's starting world (DP-06, approved provisionally).
+- U-3 and U-4: still open (DP-10, DP-11).
+- U-5: no payment start or completion while paused (DP-08, approved interim rule). The refusal wording is still to sign off.
+- U-6: still open.
+- U-7: a seeded failed-then-confirmed history with its own times (DP-07). The seed values will be proposed with that increment.
+- U-8: still open.
+
 ## 4 · Not drawn, and why
 
 - Renewal and extra-licence quotations, receipts and amounts — pricing is open (CD-13).
