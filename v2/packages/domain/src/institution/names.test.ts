@@ -1,7 +1,7 @@
 /**
  * The interim same-name rule (owner decision DP-09, 5 Nov 2026): letter case, leading and trailing
- * whitespace, repeated internal whitespace and equivalent Unicode dashes are normalised; nothing
- * else is — no fuzzy match and no merge.
+ * whitespace, repeated internal whitespace and equivalent Unicode dashes are normalised, and the
+ * whitespace around a dash is ignored; nothing else is — no fuzzy match and no merge.
  */
 import { describe, expect, it } from 'vitest';
 
@@ -26,24 +26,31 @@ describe('the interim same-name rule (DP-09)', () => {
     ['horizontal bar', 'BITS Pilani ― Hyderabad Campus'],
     ['minus sign', 'BITS Pilani − Hyderabad Campus'],
     ['full-width hyphen-minus', 'BITS Pilani － Hyderabad Campus'],
+    ['an em dash without its spaces', 'BITS Pilani—Hyderabad Campus'],
+    ['a hyphen without its spaces', 'BITS Pilani-Hyderabad Campus'],
+    ['a space on one side of the dash only', 'BITS Pilani –Hyderabad Campus'],
+    ['tabs and non-breaking spaces around the dash', 'BITS Pilani\t\u2014\u00A0 Hyderabad Campus'],
   ])('%s names the same institution', (_, typed) => {
     expect(sameInstitutionName(typed, SEEDED)).toBe(true);
   });
 
   it.each([
     ['another campus', 'BITS Pilani — Goa Campus'],
-    ['a dash without its spaces (no fuzzy match)', 'BITS Pilani—Hyderabad Campus'],
+    ['no dash where the name has one (no fuzzy match)', 'BITS Pilani Hyderabad Campus'],
+    ['two dashes where the name has one', 'BITS Pilani —— Hyderabad Campus'],
     ['an abbreviation', 'BITS Hyderabad'],
-    ['a missing word', 'BITS Pilani Hyderabad Campus'],
+    ['a missing word', 'BITS Pilani — Campus'],
     ['an extra word', 'BITS Pilani — Hyderabad Campus Trust'],
   ])('%s is a different name', (_, typed) => {
     expect(sameInstitutionName(typed, SEEDED)).toBe(false);
   });
 
-  it('the comparison form only folds case, whitespace and dashes', () => {
+  it('the comparison form only folds case, whitespace and dashes (a dash loses its spaces)', () => {
     expect(institutionNameKey('  Godavari   Institute — of\tTechnology ')).toBe(
-      'godavari institute - of technology',
+      'godavari institute-of technology',
     );
+    expect(institutionNameKey('Pilani—Hyderabad')).toBe(institutionNameKey('Pilani — Hyderabad'));
+    expect(institutionNameKey('St. Xavier’s College')).toBe('st. xavier’s college');
   });
 
   it('lists every existing institution of that name, in the order given, and nothing for a blank name', () => {

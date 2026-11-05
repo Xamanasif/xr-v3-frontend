@@ -4,8 +4,9 @@
  * approved, so approving it would create a second record for an institution that already exists
  * (audit P0-5). Until a request can be matched to an existing institution (Q-A1, SEL-05), names are
  * compared exactly after normalising letter case, leading and trailing whitespace, repeated
- * internal whitespace and the equivalent Unicode dash characters — nothing else: no fuzzy match,
- * no e-mail match, and no record is ever merged.
+ * internal whitespace and the equivalent Unicode dash characters, with any whitespace around a dash
+ * ignored ("Pilani—Hyderabad" and "Pilani — Hyderabad" are the same name) — nothing else: no fuzzy
+ * match, no e-mail match, and no record is ever merged.
  */
 import type { InstitutionId } from '../kernel/ids.js';
 import type { Institution } from './model.js';
@@ -15,11 +16,14 @@ import type { Institution } from './model.js';
  * hyphen, figure dash, en dash, em dash, horizontal bar, minus sign, small em dash, small
  * hyphen-minus, full-width hyphen-minus.
  */
-const DASHES = /[-‐‑‒–—―−﹘﹣－]/g;
+const DASH = '[\\u002D\\u2010\\u2011\\u2012\\u2013\\u2014\\u2015\\u2212\\uFE58\\uFE63\\uFF0D]';
+
+/** One dash with any whitespace on either side: it becomes a bare hyphen-minus. */
+const DASH_WITH_SPACES = new RegExp(`\\s*${DASH}\\s*`, 'g');
 
 /** The comparison form of an institution name. */
 export function institutionNameKey(name: string): string {
-  return name.replace(DASHES, '-').replace(/\s+/g, ' ').trim().toLowerCase();
+  return name.replace(DASH_WITH_SPACES, '-').replace(/\s+/g, ' ').trim().toLowerCase();
 }
 
 /** Do two institution names name the same institution under the interim rule? */

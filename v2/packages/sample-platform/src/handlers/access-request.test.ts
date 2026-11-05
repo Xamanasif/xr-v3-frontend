@@ -801,6 +801,23 @@ describe('DP-09 interim safeguard: a repeat public request never creates a secon
     expect(approved.institution?.id).toBe('godavari');
   });
 
+  it('a dash typed without its spaces names the same institution and is held the same way', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const sent = await send(visitorPorts(platform), 'BITS PILANI—HYDERABAD CAMPUS');
+    const admin = asPerson(platform, 'Arjun Mehta');
+    const page = ok(await admin.accessRequests.getRequestForDecision(sent.reference));
+    expect(page.sameNameInstitutions.map((existing) => existing.institutionId)).toEqual([
+      'bitshyd',
+    ]);
+    expect(
+      await admin.accessRequests.approveRequest({
+        id: sent.reference,
+        route: 'internal',
+        expectedRev: page.request.rev,
+      }),
+    ).toEqual({ ok: false, error: { kind: 'policy-open', decision: 'SEL-05' } });
+  });
+
   it('keeps the existing institution’s own renewal and an unrelated new institution moving', async () => {
     const platform = createSamplePlatform({ world: seed() });
     await send(visitorPorts(platform), 'BITS Pilani — Hyderabad Campus');
