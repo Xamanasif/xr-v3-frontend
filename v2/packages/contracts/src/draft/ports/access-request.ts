@@ -343,13 +343,20 @@ export interface AccessRequestService {
    * PU-12 "Continue to payment" (REQ-07). The payer is whoever may open the request (O-05;
    * ADR-0009): the browser session holding its ticket for the user session that sent it, or the
    * requesting institution's signed-in Institute Admin. Anyone else is `not-found`, as for an
-   * address that names nothing. Never `not-signed-in`: a visitor needs no account (T-01).
+   * address that names nothing. Never `not-signed-in`: a visitor needs no account (T-01). While
+   * the institution is paused no payment starts (`institution-paused`; DP-08), and the view offers
+   * no payment step (`nextStep: 'none'`).
    */
   startPayment(
     input: In<typeof startPaymentInput>,
   ): Answer<
     RequesterRequestView,
-    NotPermitted | NotFound | InvalidState | StaleVersion | Unavailable
+    | NotPermitted
+    | NotFound
+    | InvalidState
+    | StaleVersion
+    | Refused<'institution-paused'>
+    | Unavailable
   >;
   /**
    * PU-07 "You have a request in progress" (owner decision, 24 Oct 2026; ADR-0009 amendment): the

@@ -28,7 +28,9 @@ function payable(view: RequesterRequestView): boolean {
  * a provider-neutral summary of what will be activated — the approved scope, never an amount, a
  * method, a provider, a refund or "mark paid" (ND-08, T-05). Behind the same gate as PU-10 (O-05):
  * anyone else sees the public not-found page. A request with no payment step now — internal, not
- * yet approved, pending or confirmed — goes to its status (state-copy `PU-12.not-payable`).
+ * yet approved, pending or confirmed, or its institution paused (DP-08: the service answers
+ * `nextStep: 'none'` and refuses a start `institution-paused`) — goes to its status (state-copy
+ * `PU-12.not-payable`).
  *
  * "Continue to payment" starts the payment (`startPayment`). In a local prototype build the
  * sample payment provider stand-in answers it (TE-4, owner authorisation of 14 Oct 2026); the

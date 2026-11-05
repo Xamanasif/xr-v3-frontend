@@ -669,6 +669,8 @@ export function approveSmallerScope(input: SmallerScopeInput): Decision<Approval
 
 export interface StartPaymentInput {
   readonly request: AccessRequest;
+  /** The request's institution (created at approval), whose pause holds every payment (DP-08). */
+  readonly institution: Institution | null;
   /** The public requester (status page from the sending session) or the institution's own IA. */
   readonly payer: RequesterActorRef | PersonActorRef;
   readonly now: IsoInstant;
@@ -679,11 +681,15 @@ export interface StartPaymentInput {
  * Continue to payment / Try payment again — external route only (REQ-07). Provider-neutral: no
  * amount, method or provider; nothing is paid here (T-05). Paying again while a confirmation is
  * pending is not offered (REQ-08); an internal request never shows a payment step (REQ-09).
+ * While the institution is paused no payment starts (DP-08, owner, 5 Nov 2026; PD-B2B-3): the
+ * request keeps its status and its payment history, and the payment can start once access is
+ * restored.
  */
 export function startPayment(input: StartPaymentInput): Decision<AccessRequest> {
   if (!moved(input.request, 'payment-not-confirmed', 'startPayment')) {
     return invalidState(input.request.status);
   }
+  if (input.institution?.pause) return refused('institution-paused');
   return ok({
     ...input.request,
     ...nextMeta(input.request, input.now),
@@ -721,6 +727,12 @@ export interface PaymentOutcomeInput {
  * Confirmed for a new external institution: the plan is created and access activates (ACC-02).
  * Confirmed for an existing institution: Access active on the request, institution unchanged,
  * plan effect open (OD-B3-09). Failed: "Try payment again" is offered.
+ *
+ * While the institution is paused a confirmation is refused (DP-08, owner, 5 Nov 2026; PD-B2B-3):
+ * nothing is completed or activated, the attempt stays "Payment not confirmed" and its history is
+ * kept, and the same report is accepted once access is restored. A failure is still recorded — it
+ * completes and activates nothing. How a real provider's report is reconciled when it arrives
+ * during a pause is a production requirement kept apart from this simulated stand-in (A-17, E-10).
  */
 export function reportPaymentOutcome(input: PaymentOutcomeInput): Decision<ApprovalOutcome> {
   if (input.actor.kind !== 'system' || input.actor.system !== 'system:payment-provider')
@@ -728,6 +740,9 @@ export function reportPaymentOutcome(input: PaymentOutcomeInput): Decision<Appro
   const command = input.outcome === 'confirmed' ? 'paymentConfirmed' : 'paymentFailed';
   const to: RequestStatus = input.outcome === 'confirmed' ? 'access-active' : 'payment-failed';
   if (!moved(input.request, to, command)) return invalidState(input.request.status);
+  if (input.outcome === 'confirmed' && input.institution.pause) {
+    return refused('institution-paused');
+  }
   const payments = input.request.payments.map((payment, index, all) =>
     index === all.length - 1 && payment.outcome === 'pending'
       ? { ...payment, outcome: input.outcome, outcomeAt: input.now }

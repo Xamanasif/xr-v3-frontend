@@ -7,6 +7,10 @@
  * request reads Access active and no plan is written while OD-B3-09 is open; failed: "Try payment
  * again" (REQ-07). Approval, payment and activation stay separate events (BR-036).
  *
+ * While the institution is paused a confirmed report is refused (DP-08; the domain's
+ * `institution-paused`): nothing completes or activates, the attempt stays pending with its
+ * history, and the same report is accepted once access is restored. A failed report is recorded.
+ *
  * Two callers: the stand-in port of `./testing` (the seed walk, fixtures, tests) and — in a local
  * prototype build whose composition root asks for it (`paymentStandIn: 'confirm-on-start'`) —
  * `AccessRequestService.startPayment`, right after the payment it started has been committed.

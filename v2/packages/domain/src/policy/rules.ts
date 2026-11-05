@@ -233,7 +233,15 @@ export const POLICY_RULES = [
         actor.kind === 'public'
           ? { kind: 'requester' as const, name: subject.request.contact.person }
           : actor.ref;
-      return dry(startPayment({ request: subject.request, payer, now, ids: DRY_RUN_IDS }));
+      return dry(
+        startPayment({
+          request: subject.request,
+          institution: subject.institution,
+          payer,
+          now,
+          ids: DRY_RUN_IDS,
+        }),
+      );
     },
   }),
   // ── Super Admin decisions on requests (M03; INST-01, ACC-01) ────────────────────────────────

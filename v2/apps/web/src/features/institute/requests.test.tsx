@@ -586,6 +586,37 @@ describe('IA-17 — request detail (IA-v1 detail)', () => {
     expectNoReference();
   });
 
+  it('DP-08: while the institution is paused, no “Open the payment page”; the service refuses a payment too', async () => {
+    const { runtime, sample } = await tabPlatform(MEERA, 'after-flow-c');
+    await decide(sample, 'approve');
+    const arjun = asPersonId(sample, SUPER_ADMIN);
+    const detail = await arjun.institutions.getInstitution('godavari' as never);
+    if (!detail.ok) throw new Error(detail.error.kind);
+    const paused = await arjun.institutions.pauseInstitution({
+      institutionId: 'godavari' as never,
+      reason: 'Licence review.',
+      expectedRev: detail.value.institution.rev,
+    });
+    if (!paused.ok) throw new Error(paused.error.kind);
+    await detailOf(runtime);
+    const notice = main().querySelector('.rk-notice--warn')!;
+    expect(notice).toHaveTextContent('Approved — payment required');
+    expect(notice).toHaveTextContent('Nothing changes until the payment is confirmed.');
+    expect(within(notice as HTMLElement).queryByRole('link')).toBeNull();
+    expect(screen.queryByRole('link', { name: 'Open the payment page' })).toBeNull();
+    const view = await runtime.ports.accessRequests.getInstitutionRequest('REQ-0058' as never);
+    if (!view.ok) throw new Error(view.error.kind);
+    expect(view.value.nextStep).toBe('none');
+    const answer = await asPersonId(sample, MEERA).accessRequests.startPayment({
+      request: view.value.routeId,
+      expectedRev: view.value.rev,
+    });
+    expect(answer.ok ? null : answer.error).toEqual({
+      kind: 'refused',
+      code: 'institution-paused',
+    });
+  });
+
   it('the new-access request: its term, its message, the plan it created and the events up to Access active', async () => {
     const { runtime } = await tabPlatform(MEERA, 'after-flow-b');
     const history = await detailOf(runtime, 'REQ-0042');

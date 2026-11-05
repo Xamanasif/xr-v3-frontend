@@ -125,6 +125,7 @@ function run(
     case 'startPayment': {
       const d = startPayment({
         request: base,
+        institution: null,
         payer: { kind: 'requester', name: 'Meera Iyer' },
         now,
         ids,
@@ -290,6 +291,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
     const paying = expectOk(
       startPayment({
         request: approved.request,
+        institution: approved.institution,
         payer: { kind: 'requester', name: 'Meera Iyer' },
         now: T.oct8,
         ids,
@@ -311,6 +313,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
     const again = expectOk(
       startPayment({
         request: failed.request,
+        institution: approved.institution,
         payer: { kind: 'requester', name: 'Meera Iyer' },
         now: T.oct8,
         ids,
@@ -364,6 +367,7 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
       refusalOf(
         startPayment({
           request: outcome.request,
+          institution: outcome.institution,
           payer: { kind: 'requester', name: 'x' },
           now: T.oct8,
           ids: freshIds(),
@@ -468,6 +472,114 @@ describe('approval: four separate events (BR-036); a record is not access (B1-11
         }),
       ),
     ).toEqual({ kind: 'validation-failed', issues: [{ field: 'route', rule: 'required' }] });
+  });
+});
+
+describe('DP-08: no payment starts or completes while the institution is paused', () => {
+  const pause = { since: T.oct9, by: who.superAdmin, reason: 'Fee query' };
+  const pending = [
+    { id: 'pay-1' as never, startedAt: T.oct9, outcome: 'pending' as const, outcomeAt: null },
+  ];
+
+  it('Continue to payment and Try payment again are refused for the requester and the Institute Admin; nothing is written', () => {
+    const paused = institution({ pause });
+    for (const status of ['approved-payment-required', 'payment-failed'] as const) {
+      for (const payer of [
+        { kind: 'requester' as const, name: 'Meera Iyer' },
+        who.instituteAdmin,
+      ]) {
+        expect(
+          refusalOf(
+            startPayment({
+              request: request({ status, route: 'external', institutionId: paused.id }),
+              institution: paused,
+              payer,
+              now: T.oct14,
+              ids: freshIds(),
+            }),
+          ),
+        ).toEqual({ kind: 'refused', code: 'institution-paused' });
+      }
+    }
+  });
+
+  it('a confirmation is refused: the attempt stays pending, nothing activates; a failure is still recorded', () => {
+    const paused = institution({ pause });
+    const waiting = request({
+      status: 'payment-not-confirmed',
+      route: 'external',
+      institutionId: paused.id,
+      payments: pending,
+    });
+    expect(
+      refusalOf(
+        reportPaymentOutcome({
+          request: waiting,
+          outcome: 'confirmed',
+          institution: paused,
+          plans: [],
+          actor: system('system:payment-provider'),
+          now: T.oct14,
+          ids: freshIds(),
+        }),
+      ),
+    ).toEqual({ kind: 'refused', code: 'institution-paused' });
+    const failed = expectOk(
+      reportPaymentOutcome({
+        request: waiting,
+        outcome: 'failed',
+        institution: paused,
+        plans: [],
+        actor: system('system:payment-provider'),
+        now: T.oct14,
+        ids: freshIds(),
+      }),
+    );
+    expect(failed.request.status).toBe('payment-failed');
+    expect(failed.request.payments).toEqual([
+      { ...pending[0], outcome: 'failed', outcomeAt: T.oct14 },
+    ]);
+    expect(failed.plan).toBeNull();
+  });
+
+  it('once access is restored the same payment completes, with its history kept', () => {
+    const restored = institution({ pause: null });
+    const waiting = request({
+      status: 'payment-not-confirmed',
+      route: 'external',
+      institutionId: restored.id,
+      payments: pending,
+    });
+    const confirmed = expectOk(
+      reportPaymentOutcome({
+        request: waiting,
+        outcome: 'confirmed',
+        institution: restored,
+        plans: [],
+        actor: system('system:payment-provider'),
+        now: T.oct14,
+        ids: freshIds(),
+      }),
+    );
+    expect(confirmed.request.status).toBe('access-active');
+    expect(confirmed.request.payments).toEqual([
+      { ...pending[0], outcome: 'confirmed', outcomeAt: T.oct14 },
+    ]);
+    expect(confirmed.planEffect.kind).toBe('plan-created');
+    const again = expectOk(
+      startPayment({
+        request: request({
+          status: 'payment-failed',
+          route: 'external',
+          institutionId: restored.id,
+        }),
+        institution: restored,
+        payer: who.instituteAdmin,
+        now: T.oct14,
+        ids: freshIds(),
+      }),
+    );
+    expect(again.status).toBe('payment-not-confirmed');
   });
 });
 

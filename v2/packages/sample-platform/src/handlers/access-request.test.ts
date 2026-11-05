@@ -753,6 +753,7 @@ describe('Package 1E — repeated and stale commands write nothing (P1-21; dedup
 });
 
 const REQ_0038 = unsafeBrand<RequestId>('REQ-0038');
+const REQ_0040 = unsafeBrand<RequestId>('REQ-0040');
 
 describe('DP-09 interim safeguard: a repeat public request never creates a second institution (P1 register §A, A.1–A.6)', () => {
   it('names the existing institution on SA-03 and holds both approvals; nothing is written', async () => {
@@ -822,5 +823,119 @@ describe('DP-09 interim safeguard: a repeat public request never creates a secon
     expect((await approveExternal(platform, other.reference)).request.status).toBe(
       'approved-payment-required',
     );
+  });
+});
+
+describe('DP-08 — no payment starts or completes while the institution is paused', () => {
+  const route = (platform: SamplePlatform, reference: string) =>
+    requestOf(platform, reference).routeId as RequestRouteId;
+
+  /** Konark's more-licences request REQ-0040, approved: payment required (external). */
+  async function konarkAwaitingPayment() {
+    const platform = createSamplePlatform({ world: seed() });
+    const admin = asPerson(platform, 'Arjun Mehta');
+    const page = ok(await admin.accessRequests.getRequestForDecision(REQ_0040));
+    ok(
+      await admin.accessRequests.approveRequest({
+        id: page.request.id,
+        route: null,
+        expectedRev: page.request.rev,
+      }),
+    );
+    const pauseKonark = async (paused: boolean) => {
+      const detail = ok(await admin.institutions.getInstitution('konark' as never));
+      const input = {
+        institutionId: 'konark' as never,
+        reason: 'Licence review.',
+        expectedRev: detail.institution.rev,
+      };
+      ok(
+        paused
+          ? await admin.institutions.pauseInstitution(input)
+          : await admin.institutions.restoreInstitution(input),
+      );
+    };
+    return { platform, bhatt: asPersonId(platform, 'per-r-bhatt'), pauseKonark };
+  }
+
+  it('offers no payment step and refuses one while paused; once restored the payment starts', async () => {
+    const { platform, bhatt, pauseKonark } = await konarkAwaitingPayment();
+    await pauseKonark(true);
+    const held = ok(await bhatt.accessRequests.getRequestStatus(route(platform, 'REQ-0040')));
+    expect([held.status, held.nextStep]).toEqual(['approved-payment-required', 'none']);
+    const versionBefore = worldOf(platform).worldVersion;
+    expect(
+      await bhatt.accessRequests.startPayment({
+        request: route(platform, 'REQ-0040'),
+        expectedRev: held.rev,
+      }),
+    ).toEqual({ ok: false, error: { kind: 'refused', code: 'institution-paused' } });
+    expect(worldOf(platform).worldVersion).toBe(versionBefore);
+    expect(requestOf(platform, 'REQ-0040').payments).toEqual([]);
+
+    await pauseKonark(false);
+    const open = ok(await bhatt.accessRequests.getRequestStatus(route(platform, 'REQ-0040')));
+    expect(open.nextStep).toBe('continue-to-payment');
+    const started = ok(
+      await bhatt.accessRequests.startPayment({
+        request: route(platform, 'REQ-0040'),
+        expectedRev: open.rev,
+      }),
+    );
+    expect(started.status).toBe('payment-not-confirmed');
+  });
+
+  it('a confirmation reported while paused completes nothing; the same report is accepted once restored', async () => {
+    const { platform, bhatt, pauseKonark } = await konarkAwaitingPayment();
+    const open = ok(await bhatt.accessRequests.getRequestStatus(route(platform, 'REQ-0040')));
+    ok(
+      await bhatt.accessRequests.startPayment({
+        request: route(platform, 'REQ-0040'),
+        expectedRev: open.rev,
+      }),
+    );
+    await pauseKonark(true);
+    const provider = standinsOf(platform).paymentOutcome;
+    expect(provider.report({ requestId: REQ_0040, outcome: 'confirmed' })).toEqual({
+      ok: false,
+      error: { kind: 'invalid-state', current: 'institution-paused' },
+    });
+    const waiting = requestOf(platform, 'REQ-0040');
+    expect(waiting.status).toBe('payment-not-confirmed');
+    expect(waiting.payments.map((payment) => payment.outcome)).toEqual(['pending']);
+    expect(
+      ok(await bhatt.accessRequests.getRequestStatus(route(platform, 'REQ-0040'))).nextStep,
+    ).toBe('check-again');
+
+    await pauseKonark(false);
+    expect(provider.report({ requestId: REQ_0040, outcome: 'confirmed' }).ok).toBe(true);
+    const done = requestOf(platform, 'REQ-0040');
+    expect(done.status).toBe('access-active');
+    expect(done.payments.map((payment) => payment.outcome)).toEqual(['confirmed']);
+    expect(done.history.map((entry) => entry.event)).toContain('payment-confirmed');
+  });
+
+  it('a failure reported while paused is recorded, and Try payment again waits for the pause to end', async () => {
+    const { platform, bhatt, pauseKonark } = await konarkAwaitingPayment();
+    const open = ok(await bhatt.accessRequests.getRequestStatus(route(platform, 'REQ-0040')));
+    ok(
+      await bhatt.accessRequests.startPayment({
+        request: route(platform, 'REQ-0040'),
+        expectedRev: open.rev,
+      }),
+    );
+    await pauseKonark(true);
+    expect(
+      standinsOf(platform).paymentOutcome.report({ requestId: REQ_0040, outcome: 'failed' }).ok,
+    ).toBe(true);
+    const failed = ok(await bhatt.accessRequests.getRequestStatus(route(platform, 'REQ-0040')));
+    expect([failed.status, failed.nextStep]).toEqual(['payment-failed', 'none']);
+    expect(requestOf(platform, 'REQ-0040').payments.map((payment) => payment.outcome)).toEqual([
+      'failed',
+    ]);
+    await pauseKonark(false);
+    expect(
+      ok(await bhatt.accessRequests.getRequestStatus(route(platform, 'REQ-0040'))).nextStep,
+    ).toBe('try-payment-again');
   });
 });

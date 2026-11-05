@@ -76,8 +76,12 @@ function sameItems(a: readonly RequestedItem[], b: readonly RequestedItem[]): bo
   return key(a) === key(b);
 }
 
-/** PU-10 / PU-13 / IA-17: canonical states and facts only. */
-export function requesterView(request: AccessRequest): RequesterRequestView {
+/**
+ * PU-10 / PU-13 / IA-17: canonical states and facts only. While the request's institution is paused
+ * no payment step is offered (DP-08): "Continue to payment" and "Try payment again" become `none`,
+ * so PU-12 opens the request status instead; the status and its history are unchanged.
+ */
+export function requesterView(request: AccessRequest, paused = false): RequesterRequestView {
   const decision = request.decision;
   const approved =
     decision === null
@@ -103,11 +107,15 @@ export function requesterView(request: AccessRequest): RequesterRequestView {
           };
   const nextStep: RequesterRequestView['nextStep'] =
     request.status === 'approved-payment-required'
-      ? 'continue-to-payment'
+      ? paused
+        ? 'none'
+        : 'continue-to-payment'
       : request.status === 'payment-not-confirmed'
         ? 'check-again'
         : request.status === 'payment-failed'
-          ? 'try-payment-again'
+          ? paused
+            ? 'none'
+            : 'try-payment-again'
           : request.status === 'access-active'
             ? 'sign-in'
             : 'none';
@@ -195,6 +203,11 @@ function decisionPage(op: Op, request: AccessRequest): DecisionPage {
 
 function institutionOf(records: WorldRecords, request: AccessRequest): Institution | null {
   return request.institutionId ? (records.institutions[request.institutionId] ?? null) : null;
+}
+
+/** DP-08: the request's institution is paused, so no payment step is offered. */
+function isPaused(records: WorldRecords, request: AccessRequest): boolean {
+  return (institutionOf(records, request)?.pause ?? null) !== null;
 }
 
 /** The request a public address names (`/requests/[requestId]`, O-05) — never by reference or ticket. */
@@ -289,7 +302,7 @@ export function accessRequestPort(call: Call): AccessRequestService {
         // that names nothing (REQ-05; the owner's not-found treatment) and learns not even that
         // the request exists.
         if (!mayOpen(op, request)) op.refuse({ kind: 'not-found' });
-        return requesterView(request);
+        return requesterView(request, isPaused(op.records, request));
       }),
 
     startPayment: async (input) => {
@@ -321,10 +334,19 @@ export function accessRequestPort(call: Call): AccessRequestService {
         }
         const accepted = op.parse(startPaymentInput, input);
         op.rev(request, accepted.expectedRev);
-        const next = op.decide(startPayment({ request, payer, now: op.now, ids: op.ids }), input);
+        const next = op.decide(
+          startPayment({
+            request,
+            institution: subject.institution,
+            payer,
+            now: op.now,
+            ids: op.ids,
+          }),
+          input,
+        );
         op.tx.put('requests', next.id, next);
         return {
-          value: requesterView(next),
+          value: requesterView(next, isPaused(op.records, next)),
           decision: 'startPayment',
           actor: payer,
           // TE-4: the sample payment provider reports on the payment just started — a system event
@@ -380,7 +402,7 @@ export function accessRequestPort(call: Call): AccessRequestService {
         const person = op.person();
         const request = op.found(op.records.requests[op.idText(id)]);
         op.see(person, { kind: 'request', request });
-        return requesterView(request);
+        return requesterView(request, isPaused(op.records, request));
       }),
 
     submitRenewalRequest: (input) =>

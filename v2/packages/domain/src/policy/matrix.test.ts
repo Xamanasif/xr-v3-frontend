@@ -886,6 +886,7 @@ const DENY_CASES: Readonly<Record<string, () => void>> = {
     const paying = expectOk(
       startPayment({
         request: request({ status: 'approved-payment-required', route: 'external' }),
+        institution: null,
         payer: { kind: 'requester', name: 'Meera Iyer' },
         now: T.oct9,
         ids: counterIds(),
@@ -2934,6 +2935,7 @@ const SYSTEM_CASES: Readonly<Record<string, () => void>> = {
     const paying = expectOk(
       startPayment({
         request: approved.request,
+        institution: approved.institution,
         payer: { kind: 'requester', name: 'Meera Iyer' },
         now: T.oct8,
         ids: counterIds(),

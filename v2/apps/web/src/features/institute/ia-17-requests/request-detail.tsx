@@ -85,7 +85,9 @@ const TITLE_ID = 'request-title';
  *   message, PC-50), "Where it stands" beside it (request, payment and access plan kept apart,
  *   `IA-17.detail.stands`) and "History" below. A renewal or more licences never reads as a
  *   changed plan (OD-B3-09).
- * - Nothing here writes: payment starts on PU-12 ("Continue to payment"). Loading and a failed read
+ * - Nothing here writes: payment starts on PU-12 ("Continue to payment"). While the institution is
+ *   paused no payment step is offered (DP-08): the service answers `nextStep: 'none'` and "Open the
+ *   payment page" is not shown. Loading and a failed read
  *   draw the V3 list states under the crumbs; another institution's or no request is the in-shell
  *   not-found page (the export's "We can’t find that request" card is not adopted: the record
  *   guard does not reveal existence).
@@ -166,6 +168,10 @@ function StateNotice({
     );
   }
   if (view.status === 'approved-payment-required' || view.status === 'payment-failed') {
+    // DP-08: while the institution is paused the service offers no payment step (`nextStep`
+    // `none`), so "Open the payment page" is not shown; the status and its line stay.
+    const payable =
+      view.nextStep === 'continue-to-payment' || view.nextStep === 'try-payment-again';
     return (
       <Notice
         tone="warn"
@@ -177,9 +183,11 @@ function StateNotice({
             : requestStatusWords(view)
         }
         actions={
-          <ButtonLink variant="navy" href={paymentPageAddress(view.routeId)}>
-            {REQUEST_DETAIL.openPayment}
-          </ButtonLink>
+          payable ? (
+            <ButtonLink variant="navy" href={paymentPageAddress(view.routeId)}>
+              {REQUEST_DETAIL.openPayment}
+            </ButtonLink>
+          ) : undefined
         }
       >
         {REQUEST_DETAIL.paymentLine}
