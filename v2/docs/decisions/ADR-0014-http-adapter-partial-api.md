@@ -51,6 +51,13 @@ Three ways to put a half-switched web app together:
 5. **Query cache for `api`:** answers are fresh for 60 s and re-read when the network returns (other
    people change the platform); still no retries and no waiting for the network.
 6. **Command ids** are not sent yet: the API serves reads only. They reach the API with B4.
+7. **The contract suite's HTTP subject** (`platform/http/contract.api.test.ts`, run by
+   `test:contract-api`, uncached, only when `XR_CONTRACT_API_URL` is set) runs every case through
+   this adapter against a running API on the development seed. It claims the catalogue's methods
+   only and builds the spine-start fixture only; everything else is "not run" by the suite's own
+   rules. It has no identity (`as` is a fresh visitor until B3), no stand-ins or seams, and an empty
+   snapshot: that reads change nothing is checked by the API's own database tests instead. CI runs
+   it after the catalogue parity script, against the same API.
 
 ## Consequences
 
@@ -69,5 +76,11 @@ Three ways to put a half-switched web app together:
 - `pnpm --filter @xr/web typecheck` and `pnpm --filter @xr/web test` (5 Nov 2026: 177 files,
   7,847 tests passed), including `platform/http/http.test.ts`, `composition.test.ts`,
   `build-alias.test.ts` and `boundaries.test.ts`.
+- Contract suite over HTTP: start the API on a seeded development database (`db:seed`, then
+  `pnpm --filter @xr/api start`), then `XR_CONTRACT_API_URL=http://localhost:4000 pnpm --filter
+@xr/web test:contract-api`. 5 Nov 2026, local Postgres: 44 passed, 41 not run, 0 failed. Read
+  the 44 carefully: `catalogue:structure` and `catalogue:featured` are the B2 exit evidence; the 22
+  `surface:*` cases check that the adapter offers every ledger method; the 20 `session:*` cases
+  pass without calling anything, because they skip every method the adapter does not claim.
 - Build refusal: `NEXT_PUBLIC_XR_DATA_SOURCE=api NEXT_PUBLIC_APP_ENV=production pnpm --filter
 @xr/web build` fails with the message from `next.config.ts`.

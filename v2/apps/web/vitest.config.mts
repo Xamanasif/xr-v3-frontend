@@ -11,6 +11,8 @@ export default createVitestConfig(
   },
   {
     plugins: [react()],
+    // The contract suite against a running API (`vitest.api.config.mts`) is never a unit test.
+    test: { exclude: ['**/*.api.test.ts'] },
     resolve: {
       alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
     },

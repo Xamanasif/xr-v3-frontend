@@ -12,6 +12,7 @@
     "typecheck": "next typegen && tsc --noEmit -p tsconfig.json",
     "lint": "eslint .",
     "test": "vitest run",
+    "test:contract-api": "vitest run --config vitest.api.config.mts",
     "test:e2e": "playwright test",
     "clean": "node -e \"import('node:fs').then((fs) => fs.rmSync('.next', { recursive: true, force: true }))\""
   },

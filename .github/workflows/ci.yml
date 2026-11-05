@@ -90,7 +90,7 @@ jobs:
       - name: Seed the development catalogue
         run: pnpm --filter @xr/database db:seed
 
-      - name: Catalogue parity (API against the typed mock, ADR-0013)
+      - name: Catalogue parity and the contract suite over HTTP (ADR-0013, ADR-0014)
         run: |
           pnpm --filter @xr/api start > api.log 2>&1 &
           for attempt in $(seq 1 60); do
@@ -98,3 +98,5 @@ jobs:
             sleep 1
           done
           node scripts/catalogue-parity.mjs http://localhost:4000 || { cat api.log; exit 1; }
+          # The contract suite through the web's HTTP adapter, against the same API (ADR-0014).
+          XR_CONTRACT_API_URL=http://localhost:4000 pnpm exec turbo run test:contract-api --filter=@xr/web || { cat api.log; exit 1; }

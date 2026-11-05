@@ -24,6 +24,11 @@
       "cache": false,
       "env": ["DATABASE_URL"]
     },
+    "test:contract-api": {
+      "dependsOn": ["^build"],
+      "cache": false,
+      "env": ["XR_CONTRACT_API_URL"]
+    },
     "test:e2e": {
       "dependsOn": ["build"],
       "cache": false,
