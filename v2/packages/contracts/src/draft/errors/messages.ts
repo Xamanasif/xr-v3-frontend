@@ -620,6 +620,12 @@ export const UNDRAWN_RULES = {
       'A value of the wrong type or shape reached a port: a programming error, not a drawn form state.',
     source: 'contract schemas',
   },
+  'PU-08.term.endsOn.after-today': {
+    screen: 'PU-08',
+    reason:
+      'An "Until a fixed date" end date that is not later than today; B1-07 draws no words. The words are the state-copy register’s (owner-approved provisional wording, 5 Nov 2026).',
+    source: 'domain submitPublicRequest (B2B milestone I1, C2)',
+  },
   'PU-08.selection.format-not-published': {
     screen: 'PU-08',
     reason:

@@ -70,6 +70,11 @@ const publicRequest: readonly IssueMapping[] = [
   },
   { field: 'term', rule: 'required', to: to('term', 'PU-08.term.required') },
   {
+    field: 'term.endsOn',
+    rule: 'after-today',
+    to: to('term.endsOn', 'PU-08.term.endsOn.after-today'),
+  },
+  {
     field: 'selection',
     rule: 'format-not-published',
     to: to('selection', 'PU-08.selection.format-not-published'),

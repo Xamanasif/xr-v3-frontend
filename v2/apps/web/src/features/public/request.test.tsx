@@ -377,6 +377,31 @@ describe('PU-08 Request institutional access (B1-07)', () => {
     ).toHaveAttribute('href', '#request-ends-on');
   });
 
+  it('an end date that is not later than today: nothing is sent; back to the details (I1-C2)', async () => {
+    const user = userEvent.setup();
+    const platform = await testPlatform();
+    ok(platform.runtime.ports.selection.add({ experimentId: SHELL, formats: ['web'] }));
+    const details = show(platform, <RequestAccessPage />, '/request-access');
+    await user.type(await screen.findByLabelText('Institution name'), 'Godavari Institute');
+    await user.type(screen.getByLabelText('Contact person'), 'Meera Iyer');
+    await user.type(screen.getByLabelText('E-mail'), 'meera.iyer@godavari.edu.in');
+    await user.type(screen.getByLabelText('Licences requested'), '120');
+    await user.click(screen.getByRole('radio', { name: /Until a fixed date/ }));
+    await user.type(screen.getByLabelText('End date'), '2026-09-01');
+    await user.click(screen.getByRole('button', { name: 'Review request' }));
+    expect(details.navigation.navigate).toHaveBeenCalledWith('/request-access?step=review');
+    details.unmount();
+
+    const review = show(platform, <RequestAccessPage />, '/request-access', '?step=review');
+    const before = worldOf(platform.sample).worldVersion;
+    await user.click(await screen.findByRole('button', { name: 'Submit request' }));
+    await waitFor(() =>
+      expect(review.navigation.navigate).toHaveBeenCalledWith('/request-access?step=details'),
+    );
+    expect(worldOf(platform.sample).worldVersion).toBe(before);
+    expect(platform.runtime.ports.selection.get().items).toHaveLength(1);
+  });
+
   it('details → review → Submit: the request is sent once, the selection empties, PU-09 is next', async () => {
     const user = userEvent.setup();
     const platform = await testPlatform();

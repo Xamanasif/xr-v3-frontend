@@ -854,6 +854,17 @@ const PHASE_1_AND_EARLIER = {
     status: 'provisional',
     decisions: ['VD-12', 'P1-10'],
   },
+  'PU-08.end-date-after-today': {
+    screen: 'PU-08',
+    state:
+      'Sending a request whose “Until a fixed date” end date is not later than today (the service checks it by the platform clock)',
+    words: 'Choose a date after today.',
+    rule: 'The End date field’s error and its summary line, as the drawn field errors are shown; the form returns to the details with the summary focused. Nothing is sent.',
+    basis:
+      'Owner-approved provisional wording, B2B milestone I1 (C2), 5 Nov 2026; B1-07 draws no words for it (catalogue key `PU-08.term.endsOn.after-today`, undrawn); audit G-10 / N-04',
+    status: 'provisional',
+    decisions: ['VD-12', 'P1-10'],
+  },
   'PU-08.empty-selection': {
     screen: 'PU-08',
     state: 'A direct visit to the request form with nothing selected',

@@ -869,6 +869,28 @@ describe('the public request form (REQ-01; B1-07 reqValidate) and the Institute 
     expect(Object.keys(form)).not.toEqual(expect.arrayContaining(['route', 'price', 'amount']));
   });
 
+  it('“Until a fixed date” ends later than today, by the platform clock (I1-C2; audit G-10)', () => {
+    const until = (endsOn: string) =>
+      submitPublicRequest({
+        selection,
+        form: { ...form, term: { kind: 'until-date' as const, endsOn: calendarDate(endsOn) } },
+        publishedFormatsOf: () => [...PUBLISHED()],
+        now: T.oct2,
+        ids: freshIds(),
+      });
+    const today = T.oct2.slice(0, 10);
+    for (const past of ['2026-09-30', today]) {
+      expect(refusalOf(until(past)), past).toEqual({
+        kind: 'validation-failed',
+        issues: [{ field: 'term.endsOn', rule: 'after-today' }],
+      });
+    }
+    expect(expectOk(until('2026-10-03')).request.term).toEqual({
+      kind: 'until-date',
+      endsOn: '2026-10-03',
+    });
+  });
+
   it('a renewal mirrors the plan — nothing can change (T-07; REQ-29); refused while paused', () => {
     const renewal = expectOk(
       submitRenewalRequest({

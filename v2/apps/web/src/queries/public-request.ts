@@ -33,6 +33,8 @@ import {
 } from '@xr/contracts/draft';
 import type { RequestRouteId } from '@xr/domain';
 
+import { fieldWords } from '@/copy/field-words';
+
 import { defineQuery, useXrQuery } from './use-xr-query';
 
 /** PU-10 / PU-12: the request at its address, for whoever this tab's session may show it to. */
@@ -100,17 +102,21 @@ const FIELDS: ReadonlySet<string> = new Set([
   'term.endsOn',
 ]);
 
-/** The drawn words of a validation failure, in the form's order (B1-07 `reqValidate`). */
+/**
+ * The words of a validation failure, in the form's order (B1-07 `reqValidate`): the drawn words,
+ * else the state-copy register's provisional words for an undrawn rule (`fieldWords`, VD-12).
+ */
 export function requestErrors(error: ValidationFailed): RequestCheck {
   const summary = toErrorSummary(error);
   const errors: RequestFieldError[] = [];
   summary.items.forEach((item, index) => {
     const fieldError: FieldError | undefined = error.fieldErrors[index];
-    if (!FIELDS.has(item.field) || !item.message || !fieldError) return;
+    const message = item.message ?? (fieldError ? fieldWords(fieldError) : null);
+    if (!FIELDS.has(item.field) || !message || !fieldError) return;
     errors.push({
       field: item.field as RequestField,
-      message: item.message,
-      summaryText: item.summaryText ?? item.message,
+      message,
+      summaryText: item.summaryText ?? message,
     });
   });
   return { title: summary.title ?? '', errors };

@@ -939,3 +939,26 @@ describe('DP-08 — no payment starts or completes while the institution is paus
     ).toBe('try-payment-again');
   });
 });
+
+describe('B2B milestone I1 (C2): “Until a fixed date” ends later than today', () => {
+  it('an end date in the past or today is refused with the undrawn rule; nothing is written', async () => {
+    const platform = createSamplePlatform({ world: seed() });
+    const visitor = visitorPorts(platform);
+    ok(visitor.selection.add({ experimentId: SHELL, formats: ['web'] }));
+    const before = worldOf(platform).worldVersion;
+    const answer = await visitor.accessRequests.submitPublicRequest({
+      institutionName: 'Krishna Engineering College',
+      contactPerson: 'R. Rao',
+      email: 'r.rao@krishna.edu.in',
+      phone: null,
+      licencesRequested: '30',
+      message: null,
+      term: { kind: 'until-date', endsOn: '2026-09-01' },
+    });
+    expect(answer.ok ? null : answer.error).toMatchObject({
+      kind: 'validation-failed',
+      fieldErrors: [{ field: 'term.endsOn', key: 'PU-08.term.endsOn.after-today', message: null }],
+    });
+    expect(worldOf(platform).worldVersion).toBe(before);
+  });
+});

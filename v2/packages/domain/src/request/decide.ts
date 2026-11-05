@@ -24,7 +24,7 @@ import type { AccessPlanId, ExperimentId, InstitutionId } from '../kernel/ids.js
 import { isDrawnTransition } from '../kernel/machine.js';
 import { provided } from '../kernel/provided.js';
 import { newMeta, nextMeta, ref } from '../kernel/record.js';
-import { dateOf, type IsoInstant } from '../kernel/time.js';
+import { type CalendarDate, dateOf, daysBetween, type IsoInstant } from '../kernel/time.js';
 import { accessPlanStatus, WORK_EMAIL } from '../institution/decide.js';
 import { newAccessPlan, newInstitution } from '../institution/records.js';
 import type {
@@ -89,8 +89,13 @@ export interface SubmitPublicRequestInput {
   readonly ids: IdSource;
 }
 
-/** B1-07 `reqValidate`: the drawn required fields and rules of the public request form. */
-export function publicRequestIssues(form: PublicRequestForm): InputIssue[] {
+/**
+ * B1-07 `reqValidate`: the drawn required fields and rules of the public request form; and an
+ * "Until a fixed date" end date must be later than today (`today` from the platform clock, the
+ * date every plan starts on) — a past or same-day end would create access that has already ended
+ * (audit G-10 / N-04; owner approval of B2B milestone I1, C2, 5 Nov 2026).
+ */
+export function publicRequestIssues(form: PublicRequestForm, today: CalendarDate): InputIssue[] {
   return [
     ...(isBlank(form.institutionName) ? [{ field: 'institutionName', rule: 'required' }] : []),
     ...(isBlank(form.contactPerson) ? [{ field: 'contactPerson', rule: 'required' }] : []),
@@ -105,6 +110,9 @@ export function publicRequestIssues(form: PublicRequestForm): InputIssue[] {
         ? []
         : [{ field: 'licences', rule: 'whole-number' }]),
     ...(form.term === null ? [{ field: 'term', rule: 'required' }] : []),
+    ...(form.term?.kind === 'until-date' && daysBetween(today, form.term.endsOn) < 1
+      ? [{ field: 'term.endsOn', rule: 'after-today' }]
+      : []),
   ];
 }
 
@@ -119,7 +127,7 @@ export function submitPublicRequest(
   input: SubmitPublicRequestInput,
 ): Decision<SubmittedPublicRequest> {
   if (input.selection.items.length === 0) return refused('selection-empty');
-  const issues = publicRequestIssues(input.form);
+  const issues = publicRequestIssues(input.form, dateOf(input.now));
   for (const item of input.selection.items) {
     const published = input.publishedFormatsOf(item.experimentId);
     if (!published || item.formats.some((format) => !published.includes(format))) {
