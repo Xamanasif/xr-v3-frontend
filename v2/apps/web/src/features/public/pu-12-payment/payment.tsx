@@ -11,6 +11,7 @@ import { DocumentTitle } from '@/features/shared/document-title';
 import { PublicNotFound } from '@/features/shared/pu-15-not-found/not-found';
 import { useAppNavigation } from '@/nav/navigation';
 import { isHidden, useRequestStatus } from '@/queries/public-request';
+import { useSamplePaymentPage } from '@/queries/prototype';
 import { useCommand } from '@/queries/use-command';
 
 import { statusAddress } from '../pu-10-request-status/request-status';
@@ -34,7 +35,8 @@ function payable(view: RequesterRequestView): boolean {
  *
  * "Continue to payment" starts the payment (`startPayment`). In a local prototype build the
  * sample payment provider stand-in answers it (TE-4, owner authorisation of 14 Oct 2026); the
- * request status then shows the outcome. "Payment not confirmed" and "Payment failed" come only
+ * request status then shows the outcome. In the prototype profile (DP-05, B2B milestone I3) the
+ * payer goes on to the simulated provider's page and chooses the outcome there. "Payment not confirmed" and "Payment failed" come only
  * from fixtures and CI test hooks. A stale or already-started payment is refused by the service:
  * the page reads the request again and shows where it stands (P1-21).
  */
@@ -43,6 +45,7 @@ export function PaymentPage({ routeId }: { readonly routeId: string }) {
   const status = useRequestStatus(routeId);
   const names = useCatalogueNames();
   const pay = useCommand((ports) => ports.accessRequests.startPayment);
+  const providerPage = useSamplePaymentPage();
   const [failed, setFailed] = useState(false);
   const leaving = useRef(false);
   const answer = status.data;
@@ -109,7 +112,11 @@ export function PaymentPage({ routeId }: { readonly routeId: string }) {
     }
     if (result.ok) {
       leaving.current = true;
-      navigation.navigate(statusAddress(routeId), { replace: true });
+      // DP-05: in the prototype profile the payer chooses the outcome on the simulated provider's
+      // page; elsewhere the request status shows it (a local build's stand-in confirms at once).
+      navigation.navigate(providerPage ? providerPage(routeId) : statusAddress(routeId), {
+        replace: true,
+      });
       return;
     }
     // Refused (a stale page, a payment already started, a request no longer payable): the request

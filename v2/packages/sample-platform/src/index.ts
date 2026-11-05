@@ -20,6 +20,11 @@ export {
   type SnapshotStorage,
 } from './persistence/snapshot.js';
 export type {
+  SamplePaymentAnswer,
+  SamplePaymentProvider,
+  SamplePaymentWaiting,
+} from './platform/sample-payment-provider.js';
+export type {
   SampleWebAnswer,
   SampleWebReportKind,
   SampleWebRuntime,

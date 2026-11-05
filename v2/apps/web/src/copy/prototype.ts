@@ -93,3 +93,78 @@ export const WEB_ACTIVITY = {
   reportRefusedTitle: 'The result wasn’t recorded',
   reportRefusedLine: 'The experiment isn’t open to you right now. Go back to your experiment page.',
 } as const;
+
+/**
+ * B2B milestone I3 (owner decisions DP-05, DP-06, DP-08, 5 Nov 2026) — `/prototype/payment`: the
+ * simulated payment provider's page. It stands in for a provider's page: no amount, no payment
+ * details and no provider exist, and nothing is collected. Provisional words (the design canvas's
+ * simulated payment board, awaiting the owner's sign-off, DP-19); never a real payment's words.
+ */
+export const SIMULATED_PAYMENT = {
+  title: 'Simulated payment',
+  noticeTitle: 'No money moves and no payment details are asked for.',
+  noticeLine: 'This page stands in for a payment provider. Choose what happens to this payment.',
+  payingFor: 'Paying for',
+  request: 'Request',
+  started: 'Started',
+  complete: 'Complete the payment',
+  fail: 'Make the payment fail',
+  leave: 'Leave it unconfirmed',
+  outcomesLabel: 'What each choice does',
+  outcomes: [
+    {
+      tag: 'Complete',
+      line: 'The provider confirms the payment. Access follows the request’s approval.',
+    },
+    {
+      tag: 'Fail',
+      line: 'The provider reports that the payment didn’t go through. Nothing is activated, and the payment can be tried again.',
+    },
+    {
+      tag: 'Unconfirmed',
+      line: 'No answer yet. The payment waits, and its outcome can be chosen here later.',
+    },
+  ],
+  storedLine: 'Nothing here is collected or stored except the outcome you choose.',
+  busy: 'Recording the outcome…',
+  loading: 'Loading the payment…',
+  notWaitingTitle: 'No payment is waiting here',
+  notWaitingLine:
+    'There is no payment waiting for an outcome at this address in this browser. A payment starts from its request status page.',
+  pausedTitle: 'This payment can’t be completed now',
+  pausedLine:
+    'The institution’s access is paused, so the payment stays unconfirmed until access is restored. Its outcome can be chosen here again then.',
+  failedTitle: 'The outcome couldn’t be recorded',
+  failedLine: 'Nothing has changed. Try again.',
+  backToStatus: 'Back to request status',
+  tools: 'Prototype tools',
+} as const;
+
+/**
+ * B2B milestone I2 / I3 (DP-06, DP-18) — `/prototype`: the prototype tools for testers. The
+ * payments waiting for an outcome (the recovery path of a payment left unconfirmed), what this
+ * browser keeps, and the reset. Not part of the platform; reached by its address only.
+ */
+export const PROTOTYPE_TOOLS = {
+  title: 'Prototype tools',
+  intro: 'Tools for trying out this prototype in this browser. They aren’t part of the platform.',
+  waitingTitle: 'Payments waiting for an outcome',
+  waitingNone: 'No payment is waiting for an outcome in this browser.',
+  waitingNote:
+    'Only payments you can open here are listed: requests sent from this browser, or your institution’s when you are signed in as its Institute Admin.',
+  choose: 'Choose the outcome',
+  startedAt: 'started',
+  keptTitle: 'Records in this browser',
+  keptRestored:
+    'Records are kept in this browser, so a refresh or another tab carries on where you left off.',
+  keptFresh: 'Records are kept in this browser. This visit started from the beginning.',
+  keptReplaced:
+    'The records saved in this browser came from another version of the prototype, so they were replaced with a fresh start.',
+  keptNone: 'This browser doesn’t keep the records, so every page load starts from the beginning.',
+  resetLink: RESET_ACTION,
+  loading: 'Loading…',
+  failedTitle: 'The waiting payments couldn’t be listed',
+  failedLine: 'Nothing has changed. Try again.',
+  tryAgain: 'Try again',
+  home: 'Go to the home page',
+} as const;

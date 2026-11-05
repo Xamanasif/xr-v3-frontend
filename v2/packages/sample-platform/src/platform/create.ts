@@ -44,6 +44,7 @@ import {
   SessionContext,
 } from './core.js';
 import { buildPorts } from './ports.js';
+import { type SamplePaymentProvider, samplePaymentProvider } from './sample-payment-provider.js';
 import { type SampleWebRuntime, sampleWebRuntime } from './sample-web-runtime.js';
 
 export interface SamplePlatformOptions {
@@ -106,6 +107,12 @@ export interface SamplePlatformOptions {
    * tests start from their fixtures).
    */
   readonly snapshot?: SnapshotOptions | null;
+  /**
+   * DP-05 / DP-06 (owner decisions, 5 Nov 2026; B2B milestone I3): the web composition root in a
+   * build that runs the sample stand-ins serves the simulated payment provider's page, where the
+   * payer chooses the outcome of a waiting payment (`samplePaymentProvider`). Omitted: no page.
+   */
+  readonly paymentProviderPage?: boolean;
 }
 
 /** TE-6: the browser snapshot of a local prototype build, for the composition root. */
@@ -143,6 +150,8 @@ export interface SamplePlatform {
   readonly snapshot: SampleSnapshotControls | null;
   /** TE-3: the sample WEB activity's reports, when the composition root named one; else `null`. */
   readonly sampleWebRuntime: SampleWebRuntime | null;
+  /** DP-05 / DP-06: the simulated payment provider's page, when the composition root serves it. */
+  readonly samplePaymentProvider: SamplePaymentProvider | null;
 }
 
 /** What `./testing` reaches behind a platform (never product code). */
@@ -253,8 +262,9 @@ export function assemblePlatform(
       opened ? opened.driver.tickets : null,
     ),
   );
+  const ports = buildPorts(core, context, null);
   const platform: SamplePlatform = {
-    ports: buildPorts(core, context, null),
+    ports,
     withCommandId: (commandId) => buildPorts(core, context, commandId),
     newCommandId: () => nonces.next('command'),
     subscribe: (listener) => core.store.subscribe(listener),
@@ -262,6 +272,7 @@ export function assemblePlatform(
     persistence: core.store.persistence,
     snapshot: opened ? snapshotControls(core, context, opened.driver) : null,
     sampleWebRuntime: core.webRuntime ? sampleWebRuntime(core) : null,
+    samplePaymentProvider: options.paymentProviderPage ? samplePaymentProvider(core, ports) : null,
   };
   INTERNALS.set(platform, { core, context, clock, browserStorage });
   return platform;

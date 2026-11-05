@@ -61,9 +61,12 @@ describe('the route files are exactly the manifest (Appendix F §3.3; WP-0.13 ac
     // + Phase 6's fifteen (CM-06 and CM-07 open the CM-08 update page; SA-15 has an area and a
     // course page; SA-01 is the admin base's own page, completed in place).
     // + Phase 7's two prototype support pages (owner authorisation, 17 Oct 2026; no screen id):
-    // TE-6 "Reset demo data" and the TE-3 sample WEB activity.
-    expect(pages).toHaveLength(132);
+    // TE-6 "Reset demo data" and the TE-3 sample WEB activity; + B2B milestone I3 (DP-05, DP-06):
+    // the prototype tools and the simulated payment provider's page.
+    expect(pages).toHaveLength(134);
     expect(PAGES.filter((page) => page.kind === 'prototype').map((page) => page.pattern)).toEqual([
+      '/prototype',
+      '/prototype/payment',
       '/prototype/reset',
       '/prototype/web-activity',
     ]);

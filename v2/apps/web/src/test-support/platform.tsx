@@ -30,10 +30,13 @@ export async function testPlatform(
      * and the visitor's request tickets kept beside it); a new lineage name for each fresh start.
      */
     readonly kept?: { readonly storage: SnapshotStorage; readonly lineage: string };
+    /** The build profile (`development` when omitted); `prototype` serves the payer the provider page. */
+    readonly appEnvironment?: ComposeOptions['appEnvironment'];
   } = {},
 ) {
   const composed = composePlatform({
     dataSource: 'sample',
+    ...(options.appEnvironment ? { appEnvironment: options.appEnvironment } : {}),
     ...(options.world ? { world: options.world } : {}),
     ...(options.kept ? { worldStorage: options.kept.storage, lineage: options.kept.lineage } : {}),
   });

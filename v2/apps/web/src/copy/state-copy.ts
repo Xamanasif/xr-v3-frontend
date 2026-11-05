@@ -1033,13 +1033,13 @@ const PHASE_1_AND_EARLIER = {
   },
   'PU-12.stand-in': {
     screen: 'PU-12',
-    state: '“Continue to payment” in a local prototype build',
+    state: '“Continue to payment” in a local prototype build or the prototype profile',
     words: null,
-    rule: 'TE-4: the sample payment provider stand-in answers the payment just started; the request status then shows the outcome (confirmed → Access active). No provider, amount, method or details exist, nothing is collected, and no person confirms a payment. “Payment not confirmed” and “Payment failed” are reached only through fixtures and CI test hooks.',
+    rule: 'TE-4: in a local build the sample payment provider stand-in answers the payment just started; the request status then shows the outcome (confirmed → Access active). In the prototype profile (DP-05) the payer goes on to the simulated provider’s page (`/prototype/payment`) and chooses Complete the payment, Make the payment fail or Leave it unconfirmed; a payment left waiting is answered there later, from the prototype tools (DP-06). No provider, amount, method or details exist, nothing is collected, and no person on a product screen confirms a payment. Staging and production builds have no stand-in and no provider page.',
     basis:
-      'Owner TE-4 authorisation (Package 1C, 14 Oct 2026); B1-08 f5 notice; Appendix G P1-06, P1-18',
+      'Owner TE-4 authorisation (Package 1C, 14 Oct 2026); owner decisions DP-05, DP-06 (5 Nov 2026; B2B milestone I3); B1-08 f5 notice; Appendix G P1-06, P1-18',
     status: 'provisional',
-    decisions: ['TE-4', 'T-05', 'R06'],
+    decisions: ['TE-4', 'T-05', 'R06', 'DP-05', 'DP-06'],
   },
   'PU-12.busy': {
     screen: 'PU-12',

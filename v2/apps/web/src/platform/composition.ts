@@ -48,6 +48,13 @@ export interface PlatformCapabilities {
   readonly persistence: 'memory-per-tab' | 'browser-snapshot';
 }
 
+/** DP-05 / DP-06: the simulated payment provider's page, as the sample platform serves it. */
+export type {
+  SamplePaymentAnswer,
+  SamplePaymentProvider,
+  SamplePaymentWaiting,
+} from '@xr/sample-platform';
+
 /** The sample world a platform starts from (test-hook builds and tests pass a fixture). */
 export type SampleWorld = World;
 /** The sample adapter behind the ports; handed only to the test-hook bridge and to tests. */
@@ -145,6 +152,10 @@ export function composePlatform(options: ComposeOptions): ComposedPlatform {
         // opens the published link and records nothing (the TE-3 interim).
         webRuntime:
           local && options.webActivityHref ? { activityHref: options.webActivityHref } : null,
+        // DP-05 / DP-06 (owner decisions, 5 Nov 2026; B2B milestone I3): a build that runs the
+        // stand-ins serves the simulated payment provider's page, where the payer chooses the
+        // outcome of a waiting payment — staging and production never do.
+        paymentProviderPage: local,
         // TE-6 (owner authorisation of Phase 7): a local prototype build keeps its world as a
         // versioned snapshot in this browser — never with a given world (test-hook builds).
         snapshot:

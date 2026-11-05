@@ -27,6 +27,13 @@ import {
   type PlatformCapabilities,
   queryDefaultsFor,
   SAMPLE_WORLD_STORAGE_KEY,
+  type SamplePaymentProvider,
+} from './composition';
+
+export type {
+  SamplePaymentAnswer,
+  SamplePaymentProvider,
+  SamplePaymentWaiting,
 } from './composition';
 import { relaySampleWebActivity, SAMPLE_WEB_CHANNEL } from './sample-web-relay';
 import { createSessionStore, type SessionStore } from './session-store';
@@ -49,6 +56,18 @@ export interface PlatformRuntime {
    * the caller then loads a page, which starts the clean world, signed out. Other tabs start again.
    */
   readonly resetSampleWorld: (() => Promise<void>) | null;
+  /**
+   * DP-05 / DP-06 (B2B milestone I3): the simulated payment provider's page — the payments waiting
+   * for the provider that this tab's session may open, and the payer's chosen outcome — in a build
+   * that runs the sample stand-ins; else `null`.
+   */
+  readonly samplePayments: SamplePaymentProvider | null;
+  /**
+   * TE-6 / DP-18: how this page load's kept world started — from this browser's save, afresh, or
+   * afresh because the save was of another version or build (`replaced`); `null` when nothing is
+   * kept in this browser.
+   */
+  readonly sampleWorldStart: 'restored' | 'fresh' | 'replaced' | null;
 }
 
 export type BootState =
@@ -88,6 +107,12 @@ export function assembleRuntime(options: {
     capabilities: composed.capabilities,
     invalidate: (changed) => invalidateChanged(queryClient, changed),
     resetSampleWorld: snapshot ? () => snapshot.clear() : null,
+    samplePayments: composed.sample.samplePaymentProvider,
+    sampleWorldStart: snapshot
+      ? snapshot.opened === 'rejected'
+        ? 'replaced'
+        : snapshot.opened
+      : null,
   };
 }
 

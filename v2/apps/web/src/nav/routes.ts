@@ -622,6 +622,21 @@ const PHASE_6_PAGES: readonly PageRoute[] = (
  * its address) and `/prototype/web-activity` (the TE-3 sample WEB activity "Launch WEB" opens).
  */
 const PHASE_7_PROTOTYPE_PAGES: readonly PageRoute[] = [
+  // B2B milestone I3 (DP-05, DP-06): the prototype tools and the simulated payment provider's page.
+  {
+    pattern: '/prototype',
+    file: 'prototype/page.tsx',
+    workspace: null,
+    kind: 'prototype',
+    screen: null,
+  },
+  {
+    pattern: '/prototype/payment',
+    file: 'prototype/payment/page.tsx',
+    workspace: null,
+    kind: 'prototype',
+    screen: null,
+  },
   {
     pattern: '/prototype/reset',
     file: 'prototype/reset/page.tsx',

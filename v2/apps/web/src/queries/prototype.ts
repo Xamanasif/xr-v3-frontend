@@ -10,10 +10,17 @@
  * - `useSampleWebActivity` (TE-3 / T-12): the sample WEB activity's line to the tab that launched
  *   it (`@/platform/sample-web-relay`). The activity only reports; the launching tab's platform
  *   decides and records, through the system runtime-report handler.
+ * - `useWaitingSamplePayments`, `useSamplePaymentReport`, `useSamplePaymentPage` (B2B milestone I3;
+ *   DP-05, DP-06): the simulated payment provider's page. The platform decides who may answer
+ *   (whoever may open the request, O-05) and writes the outcome as the provider stand-in's report.
+ * - `useSampleWorldStart` (DP-18): how this page load's kept world started.
  */
+import { xrQueryKey } from './keys';
+import { useQuery } from '@tanstack/react-query';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { usePlatform } from '@/platform/platform-provider';
+import { usePlatform, useSession } from '@/platform/platform-provider';
+import type { SamplePaymentAnswer, SamplePaymentWaiting } from '@/platform/runtime';
 import {
   type ChannelLike,
   type LauncherMessage,
@@ -180,4 +187,78 @@ export function useSampleWebActivity(
   );
 
   return { connection, connect, report };
+}
+
+/** The address of the simulated payment provider's page for a request's payment. */
+export function samplePaymentAddress(routeId: string): string {
+  return `/prototype/payment?request=${encodeURIComponent(routeId)}`;
+}
+
+/**
+ * PU-12 after "Continue to payment": where the payer goes next — the simulated provider's page when
+ * the build sends the payer there (the prototype profile, DP-05), else `null` (the request status;
+ * a local build's stand-in confirms the payment as it starts).
+ */
+export function useSamplePaymentPage(): ((routeId: string) => string) | null {
+  const platform = usePlatform();
+  return platform?.samplePayments?.sendsPayerToPage ? samplePaymentAddress : null;
+}
+
+export type WaitingPayments =
+  | { readonly status: 'loading' }
+  | { readonly status: 'not-served' }
+  | { readonly status: 'failed'; retry(): void }
+  | { readonly status: 'ready'; readonly payments: readonly SamplePaymentWaiting[] };
+
+/**
+ * DP-06: the payments waiting for the provider that this tab's session may open, newest first —
+ * read again whenever a request changes (the receipts' `REQ` refs).
+ */
+export function useWaitingSamplePayments(): WaitingPayments {
+  const platform = usePlatform();
+  const session = useSession();
+  const sessionKey = session.status === 'unknown' ? null : session.sessionKey;
+  const provider = platform?.samplePayments ?? null;
+  const query = useQuery({
+    queryKey: sessionKey
+      ? xrQueryKey(sessionKey, 'REQ', 'prototype-waiting-payments', null)
+      : ['xr', 'unknown', 'REQ', 'prototype-waiting-payments', null],
+    queryFn: () => provider!.waiting(),
+    meta: { deps: ['REQ'] },
+    enabled: provider !== null && sessionKey !== null,
+  });
+  if (!platform || sessionKey === null) return { status: 'loading' };
+  if (!provider) return { status: 'not-served' };
+  if (query.isError) return { status: 'failed', retry: () => void query.refetch() };
+  if (!query.data) return { status: 'loading' };
+  return { status: 'ready', payments: query.data };
+}
+
+/**
+ * DP-05: the payer's chosen outcome for the payment waiting at a request's address. Every read of
+ * the records it changed is refreshed (the one invalidation path, Appendix F §4.6).
+ */
+export function useSamplePaymentReport(): (
+  routeId: string,
+  outcome: 'confirmed' | 'failed',
+) => Promise<SamplePaymentAnswer> {
+  const platform = usePlatform();
+  return useCallback(
+    async (routeId, outcome) => {
+      const provider = platform?.samplePayments;
+      if (!platform || !provider) return { ok: false, reason: 'not-found' };
+      const answer = await provider.report(routeId, outcome);
+      if (answer.ok) await platform.invalidate(answer.changed);
+      return answer;
+    },
+    [platform],
+  );
+}
+
+/** DP-18: how this page load's kept world started (`null` while loading or when nothing is kept). */
+export function useSampleWorldStart():
+  | { readonly status: 'loading' }
+  | { readonly status: 'ready'; readonly start: 'restored' | 'fresh' | 'replaced' | null } {
+  const platform = usePlatform();
+  return platform ? { status: 'ready', start: platform.sampleWorldStart } : { status: 'loading' };
 }
